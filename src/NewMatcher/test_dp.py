@@ -22,7 +22,7 @@ from src.data_types import (
 )
 from src.NewMatcher.dp import get_alignment
 from src.NewMatcher.scoring_helper import ScoringHelper
-from src.NewMatcher.scoring_config import ScoringConfig, load_config
+from src.NewMatcher.scoring_config import ScoringConfig, load_scoring_config
 from src.NewMatcher.matcher import get_matches
 
 from src.NewMatcher.alignment_types import AlignmentStep, Alignment, show_alignment
@@ -133,7 +133,7 @@ def check(alignment: Alignment, correct_alignment: TestAlignment) -> bool:
 
 
 def run_tests(tests: Iterable[AlignmentTest]) -> bool:
-    dp_helper = ScoringHelper(load_config(Path(__file__).parent / 'scoring_config.yaml'))
+    dp_helper = ScoringHelper(load_scoring_config(Path(__file__).parent / 'scoring_config.yaml'))
     for i, test in enumerate(tests):
         if test.num_mods > 0:
             continue
@@ -203,7 +203,7 @@ def test_matcher():
                               bgc_id='bgc#39')
 
 
-    dp_config = load_config(Path(__file__).parent / 'scoring_config.yaml')
+    dp_config = load_scoring_config(Path(__file__).parent / 'scoring_config.yaml')
     with (Path(__file__).parent / Path('test_matches_output.txt')).open('w') as out:
         for match in get_matches([bgc_variant], [nrp_variant], dp_config):
             out.write(str(match) + '\n\n')

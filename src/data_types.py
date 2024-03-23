@@ -1,13 +1,18 @@
 from __future__ import annotations
 from typing import (
+    Any,
     Dict,
     List,
-    Tuple)
+    Tuple
+)
 from enum import auto, Enum
 import yaml
 import os
 from dataclasses import asdict, dataclass
 
+Logger = Any  # some magical logger used throughout the pipeline
+
+SMILES = str
 LogProb = float
 MonomerResidue = str
 ResidueScores = Dict[MonomerResidue, LogProb]

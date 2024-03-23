@@ -8,7 +8,7 @@ from typing import (
 )
 from src.NewMatcher.alignment_types import Match
 from src.data_types import BGC_Variant, NRP_Variant
-from src.nerpa_pipeline.handle_rban import GraphRecord
+from src.nerpa_pipeline.rban_parser import Parsed_rBAN_Record
 
 from pathlib import Path
 from io import StringIO
@@ -25,16 +25,14 @@ def sort_groupby(items: Iterable[T],
     return groupby(sorted(items, key=key, reverse=reverse), key=key)
 
 
-def write_yaml(data, out_file: Path,
-               compress: bool = False):
+def write_yaml(data, out_file: Path):
     # dirty hack to erase information about types and make output less verbose
     # https://github.com/yaml/pyyaml/issues/408
     yaml.emitter.Emitter.prepare_tag = lambda self, tag: ''
 
     # another hack (albeit less dirty) to forbid yaml creating references
     # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml
-    if not compress:
-        yaml.Dumper.ignore_aliases = lambda *args: True
+    yaml.Dumper.ignore_aliases = lambda *args: True
 
     with open(out_file, 'w') as out:
         yaml.dump(data, out,
@@ -66,9 +64,10 @@ def write_matches_per_id(matches: List[T],
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
                        output_dir: Path,
-                       rban_graphs: Union[List[GraphRecord], None] = None):
-    if rban_graphs is not None:
-        write_yaml(rban_graphs, output_dir / Path('rban_graphs.yaml'))
+                       rban_records: Union[List[Parsed_rBAN_Record], None] = None):
+    if rban_records is not None:
+        write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
+                   output_dir / Path('rban_graphs.yaml'))
 
     (output_dir / Path('NRP_variants')).mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
@@ -101,14 +100,14 @@ def write_results(matches: List[Match],
                   output_dir: Path,
                   bgc_variants: Union[List[BGC_Variant], None] = None,
                   nrp_variants: Union[List[NRP_Variant], None] = None,
-                  rban_graphs: Union[List[GraphRecord], None] = None,
+                  rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True):
     (output_dir / Path('report.tsv')).write_text(build_report(matches))
 
     if bgc_variants is not None:
         write_bgc_variants(bgc_variants, output_dir)
     if nrp_variants is not None:
-        write_nrp_variants(nrp_variants, output_dir, rban_graphs)
+        write_nrp_variants(nrp_variants, output_dir, rban_records)
 
     if matches_details:
         write_matches_details(matches, output_dir)
