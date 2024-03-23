@@ -5,7 +5,7 @@ import datetime
 import shlex
 import subprocess
 
-import nerpa_config
+import src.nerpa_pipeline.nerpa_config as nerpa_config
 
 
 def set_up_output_dir(output_dirpath, crash_if_exists, log):

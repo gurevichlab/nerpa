@@ -1,5 +1,3 @@
-import math
-
 from typing import Tuple
 from src.data_types import (
     BGC_Module,
@@ -12,6 +10,7 @@ from src.data_types import (
 from src.NewMatcher.scoring_config import ScoringConfig, ModMatch, ChiralityMatch
 from dataclasses import dataclass
 from enum import Enum, auto
+import math
 
 
 @dataclass
@@ -40,7 +39,7 @@ class ScoringHelper:
               nrp_mon: NRP_Monomer) -> Tuple[LogProb, LogProb, LogProb]:
         residue_score = bgc_pred.residue_score[nrp_mon.residue]
         if nrp_mon.residue == UNKNOWN_RESIDUE:
-            residue_score -= math.log(self.scoring_config.num_unknown_residues)
+            residue_score /= self.scoring_config.num_unknown_residues
         return (residue_score,
                 self.scoring_config.mod_score[ModMatch(mod=NRP_Monomer_Modification.METHYLATION,
                                                        bgc_mod=BGC_Module_Modification.METHYLATION in bgc_pred.modifications,

@@ -7,15 +7,15 @@ from pathlib import Path
 import json
 from collections import OrderedDict
 import yaml
-from codes_handler import (
+from src.nerpa_pipeline.NRPSPredictor_utils.codes_handler import (
     ResidueSignaturesDict
 )
 
-import config
-import codes_handler
-import json_handler
-from model import ModelWrapper
-from log_utils import error, info
+import src.nerpa_pipeline.NRPSPredictor_utils.config as config
+import src.nerpa_pipeline.NRPSPredictor_utils.codes_handler as codes_handler
+import src.nerpa_pipeline.NRPSPredictor_utils.json_handler as json_handler
+from src.nerpa_pipeline.NRPSPredictor_utils.model import ModelWrapper
+from src.nerpa_pipeline.NRPSPredictor_utils.log_utils import error, info
 
 
 def main(args):

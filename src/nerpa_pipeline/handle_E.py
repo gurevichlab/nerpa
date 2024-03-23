@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import handle_helper
+import src.nerpa_pipeline.handle_helper as handle_helper
 
 
 def get_D_AA(dirname, orfs_order):

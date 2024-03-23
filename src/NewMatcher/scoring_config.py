@@ -39,7 +39,7 @@ class ScoringConfig:
     max_module_reps: int
 
 
-def load_config(path_to_config: Path) -> ScoringConfig:
+def load_scoring_config(path_to_config: Path) -> ScoringConfig:
     cfg = yaml.safe_load(path_to_config.open('r'))
 
     mod_score = {ModMatch(mod=mod, bgc_mod=bgc_mod, nrp_mod=nrp_mod):

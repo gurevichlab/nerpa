@@ -2,8 +2,8 @@ import os
 import json
 import glob
 import re
-from log_utils import error, info
-from codes_handler import get_prediction_from_signature, ResidueSignaturesDict
+from src.nerpa_pipeline.NRPSPredictor_utils.log_utils import error, info
+from src.nerpa_pipeline.NRPSPredictor_utils.codes_handler import get_prediction_from_signature, ResidueSignaturesDict
 from pathlib import Path
 from typing import Union, Literal, TypedDict, List, Dict
 

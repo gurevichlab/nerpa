@@ -2,14 +2,14 @@ import os
 import math
 import pandas as pd
 from collections import Counter, OrderedDict, defaultdict
-from log_utils import error
+from src.nerpa_pipeline.NRPSPredictor_utils.log_utils import error
 
 from typing import Dict, List, Tuple
 from src.data_types import (
     MonomerResidue,
     ResidueScores,
 )
-import config
+import src.nerpa_pipeline.NRPSPredictor_utils.config as config
 
 ResidueSignatures = List[str]
 ResidueSignaturesDict = Dict[MonomerResidue, Tuple[ResidueSignatures, ResidueSignatures]]

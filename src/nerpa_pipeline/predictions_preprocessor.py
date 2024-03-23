@@ -4,11 +4,11 @@ import os
 import shutil
 import csv
 
-import handle_PCP2
-import handle_MT
-import handle_E
-import splitter
-import handle_helper
+import src.nerpa_pipeline.handle_PCP2 as handle_PCP2
+import src.nerpa_pipeline.handle_MT as handle_MT
+import src.nerpa_pipeline.handle_E as handle_E
+import src.nerpa_pipeline.splitter as splitter
+import src.nerpa_pipeline.handle_helper as handle_helper
 from collections import defaultdict
 
 from typing import (
