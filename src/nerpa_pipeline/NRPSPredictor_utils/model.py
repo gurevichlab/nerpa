@@ -42,7 +42,7 @@ class ModelWrapper(object):
         mask_predict = (1 - scoring_table[self.lookup_col]).abs() > self.lookup_threshold
 
         # Get predictions from the model keeping only the pos class prediction
-        preds = self.model.predict_log_proba(scoring_table.loc[mask_predict])[:,1]
+        preds = self.model.predict_proba(scoring_table.loc[mask_predict])[:,1]
         
         # Calibrate probabilities
         bin_ids = np.digitize(preds, self.calibration_bins, right=True)
