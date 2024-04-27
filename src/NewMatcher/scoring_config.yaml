@@ -1,6 +1,7 @@
-bgc_module_skip_score: -2.756  # calculated based on the frequency in the alignments
-
-nrp_monomer_default_skip_score: -1.933  # calculated based on the frequency in the alignments
+alignment_step_frequency:  # calculated based on the number of times each alignment step is used in the "true" alignments
+  MATCH: 0.9594916600476568
+  NRP_MONOMER_SKIP: 0.010325655281969817
+  BGC_MODULE_SKIP: 0.021445591739475776
 
 nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: -6.411818267709897,
                           4ppro: -6.411818267709897, HICA: -6.411818267709897, aad: -6.411818267709897,
@@ -56,6 +57,7 @@ module_modification_frequency:
   METHYLATION: 0.17
 
 module_epimerization_frequency: 0.243
+
 
 max_gene_repetitions: 3
 max_module_repetitions: 3
