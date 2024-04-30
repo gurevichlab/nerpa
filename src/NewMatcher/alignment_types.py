@@ -39,10 +39,15 @@ class AlignmentStep(NamedTuple):
 
     def to_dict(self) -> Dict[str, str]:
         NA = '---'
+        if self.bgc_module:
+            top_score = max(self.bgc_module.residue_score.values())
+            top_residues = [res for res, score in self.bgc_module.residue_score.items()
+                            if score == top_score]
+        else:
+            top_residues = None
         return {'Gene': self.bgc_module.gene_id if self.bgc_module else NA,
                 'A-domain_idx': self.bgc_module.module_idx if self.bgc_module else NA,
-                'Top_scoring_residue': max(self.bgc_module.residue_score.items(),
-                                            key=lambda p: p[1])[0] if self.bgc_module else NA,
+                'Top_scoring_residues': ','.join(top_residues) if top_residues != NA else NA,
                 'Modifying_domains': ','.join(mod.name for mod in self.bgc_module.modifications)
             if self.bgc_module and self.bgc_module.modifications else NA,
                 'NRP_residue': self.nrp_monomer.residue if self.nrp_monomer else NA,
