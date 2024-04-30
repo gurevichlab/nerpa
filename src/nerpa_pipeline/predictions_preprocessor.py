@@ -13,7 +13,8 @@ from collections import defaultdict
 
 from typing import (
     Dict,
-    List
+    List,
+    Tuple
 )
 from src.data_types import (
     BGC_Variant,
@@ -60,7 +61,19 @@ def parse_contig_residue_scores(filepath: str) -> Dict[GeneId, List[ResidueScore
     return all_residue_scores
 
 
+def parse_contig_signatures(filepath: str) -> Dict[GeneId, List[Tuple[str, str]]]:
+    signatures: Dict[GeneId, List[Tuple[str, str]]] = defaultdict(list)
+    with open(filepath, 'r') as rf:
+        _ = rf.readline()
+        for line in rf:
+            module_name, aa34code, aa10code, _ = line.split('\t', 3) 
+            ctgorf, domain_id = module_name.rsplit('_', 1)
+            signatures[ctgorf].append((aa34code, aa10code))
+    return signatures
+
+
 def build_bgc_assembly_line(orf_modules_names, genome_residue_scores: Dict[GeneId, List[ResidueScores]],
+                            genome_signatures: Dict[GeneId, List[Tuple[str, str]]],
                             dirname) -> List[BGC_Module]:
     '''
     dirname: converted_antiSMASH_v5_outputs
@@ -73,7 +86,7 @@ def build_bgc_assembly_line(orf_modules_names, genome_residue_scores: Dict[GeneI
 
     bgc_assembly_line: List[BGC_Module] = []
     for ctgorf in orf_modules_names:
-        for module_idx, residue_scores in enumerate(genome_residue_scores[ctgorf], start=1):
+        for module_idx, (residue_scores, signatures) in enumerate(zip(genome_residue_scores[ctgorf], genome_signatures[ctgorf]), start=1):
             module_name = f"{ctgorf}_A{module_idx}"  # FIXME: quite ugly, we expect this particular naming only
 
             modifications: List[BGC_Module_Modification] = []
@@ -85,6 +98,8 @@ def build_bgc_assembly_line(orf_modules_names, genome_residue_scores: Dict[GeneI
             cur_bgc_module = BGC_Module(gene_id=ctgorf,
                                         module_idx=int(module_idx),
                                         residue_score=residue_scores,  # TODO: consider renaming in the class definition
+                                        aa34code=signatures[0],
+                                        aa10code=signatures[1],
                                         modifications=tuple(modifications),  # TODO: consider changing Tuple to List in the class definition
                                         iterative_module=(module_name in double_aa),
                                         iterative_gene=(ctgorf in double_orf))
@@ -136,16 +151,19 @@ def parse_antismash_output(antiSMASH_outs, outdir, debug: bool, log) -> List[BGC
 
                 # reading predicted residue scores for every contig, every gene inside and every A domain inside the gene
                 genome_residue_scores: Dict[GeneId, List[ResidueScores]] = defaultdict(list)
+                genome_signatures: Dict[GeneId, List[Tuple[str, str]]] = defaultdict(list)
                 for filename in os.listdir(nrpspred_dir):
+                    filepath = os.path.join(nrpspred_dir, filename)
                     if filename.endswith('nrpspredictor2_codes.txt'):
-                        genome_residue_scores.update(parse_contig_residue_scores(
-                            os.path.join(nrpspred_dir, filename)))
+                        genome_residue_scores.update(parse_contig_residue_scores(filepath))
+                    if filename.endswith('nrpspredictor2_svm.txt'):
+                        genome_signatures.update(parse_contig_signatures(filepath))
 
                 if len(parts) > MAX_NUM_PARTS:
                     print(f'WARNING: Too many parts: {len(parts)}. Keeping first {MAX_NUM_PARTS} of them.')
                         
                 for orf_part in parts[:MAX_NUM_PARTS]:
-                    bgc_line = build_bgc_assembly_line(orf_part, genome_residue_scores, dirname)
+                    bgc_line = build_bgc_assembly_line(orf_part, genome_residue_scores, genome_signatures, dirname)
                     if bgc_line:  # TODO: could it be empty in principle?
                         bgc_variant = BGC_Variant(tentative_assembly_line=bgc_line,
                                                 variant_idx=bgc_variant_idx,

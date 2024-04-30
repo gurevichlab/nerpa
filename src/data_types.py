@@ -68,6 +68,8 @@ class BGC_Module:
     modifications: Tuple[BGC_Module_Modification, ...]
     iterative_module: bool
     iterative_gene: bool
+    aa34code: str
+    aa10code: str
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> BGC_Module:
@@ -77,7 +79,9 @@ class BGC_Module:
                    modifications=tuple(BGC_Module_Modification[mod]
                                        for mod in data['modifications']),
                    iterative_module=data['iterative_module'],
-                   iterative_gene=data['iterative_gene'])
+                   iterative_gene=data['iterative_gene'],
+                   aa34code=data['aa34code'],
+                   aa10code=data['aa10code'])
 
 @dataclass
 class BGC_Variant:
