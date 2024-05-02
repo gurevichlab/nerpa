@@ -84,7 +84,7 @@ def parse_args(log):
     parser.add_argument('--antismash-path', dest='antismash_path', type=str, default=None,
                         help='path to antismash source directory')
     parser.add_argument("--threads", default=1, type=int, help="number of threads for running Nerpa", action="store")
-    parser.add_argument("--min-score", default=0, type=float, help="minimum score to report a match", action="store")
+    parser.add_argument("--min-score", default=None, type=float, help="minimum score to report a match", action="store")
     parser.add_argument("--num-matches", default=None, type=int, help="maximum number of matches to report", action="store")
     parser.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")
