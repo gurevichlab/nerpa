@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 import joblib
 
@@ -25,6 +26,14 @@ class ModelWrapper(object):
         self.model = joblib.load(model_dump)
         self.lookup_col = lookup_score
         self.lookup_threshold = lookup_threshold
+        self.calibration_probs = np.array([0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 
+            0.001, 0.001, 0.001, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 
+            0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 
+            0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 
+            0.003, 0.003, 0.005, 0.005, 0.005, 0.005, 0.005, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.097, 0.097, 0.097, 
+            0.097, 0.097, 0.097, 0.097, 0.097, 0.097, 0.104, 0.104, 0.167, 0.167, 0.167, 0.167, 0.167, 0.167, 0.167, 0.167, 
+            0.167, 0.167, 0.167, 0.167, 0.877, 0.877, 0.877])
+        self.calibration_bins = np.linspace(0, 1, self.calibration_probs.shape[0])
 
     def __call__(self, scoring_table: pd.DataFrame) -> ResidueScores:
         scores = pd.Series(0, index=scoring_table.index, dtype=float)
@@ -33,7 +42,11 @@ class ModelWrapper(object):
         mask_predict = (1 - scoring_table[self.lookup_col]).abs() > self.lookup_threshold
 
         # Get predictions from the model keeping only the pos class prediction
-        scores.loc[mask_predict] = self.model.predict_log_proba(scoring_table.loc[mask_predict])[:,1]
+        preds = self.model.predict_proba(scoring_table.loc[mask_predict])[:,1]
+        
+        # Calibrate probabilities
+        bin_ids = np.digitize(preds, self.calibration_bins, right=True)
+        scores.loc[mask_predict] = np.log(self.calibration_probs[bin_ids])
 
         # Convert to ResidueScores=Dict[str, float] and return
         return scores.to_dict()
