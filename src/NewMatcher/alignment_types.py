@@ -134,3 +134,4 @@ class Match:
                                 for alignment_step_data in alignment_data]
                                for alignment_data in data['alignments']],
                    normalized_score=data['normalised_score'])
+

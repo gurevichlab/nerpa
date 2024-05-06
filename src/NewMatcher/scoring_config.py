@@ -59,9 +59,12 @@ def load_chirality_score(cfg: dict) -> Dict[ChiralityMatch, LogProb]:
 
 def load_nrp_monomer_skip_score(cfg: dict) -> Dict[MonomerResidue, LogProb]:
     nrp_mon_skip_log_prob = log(cfg['alignment_step_frequency']['NRP_MONOMER_SKIP'])
+    '''
     return defaultdict(lambda: nrp_mon_skip_log_prob + cfg['nrp_monomer_frequencies'][UNKNOWN_RESIDUE],
                        {residue: nrp_mon_skip_log_prob + residue_frequency
                         for residue, residue_frequency in cfg['nrp_monomer_frequencies'].items()})
+    '''
+    return defaultdict(lambda: nrp_mon_skip_log_prob)
 
 def load_null_hypothesis_residue_score(cfg: dict) -> Dict[MonomerResidue, LogProb]:
     return defaultdict(lambda: cfg['null_hypothesis_residue_score'][UNKNOWN_RESIDUE],
