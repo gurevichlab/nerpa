@@ -1,7 +1,7 @@
 alignment_step_frequency:  # calculated based on the number of times each alignment step is used in the "true" alignments
-  MATCH: 0.9594916600476568
+  MATCH: 0.9793486894360603
   NRP_MONOMER_SKIP: 0.010325655281969817
-  BGC_MODULE_SKIP: 0.021445591739475776
+  BGC_MODULE_SKIP: 0.010325655281969817
 
 nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: -6.411818267709897,
                           4ppro: -6.411818267709897, HICA: -6.411818267709897, aad: -6.411818267709897,
@@ -23,18 +23,18 @@ nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: 
 num_unknown_residues: 100
 
 modification_score:
-  Mod_METHYLATION_BGC_False_NRP_False: -0.015
-  Mod_METHYLATION_BGC_False_NRP_True: -4.182
-  Mod_METHYLATION_BGC_True_NRP_False: -2.648
-  Mod_METHYLATION_BGC_True_NRP_True: -0.073
+  Mod_METHYLATION_BGC_False_NRP_False: -0.018
+  Mod_METHYLATION_BGC_False_NRP_True: -4.026
+  Mod_METHYLATION_BGC_True_NRP_False: -2.856
+  Mod_METHYLATION_BGC_True_NRP_True: -0.059
 
 chirality_score:
-  BGC_False_NRP_L: -0.222
-  BGC_False_NRP_D: -1.614
-  BGC_False_NRP_UNKNOWN: -0.499  # weighted average of L and D scores
-  BGC_True_NRP_L: -2.156
-  BGC_True_NRP_D: -0.123
-  BGC_True_NRP_UNKNOWN: -0.358  # weighted average of L and D scores
+  BGC_False_NRP_L: -0.262
+  BGC_False_NRP_D: -1.468
+  BGC_False_NRP_UNKNOWN: -0.54  # weighted average of L and D scores
+  BGC_True_NRP_L: -1.678
+  BGC_True_NRP_D: -0.207
+  BGC_True_NRP_UNKNOWN: -0.482  # weighted average of L and D scores
 
 null_hypothesis_residue_score: {2-oxo-isovaleric-acid: -6.869254281996133, 33p-l-ala: -6.744145844282906,
                                 4ppro: -6.860616878915351, HICA: -6.907755278982137, LDAP: -6.907755278982137, aad: -6.197879814933834,
