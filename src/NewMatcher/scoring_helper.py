@@ -40,10 +40,12 @@ class ScoringHelper:
                              nrp_mod=NRP_Monomer_Modification.METHYLATION in nrp_mon.modifications)
         chirality_match = ChiralityMatch(bgc_epim=BGC_Module_Modification.EPIMERIZATION in bgc_pred.modifications,
                                          nrp_chr=nrp_mon.chirality)
-        return sum([self.scoring_config.match_score,
+        result = sum([self.scoring_config.match_score,
                     residue_score,
                     self.scoring_config.mod_score[mod_match],
                     self.scoring_config.chirality_score[chirality_match]])
+        result = max(result, -6)  # TODO: remove this line
+        return result
 
     def match_detailed_score(self, bgc_pred: BGC_Module,
               nrp_mon: NRP_Monomer) -> Tuple[LogProb, LogProb, LogProb, LogProb]:
