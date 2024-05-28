@@ -18,5 +18,6 @@ paths:
     configs_input: configs
     configs_output: configs
     scoring_config: src/NewMatcher/scoring_config.yaml
+    antismash_out_dir: antismash_output
     report: report.tsv
     matches_details: matches_details

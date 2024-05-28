@@ -33,6 +33,7 @@ class rBAN_Processing_Config:
 @dataclass
 class ConfigPaths:
     main_out_dir: Path
+    antismash_out_dir: Path
     nerpa_monomers: Path  # TODO: rename
     nerpa_monomers_info: Path
     configs_input: Path
@@ -61,6 +62,7 @@ def load_config(args: CommandLineArgs) -> Config:
 
     paths_cfg_dict = cfg['paths']
     paths = ConfigPaths(main_out_dir=main_out_dir,
+                        antismash_out_dir=main_out_dir / Path(paths_cfg_dict['antismash_out_dir']),
                         nerpa_monomers=nerpa_dir / Path(paths_cfg_dict['nerpa_monomers']),
                         nerpa_monomers_info=nerpa_dir / Path(paths_cfg_dict['nerpa_monomers_info']),
                         configs_input=args.configs_dir if args.configs_dir else \
