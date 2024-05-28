@@ -46,7 +46,7 @@ from src.write_results import write_results, write_nrp_variants, write_bgc_varia
 
 
 
-def main(log: NerpaLogger):
+def main(log: NerpaLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(log)
     args = pipeline_helper.args
     output_dir = pipeline_helper.config.paths.main_out_dir
@@ -81,13 +81,12 @@ def main(log: NerpaLogger):
                 listing_fpath=args.antismash_out, list_of_paths=antismash_out_dirs,
                 output_dir=output_dir, log=log), output_dir, args.debug, log)
 
-
-    if pipeline_helper.preprocessed_nrp_variants():
+    if pipeline_helper.pipeline_helper_rban.preprocessed_nrp_variants():
         rban_records = []
-        nrp_variants = pipeline_helper.load_nrp_variants()
+        nrp_variants = pipeline_helper.pipeline_helper_rban.load_nrp_variants()
     else:
-        rban_records = pipeline_helper.get_rban_results()
-        nrp_variants = pipeline_helper.get_nrp_variants(rban_records)
+        rban_records = pipeline_helper.pipeline_helper_rban.get_rban_results()
+        nrp_variants = pipeline_helper.pipeline_helper_rban.get_nrp_variants(rban_records)
 
     matches = pipeline_helper.get_matches(bgc_variants, nrp_variants)
     pipeline_helper.write_results(matches, bgc_variants, nrp_variants, rban_records)

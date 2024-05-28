@@ -121,14 +121,20 @@ def validate(expr, msg=''):
         raise ValidationError(msg)
 
 
-def validate_arguments(args):
-    if not (args.predictions or args.antismash or args.antismash_out or args.seqs):
+def validate_arguments(args):  # TODO: I think it all could be done with built-in argparse features
+    if not any([args.predictions,
+                args.antismash,
+                args.antismash_out,
+                args.seqs]):
         raise ValidationError(f'one of the arguments --predictions --antismash/-a --antismash_output_list '
                               f'--sequences is required')
     if args.predictions and (args.antismash or args.antismash_out or args.seqs):
         raise ValidationError(f'argument --predictions: not allowed with argument --antismash/-a '
                               f'or --antismash_output_list or --sequences')
-    if not (args.structures or args.smiles or args.smiles_tsv or args.rban_output):
+    if not any([args.structures,
+                args.smiles,
+                args.smiles_tsv,
+                args.rban_output]):
         raise ValidationError(f'one of the arguments --rban-json --smiles-tsv --smiles --structures/-s'
                               f'is required')
     if args.structures and (args.smiles or args.smiles_tsv or args.rban_output):
