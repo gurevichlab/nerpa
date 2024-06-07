@@ -92,34 +92,21 @@ def build_bgc_assembly_line(orf_modules_names, genome_residue_scores: Dict[GeneI
     return bgc_assembly_line
 
 
-def parse_antismash_output(antiSMASH_outs, outdir, debug: bool, log) -> List[BGC_Variant]:
-    log.info("Start create predictions by antiSMASH")
-
-    if not antiSMASH_outs:
-        log.info("Error: no antiSMASH results found")
-        raise ValueError("Could not find antiSMASH output")
+def build_bgc_variants(bgc_clusters: List[BGC_Cluster],
+                       log: NerpaLogger) -> List[BGC_Variant]:
+    log.info('Start creating BGC variants')
 
     all_bgc_variants: List[BGC_Variant] = []
-    for dirname in antiSMASH_outs:
-        try:
-            if dirname[-1] == '\n':
-                dirname = dirname[:-1]
+    for bgc_cluster in bgc_clusters:
+        bgc_cluster_parts = generic_algorithms.list_monad_compose([bgc_cluster],
+                                                                  [splitter.split_by_dist,
+                                                                   splitter.split_by_single_orf_Starter_TE,
+                                                                   splitter.split_and_reorder])
+        #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
 
-            orf_pos = handle_helper.get_orf_position(dirname)
-            orf_ori = handle_helper.get_orf_orientation(dirname)
-            orf_domains = handle_helper.get_orf_domain_list(dirname)
-
-            print("====PARTS BEFORE: ")
-            parts = handle_helper.get_parts(dirname)
-            handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
-
-            #print("====SPLIT BY DIST:")
-            parts = splitter.split_by_dist(parts, orf_pos)
-            #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
-
-            #print("====SPLIT BY SINGLE ORF WITH Starter-TE")
-            parts = splitter.split_by_one_orf_Starter_TE(parts, orf_ori, orf_domains)
-            #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
+        #print("====SPLIT BY SINGLE ORF WITH Starter-TE")
+        parts = splitter.split_by_one_orf_Starter_TE(parts, orf_ori, orf_domains)
+        #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
 
             #print("====REMOVE SINGLE DOMAINs ORFS")
             parts = splitter.split_by_single_domain_orf(parts, orf_ori, orf_domains)
@@ -143,7 +130,7 @@ def parse_antismash_output(antiSMASH_outs, outdir, debug: bool, log) -> List[BGC
 
                 if len(parts) > MAX_NUM_PARTS:
                     print(f'WARNING: Too many parts: {len(parts)}. Keeping first {MAX_NUM_PARTS} of them.')
-                        
+
                 for orf_part in parts[:MAX_NUM_PARTS]:
                     bgc_line = build_bgc_assembly_line(orf_part, genome_residue_scores, dirname)
                     if bgc_line:  # TODO: could it be empty in principle?
@@ -153,13 +140,5 @@ def parse_antismash_output(antiSMASH_outs, outdir, debug: bool, log) -> List[BGC
                                                 bgc_id=f"bgc#{bgc_variant_idx}")   # TODO: use proper BGC ID from the upstream info (it could be the same for many variants!)
                         bgc_variant_idx += 1
                         all_bgc_variants.append(bgc_variant)
-        except KeyboardInterrupt as e:
-            raise e
-        except Exception as e:
-            print(f'ERROR: {type(e).__name__}: {e}')
-            print(f'Skipping {dirname}') 
-
-    if debug:
-        dump_bgc_variants(os.path.join(outdir, "BGC_variants"), all_bgc_variants)
 
     return all_bgc_variants

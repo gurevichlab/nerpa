@@ -3,205 +3,78 @@
 import os
 import csv
 
-def split_by_dist(parts, orf_pos):
-    possible_BGC = []
-    for BGC in parts:
-        cur_parts = []
-        for cur_orf in BGC:
-            if (len(cur_parts) > 0) and (orf_pos[cur_orf][0] - orf_pos[cur_parts[-1]][1] > 10000):
-                possible_BGC.append(cur_parts)
-                cur_parts = []
-            cur_parts.append(cur_orf)
-
-        if len(cur_parts) > 0:
-            possible_BGC.append(cur_parts)
-
-    return possible_BGC
-
-def end_by_TE_TD(orf, orf_domains, orf_ori):
-    if orf_ori[orf] == '+' and (orf_domains[orf][-1] == "TE" or orf_domains[orf][-1] == "TD"):
-        return True
-    if orf_ori[orf] == '-' and (orf_domains[orf][0] == "TE" or orf_domains[orf][0] == "TD"):
-        return True
-    return False
+from itertools import pairwise
+from more_itertools import ilen, split_after, split_at
 
 
-def start_by_Starter(orf, orf_domains, orf_ori):
-    if orf_ori[orf] == '+' and (orf_domains[orf][0] == "C_Starter"):
-        return True
-    if orf_ori[orf] == '-' and (orf_domains[orf][-1] == "C_Starter"):
-        return True
-    return False
+def split_by_dist(bgc_cluster: BGC_Cluster) -> List[BGC_Cluster]:
+    gene_groups = split_after(pairwise(bgc_cluster.genes),
+                              lambda p: p[1].coords.start - p[0].coords.end > config.max_dist_between_genes)
+    return [BGC_Cluster(contig_id=bgc_cluster.contig_id,
+                        genes=[gene for gene, _ in group])
+            for group in gene_groups]
 
 
-def split_by_one_orf_Starter_TE(BGCs, orf_ori, orf_domains):
-    res_bgcs = []
-    for BGC in BGCs:
-        cur_i = 0
-        for i in range(len(BGC)):
-            orf = BGC[i]
-            if end_by_TE_TD(orf, orf_domains, orf_ori) and start_by_Starter(orf, orf_domains, orf_ori):
-                if i != cur_i:
-                    res_bgcs.append(BGC[cur_i: i])
-                res_bgcs.append([BGC[i]])
-                cur_i = i + 1
-        if cur_i != len(BGC):
-            res_bgcs.append(BGC[cur_i: len(BGC)])
-
-    return res_bgcs
+def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster) -> List[BGC_Cluster]:
+    gene_groups = split_at(bgc_cluster.genes,
+                           lambda gene: gene.modules[0].c_domain == C_Domain.C_STARTER and
+                                        gene.modules[-1].terminal_domain,
+                           keep_separator=True)
+    return [BGC_Cluster(contig_id=bgc_cluster.contig_id,
+                        genes=group)
+            for group in gene_groups]
 
 
-def split_by_single_domain_orf(BGCs, orf_ori, orf_domains):
-    def is_removable(orf):
-        if (len(orf_domains[orf]) == 2) and ("A" in orf_domains[orf]) and ("PCP" in orf_domains[orf]):
-            return True
-        if (len(orf_domains[orf]) == 1):
-            return  True
-        return False
+def genes_sequence_consistent(genes: List[Gene]) -> bool:
+    joined_modules = [module for gene in genes for module in gene.modules]
 
-    res_bgcs = []
-    for BGC in BGCs:
-        cur_i = 0
-        for i in range(len(BGC)):
-            orf = BGC[i]
-            if is_removable(orf):
-                if i != cur_i:
-                    res_bgcs.append(BGC[cur_i:i])
-                cur_i = i + 1
-        if cur_i != len(BGC):
-            res_bgcs.append(BGC[cur_i:len(BGC)])
+    at_least_one_A_domain = any(module.a_domain == A_Domain.A for module in joined_modules)
+    nc_terms_consistent = joined_modules[0].connecting_domain != ConnectingDomain.NTERM and \
+                          joined_modules[-1].connecting_domain != ConnectingDomain.CTERM
 
-    return res_bgcs
+    c_starter_consistent = all(module.c_domain != C_Domain.C_STARTER
+                               for module in joined_modules[1:])
+    te_td_consistent = all(module.terminal_domain == False
+                           for module in joined_modules[:-1])
 
-def C_starter_count(lft, rgh, BGC, orf_domains):
-    counter = 0
-    for i in range(lft, rgh):
-        if "C_Starter" in orf_domains[BGC[i]]:
-            counter += 1
-    return counter
+    return all([at_least_one_A_domain,
+                nc_terms_consistent,
+                c_starter_consistent,
+                te_td_consistent])
+
+def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
+    if all(gene.coords.stand == STRAND.REVERSE for gene in genes):
+        return list(reversed(genes))
+    else:
+        return genes
 
 
-def TE_TD_count(lft, rgh, BGC, orf_domains):
-    counter = 0
-    for i in range(lft, rgh):
-        if ("TE" in orf_domains[BGC[i]]) or ("TD" in orf_domains[BGC[i]]):
-            counter += 1
-    return counter
+def genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
+    genes = reverse_if_all_neg(_genes)
+    starting_gene = [gene for gene in enumerate(genes)
+                     if gene.modules[0].c_domain == C_Domain.C_STARTER]
+    terminal_gene = [gene for gene in genes
+                     if gene.modules[-1].terminal_domain]
+    interior_genes = [gene for gene in genes
+                      if gene not in starting_gene + terminal_gene]
+    genes = starting_gene + interior_genes + terminal_gene
+    if genes_sequence_consistent(genes):
+        return [genes]
+    else:   # TODO: optimize, keep only several top permutations
+        return [starting_gene + permuted_interior_genes + terminal_gene
+                for permuted_interior_genes in permutations(interior_genes)
+                if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
 
+def split_inconsistent(bgc: BGC_Cluster) -> List[BGC_Cluster]:
+    genes = reverse_if_all_neg(bgc.genes)
+    if genes_sequence_consistent(genes):
+        return [BGC_Cluster(contig_id=bgc.contig_id, genes=genes)]
 
-def has_A_domain(BGC, orf_domains):
-    for orf in BGC:
-        if "A" in orf_domains[orf]:
-            return True
-    return False
+    genes_substrings = (genes[i:j]
+                    for i in range(len(genes))
+                    for j in range(i + 1, len(genes)))
 
-
-def is_correct_NCterm(BGC, orf_ori, orf_domains):
-    if len(BGC) == 0:
-        return True
-    if orf_ori[BGC[0]] == '+' and orf_domains[BGC[0]][0] == "NRPS-COM_Nterm":
-        return False
-    if orf_ori[BGC[0]] == '-' and orf_domains[BGC[0]][-1] == "NRPS-COM_Nterm":
-        return False
-    if orf_ori[BGC[-1]] == '+' and orf_domains[BGC[-1]][-1] == "NRPS-COM_Cterm":
-        return False
-    if orf_ori[BGC[-1]] == '-' and orf_domains[BGC[-1]][0] == "NRPS-COM_Cterm":
-        return False
-    return True
-
-
-def is_correct(BGC, orf_ori, orf_pos, orf_domains):
-    if not is_correct_NCterm(BGC, orf_ori, orf_domains):
-        return False
-
-    if C_starter_count(0, len(BGC), BGC, orf_domains) > 1:
-        return False
-
-    if TE_TD_count(0, len(BGC), BGC, orf_domains) > 1:
-        return False
-
-    if C_starter_count(0, len(BGC), BGC, orf_domains) == 1 and (not start_by_Starter(BGC[0], orf_domains, orf_ori)):
-        return False
-
-    if TE_TD_count(0, len(BGC), BGC, orf_domains) == 1 and (not end_by_TE_TD(BGC[-1], orf_domains, orf_ori)):
-        return False
-
-    if not has_A_domain(BGC, orf_domains):
-        return False
-
-    return True
-
-
-def is_correct_orfs_subseq(lft, rgh, BGC, orf_ori, orf_pos, orf_domains):
-    if C_starter_count(lft, rgh + 1, BGC, orf_domains) > 1:
-        return False
-
-    if TE_TD_count(lft, rgh + 1, BGC, orf_domains) > 1:
-        return False
-
-    return True
-
-def reverse_neg(BGC, orf_ori):
-    for orf in BGC:
-        if orf_ori[orf] == '+':
-            return BGC
-
-    return list(reversed(BGC))
-
-def generate_all_perm(BGC, orf_ori, orf_pos, orf_domains):
-    import itertools
-    Perm_BGC = []
-    row_perm_BGC = list(itertools.permutations(BGC))
-    for bgc in row_perm_BGC:
-        if is_correct(bgc, orf_ori, orf_pos, orf_domains):
-            Perm_BGC.append(bgc)
-    return Perm_BGC
-
-
-def reorder(BGC, orf_ori, orf_pos, orf_domains):
-    BGC = reverse_neg(BGC, orf_ori)
-
-    C_starter_id = -1
-    for i in range(len(BGC)):
-        orf = BGC[i]
-        if "C_Starter" in orf_domains[orf]:
-            C_starter_id = i
-
-    if C_starter_id != -1:
-        BGC = [BGC[C_starter_id]] + BGC[0:C_starter_id] + BGC[C_starter_id + 1:]
-
-    TE_TD_id = -1
-    for i in range(len(BGC)):
-        orf = BGC[i]
-        if ("TE" in orf_domains[orf]) or ("TD" in orf_domains[orf]):
-            TE_TD_id = i
-
-    if TE_TD_id != -1:
-        BGC = BGC[0:TE_TD_id] + BGC[TE_TD_id + 1:] + [BGC[TE_TD_id]]
-
-    if not is_correct_NCterm(BGC, orf_ori, orf_domains):
-        return generate_all_perm(BGC, orf_ori, orf_pos, orf_domains)
-
-    return [BGC]
-
-
-def split_and_reorder(BGCs, orf_ori, orf_pos, orf_domains):
-    res_bgcs = []
-    for BGC in BGCs:
-        if is_correct(reverse_neg(BGC, orf_ori), orf_ori, orf_pos, orf_domains):
-            res_bgcs.append(BGC)
-        else:
-            for lft in range(len(BGC)):
-                for rgh in range(lft, len(BGC)):
-                    if is_correct_orfs_subseq(lft, rgh, BGC, orf_ori, orf_pos, orf_domains):
-                        res_bgcs.append(BGC[lft:rgh + 1])
-
-    bgcs_reorder = []
-    for BGC in res_bgcs:
-        bgcs_reorder += reorder(BGC, orf_ori, orf_pos, orf_domains)
-
-    res_bgcs = []
-    for BGC in bgcs_reorder:
-        if is_correct(BGC, orf_ori, orf_pos, orf_domains):
-            res_bgcs.append(BGC)
-    return res_bgcs
+    return [BGC_Cluster(contig_id=bgc.contig_id,
+                        genes=rearranged_genes)
+            for genes_substring in genes_substrings
+            for rearranged_genes in genes_rearrangements(genes_substring)]
