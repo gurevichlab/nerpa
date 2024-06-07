@@ -30,7 +30,7 @@ class A_Domain:
     svm: SVM_Predictions
 
 
-class C_DOMAIN(Enum):
+class C_Domain(Enum):
     C = auto()
     C_STARTER = auto()
     C_LCL = auto()
@@ -41,11 +41,6 @@ class C_DOMAIN(Enum):
 class ModifyingDomain(Enum):
     MT = auto()
     E = auto()
-
-
-class TerminalDomain(Enum):
-    TE = auto()
-    TD = auto()
 
 
 class ConnectingDomain(Enum):
@@ -68,7 +63,7 @@ Module = Dict[DomainType, Union[Domain, List[Domain]]]
 @dataclass
 class Module:
     a_domain: A_Domain = None
-    c_domain: C_DOMAIN = None
+    c_domain: C_Domain = None
     connecting_domain: ConnectingDomain = None
     modifying_domains: List[ModifyingDomain] = None
     terminal_domain: bool = False
@@ -87,7 +82,10 @@ class Coords(NamedTuple):
 class Gene:
     gene_id: str
     coords: Coords
-    modules: List[Module]
+    modules: List[Module]  # modules are in the order of appearance in the gene
+
+    def modules_ctg_order(self):
+        return self.modules[:] if self.coords.stand == STRAND.FORWARD else self.modules[::-1]
 
 
 @dataclass

@@ -1,16 +1,16 @@
 from typing import Union, Literal, TypedDict, List, Dict, Tuple
 from src.nerpa_pipeline.NRPSPredictor_utils.antismash_parser_types import (
-BGC_Cluster,
-Coords,
-Gene,
-Module,
-A_Domain,
-C_DOMAIN,
-ModifyingDomain,
-ConnectingDomain,
-SVM_LEVEL,
-SVM_Prediction,
-STRAND
+    BGC_Cluster,
+    Coords,
+    Gene,
+    Module,
+    A_Domain,
+    C_Domain,
+    ModifyingDomain,
+    ConnectingDomain,
+    SVM_LEVEL,
+    SVM_Prediction,
+    STRAND
 )
 from parse import parse
 from collections import defaultdict
@@ -58,9 +58,9 @@ def extract_a_domains_info(contig_data: dict) -> Dict[GeneId, List[A_Domain]]:
             raise RuntimeError('Unable to parse A-domain prediction. Probably, an old version of antismash is used.')
         return parsed_id, a_domain
 
-    a_domains_with_ids =  [extract_a_domain_info(domain_id, prediction)
-                            for domain_id, prediction in contig_data['modules']['antismash.modules.nrps_pks']['domain_predictions'].items()
-                            if 'AMP-binding' in domain_id]
+    a_domains_with_ids = [extract_a_domain_info(domain_id, prediction)
+                          for domain_id, prediction in contig_data['modules']['antismash.modules.nrps_pks']['domain_predictions'].items()
+                          if 'AMP-binding' in domain_id]
     a_domains_per_gene = defaultdict(list)
     for a_domain_id, a_domain in sorted(a_domains_with_ids,
                                         key=lambda a_domain_with_id: a_domain_with_id[0].idx):
@@ -72,7 +72,8 @@ def parse_cds_coordinates(location: str) -> Coords:
     def parse_location(loc: str) -> Coords:
         # e.g. 'loc' = '[351:486](+)'
         parsed_loc = parse('[{start:d}:{end:d}]({strand})', loc)
-        return Coords(start=parsed_loc['start'], end=parsed_loc['end'],
+        return Coords(start=parsed_loc['start'],
+                      end=parsed_loc['end'],
                       strand=STRAND.FORWARD if parsed_loc['strand'] == '+' else STRAND.REVERSE)
 
     if not location.startswith('join{'):
@@ -106,11 +107,11 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain]) -> List[Module]:
         for domain_data in module_data['components']:
             match domain_data['hit_id']:
                 case 'AMP-binding': module.a_domain = next(a_domains_iter)
-                case 'Condensation': module.c_domain = C_DOMAIN.C
-                case 'Condensation_Starter': module.c_domain = C_DOMAIN.C_STARTER
-                case 'Condensation_LCL': module.c_domain = C_DOMAIN.C_LCL
-                case 'Condensation_DCL': module.c_domain = C_DOMAIN.C_DCL
-                case 'Condensation_Dual': module.c_domain = C_DOMAIN.C_DUAL
+                case 'Condensation': module.c_domain = C_Domain.C
+                case 'Condensation_Starter': module.c_domain = C_Domain.C_STARTER
+                case 'Condensation_LCL': module.c_domain = C_Domain.C_LCL
+                case 'Condensation_DCL': module.c_domain = C_Domain.C_DCL
+                case 'Condensation_Dual': module.c_domain = C_Domain.C_DUAL
                 case 'cMT' | 'nMT' | 'oMT': module.modifying_domains.append(ModifyingDomain.MT)
                 case 'Epimerization': module.modifying_domains.append(ModifyingDomain.E)
                 case 'Thioesterase' | 'TD': module.terminal_domain = True
