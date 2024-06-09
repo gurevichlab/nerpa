@@ -92,45 +92,22 @@ def build_bgc_assembly_line(orf_modules_names, genome_residue_scores: Dict[GeneI
     return bgc_assembly_line
 
 
-def build_bgc_variants(bgc_clusters: List[BGC_Cluster],
-                       log: NerpaLogger) -> List[BGC_Variant]:
-    log.info('Start creating BGC variants')
+def split_and_reorder(bgc: BGC_Cluster) -> List[BGC_Cluster]:
+    return generic_algorithms.list_monad_compose([bgc],
+                                                 [splitter.split_by_dist,
+                                                  splitter.split_by_single_orf_Starter_TE,
+                                                  splitter.split_and_reorder])
 
-    all_bgc_variants: List[BGC_Variant] = []
-    for bgc_cluster in bgc_clusters:
-        bgc_cluster_parts = generic_algorithms.list_monad_compose([bgc_cluster],
-                                                                  [splitter.split_by_dist,
-                                                                   splitter.split_by_single_orf_Starter_TE,
-                                                                   splitter.split_and_reorder])
-        #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
+def build_bgc_variants(bgc: BGC_Cluster,
+                       log: NerpaLogger,
+                       residue_scoring_model: Any,
+                       config: Any) -> List[BGC_Variant]:  # TODO: replace Any with proper type
+    raw_bgc_variants = split_and_reorder(bgc)
+    if len(raw_bgc_variants) > config.MAX_VARIANTS_PER_BGC:
+        log.info(f'WARNING: Too many parts: {len(parts)}. Keeping first {MAX_NUM_PARTS} of them.')
+        raw_bgc_variants = raw_bgc_variants[:MAX_NUM_PARTS]
 
-        #print("====SPLIT BY SINGLE ORF WITH Starter-TE")
-        parts = splitter.split_by_one_orf_Starter_TE(parts, orf_ori, orf_domains)
-        #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
-
-            #print("====REMOVE SINGLE DOMAINs ORFS")
-            parts = splitter.split_by_single_domain_orf(parts, orf_ori, orf_domains)
-            #handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
-
-            print("====SPLIT AND REORDER")
-            parts = splitter.split_and_reorder(parts, orf_ori, orf_pos, orf_domains)
-            handle_helper.debug_print_parts(dirname, parts, orf_domains, orf_ori, orf_pos)
-
-            nrpspred_dir = os.path.join(dirname, "nrpspks_predictions_txt")
-            if os.path.isdir(nrpspred_dir):
-                bgc_variant_idx = 0
-                base_antiSMASHout_name = os.path.basename(dirname)
-
-                # reading predicted residue scores for every contig, every gene inside and every A domain inside the gene
-                genome_residue_scores: Dict[GeneId, List[ResidueScores]] = defaultdict(list)
-                for filename in os.listdir(nrpspred_dir):
-                    if filename.endswith('nrpspredictor2_codes.txt'):
-                        genome_residue_scores.update(parse_contig_residue_scores(
-                            os.path.join(nrpspred_dir, filename)))
-
-                if len(parts) > MAX_NUM_PARTS:
-                    print(f'WARNING: Too many parts: {len(parts)}. Keeping first {MAX_NUM_PARTS} of them.')
-
+    iterative_genes, iterative_modules = get_iterative_genes_and_modules(bgc)
                 for orf_part in parts[:MAX_NUM_PARTS]:
                     bgc_line = build_bgc_assembly_line(orf_part, genome_residue_scores, dirname)
                     if bgc_line:  # TODO: could it be empty in principle?

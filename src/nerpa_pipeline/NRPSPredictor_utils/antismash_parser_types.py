@@ -67,6 +67,7 @@ class Module:
     connecting_domain: ConnectingDomain = None
     modifying_domains: List[ModifyingDomain] = None
     terminal_domain: bool = False
+    domains_sequence: List[DomainType] = None
 
     def __post_init__(self):
         if self.modifying_domains is None:
