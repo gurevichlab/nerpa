@@ -3,8 +3,8 @@
 import os
 import csv
 
-from itertools import pairwise
-from more_itertools import ilen, split_after, split_at
+from itertools import pairwise, permutations
+from more_itertools import split_after, split_at
 
 
 def split_by_dist(bgc_cluster: BGC_Cluster) -> List[BGC_Cluster]:
@@ -42,11 +42,12 @@ def genes_sequence_consistent(genes: List[Gene]) -> bool:
                 c_starter_consistent,
                 te_td_consistent])
 
+
 def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
     if all(gene.coords.stand == STRAND.REVERSE for gene in genes):
-        return list(reversed(genes))
+        return genes[::-1]
     else:
-        return genes
+        return genes[:]
 
 
 def genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
