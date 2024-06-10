@@ -2,6 +2,9 @@
 
 import src.nerpa_pipeline.handle_helper as handle_helper
 
+def get_modules_idxs_with_methylation(gene: Gene) -> List[int]:
+    return []
+
 
 def get_MT_AA(dirname, orfs_order):
     MT_AA_list = []
