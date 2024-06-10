@@ -32,7 +32,7 @@ def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType
 
 
 # TODO: quite messy with these indexes
-def iterative_modules_idxs(gene: Gene) -> List[int]:
+def get_iterative_modules_idxs(gene: Gene) -> List[int]:
     joined_domains = [(domain_type, module_idx) for module_idx, module in enumerate(gene.modules)
                       for domain_type in module.domains_sequence]
     fst_a_index = next(i for i, (domain_type, module_idx) in enumerate(joined_domains)

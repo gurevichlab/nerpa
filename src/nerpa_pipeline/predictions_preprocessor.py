@@ -24,73 +24,66 @@ from src.data_types import (
     dump_bgc_variants
 )
 
-
 # TODO: move the magic constant into the config
 MAX_NUM_PARTS = 100
 
+#TODO: needs typing for residue_scoring_model and config
+def get_residue_scores(a_domain: A_Domain,
+                       known_aa10_codes: Dict[MonomerResidue, List[str]],
+                       known_aa34_codes: Dict[MonomerResidue, List[str]],
+                       residue_scoring_model: Any,
+                       config: Any) -> ResidueScores:
+    def svm_score(residue: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
+        if residue not in config.SVM_SUBSTRATES:
+            return -1.0
+        if residue in svm_level_prediction.monomer_residues:
+            return svm_level_prediction.score
+        else:
+            return 0.0
 
-def parse_residue_scores_from_str(scores_line: str) -> ResidueScores:
-    residue_scores = {}
+    scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
+    for residue, aa10_codes in known_aa10_codes.items():
+        aa_34_codes = known_aa34_codes[residue]
+        aa_code_scores = [min_hamming_distance(aa10_code, known_aa10_codes),
+                          min_hamming_distance(aa34_code, known_aa34_codes)]
+        svm_scores = [svm_score(residue, a_domain.svm[level])
+                      for level in SVM_LEVEL]
+        scoring_table.loc[residue] = aa_code_scores + svm_scores
 
-    # Split the input string by semicolon to get individual elements
-    elements = scores_line.split(';')
-
-    # Iterate through each element and extract the residue and score
-    for element in elements:
-        parts = element.split('(')
-        residue = parts[0].strip()
-        score = float(parts[1].replace(')', '').strip())
-
-        # Add the residue and score to the dictionary
-        residue_scores[residue] = score
-
-    return residue_scores
-
-
-def parse_contig_residue_scores(filepath: str) -> Dict[GeneId, List[ResidueScores]]:
-    all_residue_scores: Dict[GeneId, List[ResidueScores]] = defaultdict(list)
-    with open(filepath, 'r') as rf:
-        for line in rf:
-            module_name, aa_prediction, scores = line.split('\t')  # TODO: replace scores with proper scores already in this file! I.e. parse aa10, aa34, apply Azat's model, etc.
-            ctgorf, domain_id = module_name.rsplit('_', 1)
-            # TODO 1: make it just straightforward dump / load in some standard format, e.g. YAML
-            # TODO 2: don't use intermediate files at all, parse antiSMASH directly to some Python object
-            residue_scores = parse_residue_scores_from_str(scores)
-            all_residue_scores[ctgorf].append(residue_scores)
-    return all_residue_scores
+    return residue_scoring_model(scoring_table)
 
 
-def build_bgc_assembly_line(orf_modules_names, genome_residue_scores: Dict[GeneId, List[ResidueScores]],
-                            dirname) -> List[BGC_Module]:
-    '''
-    dirname: converted_antiSMASH_v5_outputs
-    input_file_name: CONTIGNAME_nrpspredictor2_codes.txt
-    orf_part: list of the form ['ctg1_trsI_A1', 'ctg1_trsI_A2']
-    '''
-    double_orf, double_aa = handle_PCP2.get_double_orfs_and_AA(dirname, orf_modules_names)  # the lists of orfs and modules which can be duplicated
-    mt_aa = handle_MT.get_MT_AA(dirname, orf_modules_names)  # the list of modules with methylation
-    d_aa = handle_E.get_D_AA(dirname, orf_modules_names)  # the list of modules with epimerization
+def build_gene_assembly_line(gene: Gene,
+                             residue_scoring_model: Any) -> List[BGC_Module]:
+    iterative_gene = is_iterative_gene(gene)
+    iterative_modules_idxs = get_iterative_modules_idxs(gene)
+    built_modules = []
+    for module_idx, module in enumerate(gene.modules):
+        if module.a_domain is None:
+            continue
 
-    bgc_assembly_line: List[BGC_Module] = []
-    for ctgorf in orf_modules_names:
-        for module_idx, residue_scores in enumerate(genome_residue_scores[ctgorf], start=1):
-            module_name = f"{ctgorf}_A{module_idx}"  # FIXME: quite ugly, we expect this particular naming only
+        residue_scores = get_residue_scores(module.a_domain, residue_scoring_model)
 
-            modifications: List[BGC_Module_Modification] = []
-            if module_name in mt_aa:
-                modifications.append(BGC_Module_Modification.METHYLATION)
-            if module_name in d_aa:
-                modifications.append(BGC_Module_Modification.EPIMERIZATION)
+        modifications = []
+        if DomainType.MT in module.domains_sequence:
+            modifications.append(BGC_Module_Modification.METHYLATION)
+        if DomainType.E in module.domains_sequence or DomainType.C_DUAL in module.domains_sequence:
+            modifications.append(BGC_Module_Modification.EPIMERIZATION)
 
-            cur_bgc_module = BGC_Module(gene_id=ctgorf,
-                                        module_idx=int(module_idx),
-                                        residue_score=residue_scores,  # TODO: consider renaming in the class definition
-                                        modifications=tuple(modifications),  # TODO: consider changing Tuple to List in the class definition
-                                        iterative_module=(module_name in double_aa),
-                                        iterative_gene=(ctgorf in double_orf))
-            bgc_assembly_line.append(cur_bgc_module)
-    return bgc_assembly_line
+        built_modules.append(BGC_Module(gene_id=gene.gene_id,
+                                        module_idx=module_idx,
+                                        residue_score=residue_scores,
+                                        modifications=tuple(modifications),
+                                        iterative_module=module_idx in iterative_modules_idxs,
+                                        iterative_gene=iterative_gene))
 
+    return built_modules
+
+
+def build_bgc_assembly_line(bgc_genes: List[Gene],
+                            residue_scoring_model: Any) -> List[BGC_Module]:
+    return list(chain(*build_gene_assembly_line(gene, residue_scoring_model)
+                      for gene in bgc_genes))
 
 def split_and_reorder(bgc: BGC_Cluster) -> List[BGC_Cluster]:
     return generic_algorithms.list_monad_compose([bgc],
@@ -104,18 +97,11 @@ def build_bgc_variants(bgc: BGC_Cluster,
                        config: Any) -> List[BGC_Variant]:  # TODO: replace Any with proper type
     raw_bgc_variants = split_and_reorder(bgc)
     if len(raw_bgc_variants) > config.MAX_VARIANTS_PER_BGC:
-        log.info(f'WARNING: Too many parts: {len(parts)}. Keeping first {MAX_NUM_PARTS} of them.')
+        log.info(f'WARNING: Too many parts: {len(raw_bgc_variants)}. Keeping first {MAX_NUM_PARTS} of them.')
         raw_bgc_variants = raw_bgc_variants[:MAX_NUM_PARTS]
 
-    iterative_genes, iterative_modules = get_iterative_genes_and_modules(bgc)
-                for orf_part in parts[:MAX_NUM_PARTS]:
-                    bgc_line = build_bgc_assembly_line(orf_part, genome_residue_scores, dirname)
-                    if bgc_line:  # TODO: could it be empty in principle?
-                        bgc_variant = BGC_Variant(tentative_assembly_line=bgc_line,
-                                                variant_idx=bgc_variant_idx,
-                                                genome_id=base_antiSMASHout_name,  # TODO: use proper genome ID from the upstream info
-                                                bgc_id=f"bgc#{bgc_variant_idx}")   # TODO: use proper BGC ID from the upstream info (it could be the same for many variants!)
-                        bgc_variant_idx += 1
-                        all_bgc_variants.append(bgc_variant)
-
-    return all_bgc_variants
+    return [BGC_Variant(tentative_assembly_line=build_bgc_assembly_line(raw_bgc_variant, residue_scoring_model),
+                        variant_idx=idx,
+                        genome_id=bgc.genome_id,
+                        bgc_id=bgc.bgc_idx)
+            for idx, raw_bgc_variant in enumerate(raw_bgc_variants)]
