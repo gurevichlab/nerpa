@@ -32,14 +32,21 @@ class rBAN_Processing_Config:
 
 @dataclass
 class antiSMASH_Parsing_Config:
-    MAX_DISTANCE_BETWEEN_GENES: int
     ANTISMASH_DOMAINS_NAMES: Dict[str, str]
+    MAX_DISTANCE_BETWEEN_GENES: int
+    MAX_VARIANTS_PER_BGC: int
+    SCORING_TABLE_COLUMNS: List[str]
+    SCORING_TABLE_INDEX: str
+    SVM_SUBSTRATES: List[str]
+    KNOWN_AA10_CODES: Dict[str, List[str]]
+    KNOWN_AA34_CODES: Dict[str, List[str]]
 
 
 @dataclass
 class ConfigPaths:
     main_out_dir: Path
     antismash_out_dir: Path
+    aa_codes: Path
     nerpa_monomers: Path  # TODO: rename
     nerpa_monomers_info: Path
     configs_input: Path
@@ -93,6 +100,9 @@ def load_config(args: CommandLineArgs) -> Config:
                                            cfg['rban_processing_config'])
     antismash_parsing_config = dacite.from_dict(antiSMASH_Parsing_Config,
                                         cfg['antismash_parsing_config'])
+    aa_codes = yaml.safe_load(paths.aa_codes.open('r'))
+    antismash_parsing_config.KNOWN_AA10_CODES = aa_codes['aa10']
+    antismash_parsing_config.KNOWN_AA34_CODES = aa_codes['aa34']
 
     return Config(paths=paths,
                   antismash_parsing_config=antismash_parsing_config,
