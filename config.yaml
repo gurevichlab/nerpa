@@ -14,7 +14,12 @@ rban_processing_config:
 
 antismash_parsing:
     MAX_DISTANCE_BETWEEN_GENES: 10000
-
+    MAX_VARIANTS_PER_BGC: 100
+    SVM_SUBSTRATES: [arg, asp, glu, asn, lys, gln, orn, orn, aad, ala, gly, val, leu,
+                     ile, abu, iva, ser, thr, hpg, dhpg, cys, pro, pip, phe, tyr, dhb, phg, bht]
+    SCORING_TABLE_INDEX: substrate
+    SCORING_TABLE_COLUMNS: [substrate, aa10_score, aa34_score, svm_single_amino_score,
+                            svm_small_cluster_score, svm_large_cluster_score, svm_physiochemical_class_score]
     ANTISMASH_DOMAINS_NAMES:
         AMP-binding: A
         PKS_AT: PKS
@@ -46,6 +51,7 @@ antismash_parsing:
 paths:
     nerpa_monomers: configs/monomersdb_nerpa.json
     nerpa_monomers_info: configs/monomers.tsv
+    aa_codes: configs/aa_codes.yaml
     configs_input: configs
     configs_output: configs
     scoring_config: src/NewMatcher/scoring_config.yaml
