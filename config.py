@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 from dataclasses import dataclass
 from pathlib import Path
 import nerpa_init
@@ -31,6 +31,12 @@ class rBAN_Processing_Config:
 
 
 @dataclass
+class antiSMASH_Parsing_Config:
+    MAX_DISTANCE_BETWEEN_GENES: int
+    ANTISMASH_DOMAINS_NAMES: Dict[str, str]
+
+
+@dataclass
 class ConfigPaths:
     main_out_dir: Path
     antismash_out_dir: Path
@@ -46,6 +52,7 @@ class ConfigPaths:
 @dataclass
 class Config:
     paths: ConfigPaths
+    antismash_parsing_config: antiSMASH_Parsing_Config
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
 
@@ -84,7 +91,10 @@ def load_config(args: CommandLineArgs) -> Config:
 
     rban_processing_cfg = dacite.from_dict(rBAN_Processing_Config,
                                            cfg['rban_processing_config'])
+    antismash_parsing_config = dacite.from_dict(antiSMASH_Parsing_Config,
+                                        cfg['antismash_parsing_config'])
 
     return Config(paths=paths,
+                  antismash_parsing_config=antismash_parsing_config,
                   rban_config=rban_config,
                   rban_processing_config=rban_processing_cfg)

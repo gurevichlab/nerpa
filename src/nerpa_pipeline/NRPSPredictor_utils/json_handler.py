@@ -1,5 +1,5 @@
-from typing import Union, Literal, TypedDict, List, Dict, Tuple
-from src.nerpa_pipeline.NRPSPredictor_utils.antismash_parser_types import (
+from typing import List, Dict, Tuple
+from src.antismash_parsing.antismash_parser_types import (
     BGC_Cluster,
     Coords,
     Gene,

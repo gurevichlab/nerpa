@@ -22,7 +22,8 @@ def add_genomic_arguments(parser: argparse.ArgumentParser):
                                help="file with list of paths to antiSMASH output directories", type=str)
     genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append',
                                help="single antiSMASH output directory or directory with many antiSMASH outputs")
-    genomic_group.add_argument("--sequences", dest="seqs", help="GenBank/EMBL/FASTA file containing DNA sequences")
+    genomic_group.add_argument("--sequences", dest="seqs",
+                               help="GenBank/EMBL/FASTA file containing DNA sequences", type=Path)
 
 
 def add_struct_arguments(parser: argparse.ArgumentParser):

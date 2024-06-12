@@ -43,6 +43,7 @@ import shutil
 import yaml
 from dataclasses import dataclass
 from itertools import chain
+from src.pipeline_helpers.pipeline_helper_antismash import PipelineHelper_antiSMASH
 
 
 
@@ -52,6 +53,7 @@ class PipelineHelper:
     args: CommandLineArgs
     log: NerpaLogger
     pipeline_helper_rban: PipelineHelper_rBAN
+    pipeline_helper_antismash: PipelineHelper_antiSMASH
     scoring_helper: ScoringHelper
 
     def __init__(self, log: NerpaLogger):
@@ -75,9 +77,21 @@ class PipelineHelper:
         shutil.copytree(self.config.paths.configs_input, self.config.paths.configs_output, copy_function=shutil.copy)
 
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log)
+        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, self.log)
         scoring_config = load_scoring_config(self.config.paths.scoring_config)  # TODO: this is ugly
         self.scoring_helper = ScoringHelper(scoring_config)
 
+    def get_bgc_variants(self) -> List[BGC_Variant]:
+        return self.pipeline_helper_antismash.get_bgc_variants()
+
+    def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
+        if self.pipeline_helper_rban.preprocessed_nrp_variants():
+            rban_records = []
+            nrp_variants = self.pipeline_helper_rban.load_nrp_variants()
+        else:
+            rban_records = self.pipeline_helper_rban.get_rban_results()
+            nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
+        return nrp_variants, rban_records
 
     def get_matches(self,
                     bgc_variants: List[BGC_Variant],

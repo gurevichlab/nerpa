@@ -67,7 +67,8 @@ def build_gene_assembly_line(gene: Gene,
         modifications = []
         if DomainType.MT in module.domains_sequence:
             modifications.append(BGC_Module_Modification.METHYLATION)
-        if DomainType.E in module.domains_sequence or DomainType.C_DUAL in module.domains_sequence:
+        if DomainType.E in module.domains_sequence or \
+                (module_idx < len(gene.modules) and DomainType.C_DUAL in gene.modules[module_idx+1].domains_sequence):
             modifications.append(BGC_Module_Modification.EPIMERIZATION)
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
