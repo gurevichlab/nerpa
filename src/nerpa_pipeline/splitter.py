@@ -24,6 +24,9 @@ def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster) -> List[BGC_Cluste
                         genes=group)
             for group in gene_groups]
 
+def a_pcp_module(module: Module) -> bool:
+    return set(module.domains_sequence) in ({DomainType.A, DomainType.PCP},
+                                            {DomainType.PKS, DomainType.PCP})
 
 def genes_sequence_consistent(genes: List[Gene]) -> bool:
     joined_modules = [module for gene in genes for module in gene.modules]
@@ -34,6 +37,7 @@ def genes_sequence_consistent(genes: List[Gene]) -> bool:
 
     c_starter_consistent = all(module.c_domain != C_Domain.C_STARTER
                                for module in joined_modules[1:])
+    a_pcp_consistent = all(not a_pcp_module(module) for module in joined_modules[1:])
     te_td_consistent = all(module.terminal_domain == False
                            for module in joined_modules[:-1])
 
@@ -53,7 +57,7 @@ def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
 def genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
     genes = reverse_if_all_neg(_genes)
     starting_gene = [gene for gene in enumerate(genes)
-                     if gene.modules[0].c_domain == C_Domain.C_STARTER]
+                     if gene.modules[0].c_domain == C_Domain.C_STARTER or a_pcp_module(gene.modules[0])]
     terminal_gene = [gene for gene in genes
                      if gene.modules[-1].terminal_domain]
     interior_genes = [gene for gene in genes

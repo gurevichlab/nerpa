@@ -1,13 +1,8 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Dict, List, Union, NamedTuple
-
-
-
-class STRAND(Enum):
-    FORWARD = auto()
-    REVERSE = auto()
-
+from src.data_types import MonomerResidue
 
 class SVM_LEVEL(Enum):
     SINGLE_AMINO = auto()
@@ -23,6 +18,7 @@ class SVM_Prediction(NamedTuple):
 
 SVM_Predictions = Dict[SVM_LEVEL, SVM_Prediction]
 
+
 @dataclass
 class A_Domain:
     aa10: str
@@ -30,53 +26,46 @@ class A_Domain:
     svm: SVM_Predictions
 
 
-class C_Domain(Enum):
+class DomainType(Enum):
+    A = auto()
+    PKS = auto()
+
+    PCP = auto()
+
     C = auto()
     C_STARTER = auto()
     C_LCL = auto()
     C_DCL = auto()
     C_DUAL = auto()
 
-
-class ModifyingDomain(Enum):
-    MT = auto()
     E = auto()
+    MT = auto()
 
+    TETD = auto()
 
-class ConnectingDomain(Enum):
     CTERM = auto()
     NTERM = auto()
 
-'''
-class DomainType(Enum):
-    A = auto()
-    C = auto()
-    Connecting = auto()
-    Modifying = auto()
-    Terminal = auto()
-
-
-Domain = Union[A_Domain, C_DOMAIN, ConnectingDomain, ModifyingDomain, TerminalDomain]
-Module = Dict[DomainType, Union[Domain, List[Domain]]]
-'''
 
 @dataclass
 class Module:
     a_domain: A_Domain = None
-    c_domain: C_Domain = None
-    connecting_domain: ConnectingDomain = None
-    modifying_domains: List[ModifyingDomain] = None
-    terminal_domain: bool = False
     domains_sequence: List[DomainType] = None
 
     def __post_init__(self):
-        if self.modifying_domains is None:
-            self.modifying_domains = []
+        if self.domains_sequence is None:
+            self.domains_sequence = []
+
+
+class STRAND(Enum):
+    FORWARD = auto()
+    REVERSE = auto()
+    
 
 class Coords(NamedTuple):
     start: int
     end: int
-    stand: STRAND
+    strand: STRAND
 
 
 @dataclass
@@ -85,13 +74,10 @@ class Gene:
     coords: Coords
     modules: List[Module]  # modules are in the order of appearance in the gene
 
-    def modules_ctg_order(self):
-        return self.modules[:] if self.coords.stand == STRAND.FORWARD else self.modules[::-1]
-
 
 @dataclass
 class BGC_Cluster:
     genome_id: str
     contig_id: str
-    bgc_idx: int
+    bgc_id: str
     genes: List[Gene]
