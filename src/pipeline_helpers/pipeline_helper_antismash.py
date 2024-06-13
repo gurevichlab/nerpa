@@ -1,8 +1,13 @@
-from typing import List
+from typing import (
+    Iterable,
+    List,
+    Union
+)
 from command_line_args_helper import CommandLineArgs
 from src.nerpa_pipeline.logger import NerpaLogger
+from src.nerpa_pipeline.nerpa_utils import sys_call
 from config import Config
-from src.data_types import NRP_Variant
+from src.data_types import BGC_Variant
 
 from src.nerpa_pipeline import handle_rban
 from src.nerpa_pipeline.rban_parser import (
@@ -12,7 +17,9 @@ from src.nerpa_pipeline.rban_parser import (
 from src.nerpa_pipeline.handle_monomers import get_monomers_chirality
 from src.nerpa_pipeline.nerpa_utils import sys_call, get_path_to_program
 from src.nerpa_pipeline.rban_names_helper import rBAN_Names_Helper
-
+from src.antismash_parsing.antismash_parser import parse_antismash_json
+from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
+from src.antismash_parsing.build_bgc_variants import build_bgc_variants
 from rban_helper import rBAN_Helper
 from pathlib import Path
 import csv
@@ -95,12 +102,12 @@ class PipelineHelper_antiSMASH:
                    '--minimal', '--skip-zip-file', '--enable-nrps-pks',
                    '--cpus', str(threads),
                    str(dna_sequences)]
-        nerpa_utils.sys_call(command, log, cwd=self.config.paths.main_out_dir)
+        sys_call(command, log, cwd=self.config.paths.main_out_dir)
         return output_dir
 
     def extract_bgc_variants_from_antismash(self, antismash_json: dict) -> List[BGC_Variant]:
-        antismash_bgcs = parse_antismash_json(antismash_json)
-        bgcs = split_and_reorder(antismash_bgcs, self.config.antismash_parsing)
-        return chain.from_iterable(build_bgc_variants(bgc, self.config.antismash_parsing) for bgc in bgcs)
+        antismash_bgcs = parse_antismash_json(antismash_json, self.config.antismash_parsing_config)
+        bgcs = split_and_reorder(antismash_bgcs)
+        return chain.from_iterable(build_bgc_variants(bgc, self.config.antismash_parsing_config) for bgc in bgcs)
 
 
