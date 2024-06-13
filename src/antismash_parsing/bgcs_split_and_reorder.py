@@ -8,6 +8,7 @@ from src.antismash_parsing.antismash_parser_types import (
 )
 from config import antiSMASH_Parsing_Config
 from src.generic_algorithms import list_monad_compose
+from functools import partial
 from itertools import pairwise, permutations, chain
 from more_itertools import split_after, split_at
 
@@ -26,7 +27,7 @@ def split_by_dist(bgc_cluster: BGC_Cluster,
 def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster) -> List[BGC_Cluster]:
     gene_groups = split_at(bgc_cluster.genes,
                            lambda gene: DomainType.C_STARTER in gene.modules[0].domains_sequence and
-                                        DomainType.TETD in gene.modules[-1].domains_sequence,
+                                        DomainType.TE_TD in gene.modules[-1].domains_sequence,
                            keep_separator=True)
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
                         contig_id=bgc_cluster.contig_id,
@@ -48,7 +49,7 @@ def genes_sequence_consistent(genes: List[Gene]) -> bool:
     c_starter_consistent = all(DomainType.C_STARTER not in module.domains_sequence
                                for module in joined_modules[1:])
     a_pcp_consistent = all(not a_pcp_module(module) for module in joined_modules[1:])
-    te_td_consistent = all(DomainType.TETD not in module.domains_sequence
+    te_td_consistent = all(DomainType.TE_TD not in module.domains_sequence
                            for module in joined_modules[:-1])
 
     return all([at_least_one_A_domain,
@@ -70,7 +71,7 @@ def get_genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
     starting_gene = [gene for gene in genes
                      if DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])]
     terminal_gene = [gene for gene in genes
-                     if DomainType.TETD in gene.modules[-1].domains_sequence]
+                     if DomainType.TE_TD in gene.modules[-1].domains_sequence]
     interior_genes = [gene for gene in genes
                       if gene not in starting_gene + terminal_gene]
     genes = starting_gene + interior_genes + terminal_gene
@@ -101,7 +102,8 @@ def split_and_reorder_inconsistent(bgc: BGC_Cluster) -> List[BGC_Cluster]:
             for i, rearranged_genes in enumerate(genes_rearrangements)]
 
 
-def split_and_reorder(bgc: BGC_Cluster) -> List[BGC_Cluster]:
-    return list_monad_compose(split_by_dist,
+def split_and_reorder(bgc: BGC_Cluster,
+                      config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
+    return list_monad_compose(partial(split_by_dist, config=config),
                               split_by_single_gene_Starter_TE,
                               split_and_reorder_inconsistent)([bgc])
