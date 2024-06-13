@@ -41,7 +41,7 @@ class DomainType(Enum):
     E = auto()
     MT = auto()
 
-    TETD = auto()
+    TE_TD = auto()
 
     CTERM = auto()
     NTERM = auto()

@@ -20,7 +20,7 @@ def add_genomic_arguments(parser: argparse.ArgumentParser):
     genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms (i.e. BGC predictions)')
     genomic_group.add_argument("--antismash_output_list", dest="antismash_out",
                                help="file with list of paths to antiSMASH output directories", type=str)
-    genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append',
+    genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append', type=Path,
                                help="single antiSMASH output directory or directory with many antiSMASH outputs")
     genomic_group.add_argument("--sequences", dest="seqs",
                                help="GenBank/EMBL/FASTA file containing DNA sequences", type=Path)

@@ -38,8 +38,8 @@ class antiSMASH_Parsing_Config:
     SCORING_TABLE_COLUMNS: List[str]
     SCORING_TABLE_INDEX: str
     SVM_SUBSTRATES: List[str]
-    KNOWN_AA10_CODES: Dict[str, List[str]]
-    KNOWN_AA34_CODES: Dict[str, List[str]]
+    KNOWN_AA10_CODES: Dict[str, List[str]] = None
+    KNOWN_AA34_CODES: Dict[str, List[str]] = None
 
 
 @dataclass
@@ -47,6 +47,7 @@ class ConfigPaths:
     main_out_dir: Path
     antismash_out_dir: Path
     aa_codes: Path
+    specificity_prediction_model: Path
     nerpa_monomers: Path  # TODO: rename
     nerpa_monomers_info: Path
     configs_input: Path
@@ -77,6 +78,8 @@ def load_config(args: CommandLineArgs) -> Config:
     paths_cfg_dict = cfg['paths']
     paths = ConfigPaths(main_out_dir=main_out_dir,
                         antismash_out_dir=main_out_dir / Path(paths_cfg_dict['antismash_out_dir']),
+                        aa_codes=nerpa_dir / Path(paths_cfg_dict['aa_codes']),
+                        specificity_prediction_model=nerpa_dir / Path(paths_cfg_dict['specificity_prediction_model']),
                         nerpa_monomers=nerpa_dir / Path(paths_cfg_dict['nerpa_monomers']),
                         nerpa_monomers_info=nerpa_dir / Path(paths_cfg_dict['nerpa_monomers_info']),
                         configs_input=args.configs_dir if args.configs_dir else \
@@ -99,7 +102,7 @@ def load_config(args: CommandLineArgs) -> Config:
     rban_processing_cfg = dacite.from_dict(rBAN_Processing_Config,
                                            cfg['rban_processing_config'])
     antismash_parsing_config = dacite.from_dict(antiSMASH_Parsing_Config,
-                                        cfg['antismash_parsing_config'])
+                                                cfg['antismash_parsing_config'])
     aa_codes = yaml.safe_load(paths.aa_codes.open('r'))
     antismash_parsing_config.KNOWN_AA10_CODES = aa_codes['aa10']
     antismash_parsing_config.KNOWN_AA34_CODES = aa_codes['aa34']

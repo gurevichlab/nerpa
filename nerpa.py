@@ -18,7 +18,8 @@ if __name__ == "__main__":
     log = NerpaLogger()
     try:
         main(log)
-    except Exception:
+    except Exception as e:
+        raise e
         _, exc_value, _ = sys.exc_info()
         log.exception(exc_value)
     finally:

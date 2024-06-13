@@ -5,27 +5,19 @@ from typing import (
 )
 from command_line_args_helper import CommandLineArgs
 from src.nerpa_pipeline.logger import NerpaLogger
-from src.nerpa_pipeline.nerpa_utils import sys_call
-from config import Config
+from config import Config, antiSMASH_Parsing_Config
+from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.data_types import BGC_Variant
 
-from src.nerpa_pipeline import handle_rban
-from src.nerpa_pipeline.rban_parser import (
-    Parsed_rBAN_Record,
-    parsed_chiralities,
-)
-from src.nerpa_pipeline.handle_monomers import get_monomers_chirality
 from src.nerpa_pipeline.nerpa_utils import sys_call, get_path_to_program
-from src.nerpa_pipeline.rban_names_helper import rBAN_Names_Helper
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
-from rban_helper import rBAN_Helper
 from pathlib import Path
-import csv
 import json
 import yaml
 from dataclasses import dataclass
+from functools import partial
 from itertools import chain
 
 
@@ -87,8 +79,9 @@ class PipelineHelper_antiSMASH:
         for antismash_record in antismash_results:
             try:
                 bgc_variants.extend(self.extract_bgc_variants_from_antismash(antismash_record))
-            except:
-                self.log.error(f'Error while parsing antismash record: {antismash_record}, skipping')
+            except Exception as e:
+                self.log.info(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
+                raise e  # TODO: remove
 
         self.log.info('\n======= Done with Predicting BGC variants')
         return bgc_variants
@@ -105,9 +98,16 @@ class PipelineHelper_antiSMASH:
         sys_call(command, log, cwd=self.config.paths.main_out_dir)
         return output_dir
 
-    def extract_bgc_variants_from_antismash(self, antismash_json: dict) -> List[BGC_Variant]:
+    def extract_bgc_variants_from_antismash(self,
+                                            antismash_json: dict) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json, self.config.antismash_parsing_config)
-        bgcs = split_and_reorder(antismash_bgcs)
-        return chain.from_iterable(build_bgc_variants(bgc, self.config.antismash_parsing_config) for bgc in bgcs)
+        bgcs = chain(*map(partial(split_and_reorder, config=self.config.antismash_parsing_config),
+                          antismash_bgcs))
+        specificity_prediction_model = ModelWrapper(self.config.paths.specificity_prediction_model)
+        return chain.from_iterable(build_bgc_variants(bgc,
+                                                      self.log,
+                                                      specificity_prediction_model,
+                                                      self.config.antismash_parsing_config)
+                                   for bgc in bgcs)
 
 

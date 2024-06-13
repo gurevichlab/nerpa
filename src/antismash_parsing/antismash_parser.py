@@ -21,7 +21,7 @@ class A_Domain_Id:
     idx: int
 
     def __init__(self, a_domain_id: str):
-        parsed_id = parse('nrpspksdomains_{gene_id}_AMP-binding.{idx:d})', a_domain_id)
+        parsed_id = parse('nrpspksdomains_{gene_id}_AMP-binding.{idx:d}', a_domain_id)
         self.gene_id = parsed_id['gene_id']
         self.idx = parsed_id['idx']
 
@@ -105,7 +105,10 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
     for module_data in gene_data['modules']:
         module = Module()
         for domain_data in module_data['components']:
-            domain_type = DomainType[config.ANTISMASH_DOMAINS_NAMES[domain_data['type']]]
+            domain_type_str = domain_data['domain']['hit_id']
+            if domain_type_str not in config.ANTISMASH_DOMAINS_NAMES:
+                continue
+            domain_type = DomainType[config.ANTISMASH_DOMAINS_NAMES[domain_type_str]]
             module.domains_sequence.append(domain_type)
 
             if domain_type == DomainType.A:
@@ -138,7 +141,8 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
     for bgc_idx, bgc_data in enumerate(contig_data['areas']):
         if 'NRPS' in bgc_data['products']:
             bgc_genes = [gene for gene in genes
-                         if gene.coords.start <= bgc_data['start'] <= gene.coords.end]
+                         if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
+
             bgcs.append(BGC_Cluster(genome_id=genome_id,
                                     contig_id=f'ctg{ctg_idx + 1}',
                                     bgc_id=str(bgc_idx),
@@ -149,7 +153,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 def parse_antismash_json(antismash_json: dict,
                          config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     bgcs = []
-    genome_id = antismash_json['id']
+    genome_id = antismash_json['input_file']
     for ctg_idx, contig_data in enumerate(antismash_json['records']):
         a_domains_per_gene = extract_a_domains_info(contig_data)
         if not any(a_domains for a_domains in a_domains_per_gene.values()):  # no A-domains found in the contig

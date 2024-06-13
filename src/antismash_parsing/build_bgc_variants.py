@@ -87,15 +87,17 @@ def build_gene_assembly_line(gene: Gene,
 def build_bgc_assembly_line(bgc_genes: List[Gene],
                             residue_scoring_model: Any,
                             config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
-    return list(chain(*build_gene_assembly_line(gene, residue_scoring_model)
-                      for gene in bgc_genes))
+    return list(chain.from_iterable(build_gene_assembly_line(gene,
+                                                             residue_scoring_model,
+                                                             config)
+                                    for gene in bgc_genes))
 
 
 def build_bgc_variants(bgc: BGC_Cluster,
                        log: NerpaLogger,
                        residue_scoring_model: Any,
                        config: antiSMASH_Parsing_Config) -> List[BGC_Variant]:  # TODO: replace Any with proper type
-    raw_bgc_variants = split_and_reorder(bgc)
+    raw_bgc_variants = split_and_reorder(bgc, config)
     if len(raw_bgc_variants) > config.MAX_VARIANTS_PER_BGC:
         log.info(f'WARNING: Too many parts: {len(raw_bgc_variants)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
         raw_bgc_variants = raw_bgc_variants[:config.MAX_VARIANTS_PER_BGC]

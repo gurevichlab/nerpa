@@ -12,7 +12,7 @@ rban_processing_config:
     CUT_LIPIDS: True
     PNP_BONDS: [AMINO, AMINO_TRANS, OXAZOLE_CYCLE, THIAZOLE_CYCLE, PYRIMIDINE_CYCLE, HETEROCYCLE]
 
-antismash_parsing:
+antismash_parsing_config:
     MAX_DISTANCE_BETWEEN_GENES: 10000
     MAX_VARIANTS_PER_BGC: 100
     SVM_SUBSTRATES: [arg, asp, glu, asn, lys, gln, orn, orn, aad, ala, gly, val, leu,
@@ -52,6 +52,7 @@ paths:
     nerpa_monomers: configs/monomersdb_nerpa.json
     nerpa_monomers_info: configs/monomers.tsv
     aa_codes: configs/aa_codes.yaml
+    specificity_prediction_model: src/aa_specificity_prediction_model/specificity-scoring-model.joblib
     configs_input: configs
     configs_output: configs
     scoring_config: src/NewMatcher/scoring_config.yaml
