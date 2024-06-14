@@ -4,7 +4,7 @@ from src.antismash_parsing.antismash_parser_types import (
     Gene
 )
 from itertools import pairwise, dropwhile
-from more_itertools import split_at
+from more_itertools import split_at, grouper
 
 def is_a_domain(domain_type: DomainType) -> bool:  # TODO: rename
     return domain_type in (DomainType.A, DomainType.PKS)
@@ -22,9 +22,9 @@ def is_iterative_gene(gene: Gene) -> bool:
 def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType]) -> bool:
     domains_iter = iter(interior_domains_types)
     try:
-        dropwhile(lambda domain_type: domain_type != DomainType.PCP, domains_iter)
-        dropwhile(lambda domain_type: domain_type != DomainType.C, domains_iter)
-        dropwhile(lambda domain_type: domain_type != DomainType.PCP, domains_iter)
+        while next(domains_iter) != DomainType.PCP: pass
+        while next(domains_iter).in_c_domain_group(): pass
+        while next(domains_iter) != DomainType.PCP: pass
     except StopIteration:
         return False
     return True
@@ -34,12 +34,11 @@ def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType
 def get_iterative_modules_idxs(gene: Gene) -> List[int]:
     joined_domains = [(domain_type, module_idx) for module_idx, module in enumerate(gene.modules)
                       for domain_type in module.domains_sequence]
-    fst_a_index = next(i for i, (domain_type, module_idx) in enumerate(joined_domains)
-                       if is_a_domain(domain_type))
 
     modules_idxs = []
-    for a_domain_group, interior_domains in split_at(joined_domains[fst_a_index:],
-                                                     lambda p: is_a_domain(p[0])):
+    split_domains = list(split_at(joined_domains, lambda p: is_a_domain(p[0]),
+                                  keep_separator=True))[1:]  # skip the first (possibly empty) group before the first A domain
+    for a_domain_group, interior_domains in grouper(split_domains, 2, fillvalue=[]):
         interior_domains_types = [domain_type for domain_type, module_idx in interior_domains]
         if has_pcp_condensation_pcp_subsequence(interior_domains_types):
             modules_idxs.append(a_domain_group[0][1])
