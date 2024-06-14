@@ -35,6 +35,7 @@ class antiSMASH_Parsing_Config:
     ANTISMASH_DOMAINS_NAMES: Dict[str, str]
     MAX_DISTANCE_BETWEEN_GENES: int
     MAX_VARIANTS_PER_BGC: int
+    MAX_PERMUTATIONS_PER_BGC: int
     SCORING_TABLE_COLUMNS: List[str]
     SCORING_TABLE_INDEX: str
     SVM_SUBSTRATES: List[str]
