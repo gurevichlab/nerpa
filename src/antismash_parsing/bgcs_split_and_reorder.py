@@ -8,7 +8,7 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND
 )
 from config import antiSMASH_Parsing_Config
-from src.generic_algorithms import list_monad_compose
+from src.generic_algorithms import generate_permutations, list_monad_compose
 from functools import partial
 from itertools import pairwise, permutations, chain
 from more_itertools import split_before, split_at
@@ -79,9 +79,9 @@ def get_genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
     genes = starting_gene + interior_genes + terminal_gene
     if genes_sequence_consistent(genes):
         return [genes]
-    else:   # TODO: optimize, keep only several top permutations
+    else:
         return [starting_gene + permuted_interior_genes + terminal_gene
-                for permuted_interior_genes in map(list, permutations(interior_genes))
+                for permuted_interior_genes in generate_permutations(interior_genes)
                 if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
 
 def split_and_reorder_inconsistent(bgc: BGC_Cluster) -> List[BGC_Cluster]:
