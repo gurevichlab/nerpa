@@ -10,7 +10,7 @@ from src.antismash_parsing.antismash_parser_types import (
 from config import antiSMASH_Parsing_Config
 from src.generic_algorithms import generate_permutations, list_monad_compose
 from functools import partial
-from itertools import pairwise, permutations, chain
+from itertools import chain, islice, pairwise
 from more_itertools import split_before, split_at
 
 
@@ -26,7 +26,8 @@ def split_by_dist(bgc_cluster: BGC_Cluster,
             for i, group in enumerate(gene_groups)]
 
 
-def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster) -> List[BGC_Cluster]:
+def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
+                                    config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:  # config is not used but added for consistency
     gene_groups = split_at(bgc_cluster.genes,
                            lambda gene: DomainType.C_STARTER in gene.modules[0].domains_sequence and
                                         DomainType.TE_TD in gene.modules[-1].domains_sequence,
@@ -68,7 +69,7 @@ def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
         return genes[:]
 
 
-def get_genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
+def get_genes_rearrangements(_genes: List[Gene], config: antiSMASH_Parsing_Config) -> List[List[Gene]]:
     genes = reverse_if_all_neg(_genes)
     starting_gene = [gene for gene in genes
                      if DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])]
@@ -81,10 +82,11 @@ def get_genes_rearrangements(_genes: List[Gene]) -> List[List[Gene]]:
         return [genes]
     else:
         return [starting_gene + permuted_interior_genes + terminal_gene
-                for permuted_interior_genes in generate_permutations(interior_genes)
+                for permuted_interior_genes in islice(generate_permutations(interior_genes),
+                                                      config.MAX_PERMUTATIONS_PER_BGC)
                 if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
 
-def split_and_reorder_inconsistent(bgc: BGC_Cluster) -> List[BGC_Cluster]:
+def split_and_reorder_inconsistent(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     genes = reverse_if_all_neg(bgc.genes)
     if genes_sequence_consistent(genes):
         return [BGC_Cluster(genome_id=bgc.genome_id,
@@ -95,7 +97,8 @@ def split_and_reorder_inconsistent(bgc: BGC_Cluster) -> List[BGC_Cluster]:
     genes_substrings = (genes[i:j]
                         for i in range(len(genes))
                         for j in range(i + 1, len(genes)))
-    genes_rearrangements = chain(*map(get_genes_rearrangements, genes_substrings))
+    genes_rearrangements = chain(*map(partial(get_genes_rearrangements, config=config),
+                                      genes_substrings))
 
     return [BGC_Cluster(genome_id=bgc.genome_id,
                         contig_id=bgc.contig_id,
@@ -106,6 +109,7 @@ def split_and_reorder_inconsistent(bgc: BGC_Cluster) -> List[BGC_Cluster]:
 
 def split_and_reorder(bgc: BGC_Cluster,
                       config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
-    return list_monad_compose(partial(split_by_dist, config=config),
-                              split_by_single_gene_Starter_TE,
-                              split_and_reorder_inconsistent)([bgc])
+    return list_monad_compose(*(partial(split_func, config=config)
+                                 for split_func in [split_by_dist,
+                                                    split_by_single_gene_Starter_TE,
+                                                    split_and_reorder_inconsistent]))([bgc])

@@ -15,6 +15,7 @@ rban_processing_config:
 antismash_parsing_config:
     MAX_DISTANCE_BETWEEN_GENES: 10000
     MAX_VARIANTS_PER_BGC: 100
+    MAX_PERMUTATIONS_PER_BGC: 100
     SVM_SUBSTRATES: [arg, asp, glu, asn, lys, gln, orn, orn, aad, ala, gly, val, leu,
                      ile, abu, iva, ser, thr, hpg, dhpg, cys, pro, pip, phe, tyr, dhb, phg, bht]
     SCORING_TABLE_INDEX: substrate
