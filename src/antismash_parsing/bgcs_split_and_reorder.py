@@ -1,6 +1,7 @@
 from typing import List
 from src.antismash_parsing.antismash_parser_types import (
     BGC_Cluster,
+    Coords,
     Gene,
     Module,
     DomainType,
@@ -10,17 +11,18 @@ from config import antiSMASH_Parsing_Config
 from src.generic_algorithms import list_monad_compose
 from functools import partial
 from itertools import pairwise, permutations, chain
-from more_itertools import split_after, split_at
+from more_itertools import split_before, split_at
 
 
 def split_by_dist(bgc_cluster: BGC_Cluster,
                   config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
-    gene_groups = split_after(pairwise(bgc_cluster.genes),
-                              lambda p: p[1].coords.start - p[0].coords.end > config.MAX_DISTANCE_BETWEEN_GENES)
+    dummy_gene = Gene('', Coords(start=-1, end=-1, strand=STRAND.FORWARD), [])  # dummy gene to start the pairwise
+    gene_groups = list(split_before(pairwise([dummy_gene] + bgc_cluster.genes),
+                                    lambda p: p[1].coords.start - p[0].coords.end > config.MAX_DISTANCE_BETWEEN_GENES))
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
                         contig_id=bgc_cluster.contig_id,
                         bgc_id=f'{bgc_cluster.bgc_id}_{i}',
-                        genes=[gene for gene, _ in group])
+                        genes=[gene for _, gene in group])
             for i, group in enumerate(gene_groups)]
 
 
