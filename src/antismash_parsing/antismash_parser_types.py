@@ -46,6 +46,9 @@ class DomainType(Enum):
     CTERM = auto()
     NTERM = auto()
 
+    def in_c_domain_group(self) -> bool:
+        return self in {DomainType.C, DomainType.C_STARTER, DomainType.C_LCL, DomainType.C_DCL, DomainType.C_DUAL}
+
 
 @dataclass
 class Module:
