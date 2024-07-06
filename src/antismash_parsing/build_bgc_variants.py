@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Dict,
     List
 )
 from src.antismash_parsing.antismash_parser_types import (
@@ -22,10 +21,10 @@ from src.data_types import (
     BGC_Module_Modification,
     ResidueScores,
 )
-from src.nerpa_pipeline.logger import NerpaLogger
-from config import antiSMASH_Parsing_Config
+from src.pipeline.logger import NerpaLogger
+from src.config import antiSMASH_Parsing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
-from src.generic_algorithms import hamming_distance
+from src.generic.string import hamming_distance
 from itertools import chain
 import pandas as pd
 
