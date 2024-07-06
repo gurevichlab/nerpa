@@ -6,9 +6,9 @@ from typing import (
     Tuple,
     Union
 )
-from src.NewMatcher.alignment_types import Match
+from src.matching.alignment_types import Match
 from src.data_types import BGC_Variant, NRP_Variant
-from src.nerpa_pipeline.rban_parser import Parsed_rBAN_Record
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 
 from pathlib import Path
 from io import StringIO

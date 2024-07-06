@@ -7,8 +7,9 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     STRAND
 )
-from config import antiSMASH_Parsing_Config
-from src.generic_algorithms import generate_permutations, list_monad_compose
+from src.config import antiSMASH_Parsing_Config
+from src.generic.generate_permutations import generate_permutations
+from src.generic.functional import list_monad_compose
 from functools import partial
 from itertools import chain, islice, pairwise
 from more_itertools import split_before, split_at
