@@ -93,21 +93,22 @@ def parse_cds_coordinates(location: str) -> Coords:
 
 
 def extract_gene_id(feature_qualifiers: dict) -> str:
-    if 'locus_tag' in feature_qualifiers:
-        return feature_qualifiers['locus_tag'][0]
-    elif 'gene' in feature_qualifiers:
-        return feature_qualifiers['gene'][0]
-    else:
-        raise KeyError('Gene ID not found in feature qualifiers')
+    for gene_id_key in ['locus_tag', 'gene', 'protein_id']:
+        if gene_id_key in feature_qualifiers:
+            return feature_qualifiers[gene_id_key][0]
+    raise KeyError('Gene ID not found in feature qualifiers')
 
 
 def extract_gene_coords(contig_data: dict) -> Dict[GeneId, Coords]:
     gene_coords = {}
     for feature in contig_data['features']:
-        if feature['type'] == 'gene':
-            gene_id = extract_gene_id(feature['qualifiers'])
-            coords = parse_cds_coordinates(feature['location'])
-            gene_coords[gene_id] = coords
+        if feature['type'] in ('gene', 'CDS'):
+            try:
+                gene_id = extract_gene_id(feature['qualifiers'])
+                coords = parse_cds_coordinates(feature['location'])
+                gene_coords[gene_id] = coords
+            except:
+                raise
     return gene_coords
 
 

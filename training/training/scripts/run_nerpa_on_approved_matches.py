@@ -12,7 +12,7 @@ output_dir = Path(f'/home/ilianolhin/git/nerpa2/training/training/nerpa_results/
 antismash_results_dir = Path('/home/ilianolhin/programs/antismash7/mibig_results')
 rban_results_dir = Path('/home/ilianolhin/git/nerpa2/training/training/rban_records')
 
-for match in yaml.safe_load(approved_matches_file.read_text())[:1]:
+for match in yaml.safe_load(approved_matches_file.read_text())[:10]:
     nrp_id = match['NRP']
     bgc_id = nrp_id.split('.')[0]
     command = ' '.join([

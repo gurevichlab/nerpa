@@ -7,7 +7,7 @@ from src.data_types import (
     NRP_Variant
 )
 from src.matching.scoring_helper import ScoringHelper
-from src.matching.alignment_types import Alignment, alignment_score, Match
+from src.matching.alignment_types import Alignment, alignment_score, Match, show_alignment
 from src.matching.dp import get_alignment
 
 from itertools import chain, islice, takewhile
@@ -24,6 +24,10 @@ def get_alignment_fragment(assembly_line: List[BGC_Module],
 
     alignments = [get_alignment(assembly_line, nrp_cyclic_shift, dp_helper)
                   for nrp_cyclic_shift in nrp_cyclic_shifts]
+    with open('alignments.txt', 'a') as f:
+        for alignment in alignments:
+            f.write(show_alignment(alignment) + '\n\n')
+
     return max(alignments, key=alignment_score)
 
 
