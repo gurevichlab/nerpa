@@ -82,5 +82,5 @@ class Gene:
 class BGC_Cluster:
     genome_id: str
     contig_id: str
-    bgc_id: str
+    bgc_idx: int
     genes: List[Gene]

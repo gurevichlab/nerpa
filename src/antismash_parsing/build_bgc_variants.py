@@ -40,10 +40,13 @@ def get_residue_scores(a_domain: A_Domain,
         else:
             return 0.0
 
+    def similarity_score(aa_code1: str, aa_code2: str) -> float:
+        return 1.0 - hamming_distance(aa_code1, aa_code2) / len(aa_code1)
+
     scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
     for residue, aa10_codes in config.KNOWN_AA10_CODES.items():
         aa_34_codes = config.KNOWN_AA34_CODES[residue]
-        aa_code_scores = [min(hamming_distance(aa_code, known_aa_code)
+        aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
                               for known_aa_code in known_aa_codes)
                           for aa_code, known_aa_codes in [(a_domain.aa10, aa10_codes),
                                                           (a_domain.aa34, aa_34_codes)]]
@@ -78,7 +81,9 @@ def build_gene_assembly_line(gene: Gene,
                                         residue_score=residue_scores,
                                         modifications=tuple(modifications),
                                         iterative_module=module_idx in iterative_modules_idxs,
-                                        iterative_gene=iterative_gene))
+                                        iterative_gene=iterative_gene,
+                                        aa10_code=module.a_domain.aa10,
+                                        aa34_code=module.a_domain.aa34))
 
     return built_modules
 
@@ -103,7 +108,7 @@ def build_bgc_variants(bgc: BGC_Cluster,
 
     return [BGC_Variant(genome_id=bgc.genome_id,
                         variant_idx=idx,
-                        bgc_id=bgc.bgc_id,
+                        bgc_idx=bgc.bgc_idx,
                         tentative_assembly_line=build_bgc_assembly_line(raw_bgc_variant.genes,
                                                                         residue_scoring_model,
                                                                         config))

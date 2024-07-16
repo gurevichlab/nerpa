@@ -3,6 +3,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Optional,
     Tuple
 )
 from enum import auto, Enum
@@ -73,29 +74,34 @@ class BGC_Module:
     modifications: Tuple[BGC_Module_Modification, ...]
     iterative_module: bool
     iterative_gene: bool
+    aa10_code: Optional[str] = None  # for debug only
+    aa34_code: Optional[str] = None  # for debug only
 
     @classmethod
-    def from_yaml_dict(cls, data: dict) -> BGC_Module:
+    def from_yaml_dict(cls, data: dict) -> BGC_Module:  # TODO: use dacite from_dict or smth
         return cls(gene_id=data['gene_id'],
                    module_idx=data['module_idx'],
                    residue_score=data['residue_score'],
                    modifications=tuple(BGC_Module_Modification[mod]
                                        for mod in data['modifications']),
                    iterative_module=data['iterative_module'],
-                   iterative_gene=data['iterative_gene'])
+                   iterative_gene=data['iterative_gene'],
+                   aa10_code=data.get('aa10_code') if data.get('aa10_code') != '---'  else None,
+                   aa34_code=data.get('aa34_code') if data.get('aa34_code') != '---' else None)
+
 
 @dataclass
 class BGC_Variant:
     variant_idx: int
     genome_id: str
-    bgc_id: str
+    bgc_idx: int
     tentative_assembly_line: List[BGC_Module]
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> BGC_Variant:
         return cls(variant_idx=data['variant_idx'],
                    genome_id=data['genome_id'],
-                   bgc_id=data['bgc_id'],
+                   bgc_idx=data['bgc_id'],
                    tentative_assembly_line=list(map(BGC_Module.from_yaml_dict,
                                                     data['tentative_assembly_line'])))
 
@@ -136,6 +142,6 @@ def dump_bgc_variants(output_dir: str, bgc_variants: List[BGC_Variant]):
     # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml
     yaml.Dumper.ignore_aliases = lambda *args: True
     for variant in bgc_variants:
-        output_fpath = os.path.join(output_dir, f"{variant.genome_id}_{variant.bgc_id}.yaml")
+        output_fpath = os.path.join(output_dir, f"{variant.genome_id}_{variant.bgc_idx}.yaml")
         with open(output_fpath, 'w') as out:
             yaml.dump(asdict(variant), out, default_flow_style=None, sort_keys=False)

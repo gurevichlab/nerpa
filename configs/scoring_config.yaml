@@ -1,6 +1,7 @@
-bgc_module_skip_score: -2.756  # calculated based on the frequency in the alignments
-
-nrp_monomer_default_skip_score: -1.933  # calculated based on the frequency in the alignments
+alignment_step_frequency:  # calculated based on the number of times each alignment step is used in the "true" alignments
+  MATCH: 0.9793486894360603
+  NRP_MONOMER_SKIP: 0.010325655281969817
+  BGC_MODULE_SKIP: 0.010325655281969817
 
 nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: -6.411818267709897,
                           4ppro: -6.411818267709897, HICA: -6.411818267709897, aad: -6.411818267709897,
@@ -22,41 +23,41 @@ nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: 
 num_unknown_residues: 100
 
 modification_score:
-  Mod_METHYLATION_BGC_False_NRP_False: -0.015
-  Mod_METHYLATION_BGC_False_NRP_True: -4.182
-  Mod_METHYLATION_BGC_True_NRP_False: -2.648
-  Mod_METHYLATION_BGC_True_NRP_True: -0.073
+  Mod_METHYLATION_BGC_False_NRP_False: -0.018
+  Mod_METHYLATION_BGC_False_NRP_True: -4.026
+  Mod_METHYLATION_BGC_True_NRP_False: -2.856
+  Mod_METHYLATION_BGC_True_NRP_True: -0.059
 
 chirality_score:
-  BGC_False_NRP_L: -0.222
-  BGC_False_NRP_D: -1.614
-  BGC_False_NRP_UNKNOWN: -0.499  # weighted average of L and D scores
-  BGC_True_NRP_L: -2.156
-  BGC_True_NRP_D: -0.123
-  BGC_True_NRP_UNKNOWN: -0.358  # weighted average of L and D scores
+  BGC_False_NRP_L: -0.262
+  BGC_False_NRP_D: -1.468
+  BGC_False_NRP_UNKNOWN: -0.54  # weighted average of L and D scores
+  BGC_True_NRP_L: -1.678
+  BGC_True_NRP_D: -0.207
+  BGC_True_NRP_UNKNOWN: -0.482  # weighted average of L and D scores
 
-null_hypothesis_residue_score: {2-oxo-isovaleric-acid: -1.9178262203129488, 33p-l-ala: -1.8330940951213228,
-                                4ppro: -1.8678265900300461, HICA: -1.933790884910708, aad: -1.71137651175374,
-                                abu: -1.2463063573420146, aeo: -1.933790884910708, ala: -0.7597913837574077, alaninol: -1.7924957402090245,
-                                arg: -1.2230299095927373, asn: -1.4519684601153384, asp: -1.2607971563236968, b-ala: -1.6866645888481555,
-                                b-lys: -1.899155388247952, bht: -1.5568169997218908, bmt: -1.5299338113215013, cap: -1.8854154180272629,
-                                cys: -1.2543963016580464, cysa: -1.8306583141864616, dab: -1.4108616815596513, dhb: -1.6177675073895352,
-                                dhpg: -1.388083961499828, dht: -1.6227156730466747, dpr: -1.6700428469443316, gln: -1.0462969167797644,
-                                glu: -1.2980344305644245, gly: -0.8749232861394641, glycolic-acid: -1.9332377837274901, his: -1.5752200774479255,
-                                hiv: -1.8989216068325094, hpg: -1.2448677181714072, hse: -1.8612381729981147, hty: -1.7576653360973726,
-                                hyv: -1.728345329970943, ile: -0.8619943263422828, indole-3-carboxylic: -1.9166086614697437, iva: -1.3276142168103904,
-                                kyn: -1.835955900762269, leu: -0.6083925146951371, lys: -1.3933512021551637, lyserg: -1.8883452622811263,
-                                met: -1.647690294571225, orn: -1.2722766275468926, phe: -1.1765230206178363, phe-ac: -1.908383177164592,
-                                phg: -1.740133330239415, pip: -1.4946683014735564, piperazic: -1.5587638097061454, pro: -1.1416461024581794,
-                                sal: -1.8806300279709716, ser: -0.8391676668275724, tcl: -1.905488234556398, thr: -0.9981191997353922,
-                                trp: -1.2722088194437984, tyr: -0.9914966142030501, val: -0.7741576897356451,
-                                vol: -1.9195019357790117, unknown: -0.8628115782185914,}
+null_hypothesis_residue_score: {2-oxo-isovaleric-acid: -6.869254281996133, 33p-l-ala: -6.744145844282906,
+                                4ppro: -6.860616878915351, HICA: -6.907755278982137, LDAP: -6.907755278982137, aad: -6.197879814933834,
+                                abu: -6.004234182408399, aeo: -6.907755278982137, ala: -5.137670086656208, alaninol: -6.640484740085027,
+                                arg: -6.041008871413547, asn: -5.951415618387822, asp: -5.7329896328547605, b-ala: -6.504000224916348,
+                                b-lys: -6.825704664702519, bht: -6.039247950297484, bmt: -6.323965022245088, cap: -6.706536408293663,
+                                cys: -5.831329745860132, cysa: -6.768818672350248, dab: -6.18541990851736, dhb: -6.125627843803635,
+                                dhpg: -6.096717117946802, dht: -6.538599834233283, dpr: -6.476925750854814, gln: -5.6973901245120855,
+                                glu: -6.010756340413262, gly: -5.162318620829194, glycolic-acid: -6.905662984776048, his: -6.431261605293325,
+                                hiv: -6.839243573710292, hpg: -5.949291931285633, hse: -6.7512998694439466, hty: -6.4791472353052395,
+                                hyv: -6.6769836847925506, ile: -5.53399612140086, indole-3-carboxylic: -6.876738560341138, iva: -6.0363070247618005,
+                                kyn: -6.679849819135593, leu: -4.667298518229907, lys: -6.091953639343895, lyserg: -6.724530086363229,
+                                met: -6.4405577515411, orn: -6.028850865501352, phe: -5.7902212143554666, phe-ac: -6.852674255230417,
+                                phg: -6.208356413212573, pip: -6.061912215355548, piperazic: -6.426191048418422, pro: -5.791003386623381,
+                                sal: -6.837956563014925, ser: -5.369833844157733, tcl: -6.781569037829936, thr: -5.507138235652743,
+                                trp: -6.1002022394627655, tyr: -5.4998688530485715, val: -5.105784181942307,
+                                vol: -6.836222152761722, unknown: -5.517658235969736}
 
 module_modification_frequency:
   METHYLATION: 0.17
 
 module_epimerization_frequency: 0.243
 
+
 max_gene_repetitions: 3
 max_module_repetitions: 3
-

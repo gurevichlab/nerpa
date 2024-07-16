@@ -92,11 +92,20 @@ def parse_cds_coordinates(location: str) -> Coords:
                   strand=parsed_location_parts[0].strand)  # it is assumed that all parts have the same strand
 
 
+def extract_gene_id(feature_qualifiers: dict) -> str:
+    if 'locus_tag' in feature_qualifiers:
+        return feature_qualifiers['locus_tag'][0]
+    elif 'gene' in feature_qualifiers:
+        return feature_qualifiers['gene'][0]
+    else:
+        raise KeyError('Gene ID not found in feature qualifiers')
+
+
 def extract_gene_coords(contig_data: dict) -> Dict[GeneId, Coords]:
     gene_coords = {}
     for feature in contig_data['features']:
         if feature['type'] == 'gene':
-            gene_id = feature['qualifiers']['locus_tag'][0]
+            gene_id = extract_gene_id(feature['qualifiers'])
             coords = parse_cds_coordinates(feature['location'])
             gene_coords[gene_id] = coords
     return gene_coords
@@ -131,9 +140,10 @@ def extract_genes(contig_data: dict,
     genes = []
     for gene_id, gene_data in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
         modules = extract_modules(gene_data, a_domains_per_gene[gene_id], config)
-        genes.append(Gene(gene_id=gene_id,
-                          coords=gene_coords[gene_id],
-                          modules=modules))
+        if modules:
+            genes.append(Gene(gene_id=gene_id,
+                              coords=gene_coords[gene_id],
+                              modules=modules))
 
     genes.sort(key=lambda gene: gene.coords.start)
     return genes
@@ -149,7 +159,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
             bgcs.append(BGC_Cluster(genome_id=genome_id,
                                     contig_id=f'ctg{ctg_idx + 1}',
-                                    bgc_id=str(bgc_idx),
+                                    bgc_idx=bgc_idx,
                                     genes=bgc_genes))
     return bgcs
 

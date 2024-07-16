@@ -107,9 +107,15 @@ class ConfigPaths:
 
 
 @dataclass
+class SpecificityPredictionConfig:
+    calibration_step_function_steps: List[float]
+
+
+@dataclass
 class Config:
     paths: ConfigPaths
     antismash_parsing_config: antiSMASH_Parsing_Config
+    specificity_prediction_config: SpecificityPredictionConfig
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
 
@@ -132,8 +138,10 @@ def load_config(args: CommandLineArgs) -> Config:
 
     antismash_parsing_config = antiSMASH_Parsing_Config(cfg['antismash_parsing_config'],
                                                         yaml.safe_load(paths_config.aa_codes.open('r')))
-
+    specificity_prediction_config = dacite.from_dict(SpecificityPredictionConfig,
+                                                     cfg['specificity_prediction_config'])
     return Config(paths=paths_config,
                   antismash_parsing_config=antismash_parsing_config,
                   rban_config=rban_config,
-                  rban_processing_config=rban_processing_config)
+                  rban_processing_config=rban_processing_config,
+                  specificity_prediction_config=specificity_prediction_config)

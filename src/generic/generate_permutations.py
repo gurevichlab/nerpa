@@ -1,5 +1,8 @@
-from typing import Iterable, List
+from typing import Iterable, List, TypeVar
 from itertools import combinations, chain
+
+
+T = TypeVar('T')
 
 
 def permutations_no_consecutive(n: int) -> Iterable[List[int]]:
@@ -19,7 +22,7 @@ def permutations_no_consecutive(n: int) -> Iterable[List[int]]:
     yield from extend_permutation([])
 
 
-def generate_permutations(n: int, max_blocks: int = None) -> Iterable[List[int]]:
+def generate_permutations_idxs(n: int, max_blocks: int = None) -> Iterable[List[int]]:
     '''
     generates all permutations of {0,...,n-1} in the order of increasing number of contiguous blocks
     we also add imaginary -1 and n at the ends that never move under a permutation
@@ -35,3 +38,11 @@ def generate_permutations(n: int, max_blocks: int = None) -> Iterable[List[int]]
             for perm in permutations:
                 joined_blocks = blocks[0] + list(chain(*(blocks[perm[i] + 1] for i in range(blocks_num - 2)))) + blocks[-1]
                 yield joined_blocks[1:-1]  # remove -1 and n
+
+
+def generate_permutations(xs_: Iterable[T], max_blocks: int = None) -> Iterable[List[T]]:
+    xs = list(xs_)
+    print(xs_)
+    print(list(generate_permutations_idxs(len(xs), max_blocks)))
+    return (list(xs[i] for i in perm)
+            for perm in generate_permutations_idxs(len(xs), max_blocks))
