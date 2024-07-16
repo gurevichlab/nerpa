@@ -40,9 +40,10 @@ def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
             for group in gene_groups]
 
 def a_pcp_module(module: Module) -> bool:
-    return set(module.domains_sequence) in ({DomainType.A, DomainType.PCP},
-                                            {DomainType.PKS, DomainType.PCP})
-
+    domains_set = set(module.domains_sequence)
+    return domains_set == {DomainType.PKS, DomainType.PCP} or \
+        {DomainType.A, DomainType.PCP}.issubset(domains_set) and all(not DomainType.in_c_domain_group(domain)
+                                                                     for domain in domains_set)
 
 def genes_sequence_consistent(genes: List[Gene]) -> bool:
     joined_modules = [module for gene in genes for module in gene.modules]
@@ -51,7 +52,7 @@ def genes_sequence_consistent(genes: List[Gene]) -> bool:
     nc_terms_consistent = DomainType.NTERM not in joined_modules[0].domains_sequence and \
                           DomainType.CTERM not in joined_modules[-1].domains_sequence
 
-    c_starter_consistent = all(DomainType.C_STARTER not in module.domains_sequence
+    c_starter_consistent = all(DomainType.C_STARTER not in module.domains_sequence  # TODO: refactor: create one function is_starting_module for all cases
                                for module in joined_modules[1:])
     a_pcp_consistent = all(not a_pcp_module(module) for module in joined_modules[1:])
     te_td_consistent = all(DomainType.TE_TD not in module.domains_sequence

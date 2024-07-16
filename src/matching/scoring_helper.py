@@ -41,14 +41,14 @@ class ScoringHelper:
         chirality_match = ChiralityMatch(bgc_epim=BGC_Module_Modification.EPIMERIZATION in bgc_pred.modifications,
                                          nrp_chr=nrp_mon.chirality)
         result = sum([self.scoring_config.match_score,
-                    residue_score,
-                    self.scoring_config.mod_score[mod_match],
-                    self.scoring_config.chirality_score[chirality_match]])
+                      residue_score,
+                      self.scoring_config.mod_score[mod_match],
+                      self.scoring_config.chirality_score[chirality_match]])
         result = max(result, -6)  # TODO: remove this line
         return result
 
     def match_detailed_score(self, bgc_pred: BGC_Module,
-              nrp_mon: NRP_Monomer) -> Tuple[LogProb, LogProb, LogProb, LogProb]:
+                             nrp_mon: NRP_Monomer) -> Tuple[LogProb, LogProb, LogProb, LogProb]:
         residue_score = bgc_pred.residue_score[nrp_mon.residue]
         if nrp_mon.residue == UNKNOWN_RESIDUE:
             residue_score -= math.log(self.scoring_config.num_unknown_residues)
@@ -57,6 +57,12 @@ class ScoringHelper:
                              nrp_mod=NRP_Monomer_Modification.METHYLATION in nrp_mon.modifications)
         chirality_match = ChiralityMatch(bgc_epim=BGC_Module_Modification.EPIMERIZATION in bgc_pred.modifications,
                                          nrp_chr=nrp_mon.chirality)
+        result = sum([self.scoring_config.match_score,
+                      residue_score,
+                      self.scoring_config.mod_score[mod_match],
+                      self.scoring_config.chirality_score[chirality_match]])
+        if result < -6:
+            residue_score += -6 - result
         return (residue_score,
                 self.scoring_config.mod_score[mod_match],
                 self.scoring_config.chirality_score[chirality_match],
