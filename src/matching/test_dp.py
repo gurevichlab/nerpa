@@ -133,7 +133,7 @@ def check(alignment: Alignment, correct_alignment: TestAlignment) -> bool:
 
 
 def run_tests(tests: Iterable[AlignmentTest]) -> bool:
-    dp_helper = ScoringHelper(load_scoring_config(Path(__file__).parent / 'scoring_config.yaml'))
+    dp_helper = ScoringHelper(load_scoring_config(Path(__file__).parent / 'scoring_config_old.yaml'))
     for i, test in enumerate(tests):
         if test.num_mods > 0:
             continue
@@ -200,10 +200,10 @@ def test_matcher():
                             module_idx=1)]
     bgc_variant = BGC_Variant(tentative_assembly_line=bgc_preds,
                               genome_id='genome#189',
-                              bgc_id='bgc#39')
+                              bgc_idx='bgc#39')
 
 
-    dp_config = load_scoring_config(Path(__file__).parent / 'scoring_config.yaml')
+    dp_config = load_scoring_config(Path(__file__).parent / 'scoring_config_old.yaml')
     with (Path(__file__).parent / Path('test_matches_output.txt')).open('w') as out:
         for match in get_matches([bgc_variant], [nrp_variant], dp_config):
             out.write(str(match) + '\n\n')

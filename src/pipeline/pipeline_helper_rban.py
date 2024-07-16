@@ -1,13 +1,14 @@
-from typing import List
+from typing import Dict, List
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
 from src.config import Config, rBAN_Processing_Config
-from src.data_types import NRP_Variant
+from src.data_types import Chirality, NRP_Variant
 
 from src.rban_parsing.retrieve_nrp_variants import retrieve_nrp_variants
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record,
     parsed_chiralities,
+    Raw_rBAN_Record
 )
 from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
 from src.rban_parsing.handle_monomers import get_monomers_chirality
@@ -65,12 +66,18 @@ class PipelineHelper_rBAN:
             return [{'id': default_id(i), 'smiles': smiles}
                     for i, smiles in enumerate(self.args.smiles)]
 
-    def get_rban_results(self) -> List[Parsed_rBAN_Record]:
+    def get_raw_rban_results(self) -> List[Raw_rBAN_Record]:
+        if self.args.rban_output:
+            rban_records = json.load(self.args.rban_output.open('r'))
+            return rban_records if isinstance(rban_records, list) else [rban_records]
+
         smiles_with_ids = self.get_input_for_rban()
+
         self.log.info('\n======= Structures preprocessing with rBAN')
-        rban_records = self.rban_helper.run_rban(smiles_with_ids,
-                                                 self.log, report_not_processed=True)
-        hybrid_monomers_dict = self.rban_helper.get_hybrid_monomers(rban_records, self.log)
+        return self.rban_helper.run_rban(smiles_with_ids,
+                                         self.log, report_not_processed=True)
+
+    def get_chiralities_per_record(self, rban_records: List[Raw_rBAN_Record]) -> Dict[int, Dict[int, Chirality]]:
         chiralities_dict = {}
         for i, rban_record in enumerate(rban_records):
             try:
@@ -79,11 +86,17 @@ class PipelineHelper_rBAN:
                 self.log.warning(
                     f'Structure "{rban_record["id"]}": unexpected error while determining stereoisomeric configuration '
                     f'of monomers. Stereoisomeric configuration will be omitted.')
+        return chiralities_dict
+
+    def get_rban_results(self) -> List[Parsed_rBAN_Record]:
+        rban_records = self.get_raw_rban_results()
+        hybrid_monomers_per_record = self.rban_helper.get_hybrid_monomers_per_record(rban_records, self.log)
+        chiralities_per_record = self.get_chiralities_per_record(rban_records)
 
         self.log.info("\n======= Done with Structures preprocessing with rBAN")
         return [Parsed_rBAN_Record(rban_record,
-                                   hybrid_monomers_dict[i],
-                                   chiralities_dict[i])
+                                   hybrid_monomers_per_record[i],
+                                   chiralities_per_record[i])
                 for i, rban_record in enumerate(rban_records)]
 
     def get_nrp_variants(self,

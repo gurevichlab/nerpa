@@ -64,9 +64,9 @@ class rBAN_Helper:
 
         return rban_records
 
-    def get_hybrid_monomers(self,
-                            rban_records: List[Raw_rBAN_Record],
-                            log: NerpaLogger) -> Dict[int, Dict[MonomerIdx, rBAN_Residue_Name]]:
+    def get_hybrid_monomers_per_record(self,
+                                       rban_records: List[Raw_rBAN_Record],
+                                       log: NerpaLogger) -> Dict[int, Dict[MonomerIdx, rBAN_Residue_Name]]:
         # check all unrecognized monomers for PK involvement
         def joined_id(struct_id: int, monomer_id: int) -> str:
             return f'{struct_id}_{monomer_id}'

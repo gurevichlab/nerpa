@@ -22,9 +22,9 @@ def split_by_dist(bgc_cluster: BGC_Cluster,
                                     lambda p: p[1].coords.start - p[0].coords.end > config.MAX_DISTANCE_BETWEEN_GENES))
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
                         contig_id=bgc_cluster.contig_id,
-                        bgc_id=f'{bgc_cluster.bgc_id}_{i}',
+                        bgc_idx=bgc_cluster.bgc_idx,
                         genes=[gene for _, gene in group])
-            for i, group in enumerate(gene_groups)]
+            for group in gene_groups]
 
 
 def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
@@ -35,13 +35,14 @@ def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
                            keep_separator=True)
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
                         contig_id=bgc_cluster.contig_id,
-                        bgc_id=f'{bgc_cluster.bgc_id}_{i}',
+                        bgc_idx=bgc_cluster.bgc_idx,
                         genes=group)
-            for i, group in enumerate(gene_groups)]
+            for group in gene_groups]
 
 def a_pcp_module(module: Module) -> bool:
     return set(module.domains_sequence) in ({DomainType.A, DomainType.PCP},
                                             {DomainType.PKS, DomainType.PCP})
+
 
 def genes_sequence_consistent(genes: List[Gene]) -> bool:
     joined_modules = [module for gene in genes for module in gene.modules]
@@ -72,40 +73,47 @@ def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
 
 def get_genes_rearrangements(_genes: List[Gene], config: antiSMASH_Parsing_Config) -> List[List[Gene]]:
     genes = reverse_if_all_neg(_genes)
+    if genes_sequence_consistent(genes):
+        return [genes]
+
+
     starting_gene = [gene for gene in genes
                      if DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])]
     terminal_gene = [gene for gene in genes
                      if DomainType.TE_TD in gene.modules[-1].domains_sequence]
     interior_genes = [gene for gene in genes
                       if gene not in starting_gene + terminal_gene]
-    genes = starting_gene + interior_genes + terminal_gene
-    if genes_sequence_consistent(genes):
-        return [genes]
-    else:
-        return [starting_gene + permuted_interior_genes + terminal_gene
-                for permuted_interior_genes in islice(generate_permutations(interior_genes),
-                                                      config.MAX_PERMUTATIONS_PER_BGC)
-                if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
+    return [starting_gene + permuted_interior_genes + terminal_gene
+            for permuted_interior_genes in islice(generate_permutations(interior_genes),
+                                                  config.MAX_PERMUTATIONS_PER_BGC)
+            if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
+
 
 def split_and_reorder_inconsistent(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     genes = reverse_if_all_neg(bgc.genes)
     if genes_sequence_consistent(genes):
         return [BGC_Cluster(genome_id=bgc.genome_id,
                             contig_id=bgc.contig_id,
-                            bgc_id=bgc.bgc_id,
+                            bgc_idx=bgc.bgc_idx,
                             genes=genes)]
+
+    # remove genes that do not have A domains because they are not relevant for the permutation
+    # (the decision to apply all possible rearrangements is already made at this point
+    # be careful with this if you ever want to consider other scheme of gene rearrangements
+    genes = [gene for gene in genes
+             if any(DomainType.A in module.domains_sequence for module in gene.modules)]
 
     genes_substrings = (genes[i:j]
                         for i in range(len(genes))
-                        for j in range(i + 1, len(genes)))
+                        for j in range(i + 1, len(genes) + 1))
     genes_rearrangements = chain(*map(partial(get_genes_rearrangements, config=config),
                                       genes_substrings))
 
     return [BGC_Cluster(genome_id=bgc.genome_id,
                         contig_id=bgc.contig_id,
-                        bgc_id=f'{bgc.bgc_id}_{i}',
+                        bgc_idx=bgc.bgc_idx,
                         genes=rearranged_genes)
-            for i, rearranged_genes in enumerate(genes_rearrangements)]
+            for rearranged_genes in genes_rearrangements]
 
 
 def split_and_reorder(bgc: BGC_Cluster,

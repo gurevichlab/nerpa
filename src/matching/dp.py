@@ -12,8 +12,8 @@ from src.data_types import (
     LogProb,
     NRP_Monomer,
 )
-from src.matching.scoring_helper import ScoringHelper
-from src.matching.alignment_types import AlignmentStep, Alignment
+from src.matching.scoring_helper import ScoringHelper, FUNCTION_NAME_TO_STEP_TYPE
+from src.matching.alignment_types import Alignment, AlignmentStep, AlignmentStepType
 import numpy as np
 import numpy.typing as npt
 from itertools import groupby
@@ -30,7 +30,7 @@ class DP_State(NamedTuple):
 class DP_Value(NamedTuple):
     score: LogProb
     parent: DP_State
-    action: str  # TODO: make it a proper type
+    action: AlignmentStepType
 
 DP_Table = npt.NDArray[Union[DP_Value, None]]
 
@@ -43,9 +43,9 @@ START_STATE = DP_State(0,0,0,0)
 
 
 def dp_recalc(dp_table: DP_Table,
-              transitions: List[Tuple[DP_State, LogProb, str]]) -> Union[DP_Value, None]:
-    return max((DP_Value(dp_table[state].score + score, state, transition_name)
-                for state, score, transition_name in transitions),
+              transitions: List[Tuple[DP_State, LogProb, AlignmentStepType]]) -> Union[DP_Value, None]:
+    return max((DP_Value(dp_table[state].score + score, state, transition_type)
+                for state, score, transition_type in transitions),
                default=None)
 
 
@@ -61,9 +61,9 @@ def calculate_dp(assembly_line: List[BGC_Module],
 
     dp_table = np.empty((len(assembly_line)+1, len(nrp_monomers)+1, max_gene_reps+1, max_module_reps+1),
                         dtype=DP_Value)
-    dp_table[START_STATE] = DP_Value(0, START_STATE, '')
+    dp_table[START_STATE] = DP_Value(0, START_STATE, AlignmentStepType.MATCH)  # step type is not important
 
-    pred_dummy = BGC_Module('', -1, {}, (), False, False)  # placeholders for more concise code
+    pred_dummy = BGC_Module('', -1, {}, (), False, False, '', '')  # placeholders for more concise code
     mon_dummy = NRP_Monomer('', (), Chirality.UNKNOWN, '', 0)  # dummies are not actually used in the alignment
 
     recalc = partial(dp_recalc, dp_table)
@@ -87,7 +87,8 @@ def calculate_dp(assembly_line: List[BGC_Module],
                         gene_len = gene_lengths[assembly_line[i].gene_id]
                         transitions.append((DP_State(i + gene_len, j, gene_reps - 1, module_reps),
                                             dp_helper.iterate_gene, ()))
-                    dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*args), transition.__name__)
+                    dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*args),
+                                                                               FUNCTION_NAME_TO_STEP_TYPE[transition.__name__])
                                                                               for dp_state, transition, args in transitions
                                                                               if valid_state(dp_table, dp_state))
 
@@ -104,7 +105,7 @@ def retrieve_alignment(dp_table: DP_Table, state: DP_State,
     parent = dp_table[state].parent
     bgc_module = assembly_line[parent.module_pos] if parent.module_pos < state.module_pos else None
     nrp_monomer = nrp_monomers[parent.monomer_pos] if parent.monomer_pos < state.monomer_pos else None
-    score = scoring_helper.match_detailed_score(bgc_module, nrp_monomer) if dp_table[state].action == 'match' \
+    score = scoring_helper.match_detailed_score(bgc_module, nrp_monomer) if dp_table[state].action == AlignmentStepType.MATCH \
             else dp_table[state].score - dp_table[parent].score
 
     return (retrieve_alignment(dp_table, parent, assembly_line, nrp_monomers, scoring_helper)

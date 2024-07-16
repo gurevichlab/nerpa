@@ -49,7 +49,7 @@ def build_report(matches: List[Match]) -> str:
                           'NRP_ID': match.nrp_variant.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant.variant_idx,
                           'Genome_ID': match.bgc_variant.genome_id,
-                          'BGC_ID': match.bgc_variant.bgc_id,
+                          'BGC_ID': match.bgc_variant.bgc_idx,
                           'BGC_Variant_Idx': match.bgc_variant.variant_idx}
                          for match in matches)
     return result.getvalue()
@@ -76,9 +76,8 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
                        output_dir: Path):
-    (output_dir / Path('BGC_variants')).mkdir()
-    for (genome_id, bgc_id), bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: (bgc_variant.genome_id, bgc_variant.bgc_id)):
-        write_yaml(list(bgc_id_variants), output_dir / Path(f'BGC_variants/{genome_id}_{bgc_id}.yaml'))
+    for (genome_id, bgc_id), bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: (bgc_variant.genome_id, bgc_variant.bgc_idx)):
+        write_yaml(list(bgc_id_variants), output_dir / f'{genome_id}_{bgc_id}.yaml')
 
 
 def write_matches_details(matches: List[Match],
@@ -89,7 +88,7 @@ def write_matches_details(matches: List[Match],
 
     (output_dir / Path('matches_details/per_BGC')).mkdir()
     write_matches_per_id(matches, output_dir / Path('matches_details/per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant.genome_id}_{match.bgc_variant.bgc_id}')
+                         get_id=lambda match: f'{match.bgc_variant.genome_id}_{match.bgc_variant.bgc_idx}')
 
     (output_dir / Path('matches_details/per_NRP')).mkdir()
     write_matches_per_id(matches, output_dir / Path('matches_details/per_NRP'),
@@ -102,10 +101,11 @@ def write_results(matches: List[Match],
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True):
-    (output_dir / Path('report.tsv')).write_text(build_report(matches))
+    (output_dir / 'report.tsv').write_text(build_report(matches))
 
     if bgc_variants is not None:
-        write_bgc_variants(bgc_variants, output_dir)
+        (output_dir / 'BGC_variants').mkdir()
+        write_bgc_variants(bgc_variants, output_dir / 'BGC_variants')
     if nrp_variants is not None:
         write_nrp_variants(nrp_variants, output_dir, rban_records)
 

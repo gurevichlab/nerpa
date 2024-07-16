@@ -12,14 +12,28 @@ from src.data_types import BGC_Variant
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
 from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
 from src.antismash_parsing.antismash_parser import parse_antismash_json
-from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
+from src.write_results import write_bgc_variants
 from pathlib import Path
 import json
 import yaml
 from dataclasses import dataclass
-from functools import partial
 from itertools import chain
+import math
+
+def calibrate_scores(bgc_variants: List[BGC_Variant],
+                     step_function_steps: List[float]):
+    step_len = 1 / len(step_function_steps)
+    def step_function(x: float) -> float:
+        for i, step in enumerate(step_function_steps):
+            if x < (i + 1) * step_len:
+                return step_function_steps[i]
+        return step_function_steps[-1]
+
+    for bgc_variant in bgc_variants:
+        for module in bgc_variant.tentative_assembly_line:
+            module.residue_score = {res: math.log(step_function(math.e ** score))
+                                    for res, score in module.residue_score.items()}
 
 
 @dataclass
@@ -105,13 +119,19 @@ class PipelineHelper_antiSMASH:
         antismash_bgcs = parse_antismash_json(antismash_json,
                                               self.monomer_names_helper,
                                               self.config.antismash_parsing_config)
-        bgcs = chain(*map(partial(split_and_reorder, config=self.config.antismash_parsing_config),
-                          antismash_bgcs))
         specificity_prediction_model = ModelWrapper(self.config.paths.specificity_prediction_model)
-        return chain.from_iterable(build_bgc_variants(bgc,
-                                                      self.log,
-                                                      specificity_prediction_model,
-                                                      self.config.antismash_parsing_config)
-                                   for bgc in bgcs)
+        bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
+                                                                   self.log,
+                                                                   specificity_prediction_model,
+                                                                   self.config.antismash_parsing_config)
+                                                for bgc in antismash_bgcs))
+
+        (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir()
+        write_bgc_variants(bgc_variants,
+                           self.config.paths.main_out_dir / 'BGC_variants_before_calibration')
+
+        calibrate_scores(bgc_variants,
+                         self.config.specificity_prediction_config.calibration_step_function_steps)
+        return bgc_variants
 
 
