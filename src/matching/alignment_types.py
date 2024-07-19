@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from prettytable import PrettyTable
 from io import StringIO
 from enum import Enum, auto
+from collections import OrderedDict
 
 
 class AlignmentStepType(Enum):
@@ -46,24 +47,24 @@ class AlignmentStep(NamedTuple):
                             if score == top_score]
         else:
             top_residues = None
-        return {'Gene': self.bgc_module.gene_id if self.bgc_module else NA,
-                'A-domain_idx': self.bgc_module.module_idx if self.bgc_module else NA,
-                'Top_scoring_residues': ','.join(top_residues) if top_residues else NA,
-                'Modifying_domains': ','.join(mod.name for mod in self.bgc_module.modifications)
-            if self.bgc_module and self.bgc_module.modifications else NA,
-                'NRP_residue': self.nrp_monomer.residue if self.nrp_monomer else NA,
-                'NRP_chirality': self.nrp_monomer.chirality.name if self.nrp_monomer else NA,
-                'NRP_modifications': ','.join(mod.name for mod in self.nrp_monomer.modifications)
-            if self.nrp_monomer and self.nrp_monomer.modifications else NA,
-                'rBAN_name': self.nrp_monomer.rban_name if self.nrp_monomer else NA,
-                'rBAN_idx': self.nrp_monomer.rban_idx if self.nrp_monomer else NA,
-                'Alignment_step': self.action.name,
-                'Score': round(self.get_score(), 3),
-                'ResidueScore': round(self.score[0], 3) if self.action == AlignmentStepType.MATCH else NA,
-                'MethylationScore': round(self.score[1], 3) if self.action == AlignmentStepType.MATCH else NA,
-                'ChiralityScore': round(self.score[2], 3) if self.action == AlignmentStepType.MATCH else NA,
-                'aa10_code': self.bgc_module.aa10_code if self.bgc_module else NA,
-                'aa34_code': self.bgc_module.aa34_code if self.bgc_module else NA}
+        return OrderedDict({'Gene': self.bgc_module.gene_id if self.bgc_module else NA,
+                            'A-domain_idx': self.bgc_module.module_idx if self.bgc_module else NA,
+                            'Top_scoring_residues': ','.join(top_residues) if top_residues else NA,
+                            'Modifying_domains': ','.join(mod.name for mod in self.bgc_module.modifications)
+                            if self.bgc_module and self.bgc_module.modifications else NA,
+                            'NRP_residue': self.nrp_monomer.residue if self.nrp_monomer else NA,
+                            'NRP_chirality': self.nrp_monomer.chirality.name if self.nrp_monomer else NA,
+                            'NRP_modifications': ','.join(mod.name for mod in self.nrp_monomer.modifications)
+                            if self.nrp_monomer and self.nrp_monomer.modifications else NA,
+                            'rBAN_name': self.nrp_monomer.rban_name if self.nrp_monomer else NA,
+                            'rBAN_idx': self.nrp_monomer.rban_idx if self.nrp_monomer else NA,
+                            'Alignment_step': self.action.name,
+                            'Score': round(self.get_score(), 3),
+                            'ResidueScore': round(self.score[0], 3) if self.action == AlignmentStepType.MATCH else NA,
+                            'MethylationScore': round(self.score[1], 3) if self.action == AlignmentStepType.MATCH else NA,
+                            'ChiralityScore': round(self.score[2], 3) if self.action == AlignmentStepType.MATCH else NA,
+                            'aa10_code': self.bgc_module.aa10_code if self.bgc_module else NA,
+                            'aa34_code': self.bgc_module.aa34_code if self.bgc_module else NA})
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> AlignmentStep:
@@ -123,7 +124,7 @@ class Match:
                 'NRP_variant_idx': self.nrp_variant.variant_idx,
                 'NormalisedScore': self.normalized_score,
                 'Score': self.raw_score(),
-                'Alignments': [[alignment_step.to_dict()
+                'Alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
                                 for alignment_step in alignment]
                                for alignment in self.alignments]}
 

@@ -33,11 +33,13 @@ def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
                            lambda gene: DomainType.C_STARTER in gene.modules[0].domains_sequence and
                                         DomainType.TE_TD in gene.modules[-1].domains_sequence,
                            keep_separator=True)
+    gene_groups = [list(group) for group in gene_groups]
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
                         contig_id=bgc_cluster.contig_id,
                         bgc_idx=bgc_cluster.bgc_idx,
                         genes=group)
-            for group in gene_groups]
+            for group in gene_groups
+            if len(group) > 0]
 
 def a_pcp_module(module: Module) -> bool:
     domains_set = set(module.domains_sequence)

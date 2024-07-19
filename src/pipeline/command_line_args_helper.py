@@ -67,7 +67,7 @@ def add_config_arguments(parser: argparse.ArgumentParser):
     configs_group.add_argument("--process-hybrids", dest="process_hybrids", action="store_true", default=False,
                         help="process NRP-PK hybrid monomers (requires use of rBAN)")
     configs_group.add_argument("--threads", default=1, type=int, help="number of threads for running Nerpa", action="store")
-    configs_group.add_argument("--min-score", default=0, type=float, help="minimum score to report a match", action="store")
+    configs_group.add_argument("--min-score", default=None, type=float, help="minimum score to report a match", action="store")
     configs_group.add_argument("--num-matches", default=None, type=int, help="maximum number of matches to report", action="store")
     configs_group.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")
