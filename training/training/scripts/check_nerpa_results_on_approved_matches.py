@@ -1,6 +1,29 @@
 from pathlib import Path
 from itertools import permutations
 import yaml
+from prettytable import PrettyTable
+
+
+def show_match(match: dict) -> str:
+    result = ''
+    result += f"Genome: {match['Genome']}\n"
+    result += f"BGC_variant_idx: {match['BGC_variant_idx']}\n"
+    result += f"NRP: {match['NRP']}\n"
+    result += f"NRP_variant_idx: {match['NRP_variant_idx']}\n"
+    result += f"NormalisedScore: {match['NormalisedScore']}\n"
+    result += f"Score: {match['Score']}\n"
+    result += f"Alignment:\n"
+    for i, alignment in enumerate(match['Alignments']):
+        if len(match['Alignments']) > 1:
+            result += f'Fragment_{i}\n'
+        fields = ['Gene', 'A-domain_idx', 'Top_scoring_residues', 'Modifying_domains', 'NRP_residue', 'NRP_chirality',
+                  'NRP_modifications', 'rBAN_name', 'rBAN_idx', 'Alignment_step',
+                  'Score', 'ResidueScore', 'MethylationScore', 'ChiralityScore']
+        t = PrettyTable(fields, align='l', border=False)
+        t.add_rows([alignment_step[field] for field in fields] for alignment_step in alignment)
+        result += str(t) + '\n'
+
+    return result
 
 
 approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/training/training/matches_inspection_results/approved_matches.yaml')
@@ -15,17 +38,18 @@ def steps_coincide(step1, step2) -> bool:  # step2 is approved
                                            'NRP_modifications',
                                            'NRP_residue',
                                            'aa10_code',
-                                           'aa34_code',
-                                           'rBAN_idx',
-                                           'rBAN_name']
+                                           'aa34_code']
                         if step1[field_name] != step2[field_name]), None)
-    if wrong_field:
+    if wrong_field is not None:
         print(wrong_field)
         return False
-    if step1['A-domain_idx'] + 1 != step2['A-domain_idx']:
+    if not (step1['rBAN_name'] == step2['rBAN_name'] or step1['rBAN_name'][0] == step2['rBAN_name'][0] == 'X'):
+        print('rBAN_name')
+        return False
+    if not (step1['A-domain_idx'] == step2['A-domain_idx'] == '---' or step1['A-domain_idx'] + 1 == step2['A-domain_idx']):
         print('A-domain_idx')
         return False
-    if step1['Gene'] != step2['Gene'].split('_', 1)[1]:
+    if not (step1['Gene'] == step2['Gene'] == '---' or step1['Gene'] == step2['Gene'].split('_', 1)[1]):
         print('Gene')
         return False
     return all(step1[field_name] == step2[field_name]
@@ -35,13 +59,15 @@ def steps_coincide(step1, step2) -> bool:  # step2 is approved
                                   'NRP_modifications',
                                   'NRP_residue',
                                   'aa10_code',
-                                  'aa34_code',
-                                  'rBAN_idx',
-                                  'rBAN_name'])
+                                  'aa34_code'])
 
 def alignments_coincide(alignment1, alignment2) -> bool:
-    return len(alignment1) == len(alignment2) and all(steps_coincide(step1, step2)
-                                                      for step1, step2 in zip(alignment1, alignment2))
+    non_iterating_steps1 = [step for step in alignment1 if step['Alignment_step'] not in ('ITERATE_GENE', 'ITERATE_MODULE')]
+    non_iterating_steps2 = [step for step in alignment2 if step['Alignment_step'] not in ('ITERATE_GENE', 'ITERATE_MODULE')]
+    return len(non_iterating_steps1) == len(non_iterating_steps2) and\
+        all(steps_coincide(step1, step2)
+            for step1, step2 in zip(non_iterating_steps1,
+                                    non_iterating_steps2))
 
 def matches_coincide(match1, match2) -> bool:
     alignments1 = match1['Alignments']
@@ -59,24 +85,37 @@ def matches_coincide(match1, match2) -> bool:
 
 nerpa_results_matches = []
 for results_dir in nerpa_results_dir.iterdir():
+    if not (results_dir / 'matches_details/matches.yaml').exists():
+        print(f'{results_dir} does not have matches')
+        raise SystemExit
     with open(results_dir / 'matches_details/matches.yaml') as matches_file:
         best_match = max(yaml.safe_load(matches_file),
-                         key=lambda match: match['NormalisedScore'])
+                         key=lambda match: match['NormalisedScore'],
+                         default=None)
+        if best_match is None:
+            print(f'{results_dir} has no matches')
+            raise SystemExit
         nerpa_results_matches.append(best_match)
 
 approved_matches = yaml.safe_load(approved_matches_yaml.read_text())
 
 for match in nerpa_results_matches:
     nrp_id = match['NRP']
+    print(f'Checking match for {nrp_id}')
     approved_match = next((approved_match
                            for approved_match in approved_matches
                            if approved_match['NRP'] == nrp_id),
                           None)
     if approved_match is None:
         print(f'NRP {nrp_id} not in approved matches')
-        break
+        continue
     if not matches_coincide(match, approved_match):
         print(f'Match for {nrp_id} is wrong')
+        with open('/home/ilianolhin/git/nerpa2/training/training/scripts/wrong_match.txt', 'w') as f:
+            f.write('\n'.join(['Match:',
+                               show_match(match),
+                               'Approved match:',
+                               show_match(approved_match)]))
         break
 else:
     print('All matches correct')

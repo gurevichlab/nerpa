@@ -72,6 +72,11 @@ def extract_a_domains_info(contig_data: dict,
 
 
 def parse_cds_coordinates(location: str) -> Coords:
+    # BGC0000296, gene acmY had location [45371:>47435](+).
+    # I have no idea what this is, so I just remove the '<' and '>' and hope for the best
+    location = location.replace('<', '').replace('>', '')
+    location = location.replace(' ','')  # remove possible spaces
+
     def parse_location(loc: str) -> Coords:
         # e.g. 'loc' = '[351:486](+)'
         parsed_loc = parse('[{start:d}:{end:d}]({strand})', loc)

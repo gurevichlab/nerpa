@@ -1,11 +1,13 @@
 from typing import (
+    Callable,
+    Dict,
     Iterable,
     List,
     Union
 )
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
-from src.config import Config
+from src.config import Config, SpecificityPredictionConfig
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.data_types import BGC_Variant
 
@@ -21,19 +23,44 @@ from dataclasses import dataclass
 from itertools import chain
 import math
 
-def calibrate_scores(bgc_variants: List[BGC_Variant],
-                     step_function_steps: List[float]):
-    step_len = 1 / len(step_function_steps)
-    def step_function(x: float) -> float:
-        for i, step in enumerate(step_function_steps):
-            if x < (i + 1) * step_len:
-                return step_function_steps[i]
-        return step_function_steps[-1]
 
-    for bgc_variant in bgc_variants:
-        for module in bgc_variant.tentative_assembly_line:
-            module.residue_score = {res: math.log(step_function(math.e ** score))
-                                    for res, score in module.residue_score.items()}
+def create_step_function(steps: List[float]) -> Callable[[float], float]:
+    step_len = 1 / len(steps)
+    def step_function(x: float) -> float:
+        for i, step in enumerate(steps):
+            if x < (i + 1) * step_len:
+                return steps[i]
+        return steps[-1]
+    return step_function
+
+
+def calibrate_scores(predictions: Dict[str, float],
+                     config: SpecificityPredictionConfig):
+    predictions = {res: math.e ** score for res, score in predictions.items()}
+    if config.apply_step_function:
+        step_function = create_step_function(config.calibration_step_function_steps)
+        predictions = {res: step_function(score)
+                       for res, score in predictions.items()}
+    if config.normalize_scores:
+        total_prob = sum(predictions.values())
+        if total_prob < 1:
+            predictions = {res: score + (1 - total_prob) * config.apriori_residue_prob[res]
+                           for res, score in predictions.items()}
+        else:
+            predictions = {res: score / total_prob
+                           for res, score in predictions.items()}
+
+    if config.pseudo_counts:
+        predictions = {res: score * (1 - config.pseudo_count_fraction) +
+                            config.pseudo_count_fraction * config.apriori_residue_prob[res]
+                       for res, score in predictions.items()}
+
+    if config.compute_evidence:
+        predictions = {res: score / config.apriori_residue_prob[res]
+                       for res, score in predictions.items()}
+
+    predictions = {res: math.log(score) for res, score in predictions.items()}
+    return predictions
 
 
 @dataclass
@@ -126,12 +153,15 @@ class PipelineHelper_antiSMASH:
                                                                    self.config.antismash_parsing_config)
                                                 for bgc in antismash_bgcs))
 
-        (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir()
-        write_bgc_variants(bgc_variants,
-                           self.config.paths.main_out_dir / 'BGC_variants_before_calibration')
+        if self.config.specificity_prediction_config.calibration:
+            (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir()
+            write_bgc_variants(bgc_variants,
+                               self.config.paths.main_out_dir / 'BGC_variants_before_calibration')
 
-        calibrate_scores(bgc_variants,
-                         self.config.specificity_prediction_config.calibration_step_function_steps)
+            for bgc_variant in bgc_variants:
+                for module in bgc_variant.tentative_assembly_line:
+                    module.residue_score = calibrate_scores(module.residue_score,
+                                                            self.config.specificity_prediction_config)
         return bgc_variants
 
 
