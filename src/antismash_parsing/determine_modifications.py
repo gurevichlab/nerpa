@@ -26,7 +26,7 @@ def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType
     domains_iter = iter(interior_domains_types)
     try:
         while next(domains_iter) != DomainType.PCP: pass
-        while next(domains_iter).in_c_domain_group(): pass
+        while not next(domains_iter).in_c_domain_group(): pass
         while next(domains_iter) != DomainType.PCP: pass
     except StopIteration:
         return False
