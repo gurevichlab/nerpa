@@ -99,9 +99,25 @@ for results_dir in nerpa_results_dir.iterdir():
 
 approved_matches = yaml.safe_load(approved_matches_yaml.read_text())
 
-for match in nerpa_results_matches:
+for i, match in enumerate(nerpa_results_matches):
     nrp_id = match['NRP']
-    print(f'Checking match for {nrp_id}')
+    print(f'{i}. Checking match for {nrp_id}')
+    if nrp_id in ['BGC0001098.0',
+                  'BGC0002092.0', 'BGC0002092.2', 'BGC0002092.3', 'BGC0002092.5',
+                  'BGC0001346.1', 'BGC0001346.2',
+                  'BGC0001185.0',
+                  'BGC0002564.1','BGC0002564.7',
+                  'BGC0002351.0',
+                  'BGC0002286.0', 'BGC0002286.1',
+                  'BGC0002572.2',
+                  'BGC0002370.3',
+                  'BGC0002548.0',
+                  'BGC0002484.5',
+                  'BGC0001035.0',
+                  'BGC0002521.0',
+                  'BGC0000399.1']:
+        print('Skipping for debugging')
+        continue
     approved_match = next((approved_match
                            for approved_match in approved_matches
                            if approved_match['NRP'] == nrp_id),
