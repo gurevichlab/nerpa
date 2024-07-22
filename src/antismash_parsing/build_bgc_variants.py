@@ -63,7 +63,7 @@ def build_gene_assembly_line(gene: Gene,
     iterative_gene = is_iterative_gene(gene)
     iterative_modules_idxs = get_iterative_modules_idxs(gene)
     built_modules = []
-    a_domain_idx = -1
+    a_domain_idx = 0  # indexes start from 1 for backward compatibility. Maybe change this in the future
     for module_idx, module in enumerate(gene.modules):
         if module.a_domain is None:
             continue
