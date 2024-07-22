@@ -46,10 +46,10 @@ def steps_coincide(step1, step2) -> bool:  # step2 is approved
     if not (step1['rBAN_name'] == step2['rBAN_name'] or step1['rBAN_name'][0] == step2['rBAN_name'][0] == 'X'):
         print('rBAN_name')
         return False
-    if not (step1['A-domain_idx'] == step2['A-domain_idx'] == '---' or step1['A-domain_idx'] + 1 == step2['A-domain_idx']):
+    if not (step1['A-domain_idx'] == step2['A-domain_idx'] == '---' or step1['A-domain_idx'] == step2['A-domain_idx']):
         print('A-domain_idx')
         return False
-    if not (step1['Gene'] == step2['Gene'] == '---' or step1['Gene'] == step2['Gene'].split('_', 1)[1]):
+    if not (step1['Gene'] == step2['Gene'] or ('_' in step2['Gene'] and step1['Gene'] == step2['Gene'].split('_', 1)[1])):
         print('Gene')
         return False
     return all(step1[field_name] == step2[field_name]
@@ -98,26 +98,11 @@ for results_dir in nerpa_results_dir.iterdir():
         nerpa_results_matches.append(best_match)
 
 approved_matches = yaml.safe_load(approved_matches_yaml.read_text())
-
+print(len(approved_matches))
+wrong_matches = []
 for i, match in enumerate(nerpa_results_matches):
     nrp_id = match['NRP']
     print(f'{i}. Checking match for {nrp_id}')
-    if nrp_id in ['BGC0001098.0',
-                  'BGC0002092.0', 'BGC0002092.2', 'BGC0002092.3', 'BGC0002092.5',
-                  'BGC0001346.1', 'BGC0001346.2',
-                  'BGC0001185.0',
-                  'BGC0002564.1','BGC0002564.7',
-                  'BGC0002351.0',
-                  'BGC0002286.0', 'BGC0002286.1',
-                  'BGC0002572.2',
-                  'BGC0002370.3',
-                  'BGC0002548.0',
-                  'BGC0002484.5',
-                  'BGC0001035.0',
-                  'BGC0002521.0',
-                  'BGC0000399.1']:
-        print('Skipping for debugging')
-        continue
     approved_match = next((approved_match
                            for approved_match in approved_matches
                            if approved_match['NRP'] == nrp_id),
@@ -127,12 +112,21 @@ for i, match in enumerate(nerpa_results_matches):
         continue
     if not matches_coincide(match, approved_match):
         print(f'Match for {nrp_id} is wrong')
-        with open('/home/ilianolhin/git/nerpa2/training/training/scripts/wrong_match.txt', 'w') as f:
+        wrong_matches.append(nrp_id)
+        with open('/home/ilianolhin/git/nerpa2/training/training/scripts/wrong_match.txt', 'a') as f:
             f.write('\n'.join(['Match:',
                                show_match(match),
                                'Approved match:',
-                               show_match(approved_match)]))
-        break
+                               show_match(approved_match),
+                               '\n\n']))
+        continue
 else:
-    print('All matches correct')
+    print('All matches checked')
+    if not wrong_matches:
+        print('Everything correct')
+    else:
+        print('Wrong matches:')
+        print(wrong_matches)
+        print('Check /home/ilianolhin/git/nerpa2/training/training/scripts/wrong_match.txt')
+
 
