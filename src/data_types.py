@@ -90,20 +90,24 @@ class BGC_Module:
                    aa34_code=data.get('aa34_code') if data.get('aa34_code') != '---' else None)
 
 
+BGC_Fragment = List[BGC_Module]
+
+
 @dataclass
 class BGC_Variant:
     variant_idx: int
     genome_id: str
     bgc_idx: int
-    tentative_assembly_line: List[BGC_Module]
+    fragments: List[BGC_Fragment]
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> BGC_Variant:
         return cls(variant_idx=data['variant_idx'],
                    genome_id=data['genome_id'],
                    bgc_idx=data['bgc_id'],
-                   tentative_assembly_line=list(map(BGC_Module.from_yaml_dict,
-                                                    data['tentative_assembly_line'])))
+                   fragments=[[BGC_Module.from_yaml_dict(module_dict)
+                               for module_dict in fragment_list]
+                               for fragment_list in data['fragments']])
 
 
 @dataclass

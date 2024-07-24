@@ -28,6 +28,7 @@ from src.generic.string import hamming_distance
 from itertools import chain
 import pandas as pd
 
+
 #TODO: needs typing for residue_scoring_model and config
 def get_residue_scores(a_domain: A_Domain,
                        residue_scoring_model: Any,
@@ -99,19 +100,29 @@ def build_bgc_assembly_line(bgc_genes: List[Gene],
                                     for gene in bgc_genes))
 
 
+def build_bgc_fragments(raw_fragmented_bgc: List[BGC_Cluster],
+                        residue_scoring_model: Any,
+                        config: antiSMASH_Parsing_Config) -> List[BGC_Fragment]:
+    return [build_bgc_assembly_line(bgc_cluster.genes,
+                                    residue_scoring_model,
+                                    config)
+            for bgc_cluster in raw_fragmented_bgc]
+
+
 def build_bgc_variants(bgc: BGC_Cluster,
                        log: NerpaLogger,
                        residue_scoring_model: Any,
                        config: antiSMASH_Parsing_Config) -> List[BGC_Variant]:  # TODO: replace Any with proper type
-    raw_bgc_variants = split_and_reorder(bgc, config)
-    if len(raw_bgc_variants) > config.MAX_VARIANTS_PER_BGC:
-        log.info(f'WARNING: Too many parts: {len(raw_bgc_variants)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
-        raw_bgc_variants = raw_bgc_variants[:config.MAX_VARIANTS_PER_BGC]
+    raw_fragmented_bgcs = split_and_reorder(bgc, config)
+    if len(raw_fragmented_bgcs) > config.MAX_VARIANTS_PER_BGC:
+        log.info(f'WARNING: Too many parts: {len(raw_fragmented_bgcs)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
+        raw_fragmented_bgcs = raw_fragmented_bgcs[:config.MAX_VARIANTS_PER_BGC]
+
 
     return [BGC_Variant(genome_id=bgc.genome_id,
                         variant_idx=idx,
                         bgc_idx=bgc.bgc_idx,
-                        tentative_assembly_line=build_bgc_assembly_line(raw_bgc_variant.genes,
-                                                                        residue_scoring_model,
-                                                                        config))
-            for idx, raw_bgc_variant in enumerate(raw_bgc_variants)]
+                        fragments=build_bgc_fragments(raw_fragmented_bgc,
+                                                      residue_scoring_model,
+                                                      config))
+            for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)]
