@@ -1,5 +1,6 @@
-from typing import Iterable, List, TypeVar
-from itertools import combinations, chain
+from typing import Iterable, List, Tuple, TypeVar
+from itertools import combinations, chain, combinations_with_replacement
+from collections import Counter
 
 
 T = TypeVar('T')
@@ -44,3 +45,17 @@ def generate_permutations(xs_: Iterable[T], max_blocks: int = None) -> Iterable[
     xs = list(xs_)
     return (list(xs[i] for i in perm)
             for perm in generate_permutations_idxs(len(xs), max_blocks))
+
+
+def split_sequence(xs: List[T]) -> Iterable[List[List[T]]]:
+    '''
+    splits a sequence into contiguous subsequences
+    '''
+    def extend_split_sequence(remaining: List[T], current: List[List[T]]) -> Iterable[List[List[T]]]:
+        if not remaining:
+            yield current
+            return
+        for i in range(1, len(remaining)):
+            yield from extend_split_sequence(remaining[i:], current + [remaining[:i]])
+
+    yield from extend_split_sequence(xs, [])

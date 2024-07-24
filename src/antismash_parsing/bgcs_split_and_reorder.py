@@ -1,4 +1,8 @@
-from typing import List
+from typing import (
+    Iterable,
+    List,
+    Tuple
+)
 from src.antismash_parsing.antismash_parser_types import (
     BGC_Cluster,
     Coords,
@@ -8,11 +12,12 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND
 )
 from src.config import antiSMASH_Parsing_Config
-from src.generic.generate_permutations import generate_permutations
-from src.generic.functional import list_monad_compose
+from src.generic.combinatorics import generate_permutations, split_sequence
 from functools import partial
-from itertools import chain, islice, pairwise
+from itertools import chain, islice, pairwise, product
 from more_itertools import split_before, split_at
+
+Fragmented_BGC_Cluster = List[BGC_Cluster]
 
 
 def split_by_dist(bgc_cluster: BGC_Cluster,
@@ -46,6 +51,7 @@ def a_pcp_module(module: Module) -> bool:
     return domains_set == {DomainType.PKS, DomainType.PCP} or \
         {DomainType.A, DomainType.PCP}.issubset(domains_set) and all(not DomainType.in_c_domain_group(domain)
                                                                      for domain in domains_set)
+
 
 def genes_sequence_consistent(genes: List[Gene]) -> bool:
     joined_modules = [module for gene in genes for module in gene.modules]
@@ -92,36 +98,34 @@ def get_genes_rearrangements(_genes: List[Gene], config: antiSMASH_Parsing_Confi
             if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
 
 
-def split_and_reorder_inconsistent(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
+# NOTE: the function can yield identical fragmented bgcs because of genes with no A-domains
+# TODO: maybe filter out identical bgcs in the future?
+def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config) -> Iterable[Fragmented_BGC_Cluster]:
     genes = reverse_if_all_neg(bgc.genes)
     if genes_sequence_consistent(genes):
+        return [[BGC_Cluster(genome_id=bgc.genome_id,
+                             contig_id=bgc.contig_id,
+                             bgc_idx=bgc.bgc_idx,
+                             genes=genes)]]
+
+    def get_rearranged_fragments(genes_fragments: List[List[Gene]]) -> Iterable[Tuple[List[Gene]]]:
+        return product(*(get_genes_rearrangements(genes_fragment, config=config)
+                         for genes_fragment in genes_fragments))
+
+    def build_fragmented_bgc(genes_fragments: Iterable[List[Gene]]) -> Fragmented_BGC_Cluster:
         return [BGC_Cluster(genome_id=bgc.genome_id,
                             contig_id=bgc.contig_id,
                             bgc_idx=bgc.bgc_idx,
-                            genes=genes)]
+                            genes=genes_fragment)
+                for genes_fragment in genes_fragments]
 
-    # remove genes that do not have A domains because they are not relevant for the permutation
-    # (the decision to apply all possible rearrangements is already made at this point
-    # be careful with this if you ever want to consider other scheme of gene rearrangements
-    genes = [gene for gene in genes
-             if any(DomainType.A in module.domains_sequence for module in gene.modules)]
-
-    genes_substrings = (genes[i:j]
-                        for i in range(len(genes))
-                        for j in range(i + 1, len(genes) + 1))
-    genes_rearrangements = chain(*map(partial(get_genes_rearrangements, config=config),
-                                      genes_substrings))
-
-    return [BGC_Cluster(genome_id=bgc.genome_id,
-                        contig_id=bgc.contig_id,
-                        bgc_idx=bgc.bgc_idx,
-                        genes=rearranged_genes)
-            for rearranged_genes in genes_rearrangements]
+    return (build_fragmented_bgc(rearranged_fragments)
+            for genes_fragments in split_sequence(genes)
+            for rearranged_fragments in get_rearranged_fragments(genes_fragments))
 
 
-def split_and_reorder(bgc: BGC_Cluster,
-                      config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
-    return list_monad_compose(*(partial(split_func, config=config)
-                                 for split_func in [split_by_dist,
-                                                    split_by_single_gene_Starter_TE,
-                                                    split_and_reorder_inconsistent]))([bgc])
+def split_and_reorder(bgc_: BGC_Cluster,
+                      config: antiSMASH_Parsing_Config) -> List[Fragmented_BGC_Cluster]:
+    return [fragmented_bgc
+            for bgc in split_by_dist(bgc_, config=config)
+            for fragmented_bgc in generate_fragmented_bgcs(bgc, config=config)]
