@@ -94,29 +94,13 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
                           min_recognized_nodes=2) -> List[NRP_Variant]:
     graph = build_nx_graph(rban_record, backbone_bond_types)
 
-    # Split the graph into paths and simple cycles
-    backbones = [trim_unrecognized_monomers(backbone, graph)
-                 for backbone in putative_backbones(graph, min_nodes=2)
-                 if sufficiently_covered(backbone, graph, recognized_monomers, min_recognized_nodes)]
-
-    perm_backbones = permuted_backbones(backbones)
-
-    variant_idx_counter = count()
     backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, names_helper=rban_names_helper)
 
     # all fragments individually
-    nrp_variants = [NRP_Variant(variant_idx=next(variant_idx_counter),
-                                nrp_id=rban_record.compound_id,
-                                fragments=[backbone_to_fragment(backbone)])
-                    for backbone in chain(backbones, perm_backbones)]
-
-    # all fragments together
-    if len(backbones) > 1:
-        nrp_variants.append(NRP_Variant(variant_idx=next(variant_idx_counter),
-                                        nrp_id=rban_record.compound_id,
-                                        fragments=list(map(backbone_to_fragment, backbones))))
-
-    return nrp_variants
+    return [NRP_Variant(variant_idx=0,
+                        nrp_id=rban_record.compound_id,
+                        fragments=[backbone_to_fragment(backbone)
+                                   for backbone in putative_backbones(graph)])]
 
 
 def retrieve_nrp_variants(rban_records: List[Parsed_rBAN_Record],

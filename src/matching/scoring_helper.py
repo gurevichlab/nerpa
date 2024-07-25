@@ -4,7 +4,9 @@ from typing import Tuple
 from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
+    BGC_Fragment,
     NRP_Monomer,
+    NRP_Fragment,
     LogProb,
     NRP_Monomer_Modification,
     UNKNOWN_RESIDUE
@@ -79,3 +81,9 @@ class ScoringHelper:
             + self.scoring_config.null_hypothesis_chirality_score[nrp_monomer.chirality] \
             + self.scoring_config.null_hypothesis_mod_score[(NRP_Monomer_Modification.METHYLATION,
                                                              NRP_Monomer_Modification.METHYLATION in nrp_monomer.modifications)]
+
+    def skip_bgc_fragment_score(self, bgc_fragment: BGC_Fragment) -> LogProb:  # TODO: load from scoring_config
+        return 0
+
+    def skip_nrp_fragment_score(self, nrp_fragment: NRP_Fragment) -> LogProb:  # TODO: load from scoring_config
+        return 0
