@@ -48,6 +48,7 @@ class NRP_Monomer:
     chirality: Chirality
     rban_name: str
     rban_idx: int
+    hybrid: bool = False
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Monomer:
@@ -56,7 +57,8 @@ class NRP_Monomer:
                                        for mod in data['modifications']),
                    chirality=Chirality[data['chirality']],
                    rban_name=data['rban_name'],
-                   rban_idx=data['rban_idx'])
+                   rban_idx=data['rban_idx'],
+                   hybrid=data.get('hybrid', False))
 
 
 class BGC_Module_Modification(Enum):

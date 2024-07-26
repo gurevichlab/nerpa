@@ -19,6 +19,7 @@ from src.data_types import (
     BGC_Variant,
     BGC_Module,
     BGC_Module_Modification,
+    BGC_Fragment,
     ResidueScores,
 )
 from src.pipeline.logger import NerpaLogger
