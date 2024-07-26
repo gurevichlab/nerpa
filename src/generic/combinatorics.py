@@ -55,7 +55,7 @@ def split_sequence(xs: List[T]) -> Iterable[List[List[T]]]:
         if not remaining:
             yield current
             return
-        for i in range(1, len(remaining)):
+        for i in range(1, len(remaining) + 1):
             yield from extend_split_sequence(remaining[i:], current + [remaining[:i]])
 
     yield from extend_split_sequence(xs, [])

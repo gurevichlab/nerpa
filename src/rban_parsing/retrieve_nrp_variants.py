@@ -56,7 +56,8 @@ def build_monomer(G: NerpaMonomerGraph, mon_idx: int,
                        modifications=parsed_name.modifications,
                        chirality=mon_info.chirality,
                        rban_name=mon_info.name,
-                       rban_idx=mon_idx)
+                       rban_idx=mon_idx,
+                       hybrid=mon_info.is_hybrid)
 
 
 def backbone_sequence_to_fragment(backbone_sequence: BackboneSequence, G: NerpaMonomerGraph,

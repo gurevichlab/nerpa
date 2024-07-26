@@ -48,9 +48,8 @@ def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
 
 def a_pcp_module(module: Module) -> bool:
     domains_set = set(module.domains_sequence)
-    return domains_set == {DomainType.PKS, DomainType.PCP} or \
-        {DomainType.A, DomainType.PCP}.issubset(domains_set) and all(not DomainType.in_c_domain_group(domain)
-                                                                     for domain in domains_set)
+    return {DomainType.A, DomainType.PCP}.issubset(domains_set) and all(not DomainType.in_c_domain_group(domain)
+                                                                        for domain in domains_set)
 
 
 def genes_sequence_consistent(genes: List[Gene]) -> bool:

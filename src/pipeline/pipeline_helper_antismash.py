@@ -159,9 +159,10 @@ class PipelineHelper_antiSMASH:
                                self.config.paths.main_out_dir / 'BGC_variants_before_calibration')
 
             for bgc_variant in bgc_variants:
-                for module in bgc_variant.tentative_assembly_line:
-                    module.residue_score = calibrate_scores(module.residue_score,
-                                                            self.config.specificity_prediction_config)
+                for bgc_fragment in bgc_variant.fragments:
+                    for module in bgc_fragment:
+                        module.residue_score = calibrate_scores(module.residue_score,
+                                                                self.config.specificity_prediction_config)
         return bgc_variants
 
 

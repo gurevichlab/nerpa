@@ -1,6 +1,10 @@
 import math
 
-from typing import Tuple
+from typing import (
+    List,
+    Tuple,
+    Optional
+)
 from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
@@ -11,6 +15,7 @@ from src.data_types import (
     NRP_Monomer_Modification,
     UNKNOWN_RESIDUE
 )
+from src.matching.dp_types import DP_State
 from src.matching.scoring_config import ScoringConfig, ModMatch, ChiralityMatch
 from src.matching.alignment_types import AlignmentStepType
 from dataclasses import dataclass
@@ -25,18 +30,31 @@ FUNCTION_NAME_TO_STEP_TYPE = {'bgc_module_skip': AlignmentStepType.BGC_MODULE_SK
 @dataclass
 class ScoringHelper:
     scoring_config: ScoringConfig
+    bgc_modules: List[BGC_Module] = None
+    nrp_monomers: List[NRP_Monomer] = None
 
-    def bgc_module_skip(self, bgc_pred: BGC_Module) -> LogProb:  # argument is kept for better alignment backtracking
+    def set_bgc_modules(self, bgc_modules: List[BGC_Module]):
+        self.bgc_modules = bgc_modules
+
+    def set_nrp_monomers(self, nrp_monomers: List[NRP_Monomer]):
+        self.nrp_monomers = nrp_monomers
+
+    def bgc_module_skip(self, bgc_module_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:  # argument is kept for better alignment backtracking
         return self.scoring_config.bgc_module_skip_score
 
-    def nrp_mon_skip(self, mon: NRP_Monomer) -> LogProb:
+    def nrp_mon_skip(self, mon_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:
+        mon = self.nrp_monomers[mon_idx]
+        if dp_state.module_pos in (0, len(self.bgc_modules)) and mon.residue == UNKNOWN_RESIDUE:  # skipping an unknown monomer at an end
+            return -2  # TODO: load from config
+
         return self.scoring_config.nrp_monomer_skip_score[mon.residue]  # should we take into account methylation and chirality as well?
 
     def match(self, bgc_pred: BGC_Module,
-              nrp_mon: NRP_Monomer) -> LogProb:
+              nrp_mon: NRP_Monomer,
+              dp_state: Optional[DP_State] = None) -> LogProb:
+        if dp_state.module_pos == 2 and dp_state.monomer_pos == 2:
+            pass
         residue_score = bgc_pred.residue_score[nrp_mon.residue]
-        if nrp_mon.residue == UNKNOWN_RESIDUE:
-            residue_score -= math.log(self.scoring_config.num_unknown_residues)
         mod_match = ModMatch(mod=NRP_Monomer_Modification.METHYLATION,
                              bgc_mod=BGC_Module_Modification.METHYLATION in bgc_pred.modifications,
                              nrp_mod=NRP_Monomer_Modification.METHYLATION in nrp_mon.modifications)
@@ -52,8 +70,6 @@ class ScoringHelper:
     def match_detailed_score(self, bgc_pred: BGC_Module,
                              nrp_mon: NRP_Monomer) -> Tuple[LogProb, LogProb, LogProb, LogProb]:
         residue_score = bgc_pred.residue_score[nrp_mon.residue]
-        if nrp_mon.residue == UNKNOWN_RESIDUE:
-            residue_score -= math.log(self.scoring_config.num_unknown_residues)
         mod_match = ModMatch(mod=NRP_Monomer_Modification.METHYLATION,
                              bgc_mod=BGC_Module_Modification.METHYLATION in bgc_pred.modifications,
                              nrp_mod=NRP_Monomer_Modification.METHYLATION in nrp_mon.modifications)
@@ -70,10 +86,10 @@ class ScoringHelper:
                 self.scoring_config.chirality_score[chirality_match],
                 self.scoring_config.match_score)
 
-    def iterate_module(self) -> LogProb:
+    def iterate_module(self, dp_state: Optional[DP_State] = None) -> LogProb:
         return 0
 
-    def iterate_gene(self) -> LogProb:
+    def iterate_gene(self, dp_state: Optional[DP_State] = None) -> LogProb:
         return 0
 
     def null_hypothesis_score(self, nrp_monomer: NRP_Monomer) -> LogProb:
@@ -83,7 +99,7 @@ class ScoringHelper:
                                                              NRP_Monomer_Modification.METHYLATION in nrp_monomer.modifications)]
 
     def skip_bgc_fragment_score(self, bgc_fragment: BGC_Fragment) -> LogProb:  # TODO: load from scoring_config
-        return 0
+        return -3 * len(bgc_fragment)
 
     def skip_nrp_fragment_score(self, nrp_fragment: NRP_Fragment) -> LogProb:  # TODO: load from scoring_config
-        return 0
+        return -3 * len(nrp_fragment.monomers)
