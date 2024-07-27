@@ -125,5 +125,6 @@ def build_bgc_variants(bgc: BGC_Cluster,
                         bgc_idx=bgc.bgc_idx,
                         fragments=build_bgc_fragments(raw_fragmented_bgc,
                                                       residue_scoring_model,
-                                                      config))
+                                                      config),
+                        has_pks_domains=bgc.has_pks_domains())
             for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)]

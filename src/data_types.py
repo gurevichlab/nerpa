@@ -48,7 +48,7 @@ class NRP_Monomer:
     chirality: Chirality
     rban_name: str
     rban_idx: int
-    hybrid: bool = False
+    is_hybrid: bool = False
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Monomer:
@@ -58,7 +58,7 @@ class NRP_Monomer:
                    chirality=Chirality[data['chirality']],
                    rban_name=data['rban_name'],
                    rban_idx=data['rban_idx'],
-                   hybrid=data.get('hybrid', False))
+                   is_hybrid=data.get('hybrid', False))
 
 
 class BGC_Module_Modification(Enum):
@@ -101,6 +101,7 @@ class BGC_Variant:
     genome_id: str
     bgc_idx: int
     fragments: List[BGC_Fragment]
+    has_pks_domains: bool = False
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> BGC_Variant:
@@ -109,7 +110,8 @@ class BGC_Variant:
                    bgc_idx=data['bgc_id'],
                    fragments=[[BGC_Module.from_yaml_dict(module_dict)
                                for module_dict in fragment_list]
-                               for fragment_list in data['fragments']])
+                               for fragment_list in data['fragments']],
+                   has_pks_domains=data.get('has_pks_domains', False))
 
 
 @dataclass

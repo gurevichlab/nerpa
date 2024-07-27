@@ -85,3 +85,6 @@ class BGC_Cluster:
     contig_id: str
     bgc_idx: int
     genes: List[Gene]
+
+    def has_pks_domains(self) -> bool:
+        return any(DomainType.PKS in gene.modules for gene in self.genes)
