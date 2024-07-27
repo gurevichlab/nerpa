@@ -2,6 +2,7 @@ from typing import (
     Callable,
     Dict,
     Literal,
+    List,
     NamedTuple,
     Tuple
 )
@@ -48,7 +49,9 @@ class ScoringConfig:
     max_gene_reps: int
     max_module_reps: int
 
-    normalization: Literal['AVERAGING', 'RANDOM_NULL_MODEL']
+    normalization: Literal['AVERAGING', 'RANDOM_NULL_MODEL', 'NONE']
+
+    pks_residues: List[str]
 
 
 def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:
@@ -126,4 +129,5 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          null_hypothesis_chirality_score=null_hypothesis_chirality_score,
                          max_gene_reps=cfg['max_gene_repetitions'],
                          max_module_reps=cfg['max_module_repetitions'],
-                         normalization=cfg['normalization'])
+                         normalization=cfg['normalization'],
+                         pks_residues=cfg['pks_residues'])

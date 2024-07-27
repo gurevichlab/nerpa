@@ -69,6 +69,8 @@ def get_normalized_score(bgc_variant: BGC_Variant,
 def get_match(bgc_variant: BGC_Variant,
               nrp_variant: NRP_Variant,
               dp_helper: ScoringHelper) -> Match:
+    dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains)  # I don't really like that dp_helper carries some state
+
     multiple_fragments_alignments = (get_multiple_fragments_alignment(bgc_variant.fragments,
                                                                       list(nrp_fragments),
                                                                       dp_helper)

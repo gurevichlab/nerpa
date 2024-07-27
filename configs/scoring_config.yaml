@@ -24,8 +24,8 @@ num_unknown_residues: 100
 
 modification_score:
   Mod_METHYLATION_BGC_False_NRP_False: -0.018
-  Mod_METHYLATION_BGC_False_NRP_True: -4.026
-  Mod_METHYLATION_BGC_True_NRP_False: -2.856
+  Mod_METHYLATION_BGC_False_NRP_True: -2  #-4.026
+  Mod_METHYLATION_BGC_True_NRP_False: -2  #-2.856
   Mod_METHYLATION_BGC_True_NRP_True: -0.059
 
 chirality_score:
@@ -63,3 +63,5 @@ module_epimerization_frequency: 0.243
 
 max_gene_repetitions: 3
 max_module_repetitions: 3
+
+pks_residues: [CFA, Adda, Me-Suc, ADMAdda, C8:3(t2.t4.t6), DMAdda, C6:2(t2.t4)]

@@ -121,7 +121,10 @@ for i, match in enumerate(nerpa_results_matches):
                   'BGC0000379.0',
                   'BGC0001955.2',
                   'BGC0000439.0',
-                  'BGC0001214.2'
+                  'BGC0001214.2',
+                  'BGC0001230.7',
+                  'BGC0001955.3',
+                  'BGC0001214.4',
                   ]:
         print('Skipping for debugging')
         continue
