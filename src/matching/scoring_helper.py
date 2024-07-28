@@ -13,8 +13,8 @@ from src.data_types import (
     NRP_Fragment,
     LogProb,
     NRP_Monomer_Modification,
-    UNKNOWN_RESIDUE
 )
+from src.monomer_names_helper import UNKNOWN_RESIDUE
 from src.matching.dp_types import DP_State
 from src.matching.scoring_config import ScoringConfig, ModMatch, ChiralityMatch
 from src.matching.alignment_types import AlignmentStepType
@@ -49,10 +49,10 @@ class ScoringHelper:
     def nrp_mon_skip(self, mon_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:
         mon = self.nrp_monomers[mon_idx]
         if dp_state.module_pos in (0, len(self.bgc_modules)) and mon.residue == UNKNOWN_RESIDUE:  # skipping an unknown monomer at an end
-            return -2  # TODO: load from config
+            return self.scoring_config.unknown_nrp_monomer_skip_penalty_at_end
 
         if mon.rban_name in self.scoring_config.pks_residues:
-            return 0  # TODO: load from config
+            return 0
         return self.scoring_config.nrp_monomer_skip_score[mon.residue]  # should we take into account methylation and chirality as well?
 
     def match_detailed_score(self, bgc_pred: BGC_Module,
@@ -60,8 +60,8 @@ class ScoringHelper:
         nrp_residue = nrp_mon.residue if not nrp_mon.is_hybrid or self.pks_domains_in_bgc \
             else UNKNOWN_RESIDUE
         residue_score = bgc_pred.residue_score[nrp_residue]
-        if nrp_mon.residue == UNKNOWN_RESIDUE:  # TODO: dirty fix for high-scoring matches with unknown monomers
-            residue_score = min(residue_score, 1)
+        if nrp_mon.residue == UNKNOWN_RESIDUE and self.scoring_config.max_unknown_residue_match_score is not None:  # TODO: dirty fix for high-scoring matches with unknown monomers
+            residue_score = min(residue_score, self.scoring_config.max_unknown_residue_match_score)
         mod_match = ModMatch(mod=NRP_Monomer_Modification.METHYLATION,
                              bgc_mod=BGC_Module_Modification.METHYLATION in bgc_pred.modifications,
                              nrp_mod=NRP_Monomer_Modification.METHYLATION in nrp_mon.modifications)
@@ -71,8 +71,6 @@ class ScoringHelper:
                       residue_score,
                       self.scoring_config.mod_score[mod_match],
                       self.scoring_config.chirality_score[chirality_match]])
-        if result < -6:
-            residue_score += -6 - result
         return (residue_score,
                 self.scoring_config.mod_score[mod_match],
                 self.scoring_config.chirality_score[chirality_match],
@@ -93,8 +91,8 @@ class ScoringHelper:
             + self.scoring_config.null_hypothesis_mod_score[(NRP_Monomer_Modification.METHYLATION,
                                                              NRP_Monomer_Modification.METHYLATION in nrp_monomer.modifications)]
 
-    def skip_bgc_fragment_score(self, bgc_fragment: BGC_Fragment) -> LogProb:  # TODO: load from scoring_config
-        return -3 * len(bgc_fragment)
+    def skip_bgc_fragment_score(self, bgc_fragment: BGC_Fragment) -> LogProb:
+        return self.scoring_config.bgc_fragment_skip_penalty * len(bgc_fragment)
 
-    def skip_nrp_fragment_score(self, nrp_fragment: NRP_Fragment) -> LogProb:  # TODO: load from scoring_config
-        return -3 * len(nrp_fragment.monomers)
+    def skip_nrp_fragment_score(self, nrp_fragment: NRP_Fragment) -> LogProb:
+        return self.scoring_config.nrp_fragment_skip_penalty * len(nrp_fragment.monomers)

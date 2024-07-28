@@ -6,16 +6,16 @@ from typing import (
     Union
 )
 from src.rban_parsing import handle_monomers
-
-from src.data_types import Chirality
+from src.data_types import (
+    Chirality,
+    SMILES
+)
+from src.monomer_names_helper import NorineMonomerName
 
 from collections import defaultdict
 from dataclasses import dataclass
 
 Raw_rBAN_Record = dict
-
-rBAN_Residue_Name = str
-SMILES = str
 
 AtomId = int
 AtomicEdge = Tuple[AtomId, AtomId]
@@ -36,7 +36,7 @@ MonomerEdge = Tuple[MonomerIdx, MonomerIdx]
 
 
 class MonomerInfo(NamedTuple):
-    name: rBAN_Residue_Name
+    name: NorineMonomerName
     atoms: List[AtomId]
     chirality: Chirality
     is_hybrid: bool = False
@@ -68,10 +68,10 @@ class Parsed_rBAN_Record:
     atomic_bonds: Dict[AtomicEdge, AtomicEdgeInfo]
 
     def __init__(self, rban_record: Raw_rBAN_Record,
-                 hybrid_monomers: Dict[MonomerIdx, rBAN_Residue_Name],
+                 hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
                  chiralities: Dict[MonomerIdx, Chirality]):
 
-        def get_residue_name(idx: MonomerIdx) -> rBAN_Residue_Name:
+        def get_monomer_name(idx: MonomerIdx) -> NorineMonomerName:
             if idx in hybrid_monomers:
                 name = hybrid_monomers[idx]
             else:
@@ -80,7 +80,7 @@ class Parsed_rBAN_Record:
                             for monomer in monomers
                             if monomer['monomer']['index'] == idx)
             name.replace('C10:0-NH2(2)-Ep(9)-oxo(8)', 'Aeo')  # I have no idea what this is, I just copied
-            return name
+            return NorineMonomerName(name)
 
         self.compound_id = rban_record['id']
         self.atoms = {atom['cdk_idx']: AtomInfo(name=atom['name'],
@@ -88,7 +88,7 @@ class Parsed_rBAN_Record:
                       for atom in rban_record['atomicGraph']['atomicGraph']['atoms']}
 
         self.monomers = {MonomerIdx(idx := monomer['monomer']['index']):
-                             MonomerInfo(name=get_residue_name(idx),
+                             MonomerInfo(name=get_monomer_name(idx),
                                          atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
                                          chirality=chiralities[idx],
                                          is_hybrid=idx in hybrid_monomers)
@@ -120,7 +120,7 @@ class Parsed_rBAN_Record:
                           for (u, v), edge_info in self.monomer_bonds.items()]}
 
 
-def parse_hybrid_monomers(rban_record: Raw_rBAN_Record) -> List[Tuple[MonomerIdx, SMILES]]:
+def get_hybrid_monomers_smiles(rban_record: Raw_rBAN_Record) -> List[Tuple[MonomerIdx, SMILES]]:
     hybrid_monomers = []
     for monomer in rban_record["monomericGraph"]["monomericGraph"]['monomers']:
         if monomer['monomer']['monomer']['monomer'].startswith('X'):  # monomer was not recognized
