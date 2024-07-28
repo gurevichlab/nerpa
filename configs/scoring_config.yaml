@@ -65,3 +65,8 @@ max_gene_repetitions: 3
 max_module_repetitions: 3
 
 pks_residues: [CFA, Adda, Me-Suc, ADMAdda, C8:3(t2.t4.t6), DMAdda, C6:2(t2.t4)]
+
+unknown_nrp_monomer_skip_penalty_at_end: -2
+max_unknown_residue_match_score: 1  # a bit dirty, but we need to make sure that unknown residue don't get too high scores
+bgc_fragment_skip_penalty: -3  # penalty is computed as bgc_fragment_skip_penalty * fragment_length
+nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalty * fragment_length

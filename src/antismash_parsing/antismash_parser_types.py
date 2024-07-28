@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Dict, List, Union, NamedTuple
-from src.data_types import MonomerResidue
+from src.monomer_names_helper import antiSMASH_MonomerName
 
 class SVM_LEVEL(Enum):
     SINGLE_AMINO = auto()
@@ -13,7 +13,7 @@ class SVM_LEVEL(Enum):
 
 class SVM_Prediction(NamedTuple):
     score: float
-    monomer_residues: List[MonomerResidue]
+    substrates: List[antiSMASH_MonomerName]
 
 
 SVM_Predictions = Dict[SVM_LEVEL, SVM_Prediction]

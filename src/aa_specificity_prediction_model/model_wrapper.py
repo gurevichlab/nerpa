@@ -1,8 +1,9 @@
+from typing import Dict
 import pandas as pd
 from pathlib import Path
 import joblib
 
-from src.data_types import ResidueScores
+from src.monomer_names_helper import antiSMASH_MonomerName
 
 
 class ModelWrapper(object):
@@ -26,7 +27,7 @@ class ModelWrapper(object):
         self.lookup_col = lookup_score
         self.lookup_threshold = lookup_threshold
 
-    def __call__(self, scoring_table: pd.DataFrame) -> ResidueScores:
+    def __call__(self, scoring_table: pd.DataFrame) -> Dict[antiSMASH_MonomerName, float]:
         scores = pd.Series(0, index=scoring_table.index, dtype=float)
         
         # Filter rows with no match in the lookup table

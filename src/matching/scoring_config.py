@@ -52,6 +52,10 @@ class ScoringConfig:
     normalization: Literal['AVERAGING', 'RANDOM_NULL_MODEL', 'NONE']
 
     pks_residues: List[str]
+    unknown_nrp_monomer_skip_penalty_at_end: LogProb
+    max_unknown_residue_match_score: LogProb
+    bgc_fragment_skip_penalty: LogProb
+    nrp_fragment_skip_penalty: LogProb
 
 
 def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:
@@ -130,4 +134,8 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          max_gene_reps=cfg['max_gene_repetitions'],
                          max_module_reps=cfg['max_module_repetitions'],
                          normalization=cfg['normalization'],
-                         pks_residues=cfg['pks_residues'])
+                         pks_residues=cfg['pks_residues'],
+                         unknown_nrp_monomer_skip_penalty_at_end=cfg['unknown_nrp_monomer_skip_penalty_at_end'],
+                         max_unknown_residue_match_score=cfg['max_unknown_residue_match_score'],
+                         bgc_fragment_skip_penalty=cfg['bgc_fragment_skip_penalty'],
+                         nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'])

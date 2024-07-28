@@ -10,12 +10,13 @@ from src.antismash_parsing.antismash_parser_types import (
     SVM_Prediction,
     STRAND
 )
-from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
 from src.config import antiSMASH_Parsing_Config
+from src.monomer_names_helper import antiSMASH_MonomerName
 from parse import parse
 from collections import defaultdict
 
 GeneId = str
+
 
 class A_Domain_Id:
     gene_id: GeneId
@@ -28,8 +29,7 @@ class A_Domain_Id:
 
 
 # tested on antismash v7
-def extract_a_domain_specificity_info(a_domain_data: dict,
-                                      rban_names_helper: rBAN_Names_Helper) -> A_Domain:
+def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
     svm_dict = a_domain_data['nrpys']
 
     svm = {}
@@ -40,23 +40,22 @@ def extract_a_domain_specificity_info(a_domain_data: dict,
         score = svm_dict[svm_level_str]['score']
         substrates = svm_dict[svm_level_str]['substrates']
         svm[svm_level] = SVM_Prediction(score=svm_dict[svm_level_str]['score'],
-                                        monomer_residues=[rban_names_helper.parsed_rban_name[substrate['norine']].residue
-                                                          for substrate in substrates])
+                                        substrates=[antiSMASH_MonomerName(substrate['short'])
+                                                    for substrate in substrates])
 
     return A_Domain(aa10=svm_dict['aa10'],
                     aa34=svm_dict['aa34'],
                     svm=svm)
 
 
-def extract_a_domains_info(contig_data: dict,
-                           rban_names_helper: rBAN_Names_Helper) -> Dict[GeneId, List[A_Domain]]:
+def extract_a_domains_info(contig_data: dict) -> Dict[GeneId, List[A_Domain]]:
     if "antismash.modules.nrps_pks" not in contig_data["modules"]:
         return defaultdict(list)
 
     def extract_a_domain_info(domain_id: str, antismash_prediction: dict) -> Tuple[A_Domain_Id, A_Domain]:
         try:
             parsed_id = A_Domain_Id(domain_id)
-            a_domain = extract_a_domain_specificity_info(antismash_prediction, rban_names_helper)
+            a_domain = extract_a_domain_specificity_info(antismash_prediction)
         except KeyError:
             raise RuntimeError('Unable to parse A-domain prediction. Probably, an old version of antismash is used.')
         return parsed_id, a_domain
@@ -171,12 +170,11 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
 
 def parse_antismash_json(antismash_json: dict,
-                         rban_names_helper: rBAN_Names_Helper,
                          config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file']
     for ctg_idx, contig_data in enumerate(antismash_json['records']):
-        a_domains_per_gene = extract_a_domains_info(contig_data, rban_names_helper)
+        a_domains_per_gene = extract_a_domains_info(contig_data)
         if not any(a_domains for a_domains in a_domains_per_gene.values()):  # no A-domains found in the contig
             continue
 

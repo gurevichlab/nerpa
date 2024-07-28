@@ -12,7 +12,7 @@ from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.data_types import BGC_Variant
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
-from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
+from src.monomer_names_helper import MonomerNamesHelper
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
 from src.write_results import write_bgc_variants
@@ -67,7 +67,7 @@ def calibrate_scores(predictions: Dict[str, float],
 class PipelineHelper_antiSMASH:
     config: Config
     args: CommandLineArgs
-    monomer_names_helper: rBAN_Names_Helper
+    monomer_names_helper: MonomerNamesHelper
     log: NerpaLogger
     antismash_exec: Union[Path, None] = None
 
@@ -144,13 +144,12 @@ class PipelineHelper_antiSMASH:
     def extract_bgc_variants_from_antismash(self,
                                             antismash_json: dict) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
-                                              self.monomer_names_helper,
                                               self.config.antismash_parsing_config)
         specificity_prediction_model = ModelWrapper(self.config.paths.specificity_prediction_model)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
-                                                                   self.log,
                                                                    specificity_prediction_model,
-                                                                   self.config.antismash_parsing_config)
+                                                                   self.config.antismash_parsing_config,
+                                                                   self.log)
                                                 for bgc in antismash_bgcs))
 
         if self.config.specificity_prediction_config.calibration:

@@ -54,7 +54,7 @@ antismash_parsing_config:
 paths:
     rban_dir: external_tools/rBAN
     nerpa_monomers: configs/monomersdb_nerpa.json
-    nerpa_monomers_info: configs/monomers.tsv
+    nerpa_monomers_info: configs/monomers_tables_v2/monomers_short_unique.tsv
     aa_codes: configs/aa_codes.yaml
     specificity_prediction_model: src/aa_specificity_prediction_model/specificity-scoring-model.joblib
     configs_input: configs
