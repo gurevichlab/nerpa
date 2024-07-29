@@ -11,8 +11,8 @@ from src.data_types import (
     LogProb,
     MonomerResidue,
     NRP_Monomer_Modification,
-    UNKNOWN_RESIDUE
 )
+from src.monomer_names_helper import UNKNOWN_RESIDUE
 from src.matching.alignment_types import AlignmentStepType
 from collections import defaultdict
 from dataclasses import dataclass
@@ -57,6 +57,9 @@ class ScoringConfig:
     bgc_fragment_skip_penalty: LogProb
     nrp_fragment_skip_penalty: LogProb
 
+    join_fragments_alignments: bool
+    iterative_bgc_alignment: bool
+    one_to_one_fragment_alignment: bool
 
 def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:
     return {ModMatch(mod=mod, bgc_mod=bgc_mod, nrp_mod=nrp_mod):
@@ -138,4 +141,7 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          unknown_nrp_monomer_skip_penalty_at_end=cfg['unknown_nrp_monomer_skip_penalty_at_end'],
                          max_unknown_residue_match_score=cfg['max_unknown_residue_match_score'],
                          bgc_fragment_skip_penalty=cfg['bgc_fragment_skip_penalty'],
-                         nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'])
+                         nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'],
+                         join_fragments_alignments=cfg['join_fragments_alignments'],
+                         iterative_bgc_alignment=cfg['iterative_bgc_alignment'],
+                         one_to_one_fragment_alignment=cfg['one_to_one_fragment_alignment'])

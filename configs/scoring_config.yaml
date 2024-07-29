@@ -70,3 +70,7 @@ unknown_nrp_monomer_skip_penalty_at_end: -2
 max_unknown_residue_match_score: 1  # a bit dirty, but we need to make sure that unknown residue don't get too high scores
 bgc_fragment_skip_penalty: -3  # penalty is computed as bgc_fragment_skip_penalty * fragment_length
 nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalty * fragment_length
+
+join_fragments_alignments: True  # enable aligning all NRP fragments to all BGC fragments (in a single alignment)
+iterative_bgc_alignment: True  # enable independently aligning all NRP fragments to the whole BGC
+one_to_one_fragment_alignment: True  # enable aligning one NRP fragment to one BGC fragment

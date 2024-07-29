@@ -19,25 +19,14 @@ from src.matching.alignment_types import (
     Match,
     show_alignment
 )
-from src.matching.dp import get_alignment
-from src.matching.multiple_fragments_alignment_handling import get_multiple_fragments_alignment, get_iterative_nrp_alignment
+from src.matching.multiple_fragments_alignment_handling import (
+    get_multiple_fragments_alignment,
+    get_iterative_bgc_alignment,
+    get_fragments_alignment
+)
 
-from itertools import chain, islice, takewhile, permutations
+from itertools import chain, islice, takewhile, permutations, product
 from joblib import delayed, Parallel
-
-
-def get_alignment_fragment(assembly_line: List[BGC_Module],
-                           nrp_fragment: NRP_Fragment,
-                           dp_helper: ScoringHelper) -> Alignment:
-
-    nrp_cyclic_shifts = [nrp_fragment.monomers] if not nrp_fragment.is_cyclic \
-            else [nrp_fragment.monomers[i:] + nrp_fragment.monomers[:i]
-                  for i in range(len(nrp_fragment.monomers))]
-
-    alignments = [get_alignment(assembly_line, nrp_cyclic_shift, dp_helper)
-                  for nrp_cyclic_shift in nrp_cyclic_shifts]
-
-    return max(alignments, key=alignment_score)
 
 
 def null_hypothesis_score(nrp_fragment: NRP_Fragment,
@@ -71,16 +60,23 @@ def get_match(bgc_variant: BGC_Variant,
               dp_helper: ScoringHelper) -> Match:
     dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains)  # I don't really like that dp_helper carries some state
 
-    multiple_fragments_alignments = (get_multiple_fragments_alignment(bgc_variant.fragments,
-                                                                      list(nrp_fragments),
-                                                                      dp_helper)
-                                     for nrp_fragments in permutations(nrp_variant.fragments))
-    iterative_nrp_alignments = get_iterative_nrp_alignment(bgc_variant.fragments,
-                                                           nrp_variant.fragments,
-                                                           dp_helper)
+    fragments_alignments: List[List[Alignment]] = []
+    if dp_helper.scoring_config.join_fragments_alignments:
+        fragments_alignments.extend(get_multiple_fragments_alignment(bgc_variant.fragments,
+                                                                     list(nrp_fragments),
+                                                                     dp_helper)
+                                    for nrp_fragments in permutations(nrp_variant.fragments))
+    if dp_helper.scoring_config.iterative_bgc_alignment:
+        fragments_alignments.extend([get_iterative_bgc_alignment(bgc_variant.fragments,
+                                                                 nrp_variant.fragments,
+                                                                 dp_helper)])
+    if dp_helper.scoring_config.one_to_one_fragment_alignment:
+        fragments_alignments.extend([get_fragments_alignment(bgc_fragment, nrp_fragment, dp_helper)]
+                                     for bgc_fragment, nrp_fragment in product(bgc_variant.fragments,
+                                                                               nrp_variant.fragments))
 
-    best_fragments_alignment = max(chain(multiple_fragments_alignments, [iterative_nrp_alignments]),
-                                   key=combined_alignments_score)
+
+    best_fragments_alignment = max(fragments_alignments, key=combined_alignments_score)
     normalized_score = get_normalized_score(bgc_variant, nrp_variant,
                                             best_fragments_alignment,
                                             dp_helper)

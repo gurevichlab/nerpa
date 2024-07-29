@@ -6,6 +6,7 @@ from typing import (
     Tuple
 )
 from src.data_types import BGC_Fragment, NRP_Monomer, NRP_Fragment
+from src.generic.combinatorics import cyclic_shifts
 from src.matching.alignment_types import Alignment, combined_alignments_score
 from src.matching.scoring_helper import ScoringHelper
 from src.matching.dp import LogProb
@@ -14,12 +15,16 @@ from src.matching.alignment_types import alignment_score
 from itertools import chain, product
 
 
-def get_fragments_monomer_sequences(fragments: List[NRP_Fragment]) -> Iterable[List[NRP_Monomer]]:
-    fragment_sequences = [[fragment.monomers[i:] + fragment.monomers[:i] for i in range(len(fragment.monomers))]
-                          if fragment.is_cyclic else [fragment.monomers]
-                          for fragment in fragments]
+def fragment_monomer_sequences(fragment: NRP_Fragment) -> Iterable[List[NRP_Monomer]]:
+    if fragment.is_cyclic:
+        return cyclic_shifts(fragment.monomers)
+    else:
+        return [fragment.monomers]
+
+
+def fragments_joined_monomer_sequences(fragments: List[NRP_Fragment]) -> Iterable[List[NRP_Monomer]]:
     return (list(chain(*monomer_sequences))
-            for monomer_sequences in product(*fragment_sequences))
+            for monomer_sequences in product(*map(fragment_monomer_sequences, fragments)))
 
 
 def retrieve_alignments(parent: Dict[Tuple[int, int], Tuple[Tuple[int, int], Optional[Alignment]]],
@@ -55,7 +60,7 @@ def get_multiple_fragments_alignment(bgc_fragments: List[BGC_Fragment],
         bgc_start, bgc_end = bgc_indices
         nrp_start, nrp_end = nrp_indices
         bgc_modules = list(chain(*bgc_fragments[bgc_start: bgc_end]))
-        nrp_monomers_sequences = get_fragments_monomer_sequences(nrp_fragments[nrp_start: nrp_end])
+        nrp_monomers_sequences = fragments_joined_monomer_sequences(nrp_fragments[nrp_start: nrp_end])
         alignment = max((get_alignment(bgc_modules, nrp_monomers, dp_helper)
                          for nrp_monomers in nrp_monomers_sequences),
                         key=alignment_score)
@@ -77,15 +82,21 @@ def get_multiple_fragments_alignment(bgc_fragments: List[BGC_Fragment],
     return retrieve_alignments(parent, len(bgc_fragments), len(nrp_fragments))
 
 
-def get_iterative_nrp_alignment(bgc_fragments: List[BGC_Fragment],
+def get_fragments_alignment(bgc_fragment: BGC_Fragment,
+                            nrp_fragment: NRP_Fragment,
+                            dp_helper) -> Alignment:
+    return max((get_alignment(bgc_fragment, monomers_sequence, dp_helper)
+                for monomers_sequence in fragment_monomer_sequences(nrp_fragment)),
+               key=alignment_score)
+
+
+def get_iterative_bgc_alignment(bgc_fragments: List[BGC_Fragment],
                                 nrp_fragments: List[NRP_Fragment],
                                 dp_helper: ScoringHelper) -> List[Alignment]:
-    def get_fragment_alignment(bgc_fragment: BGC_Fragment,
-                               nrp_fragment: NRP_Fragment) -> Alignment:
-        return max((get_alignment(bgc_fragment, monomers_sequence, dp_helper)
-                    for monomers_sequence in get_fragments_monomer_sequences([nrp_fragment])),
-                   key=alignment_score)
+    def alignments_against_bgc_fragment(bgc_fragment: BGC_Fragment) -> List[Alignment]:
+        return [get_fragments_alignment(bgc_fragment, nrp_fragment, dp_helper)
+                for nrp_fragment in nrp_fragments]
 
-    return max(([get_fragment_alignment(bgc_fragment, nrp_fragment) for nrp_fragment in nrp_fragments]
+    return max((alignments_against_bgc_fragment(bgc_fragment)
                for bgc_fragment in bgc_fragments),
                key=combined_alignments_score)
