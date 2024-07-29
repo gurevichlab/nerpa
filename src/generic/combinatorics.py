@@ -47,6 +47,10 @@ def generate_permutations(xs_: Iterable[T], max_blocks: int = None) -> Iterable[
             for perm in generate_permutations_idxs(len(xs), max_blocks))
 
 
+def cyclic_shifts(xs: List[T]) -> Iterable[List[T]]:
+    for i in range(len(xs)):
+        yield xs[i:] + xs[:i]
+
 def split_sequence(xs: List[T]) -> Iterable[List[List[T]]]:
     '''
     splits a sequence into contiguous subsequences

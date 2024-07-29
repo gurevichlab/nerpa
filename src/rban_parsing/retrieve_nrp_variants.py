@@ -22,7 +22,6 @@ from src.generic.graph_manipulations import (
     putative_backbones
 )
 from src.pipeline.logger import NerpaLogger
-from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.config import rBAN_Processing_Config
 

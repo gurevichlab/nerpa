@@ -148,6 +148,7 @@ class PipelineHelper_antiSMASH:
         specificity_prediction_model = ModelWrapper(self.config.paths.specificity_prediction_model)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
                                                                    specificity_prediction_model,
+                                                                   self.monomer_names_helper,
                                                                    self.config.antismash_parsing_config,
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
