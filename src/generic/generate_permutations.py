@@ -42,7 +42,5 @@ def generate_permutations_idxs(n: int, max_blocks: int = None) -> Iterable[List[
 
 def generate_permutations(xs_: Iterable[T], max_blocks: int = None) -> Iterable[List[T]]:
     xs = list(xs_)
-    print(xs_)
-    print(list(generate_permutations_idxs(len(xs), max_blocks)))
     return (list(xs[i] for i in perm)
             for perm in generate_permutations_idxs(len(xs), max_blocks))

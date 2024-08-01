@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import (
     Dict,
     List,
+    Optional,
     Tuple,
     Union
 )
@@ -41,20 +42,25 @@ class rBAN_Helper:
     def run_rban(self,
                  smiles_with_ids: List[dict],  # [{'id': id, 'smiles': smiles}]
                  log: NerpaLogger,
-                 input_file: Union[Path, None] = None,
-                 output_file_name: Union[str, None] = None,
+                 input_file: Optional[Path] = None,
+                 output_file_name: Optional[str] = None,
                  report_not_processed: bool = False) -> List[Raw_rBAN_Record]:
-        json.dump(smiles_with_ids, self.config.default_input_file.open('w'))
+        if input_file is None:
+            input_file = self.config.default_input_file
+        if output_file_name is None:
+            output_file_name = self.config.default_output_file_name
+
+        json.dump(smiles_with_ids, input_file.open('w'))
         json.dump(self.monomers_db, self.config.default_monomers_file.open('w'))
         command = ['java', '-jar', str(self.config.rban_jar),
-                   '-inputFile', str(self.config.default_input_file if input_file is None else input_file),
+                   '-inputFile', str(input_file),
                    '-outputFolder', str(self.config.rban_out_dir) + '/',
-                   '-outputFileName', str(self.config.default_output_file_name if output_file_name is None else output_file_name),
+                   '-outputFileName', str(output_file_name),
                    '-monomersDB', str(self.config.default_monomers_file)]  # TODO: refactor
 
         nerpa_utils.sys_call(command, log)
 
-        rban_records = json.load((self.config.rban_out_dir / Path(self.config.default_output_file_name)).open('r'))
+        rban_records = json.load((self.config.rban_out_dir / output_file_name).open('r'))
 
         if report_not_processed:
             ids_in = set(record['id'] for record in smiles_with_ids)

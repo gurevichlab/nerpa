@@ -13,8 +13,11 @@ def is_a_domain(domain_type: DomainType) -> bool:  # TODO: rename
 def is_iterative_gene(gene: Gene) -> bool:
     joined_domains = [domain_type for module in gene.modules
                       for domain_type in module.domains_sequence]
-    last_a_index = next(i for i in reversed(range(len(joined_domains)))
-                        if is_a_domain(joined_domains[i]))
+    last_a_index = next((i for i in reversed(range(len(joined_domains)))
+                         if is_a_domain(joined_domains[i])),
+                        None)
+    if last_a_index is None:
+        return False
     return any(domain1_type == DomainType.PCP and domain2_type == DomainType.PCP
                for domain1_type, domain2_type in pairwise(joined_domains[last_a_index:]))
 
@@ -23,7 +26,7 @@ def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType
     domains_iter = iter(interior_domains_types)
     try:
         while next(domains_iter) != DomainType.PCP: pass
-        while next(domains_iter).in_c_domain_group(): pass
+        while not next(domains_iter).in_c_domain_group(): pass
         while next(domains_iter) != DomainType.PCP: pass
     except StopIteration:
         return False

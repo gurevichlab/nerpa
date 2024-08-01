@@ -63,9 +63,11 @@ def build_gene_assembly_line(gene: Gene,
     iterative_gene = is_iterative_gene(gene)
     iterative_modules_idxs = get_iterative_modules_idxs(gene)
     built_modules = []
+    a_domain_idx = 0  # indexes start from 1 for backward compatibility. Maybe change this in the future
     for module_idx, module in enumerate(gene.modules):
         if module.a_domain is None:
             continue
+        a_domain_idx += 1
 
         residue_scores = get_residue_scores(module.a_domain, residue_scoring_model, config)
 
@@ -77,7 +79,7 @@ def build_gene_assembly_line(gene: Gene,
             modifications.append(BGC_Module_Modification.EPIMERIZATION)
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
-                                        module_idx=module_idx,
+                                        a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
                                         modifications=tuple(modifications),
                                         iterative_module=module_idx in iterative_modules_idxs,
