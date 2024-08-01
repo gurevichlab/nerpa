@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Literal
 from dataclasses import dataclass
 from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
@@ -108,7 +108,14 @@ class ConfigPaths:
 
 @dataclass
 class SpecificityPredictionConfig:
+    calibration: bool
+    apply_step_function: bool
     calibration_step_function_steps: List[float]
+    normalize_scores: bool
+    apriori_residue_prob: Dict[str, float]
+    pseudo_counts: bool
+    pseudo_count_fraction: float
+    compute_evidence: bool
 
 
 @dataclass

@@ -95,7 +95,8 @@ def calculate_dp(assembly_line: List[BGC_Module],
     return dp_table
 
 
-def retrieve_alignment(dp_table: DP_Table, state: DP_State,
+def retrieve_alignment(dp_table: DP_Table,
+                       state: DP_State,
                        assembly_line: List[BGC_Module],
                        nrp_monomers: List[NRP_Monomer],
                        scoring_helper: ScoringHelper) -> Alignment:

@@ -58,7 +58,7 @@ def parse_contig(modules: List[str],
     return [BGC_Module(residue_score=defaultdict(lambda: -10, {MonomerResidue(residue): 10}),
                        modifications=(),
                        gene_id=gene_id,
-                       module_idx=i,
+                       a_domain_idx=i,
                        iterative_module=i in iterative,
                        iterative_gene=iterative_gene)
             for i, residue in enumerate(modules)]
@@ -191,13 +191,13 @@ def test_matcher():
                             iterative_module=False,
                             iterative_gene=False,
                             gene_id='gene1',
-                            module_idx=0),
+                            a_domain_idx=0),
                  BGC_Module(residue_score=defaultdict(lambda: -3, {'leu': -1}),
                             modifications=(),  #(BGC_Module_Modification.EPIMERIZATION, BGC_Module_Modification.METHYLATION,),
                             iterative_module=True,
                             iterative_gene=False,
                             gene_id='gene1',
-                            module_idx=1)]
+                            a_domain_idx=1)]
     bgc_variant = BGC_Variant(tentative_assembly_line=bgc_preds,
                               genome_id='genome#189',
                               bgc_idx='bgc#39')

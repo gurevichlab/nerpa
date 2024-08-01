@@ -38,6 +38,7 @@ class DomainType(Enum):
     C_DCL = auto()
     C_DUAL = auto()
 
+
     E = auto()
     MT = auto()
 

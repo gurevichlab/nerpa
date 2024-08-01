@@ -1,15 +1,15 @@
-from typing import List, NamedTuple, Union
+from typing import List, NamedTuple, Optional, Union
 import networkx as nx
 import copy
 from itertools import chain, permutations
 
 
 def hamiltonian_path(G: nx.DiGraph,
-                     source: int) -> Union[List[int], None]:
+                     source: int) -> Optional[List[int]]:
     ''' finds a hamiltonian path in G starting at source in an exhaustive manner '''
     visited = set()
 
-    def dfs(u: int) -> Union[List[int], None]:
+    def dfs(u: int) -> Optional[List[int]]:
         visited.add(u)
         if len(visited) == len(G.nodes()):
             return [u]

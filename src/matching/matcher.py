@@ -1,4 +1,9 @@
-from typing import Iterable, List, Union
+from typing import (
+    Iterable,
+    List,
+    Optional,
+    Union
+)
 from src.data_types import (
     BGC_Module,
     BGC_Variant,
@@ -7,7 +12,7 @@ from src.data_types import (
     NRP_Variant
 )
 from src.matching.scoring_helper import ScoringHelper
-from src.matching.alignment_types import Alignment, alignment_score, Match
+from src.matching.alignment_types import Alignment, alignment_score, Match, show_alignment
 from src.matching.dp import get_alignment
 
 from itertools import chain, islice, takewhile
@@ -24,6 +29,10 @@ def get_alignment_fragment(assembly_line: List[BGC_Module],
 
     alignments = [get_alignment(assembly_line, nrp_cyclic_shift, dp_helper)
                   for nrp_cyclic_shift in nrp_cyclic_shifts]
+    with open('alignments.txt', 'a') as f:
+        for alignment in alignments:
+            f.write(show_alignment(alignment) + '\n\n')
+
     return max(alignments, key=alignment_score)
 
 
@@ -40,8 +49,19 @@ def get_match(bgc_variant: BGC_Variant,
                                                   bgc_fragment,
                                                   dp_helper)
                            for bgc_fragment in nrp_variant.fragments]
-    final_score = sum(alignment_score(alignment) - null_hypothesis_score(fragment, dp_helper)
-                      for fragment, alignment in zip(nrp_variant.fragments, fragment_alignments))
+    combined_score = sum(alignment_score(alignment) for alignment in fragment_alignments)
+    match dp_helper.scoring_config.normalization:
+        case 'RANDOM_NULL_MODEL':
+            null_score = sum(null_hypothesis_score(fragment, dp_helper) for fragment in nrp_variant.fragments)
+            final_score = combined_score - null_score
+        case 'AVERAGING':
+            total_length = sum(len(fragment.monomers) for fragment in nrp_variant.fragments)
+            final_score = combined_score / total_length
+        case 'NONE':
+            final_score = combined_score
+        case _:
+            raise ValueError(f'Unknown normalization method: {dp_helper.scoring_config.normalization}')
+
     return Match(bgc_variant,
                  nrp_variant,
                  fragment_alignments,
@@ -51,8 +71,8 @@ def get_match(bgc_variant: BGC_Variant,
 def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,
                                 nrp_variants: List[NRP_Variant],
                                 scoring_helper: ScoringHelper,
-                                min_score: float = 0,
-                                max_num_matches: Union[int, None] = None,
+                                min_score: Optional[float] = None,
+                                max_num_matches: Optional[int] = None,
                                 log=None) -> List[Match]:
     if log is not None:
         log.info(f'Processing BGC variant {bgc_variant.variant_idx}')
@@ -61,15 +81,15 @@ def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,
                      for nrp_variant in nrp_variants),
                      key=lambda m: m.normalized_score, reverse=True)
 
-    return list(takewhile(lambda m: m.normalized_score > min_score,
+    return list(takewhile(lambda m: (m.normalized_score > min_score) if min_score is not None else True,
                           islice(matches, max_num_matches)))
 
 
 def get_matches(bgc_variants: List[BGC_Variant],
                 nrp_variants: List[NRP_Variant],
                 scoring_helper: ScoringHelper,
-                min_score: float = 0,
-                max_num_matches: Union[int, None]=None,
+                min_score: Optional[float] = None,
+                max_num_matches: Optional[int] = None,
                 num_threads: int = 1,
                 log=None) -> List[Match]:
     if log is not None:

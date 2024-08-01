@@ -72,6 +72,11 @@ def extract_a_domains_info(contig_data: dict,
 
 
 def parse_cds_coordinates(location: str) -> Coords:
+    # BGC0000296, gene acmY had location [45371:>47435](+).
+    # I have no idea what this is, so I just remove the '<' and '>' and hope for the best
+    location = location.replace('<', '').replace('>', '')
+    location = location.replace(' ','')  # remove possible spaces
+
     def parse_location(loc: str) -> Coords:
         # e.g. 'loc' = '[351:486](+)'
         parsed_loc = parse('[{start:d}:{end:d}]({strand})', loc)
@@ -93,21 +98,22 @@ def parse_cds_coordinates(location: str) -> Coords:
 
 
 def extract_gene_id(feature_qualifiers: dict) -> str:
-    if 'locus_tag' in feature_qualifiers:
-        return feature_qualifiers['locus_tag'][0]
-    elif 'gene' in feature_qualifiers:
-        return feature_qualifiers['gene'][0]
-    else:
-        raise KeyError('Gene ID not found in feature qualifiers')
+    for gene_id_key in ['locus_tag', 'gene', 'protein_id']:
+        if gene_id_key in feature_qualifiers:
+            return feature_qualifiers[gene_id_key][0]
+    raise KeyError('Gene ID not found in feature qualifiers')
 
 
 def extract_gene_coords(contig_data: dict) -> Dict[GeneId, Coords]:
     gene_coords = {}
     for feature in contig_data['features']:
-        if feature['type'] == 'gene':
-            gene_id = extract_gene_id(feature['qualifiers'])
-            coords = parse_cds_coordinates(feature['location'])
-            gene_coords[gene_id] = coords
+        if feature['type'] in ('gene', 'CDS'):
+            try:
+                gene_id = extract_gene_id(feature['qualifiers'])
+                coords = parse_cds_coordinates(feature['location'])
+                gene_coords[gene_id] = coords
+            except:
+                raise
     return gene_coords
 
 

@@ -53,6 +53,8 @@ null_hypothesis_residue_score: {2-oxo-isovaleric-acid: -6.869254281996133, 33p-l
                                 trp: -6.1002022394627655, tyr: -5.4998688530485715, val: -5.105784181942307,
                                 vol: -6.836222152761722, unknown: -5.517658235969736}
 
+normalization: NONE  # AVERAGING/NONE/RANDOM_NULL_MODEL
+
 module_modification_frequency:
   METHYLATION: 0.17
 
