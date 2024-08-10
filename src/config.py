@@ -2,7 +2,7 @@ from typing import Dict, List, Literal
 from dataclasses import dataclass
 from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
-from src.rban_parsing.rban_parser import rBAN_Residue_Name
+from src.monomer_names_helper import antiSMASH_MonomerName, NorineMonomerName, MonomerResidue
 import yaml
 import dacite
 
@@ -36,7 +36,7 @@ class rBAN_Config:
 
 @dataclass
 class rBAN_Processing_Config:
-    SUPPORTED_RESIDUES: List[rBAN_Residue_Name]
+    SUPPORTED_RESIDUES: List[NorineMonomerName]
     MIN_RECOGNIZED_NODES: int
     CUT_LIPIDS: bool
     PNP_BONDS: List[str]
@@ -56,8 +56,8 @@ class antiSMASH_Parsing_Config:
     SCORING_TABLE_COLUMNS: List[str]
     SCORING_TABLE_INDEX: str
     SVM_SUBSTRATES: List[str]
-    KNOWN_AA10_CODES: Dict[str, List[str]] = None
-    KNOWN_AA34_CODES: Dict[str, List[str]] = None
+    KNOWN_AA10_CODES: Dict[antiSMASH_MonomerName, List[str]] = None
+    KNOWN_AA34_CODES: Dict[antiSMASH_MonomerName, List[str]] = None
 
     def __init__(self,
                  antismash_parsing_cfg_dict: dict,
