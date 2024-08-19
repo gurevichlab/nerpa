@@ -23,8 +23,9 @@ Note: the most actual versions of (2) & (3) are likely specified in <https://git
 ### Running
 
 Note: the script contains hard-coded paths to input and output file locations.
-The running is simply 
-`python scripts/signatures_extender.py`
+The running is simply   
+`python scripts/signatures_extender.py`  
+
 The resulting file (`extended_signatures.tsv`) will be saved near the original input file (`data/signatures.tsv`)
 
 ### Important note
@@ -36,8 +37,18 @@ As a result, their scores are not reported at the 'class' level, only at the 'la
 
 ## How to create the big training table for the specificity prediction model
 
-TODO! 
+### Prerequisites
+1. Several data files available in the `data` direct ory (see more details in the help message).
+2. Python3 with basic packages (like `pandas` and `pyyaml`) installed. 
 
-The old dirty script is in `scripts/nerpa_table_generator.py`, but it should be substantially rewritten to rely on the new inputs (all in `data` already): `extended_signatures.tsv` (see also above), `monomers_unique.tsv` (aka Monomers Table) and `core_frequency.tsv` (frequencies of core Nerpa monomers in the `signatures.tsv` file). The latter two files are discussed (and sometimes updated) [here](https://github.com/gurevichlab/nerpa/issues/18).
+### Running
 
-The script should take X (e.g., 50 or all) the most frequent cores as Nerpa alphabet and use the Monomers Table as a guide for parsing extended signatures and converting `as_short` names into Nerpa core monomers. The final training table should contain X+1 (for 'unknown' monomers if X < all) rows per every signature and report aa10_scores, aa34_scores, and SVM prediction scores for every core monomer given the signature. 
+Note: the script requires many input/output paths that can be changed via options. 
+Please use `-h` to show all of them. 
+Two of these files, `monomers_unique.tsv` (aka Monomers Table) and `core_frequency.tsv` (frequencies of the core Nerpa monomers in the `signatures.tsv` file) are discussed (and sometimes updated) [here](https://github.com/gurevichlab/nerpa/issues/18).
+If unsure, use default values: all required files are available in the `data` directory already. 
+
+The running is simply   
+`python scripts/training_table_generator.py --num-monomers 49`  (the default num monomers is `-1` that correspond to "all"). 
+
+The resulting files (`monomer_signatures.yaml` and `nerpa_scoring_table.tsv`) will be saved in the `data` directory by default.
