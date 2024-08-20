@@ -1,6 +1,7 @@
 from typing import List, Dict, Tuple
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
+    antiSMASH_record,
     BGC_Cluster,
     Coords,
     DomainType,
@@ -169,7 +170,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
     return bgcs
 
 
-def parse_antismash_json(antismash_json: dict,
+def parse_antismash_json(antismash_json: antiSMASH_record,
                          config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file']
