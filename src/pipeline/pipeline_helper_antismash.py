@@ -9,11 +9,13 @@ from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
 from src.config import Config, SpecificityPredictionConfig
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
+from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
 from src.data_types import BGC_Variant
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
 from src.monomer_names_helper import MonomerNamesHelper
 from src.antismash_parsing.antismash_parser import parse_antismash_json
+from src.antismash_parsing.antismash_parser_types import antiSMASH_record
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
 from src.write_results import write_bgc_variants
 from pathlib import Path
@@ -21,46 +23,18 @@ import json
 import yaml
 from dataclasses import dataclass
 from itertools import chain
-import math
+from copy import deepcopy
 
 
-def create_step_function(steps: List[float]) -> Callable[[float], float]:
-    step_len = 1 / len(steps)
-    def step_function(x: float) -> float:
-        for i, step in enumerate(steps):
-            if x < (i + 1) * step_len:
-                return steps[i]
-        return steps[-1]
-    return step_function
-
-
-def calibrate_scores(predictions: Dict[str, float],
-                     config: SpecificityPredictionConfig):
-    predictions = {res: math.e ** score for res, score in predictions.items()}
-    if config.apply_step_function:
-        step_function = create_step_function(config.calibration_step_function_steps)
-        predictions = {res: step_function(score)
-                       for res, score in predictions.items()}
-    if config.normalize_scores:
-        total_prob = sum(predictions.values())
-        if total_prob < 1:
-            predictions = {res: score + (1 - total_prob) * config.apriori_residue_prob[res]
-                           for res, score in predictions.items()}
-        else:
-            predictions = {res: score / total_prob
-                           for res, score in predictions.items()}
-
-    if config.pseudo_counts:
-        predictions = {res: score * (1 - config.pseudo_count_fraction) +
-                            config.pseudo_count_fraction * config.apriori_residue_prob[res]
-                       for res, score in predictions.items()}
-
-    if config.compute_evidence:
-        predictions = {res: score / config.apriori_residue_prob[res]
-                       for res, score in predictions.items()}
-
-    predictions = {res: math.log(score) for res, score in predictions.items()}
-    return predictions
+def calibrated_bgc_variants(_bgc_variants: List[BGC_Variant],
+                            specificity_prediction_config: SpecificityPredictionConfig) -> List[BGC_Variant]:
+    bgc_variants = deepcopy(_bgc_variants)
+    for bgc_variant in bgc_variants:
+        for bgc_fragment in bgc_variant.fragments:
+            for module in bgc_fragment:
+                module.residue_score = calibrate_scores(module.residue_score,
+                                                        specificity_prediction_config)
+    return bgc_variants
 
 
 @dataclass
@@ -74,7 +48,7 @@ class PipelineHelper_antiSMASH:
     def __post_init__(self):
         if self.args.antismash_path:
             self.antismash_exec = get_path_to_program('run_antismash.py', dirpath=self.args.antismash_path,
-                                                 min_version='5.0')
+                                                      min_version='5.0')
         else:
             self.antismash_exec = get_path_to_program('antismash', min_version='5.0')
 
@@ -92,8 +66,8 @@ class PipelineHelper_antiSMASH:
 
         return bgc_variants
 
-    def get_antismash_results(self) -> Iterable[dict]:
-        antismash_results = self.args.antismash if self.args.antismash is not None else []
+    def get_antismash_results(self) -> Iterable[antiSMASH_record]:
+        antismash_results: List[Path] = self.args.antismash if self.args.antismash is not None else []
 
         if self.args.seqs:
             try:
@@ -106,7 +80,7 @@ class PipelineHelper_antiSMASH:
                 raise e
             antismash_results.append(new_results)
 
-        return (json.loads(antismash_json_file.read_text())
+        return (antiSMASH_record(json.loads(antismash_json_file.read_text()))
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
 
@@ -142,7 +116,7 @@ class PipelineHelper_antiSMASH:
         return output_dir
 
     def extract_bgc_variants_from_antismash(self,
-                                            antismash_json: dict) -> List[BGC_Variant]:
+                                            antismash_json: antiSMASH_record) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
                                               self.config.antismash_parsing_config)
         specificity_prediction_model = ModelWrapper(self.config.paths.specificity_prediction_model)
@@ -155,14 +129,9 @@ class PipelineHelper_antiSMASH:
 
         if self.config.specificity_prediction_config.calibration:
             (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir()
-            write_bgc_variants(bgc_variants,
-                               self.config.paths.main_out_dir / 'BGC_variants_before_calibration')
+            write_bgc_variants(bgc_variants, self.config.paths.main_out_dir / 'BGC_variants_before_calibration')  # for training
+            bgc_variants = calibrated_bgc_variants(bgc_variants, self.config.specificity_prediction_config)
 
-            for bgc_variant in bgc_variants:
-                for bgc_fragment in bgc_variant.fragments:
-                    for module in bgc_fragment:
-                        module.residue_score = calibrate_scores(module.residue_score,
-                                                                self.config.specificity_prediction_config)
         return bgc_variants
 
 

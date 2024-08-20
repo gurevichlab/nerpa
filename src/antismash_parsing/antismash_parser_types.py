@@ -1,8 +1,17 @@
 from __future__ import annotations
+from typing import (
+    Dict,
+    List,
+    Union,
+    NamedTuple,
+    NewType,
+)
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, List, Union, NamedTuple
 from src.monomer_names_helper import antiSMASH_MonomerName
+
+
+antiSMASH_record = NewType('antiSMASH_record', dict)
 
 class SVM_LEVEL(Enum):
     SINGLE_AMINO = auto()
