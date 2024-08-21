@@ -16,8 +16,9 @@ antismash_parsing_config:
     MAX_DISTANCE_BETWEEN_GENES: 10000
     MAX_VARIANTS_PER_BGC: 100
     MAX_PERMUTATIONS_PER_BGC: 100
-    SVM_SUBSTRATES: [Arg, Asp, Glu, Asn, Lys, Gln, Orn, Aad, Ala, Gly, Val, Leu,
-                     Ile, Abu, Iva, Ser, Thr, Hpg, dHpg, Cys, Pro, Pip, Phe, Tyr]
+    SVM_SUBSTRATES: ['Arg', 'Asp', 'Glu', 'Asn', 'Lys', 'Gln', 'Orn', 'ohOrn', 'Aad', 'Ala',
+                     'Gly', 'Val', 'Leu', 'Ile', 'Abu', 'Iva', 'Ser', 'Thr', 'Hpg', 'dHpg',
+                     'Cys', 'Pro', 'Pip', 'Phe', 'Tyr', 'Trp', '2,3-dohBza', 'Sal', 'Pgl', 'R-ohTyr']
     SCORING_TABLE_INDEX: substrate
     SCORING_TABLE_COLUMNS: [substrate, aa10_score, aa34_score, svm_single_amino_score,
                             svm_small_cluster_score, svm_large_cluster_score, svm_physiochemical_class_score]
