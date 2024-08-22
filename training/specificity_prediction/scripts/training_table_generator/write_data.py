@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 from collections import OrderedDict
 from src.monomer_names_helper import MonomerResidue
+from src.write_results import write_yaml
 from training.specificity_prediction.scripts.training_table_generator.load_data import (
     AA10_code,
     AA34_code,
@@ -25,9 +26,7 @@ def write_monomer_signatures(monomer_signatures_yaml: Path,
         codes_dict[substrate] = (aa10_list, aa34_list)
 
     # Dumping codes_dict to YAML file
-    with open(monomer_signatures_yaml, 'w') as yaml_file:
-        yaml.dump(codes_dict, yaml_file, default_flow_style=False)
-
+    write_yaml(codes_dict, monomer_signatures_yaml)
     print(f"Saved monomer aa10 and aa34 codes in {monomer_signatures_yaml}")
 
 
@@ -36,6 +35,7 @@ def write_nerpa_table(output_file: Path,
                       SEPARATOR: str):
     with open(output_file, 'w') as f:
         f.write(SEPARATOR.join(NerpaTableEntry.header()) + "\n")
-        f.write("\n".join(map(str, nerpa_table_entries)))
-    print(f"Saved the Nerpa training table in {output_file}")
+        f.write('\n'.join(table_row.to_str(SEPARATOR)
+                          for table_row in nerpa_table_entries))
+    print(f'Saved the Nerpa training table in {output_file}')
 

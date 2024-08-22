@@ -30,9 +30,9 @@ def parse_args() -> argparse.Namespace:
 
     # Output group
     output_group = parser.add_argument_group("output", "Output options")
-    output_group.add_argument("--monomer-signatures-dict", type=str, default="data/monomer_signatures.yaml",
+    output_group.add_argument("--monomer-signatures-dict", type=str, default="/home/ilianolhin/git/nerpa2/training/specificity_prediction/output/monomer_signatures.yaml",
                               help="Path to a YAML file to store the dictionary with all aa10 and aa34 signatures per every supported core monomer.")
-    output_group.add_argument("--nerpa-training-table", type=str, default="data/nerpa_scoring_table.tsv",
+    output_group.add_argument("--nerpa-training-table", type=str, default="/home/ilianolhin/git/nerpa2/training/specificity_prediction/output/nerpa_scoring_table.tsv",
                               help="Path to a TSV file to store the main specificity training table.")
 
     return parser.parse_args()
