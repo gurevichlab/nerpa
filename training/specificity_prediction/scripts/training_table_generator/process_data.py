@@ -132,7 +132,7 @@ def generate_nerpa_table_entries(input_data: TrainingTableInputData) -> List[Ner
                                                                               for col in input_data.extended_signatures_df.columns[4:]}
 
         missing_nerpa_monomer = next((nerpa_monomer
-                                      for nerpa_monomer in input_data.nerpa_supported_monomers + [input_data.nerpa_unknown_monomer]
+                                      for nerpa_monomer in input_data.nerpa_supported_monomers
                                       if nerpa_monomer not in input_data.nerpa_monomer_to_SVM_short_names),
                                      None)
         assert missing_nerpa_monomer is None, f"{missing_nerpa_monomer} not in 'nerpa_monomer_to_SVM_short_names'! Should be there by design"
