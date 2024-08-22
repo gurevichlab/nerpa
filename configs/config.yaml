@@ -19,6 +19,8 @@ antismash_parsing_config:
     SVM_SUBSTRATES: ['Arg', 'Asp', 'Glu', 'Asn', 'Lys', 'Gln', 'Orn', 'ohOrn', 'Aad', 'Ala',
                      'Gly', 'Val', 'Leu', 'Ile', 'Abu', 'Iva', 'Ser', 'Thr', 'Hpg', 'dHpg',
                      'Cys', 'Pro', 'Pip', 'Phe', 'Tyr', 'Trp', '2,3-dohBza', 'Sal', 'Pgl', 'R-ohTyr']
+    SVM_NOT_SUPPORTED_SCORE: -1.0
+    SVM_NO_PREDICTION_SCORE: 0.0
     SCORING_TABLE_INDEX: substrate
     SCORING_TABLE_COLUMNS: [substrate, aa10_score, aa34_score, svm_single_amino_score,
                             svm_small_cluster_score, svm_large_cluster_score, svm_physiochemical_class_score]

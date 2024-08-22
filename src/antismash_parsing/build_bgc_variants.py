@@ -48,11 +48,11 @@ def get_residue_scores(a_domain: A_Domain,
                        config: antiSMASH_Parsing_Config) -> Dict[MonomerResidue, LogProb]:
     def svm_score(aa_name: antiSMASH_MonomerName, svm_level_prediction: SVM_Prediction) -> float:
         if aa_name not in config.SVM_SUBSTRATES:
-            return -1.0
+            return config.SVM_NOT_SUPPORTED_SCORE
         if aa_name in svm_level_prediction.substrates:
             return svm_level_prediction.score
         else:
-            return 0.0
+            return config.SVM_NO_PREDICTION_SCORE
 
     def similarity_score(aa_code1: str, aa_code2: str) -> float:
         return 1.0 - hamming_distance(aa_code1, aa_code2) / len(aa_code1)

@@ -56,6 +56,8 @@ class antiSMASH_Parsing_Config:
     SCORING_TABLE_COLUMNS: List[str]
     SCORING_TABLE_INDEX: str
     SVM_SUBSTRATES: List[antiSMASH_MonomerName]
+    SVM_NOT_SUPPORTED_SCORE: float
+    SVM_NO_PREDICTION_SCORE: float
     KNOWN_AA10_CODES: Dict[antiSMASH_MonomerName, List[str]] = None
     KNOWN_AA34_CODES: Dict[antiSMASH_MonomerName, List[str]] = None
 
