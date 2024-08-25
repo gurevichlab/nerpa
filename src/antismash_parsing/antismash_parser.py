@@ -38,7 +38,6 @@ def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
                                      (SVM_LEVEL.LARGE_CLUSTER, 'large_cluster'),
                                      (SVM_LEVEL.SMALL_CLUSTER, 'small_cluster'),
                                      (SVM_LEVEL.SINGLE_AMINO, 'single_amino')]:
-        score = svm_dict[svm_level_str]['score']
         substrates = svm_dict[svm_level_str]['substrates']
         svm[svm_level] = SVM_Prediction(score=svm_dict[svm_level_str]['score'],
                                         substrates=[antiSMASH_MonomerName(substrate['short'])

@@ -55,11 +55,11 @@ class antiSMASH_Parsing_Config:
     MAX_PERMUTATIONS_PER_BGC: int
     SCORING_TABLE_COLUMNS: List[str]
     SCORING_TABLE_INDEX: str
-    SVM_SUBSTRATES: List[antiSMASH_MonomerName]
+    SVM_SUBSTRATES: List[MonomerResidue]
     SVM_NOT_SUPPORTED_SCORE: float
     SVM_NO_PREDICTION_SCORE: float
-    KNOWN_AA10_CODES: Dict[antiSMASH_MonomerName, List[str]] = None
-    KNOWN_AA34_CODES: Dict[antiSMASH_MonomerName, List[str]] = None
+    KNOWN_AA10_CODES: Dict[MonomerResidue, List[str]] = None
+    KNOWN_AA34_CODES: Dict[MonomerResidue, List[str]] = None
 
     def __init__(self,
                  antismash_parsing_cfg_dict: dict,
@@ -133,7 +133,7 @@ class Config:
 def load_config(args: CommandLineArgs) -> Config:
     nerpa_dir = Path(__file__).parent.parent.resolve()
     main_out_dir = args.output_dir.resolve()
-    cfg = yaml.safe_load((nerpa_dir / Path('configs/config.yaml')).open('r'))
+    cfg = yaml.safe_load((nerpa_dir / Path('configs/old_config.yaml')).open('r'))
 
     paths_config = ConfigPaths(paths_cfg_dict=cfg['paths'],
                                nerpa_dir=nerpa_dir,
