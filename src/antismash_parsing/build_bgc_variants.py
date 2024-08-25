@@ -1,5 +1,6 @@
 from typing import (
     Any,
+    Callable,
     Dict,
     List
 )
@@ -32,24 +33,17 @@ import pandas as pd
 from collections import defaultdict
 
 
-def antismash_names_to_residues(residue_scores: Dict[antiSMASH_MonomerName, LogProb],
-                                monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, LogProb]:
-    result = defaultdict(lambda: float('-inf'))
-    for aa_name, score in residue_scores.items():
-        residue = monomer_names_helper.parsed_name(aa_name, name_format='antismash').residue
-        result[residue] = max(result[residue], score)
-    return result
-
-
-#TODO: needs typing for residue_scoring_model and config
+# TODO: needs typing for residue_scoring_model and config
 def get_residue_scores(a_domain: A_Domain,
-                       residue_scoring_model: Any,
+                       residue_scoring_model: Callable[[pd.DataFrame], Dict[MonomerResidue, LogProb]],
                        monomer_names_helper: MonomerNamesHelper,
                        config: antiSMASH_Parsing_Config) -> Dict[MonomerResidue, LogProb]:
-    def svm_score(aa_name: antiSMASH_MonomerName, svm_level_prediction: SVM_Prediction) -> float:
+    def svm_score(aa_name: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
+        svm_prediction_substrates = {monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
+                                     for monomer_name in svm_level_prediction.substrates}
         if aa_name not in config.SVM_SUBSTRATES:
             return config.SVM_NOT_SUPPORTED_SCORE
-        if aa_name in svm_level_prediction.substrates:
+        if aa_name in svm_prediction_substrates:
             return svm_level_prediction.score
         else:
             return config.SVM_NO_PREDICTION_SCORE
@@ -59,17 +53,16 @@ def get_residue_scores(a_domain: A_Domain,
 
     scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
     for aa_name, aa10_codes in config.KNOWN_AA10_CODES.items():
-        aa_34_codes = config.KNOWN_AA34_CODES[aa_name]
+        aa34_codes = config.KNOWN_AA34_CODES[aa_name]
         aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
                               for known_aa_code in known_aa_codes)
                           for aa_code, known_aa_codes in [(a_domain.aa10, aa10_codes),
-                                                          (a_domain.aa34, aa_34_codes)]]
+                                                          (a_domain.aa34, aa34_codes)]]
         svm_scores = [svm_score(aa_name, a_domain.svm[level])
                       for level in SVM_LEVEL]
         scoring_table.loc[aa_name] = aa_code_scores + svm_scores
 
-    return antismash_names_to_residues(residue_scoring_model(scoring_table),
-                                       monomer_names_helper)
+    return residue_scoring_model(scoring_table)
 
 
 def build_gene_assembly_line(gene: Gene,
