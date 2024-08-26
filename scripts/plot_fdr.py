@@ -82,7 +82,7 @@ def main():
         )
     if args.nerpa2:
         for i, p in enumerate(args.nerpa2):
-            k = f'Nerpa 2 (run {i})'
+            k = f'Nerpa 2 run {i}'
             fdr_data[k], tops[k] = calculate_fdr_data(
                 parse_nerpa2_results(Path(p)), 
                 args.max_rank, exclude
