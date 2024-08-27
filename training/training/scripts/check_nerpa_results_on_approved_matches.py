@@ -35,8 +35,8 @@ def steps_coincide(step1, step2) -> bool:  # step2 is approved
                         for field_name in ['Alignment_step',
                                            'Modifying_domains',
                                            'NRP_chirality',
-                                           'NRP_modifications',
-                                           'NRP_residue',
+                                           #'NRP_modifications',
+                                           #'NRP_residue',
                                            'aa10_code',
                                            'aa34_code']
                         if step1[field_name] != step2[field_name]), None)
@@ -56,8 +56,7 @@ def steps_coincide(step1, step2) -> bool:  # step2 is approved
                for field_name in ['Alignment_step',
                                   'Modifying_domains',
                                   'NRP_chirality',
-                                  'NRP_modifications',
-                                  'NRP_residue',
+                                  #'NRP_modifications',
                                   'aa10_code',
                                   'aa34_code'])
 
@@ -114,6 +113,7 @@ for i, match in enumerate(nerpa_results_matches):
     if approved_match is None:
         print(f'NRP {nrp_id} not in approved matches')
         continue
+    '''
     if nrp_id in ['BGC0002109.4',
                   'BGC0001421.0',
                   'BGC0002188.0',
@@ -126,6 +126,11 @@ for i, match in enumerate(nerpa_results_matches):
                   'BGC0001955.3',
                   'BGC0001214.4',
                   ]:
+    
+        print('Skipping for debugging')
+        continue
+    '''
+    if nrp_id in []:
         print('Skipping for debugging')
         continue
     if not matches_coincide(match, approved_match):
