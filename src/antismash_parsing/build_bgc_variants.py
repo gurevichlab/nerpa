@@ -33,7 +33,6 @@ import pandas as pd
 from collections import defaultdict
 
 
-# TODO: needs typing for residue_scoring_model and config
 def get_residue_scores(a_domain: A_Domain,
                        residue_scoring_model: Callable[[pd.DataFrame], Dict[MonomerResidue, LogProb]],
                        monomer_names_helper: MonomerNamesHelper,

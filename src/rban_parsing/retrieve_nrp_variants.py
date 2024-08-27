@@ -61,7 +61,8 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
     return graph
 
 
-def backbone_sequence_to_fragment(backbone_sequence: BackboneSequence, G: NerpaMonomerGraph) -> NRP_Fragment:
+def backbone_sequence_to_fragment(backbone_sequence: BackboneSequence,
+                                  G: NerpaMonomerGraph) -> NRP_Fragment:
     return NRP_Fragment(is_cyclic=backbone_sequence.is_cyclic,
                         monomers=[G.nodes[idx]['data'] for idx in backbone_sequence.node_idxs])
 
@@ -92,7 +93,7 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
                           min_recognized_nodes=2) -> List[NRP_Variant]:
     graph = build_nx_graph(rban_record, backbone_bond_types, monomer_names_helper)
 
-    backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, monomer_names_helper=monomer_names_helper)
+    backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph)
 
     # all fragments individually
     return [NRP_Variant(variant_idx=0,

@@ -133,7 +133,7 @@ class Config:
 def load_config(args: CommandLineArgs) -> Config:
     nerpa_dir = Path(__file__).parent.parent.resolve()
     main_out_dir = args.output_dir.resolve()
-    cfg = yaml.safe_load((nerpa_dir / Path('configs/old_config.yaml')).open('r'))
+    cfg = yaml.safe_load((nerpa_dir / Path('configs/config.yaml')).open('r'))
 
     paths_config = ConfigPaths(paths_cfg_dict=cfg['paths'],
                                nerpa_dir=nerpa_dir,
