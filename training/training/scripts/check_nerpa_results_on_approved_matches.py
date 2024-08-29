@@ -130,7 +130,14 @@ for i, match in enumerate(nerpa_results_matches):
         print('Skipping for debugging')
         continue
     '''
-    if nrp_id in []:
+    if nrp_id in ['BGC0000374.4',  # corrected
+                  'BGC0000379.0',  # to check
+                  'BGC0000439.0',  # to check
+                  'BGC0001230.7',  # to check
+                  'BGC0002415.2',  # corrected
+                  'BGC0001214.4',  # corrected
+                  'BGC0002415.1'  # corrected
+                  ]:
         print('Skipping for debugging')
         continue
     if not matches_coincide(match, approved_match):
