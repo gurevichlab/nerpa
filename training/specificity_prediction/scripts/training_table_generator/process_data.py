@@ -68,8 +68,8 @@ def get_aa_scores(code: AA_code,
     known_codes = set(codes_counter.keys())
     known_codes_versions = [
         known_codes,
-        known_codes if codes_counter[code] <= 1 else known_codes - {code},
-        known_codes if codes_counter[code] <= num_sources else known_codes - {code},
+        known_codes - {code} if codes_counter[code] <= 1 else known_codes,
+        known_codes - {code} if codes_counter[code] <= num_sources else known_codes,
         known_codes - {code}
     ]
     return AA_scores(*(get_aa_score(code, known_codes_version)
