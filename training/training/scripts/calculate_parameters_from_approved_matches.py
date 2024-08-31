@@ -4,7 +4,7 @@ from enum import Enum, auto
 from pathlib import Path
 import yaml
 from math import e
-from fit_increasing_step_function import fit_step_function_to_bins
+from training.training.scripts.train_on_groundtruth_matches.fit_increasing_step_function import fit_step_function_to_bins
 
 
 def specificity_predictions_for_step(step, bgc_variant) -> Optional[Dict[str, float]]:

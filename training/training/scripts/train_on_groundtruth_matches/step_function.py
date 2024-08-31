@@ -1,6 +1,9 @@
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 from math import log
-
+import matplotlib.pyplot as plt
+from pathlib import Path
+import math
+from src.data_types import LogProb
 
 def step_cost(step_y_norm: float, bin: Tuple[int, int]) -> float:
     '''
@@ -58,6 +61,47 @@ def fit_step_function_to_bins(bins: List[Tuple[int, int]],  # TODO: pseudocounts
     return [step_y / step_range for step_y in steps[::-1]]
 
 
+def create_bins(score_correctness_log: List[Tuple[LogProb, bool]],
+                num_bins: int) -> List[
+    Tuple[int, int]]:  # (num_false, num_true) for each bin [i/numbins, (i+1)/numbins)
+    score_correctness = [(math.e ** score, correctness) for score, correctness in score_correctness_log]
+    bins: List[List[bool]] = [[] for _ in range(num_bins)]
+    bin_size = 1 / num_bins
+    for score, correctness in score_correctness:
+        bin_idx = min(int(score / bin_size), num_bins - 1)
+        bins[bin_idx].append(correctness)
+    return [(bin.count(False), bin.count(True)) for bin in bins]
+
+
+def plot_step_function(score_correctness_bins: List[Tuple[int, int]],
+                       # (num_false, num_true) for each bin [i/numbins, (i+1)/numbins)
+                       step_function: List[float],
+                       out_file: Optional[Path] = None,
+                       show: bool = False) -> None:
+    assert len(score_correctness_bins) == len(step_function)
+    bin_size = 1 / len(score_correctness_bins)
+    bin_centers = [i * bin_size + bin_size / 2 for i in range(len(score_correctness_bins))]
+    bin_fractions = [0 if not num_true else num_true / (num_true + num_false)
+                     for num_false, num_true in score_correctness_bins]
+    plt.bar(bin_centers, bin_fractions, align='center', width=bin_size)
+    plt.plot(bin_centers, step_function, color='red')
+    if show:
+        plt.show()
+    if out_file is not None:
+        plt.savefig(out_file)
+    return out_file
+
+
+def fit_step_function(score_correctness: List[Tuple[LogProb, bool]],
+                      num_bins: int,
+                      step_range: int) -> List[float]:
+    score_correctness_bins = create_bins(score_correctness, num_bins)
+    step_function = fit_step_function_to_bins(score_correctness_bins, step_range)
+    print('Plotting...')
+    plot_step_function(score_correctness_bins, step_function)
+    return step_function
+
+
 def create_step_function(steps: List[float], step_len: float) -> Callable[[float], float]:
     def step_function(x: float) -> float:
         for i, step in enumerate(steps):
@@ -65,4 +109,3 @@ def create_step_function(steps: List[float], step_len: float) -> Callable[[float
                 return steps[i]
         return steps[-1]
     return step_function
-
