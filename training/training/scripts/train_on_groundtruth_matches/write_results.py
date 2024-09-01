@@ -5,6 +5,8 @@ import pandas as pd
 from prettytable import PrettyTable
 from calculate_parameters import TrainedParameters
 from dataclasses import asdict
+from src.write_results import write_yaml
+from step_function import plot_step_function
 
 
 def show_match(match: dict) -> str:
@@ -33,16 +35,15 @@ def write_results(matches: List[dict],
                   matches_table: pd.DataFrame,
                   parameters: TrainedParameters,
                   output_dir: Path):
-    nrp_ids_good_matches = matches_table[matches_table['Verdict'].isin('good', 'was corrected')]['NRP']
-    nrp_ids_to_invesigate = matches_table[matches_table['Verdict'] == 'for investigation']['NRP']
-    nrp_ids_to_correct = matches_table[matches_table['Verdict'] == 'to be corrected']['NRP']
+    nrp_ids_good_matches = matches_table[matches_table['Verdict'].isin(['good', 'was corrected'])]['NRP variant']
+    nrp_ids_to_invesigate = matches_table[matches_table['Verdict'] == 'for investigation']['NRP variant']
+    nrp_ids_to_correct = matches_table[matches_table['Verdict'] == 'to be corrected']['NRP variant']
 
     good_matches = [match for match in matches if match['NRP'] in nrp_ids_good_matches]
 
     output_dir.mkdir(exist_ok=True, parents=True)
     # q: write good matches in a yaml file
-    with open(output_dir / 'good_matches.yaml', 'w') as f:
-        yaml.dump(good_matches, f)
+    write_yaml(good_matches, output_dir / 'good_matches.yaml')
 
     # q: write "to investigate" matches in a human-readable format
     with open(output_dir / 'matches_to_investigate.txt', 'w') as f:
@@ -57,5 +58,6 @@ def write_results(matches: List[dict],
                 f.write(show_match(match) + '\n')
 
     # q: write parameters in a yaml file
-    with open(output_dir / 'parameters.yaml', 'w') as f:
-        yaml.dump(asdict(parameters), f)
+    write_yaml(asdict(parameters), output_dir / 'parameters.yaml')
+
+    # q: plot step function

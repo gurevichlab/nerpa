@@ -32,11 +32,15 @@ from itertools import chain
 import pandas as pd
 from collections import defaultdict
 
+generated_predictions = dict()  # TODO: use @cache decorator or smth similar (it's tricky because I don't need to cache all the arguments)
 
 def get_residue_scores(a_domain: A_Domain,
                        residue_scoring_model: Callable[[pd.DataFrame], Dict[MonomerResidue, LogProb]],
                        monomer_names_helper: MonomerNamesHelper,
                        config: antiSMASH_Parsing_Config) -> Dict[MonomerResidue, LogProb]:
+    if (a_domain.aa10, a_domain.aa34) in generated_predictions:
+        return generated_predictions[a_domain.aa10, a_domain.aa34]
+
     def svm_score(aa_name: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
         svm_prediction_substrates = {monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
                                      for monomer_name in svm_level_prediction.substrates}
@@ -61,7 +65,9 @@ def get_residue_scores(a_domain: A_Domain,
                       for level in SVM_LEVEL]
         scoring_table.loc[aa_name] = aa_code_scores + svm_scores
 
-    return residue_scoring_model(scoring_table)
+    result = residue_scoring_model(scoring_table)
+    generated_predictions[a_domain.aa10, a_domain.aa34] = result
+    return result
 
 
 def build_gene_assembly_line(gene: Gene,
@@ -130,7 +136,7 @@ def build_bgc_variants(bgc: BGC_Cluster,
                        log: NerpaLogger) -> List[BGC_Variant]:  # TODO: replace Any with proper type
     raw_fragmented_bgcs = split_and_reorder(bgc, config)
     if len(raw_fragmented_bgcs) > config.MAX_VARIANTS_PER_BGC:
-        log.info(f'WARNING: Too many parts: {len(raw_fragmented_bgcs)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
+        log.info(f'WARNING: Too many BGC variants: {len(raw_fragmented_bgcs)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
         raw_fragmented_bgcs = raw_fragmented_bgcs[:config.MAX_VARIANTS_PER_BGC]
 
 

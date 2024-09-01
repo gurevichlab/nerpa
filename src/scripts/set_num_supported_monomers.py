@@ -113,7 +113,7 @@ def update_config(nerpa_dir: Path,
     svm_cores = list(filter(lambda res: res != UNKNOWN_RESIDUE,
                             (monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
                              for monomer_name in SVM_SUBSTRATES)))
-    config['antismash_parsing_config']['SVM_SUBSTRATES'] = svm_cores
+    config['antismash_parsing_config']['SVM_SUBSTRATES'] = list(set(svm_cores))
     write_yaml(config, nerpa_dir / 'configs' / 'config.yaml')
 
 

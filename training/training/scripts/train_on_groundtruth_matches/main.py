@@ -29,7 +29,7 @@ def parse_args():
     args = parser.parse_args()
     if (args.precomputed_nerpa_results is not None
             and (args.antismash_results_dir is not None or args.rban_results_dir is not None)):
-        parser.error('Precomputed NERPA results should be provided without antismash and rban results')
+        print('Precomputed Nerpa results provided. antismash and rban results will be ignored')
 
     return args
 
@@ -43,15 +43,18 @@ def load_bgc_variants_for_matches(matches: List[dict],
             yaml_files = [f for f in (bgc_dir / 'BGC_variants').iterdir() if f.name.endswith('.yaml')]
         except FileNotFoundError:
             print(f'No BGC variants for {bgc_id}')
-            continue
+            raise
         for yaml_file in yaml_files:
             bgc_variants[bgc_id].extend(yaml.safe_load(yaml_file.read_text()))
 
     nrp_id_to_bgc_variant = {}
     for match in matches:
-        bgc_id = match['NRP'].split('.')[0]
-        bgc_variant = next(variant for variant in bgc_variants[bgc_id]
-                           if variant['variant_idx'] == match['BGC_variant_idx'])
+        try:
+            bgc_variant = next(variant for variant in bgc_variants[match['NRP']]
+                               if variant['variant_idx'] == match['BGC_variant_idx'])
+        except StopIteration:
+            print(f'No BGC variant {match["BGC_variant_idx"]} for {match["NRP"]}')
+            raise
         nrp_id_to_bgc_variant[match['NRP']] = bgc_variant
     return nrp_id_to_bgc_variant
 
@@ -64,8 +67,9 @@ def load_matches(nerpa_results_dir: Path) -> List[dict]:
                              key=lambda match: match['NormalisedScore'],
                              default=None)
             if best_match is None:
-                print(f'{results_dir} has no matches')
-                raise SystemExit
+                with open('warning.txt', 'a') as f:
+                    f.write(f'WARNING! {results_dir} has no matches\n')
+                continue
             matches.append(best_match)
     return matches
 
@@ -74,8 +78,8 @@ def load_bgcs(nerpa_results_dir: Path) -> List[dict]:
     bgcs = []
     for results_dir in nerpa_results_dir.iterdir():
         with open(results_dir / 'BGC_variants_before_calibration') as bgc_file:
-            bgc = yaml.safe_load(bgc_file)
-            bgcs.append(bgc)
+            bgc_variants = yaml.safe_load(bgc_file)
+            bgcs.extend(bgc_variants)
     return bgcs
 
 
@@ -95,7 +99,11 @@ def main():
     print('Loading Nerpa results')
     matches = load_matches(nerpa_results_dir)
     bgc_variants = load_bgc_variants_for_matches(matches, nerpa_results_dir)
-    approved_matches = yaml.safe_load(args.approved_matches.read_text())
+
+    nrp_ids_good_matches = list(matches_table[matches_table['Verdict'] == 'good']['NRP variant'])
+    approved_matches = [match  # in case some good matches were reconsidered
+                        for match in yaml.safe_load(args.approved_matches.read_text())
+                        if match['NRP'] in nrp_ids_good_matches]
 
     print('Checking matches')
     if wrong_match_info := find_wrong_match(matches, approved_matches):
@@ -109,11 +117,11 @@ def main():
 
     matches_with_bgcs_for_training = [(match, bgc_variants[match['NRP']])
                                       for match in matches
-                                      if match['NRP'] in approved_matches]
+                                      if match['NRP'] in nrp_ids_good_matches]
     print('Calculating training parameters')
     parameters = calculate_training_parameters(matches_with_bgcs_for_training)
     print('Writing results')
-    write_results(matches, approved_matches, parameters, args.output_dir)
+    write_results(matches, matches_table, parameters, args.output_dir)
 
 
 if __name__ == "__main__":

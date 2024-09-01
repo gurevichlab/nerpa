@@ -16,8 +16,9 @@ def specificity_predictions_for_step(step: AlignmentStepDict,
     if step['Alignment_step'] != 'MATCH':
         return None
     return next(module['residue_score']
-                for module in bgc_variant['tentative_assembly_line']
-                if module['gene_id'] == step['Gene'] and module['module_idx'] == step['A-domain_idx'])
+                for fragment in bgc_variant['fragments']
+                for module in fragment
+                if module['gene_id'] == step['Gene'] and module['a_domain_idx'] == step['A-domain_idx'])
 
 
 class StepLocation(Enum):

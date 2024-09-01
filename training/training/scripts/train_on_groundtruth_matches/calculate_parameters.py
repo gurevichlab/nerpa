@@ -1,11 +1,12 @@
 from typing import Dict, List, NamedTuple, Tuple, Optional
 from collections import Counter, defaultdict
-from step_function import create_bins, fit_step_function_to_bins
+from step_function import create_bins, fit_step_function_to_bins, plot_step_function
 from src.monomer_names_helper import MonomerResidue
 from src.data_types import LogProb
 from src.matching.alignment_types import AlignmentStepType
 from alignment_steps import AlignmentStepInfo, get_steps_info, StepLocation, MatchDict, BGC_VariantDict
 from dataclasses import dataclass
+from pathlib import Path
 
 
 def get_mismatched_pairs_with_perfect_prediction(alignment_steps_info: List[AlignmentStepInfo]) \
@@ -37,7 +38,9 @@ def fit_step_function(matching_steps_info: List[AlignmentStepInfo],
                       step_range: int) -> List[float]:
     score_correctness = get_score_correctness(matching_steps_info)
     score_correctness_bins = create_bins(score_correctness, num_bins)
-    return fit_step_function_to_bins(score_correctness_bins, step_range)
+    step_function = fit_step_function_to_bins(score_correctness_bins, step_range)
+    plot_step_function(score_correctness_bins, step_function, Path('step_function.png'))  # TODO: move to write_results
+    return step_function
 
 
 def get_indel_frequencies(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[AlignmentStepType, Dict[StepLocation, float]]:
@@ -92,7 +95,7 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
     print('Writing mismatched pairs with perfect prediction...')
     results['mismatched_pairs_with_perfect_prediction'] = get_mismatched_pairs_with_perfect_prediction(alignment_steps_info)
     print('Building step function...')
-    results['step_function'] = fit_step_function(alignment_steps_info, 20, 1000)  # TODO: put in config
+    results['step_function'] = fit_step_function(alignment_steps_info, 100, 1000)  # TODO: put in config
     print('Calculating indel frequencies...')
     results['indel_frequencies'] = get_indel_frequencies(alignment_steps_info)
     print('Calculating modifications frequencies...')
