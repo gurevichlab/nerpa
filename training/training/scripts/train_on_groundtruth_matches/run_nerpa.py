@@ -9,7 +9,7 @@ def run_nerpa_on_all_pairs(matches_table: pd.DataFrame,
                            nerpa_dir: Path,
                            output_dir: Path) -> Path:
     nrp_ids = matches_table['NRP variant'].unique()
-    for i, nrp_id in enumerate(nrp_ids):
+    for i, nrp_id in enumerate(nrp_ids, start=1):
         bgc_id = nrp_id.split('.')[0]
         command = ' '.join([
             'python', str(nerpa_dir / 'nerpa.py'),
