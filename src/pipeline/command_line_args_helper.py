@@ -129,7 +129,7 @@ def validate_arguments(args):  # TODO: I think it all could be done with built-i
                 args.seqs]):
         raise ValidationError(f'one of the arguments --predictions --antismash/-a --antismash_output_list '
                               f'--sequences is required')
-    if args.predictions and (args.antismash or args.antismash_out or args.seqs):
+    if args.predictions and (args.antismash or args.antismash_outpaths_file or args.seqs):
         raise ValidationError(f'argument --predictions: not allowed with argument --antismash/-a '
                               f'or --antismash_output_list or --sequences')
     if not any([args.structures,

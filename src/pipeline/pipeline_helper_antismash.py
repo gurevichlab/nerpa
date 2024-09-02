@@ -71,7 +71,7 @@ class PipelineHelper_antiSMASH:
         if self.args.antismash is not None:
             antismash_results.extend(self.args.antismash)
         if self.args.antismash_outpaths_file is not None:
-            antismash_results.extend(self.args.antismash_out.read_text().strip().splitlines())
+            antismash_results.extend(self.args.antismash_outpaths_file.read_text().strip().splitlines())
 
         if self.args.seqs:
             try:
