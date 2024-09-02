@@ -18,8 +18,8 @@ import yaml
 
 def add_genomic_arguments(parser: argparse.ArgumentParser):
     genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms (i.e. BGC predictions)')
-    genomic_group.add_argument("--antismash_output_list", dest="antismash_out",
-                               help="file with list of paths to antiSMASH output directories", type=str)
+    genomic_group.add_argument("--antismash_outpaths_file", dest="antismash_outpaths_file",
+                               help="file with list of paths to antiSMASH output directories", type=Path)
     genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append', type=Path,
                                help="single antiSMASH output directory or directory with many antiSMASH outputs")
     genomic_group.add_argument("--sequences", dest="seqs",
@@ -125,7 +125,7 @@ def validate(expr, msg=''):
 def validate_arguments(args):  # TODO: I think it all could be done with built-in argparse features
     if not any([args.predictions,
                 args.antismash,
-                args.antismash_out,
+                args.antismash_outpaths_file,
                 args.seqs]):
         raise ValidationError(f'one of the arguments --predictions --antismash/-a --antismash_output_list '
                               f'--sequences is required')

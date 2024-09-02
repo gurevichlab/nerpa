@@ -67,7 +67,11 @@ class PipelineHelper_antiSMASH:
         return bgc_variants
 
     def get_antismash_results(self) -> Iterable[antiSMASH_record]:
-        antismash_results: List[Path] = self.args.antismash if self.args.antismash is not None else []
+        antismash_results: List[Path] = []
+        if self.args.antismash is not None:
+            antismash_results.extend(self.args.antismash)
+        if self.args.antismash_outpaths_file is not None:
+            antismash_results.extend(self.args.antismash_out.read_text().strip().splitlines())
 
         if self.args.seqs:
             try:
