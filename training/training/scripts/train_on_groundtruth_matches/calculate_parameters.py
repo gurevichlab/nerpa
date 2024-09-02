@@ -35,11 +35,12 @@ def get_score_correctness(alignment_steps_info: List[AlignmentStepInfo]) -> List
 
 def fit_step_function(matching_steps_info: List[AlignmentStepInfo],
                       num_bins: int,
-                      step_range: int) -> List[float]:
+                      step_range: int,
+                      output_dir: Path) -> List[float]:
     score_correctness = get_score_correctness(matching_steps_info)
     score_correctness_bins = create_bins(score_correctness, num_bins)
     step_function = fit_step_function_to_bins(score_correctness_bins, step_range)
-    plot_step_function(score_correctness_bins, step_function, Path('step_function.png'))  # TODO: move to write_results
+    plot_step_function(score_correctness_bins, step_function, output_dir)
     return step_function
 
 
@@ -87,7 +88,8 @@ class TrainedParameters:
     modifications_frequencies: Dict[str, Dict[str, float]]
 
 
-def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[MatchDict, BGC_VariantDict]]) -> TrainedParameters:
+def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[MatchDict, BGC_VariantDict]],
+                                  output_dir: Path) -> TrainedParameters:
     print('Extracting unique alignment steps...')
     alignment_steps_info = get_steps_info(matches_with_variants_for_bgc)
 
@@ -97,7 +99,8 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
                                    key=lambda x: x[1], reverse=True)
     results['mismatched_pairs_with_perfect_prediction'] = mismatched_pairs_cnts
     print('Building step function...')
-    results['step_function'] = fit_step_function(alignment_steps_info, 100, 1000)  # TODO: put in config
+    results['step_function'] = fit_step_function(alignment_steps_info, 100, 1000,
+                                                 output_dir)  # TODO: put in config
     print('Calculating indel frequencies...')
     results['indel_frequencies'] = get_indel_frequencies(alignment_steps_info)
     print('Calculating modifications frequencies...')

@@ -28,12 +28,16 @@ from src.pipeline.logger import NerpaLogger
 from src.config import antiSMASH_Parsing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
+from src.generic.functional import cached_by_key
 from itertools import chain
 import pandas as pd
 from collections import defaultdict
 
 generated_predictions = dict()  # TODO: use @cache decorator or smth similar (it's tricky because I don't need to cache all the arguments)
 
+
+# TODO: figure out how to write it as "lambda args: (args['a_domain'].aa10, args['a_domain'].aa34)"
+@cached_by_key(key=lambda *args, **kwargs: (args[0].aa10, args[0].aa34))
 def get_residue_scores(a_domain: A_Domain,
                        residue_scoring_model: Callable[[pd.DataFrame], Dict[MonomerResidue, LogProb]],
                        monomer_names_helper: MonomerNamesHelper,

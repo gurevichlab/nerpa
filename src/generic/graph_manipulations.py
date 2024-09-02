@@ -60,11 +60,11 @@ def putative_backbones(G_: nx.DiGraph, min_nodes: int = None) -> List[BackboneSe
                                                        is_cyclic=True))
         else:
             ham_paths = list(filter(None, (hamiltonian_path(Gs, u) for u in Gs)))
-            if len(ham_paths) == 1:
-                backbone_sequences.append(BackboneSequence(node_idxs=ham_paths[0]))
             if len(ham_paths) > 1:
-                print(ham_paths)
-                raise ValueError('Multiple hamiltonian paths found')  # TODO: handle this case
+                print('WARNING! Multiple hamiltonian paths found. Proceeding wiht the first one')
+                #raise ValueError('Multiple hamiltonian paths found')  # TODO: handle this case
+            if ham_paths:
+                backbone_sequences.append(BackboneSequence(node_idxs=ham_paths[0]))
 
     return backbone_sequences
 

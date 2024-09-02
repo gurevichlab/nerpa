@@ -112,7 +112,8 @@ def main():
                                       for match in matches
                                       if match['NRP'] in nrp_ids_good_matches]
     print('Calculating training parameters')
-    parameters = calculate_training_parameters(matches_with_bgcs_for_training)
+    # I pass output_dir to save the step function plot. In the future, the function could be made pure
+    parameters = calculate_training_parameters(matches_with_bgcs_for_training, args.output_dir)
     print('Writing results')
     write_results(matches, matches_table, parameters, args.output_dir)
 
