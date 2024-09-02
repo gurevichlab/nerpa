@@ -81,7 +81,7 @@ def get_modifications_frequencies(alignment_steps_info: List[AlignmentStepInfo])
 
 @dataclass
 class TrainedParameters:
-    mismatched_pairs_with_perfect_prediction: Dict[Tuple[MonomerResidue, MonomerResidue], int]
+    mismatched_pairs_with_perfect_prediction: List[Tuple[Tuple[MonomerResidue, MonomerResidue], int]]  # (predicted, actual) -> count. Dict is displated incorrectly, so list
     step_function: List[float]
     indel_frequencies: Dict[AlignmentStepType, Dict[StepLocation, float]]
     modifications_frequencies: Dict[str, Dict[str, float]]
@@ -93,7 +93,9 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
 
     results = {}
     print('Writing mismatched pairs with perfect prediction...')
-    results['mismatched_pairs_with_perfect_prediction'] = get_mismatched_pairs_with_perfect_prediction(alignment_steps_info)
+    mismatched_pairs_cnts = sorted(get_mismatched_pairs_with_perfect_prediction(alignment_steps_info).items(),
+                                   key=lambda x: x[1], reverse=True)
+    results['mismatched_pairs_with_perfect_prediction'] = mismatched_pairs_cnts
     print('Building step function...')
     results['step_function'] = fit_step_function(alignment_steps_info, 100, 1000)  # TODO: put in config
     print('Calculating indel frequencies...')

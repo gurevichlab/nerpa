@@ -36,16 +36,18 @@ def parse_args():
 
 def load_bgc_variants_for_matches(matches: List[dict],
                                   nerpa_results_dir: Path) -> Dict[str, dict]:  # nrp_id -> bgc_variant
+    nrp_ids = {match['NRP'] for match in matches}
     bgc_variants = defaultdict(list)
-    for bgc_dir in nerpa_results_dir.iterdir():
-        bgc_id = bgc_dir.name
+    for nrp_id in nrp_ids:
+        bgc_dir = nerpa_results_dir / nrp_id
         try:
-            yaml_files = [f for f in (bgc_dir / 'BGC_variants').iterdir() if f.name.endswith('.yaml')]
+            yaml_files = [f for f in (bgc_dir / 'BGC_variants_before_calibration').iterdir()
+                          if f.name.endswith('.yaml')]
         except FileNotFoundError:
-            print(f'No BGC variants for {bgc_id}')
+            print(f'No BGC variants for {nrp_id}')
             raise
         for yaml_file in yaml_files:
-            bgc_variants[bgc_id].extend(yaml.safe_load(yaml_file.read_text()))
+            bgc_variants[nrp_id].extend(yaml.safe_load(yaml_file.read_text()))
 
     nrp_id_to_bgc_variant = {}
     for match in matches:
@@ -72,15 +74,6 @@ def load_matches(nerpa_results_dir: Path) -> List[dict]:
                 continue
             matches.append(best_match)
     return matches
-
-
-def load_bgcs(nerpa_results_dir: Path) -> List[dict]:
-    bgcs = []
-    for results_dir in nerpa_results_dir.iterdir():
-        with open(results_dir / 'BGC_variants_before_calibration') as bgc_file:
-            bgc_variants = yaml.safe_load(bgc_file)
-            bgcs.extend(bgc_variants)
-    return bgcs
 
 
 def main():

@@ -35,9 +35,9 @@ def write_results(matches: List[dict],
                   matches_table: pd.DataFrame,
                   parameters: TrainedParameters,
                   output_dir: Path):
-    nrp_ids_good_matches = matches_table[matches_table['Verdict'].isin(['good', 'was corrected'])]['NRP variant']
-    nrp_ids_to_invesigate = matches_table[matches_table['Verdict'] == 'for investigation']['NRP variant']
-    nrp_ids_to_correct = matches_table[matches_table['Verdict'] == 'to be corrected']['NRP variant']
+    nrp_ids_good_matches = list(matches_table[matches_table['Verdict'].isin(['good', 'was corrected'])]['NRP variant'])
+    nrp_ids_to_investigate = list(matches_table[matches_table['Verdict'] == 'for investigation']['NRP variant'])
+    nrp_ids_to_correct = list(matches_table[matches_table['Verdict'] == 'to be corrected']['NRP variant'])
 
     good_matches = [match for match in matches if match['NRP'] in nrp_ids_good_matches]
 
@@ -48,7 +48,7 @@ def write_results(matches: List[dict],
     # q: write "to investigate" matches in a human-readable format
     with open(output_dir / 'matches_to_investigate.txt', 'w') as f:
         for match in matches:
-            if match['NRP'] in nrp_ids_to_invesigate:
+            if match['NRP'] in nrp_ids_to_investigate:
                 f.write(show_match(match) + '\n')
 
     # q: write "to correct" matches in a human-readable format
@@ -59,5 +59,3 @@ def write_results(matches: List[dict],
 
     # q: write parameters in a yaml file
     write_yaml(asdict(parameters), output_dir / 'parameters.yaml')
-
-    # q: plot step function
