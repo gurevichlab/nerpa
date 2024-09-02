@@ -83,11 +83,13 @@ def parse_cds_coordinates(location: str) -> Coords:
                       end=parsed_loc['end'],
                       strand=STRAND.FORWARD if parsed_loc['strand'] == '+' else STRAND.REVERSE)
 
-    if not location.startswith('join{'):
+    if not any(location.startswith(pref)
+                for pref in ['order', 'join']):
         return parse_location(location)
 
     # split gene (fungal insertion or whatever)
-    location_parts = location[len('join{'):-1].split(',')
+    pref = location[:location.find('{')]  # "order" or "join"
+    location_parts = location[len(pref) + 1 : -1].split(',')  # +1 to skip '{' and -1 to skip '}'
     parsed_location_parts = sorted(map(parse_location, location_parts),
                                    key=lambda x: x.start)
 
