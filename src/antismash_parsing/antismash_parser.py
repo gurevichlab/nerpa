@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
     antiSMASH_record,
@@ -52,16 +52,18 @@ def extract_a_domains_info(contig_data: dict) -> Dict[GeneId, List[A_Domain]]:
     if "antismash.modules.nrps_pks" not in contig_data["modules"]:
         return defaultdict(list)
 
-    def extract_a_domain_info(domain_id: str, antismash_prediction: dict) -> Tuple[A_Domain_Id, A_Domain]:
+    def extract_a_domain_info(domain_id: str, antismash_prediction: dict) -> Tuple[A_Domain_Id, Optional[A_Domain]]:
+        parsed_id = A_Domain_Id(domain_id)
         try:
-            parsed_id = A_Domain_Id(domain_id)
             a_domain = extract_a_domain_specificity_info(antismash_prediction)
         except KeyError:
-            raise RuntimeError('Unable to parse A-domain prediction. Probably, an old version of antismash is used.')
+            # TODO: log warning
+            a_domain = None
         return parsed_id, a_domain
 
+    domain_predictions = contig_data['modules']['antismash.modules.nrps_pks']['domain_predictions']
     a_domains_with_ids = [extract_a_domain_info(domain_id, prediction)
-                          for domain_id, prediction in contig_data['modules']['antismash.modules.nrps_pks']['domain_predictions'].items()
+                          for domain_id, prediction in domain_predictions.items()
                           if 'AMP-binding' in domain_id]
     a_domains_per_gene = defaultdict(list)
     for a_domain_id, a_domain in sorted(a_domains_with_ids,
@@ -129,11 +131,13 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
             if domain_type_str not in config.ANTISMASH_DOMAINS_NAMES:
                 continue
             domain_type = DomainType[config.ANTISMASH_DOMAINS_NAMES[domain_type_str]]
-            module.domains_sequence.append(domain_type)
-
             if domain_type == DomainType.A:
                 a_domain = next(a_domains_iter)
+                if a_domain is None:  # TODO: entangled code, refactor
+                    continue
                 module.a_domain = a_domain
+            module.domains_sequence.append(domain_type)
+
 
         modules.append(module)
     return modules
