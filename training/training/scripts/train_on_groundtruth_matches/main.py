@@ -8,6 +8,7 @@ from check_matches import find_wrong_match
 from calculate_parameters import calculate_training_parameters
 from collections import defaultdict
 from write_results import write_results
+from heuristics_thresholds import calculate_min_common_amino_acids
 
 
 def parse_args():
@@ -114,6 +115,7 @@ def main():
     print('Calculating training parameters')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
     parameters = calculate_training_parameters(matches_with_bgcs_for_training, args.output_dir)
+    calculate_min_common_amino_acids(matches_with_bgcs_for_training, args.output_dir)
     print('Writing results')
     write_results(matches, matches_table, parameters, args.output_dir)
 
