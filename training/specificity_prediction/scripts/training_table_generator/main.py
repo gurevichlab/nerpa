@@ -19,10 +19,12 @@ def parse_args() -> argparse.Namespace:
     input_group = parser.add_argument_group("input", "Input options")
     input_group.add_argument("--num-monomers", type=int, default=None,
                              help="Number of most frequent monomers to consider. By default all monomers are included.")
-    input_group.add_argument("--unknown-monomer-name", type=str, default="Unknown",
+    input_group.add_argument("--unknown-monomer-name", type=str, default="unknown",
                              help="Special name designating all rare (unsupported) monomers.")
-    input_group.add_argument("--monomer-frequencies", type=str, default="data/core_frequency.tsv",
-                             help="Path to a TSV file with all core monomers and their frequencies sorted from the most common to the rarest.")
+    input_group.add_argument("--as-monomer-frequencies", type=str, default="data/core_frequency.tsv",
+                             help="Path to a TSV file with all antismash core monomers and their frequencies sorted from the most common to the rarest.")
+    input_group.add_argument("--norine-monomer-frequencies", type=str, default="data/norine_residues_freqs.tsv",
+                             help="Path to a TSV file with all norine core monomers and their frequencies sorted from the most common to the rarest.")
     input_group.add_argument("--extended-signatures", type=str, default="data/extended_signatures.tsv",
                              help="Path to the extended signatures file.")
     input_group.add_argument("--monomers-table", type=str, default="data/monomers_unique.tsv",
@@ -56,7 +58,8 @@ def main():
     args = parse_args()
 
     # reading
-    input_data = load_data(monomer_frequencies_tsv=args.monomer_frequencies,
+    input_data = load_data(as_monomer_frequencies_tsv=args.as_monomer_frequencies,
+                           norine_monomer_frequencies_tsv=args.norine_monomer_frequencies,
                            monomers_table_tsv=args.monomers_table,
                            extended_signatures_tsv=args.extended_signatures,
                            num_monomers=args.num_monomers,

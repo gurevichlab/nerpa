@@ -17,13 +17,17 @@ from collections import Counter, defaultdict, OrderedDict
 from src.monomer_names_helper import antiSMASH_MonomerName, MonomerResidue
 from src.generic.string import hamming_distance
 from dataclasses import dataclass
+from itertools import islice
 
 
-def get_nerpa_supported_monomers(monomer_frequencies_tsv: Path,
+def get_nerpa_supported_monomers(as_residue_frequencies_tsv: Path,
+                                 norine_residue_frequncies_tsv: Path,
                                  num_monomers: Optional[int],
                                  SEPARATOR: str) -> List[MonomerResidue]:
-    df = pd.read_csv(monomer_frequencies_tsv, sep=SEPARATOR)
-    selected_monomers = df['core'].head(num_monomers) if num_monomers is not None else df['core']
+    as_table = pd.read_csv(as_residue_frequencies_tsv, sep=SEPARATOR)
+    norine_table = pd.read_csv(norine_residue_frequncies_tsv, sep=SEPARATOR)
+    selected_monomers = list(islice((res for res in as_table['core'] if res in norine_table['core'].values),
+                                    num_monomers))
     return sorted(selected_monomers)
 
 
@@ -49,7 +53,7 @@ def get_nerpa_monomer_to_SVM_short_names_mapping(as_short_names_svm: List[antiSM
     # Populate the dictionary
     for as_short_name in as_short_names_svm:
         # Map the SVM short name to the corresponding nerpa monomer
-        nerpa_monomer = short_name_to_nerpa_monomer.get(as_short_name, nerpa_unknown_monomer)
+        nerpa_monomer = short_name_to_nerpa_monomer[as_short_name]
         if nerpa_monomer != nerpa_unknown_monomer:  # !! see below
             nerpa_monomer_to_SVM_short_names[nerpa_monomer].append(as_short_name)
 
@@ -109,14 +113,17 @@ class TrainingTableInputData:
     extended_signatures_df: pd.DataFrame
 
 
-def load_data(monomer_frequencies_tsv: Path,
+def load_data(as_monomer_frequencies_tsv: Path,
+              norine_monomer_frequencies_tsv: Path,
               monomers_table_tsv: Path,
               extended_signatures_tsv: Path,
               num_monomers: Optional[int],
               nerpa_unknown_monomer: MonomerResidue,
               SEPARATOR: str) -> TrainingTableInputData:
     # Get the list of supported monomers
-    nerpa_supported_monomers = get_nerpa_supported_monomers(monomer_frequencies_tsv, num_monomers, SEPARATOR)
+    nerpa_supported_monomers = get_nerpa_supported_monomers(as_monomer_frequencies_tsv,
+                                                            norine_monomer_frequencies_tsv,
+                                                            num_monomers, SEPARATOR)
 
     # Get the mapping from short names to Nerpa monomers
     short_name_to_nerpa_monomer = get_short_name_to_nerpa_monomer_mapping(monomers_table_tsv,
