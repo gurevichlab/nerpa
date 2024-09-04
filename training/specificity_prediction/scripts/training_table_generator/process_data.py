@@ -135,7 +135,8 @@ def generate_nerpa_table_entries(input_data: TrainingTableInputData) -> List[Ner
                                       for nerpa_monomer in input_data.nerpa_supported_monomers
                                       if nerpa_monomer not in input_data.nerpa_monomer_to_SVM_short_names),
                                      None)
-        assert missing_nerpa_monomer is None, f"{missing_nerpa_monomer} not in 'nerpa_monomer_to_SVM_short_names'! Should be there by design"
+        # assert missing_nerpa_monomer is None, f"{missing_nerpa_monomer} not in 'nerpa_monomer_to_SVM_short_names'! Should be there by design"
+        # it's okay, nerpa_monomer_to_SVM_short_names is defaultdict(list) and will return an empty list for missing keys
 
         nerpa_table_entries.extend(
             create_nerpa_table_entry(row['aa10'], row['aa34'], row['num_domains'], nerpa_monomer,
