@@ -6,6 +6,9 @@ from typing import (
     NamedTuple,
     Tuple
 )
+
+import dacite
+
 from src.data_types import (
     Chirality,
     LogProb,
@@ -30,6 +33,13 @@ class ModMatch(NamedTuple):
     mod: NRP_Monomer_Modification
     bgc_mod: bool
     nrp_mod: bool
+
+
+@dataclass
+class HeuristicMatchingConfig:
+    LINEAR_DISCARD_PARAMS_AA_CONTENTS: Tuple[float, float, float]  # slope, intercept, margin
+    LINEAR_DISCARD_PARAMS_LENGTHS: Tuple[float, float, float]
+    NUM_TOP_PREDICTIONS: int
 
 
 @dataclass
@@ -60,6 +70,10 @@ class ScoringConfig:
     join_fragments_alignments: bool
     iterative_bgc_alignment: bool
     one_to_one_fragment_alignment: bool
+
+    MAX_PERMUTATIONS: int
+    heuristic_matching_cfg: HeuristicMatchingConfig
+
 
 def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:
     return {ModMatch(mod=mod, bgc_mod=bgc_mod, nrp_mod=nrp_mod):
@@ -144,4 +158,7 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'],
                          join_fragments_alignments=cfg['join_fragments_alignments'],
                          iterative_bgc_alignment=cfg['iterative_bgc_alignment'],
-                         one_to_one_fragment_alignment=cfg['one_to_one_fragment_alignment'])
+                         one_to_one_fragment_alignment=cfg['one_to_one_fragment_alignment'],
+                         MAX_PERMUTATIONS=cfg['MAX_PERMUTATIONS'],
+                         heuristic_matching_cfg=dacite.from_dict(HeuristicMatchingConfig,
+                                                                 cfg['heuristic_matching_cfg']))
