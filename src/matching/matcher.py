@@ -24,7 +24,7 @@ from src.matching.multiple_fragments_alignment_handling import (
     get_iterative_bgc_alignment,
     get_fragments_alignment
 )
-
+from src.matching.heuristic_matching import filter_out_bad_nrp_candidates
 from itertools import chain, islice, takewhile, permutations, product
 from joblib import delayed, Parallel
 
@@ -65,7 +65,11 @@ def get_match(bgc_variant: BGC_Variant,
         fragments_alignments.extend(get_multiple_fragments_alignment(bgc_variant.fragments,
                                                                      list(nrp_fragments),
                                                                      dp_helper)
-                                    for nrp_fragments in permutations(nrp_variant.fragments))
+                                    for nrp_fragments in islice(permutations(nrp_variant.fragments),
+                                                                dp_helper.scoring_config.MAX_PERMUTATIONS))
+        # TODO: this is a stub, we should implement a more reasonable way to handle many fragments
+        #  instead of just cutting off at some point
+        # (e.g. by first finding the best bgc_fragment for each nrp_fragment to retrieve their order)
     if dp_helper.scoring_config.iterative_bgc_alignment:
         fragments_alignments.extend([get_iterative_bgc_alignment(bgc_variant.fragments,
                                                                  nrp_variant.fragments,
@@ -95,8 +99,11 @@ def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,
     if log is not None:
         log.info(f'Processing BGC variant {bgc_variant.variant_idx}')
 
+    tentative_nrps = filter_out_bad_nrp_candidates(bgc_variant,
+                                                   nrp_variants,
+                                                   scoring_helper.scoring_config.heuristic_matching_cfg)  # heuristic to reduce the number of candidates
     matches = sorted((get_match(bgc_variant, nrp_variant, scoring_helper)
-                     for nrp_variant in nrp_variants),
+                     for nrp_variant in tentative_nrps),
                      key=lambda m: m.normalized_score, reverse=True)
 
     return list(takewhile(lambda m: (m.normalized_score > min_score) if min_score is not None else True,

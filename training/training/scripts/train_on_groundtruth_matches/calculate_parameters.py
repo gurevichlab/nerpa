@@ -4,6 +4,8 @@ from step_function import create_bins, fit_step_function_to_bins, plot_step_func
 from src.monomer_names_helper import MonomerResidue
 from src.data_types import LogProb
 from src.matching.alignment_types import AlignmentStepType
+from src.matching.heuristic_matching import HeuristicMatchingConfig
+from heuristics_thresholds import calculate_heuristic_parameters
 from alignment_steps import AlignmentStepInfo, get_steps_info, StepLocation, MatchDict, BGC_VariantDict
 from dataclasses import dataclass
 from pathlib import Path
@@ -86,6 +88,7 @@ class TrainedParameters:
     step_function: List[float]
     indel_frequencies: Dict[AlignmentStepType, Dict[StepLocation, float]]
     modifications_frequencies: Dict[str, Dict[str, float]]
+    heuristics_matching_config: HeuristicMatchingConfig
 
 
 def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[MatchDict, BGC_VariantDict]],
@@ -103,8 +106,13 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
                                                  output_dir)  # TODO: put in config
     print('Calculating indel frequencies...')
     results['indel_frequencies'] = get_indel_frequencies(alignment_steps_info)
+
     print('Calculating modifications frequencies...')
     results['modifications_frequencies'] = get_modifications_frequencies(alignment_steps_info)
+
+    print('Creating HeuristicMatchingConfig...')
+    results['heuristics_matching_config'] = calculate_heuristic_parameters(matches_with_variants_for_bgc, output_dir)
+
     print('Done!')
 
     return TrainedParameters(**results)

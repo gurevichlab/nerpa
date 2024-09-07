@@ -89,6 +89,7 @@ def plot_step_function(score_correctness_bins: List[Tuple[int, int]],
         plt.show()
     if out_file is not None:
         plt.savefig(out_file)
+    plt.close()
     return out_file
 
 

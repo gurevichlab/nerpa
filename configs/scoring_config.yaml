@@ -74,3 +74,9 @@ nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalt
 join_fragments_alignments: True  # enable aligning all NRP fragments to all BGC fragments (in a single alignment)
 iterative_bgc_alignment: True  # enable independently aligning all NRP fragments to the whole BGC
 one_to_one_fragment_alignment: True  # enable aligning one NRP fragment to one BGC fragment
+
+MAX_PERMUTATIONS: 100  # maximum number of permutations of NRP fragments allowed
+
+heuristic_matching_cfg:
+  LINEAR_DISCARD_PARAMS: [0.66, 0]  # discard if num_common_residues < k * nrp_len + b
+  NUM_TOP_PREDICTIONS: 3  # number of top predictions for a module to compute common residues
