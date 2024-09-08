@@ -66,8 +66,8 @@ class PipelineHelper:
         monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.paths.nerpa_monomers_info, sep='\t'))
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
-        scoring_config = load_scoring_config(self.config.paths.scoring_config)  # TODO: this is ugly
-        self.scoring_helper = ScoringHelper(scoring_config)
+        self.scoring_helper = ScoringHelper(scoring_config=self.config.matching_config.scoring_config,
+                                            heuristic_discard_on=self.config.matching_config.heuristic_discard_on)
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
         return self.pipeline_helper_antismash.get_bgc_variants()

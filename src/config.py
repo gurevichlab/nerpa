@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.monomer_names_helper import NorineMonomerName, antiSMASH_MonomerName, MonomerResidue
+from src.matching.scoring_config import load_scoring_config, ScoringConfig
 import yaml
 import dacite
 
@@ -121,12 +122,19 @@ class SpecificityPredictionConfig:
 
 
 @dataclass
+class MatchingConfig:
+    scoring_config: ScoringConfig
+    heuristic_discard_on: bool
+
+
+@dataclass
 class Config:
     paths: ConfigPaths
     antismash_parsing_config: antiSMASH_Parsing_Config
     specificity_prediction_config: SpecificityPredictionConfig
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
+    matching_config: MatchingConfig
 
 
 
@@ -149,8 +157,11 @@ def load_config(args: CommandLineArgs) -> Config:
                                                         yaml.safe_load(paths_config.aa_codes.open('r')))
     specificity_prediction_config = dacite.from_dict(SpecificityPredictionConfig,
                                                      cfg['specificity_prediction_config'])
+    matching_config = MatchingConfig(heuristic_discard_on=args.heuristic_discard,
+                                     scoring_config=load_scoring_config(paths_config.scoring_config))
     return Config(paths=paths_config,
                   antismash_parsing_config=antismash_parsing_config,
                   rban_config=rban_config,
                   rban_processing_config=rban_processing_config,
-                  specificity_prediction_config=specificity_prediction_config)
+                  specificity_prediction_config=specificity_prediction_config,
+                  matching_config=matching_config)
