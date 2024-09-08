@@ -30,6 +30,7 @@ FUNCTION_NAME_TO_STEP_TYPE = {'bgc_module_skip': AlignmentStepType.BGC_MODULE_SK
 @dataclass
 class ScoringHelper:
     scoring_config: ScoringConfig
+    heuristic_discard_on: bool = False  # immediately discard bad matches based on a heuristic
     bgc_modules: List[BGC_Module] = None
     nrp_monomers: List[NRP_Monomer] = None
     pks_domains_in_bgc: bool = False

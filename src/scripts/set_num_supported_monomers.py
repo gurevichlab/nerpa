@@ -125,10 +125,10 @@ def main():
 
     num_supported_monomers = int(sys.argv[1])
     '''
-    num_supported_monomers = 49
-
     nerpa_dir = Path(__file__).parent.parent.parent.resolve()
-    supported_monomers = load_supported_monomers(nerpa_dir / 'data' / 'core_frequency.tsv', num_supported_monomers)
+    #num_supported_monomers = 10
+    # supported_monomers = load_supported_monomers(nerpa_dir / 'data' / 'core_frequency.tsv', num_supported_monomers)
+    supported_monomers = []
 
     monomer_names_table = pd.read_csv(nerpa_dir / 'data' / 'monomers_unique.tsv', sep='\t')
     monomer_names_table = remove_unsupported_monomers(monomer_names_table, supported_monomers, UNKNOWN_RESIDUE)

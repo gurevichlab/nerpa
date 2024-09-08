@@ -27,11 +27,13 @@ def heuristic_match_discard(bgc_len: int,
                             num_common_residues: int,
                             heuristic_matching_cfg: HeuristicMatchingConfig) -> bool:
     slope, intercept, margin = heuristic_matching_cfg.LINEAR_DISCARD_PARAMS_LENGTHS
-    if not (slope * nrp_len + intercept - margin < bgc_len < slope * nrp_len + intercept + margin):
+    if abs(slope * nrp_len + intercept  - bgc_len) > margin:
         return False
+
     slope, intercept, margin = heuristic_matching_cfg.LINEAR_DISCARD_PARAMS_AA_CONTENTS
-    if not (slope * nrp_len + intercept - margin < num_common_residues < slope * nrp_len + intercept + margin):
+    if abs(slope * nrp_len + intercept - num_common_residues) > margin:
         return False
+
     return True
 
 
@@ -53,6 +55,9 @@ def filter_out_bad_nrp_candidates(bgc_variant: BGC_Variant,
                                                                                [mon.residue for mon in nrp_fragment.monomers])),
                                                  heuristic_matching_cfg)
                             for nrp_fragment in nrp_variant.fragments)
-        return discard_nonit and discard_it
+        result = discard_nonit and discard_it
+        if result:  # for debugging
+            print(f'Discarding {nrp_variant.nrp_id} due to heuristic matching')
+        return result
 
     return filter(lambda nrp_variant: not discard_variant(nrp_variant), nrp_variants)
