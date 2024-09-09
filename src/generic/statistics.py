@@ -40,7 +40,7 @@ def fit_between_lines(data: Dict[float, List[float]],
     y_coords = [p[1] for p in points]
 
     # Fit a line using polyfit (degree=1 for a linear fit)
-    slope, intercept = np.polyfit(x_coords, y_coords, 1)
+    slope, intercept = map(float, np.polyfit(x_coords, y_coords, 1))  # to avoid numpy float64
 
     def dist_to_line(x: float, y: float) -> float:  # this is not distance but is proportional to it
         return abs(y - (slope * x + intercept))

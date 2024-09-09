@@ -21,7 +21,6 @@ nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: 
                           vol: -6.411818267709897, unknown: -6.411818267709897}
 
 num_unknown_residues: 100
-
 modification_score:
   Mod_METHYLATION_BGC_False_NRP_False: -0.018
   Mod_METHYLATION_BGC_False_NRP_True: -2  #-4.026
@@ -67,6 +66,7 @@ max_module_repetitions: 3
 pks_residues: [CFA, Adda, Me-Suc, ADMAdda, C8:3(t2.t4.t6), DMAdda, C6:2(t2.t4)]
 
 unknown_nrp_monomer_skip_penalty_at_end: -2
+nrp_monomer_skip_penalty_at_end: -2.5
 max_unknown_residue_match_score: 1  # a bit dirty, but we need to make sure that unknown residue don't get too high scores
 bgc_fragment_skip_penalty: -3  # penalty is computed as bgc_fragment_skip_penalty * fragment_length
 nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalty * fragment_length
@@ -78,5 +78,6 @@ one_to_one_fragment_alignment: True  # enable aligning one NRP fragment to one B
 MAX_PERMUTATIONS: 100  # maximum number of permutations of NRP fragments allowed
 
 heuristic_matching_cfg:
-  LINEAR_DISCARD_PARAMS: [0.66, 0]  # discard if num_common_residues < k * nrp_len + b
+  LINEAR_DISCARD_PARAMS_AA_CONTENTS: [1.0442326308734826, -0.6618429435467198, 1.6477864725676585]  # discard if num_common_residues < x[0] * nrp_len + x[1] - x[2]
+  LINEAR_DISCARD_PARAMS_LENGTHS: [1.0069037656903765, -0.34984937238494146, 0.732996815899578]  # discard if abs(nrp_len * x[0] + x[1] - bgc_len) > x[2]
   NUM_TOP_PREDICTIONS: 3  # number of top predictions for a module to compute common residues

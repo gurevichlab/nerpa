@@ -49,8 +49,10 @@ class ScoringHelper:
 
     def nrp_mon_skip(self, mon_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:
         mon = self.nrp_monomers[mon_idx]
-        if dp_state.module_pos in (0, len(self.bgc_modules)) and mon.residue == UNKNOWN_RESIDUE:  # skipping an unknown monomer at an end
-            return self.scoring_config.unknown_nrp_monomer_skip_penalty_at_end
+        if dp_state.module_pos in (0, len(self.bgc_modules)): # skipping a monomer at an end
+            return self.scoring_config.unknown_nrp_monomer_skip_penalty_at_end \
+                      if mon.residue == UNKNOWN_RESIDUE else self.scoring_config.nrp_monomer_skip_penalty_at_end
+
 
         if mon.rban_name in self.scoring_config.pks_residues:
             return 0

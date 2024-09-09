@@ -31,7 +31,7 @@ def heuristic_match_discard(bgc_len: int,
         return False
 
     slope, intercept, margin = heuristic_matching_cfg.LINEAR_DISCARD_PARAMS_AA_CONTENTS
-    if abs(slope * nrp_len + intercept - num_common_residues) > margin:
+    if slope * nrp_len + intercept - num_common_residues > margin:
         return False
 
     return True

@@ -7,7 +7,7 @@ from run_nerpa import run_nerpa_on_all_pairs
 from check_matches import find_wrong_match
 from calculate_parameters import calculate_training_parameters
 from collections import defaultdict
-from write_results import write_results
+from write_results import write_results, show_match
 
 
 def parse_args():
@@ -25,8 +25,13 @@ def parse_args():
     parser.add_argument('-o', '--output_dir',
                         type=Path, default=Path(__file__).parent / 'output',
                         help='Output directory')
+    parser.add_argument('-i', '--ignore_precomputed',
+                        action='store_true', help='Ignore precomputed Nerpa results')
 
     args = parser.parse_args()
+    if args.ignore_precomputed:  # for faster debugging
+        args.precomputed_nerpa_results = None
+
     if (args.precomputed_nerpa_results is not None
             and (args.antismash_results_dir is not None or args.rban_results_dir is not None)):
         print('Precomputed Nerpa results provided. antismash and rban results will be ignored')
@@ -99,10 +104,12 @@ def main():
                         if match['NRP'] in nrp_ids_good_matches]
 
     print('Checking matches')
-    if wrong_match_info := find_wrong_match(matches, approved_matches):
-        nrp_id, wrong_match = wrong_match_info
+    if (wrong_match_info := find_wrong_match(matches, approved_matches)) is not None:
+        nrp_id, wrong_match_str = wrong_match_info
+        correct_match_str = show_match(next(match for match in approved_matches
+                                            if match['NRP'] == nrp_id))
         print(f'Error in matches: {nrp_id}\nAborting')
-        (args.output_dir / 'wrong_match.txt').write_text(wrong_match)
+        (args.output_dir / 'wrong_match.txt').write_text(f'Wrong:\n{wrong_match_str}\n\nCorrect:\n{correct_match_str}')
         print(f'First wrong match is saved in {args.output_dir / "wrong_match.txt"}')
         exit(0)
     else:

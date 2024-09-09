@@ -72,7 +72,7 @@ def add_config_arguments(parser: argparse.ArgumentParser):
                                help="minimum score to report a match", action="store")
     configs_group.add_argument("--num-matches", default=None, type=int,
                                help="maximum number of matches to report", action="store")
-    configs_group.add_argument("--heuristic-discard", default=False, type=bool,
+    configs_group.add_argument("--heuristic-discard", default=False,
                                help="immediately discard bad matches based on heuristics", action="store_true")
     configs_group.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")

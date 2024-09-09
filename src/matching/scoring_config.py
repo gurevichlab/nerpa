@@ -63,6 +63,7 @@ class ScoringConfig:
 
     pks_residues: List[str]
     unknown_nrp_monomer_skip_penalty_at_end: LogProb
+    nrp_monomer_skip_penalty_at_end: LogProb
     max_unknown_residue_match_score: LogProb
     bgc_fragment_skip_penalty: LogProb
     nrp_fragment_skip_penalty: LogProb
@@ -153,6 +154,7 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          normalization=cfg['normalization'],
                          pks_residues=cfg['pks_residues'],
                          unknown_nrp_monomer_skip_penalty_at_end=cfg['unknown_nrp_monomer_skip_penalty_at_end'],
+                         nrp_monomer_skip_penalty_at_end=cfg['nrp_monomer_skip_penalty_at_end'],
                          max_unknown_residue_match_score=cfg['max_unknown_residue_match_score'],
                          bgc_fragment_skip_penalty=cfg['bgc_fragment_skip_penalty'],
                          nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'],
@@ -161,4 +163,5 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          one_to_one_fragment_alignment=cfg['one_to_one_fragment_alignment'],
                          MAX_PERMUTATIONS=cfg['MAX_PERMUTATIONS'],
                          heuristic_matching_cfg=dacite.from_dict(HeuristicMatchingConfig,
-                                                                 cfg['heuristic_matching_cfg']))
+                                                                 cfg['heuristic_matching_cfg'],
+                                                                 dacite.Config(type_hooks={Tuple[float, float, float]: lambda x: tuple(x)})))  # to convert lists to tuples
