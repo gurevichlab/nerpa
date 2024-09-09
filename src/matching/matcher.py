@@ -24,7 +24,7 @@ from src.matching.multiple_fragments_alignment_handling import (
     get_iterative_bgc_alignment,
     get_fragments_alignment
 )
-from src.matching.heuristic_matching import filter_out_bad_nrp_candidates
+from src.matching.heuristic_matching import filter_out_bad_nrp_candidates, get_heuristic_discard, DiscardVerdict
 from itertools import chain, islice, takewhile, permutations, product
 from joblib import delayed, Parallel
 
@@ -61,7 +61,10 @@ def get_match(bgc_variant: BGC_Variant,
     dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains)  # I don't really like that dp_helper carries some state
 
     fragments_alignments: List[List[Alignment]] = []
-    if dp_helper.scoring_config.join_fragments_alignments:
+
+    heuristic_discard = get_heuristic_discard(bgc_variant, nrp_variant, dp_helper.scoring_config.heuristic_matching_cfg) \
+        if dp_helper.heuristic_discard_on else DiscardVerdict(False, False)
+    if dp_helper.scoring_config.join_fragments_alignments and not heuristic_discard.joined:
         fragments_alignments.extend(get_multiple_fragments_alignment(bgc_variant.fragments,
                                                                      list(nrp_fragments),
                                                                      dp_helper)
@@ -70,7 +73,7 @@ def get_match(bgc_variant: BGC_Variant,
         # TODO: this is a stub, we should implement a more reasonable way to handle many fragments
         #  instead of just cutting off at some point
         # (e.g. by first finding the best bgc_fragment for each nrp_fragment to retrieve their order)
-    if dp_helper.scoring_config.iterative_bgc_alignment:
+    if dp_helper.scoring_config.iterative_bgc_alignment and not heuristic_discard.iterative:
         fragments_alignments.extend([get_iterative_bgc_alignment(bgc_variant.fragments,
                                                                  nrp_variant.fragments,
                                                                  dp_helper)])
