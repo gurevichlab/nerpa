@@ -69,7 +69,7 @@ def get_known_codes_only_cores(known_codes: Tuple[Dict[antiSMASH_MonomerName, Se
 def get_core_frequencies(norine_graphs_table: pd.DataFrame,
                          monomer_names_helper: MonomerNamesHelper,
                          supported_monomers: List[MonomerResidue]) -> Dict[MonomerResidue, float]:
-    norine_graphs_table.columns = ['id', 'graph', '_']
+    norine_graphs_table.columns = ['id', 'graph']
 
     def extract_monomer_names(graph: str) -> List[MonomerResidue]:
         return [monomer_names_helper.parsed_name(monomer_name, 'norine').residue
@@ -128,7 +128,11 @@ def main():
     nerpa_dir = Path(__file__).parent.parent.parent.resolve()
     #num_supported_monomers = 10
     # supported_monomers = load_supported_monomers(nerpa_dir / 'data' / 'core_frequency.tsv', num_supported_monomers)
-    supported_monomers = []
+    supported_monomers = ['unknown', 'Leu', 'Val', 'Ala', 'Pro', 'Ser', 'Gln', 'Gly', 'Asp', 'Thr', 
+ 'Ile', 'Phe', 'Tyr', 'Asn', 'Glu', 'Dab', 'Orn', 'Trp', 'Hpg', 'aThr', 
+ 'Abu', 'Arg', 'Lys', 'aIle', 'Hiv', 'bAla', 'dHpg', 'Lac', 'Cys', 'His', 
+ 'Dpr', 'Iva', 'Hty', 'Pip', 'Hse', 'Bmt', 'Pen', 'Bza', 'bLys', 'Kyn', 
+ 'Aad', 'oxoDec']
 
     monomer_names_table = pd.read_csv(nerpa_dir / 'data' / 'monomers_unique.tsv', sep='\t')
     monomer_names_table = remove_unsupported_monomers(monomer_names_table, supported_monomers, UNKNOWN_RESIDUE)
