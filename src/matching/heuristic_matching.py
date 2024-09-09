@@ -1,4 +1,4 @@
-from typing import Iterable, List, Dict
+from typing import Iterable, List, Dict, NamedTuple
 from itertools import chain
 from collections import defaultdict
 from src.data_types import MonomerResidue, LogProb, BGC_Variant, NRP_Variant
@@ -37,6 +37,30 @@ def heuristic_match_discard(bgc_len: int,
     return True
 
 
+class DiscardVerdict(NamedTuple):
+    joined: bool
+    iterative: bool
+
+
+def get_heuristic_discard(bgc_variant: BGC_Variant,
+                            nrp_variant: NRP_Variant,
+                            heuristic_matching_cfg: HeuristicMatchingConfig) -> DiscardVerdict:
+        bgc_res = bgc_residues(bgc_variant, heuristic_matching_cfg.NUM_TOP_PREDICTIONS)
+        bgc_len = sum(len(bgc_fragment) for bgc_fragment in bgc_variant.fragments)
+        nrp_res = nrp_residues(nrp_variant)
+        nrp_len = len(nrp_res)
+        num_common_residues = len(intersection_with_repeats(bgc_res, nrp_res))
+
+        discard_joined = heuristic_match_discard(bgc_len, nrp_len, num_common_residues, heuristic_matching_cfg)
+        discard_it = any(heuristic_match_discard(bgc_len,
+                                                 len(nrp_fragment.monomers),
+                                                 len(intersection_with_repeats(bgc_res,
+                                                                             [mon.residue for mon in nrp_fragment.monomers])),
+                                                 heuristic_matching_cfg)
+                         for nrp_fragment in nrp_variant.fragments)
+        return DiscardVerdict(discard_joined, discard_it)
+
+
 def filter_out_bad_nrp_candidates(bgc_variant: BGC_Variant,
                                   nrp_variants: Iterable[NRP_Variant],
                                   heuristic_matching_cfg: HeuristicMatchingConfig) -> Iterable[NRP_Variant]:
@@ -55,9 +79,6 @@ def filter_out_bad_nrp_candidates(bgc_variant: BGC_Variant,
                                                                                [mon.residue for mon in nrp_fragment.monomers])),
                                                  heuristic_matching_cfg)
                             for nrp_fragment in nrp_variant.fragments)
-        result = discard_nonit and discard_it
-        if result:  # for debugging
-            print(f'Discarding {nrp_variant.nrp_id} due to heuristic matching')
-        return result
+        return discard_nonit and discard_it
 
     return filter(lambda nrp_variant: not discard_variant(nrp_variant), nrp_variants)

@@ -73,7 +73,7 @@ nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalt
 
 join_fragments_alignments: True  # enable aligning all NRP fragments to all BGC fragments (in a single alignment)
 iterative_bgc_alignment: True  # enable independently aligning all NRP fragments to the whole BGC
-one_to_one_fragment_alignment: True  # enable aligning one NRP fragment to one BGC fragment
+one_to_one_fragment_alignment: False  # enable aligning one NRP fragment to one BGC fragment
 
 MAX_PERMUTATIONS: 100  # maximum number of permutations of NRP fragments allowed
 
