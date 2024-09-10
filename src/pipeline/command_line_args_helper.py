@@ -74,6 +74,8 @@ def add_config_arguments(parser: argparse.ArgumentParser):
                                help="maximum number of matches to report", action="store")
     configs_group.add_argument("--heuristic-discard", default=False,
                                help="immediately discard bad matches based on heuristics", action="store_true")
+    configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
+                               help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
     configs_group.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")
 
