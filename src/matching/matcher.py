@@ -102,15 +102,9 @@ def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,
     if log is not None:
         log.info(f'Processing BGC variant {bgc_variant.variant_idx}')
 
-    if scoring_helper.heuristic_discard_on:
-        tentative_nrps = filter_out_bad_nrp_candidates(bgc_variant,
-                                                       nrp_variants,
-                                                       scoring_helper.scoring_config.heuristic_matching_cfg)  # heuristic to reduce the number of candidates
-    else:
-        tentative_nrps = nrp_variants
 
     matches = sorted((get_match(bgc_variant, nrp_variant, scoring_helper)
-                     for nrp_variant in tentative_nrps),
+                     for nrp_variant in nrp_variants),
                      key=lambda m: m.normalized_score, reverse=True)
 
     return list(takewhile(lambda m: (m.normalized_score > min_score) if min_score is not None else True,

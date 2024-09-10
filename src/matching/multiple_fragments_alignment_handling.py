@@ -43,6 +43,15 @@ def retrieve_alignments(parent: Dict[Tuple[int, int], Tuple[Tuple[int, int], Opt
 def get_multiple_fragments_alignment(bgc_fragments: List[BGC_Fragment],
                                      nrp_fragments: List[NRP_Fragment],
                                      dp_helper: ScoringHelper) -> List[Alignment]:
+    # to save time, as these are the most common cases
+    if len(nrp_fragments) == 1:
+        return [get_fragments_alignment(bgc_fragment, nrp_fragments[0], dp_helper)
+                for bgc_fragment in bgc_fragments]
+    if len(bgc_fragments) == 1:
+        return [max((get_alignment(bgc_fragments[0], nrp_monomers, dp_helper)
+                     for nrp_monomers in fragments_joined_monomer_sequences(nrp_fragments)),
+                    key=alignment_score)]
+
     dp: Dict[Tuple[int, int], LogProb] = {(0, 0): 0.0}  # dp[(i, j)] = score of aligning bgc_fragments[:i] and nrp_fragments[:j]
     parent: Dict[Tuple[int, int], Tuple[Tuple[int, int], Optional[Alignment]]] = {}  # parent[(i, j)] = (i_prev, j_prev, alignment)
 
