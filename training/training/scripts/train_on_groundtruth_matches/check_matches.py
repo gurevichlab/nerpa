@@ -67,3 +67,13 @@ def find_wrong_match(matches: List[dict], approved_matches: List[dict]) -> Optio
         approved_match = nrp_id_to_approved_match[match['NRP']]
         if not matches_coincide(match, approved_match):
             return match['NRP'], show_match(match)
+
+        """
+        with open('/home/ilianolhin/git/nerpa2/training/training/scripts/train_on_groundtruth_matches/wrong_matches.txt', 'a') as f:
+            f.write('Wrong match:\n')
+            f.write(show_match(match) + '\n\n')
+            f.write('Approved match:\n')
+            f.write(show_match(approved_match) + '\n\n')
+       """
+
+

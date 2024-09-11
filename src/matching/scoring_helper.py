@@ -45,6 +45,8 @@ class ScoringHelper:
         self.pks_domains_in_bgc = pks_domains_in_bgc
 
     def bgc_module_skip(self, bgc_module_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:  # argument is kept for better alignment backtracking
+        if dp_state.monomer_pos in (0, len(self.nrp_monomers)): # skipping a module at an end
+            return self.scoring_config.bgc_module_skip_penalty_at_end
         return self.scoring_config.bgc_module_skip_score
 
     def nrp_mon_skip(self, mon_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:

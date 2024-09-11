@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 from pathlib import Path
 import yaml
 import pandas as pd
@@ -7,6 +7,7 @@ from calculate_parameters import TrainedParameters
 from dataclasses import asdict
 from src.write_results import write_yaml
 from step_function import plot_step_function
+from itertools import chain
 
 
 def show_match(match: dict) -> str:
@@ -31,15 +32,31 @@ def show_match(match: dict) -> str:
     return result
 
 
+def get_fragmented_matches_nrp_ids(matches: List[dict],
+                                   bgc_variants: Dict[str, dict],
+                                   nrp_variants: Dict[str, dict]) -> List[str]:
+    nrp_ids = {match['NRP'] for match in matches}
+    return [nrp_id for nrp_id in nrp_ids
+            if len(bgc_variants[nrp_id]['fragments']) > 1
+            or len(nrp_variants[nrp_id]['fragments']) > 1]
+
+
 def write_results(matches: List[dict],
+                  bgc_variants: Dict[str, dict],
+                  nrp_variants: Dict[str, dict],
                   matches_table: pd.DataFrame,
                   parameters: TrainedParameters,
                   output_dir: Path):
     nrp_ids_good_matches = list(matches_table[matches_table['Verdict'].isin(['good', 'was corrected'])]['NRP variant'])
     nrp_ids_to_investigate = list(matches_table[matches_table['Verdict'] == 'for investigation']['NRP variant'])
     nrp_ids_to_correct = list(matches_table[matches_table['Verdict'] == 'to be corrected']['NRP variant'])
+    nrp_ids_fragmented_matches = get_fragmented_matches_nrp_ids(matches,
+                                                                bgc_variants,
+                                                                nrp_variants)
 
-    good_matches = [match for match in matches if match['NRP'] in nrp_ids_good_matches]
+    nrp_id_to_match = {match['NRP']: match for match in matches}
+    nrp_ids_to_investigate_many_fragments = (set(nrp_ids_to_investigate) | set(nrp_ids_to_correct)) & set(nrp_ids_fragmented_matches)
+    good_matches = [nrp_id_to_match[nrp_id] for nrp_id in nrp_ids_good_matches]
 
     output_dir.mkdir(exist_ok=True, parents=True)
     # q: write good matches in a yaml file
@@ -47,15 +64,18 @@ def write_results(matches: List[dict],
 
     # q: write "to investigate" matches in a human-readable format
     with open(output_dir / 'matches_to_investigate.txt', 'w') as f:
-        for match in matches:
-            if match['NRP'] in nrp_ids_to_investigate:
-                f.write(show_match(match) + '\n')
+            for nrp_id in nrp_ids_to_investigate:
+                f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
 
     # q: write "to correct" matches in a human-readable format
     with open(output_dir / 'matches_to_correct.txt', 'w') as f:
-        for match in matches:
-            if match['NRP'] in nrp_ids_to_correct:
-                f.write(show_match(match) + '\n')
+            for nrp_id in nrp_ids_to_correct:
+                f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+
+    with open(output_dir / 'matches_to_investigate_many_fragments.txt', 'w') as f:
+        for nrp_id in nrp_ids_to_investigate_many_fragments:
+            f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+
 
     # q: write parameters in a yaml file
     write_yaml(asdict(parameters), output_dir / 'parameters.yaml')

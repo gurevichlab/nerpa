@@ -74,9 +74,9 @@ def get_match(bgc_variant: BGC_Variant,
         #  instead of just cutting off at some point
         # (e.g. by first finding the best bgc_fragment for each nrp_fragment to retrieve their order)
     if dp_helper.scoring_config.iterative_bgc_alignment and not heuristic_discard.iterative:
-        fragments_alignments.extend([get_iterative_bgc_alignment(bgc_variant.fragments,
-                                                                 nrp_variant.fragments,
-                                                                 dp_helper)])
+        fragments_alignments.append(get_iterative_bgc_alignment(bgc_variant.fragments,
+                                                                nrp_variant.fragments,
+                                                                dp_helper))
     if dp_helper.scoring_config.one_to_one_fragment_alignment:
         fragments_alignments.extend([get_fragments_alignment(bgc_fragment, nrp_fragment, dp_helper)]
                                      for bgc_fragment, nrp_fragment in product(bgc_variant.fragments,

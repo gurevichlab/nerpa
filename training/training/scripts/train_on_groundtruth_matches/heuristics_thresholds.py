@@ -5,7 +5,7 @@ from src.data_types import MonomerResidue, LogProb
 from src.generic.combinatorics import intersection_with_repeats
 from src.generic.statistics import fit_between_lines
 from src.matching.heuristic_matching import HeuristicMatchingConfig
-from itertools import chain
+from itertools import chain, pairwise, product
 from collections import defaultdict
 
 
@@ -17,13 +17,14 @@ def nrp_residues(match: dict,
             if alignment_step['NRP_residue'] != MISSING_VALUE]
 
 
+def top_n_predictions(residue_scores: Dict[MonomerResidue, LogProb],
+                      num_top_predictions: int) -> List[MonomerResidue]:
+    return sorted(residue_scores, key=residue_scores.get, reverse=True)[:num_top_predictions]
+
+
 def bgc_residues(bgc_variant: dict,
                  num_top_predictions: int = 3) -> List[MonomerResidue]:
-    def top_n_predictions(residue_scores: Dict[MonomerResidue, LogProb]) -> List[MonomerResidue]:
-        return sorted(residue_scores, key=residue_scores.get, reverse=True)[:num_top_predictions]
-
-
-    return list(chain(*[top_n_predictions(bgc_module['residue_score'])
+    return list(chain(*[top_n_predictions(bgc_module['residue_score'], num_top_predictions)
                         for bgc_fragment in bgc_variant['fragments']
                         for bgc_module in bgc_fragment]))
 
@@ -36,10 +37,20 @@ def num_common_residues(match: dict,
                                          bgc_residues(bgc_variant, num_top_predictions)))
 
 
+def get_common_cons_pairs_cnt(match: dict, bgc_variant: dict) -> int:
+    nrp_pairs = pairwise(nrp_residues(match))
+
+    bgc_set_pairs = pairwise(top_n_predictions(bgc_module['residue_score'], 3)
+                             for bgc_fragment in bgc_variant['fragments']
+                             for bgc_module in bgc_fragment)
+    bgc_pairs = chain(*(product(s1, s2) for s1, s2 in bgc_set_pairs))
+    return len(intersection_with_repeats(nrp_pairs, bgc_pairs))
+
 
 # TODO: refactor
 def plot_box_plots(crc_for_nrp_len: Dict[int, List[int]],
                    nrp_bgc_lengths: Dict[int, List[int]],
+                   cons_pairs_for_nrp_len: Dict[int, List[int]],
                    params: HeuristicMatchingConfig,
                    output_dir: Path):
     from matplotlib import pyplot as plt
@@ -74,6 +85,20 @@ def plot_box_plots(crc_for_nrp_len: Dict[int, List[int]],
     plt.savefig(output_dir / 'bgc_nrp_lengths_boxplot.png')
     plt.close()
 
+    plt.boxplot([cons_pairs_for_nrp_len[nrp_len] for nrp_len in sorted(cons_pairs_for_nrp_len.keys())],
+                positions=sorted(cons_pairs_for_nrp_len.keys()))
+    k, b, d = params.LINEAR_DISCARD_PARAMS_CONS_PAIRS
+    plt.plot(sorted(nrp_bgc_lengths.keys()),
+             [k * x + b - d for x in sorted(cons_pairs_for_nrp_len.keys())],
+             color='red')
+    plt.plot(sorted(cons_pairs_for_nrp_len.keys()),
+             [k * x + b + d for x in sorted(cons_pairs_for_nrp_len.keys())],
+             color='red')
+    plt.xlabel('NRP length')
+    plt.ylabel('# common consequtive residue pairs')
+    plt.savefig(output_dir / 'common_consequtive_residues_boxplot.png')
+    plt.close()
+
 
 def calculate_heuristic_parameters(matches_with_bgc_variants: List[Tuple[dict, dict]],
                                    output_dir: Path) -> HeuristicMatchingConfig:
@@ -92,12 +117,18 @@ def calculate_heuristic_parameters(matches_with_bgc_variants: List[Tuple[dict, d
     for match, bgc_variant in matches_with_bgc_variants:
         nrp_bgc_lengths[nrp_len(match)].append(bgc_len(bgc_variant))
 
+    common_cons_pairs_cnt_for_nrp_len = defaultdict(list)
+    for match, bgc_variant in matches_with_bgc_variants:
+        common_cons_pairs_cnt_for_nrp_len[nrp_len(match)].append(
+            get_common_cons_pairs_cnt(match, bgc_variant)
+        )
     params = HeuristicMatchingConfig(
         LINEAR_DISCARD_PARAMS_LENGTHS=fit_between_lines(nrp_bgc_lengths, 0.05),  # TODO: put in config
         LINEAR_DISCARD_PARAMS_AA_CONTENTS=fit_between_lines(crc_for_nrp_len, 0.05),
+        LINEAR_DISCARD_PARAMS_CONS_PAIRS=fit_between_lines(common_cons_pairs_cnt_for_nrp_len, 0.05),
         NUM_TOP_PREDICTIONS=3  # TODO: magic number, bad
     )
-    plot_box_plots(crc_for_nrp_len, nrp_bgc_lengths, params, output_dir)
+    plot_box_plots(crc_for_nrp_len, nrp_bgc_lengths, common_cons_pairs_cnt_for_nrp_len, params, output_dir)
 
     return params
 
