@@ -65,7 +65,7 @@ def split_sequence(xs: List[T]) -> Iterable[List[List[T]]]:
     yield from extend_split_sequence(xs, [])
 
 
-def intersection_with_repeats(xs: List[T], ys: List[T]) -> List[T]:
+def intersection_with_repeats(xs: Iterable[T], ys: Iterable[T]) -> List[T]:
     '''
     returns a list of elements that are present in both lists (with repeats)
     '''

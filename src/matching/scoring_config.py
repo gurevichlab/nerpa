@@ -39,6 +39,7 @@ class ModMatch(NamedTuple):
 class HeuristicMatchingConfig:
     LINEAR_DISCARD_PARAMS_AA_CONTENTS: Tuple[float, float, float]  # slope, intercept, margin
     LINEAR_DISCARD_PARAMS_LENGTHS: Tuple[float, float, float]
+    LINEAR_DISCARD_PARAMS_CONS_PAIRS: Tuple[float, float, float]
     NUM_TOP_PREDICTIONS: int
 
 
@@ -66,6 +67,7 @@ class ScoringConfig:
     nrp_monomer_skip_penalty_at_end: LogProb
     max_unknown_residue_match_score: LogProb
     bgc_fragment_skip_penalty: LogProb
+    bgc_module_skip_penalty_at_end: LogProb
     nrp_fragment_skip_penalty: LogProb
 
     join_fragments_alignments: bool
@@ -155,6 +157,7 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          pks_residues=cfg['pks_residues'],
                          unknown_nrp_monomer_skip_penalty_at_end=cfg['unknown_nrp_monomer_skip_penalty_at_end'],
                          nrp_monomer_skip_penalty_at_end=cfg['nrp_monomer_skip_penalty_at_end'],
+                         bgc_module_skip_penalty_at_end=cfg['bgc_module_skip_penalty_at_end'],
                          max_unknown_residue_match_score=cfg['max_unknown_residue_match_score'],
                          bgc_fragment_skip_penalty=cfg['bgc_fragment_skip_penalty'],
                          nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'],

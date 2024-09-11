@@ -39,6 +39,21 @@ def parse_args():
     return args
 
 
+def load_matches(nerpa_results_dir: Path) -> List[dict]:
+    matches = []
+    for results_dir in nerpa_results_dir.iterdir():
+        with open(results_dir / 'matches_details/matches.yaml') as matches_file:
+            best_match = max(yaml.safe_load(matches_file),
+                             key=lambda match: match['NormalisedScore'],
+                             default=None)
+            if best_match is None:
+                with open('warning.txt', 'a') as f:
+                    f.write(f'WARNING! {results_dir} has no matches\n')
+                continue
+            matches.append(best_match)
+    return matches
+
+
 def load_bgc_variants_for_matches(matches: List[dict],
                                   nerpa_results_dir: Path) -> Dict[str, dict]:  # nrp_id -> bgc_variant
     nrp_ids = {match['NRP'] for match in matches}
@@ -66,19 +81,17 @@ def load_bgc_variants_for_matches(matches: List[dict],
     return nrp_id_to_bgc_variant
 
 
-def load_matches(nerpa_results_dir: Path) -> List[dict]:
-    matches = []
-    for results_dir in nerpa_results_dir.iterdir():
-        with open(results_dir / 'matches_details/matches.yaml') as matches_file:
-            best_match = max(yaml.safe_load(matches_file),
-                             key=lambda match: match['NormalisedScore'],
-                             default=None)
-            if best_match is None:
-                with open('warning.txt', 'a') as f:
-                    f.write(f'WARNING! {results_dir} has no matches\n')
-                continue
-            matches.append(best_match)
-    return matches
+def load_nrp_variants_for_matches(matches: List[dict],
+                                  nerpa_results_dir: Path) -> Dict[str, dict]:  # nrp_id -> nrp_variant
+        nrp_variants = {}
+        for match in matches:
+            nrp_id = match['NRP']
+            nrp_id_matches_file = nerpa_results_dir / nrp_id / 'NRP_variants' / f'{nrp_id}.yaml'
+            nrp_id_matches = yaml.safe_load(nrp_id_matches_file.read_text())
+            nrp_variants[nrp_id] = next(nrp_id_match
+                                        for nrp_id_match in nrp_id_matches
+                                        if nrp_id_match['variant_idx'] == match['NRP_variant_idx'])
+        return nrp_variants
 
 
 def main():
@@ -97,6 +110,7 @@ def main():
     print('Loading Nerpa results')
     matches = load_matches(nerpa_results_dir)
     bgc_variants = load_bgc_variants_for_matches(matches, nerpa_results_dir)
+    nrp_variants = load_nrp_variants_for_matches(matches, nerpa_results_dir)
 
     nrp_ids_good_matches = list(matches_table[matches_table['Verdict'] == 'good']['NRP variant'])
     approved_matches = [match  # in case some good matches were reconsidered
@@ -122,7 +136,8 @@ def main():
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
     parameters = calculate_training_parameters(matches_with_bgcs_for_training, args.output_dir)
     print('Writing results')
-    write_results(matches, matches_table, parameters, args.output_dir)
+    write_results(matches, bgc_variants, nrp_variants,
+                  matches_table, parameters, args.output_dir)
 
 
 if __name__ == "__main__":
