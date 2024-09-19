@@ -103,7 +103,7 @@ class BGC_Variant:
     def from_yaml_dict(cls, data: dict) -> BGC_Variant:
         return cls(variant_idx=data['variant_idx'],
                    genome_id=data['genome_id'],
-                   bgc_idx=data['bgc_id'],
+                   bgc_idx=data['bgc_idx'],
                    fragments=[[BGC_Module.from_yaml_dict(module_dict)
                                for module_dict in fragment_list]
                                for fragment_list in data['fragments']],

@@ -133,11 +133,25 @@ def build_bgc_fragments(raw_fragmented_bgc: List[BGC_Cluster],
             for bgc_cluster in raw_fragmented_bgc]
 
 
-def build_bgc_variants(bgc: BGC_Cluster,
+# TODO: sometimes a module is split between genes (see BGC0002484). Maybe it's better to merge such modules?
+def remove_genes_with_no_a_domains(bgc: BGC_Cluster) -> BGC_Cluster:
+    def has_a_domains(gene: Gene) -> bool:
+        return any(module.a_domain is not None for module in gene.modules)
+    return BGC_Cluster(genome_id=bgc.genome_id,
+                          contig_id=bgc.contig_id,
+                          bgc_idx=bgc.bgc_idx,
+                          genes=[gene for gene in bgc.genes if has_a_domains(gene)])
+
+
+def build_bgc_variants(_bgc: BGC_Cluster,
                        residue_scoring_model: Any,
                        monomer_names_helper: MonomerNamesHelper,
                        config: antiSMASH_Parsing_Config,
                        log: NerpaLogger) -> List[BGC_Variant]:  # TODO: replace Any with proper type
+    bgc = remove_genes_with_no_a_domains(_bgc)
+    if not bgc.genes:
+        log.info(f'WARNING: BGC {bgc.bgc_idx} has no genes with A-domains. Skipping.')
+        return []
     raw_fragmented_bgcs = split_and_reorder(bgc, config)
     if len(raw_fragmented_bgcs) > config.MAX_VARIANTS_PER_BGC:
         log.info(f'WARNING: Too many BGC variants: {len(raw_fragmented_bgcs)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')

@@ -76,6 +76,16 @@ def write_results(matches: List[dict],
         for nrp_id in nrp_ids_to_investigate_many_fragments:
             f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
 
+    nrp_ids_list = list(nrp_ids_to_investigate_many_fragments)
+    block_size = (len(nrp_ids_to_investigate_many_fragments) + 3) // 4  # round up
+    for i, name in enumerate(['Azat', 'Ilia', 'Lesha', 'Sasha']):
+        nrp_ids_for_person = nrp_ids_list[i * block_size: (i + 1) * block_size]
+        with open(output_dir / f'matches_to_investigate_{name}_nrp_ids.txt', 'w') as f:
+            f.write('\n'.join(nrp_ids_for_person))
+        with open(output_dir / f'matches_to_investigate_{name}_alignments.txt', 'w') as f:
+            for nrp_id in nrp_ids_for_person:
+                f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+
 
     # q: write parameters in a yaml file
     write_yaml(asdict(parameters), output_dir / 'parameters.yaml')

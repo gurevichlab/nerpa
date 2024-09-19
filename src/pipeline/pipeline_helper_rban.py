@@ -39,7 +39,7 @@ class PipelineHelper_rBAN:
         self.log.info('Loading preprocessed NRP variants')
         nrp_variants = []
         for file_with_nrp_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                             Path(self.args.structures).iterdir()):
+                                             self.args.structures.iterdir()):
             nrp_variants.extend(NRP_Variant.from_yaml_dict(yaml_record)
                                 for yaml_record in yaml.safe_load(file_with_nrp_variants.read_text()))
         return nrp_variants

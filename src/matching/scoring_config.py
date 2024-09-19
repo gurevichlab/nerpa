@@ -67,6 +67,9 @@ class ScoringConfig:
     nrp_monomer_skip_penalty_at_end: LogProb
     max_unknown_residue_match_score: LogProb
     bgc_fragment_skip_penalty: LogProb
+    bgc_fragment_skip_penalty_at_end: LogProb
+    bgc_fragment_skip_penalty_in_middle: LogProb
+
     bgc_module_skip_penalty_at_end: LogProb
     nrp_fragment_skip_penalty: LogProb
 
@@ -160,6 +163,8 @@ def load_scoring_config(path_to_config: Path) -> ScoringConfig:
                          bgc_module_skip_penalty_at_end=cfg['bgc_module_skip_penalty_at_end'],
                          max_unknown_residue_match_score=cfg['max_unknown_residue_match_score'],
                          bgc_fragment_skip_penalty=cfg['bgc_fragment_skip_penalty'],
+                         bgc_fragment_skip_penalty_at_end=cfg['bgc_fragment_skip_penalty_at_end'],
+                         bgc_fragment_skip_penalty_in_middle=cfg['bgc_fragment_skip_penalty_in_middle'],
                          nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'],
                          join_fragments_alignments=cfg['join_fragments_alignments'],
                          iterative_bgc_alignment=cfg['iterative_bgc_alignment'],

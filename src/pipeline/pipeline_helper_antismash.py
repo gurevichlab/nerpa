@@ -58,11 +58,10 @@ class PipelineHelper_antiSMASH:
     def load_bgc_variants(self) -> List[BGC_Variant]:
         self.log.info('Loading preprocessed BGC variants')
         bgc_variants = []
-        for path_to_predictions in self.args.predictions:
-            for file_with_bgc_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                                 Path(path_to_predictions).iterdir()):
-                bgc_variants.extend(BGC_Variant.from_yaml_dict(yaml_record)
-                                    for yaml_record in yaml.safe_load(file_with_bgc_variants.read_text()))
+        for file_with_bgc_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
+                                             self.args.predictions.iterdir()):
+            bgc_variants.extend(BGC_Variant.from_yaml_dict(yaml_record)
+                                for yaml_record in yaml.safe_load(file_with_bgc_variants.read_text()))
 
         return bgc_variants
 

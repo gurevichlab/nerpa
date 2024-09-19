@@ -23,7 +23,7 @@ def top_n_predictions(residue_scores: Dict[MonomerResidue, LogProb],
 
 
 def bgc_residues(bgc_variant: dict,
-                 num_top_predictions: int = 3) -> List[MonomerResidue]:
+                 num_top_predictions: int = 1) -> List[MonomerResidue]:
     return list(chain(*[top_n_predictions(bgc_module['residue_score'], num_top_predictions)
                         for bgc_fragment in bgc_variant['fragments']
                         for bgc_module in bgc_fragment]))
@@ -31,7 +31,7 @@ def bgc_residues(bgc_variant: dict,
 
 def num_common_residues(match: dict,
                         bgc_variant: dict,
-                        num_top_predictions: int = 3,
+                        num_top_predictions: int = 1,
                         MISSING_VALUE: str = '---') -> int:
     return len(intersection_with_repeats(nrp_residues(match, MISSING_VALUE),
                                          bgc_residues(bgc_variant, num_top_predictions)))
@@ -123,10 +123,10 @@ def calculate_heuristic_parameters(matches_with_bgc_variants: List[Tuple[dict, d
             get_common_cons_pairs_cnt(match, bgc_variant)
         )
     params = HeuristicMatchingConfig(
-        LINEAR_DISCARD_PARAMS_LENGTHS=fit_between_lines(nrp_bgc_lengths, 0.05),  # TODO: put in config
-        LINEAR_DISCARD_PARAMS_AA_CONTENTS=fit_between_lines(crc_for_nrp_len, 0.05),
-        LINEAR_DISCARD_PARAMS_CONS_PAIRS=fit_between_lines(common_cons_pairs_cnt_for_nrp_len, 0.05),
-        NUM_TOP_PREDICTIONS=3  # TODO: magic number, bad
+        LINEAR_DISCARD_PARAMS_LENGTHS=fit_between_lines(nrp_bgc_lengths, 0.1),  # TODO: put in config
+        LINEAR_DISCARD_PARAMS_AA_CONTENTS=fit_between_lines(crc_for_nrp_len, 0.1),
+        LINEAR_DISCARD_PARAMS_CONS_PAIRS=fit_between_lines(common_cons_pairs_cnt_for_nrp_len, 0.1),
+        NUM_TOP_PREDICTIONS=1  # TODO: magic number, bad
     )
     plot_box_plots(crc_for_nrp_len, nrp_bgc_lengths, common_cons_pairs_cnt_for_nrp_len, params, output_dir)
 
