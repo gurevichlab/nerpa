@@ -5,14 +5,14 @@ from typing import (
     Optional,
     Tuple
 )
-from src.data_types import BGC_Fragment, NRP_Monomer, NRP_Fragment
+from src.data_types import BGC_Fragment, NRP_Monomer, NRP_Fragment, BGC_Module
 from src.generic.combinatorics import cyclic_shifts
 from src.matching.alignment_types import Alignment, combined_alignments_score
 from src.matching.scoring_helper import ScoringHelper
 from src.matching.dp import LogProb
 from src.matching.dp import get_alignment
-from src.matching.alignment_types import alignment_score
-from itertools import chain, product
+from src.matching.alignment_types import alignment_score, AlignmentStep, AlignmentStepType
+from itertools import chain, combinations, product
 
 
 def fragment_monomer_sequences(fragment: NRP_Fragment) -> Iterable[List[NRP_Monomer]]:
@@ -40,14 +40,47 @@ def retrieve_alignments(parent: Dict[Tuple[int, int], Tuple[Tuple[int, int], Opt
     return alignments[::-1]
 
 
+def skipping_alignment(modules: List[BGC_Module],
+                       dp_helper: ScoringHelper) -> Alignment:
+    return ([AlignmentStep(bgc_module=modules[0],
+                          nrp_monomer=None,
+                          score=dp_helper.scoring_config.bgc_fragment_skip_penalty_at_end,
+                          action=AlignmentStepType.BGC_MODULE_SKIP)]
+    + [AlignmentStep(bgc_module=module,
+                     nrp_monomer=None,
+                     score=dp_helper.scoring_config.bgc_fragment_skip_penalty_in_middle,
+                     action=AlignmentStepType.BGC_MODULE_SKIP)
+            for module in modules[1:]])
+
+
+def get_alignments_against_monomers(bgc_fragments: List[BGC_Fragment],
+                                    nrp_monomers: List[NRP_Monomer],
+                                    dp_helper: ScoringHelper) -> List[Alignment]:
+    def alignments_for_split(fst_bgc_idx: int, last_bgc_idx: int) -> List[Alignment]:
+        aligned_modules = list(chain(*bgc_fragments[fst_bgc_idx: last_bgc_idx]))
+        left_skipping_alignments = [skipping_alignment(bgc_fragment, dp_helper)
+                                    for bgc_fragment in bgc_fragments[:fst_bgc_idx]]
+        right_skipping_alignments = [skipping_alignment(bgc_fragment, dp_helper)
+                                        for bgc_fragment in bgc_fragments[last_bgc_idx:]]
+        return (left_skipping_alignments
+                + [get_alignment(aligned_modules, nrp_monomers, dp_helper)]
+                + right_skipping_alignments)
+
+    return max((alignments_for_split(fst_bgc_idx, last_bgc_idx)
+                for fst_bgc_idx, last_bgc_idx in combinations(range(len(bgc_fragments) + 1), 2)),
+               key=combined_alignments_score)
+
+
+
 def get_multiple_fragments_alignment(bgc_fragments: List[BGC_Fragment],
                                      nrp_fragments: List[NRP_Fragment],
                                      dp_helper: ScoringHelper) -> List[Alignment]:
     # to save time, as these are the most common cases
     if len(nrp_fragments) == 1:
-        return [max((get_alignment(list(chain(*bgc_fragments)), nrp_monomers, dp_helper)
-                     for nrp_monomers in fragment_monomer_sequences(nrp_fragments[0])),
-                    key=alignment_score)]
+        return max((get_alignments_against_monomers(bgc_fragments, nrp_monomers, dp_helper)
+                    for nrp_monomers in fragment_monomer_sequences(nrp_fragments[0])),
+                   key=combined_alignments_score)
+
     if len(bgc_fragments) == 1:
         return [max((get_alignment(bgc_fragments[0], nrp_monomers, dp_helper)
                      for nrp_monomers in fragments_joined_monomer_sequences(nrp_fragments)),

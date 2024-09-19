@@ -88,7 +88,7 @@ class TrainedParameters:
     step_function: List[float]
     indel_frequencies: Dict[AlignmentStepType, Dict[StepLocation, float]]
     modifications_frequencies: Dict[str, Dict[str, float]]
-    heuristics_matching_config: HeuristicMatchingConfig
+    heuristic_matching_cfg: HeuristicMatchingConfig
 
 
 def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[MatchDict, BGC_VariantDict]],
@@ -111,7 +111,7 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
     results['modifications_frequencies'] = get_modifications_frequencies(alignment_steps_info)
 
     print('Creating HeuristicMatchingConfig...')
-    results['heuristics_matching_config'] = calculate_heuristic_parameters(matches_with_variants_for_bgc, output_dir)
+    results['heuristic_matching_cfg'] = calculate_heuristic_parameters(matches_with_variants_for_bgc, output_dir)
 
     print('Done!')
 

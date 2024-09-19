@@ -69,7 +69,6 @@ class Module:
         if self.domains_sequence is None:
             self.domains_sequence = []
 
-
 class STRAND(Enum):
     FORWARD = auto()
     REVERSE = auto()

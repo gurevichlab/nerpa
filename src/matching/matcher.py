@@ -27,6 +27,7 @@ from src.matching.multiple_fragments_alignment_handling import (
 from src.matching.heuristic_matching import filter_out_bad_nrp_candidates, get_heuristic_discard, DiscardVerdict
 from itertools import chain, islice, takewhile, permutations, product
 from joblib import delayed, Parallel
+from datetime import datetime
 
 
 def null_hypothesis_score(nrp_fragment: NRP_Fragment,
@@ -57,7 +58,7 @@ def get_normalized_score(bgc_variant: BGC_Variant,
 
 def get_match(bgc_variant: BGC_Variant,
               nrp_variant: NRP_Variant,
-              dp_helper: ScoringHelper) -> Match:
+              dp_helper: ScoringHelper) -> Optional[Match]:  # match can be discarded based on heuristics
     dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains)  # I don't really like that dp_helper carries some state
 
     fragments_alignments: List[List[Alignment]] = []
@@ -65,11 +66,12 @@ def get_match(bgc_variant: BGC_Variant,
     heuristic_discard = get_heuristic_discard(bgc_variant, nrp_variant, dp_helper.scoring_config.heuristic_matching_cfg) \
         if dp_helper.heuristic_discard_on else DiscardVerdict(False, False)
     if dp_helper.scoring_config.join_fragments_alignments and not heuristic_discard.joined:
+        fragments_permutations = permutations(nrp_variant.fragments) \
+            if len(nrp_variant.fragments) <= 3 else [nrp_variant.fragments]
         fragments_alignments.extend(get_multiple_fragments_alignment(bgc_variant.fragments,
                                                                      list(nrp_fragments),
                                                                      dp_helper)
-                                    for nrp_fragments in islice(permutations(nrp_variant.fragments),
-                                                                dp_helper.scoring_config.MAX_PERMUTATIONS))
+                                    for nrp_fragments in fragments_permutations)
         # TODO: this is a stub, we should implement a more reasonable way to handle many fragments
         #  instead of just cutting off at some point
         # (e.g. by first finding the best bgc_fragment for each nrp_fragment to retrieve their order)
@@ -83,6 +85,8 @@ def get_match(bgc_variant: BGC_Variant,
                                                                                nrp_variant.fragments))
 
 
+    if not fragments_alignments:
+        return None
     best_fragments_alignment = max(fragments_alignments, key=combined_alignments_score)
     normalized_score = get_normalized_score(bgc_variant, nrp_variant,
                                             best_fragments_alignment,
@@ -100,12 +104,18 @@ def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,
                                 max_num_matches: Optional[int] = None,
                                 log=None) -> List[Match]:
     if log is not None:
-        log.info(f'Processing BGC variant {bgc_variant.variant_idx}')
+        log.info(f'Processing BGC {bgc_variant.genome_id} variant {bgc_variant.variant_idx}')
+        log.info(f'Current time: {datetime.now()}')
 
 
-    matches = sorted((get_match(bgc_variant, nrp_variant, scoring_helper)
-                     for nrp_variant in nrp_variants),
-                     key=lambda m: m.normalized_score, reverse=True)
+    matches = sorted(filter(None, (get_match(bgc_variant, nrp_variant, scoring_helper)
+                                   for nrp_variant in nrp_variants)),
+                            key=lambda m: m.normalized_score, reverse=True)
+
+    if log is not None:
+        log.info(f'Processing complete. '
+                 f'Discarded {len(nrp_variants) - len(matches)} out of {len(nrp_variants)} NRP variants '
+                 f'based on heuristics')
 
     return list(takewhile(lambda m: (m.normalized_score > min_score) if min_score is not None else True,
                           islice(matches, max_num_matches)))
@@ -120,6 +130,8 @@ def get_matches(bgc_variants: List[BGC_Variant],
                 log=None) -> List[Match]:
     if log is not None:
         log.info(f'Matching {len(bgc_variants)} BGC variants against {len(nrp_variants)} NRP variants')
+    print('Max NRP fragments cnt', max(len(nrp_variant.fragments) for nrp_variant in nrp_variants))
+    print('Max BGC fragments cnt', max(len(bgc_variant.fragments) for bgc_variant in bgc_variants))
     matches = chain(*Parallel(n_jobs=num_threads)(delayed(get_matches_for_bgc_variant)(bgc_variant, nrp_variants,
                                                                                        scoring_helper,
                                                                                        min_score, max_num_matches,

@@ -70,16 +70,18 @@ bgc_module_skip_penalty_at_end: -2.5
 nrp_monomer_skip_penalty_at_end: -2.5
 max_unknown_residue_match_score: 1  # a bit dirty, but we need to make sure that unknown residue don't get too high scores
 bgc_fragment_skip_penalty: -3  # penalty is computed as bgc_fragment_skip_penalty * fragment_length
+bgc_fragment_skip_penalty_at_end: -2  # affine opening penalty for skipping modules of a bgc fragment at an end
+bgc_fragment_skip_penalty_in_middle: -0.5  # affine extending penalty for skipping modules of a bgc fragment at an end
 nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalty * fragment_length
 
 join_fragments_alignments: True  # enable aligning all NRP fragments to all BGC fragments (in a single alignment)
 iterative_bgc_alignment: True  # enable independently aligning all NRP fragments to the whole BGC
 one_to_one_fragment_alignment: False  # enable aligning one NRP fragment to one BGC fragment
 
-MAX_PERMUTATIONS: 100  # maximum number of permutations of NRP fragments allowed
+MAX_PERMUTATIONS: 6  # maximum number of permutations of NRP fragments allowed
 
 heuristic_matching_cfg:
-  LINEAR_DISCARD_PARAMS_AA_CONTENTS: [1.0442326308734826, -0.6618429435467198, 1.6477864725676585]  # discard if num_common_residues < x[0] * nrp_len + x[1] - x[2]
-  LINEAR_DISCARD_PARAMS_LENGTHS: [1.0069037656903765, -0.34984937238494146, 0.732996815899578]  # discard if abs(nrp_len * x[0] + x[1] - bgc_len) > x[2]
-  LINEAR_DISCARD_PARAMS_CONS_PAIRS: [0, 0, 0]  # placeholder
-  NUM_TOP_PREDICTIONS: 3  # number of top predictions for a module to compute common residues
+  LINEAR_DISCARD_PARAMS_AA_CONTENTS: [0.855099070490556, -0.388971585458635, 2.272684669081407]
+  LINEAR_DISCARD_PARAMS_LENGTHS: [0.9854214280767362, -0.39833090934275733, 0.5878533443451871]
+  LINEAR_DISCARD_PARAMS_CONS_PAIRS: [0.9624255237363057, -1.4645833697342432, 2.0845239151014265]
+  NUM_TOP_PREDICTIONS: 1

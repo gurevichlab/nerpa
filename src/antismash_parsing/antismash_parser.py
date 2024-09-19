@@ -138,8 +138,9 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
                 module.a_domain = a_domain
             module.domains_sequence.append(domain_type)
 
+        if module.domains_sequence:
+            modules.append(module)
 
-        modules.append(module)
     return modules
 
 
@@ -168,10 +169,11 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
             bgc_genes = [gene for gene in genes
                          if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
 
-            bgcs.append(BGC_Cluster(genome_id=genome_id,
-                                    contig_id=f'ctg{ctg_idx + 1}',
-                                    bgc_idx=bgc_idx,
-                                    genes=bgc_genes))
+            if bgc_genes:
+                bgcs.append(BGC_Cluster(genome_id=genome_id,
+                                        contig_id=f'ctg{ctg_idx + 1}',
+                                        bgc_idx=bgc_idx,
+                                        genes=bgc_genes))
     return bgcs
 
 

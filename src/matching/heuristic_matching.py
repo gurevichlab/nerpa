@@ -1,7 +1,7 @@
 from typing import Iterable, List, Dict, NamedTuple
 from itertools import chain, pairwise, product
 from collections import defaultdict
-from src.data_types import MonomerResidue, LogProb, BGC_Variant, NRP_Variant
+from src.data_types import MonomerResidue, LogProb, BGC_Variant, NRP_Variant, NRP_Fragment
 from src.generic.combinatorics import intersection_with_repeats
 from src.matching.scoring_config import HeuristicMatchingConfig
 
@@ -44,18 +44,38 @@ def get_common_cons_pairs_cnt_nit(bgc_variant: BGC_Variant, nrp_variant: NRP_Var
                for fragment in nrp_variant.fragments)
 
 
-def heuristic_match_discard(bgc_len: int,
-                            nrp_len: int,
-                            num_common_residues: int,
+def heuristic_match_discard(bgc_variant: BGC_Variant,
+                            nrp_fragments: List[NRP_Fragment],
                             heuristic_matching_cfg: HeuristicMatchingConfig) -> bool:
+    nrp_len = sum(len(nrp_fragment.monomers) for nrp_fragment in nrp_fragments)
+    bgc_len = sum(len(bgc_fragment) for bgc_fragment in bgc_variant.fragments)
+
+    bgc_res = bgc_residues(bgc_variant, heuristic_matching_cfg.NUM_TOP_PREDICTIONS)
+    nrp_mons = [mon.residue for fragment in nrp_fragments for mon in fragment.monomers]
+
+    bgc_pairs = chain(*(product(top_n_predictions(bgc_module1.residue_score, heuristic_matching_cfg.NUM_TOP_PREDICTIONS),
+                                top_n_predictions(bgc_module2.residue_score, heuristic_matching_cfg.NUM_TOP_PREDICTIONS))
+                        for bgc_fragment in bgc_variant.fragments
+                        for bgc_module1, bgc_module2 in pairwise(bgc_fragment)))
+    nrp_pairs = list(chain(*(pairwise([mon.residue for mon in fragment.monomers])
+                             for fragment in nrp_fragments)))
+
+    # check that lengths are close
     slope, intercept, margin = heuristic_matching_cfg.LINEAR_DISCARD_PARAMS_LENGTHS
-    if abs(slope * nrp_len + intercept  - bgc_len) > margin:
+    if abs(slope * nrp_len + intercept - bgc_len) > margin:
         return False
 
+    # check that number of common residues is not too low
+    num_common_residues = len(intersection_with_repeats(bgc_res, nrp_mons))
     slope, intercept, margin = heuristic_matching_cfg.LINEAR_DISCARD_PARAMS_AA_CONTENTS
-    if slope * nrp_len + intercept - num_common_residues > margin:
+    if num_common_residues < slope * nrp_len + intercept - margin:
         return False
 
+    # check that number of common consecutive pairs is not too low
+    num_common_pairs = len(intersection_with_repeats(nrp_pairs, bgc_pairs))
+    slope, intercept, margin = heuristic_matching_cfg.LINEAR_DISCARD_PARAMS_CONS_PAIRS
+    if num_common_pairs < slope * nrp_len + intercept - margin:
+        return False
     return True
 
 
@@ -64,22 +84,13 @@ class DiscardVerdict(NamedTuple):
     iterative: bool
 
 
-
-
 def get_heuristic_discard(bgc_variant: BGC_Variant,
                           nrp_variant: NRP_Variant,
                           heuristic_matching_cfg: HeuristicMatchingConfig) -> DiscardVerdict:
-        bgc_res = bgc_residues(bgc_variant, heuristic_matching_cfg.NUM_TOP_PREDICTIONS)
-        bgc_len = sum(len(bgc_fragment) for bgc_fragment in bgc_variant.fragments)
-        nrp_res = nrp_residues(nrp_variant)
-        nrp_len = len(nrp_res)
-        num_common_residues = len(intersection_with_repeats(bgc_res, nrp_res))
         # num_cons_pairs = get_common_cons_pairs_cnt(match, bgc_variant)
-        discard_joined = heuristic_match_discard(bgc_len, nrp_len, num_common_residues, heuristic_matching_cfg)
-        discard_it = any(heuristic_match_discard(bgc_len,
-                                                 len(nrp_fragment.monomers),
-                                                 len(intersection_with_repeats(bgc_res,
-                                                                             [mon.residue for mon in nrp_fragment.monomers])),
+        discard_joined = heuristic_match_discard(bgc_variant, nrp_variant.fragments, heuristic_matching_cfg)
+        discard_it = any(heuristic_match_discard(bgc_variant,
+                                                 [nrp_fragment],
                                                  heuristic_matching_cfg)
                          for nrp_fragment in nrp_variant.fragments)
         return DiscardVerdict(discard_joined, discard_it)

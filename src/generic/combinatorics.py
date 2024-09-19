@@ -1,4 +1,4 @@
-from typing import Iterable, List, Tuple, TypeVar
+from typing import Generator, Iterable, List, Tuple, TypeVar
 from itertools import combinations, chain, combinations_with_replacement
 from collections import Counter
 
@@ -51,18 +51,24 @@ def cyclic_shifts(xs: List[T]) -> Iterable[List[T]]:
     for i in range(len(xs)):
         yield xs[i:] + xs[:i]
 
-def split_sequence(xs: List[T]) -> Iterable[List[List[T]]]:
-    '''
-    splits a sequence into contiguous subsequences
-    '''
-    def extend_split_sequence(remaining: List[T], current: List[List[T]]) -> Iterable[List[List[T]]]:
-        if not remaining:
-            yield current
-            return
-        for i in range(1, len(remaining) + 1):
-            yield from extend_split_sequence(remaining[i:], current + [remaining[:i]])
 
-    yield from extend_split_sequence(xs, [])
+def split_into_k_blocks(seq: List[T], k: int) -> Generator[List[List[T]], None, None]:
+    """Generate all ways to split a sequence into exactly k non-empty blocks."""
+    if k == 1:
+        yield [seq]  # Only one way to split the sequence into 1 block (the sequence itself)
+        return
+
+    # Iterate through all possible first blocks
+    for i in range(1, len(seq) - k + 2):  # Leave room for at least k-1 more blocks
+        first_part = seq[:i]
+        # Recursively split the remaining sequence into k-1 blocks
+        for rest in split_into_k_blocks(seq[i:], k - 1):
+            yield [first_part] + rest
+
+def split_sequence(seq: List[T]) -> Generator[List[List[T]], None, None]:
+    """Generate all ways to split a sequence into increasing number of blocks."""
+    for k in range(1, len(seq) + 1):  # Iterate through all possible number of blocks
+        yield from split_into_k_blocks(seq, k)
 
 
 def intersection_with_repeats(xs: Iterable[T], ys: Iterable[T]) -> List[T]:

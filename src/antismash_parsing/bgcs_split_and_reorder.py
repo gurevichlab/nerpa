@@ -127,7 +127,7 @@ def split_and_reorder(bgc_: BGC_Cluster,
                       config: antiSMASH_Parsing_Config) -> List[Fragmented_BGC_Cluster]:
     bgc_parts = split_by_dist(bgc_, config=config)
     result = [fragmented_bgc
-              for bgc in split_by_dist(bgc_, config=config)
+              for bgc in [bgc_] # split_by_dist(bgc_, config=config)
               for fragmented_bgc in generate_fragmented_bgcs(bgc, config=config)]
     if not result:
         # log warning: all parts of bgc are inconsistent

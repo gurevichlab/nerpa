@@ -48,10 +48,10 @@ def add_struct_arguments(parser: argparse.ArgumentParser):
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
                                                      'Preprocessed BGC predictions and NRP structures in custom Nerpa-compliant formats')
-    advanced_input_group.add_argument("--predictions", "-p", nargs=1, dest="predictions",
-                                      help="file with paths to preprocessed BGC prediction files", type=Path)
+    advanced_input_group.add_argument("--predictions", "-p", dest="predictions",
+                                      help="Folder with predicted BGC variants (yaml files)", type=Path)
     advanced_input_group.add_argument("--structures", "-s", dest="structures",
-                                      help="file with Nerpa-preprocessed NRP structures", type=Path)
+                                      help="Folder with predicted NRP variants (yaml files)", type=Path)
     advanced_input_group.add_argument("--configs_dir", help="custom directory with adjusted Nerpa configs", action="store",
                                       type=Path)
     advanced_input_group.add_argument("--force-existing-outdir", dest="output_dir_reuse", action="store_true",
