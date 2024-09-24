@@ -62,6 +62,7 @@ class antiSMASH_Parsing_Config:
     KNOWN_AA10_CODES: Dict[MonomerResidue, List[str]] = None
     KNOWN_AA34_CODES: Dict[MonomerResidue, List[str]] = None
 
+
     def __init__(self,
                  antismash_parsing_cfg_dict: dict,
                  aa_codes: dict):

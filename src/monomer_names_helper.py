@@ -52,6 +52,7 @@ class MonomerNamesHelper:
         return ParsedMonomerName(residue=MonomerResidue(res),
                                  modifications=modifications)
 
+
     @classmethod
     def parsed_modifications(cls, mods_str: str) -> Tuple[NRP_Monomer_Modification, ...]:
         def parse_mod(mod: str) -> NRP_Monomer_Modification:
@@ -67,6 +68,7 @@ class MonomerNamesHelper:
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 
         column_name = 'as_short' if name_format == 'antismash' else 'as_norine'
+
         try:
             row = self.names_table[self.names_table[column_name] == name].iloc[0]
         except IndexError:
@@ -74,6 +76,3 @@ class MonomerNamesHelper:
 
         return ParsedMonomerName(residue=MonomerResidue(row['core']),
                                  modifications=self.parsed_modifications(row['modifications']))
-
-
-
