@@ -80,6 +80,10 @@ def alignment_score(alignment: Alignment) -> LogProb:
     return sum(alignment_step.get_score() for alignment_step in alignment)
 
 
+def combined_alignments_score(alignments: List[Alignment]) -> LogProb:
+    return sum(alignment_score(alignment) for alignment in alignments)
+
+
 def show_alignment(alignment: Alignment) -> str:
     rows = [alignment_step.to_dict()
             for alignment_step in alignment]

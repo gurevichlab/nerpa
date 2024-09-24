@@ -33,6 +33,26 @@ class ParsedMonomerName(NamedTuple):
 class MonomerNamesHelper:
     names_table: pd.DataFrame
 
+    def my_parser(self, name: str) -> ParsedMonomerName:  # stub before monomer table is finished
+        *mods, res = name.split('-')
+        if len(mods) == 0:
+            modifications = ()
+        else:
+            if any(mod in ['Me', 'CMe', 'NMe', 'OMe'] for mod in mods):
+                modifications = (NRP_Monomer_Modification.METHYLATION,)
+            else:
+                modifications = (NRP_Monomer_Modification.UNKNOWN,)
+
+        if res == 'aThr/Thr':
+            res = 'Thr'
+        if res == 'Ile/aIle':
+            res = 'Ile'
+        if res not in self.names_table['core'].values:
+            res = UNKNOWN_RESIDUE
+        return ParsedMonomerName(residue=MonomerResidue(res),
+                                 modifications=modifications)
+
+
     @classmethod
     def parsed_modifications(cls, mods_str: str) -> Tuple[NRP_Monomer_Modification, ...]:
         def parse_mod(mod: str) -> NRP_Monomer_Modification:
@@ -48,10 +68,11 @@ class MonomerNamesHelper:
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 
         column_name = 'as_short' if name_format == 'antismash' else 'as_norine'
-        row = self.names_table[self.names_table[column_name] == name]
+
+        try:
+            row = self.names_table[self.names_table[column_name] == name].iloc[0]
+        except IndexError:
+            return self.my_parser(name)  # stub before monomer table is finished
+
         return ParsedMonomerName(residue=MonomerResidue(row['core']),
                                  modifications=self.parsed_modifications(row['modifications']))
-
-
-
-

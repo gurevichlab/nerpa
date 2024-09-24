@@ -21,11 +21,10 @@ nrp_monomer_frequencies: {2-oxo-isovaleric-acid: -6.411818267709897, 33p-l-ala: 
                           vol: -6.411818267709897, unknown: -6.411818267709897}
 
 num_unknown_residues: 100
-
 modification_score:
   Mod_METHYLATION_BGC_False_NRP_False: -0.018
-  Mod_METHYLATION_BGC_False_NRP_True: -4.026
-  Mod_METHYLATION_BGC_True_NRP_False: -2.856
+  Mod_METHYLATION_BGC_False_NRP_True: -2  #-4.026
+  Mod_METHYLATION_BGC_True_NRP_False: -2  #-2.856
   Mod_METHYLATION_BGC_True_NRP_True: -0.059
 
 chirality_score:
@@ -63,3 +62,26 @@ module_epimerization_frequency: 0.243
 
 max_gene_repetitions: 3
 max_module_repetitions: 3
+
+pks_residues: [CFA, Adda, Me-Suc, ADMAdda, C8:3(t2.t4.t6), DMAdda, C6:2(t2.t4)]
+
+unknown_nrp_monomer_skip_penalty_at_end: -2
+bgc_module_skip_penalty_at_end: -2.5
+nrp_monomer_skip_penalty_at_end: -2.5
+max_unknown_residue_match_score: 1  # a bit dirty, but we need to make sure that unknown residue don't get too high scores
+bgc_fragment_skip_penalty: -3  # penalty is computed as bgc_fragment_skip_penalty * fragment_length
+bgc_fragment_skip_penalty_at_end: -2  # affine opening penalty for skipping modules of a bgc fragment at an end
+bgc_fragment_skip_penalty_in_middle: -0.5  # affine extending penalty for skipping modules of a bgc fragment at an end
+nrp_fragment_skip_penalty: -3  # penalty is computed as nrp_fragment_skip_penalty * fragment_length
+
+join_fragments_alignments: True  # enable aligning all NRP fragments to all BGC fragments (in a single alignment)
+iterative_bgc_alignment: True  # enable independently aligning all NRP fragments to the whole BGC
+one_to_one_fragment_alignment: False  # enable aligning one NRP fragment to one BGC fragment
+
+MAX_PERMUTATIONS: 6  # maximum number of permutations of NRP fragments allowed
+
+heuristic_matching_cfg:
+  LINEAR_DISCARD_PARAMS_AA_CONTENTS: [0.855099070490556, -0.388971585458635, 2.272684669081407]
+  LINEAR_DISCARD_PARAMS_LENGTHS: [0.9854214280767362, -0.39833090934275733, 0.5878533443451871]
+  LINEAR_DISCARD_PARAMS_CONS_PAIRS: [0.9624255237363057, -1.4645833697342432, 2.0845239151014265]
+  NUM_TOP_PREDICTIONS: 1

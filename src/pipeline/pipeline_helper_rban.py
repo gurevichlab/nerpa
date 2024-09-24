@@ -10,7 +10,7 @@ from src.rban_parsing.rban_parser import (
     parsed_chiralities,
     Raw_rBAN_Record
 )
-from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
+from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.handle_monomers import get_monomers_chirality
 
 from src.pipeline.rban_helper import rBAN_Helper
@@ -27,8 +27,7 @@ class PipelineHelper_rBAN:
     config: Config
     args: CommandLineArgs
     log: NerpaLogger
-    monomer_names_helper: rBAN_Names_Helper
-    rban_helper: rBAN_Helper = None
+    monomer_names_helper: MonomerNamesHelper = None
 
     def __post_init__(self):
         self.set_rban_helper()
@@ -40,7 +39,7 @@ class PipelineHelper_rBAN:
         self.log.info('Loading preprocessed NRP variants')
         nrp_variants = []
         for file_with_nrp_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                             Path(self.args.structures).iterdir()):
+                                             self.args.structures.iterdir()):
             nrp_variants.extend(NRP_Variant.from_yaml_dict(yaml_record)
                                 for yaml_record in yaml.safe_load(file_with_nrp_variants.read_text()))
         return nrp_variants
@@ -103,11 +102,7 @@ class PipelineHelper_rBAN:
                          parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
         self.log.info(f'results will be in {self.config.paths.main_out_dir / Path("NRP_Variants")}')
-        recognized_monomers = [row['Code']
-                               for row in csv.DictReader(self.config.paths.nerpa_monomers_info.open('r'),
-                                                         delimiter='\t')]
         nrp_variants = retrieve_nrp_variants(parsed_rban_records,
-                                             recognized_monomers,
                                              self.monomer_names_helper,
                                              self.config.rban_processing_config,
                                              self.log)

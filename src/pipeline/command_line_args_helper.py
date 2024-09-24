@@ -18,8 +18,8 @@ import yaml
 
 def add_genomic_arguments(parser: argparse.ArgumentParser):
     genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms (i.e. BGC predictions)')
-    genomic_group.add_argument("--antismash_output_list", dest="antismash_out",
-                               help="file with list of paths to antiSMASH output directories", type=str)
+    genomic_group.add_argument("--antismash_outpaths_file", dest="antismash_outpaths_file",
+                               help="file with list of paths to antiSMASH output directories", type=Path)
     genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append', type=Path,
                                help="single antiSMASH output directory or directory with many antiSMASH outputs")
     genomic_group.add_argument("--sequences", dest="seqs",
@@ -48,10 +48,10 @@ def add_struct_arguments(parser: argparse.ArgumentParser):
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
                                                      'Preprocessed BGC predictions and NRP structures in custom Nerpa-compliant formats')
-    advanced_input_group.add_argument("--predictions", "-p", nargs=1, dest="predictions",
-                                      help="file with paths to preprocessed BGC prediction files", type=Path)
+    advanced_input_group.add_argument("--predictions", "-p", dest="predictions",
+                                      help="Folder with predicted BGC variants (yaml files)", type=Path)
     advanced_input_group.add_argument("--structures", "-s", dest="structures",
-                                      help="file with Nerpa-preprocessed NRP structures", type=Path)
+                                      help="Folder with predicted NRP variants (yaml files)", type=Path)
     advanced_input_group.add_argument("--configs_dir", help="custom directory with adjusted Nerpa configs", action="store",
                                       type=Path)
     advanced_input_group.add_argument("--force-existing-outdir", dest="output_dir_reuse", action="store_true",
@@ -66,9 +66,16 @@ def add_config_arguments(parser: argparse.ArgumentParser):
                         help='file with custom monomers in rBAN compatible format')
     configs_group.add_argument("--process-hybrids", dest="process_hybrids", action="store_true", default=False,
                         help="process NRP-PK hybrid monomers (requires use of rBAN)")
-    configs_group.add_argument("--threads", default=1, type=int, help="number of threads for running Nerpa", action="store")
-    configs_group.add_argument("--min-score", default=None, type=float, help="minimum score to report a match", action="store")
-    configs_group.add_argument("--num-matches", default=None, type=int, help="maximum number of matches to report", action="store")
+    configs_group.add_argument("--threads", default=1, type=int,
+                               help="number of threads for running Nerpa", action="store")
+    configs_group.add_argument("--min-score", default=None, type=float,
+                               help="minimum score to report a match", action="store")
+    configs_group.add_argument("--num-matches", default=None, type=int,
+                               help="maximum number of matches to report", action="store")
+    configs_group.add_argument("--heuristic-discard", default=False,
+                               help="immediately discard bad matches based on heuristics", action="store_true")
+    configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
+                               help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
     configs_group.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")
 
@@ -125,11 +132,11 @@ def validate(expr, msg=''):
 def validate_arguments(args):  # TODO: I think it all could be done with built-in argparse features
     if not any([args.predictions,
                 args.antismash,
-                args.antismash_out,
+                args.antismash_outpaths_file,
                 args.seqs]):
         raise ValidationError(f'one of the arguments --predictions --antismash/-a --antismash_output_list '
                               f'--sequences is required')
-    if args.predictions and (args.antismash or args.antismash_out or args.seqs):
+    if args.predictions and (args.antismash or args.antismash_outpaths_file or args.seqs):
         raise ValidationError(f'argument --predictions: not allowed with argument --antismash/-a '
                               f'or --antismash_output_list or --sequences')
     if not any([args.structures,

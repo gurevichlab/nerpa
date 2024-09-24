@@ -41,7 +41,7 @@ class BackboneSequence(NamedTuple):
     is_cyclic: bool = False
 
 
-def putative_backbones(G_: nx.DiGraph, min_nodes: int = 2) -> List[BackboneSequence]:
+def putative_backbones(G_: nx.DiGraph, min_nodes: int = None) -> List[BackboneSequence]:
     ''' Tries to parse each component of G either as a simple cycle or as a hamiltonian path '''
     G = copy.deepcopy(G_)  # there's no need for this but modifying an argument makes me anxious
     breakage_points = [node for node in G.nodes()
@@ -51,15 +51,20 @@ def putative_backbones(G_: nx.DiGraph, min_nodes: int = 2) -> List[BackboneSeque
 
     backbone_sequences = []
     for component in nx.connected_components(nx.Graph(G)):
-        if len(component) < min_nodes:
+        if min_nodes is not None and len(component) < min_nodes:
             continue
 
         Gs = G.subgraph(component)
         if cycle := parse_as_simple_cycle(Gs):
             backbone_sequences.append(BackboneSequence(node_idxs=cycle,
                                                        is_cyclic=True))
-        elif ham_path := next(filter(None, (hamiltonian_path(Gs, u) for u in Gs)), None):
-            backbone_sequences.append(BackboneSequence(node_idxs=ham_path))
+        else:
+            ham_paths = list(filter(None, (hamiltonian_path(Gs, u) for u in Gs)))
+            if len(ham_paths) > 1:
+                print('WARNING! Multiple hamiltonian paths found. Proceeding wiht the first one')
+                #raise ValueError('Multiple hamiltonian paths found')  # TODO: handle this case
+            if ham_paths:
+                backbone_sequences.append(BackboneSequence(node_idxs=ham_paths[0]))
 
     return backbone_sequences
 
