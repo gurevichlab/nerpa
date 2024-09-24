@@ -71,7 +71,7 @@ def add_config_arguments(parser: argparse.ArgumentParser):
     configs_group.add_argument("--min-score", default=None, type=float,
                                help="minimum score to report a match", action="store")
     configs_group.add_argument("--num-matches", default=None, type=int,
-                               help="maximum number of matches to report", action="store")
+                               help="maximum number of matches to report per BGC", action="store")
     configs_group.add_argument("--heuristic-discard", default=False,
                                help="immediately discard bad matches based on heuristics", action="store_true")
     configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
