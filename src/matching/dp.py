@@ -14,32 +14,16 @@ from src.data_types import (
 )
 from src.matching.scoring_helper import ScoringHelper, FUNCTION_NAME_TO_STEP_TYPE
 from src.matching.alignment_types import Alignment, AlignmentStep, AlignmentStepType
+from src.matching.dp_types import (
+    DP_State,
+    DP_Value,
+    DP_Table,
+    START_STATE,
+    valid_state
+)
 import numpy as np
-import numpy.typing as npt
 from itertools import groupby
 from functools import partial
-
-
-class DP_State(NamedTuple):
-    module_pos: int
-    monomer_pos: int
-    gene_reps: int
-    module_reps: int
-
-
-class DP_Value(NamedTuple):
-    score: LogProb
-    parent: DP_State
-    action: AlignmentStepType
-
-DP_Table = npt.NDArray[Union[DP_Value, None]]
-
-def valid_state(dp_table: DP_Table, state: DP_State) -> bool:
-    return all(0 <= idx < dp_table.shape[i]
-               for i, idx in enumerate(state)) and \
-        dp_table[state] is not None
-
-START_STATE = DP_State(0,0,0,0)
 
 
 def dp_recalc(dp_table: DP_Table,
@@ -52,6 +36,9 @@ def dp_recalc(dp_table: DP_Table,
 def calculate_dp(assembly_line: List[BGC_Module],
                  nrp_monomers: List[NRP_Monomer],
                  dp_helper: ScoringHelper) -> DP_Table:  # functions computing scores and other parameters
+    dp_helper.set_bgc_modules(assembly_line)
+    dp_helper.set_nrp_monomers(nrp_monomers)
+
     gene_lengths = {gene_id: len(list(modules))
                     for gene_id, modules in groupby(assembly_line, lambda module: module.gene_id)}
     max_gene_reps = dp_helper.scoring_config.max_gene_reps if any(module.iterative_gene for module in assembly_line) \
@@ -74,8 +61,8 @@ def calculate_dp(assembly_line: List[BGC_Module],
                     if i == 0 and j == 0:
                         continue
 
-                    transitions = [(DP_State(i - 1, j, gene_reps, module_reps), dp_helper.bgc_module_skip, (bgc_module,)),
-                                   (DP_State(i, j - 1, gene_reps, module_reps), dp_helper.nrp_mon_skip, (nrp_mon,)),
+                    transitions = [(DP_State(i - 1, j, gene_reps, module_reps), dp_helper.bgc_module_skip, (i - 1,)),
+                                   (DP_State(i, j - 1, gene_reps, module_reps), dp_helper.nrp_mon_skip, (j - 1,)),
                                    (DP_State(i - 1, j - 1, gene_reps, module_reps), dp_helper.match, (bgc_module, nrp_mon))]
 
                     if i < len(assembly_line) and assembly_line[i].iterative_module:  # note that assembly_line[i] is right AFTER bgc_pred
@@ -87,7 +74,7 @@ def calculate_dp(assembly_line: List[BGC_Module],
                         gene_len = gene_lengths[assembly_line[i].gene_id]
                         transitions.append((DP_State(i + gene_len, j, gene_reps - 1, module_reps),
                                             dp_helper.iterate_gene, ()))
-                    dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*args),
+                    dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*(args + (dp_state,))),
                                                                                FUNCTION_NAME_TO_STEP_TYPE[transition.__name__])
                                                                               for dp_state, transition, args in transitions
                                                                               if valid_state(dp_table, dp_state))

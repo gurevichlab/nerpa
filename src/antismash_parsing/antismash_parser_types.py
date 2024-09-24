@@ -1,8 +1,17 @@
 from __future__ import annotations
+from typing import (
+    Dict,
+    List,
+    Union,
+    NamedTuple,
+    NewType,
+)
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, List, Union, NamedTuple
-from src.data_types import MonomerResidue
+from src.monomer_names_helper import antiSMASH_MonomerName
+
+
+antiSMASH_record = NewType('antiSMASH_record', dict)
 
 class SVM_LEVEL(Enum):
     SINGLE_AMINO = auto()
@@ -13,7 +22,7 @@ class SVM_LEVEL(Enum):
 
 class SVM_Prediction(NamedTuple):
     score: float
-    monomer_residues: List[MonomerResidue]
+    substrates: List[antiSMASH_MonomerName]
 
 
 SVM_Predictions = Dict[SVM_LEVEL, SVM_Prediction]
@@ -60,7 +69,6 @@ class Module:
         if self.domains_sequence is None:
             self.domains_sequence = []
 
-
 class STRAND(Enum):
     FORWARD = auto()
     REVERSE = auto()
@@ -85,3 +93,6 @@ class BGC_Cluster:
     contig_id: str
     bgc_idx: int
     genes: List[Gene]
+
+    def has_pks_domains(self) -> bool:
+        return any(DomainType.PKS in gene.modules for gene in self.genes)

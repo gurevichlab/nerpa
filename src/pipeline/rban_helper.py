@@ -6,7 +6,7 @@ from typing import (
     Tuple,
     Union
 )
-from src.data_types import rBAN_Residue_Name
+from src.monomer_names_helper import NorineMonomerName
 from src.pipeline import nerpa_utils
 from src.pipeline.logger import NerpaLogger
 from src.config import rBAN_Config
@@ -20,7 +20,7 @@ MonomerData = dict  # I.O.: I have no idea what is actually stored there
 from src.rban_parsing.rban_parser import (
     MonomerIdx,
     Raw_rBAN_Record,
-    parse_hybrid_monomers
+    get_hybrid_monomers_smiles
 )
 
 @dataclass
@@ -72,7 +72,7 @@ class rBAN_Helper:
 
     def get_hybrid_monomers_per_record(self,
                                        rban_records: List[Raw_rBAN_Record],
-                                       log: NerpaLogger) -> Dict[int, Dict[MonomerIdx, rBAN_Residue_Name]]:
+                                       log: NerpaLogger) -> Dict[int, Dict[MonomerIdx, NorineMonomerName]]:
         # check all unrecognized monomers for PK involvement
         def joined_id(struct_id: int, monomer_id: int) -> str:
             return f'{struct_id}_{monomer_id}'
@@ -83,7 +83,7 @@ class rBAN_Helper:
         trimmed_monomers_per_struct = {}
         for struct_idx, rban_record in enumerate(rban_records):
             try:
-                trimmed_monomers_per_struct[struct_idx] = parse_hybrid_monomers(rban_record)
+                trimmed_monomers_per_struct[struct_idx] = get_hybrid_monomers_smiles(rban_record)
             except:
                 log.warning(
                     f'\nStructure "{struct_idx}": unexpected error while resolving NRP-PK hybrid monomer '
@@ -113,6 +113,6 @@ class rBAN_Helper:
             aa_code = rban_record["monomericGraph"]["monomericGraph"]['monomers'][0]['monomer']['monomer'][
                 'monomer']
             if not aa_code.startswith('X'):  # rBAN managed to recognize the trimmed monomer
-                hybrid_monomers_dict[struct_id][monomer_id] = aa_code
+                hybrid_monomers_dict[struct_id][monomer_id] = NorineMonomerName(aa_code)
 
         return hybrid_monomers_dict

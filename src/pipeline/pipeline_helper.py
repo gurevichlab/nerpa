@@ -18,7 +18,7 @@ import src.pipeline.nerpa_utils as nerpa_utils
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record
 )
-from src.rban_parsing.rban_names_helper import rBAN_Names_Helper
+from src.monomer_names_helper import MonomerNamesHelper
 
 from src.matching.scoring_config import load_scoring_config
 from src.matching.scoring_helper import ScoringHelper
@@ -28,6 +28,7 @@ from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 import src.write_results as report
 
 import shutil
+import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
 
 
@@ -37,7 +38,7 @@ class PipelineHelper:
     config: Config
     args: CommandLineArgs
     log: NerpaLogger
-    monomer_names_helper: rBAN_Names_Helper
+    monomer_names_helper: MonomerNamesHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     scoring_helper: ScoringHelper
@@ -62,11 +63,11 @@ class PipelineHelper:
 
         shutil.copytree(self.config.paths.configs_input, self.config.paths.configs_output, copy_function=shutil.copy)
 
-        monomer_names_helper = rBAN_Names_Helper(self.config.paths.nerpa_monomers_info)
+        monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.paths.nerpa_monomers_info, sep='\t'))
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
-        scoring_config = load_scoring_config(self.config.paths.scoring_config)  # TODO: this is ugly
-        self.scoring_helper = ScoringHelper(scoring_config)
+        self.scoring_helper = ScoringHelper(scoring_config=self.config.matching_config.scoring_config,
+                                            heuristic_discard_on=self.config.matching_config.heuristic_discard_on)
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
         return self.pipeline_helper_antismash.get_bgc_variants()
