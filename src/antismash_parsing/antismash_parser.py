@@ -180,7 +180,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 def parse_antismash_json(antismash_json: antiSMASH_record,
                          config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     bgcs = []
-    genome_id = antismash_json['input_file']
+    genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
     for ctg_idx, contig_data in enumerate(antismash_json['records']):
         a_domains_per_gene = extract_a_domains_info(contig_data)
         if not any(a_domains for a_domains in a_domains_per_gene.values()):  # no A-domains found in the contig
