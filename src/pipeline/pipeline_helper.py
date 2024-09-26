@@ -99,6 +99,7 @@ class PipelineHelper:
                       matches_details:  bool = True):
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.paths.report), indent=1)
+        self.log.info("HTML report is saved to " + str(self.config.paths.html_report), indent=1)
         self.log.info("Detailed reports are saved to " + str(self.config.paths.matches_details), indent=1)
         report.write_results(matches, self.config.paths.main_out_dir,
                              bgc_variants, nrp_variants,

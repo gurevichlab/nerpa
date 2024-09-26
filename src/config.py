@@ -104,6 +104,7 @@ class ConfigPaths:
         self.configs_output = main_out_dir / Path('configs_output')
         self.scoring_config = nerpa_dir / Path(paths_cfg_dict['scoring_config'])
         self.report = main_out_dir / Path(paths_cfg_dict['report'])
+        self.html_report = main_out_dir / Path(paths_cfg_dict['html_report'])
         self.matches_details = main_out_dir / Path(paths_cfg_dict['matches_details'])
         self.rban_dir = nerpa_dir / Path(paths_cfg_dict['rban_dir'])
         self.default_results_root_dirname = paths_cfg_dict['default_results_root_dirname']

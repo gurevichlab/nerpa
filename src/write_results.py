@@ -9,6 +9,7 @@ from typing import (
 from src.matching.alignment_types import Match
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.reporting.html_reporter import create_html_report
 
 from pathlib import Path
 from io import StringIO
@@ -100,8 +101,9 @@ def write_results(matches: List[Match],
                   bgc_variants: Union[List[BGC_Variant], None] = None,
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
-                  matches_details: bool = True):
-    (output_dir / 'report.tsv').write_text(build_report(matches))
+                  matches_details: bool = True,
+                  html_report: bool = True):
+    (output_dir / 'report.tsv').write_text(build_report(matches))  # FIXME: use the filename from config instead of hard coding
 
     if bgc_variants is not None:
         (output_dir / 'BGC_variants').mkdir()
@@ -111,3 +113,7 @@ def write_results(matches: List[Match],
 
     if matches_details:
         write_matches_details(matches, output_dir)
+
+    if html_report:
+        create_html_report(output_dir)  # TODO?: pass the matches directly instead of reading from 'report.tsv'
+

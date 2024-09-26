@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sortable and Filterable Report</title>
+    <style>
+        table {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            cursor: pointer;
+            background-color: #f2f2f2;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 33%; /* Set width to one-third of the page */
+            box-sizing: border-box;
+            margin-left: 10px; /* Add space between label and input */
+        }
+        label {
+            font-weight: bold;
+            display: inline-block; /* Keep label next to input */
+            width: auto;
+        }
+        .filter-section {
+            margin-bottom: 12px;
+        }
+        .explanation {
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nerpa report</h1>
+
+    <!-- Filter Input Fields -->
+    <div class="filter-section">
+        <label for="nrpFilterInput">Filter by NRP_ID</label>
+        <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
+    </div>
+
+    <div class="filter-section">
+        <label for="genomeFilterInput">Filter by Genome_ID</label>
+        <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
+    </div>
+
+    <!-- Explanation for sorting -->
+    <div class="explanation">
+        Press the column name to sort the rows
+    </div>
+
+    <table id="reportTable">
+        <thead>
+            <tr>
+                {{table_headers}}
+            </tr>
+        </thead>
+        <tbody>
+            {{table_rows}}
+        </tbody>
+    </table>
+
+    <script>
+        // Function to detect if a value is numeric
+        function isNumeric(value) {
+            return !isNaN(parseFloat(value)) && isFinite(value);
+        }
+
+        // Function to sort table by column
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("reportTable");
+            switching = true;
+            dir = "asc"; // Set the sorting direction to ascending
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (isNumeric(x.innerHTML) && isNumeric(y.innerHTML)) {
+                        var xVal = parseFloat(x.innerHTML);
+                        var yVal = parseFloat(y.innerHTML);
+                        if (dir == "asc" && xVal > yVal) {
+                            shouldSwitch = true;
+                            break;
+                        } else if (dir == "desc" && xVal < yVal) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else {
+                        var xText = x.innerHTML.toLowerCase();
+                        var yText = y.innerHTML.toLowerCase();
+                        if (dir == "asc" && xText > yText) {
+                            shouldSwitch = true;
+                            break;
+                        } else if (dir == "desc" && xText < yText) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        // Function to filter the table based on NRP_ID and Genome_ID
+        function filterTable() {
+            var nrpInput = document.getElementById("nrpFilterInput");
+            var genomeInput = document.getElementById("genomeFilterInput");
+            var nrpFilter = nrpInput.value.toLowerCase();
+            var genomeFilter = genomeInput.value.toLowerCase();
+            var table = document.getElementById("reportTable");
+            var tr = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < tr.length; i++) {
+                var showRow = true; // Start by assuming the row should be shown
+                var nrpTd = tr[i].getElementsByTagName("td")[1]; // Column 1: NRP_ID
+                var genomeTd = tr[i].getElementsByTagName("td")[3]; // Column 3: Genome_ID
+
+                if (nrpTd) {
+                    var nrpValue = nrpTd.textContent || nrpTd.innerText;
+                    if (nrpFilter && nrpValue.toLowerCase().indexOf(nrpFilter) === -1) {
+                        showRow = false; // Hide row if NRP_ID does not match
+                    }
+                }
+
+                if (genomeTd) {
+                    var genomeValue = genomeTd.textContent || genomeTd.innerText;
+                    if (genomeFilter && genomeValue.toLowerCase().indexOf(genomeFilter) === -1) {
+                        showRow = false; // Hide row if Genome_ID does not match
+                    }
+                }
+
+                // Show or hide the row based on the filter results
+                tr[i].style.display = showRow ? "" : "none";
+            }
+        }
+
+        // Event listeners for filter inputs
+        document.getElementById("nrpFilterInput").addEventListener("keyup", filterTable);
+        document.getElementById("genomeFilterInput").addEventListener("keyup", filterTable);
+
+        // Event listener to sort columns
+        document.addEventListener('DOMContentLoaded', function() {
+            var headers = document.querySelectorAll('th');
+            headers.forEach(function(header, index) {
+                header.addEventListener('click', function() {
+                    sortTable(index);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
