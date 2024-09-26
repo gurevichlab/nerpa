@@ -1,10 +1,7 @@
 *.idea*
 *__pycache__*
-cmake-build-debug
-bin
-share
-build
 *migrations
 *db.sqlite3
 *.deb
 .DS_Store
+nerpa_results
