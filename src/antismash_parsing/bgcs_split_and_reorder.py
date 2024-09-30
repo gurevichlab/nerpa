@@ -12,7 +12,7 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND
 )
 from src.config import antiSMASH_Parsing_Config
-from src.generic.combinatorics import generate_permutations, split_sequence
+from src.generic.combinatorics import generate_permutations, split_sequence_blocks
 from functools import partial
 from itertools import chain, islice, pairwise, product
 from more_itertools import split_before, split_at
@@ -119,7 +119,7 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config)
                 for genes_fragment in genes_fragments]
 
     return (build_fragmented_bgc(rearranged_fragments)
-            for genes_fragments in split_sequence(genes)
+            for genes_fragments in split_sequence_blocks(genes)
             for rearranged_fragments in get_rearranged_fragments(genes_fragments))
 
 

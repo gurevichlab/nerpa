@@ -1,4 +1,12 @@
-from typing import List, NamedTuple, Optional, Union
+from typing import (
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    TypeVar,
+    Tuple,
+    Union
+)
 import networkx as nx
 import copy
 from itertools import chain, permutations
@@ -49,7 +57,12 @@ def putative_backbones(G_: nx.DiGraph, min_nodes: int = None) -> List[BackboneSe
                        or G.in_degree(node) > 1 and G.out_degree(node) == 0]  # sinks and sources of degree > 1
     G.remove_nodes_from(breakage_points)
 
-    backbone_sequences = []
+    if min_nodes is None:
+        backbone_sequences = [BackboneSequence(node_idxs=[breakage_point], is_cyclic=False)
+                              for breakage_point in breakage_points]
+    else:
+        backbone_sequences = []
+
     for component in nx.connected_components(nx.Graph(G)):
         if min_nodes is not None and len(component) < min_nodes:
             continue
@@ -61,7 +74,7 @@ def putative_backbones(G_: nx.DiGraph, min_nodes: int = None) -> List[BackboneSe
         else:
             ham_paths = list(filter(None, (hamiltonian_path(Gs, u) for u in Gs)))
             if len(ham_paths) > 1:
-                print('WARNING! Multiple hamiltonian paths found. Proceeding wiht the first one')
+                print('WARNING! Multiple hamiltonian paths found. Proceeding with the first one')
                 #raise ValueError('Multiple hamiltonian paths found')  # TODO: handle this case
             if ham_paths:
                 backbone_sequences.append(BackboneSequence(node_idxs=ham_paths[0]))
@@ -78,3 +91,22 @@ def permuted_backbones(backbones: List[BackboneSequence]) -> List[BackboneSequen
                 for joined_idxs in joined_paths]
     else:
         return []
+
+
+NodeId = TypeVar('NodeId')
+Edge = Tuple[NodeId, NodeId]
+
+
+def get_interior_edges(nodes: List[NodeId],
+                       edges: Iterable[Edge]) -> List[Edge]:
+    return [(u, v)
+            for u, v in edges
+            if u in nodes and v in nodes]
+
+
+def get_boundary_edges(nodes: List[NodeId],
+                       edges: Iterable[Edge]) -> List[Edge]:
+    return [(u, v)
+            for u, v in edges
+            if any([u in nodes and v not in nodes,
+                    v in nodes and u not in nodes])]

@@ -16,7 +16,7 @@ from src.data_types import (
 )
 from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
 from src.rban_parsing.rban_parser import MonomerInfo
-from src.generic.graph_manipulations import (
+from src.generic.graphs import (
     BackboneSequence,
     permuted_backbones,
     putative_backbones

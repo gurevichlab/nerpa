@@ -6,13 +6,13 @@ from typing import (
     Tuple
 )
 from src.data_types import BGC_Fragment, NRP_Monomer, NRP_Fragment, BGC_Module
-from src.generic.combinatorics import cyclic_shifts
+from src.generic.combinatorics import cyclic_shifts, split_sequence_subseqs
 from src.matching.alignment_types import Alignment, combined_alignments_score
 from src.matching.scoring_helper import ScoringHelper
 from src.matching.dp import LogProb
 from src.matching.dp import get_alignment
 from src.matching.alignment_types import alignment_score, AlignmentStep, AlignmentStepType
-from itertools import chain, combinations, product
+from itertools import chain, combinations, product, permutations
 
 
 def fragment_monomer_sequences(fragment: NRP_Fragment) -> Iterable[List[NRP_Monomer]]:
@@ -74,7 +74,12 @@ def get_alignments_against_monomers(bgc_fragments: List[BGC_Fragment],
 
 def get_multiple_fragments_alignment(bgc_fragments: List[BGC_Fragment],
                                      nrp_fragments: List[NRP_Fragment],
-                                     dp_helper: ScoringHelper) -> List[Alignment]:
+                                     dp_helper: ScoringHelper,
+                                     permute_fragments: bool = False) -> List[Alignment]:
+    if permute_fragments:
+        return max((get_multiple_fragments_alignment(bgc_fragments, list(nrp_fragments_permutation), dp_helper, False)
+                    for nrp_fragments_permutation in permutations(nrp_fragments)),
+                   key=combined_alignments_score)
     # to save time, as these are the most common cases
     if len(nrp_fragments) == 1:
         return max((get_alignments_against_monomers(bgc_fragments, nrp_monomers, dp_helper)
@@ -136,5 +141,11 @@ def get_fragments_alignment(bgc_fragment: BGC_Fragment,
 def get_iterative_bgc_alignment(bgc_fragments: List[BGC_Fragment],
                                 nrp_fragments: List[NRP_Fragment],
                                 dp_helper: ScoringHelper) -> List[Alignment]:
-    return list(chain(*(get_multiple_fragments_alignment(bgc_fragments, [nrp_fragment], dp_helper)
-                        for nrp_fragment in nrp_fragments)))
+    joined_alignments = []
+    nrp_fragments_splits = split_sequence_subseqs(nrp_fragments) if len(nrp_fragments) == 3 \
+        else [[[nrp_fragment] for nrp_fragment in nrp_fragments]]  # TODO: do smth more meaningful for more than 3 fragments
+    for nrp_fragments_split in nrp_fragments_splits:
+        joined_alignments.append(list(chain(*(get_multiple_fragments_alignment(bgc_fragments, nrp_fragments_subseq, dp_helper,
+                                                                               permute_fragments=True)
+                                              for nrp_fragments_subseq in nrp_fragments_split))))
+    return max(joined_alignments, key=combined_alignments_score)

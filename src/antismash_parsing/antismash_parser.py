@@ -15,6 +15,7 @@ from src.config import antiSMASH_Parsing_Config
 from src.monomer_names_helper import antiSMASH_MonomerName
 from parse import parse
 from collections import defaultdict
+from itertools import pairwise
 
 GeneId = str
 
@@ -144,21 +145,66 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
     return modules
 
 
+def check_orphan_c_domains(gene_data: dict,
+                           config: antiSMASH_Parsing_Config) -> Tuple[bool, bool]:
+    modules_start = min((domain['domain']['query_start']
+                        for module in gene_data['modules']
+                        for domain in module['components']),
+                        default=None)
+
+    modules_end = max((domain['domain']['query_end']
+                      for module in gene_data['modules']
+                      for domain in module['components']),
+                        default=None)
+
+    fst_c_domain_start = min((domain['query_start']
+                             for domain in gene_data['domain_hmms']
+                             if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES and
+                             DomainType[config.ANTISMASH_DOMAINS_NAMES[domain['hit_id']]].in_c_domain_group()),
+                            default=None)
+    last_c_domain_end = max((domain['query_end']
+                            for domain in gene_data['domain_hmms']
+                            if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES and
+                            DomainType[config.ANTISMASH_DOMAINS_NAMES[domain['hit_id']]].in_c_domain_group()),
+                            default=None)
+
+    orphan_c_start = fst_c_domain_start is not None and (
+            modules_start is None or modules_start > fst_c_domain_start)
+    orphan_c_end = last_c_domain_end is not None and (
+            modules_end is None or modules_end < last_c_domain_end)
+    return orphan_c_start, orphan_c_end
+
+
 def extract_genes(contig_data: dict,
                   a_domains_per_gene: Dict[GeneId, List[A_Domain]],
                   config: antiSMASH_Parsing_Config) -> List[Gene]:
     gene_coords = extract_gene_coords(contig_data)
 
     genes = []
+    orphan_c_domains_per_gene: Dict[str, Tuple[bool, bool]] = {}
     for gene_id, gene_data in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
         modules = extract_modules(gene_data, a_domains_per_gene[gene_id], config)
-        if modules:
-            genes.append(Gene(gene_id=gene_id,
-                              coords=gene_coords[gene_id],
-                              modules=modules))
+        orphan_c_domains_per_gene[gene_id] = check_orphan_c_domains(gene_data, config)
+        genes.append(Gene(gene_id=gene_id,
+                          coords=gene_coords[gene_id],
+                          modules=modules))
 
     genes.sort(key=lambda gene: gene.coords.start)
-    return genes
+    for gene1, gene2 in pairwise(genes):
+        if gene1.coords.strand != gene2.coords.strand:
+            continue
+        if gene1.coords.strand == gene2.coords.strand == STRAND.REVERSE:
+            gene1, gene2 = gene2, gene1
+        if orphan_c_domains_per_gene[gene2.gene_id][0]:
+            gene1.is_iterative = True
+        if orphan_c_domains_per_gene[gene1.gene_id][1] \
+                and (not gene2.modules or any(domain.in_c_domain_group()
+                                              for domain in gene2.modules[0].domains_sequence)):
+            gene1.is_iterative = True
+    if orphan_c_domains_per_gene[genes[-1].gene_id][1]:
+        genes[-1].is_iterative = True
+
+    return list(filter(lambda gene: gene.modules, genes))
 
 
 def extract_bgc_clusters(genome_id: str, ctg_idx: int,
