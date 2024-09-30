@@ -9,7 +9,9 @@ from typing import (
 from src.matching.alignment_types import Match
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
-from src.reporting.html_reporter import create_html_report
+from src.build_output.html_reporter import create_html_report
+from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
+from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
 
 from pathlib import Path
 from io import StringIO
@@ -69,6 +71,11 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
                    output_dir / Path('rban_graphs.yaml'))
+        for rban_record in rban_records:
+            monomer_graph = MonomerGraph.from_rban_record(rban_record)
+            draw_molecule(monomer_graph, output_dir / Path(f'nrp_images/molecules/{rban_record.compound_id}.png'))
+            draw_monomer_graph(monomer_graph,
+                               output_file=output_dir / Path(f'nrp_images/graphs/{rban_record.compound_id}.png'))
 
     (output_dir / Path('NRP_variants')).mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):

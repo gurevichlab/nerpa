@@ -11,6 +11,8 @@ def is_a_domain(domain_type: DomainType) -> bool:  # TODO: rename
 
 
 def is_iterative_gene(gene: Gene) -> bool:
+    if gene.is_iterative:
+        return True
     joined_domains = [domain_type for module in gene.modules
                       for domain_type in module.domains_sequence]
     last_a_index = next((i for i in reversed(range(len(joined_domains)))
@@ -46,3 +48,4 @@ def get_iterative_modules_idxs(gene: Gene) -> List[int]:
         if has_pcp_condensation_pcp_subsequence(interior_domains_types):
             modules_idxs.append(a_domain_group[0][1])
     return modules_idxs
+

@@ -85,6 +85,7 @@ class Gene:
     gene_id: str
     coords: Coords
     modules: List[Module]  # modules are in the order of appearance in the gene
+    is_iterative: bool = False
 
 
 @dataclass

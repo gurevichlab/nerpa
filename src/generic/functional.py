@@ -31,3 +31,10 @@ def cached_by_key(key: Callable):
     def decorator(f: Callable):
         return CachedByKey(f, key)
     return decorator
+
+
+def compose(*funs):
+    if len(funs) == 1:
+        return funs[0]
+    else:
+        return funs[0](compose(*funs[1:]))
