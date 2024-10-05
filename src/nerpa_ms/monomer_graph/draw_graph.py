@@ -99,7 +99,13 @@ def draw_monomer_graph(G: MonomerGraph, output_file: Path,
                        with_rban_indexes: bool=True):
     aa_color = monomer_color_dict()
     H = make_graph_to_draw(G)
-    pos = nx.nx_agraph.graphviz_layout(H)
+    try:
+        pos = nx.nx_agraph.graphviz_layout(H)
+    except ImportError:
+        # Note: pygraphviz is quite difficult to install on Mac
+        # (at least `pip install pygraphviz` doesn't work out of a box)
+        # FIXME: Maybe "planar" is not the best alternative.
+        pos = nx.planar_layout(H)
     edge_colors = []
     for u, v in H.edges:
         if (v, u) in H.edges:
