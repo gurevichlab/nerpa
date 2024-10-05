@@ -12,6 +12,7 @@ from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
 from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
+from src.config import ConfigPaths
 
 from pathlib import Path
 from io import StringIO
@@ -66,20 +67,19 @@ def write_matches_per_id(matches: List[T],
 
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
-                       output_dir: Path,
+                       config_paths: ConfigPaths,
                        rban_records: Union[List[Parsed_rBAN_Record], None] = None):
     if rban_records is not None:
-        write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
-                   output_dir / Path('rban_graphs.yaml'))
+        write_yaml([rban_record.to_compact_dict() for rban_record in rban_records], config_paths.rban_graphs)
         for rban_record in rban_records:
             monomer_graph = MonomerGraph.from_rban_record(rban_record)
-            draw_molecule(monomer_graph, output_dir / Path(f'nrp_images/molecules/{rban_record.compound_id}.png'))
+            draw_molecule(monomer_graph, config_paths.nrp_images_dir / Path(f'molecules/{rban_record.compound_id}.png'))
             draw_monomer_graph(monomer_graph,
-                               output_file=output_dir / Path(f'nrp_images/graphs/{rban_record.compound_id}.png'))
+                               output_file=config_paths.nrp_images_dir / Path(f'graphs/{rban_record.compound_id}.png'))
 
-    (output_dir / Path('NRP_variants')).mkdir()
+    config_paths.nrp_variants_dir.mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
-        write_yaml(list(nrp_id_variants), output_dir / Path(f'NRP_variants/{nrp_id}.yaml'))
+        write_yaml(list(nrp_id_variants), config_paths.nrp_variants_dir / Path(f'{nrp_id}.yaml'))
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
@@ -89,38 +89,38 @@ def write_bgc_variants(bgc_variants: List[BGC_Variant],
 
 
 def write_matches_details(matches: List[Match],
-                          output_dir: Path):
-    (output_dir / Path('matches_details')).mkdir()
+                          matches_details_output_dir: Path):
+    matches_details_output_dir.mkdir()
     write_yaml([match.to_dict_light() for match in matches],
-               output_dir / Path(f'matches_details/matches.yaml'))
+               matches_details_output_dir / 'matches.yaml')
 
-    (output_dir / Path('matches_details/per_BGC')).mkdir()
-    write_matches_per_id(matches, output_dir / Path('matches_details/per_BGC'),
+    (matches_details_output_dir / Path('per_BGC')).mkdir()
+    write_matches_per_id(matches, matches_details_output_dir / Path('per_BGC'),
                          get_id=lambda match: f'{match.bgc_variant.genome_id}_{match.bgc_variant.bgc_idx}')
 
-    (output_dir / Path('matches_details/per_NRP')).mkdir()
-    write_matches_per_id(matches, output_dir / Path('matches_details/per_NRP'),
+    (matches_details_output_dir / Path('per_NRP')).mkdir()
+    write_matches_per_id(matches, matches_details_output_dir / Path('per_NRP'),
                          get_id=lambda match: match.nrp_variant.nrp_id)
 
 
 def write_results(matches: List[Match],
-                  output_dir: Path,
+                  config_paths: ConfigPaths,
                   bgc_variants: Union[List[BGC_Variant], None] = None,
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True,
                   html_report: bool = True):
-    (output_dir / 'report.tsv').write_text(build_report(matches))  # FIXME: use the filename from config instead of hard coding
+    config_paths.report.write_text(build_report(matches))
 
     if bgc_variants is not None:
-        (output_dir / 'BGC_variants').mkdir()
-        write_bgc_variants(bgc_variants, output_dir / 'BGC_variants')
+        config_paths.bgc_variants_dir.mkdir()
+        write_bgc_variants(bgc_variants, config_paths.bgc_variants_dir)
     if nrp_variants is not None:
-        write_nrp_variants(nrp_variants, output_dir, rban_records)
+        write_nrp_variants(nrp_variants, config_paths, rban_records)
 
     if matches_details:
-        write_matches_details(matches, output_dir)
+        write_matches_details(matches, config_paths.matches_details)
 
     if html_report:
-        create_html_report(output_dir)  # TODO?: pass the matches directly instead of reading from 'report.tsv'
+        create_html_report(config_paths)  # TODO?: pass the matches directly instead of reading from 'report.tsv'
 

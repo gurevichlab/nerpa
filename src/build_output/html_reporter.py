@@ -1,17 +1,21 @@
 import csv
 from pathlib import Path
+from src.config import ConfigPaths
 
 
-def create_html_report(output_dir: Path):
+def create_html_report(config_paths: ConfigPaths):
     current_dir = Path(__file__).resolve().parent
     template_file = current_dir / 'report_template.html'
-    # FIXME: use filenames from the config instead of hard coding!
-    tsv_report_file = output_dir / 'report.tsv'
-    html_report_file = output_dir / 'report.html'
+    tsv_report_file = config_paths.report
+    html_report_file = config_paths.html_report
 
     # Read the template HTML
     with open(template_file, 'r') as file:
         html_template = file.read()
+
+    # FIXME: don't read from TSV and generate HTML table manually
+    # Better generate JSON (report.json) and read/generate the table from it directly in JavaScript
+    # (in report_template.html)
 
     # Read the TSV file and generate table headers and rows
     with open(tsv_report_file, 'r') as file:
