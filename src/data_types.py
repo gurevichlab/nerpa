@@ -11,6 +11,7 @@ from src.monomer_names_helper import (
     NorineMonomerName,
     NRP_Monomer_Modification,
 )
+from src.antismash_parsing.antismash_parser_types import GeneId
 from enum import auto, Enum
 import yaml
 import os
@@ -21,7 +22,6 @@ Logger = Any  # some magical logger used throughout the pipeline
 SMILES = str
 LogProb = float
 ResidueScores = Dict[MonomerResidue, LogProb]
-GeneId = str
 
 
 def enum_representer(dumper, e: Enum):

@@ -67,12 +67,13 @@ class MonomerNamesHelper:
         if name_format == 'norine' and name.startswith('X'):
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 
-        column_name = 'as_short' if name_format == 'antismash' else 'as_norine'
+        column_name = 'as_short' if name_format == 'antismash' else 'norine_rban_code'
 
         try:
             row = self.names_table[self.names_table[column_name] == name].iloc[0]
         except IndexError:
-            return self.my_parser(name)  # stub before monomer table is finished
+            return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())  # TODO: raise ValueError when the table is ready
+            # raise ValueError(f'Name {name} not found in the names table')
 
         return ParsedMonomerName(residue=MonomerResidue(row['core']),
                                  modifications=self.parsed_modifications(row['modifications']))

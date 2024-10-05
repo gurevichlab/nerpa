@@ -9,6 +9,7 @@ from heuristics_thresholds import calculate_heuristic_parameters
 from alignment_steps import AlignmentStepInfo, get_steps_info, StepLocation, MatchDict, BGC_VariantDict
 from dataclasses import dataclass
 from pathlib import Path
+from math import log
 
 
 def get_mismatched_pairs_with_perfect_prediction(alignment_steps_info: List[AlignmentStepInfo]) \
@@ -60,7 +61,8 @@ def get_indel_frequencies(alignment_steps_info: List[AlignmentStepInfo]) -> Dict
 
 def get_modifications_frequencies(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[str, Dict[str, float]]:
     # (METHYLATION/EPIMERIZATION) -> (BGC_{True/False}_NRP_{True/False} -> frequency)
-    modifications_cnt: Dict[Tuple[str, str], int] = Counter()
+    mt_cnt = Counter()
+    ep_cnt = Counter()
     for specificity_predicion, step_info, step_location in alignment_steps_info:
         if step_info['Alignment_step'] != 'MATCH':
             continue
@@ -72,14 +74,39 @@ def get_modifications_frequencies(alignment_steps_info: List[AlignmentStepInfo])
         nrp_meth = 'METHYLATION' in nrp_mods
         nrp_chir = step_info['NRP_chirality']
 
-        modifications_cnt['METHYLATION', f'BGC_{bgc_meth}_NRP_{nrp_meth}'] += 1
-        modifications_cnt['EPIMERIZATION', f'BGC_{bgc_chir}_NRP_{nrp_chir}'] += 1
+        mt_cnt[f'BGC_{bgc_meth}_NRP_{nrp_meth}'] += 1
+        ep_cnt[f'BGC_{bgc_chir}_NRP_{nrp_chir}'] += 1
 
-    steps_total = len(alignment_steps_info)
-    result = {'METHYLATION': {}, 'EPIMERIZATION': {}}
-    for (mod_type, bgc_nrp_presense), cnt in modifications_cnt.items():
-        result[mod_type][bgc_nrp_presense] = cnt / steps_total
+    result = {}
+    # Laplace rule of succession (add 1 to numerator and 2 to denominator)
+    result['METHYLATION'] = \
+        {'BGC_True': (mt_cnt['BGC_True_NRP_True'] + 1) / (mt_cnt['BGC_True_NRP_True'] + mt_cnt['BGC_True_NRP_False'] + 2),
+         'BGC_False': (mt_cnt['BGC_False_NRP_True'] + 1) / (mt_cnt['BGC_False_NRP_True'] + mt_cnt['BGC_False_NRP_False'] + 2)}
+    # TODO: check if this is correct (some amino acids are stereosymmetric, etc)
+    result['EPIMERIZATION'] = \
+        {'BGC_True': (ep_cnt['BGC_True_NRP_D'] + 1) / (ep_cnt['BGC_True_NRP_D'] + ep_cnt['BGC_True_NRP_L'] + 2),
+         'BGC_False': (ep_cnt['BGC_False_NRP_D'] + 1) / (ep_cnt['BGC_False_NRP_D'] + ep_cnt['BGC_False_NRP_L'] + 2)}
     return result
+
+
+def get_modifications_scores(alignment_steps_info: List[AlignmentStepInfo],
+                             default_frequencies: Dict[str, float]) -> Dict[str, float]:
+    mod_freqs = get_modifications_frequencies(alignment_steps_info)
+
+    def log_odds(p1, p2, inverse=False):
+        return log(1 - p1) - log(1 - p2) if inverse else log(p1) - log(p2)
+
+    def nrp_label(mod, nrp):
+        if mod == 'METHYLATION':
+            return str(nrp)
+        else:
+            return 'D' if nrp else 'L'
+
+    return {f'Mod_{mod}_BGC_{bgc}_NRP_{nrp_label(mod, nrp)}':
+                log_odds(mod_freqs[mod][f'BGC_{bgc}'], default_frequencies[mod], inverse=not nrp)
+            for mod in ('METHYLATION', 'EPIMERIZATION')
+            for bgc in (True, False)
+            for nrp in (True, False)}
 
 
 @dataclass
@@ -87,11 +114,12 @@ class TrainedParameters:
     mismatched_pairs_with_perfect_prediction: List[Tuple[Tuple[MonomerResidue, MonomerResidue], int]]  # (predicted, actual) -> count. Dict is displated incorrectly, so list
     step_function: List[float]
     indel_frequencies: Dict[AlignmentStepType, Dict[StepLocation, float]]
-    modifications_frequencies: Dict[str, Dict[str, float]]
+    modifications_scores: Dict[str, Dict[str, float]]
     heuristic_matching_cfg: HeuristicMatchingConfig
 
 
 def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[MatchDict, BGC_VariantDict]],
+                                  norine_stats: dict,
                                   output_dir: Path) -> TrainedParameters:
     print('Extracting unique alignment steps...')
     alignment_steps_info = get_steps_info(matches_with_variants_for_bgc)
@@ -108,7 +136,9 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
     results['indel_frequencies'] = get_indel_frequencies(alignment_steps_info)
 
     print('Calculating modifications frequencies...')
-    results['modifications_frequencies'] = get_modifications_frequencies(alignment_steps_info)
+    default_freqs = {'METHYLATION': norine_stats['methylated'] / norine_stats['total_monomers'],
+                     'EPIMERIZATION': norine_stats['epimerized'] / norine_stats['total_monomers']}
+    results['modifications_scores'] = get_modifications_scores(alignment_steps_info, default_freqs)
 
     print('Creating HeuristicMatchingConfig...')
     results['heuristic_matching_cfg'] = calculate_heuristic_parameters(matches_with_variants_for_bgc, output_dir)
