@@ -1,6 +1,6 @@
 Install dependencies (Python 3):
 ```
-pip install dacite parse more_itertools pandas rdkit networkx  
+pip install dacite parse more_itertools pandas rdkit networkx matplotlib 
 ```
 
 
