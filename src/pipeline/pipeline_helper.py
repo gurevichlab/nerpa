@@ -101,7 +101,7 @@ class PipelineHelper:
         self.log.info("Main report is saved to " + str(self.config.paths.report), indent=1)
         self.log.info("HTML report is saved to " + str(self.config.paths.html_report), indent=1)
         self.log.info("Detailed reports are saved to " + str(self.config.paths.matches_details), indent=1)
-        report.write_results(matches, self.config.paths.main_out_dir,
+        report.write_results(matches, self.config.paths,
                              bgc_variants, nrp_variants,
                              rban_records,
                              matches_details)
