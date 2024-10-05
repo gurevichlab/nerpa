@@ -1,4 +1,4 @@
-##Dependencies
+## Dependencies
 
 ### Core
 
@@ -14,8 +14,6 @@ They can be installed via:
 ```
 pip install dacite parse more_itertools pandas rdkit networkx matplotlib  
 ```
-
-
 
 
 ## Use case example 
