@@ -22,6 +22,8 @@ def parse_args():
                         type=Path, help='Path to the antismash results on MIBiG')
     parser.add_argument('-r', '--rban_results_dir',
                         type=Path, help='Path to the rban results on MIBiG')
+    parser.add_argument('--norine',
+                        type=Path, help='Path to the precomputed norine statistics')  # TODO: accept list of norine monomers and compute stats here
     parser.add_argument('-o', '--output_dir',
                         type=Path, default=Path(__file__).parent / 'output',
                         help='Output directory')
@@ -134,7 +136,9 @@ def main():
                                       if match['NRP'] in nrp_ids_good_matches]
     print('Calculating training parameters')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
-    parameters = calculate_training_parameters(matches_with_bgcs_for_training, args.output_dir)
+    norine_stats = yaml.safe_load(args.norine.read_text())
+    parameters = calculate_training_parameters(matches_with_bgcs_for_training,
+                                               norine_stats, args.output_dir)
     print('Writing results')
     write_results(matches, bgc_variants, nrp_variants,
                   matches_table, parameters, args.output_dir)

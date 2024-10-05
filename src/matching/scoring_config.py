@@ -91,7 +91,7 @@ def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:
 
 def load_chirality_score(cfg: dict) -> Dict[ChiralityMatch, LogProb]:
     return {ChiralityMatch(bgc_epim=bgc_epim, nrp_chr=nrp_chr):
-                cfg['chirality_score'][f'BGC_{bgc_epim}_NRP_{nrp_chr.name}']
+                cfg['modification_score'][f'Mod_EPIMERIZATION_BGC_{bgc_epim}_NRP_{nrp_chr.name}']
             for bgc_epim in (False, True)
             for nrp_chr in Chirality}
 

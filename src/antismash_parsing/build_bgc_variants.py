@@ -14,7 +14,7 @@ from src.antismash_parsing.antismash_parser_types import (
 )
 from src.antismash_parsing.determine_modifications import (
     get_iterative_modules_idxs,
-    is_iterative_gene
+    get_modules_modifications
 )
 from src.data_types import (
     BGC_Variant,
@@ -78,8 +78,9 @@ def build_gene_assembly_line(gene: Gene,
                              residue_scoring_model: Any,
                              monomer_names_helper: MonomerNamesHelper,
                              config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
-    iterative_gene = is_iterative_gene(gene)
     iterative_modules_idxs = get_iterative_modules_idxs(gene)
+    modules_modifications = get_modules_modifications(gene)
+
     built_modules = []
     a_domain_idx = 0  # indexes start from 1 for backward compatibility. Maybe change this in the future
     for module_idx, module in enumerate(gene.modules):
@@ -92,19 +93,12 @@ def build_gene_assembly_line(gene: Gene,
                                             monomer_names_helper,
                                             config)
 
-        modifications = []
-        if DomainType.MT in module.domains_sequence:
-            modifications.append(BGC_Module_Modification.METHYLATION)
-        if DomainType.E in module.domains_sequence or \
-                (module_idx < len(gene.modules)-1 and DomainType.C_DUAL in gene.modules[module_idx+1].domains_sequence):
-            modifications.append(BGC_Module_Modification.EPIMERIZATION)
-
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
                                         a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
-                                        modifications=tuple(modifications),
+                                        modifications=modules_modifications[module_idx],
                                         iterative_module=module_idx in iterative_modules_idxs,
-                                        iterative_gene=iterative_gene,
+                                        iterative_gene=gene.is_iterative,
                                         aa10_code=module.a_domain.aa10,
                                         aa34_code=module.a_domain.aa34))
 
