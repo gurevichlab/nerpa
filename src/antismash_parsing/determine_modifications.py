@@ -50,6 +50,8 @@ def get_iterative_genes_orphan_c(genes: List[Gene],  # should be sorted
             iterative_genes_ids.add(gene1.gene_id)
     if orphan_c_domains_per_gene[genes[-1].gene_id][1]:
         iterative_genes_ids.add(genes[-1].gene_id)
+    if genes[0].coords.strand == STRAND.REVERSE and orphan_c_domains_per_gene[genes[0].gene_id][1]:
+        iterative_genes_ids.add(genes[0].gene_id)
     return iterative_genes_ids
 
 

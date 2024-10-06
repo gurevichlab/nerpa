@@ -65,8 +65,19 @@ yaml.add_representer(BGC_Module_Modification, enum_representer)
 
 
 @dataclass
+class ModuleLocation:
+    start_of_gene: bool
+    end_of_gene: bool
+    start_of_fragment: bool
+    end_of_fragment: bool
+    pks_upstream: bool
+    pks_downstream: bool
+
+
+@dataclass
 class BGC_Module:
     gene_id: GeneId
+    module_loc: ModuleLocation
     a_domain_idx: int  # not the same as module_idx because modules with no a_domain are skipped
     residue_score: ResidueScores
     modifications: Tuple[BGC_Module_Modification, ...]
