@@ -2,7 +2,8 @@ from typing import (
     Any,
     Callable,
     Dict,
-    List
+    List,
+    NamedTuple
 )
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
@@ -21,6 +22,7 @@ from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
     BGC_Fragment,
+    ModuleLocation,
     LogProb
 )
 from src.monomer_names_helper import MonomerNamesHelper, antiSMASH_MonomerName, MonomerResidue
@@ -29,7 +31,7 @@ from src.config import antiSMASH_Parsing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
 from src.generic.functional import cached_by_key
-from itertools import chain
+from itertools import chain, takewhile
 import pandas as pd
 from collections import defaultdict
 
@@ -74,7 +76,35 @@ def get_residue_scores(a_domain: A_Domain,
     return result
 
 
+class GeneLocation(NamedTuple):
+    start_of_fragment: bool
+    end_of_fragment: bool
+    pks_upstream: bool
+    pks_downstream: bool
+
+
+def find_pks_upstream(gene: Gene, module_idx: int) -> bool:
+    domains_upstream = chain(*(module.domains_sequence[::-1]
+                               for module in reversed(gene.modules[:module_idx])))
+    return DomainType.PKS in takewhile(lambda domain: domain != domain.A, domains_upstream)
+
+def find_pks_downstream(gene: Gene, module_idx: int) -> bool:
+    domains_downstream = chain(*(module.domains_sequence
+                                 for module in gene.modules[module_idx + 1:]))
+    return DomainType.PKS in takewhile(lambda domain: domain != domain.A, domains_downstream)
+
+
+def get_module_location(gene: Gene, gene_loc: GeneLocation, module_idx: int) -> ModuleLocation:
+    return ModuleLocation(start_of_gene=module_idx == 0,
+                          end_of_gene=module_idx == len(gene.modules) - 1,
+                          start_of_fragment=gene_loc.start_of_fragment and module_idx == 0,
+                          end_of_fragment=gene_loc.end_of_fragment and module_idx == len(gene.modules) - 1,
+                          pks_upstream=find_pks_upstream(gene, module_idx) or (module_idx == 0 and gene_loc.pks_upstream),
+                          pks_downstream=find_pks_downstream(gene, module_idx) or (module_idx == len(gene.modules) - 1 and gene_loc.pks_downstream))
+
+
 def build_gene_assembly_line(gene: Gene,
+                             gene_loc: GeneLocation,
                              residue_scoring_model: Any,
                              monomer_names_helper: MonomerNamesHelper,
                              config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
@@ -94,6 +124,7 @@ def build_gene_assembly_line(gene: Gene,
                                             config)
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
+                                        module_loc=get_module_location(gene, gene_loc, module_idx),
                                         a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
                                         modifications=modules_modifications[module_idx],
@@ -106,25 +137,45 @@ def build_gene_assembly_line(gene: Gene,
 
 
 def build_bgc_assembly_line(bgc_genes: List[Gene],
+                            pks_upstream: bool,
+                            pks_downstream: bool,
                             residue_scoring_model: Any,
                             monomer_names_helper: MonomerNamesHelper,
                             config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
+    def get_gene_loc(gene_idx: int) -> GeneLocation:
+        return GeneLocation(start_of_fragment=gene_idx == 0,
+                            end_of_fragment=gene_idx == len(bgc_genes) - 1,
+                            pks_upstream=any([gene_idx == 0 and pks_upstream,
+                                              gene_idx > 0 and find_pks_upstream(bgc_genes[gene_idx - 1], len(bgc_genes[gene_idx - 1].modules))]),
+                            pks_downstream=any([gene_idx == len(bgc_genes) - 1 and pks_downstream,
+                                                gene_idx < len(bgc_genes) - 1 and find_pks_downstream(bgc_genes[gene_idx + 1], -1)]))
+
     return list(chain.from_iterable(build_gene_assembly_line(gene,
+                                                             get_gene_loc(gene_idx),
                                                              residue_scoring_model,
                                                              monomer_names_helper,
                                                              config)
-                                    for gene in bgc_genes))
+                                    for gene_idx, gene in enumerate(bgc_genes)))
 
 
 def build_bgc_fragments(raw_fragmented_bgc: List[BGC_Cluster],
                         residue_scoring_model: Any,
                         monomer_names_helper: MonomerNamesHelper,
                         config: antiSMASH_Parsing_Config) -> List[BGC_Fragment]:
-    return [build_bgc_assembly_line(bgc_cluster.genes,
-                                    residue_scoring_model,
-                                    monomer_names_helper,
-                                    config)
-            for bgc_cluster in raw_fragmented_bgc]
+    def get_pks_upstream(fgmnt_idx: int) -> bool:
+        return (fgmnt_idx > 0 and
+                DomainType.PKS in raw_fragmented_bgc[fgmnt_idx - 1].genes[-1].modules[-1].domains_sequence)
+    def get_pks_downstream(fgmnt_idx: int) -> bool:
+        return (fgmnt_idx < len(raw_fragmented_bgc) - 1 and
+                DomainType.PKS in raw_fragmented_bgc[fgmnt_idx + 1].genes[0].modules[0].domains_sequence)
+
+    return [build_bgc_assembly_line(bgc_fragment.genes,
+                                    pks_upstream=get_pks_upstream(fgmnt_idx),
+                                    pks_downstream=get_pks_downstream(fgmnt_idx),
+                                    residue_scoring_model=residue_scoring_model,
+                                    monomer_names_helper=monomer_names_helper,
+                                    config=config)
+            for fgmnt_idx, bgc_fragment in enumerate(raw_fragmented_bgc)]
 
 
 # TODO: sometimes a module is split between genes (see BGC0002484). Maybe it's better to merge such modules?
@@ -132,26 +183,22 @@ def remove_genes_with_no_a_domains(bgc: BGC_Cluster) -> BGC_Cluster:
     def has_a_domains(gene: Gene) -> bool:
         return any(module.a_domain is not None for module in gene.modules)
     return BGC_Cluster(genome_id=bgc.genome_id,
-                          contig_id=bgc.contig_id,
-                          bgc_idx=bgc.bgc_idx,
-                          genes=[gene for gene in bgc.genes if has_a_domains(gene)])
+                       contig_id=bgc.contig_id,
+                       bgc_idx=bgc.bgc_idx,
+                       genes=[gene for gene in bgc.genes if has_a_domains(gene)])
 
 
-def build_bgc_variants(_bgc: BGC_Cluster,
+def build_bgc_variants(bgc: BGC_Cluster,
                        residue_scoring_model: Any,
                        monomer_names_helper: MonomerNamesHelper,
                        config: antiSMASH_Parsing_Config,
                        log: NerpaLogger) -> List[BGC_Variant]:  # TODO: replace Any with proper type
-    bgc = remove_genes_with_no_a_domains(_bgc)
-    if not bgc.genes:
+    if not any(module.a_domain is not None
+               for gene in bgc.genes
+               for module in gene.modules):
         log.info(f'WARNING: BGC {bgc.bgc_idx} has no genes with A-domains. Skipping.')
         return []
-    raw_fragmented_bgcs = split_and_reorder(bgc, config)
-    if len(raw_fragmented_bgcs) > config.MAX_VARIANTS_PER_BGC:
-        log.info(f'WARNING: Too many BGC variants: {len(raw_fragmented_bgcs)}. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
-        raw_fragmented_bgcs = raw_fragmented_bgcs[:config.MAX_VARIANTS_PER_BGC]
-
-
+    raw_fragmented_bgcs = split_and_reorder(bgc, config, log)
     return [BGC_Variant(genome_id=bgc.genome_id,
                         variant_idx=idx,
                         bgc_idx=bgc.bgc_idx,
