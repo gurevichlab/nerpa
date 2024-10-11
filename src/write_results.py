@@ -4,6 +4,7 @@ from typing import (
     List,
     TypeVar,
     Tuple,
+    Optional,
     Union
 )
 from src.matching.alignment_types import Match
@@ -18,6 +19,7 @@ from io import StringIO
 import csv
 import yaml
 from itertools import groupby
+from copy import deepcopy
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -67,7 +69,7 @@ def write_matches_per_id(matches: List[T],
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
                        output_dir: Path,
-                       rban_records: Union[List[Parsed_rBAN_Record], None] = None):
+                       rban_records: Optional[List[Parsed_rBAN_Record]] = None):
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
                    output_dir / Path('rban_graphs.yaml'))
@@ -85,7 +87,12 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
                        output_dir: Path):
     for (genome_id, bgc_id), bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: (bgc_variant.genome_id, bgc_variant.bgc_idx)):
-        write_yaml(list(bgc_id_variants), output_dir / f'{genome_id}_{bgc_id}.yaml')
+        bgc_variants_to_write = deepcopy(list(bgc_id_variants))
+        for bgc_variant in bgc_variants_to_write:
+            for fragment in bgc_variant.fragments:
+                for module in fragment:
+                    module.module_loc = list(module.module_loc)  # stub to get rid of nested lists in the output
+        write_yaml(bgc_variants_to_write, output_dir / f'{genome_id}_{bgc_id}.yaml')
 
 
 def write_matches_details(matches: List[Match],
@@ -105,9 +112,9 @@ def write_matches_details(matches: List[Match],
 
 def write_results(matches: List[Match],
                   output_dir: Path,
-                  bgc_variants: Union[List[BGC_Variant], None] = None,
-                  nrp_variants: Union[List[NRP_Variant], None] = None,
-                  rban_records: Union[List[Parsed_rBAN_Record], None] = None,
+                  bgc_variants: Optional[List[BGC_Variant]] = None,
+                  nrp_variants: Optional[List[NRP_Variant]] = None,
+                  rban_records: Optional[List[Parsed_rBAN_Record]] = None,
                   matches_details: bool = True,
                   html_report: bool = True):
     (output_dir / 'report.tsv').write_text(build_report(matches))  # FIXME: use the filename from config instead of hard coding

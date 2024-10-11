@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import (
     Any,
     Dict,
+    FrozenSet,
     List,
     Optional,
     Tuple
@@ -63,21 +64,24 @@ class BGC_Module_Modification(Enum):
 
 yaml.add_representer(BGC_Module_Modification, enum_representer)
 
+class ModuleLocFeature(Enum):
+    START_OF_GENE = auto()
+    END_OF_GENE = auto()
+    START_OF_FRAGMENT = auto()
+    END_OF_FRAGMENT = auto()
+    PKS_UPSTREAM = auto()
+    PKS_DOWNSTREAM = auto()
 
-@dataclass
-class ModuleLocation:
-    start_of_gene: bool
-    end_of_gene: bool
-    start_of_fragment: bool
-    end_of_fragment: bool
-    pks_upstream: bool
-    pks_downstream: bool
+
+yaml.add_representer(ModuleLocFeature, enum_representer)
+
+ModuleLocFeatures = FrozenSet[ModuleLocFeature]
 
 
 @dataclass
 class BGC_Module:
     gene_id: GeneId
-    module_loc: ModuleLocation
+    module_loc: ModuleLocFeatures
     a_domain_idx: int  # not the same as module_idx because modules with no a_domain are skipped
     residue_score: ResidueScores
     modifications: Tuple[BGC_Module_Modification, ...]
@@ -90,6 +94,8 @@ class BGC_Module:
     def from_yaml_dict(cls, data: dict) -> BGC_Module:  # TODO: use dacite from_dict or smth
         return cls(gene_id=data['gene_id'],
                    a_domain_idx=data['a_domain_idx'],
+                     module_loc=frozenset(ModuleLocFeature[loc_feature]
+                                          for loc_feature in data['module_loc']),
                    residue_score=data['residue_score'],
                    modifications=tuple(BGC_Module_Modification[mod]
                                        for mod in data['modifications']),
