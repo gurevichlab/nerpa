@@ -2,15 +2,23 @@ from typing import Dict, List, NamedTuple, Tuple, Optional
 from collections import Counter, defaultdict
 from step_function import create_bins, fit_step_function_to_bins, plot_step_function
 from src.monomer_names_helper import MonomerResidue
-from src.data_types import LogProb
+from src.data_types import LogProb, ModuleLocFeature, ModuleLocFeatures
 from src.matching.alignment_types import AlignmentStepType
 from src.matching.heuristic_matching import HeuristicMatchingConfig
 from heuristics_thresholds import calculate_heuristic_parameters
-from alignment_steps import AlignmentStepInfo, get_steps_info, StepLocation, MatchDict, BGC_VariantDict
-from dataclasses import dataclass
+from alignment_steps import AlignmentStepInfo, get_steps_info, MatchDict, BGC_VariantDict, StepType
+from indel_params import (
+    get_indel_frequencies,
+    get_indel_frequencies_cnt,
+    get_large_indel_frequencies,
+    BGC_Fragment_Loc_Features,
+    GeneLocFeatures
+)
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from math import log
 
+NRP_VariantDict = dict
 
 def get_mismatched_pairs_with_perfect_prediction(alignment_steps_info: List[AlignmentStepInfo]) \
         -> Dict[Tuple[MonomerResidue, MonomerResidue], int]:  # (predicted, actual) -> count
@@ -45,18 +53,6 @@ def fit_step_function(matching_steps_info: List[AlignmentStepInfo],
     step_function = fit_step_function_to_bins(score_correctness_bins, step_range)
     plot_step_function(score_correctness_bins, step_function, output_dir)
     return step_function
-
-
-def get_indel_frequencies(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[AlignmentStepType, Dict[StepLocation, float]]:
-    indel_cnt: Dict[Tuple[AlignmentStepType, StepLocation], int] = Counter()
-    for specificity_predicion, step_info, step_location in alignment_steps_info:
-        if step_info['Alignment_step'] in ('NRP_MONOMER_SKIP', 'BGC_MODULE_SKIP'):
-            indel_cnt[AlignmentStepType[step_info['Alignment_step']], step_location] += 1
-
-    steps_total = len(alignment_steps_info)
-    return {step_type: {location: indel_cnt[step_type, location] / steps_total
-                        for location in StepLocation}
-            for step_type in (AlignmentStepType.BGC_MODULE_SKIP, AlignmentStepType.NRP_MONOMER_SKIP)}
 
 
 def get_modifications_frequencies(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[str, Dict[str, float]]:
@@ -113,16 +109,48 @@ def get_modifications_scores(alignment_steps_info: List[AlignmentStepInfo],
 class TrainedParameters:
     mismatched_pairs_with_perfect_prediction: List[Tuple[Tuple[MonomerResidue, MonomerResidue], int]]  # (predicted, actual) -> count. Dict is displated incorrectly, so list
     step_function: List[float]
-    indel_frequencies: Dict[AlignmentStepType, Dict[StepLocation, float]]
+    indel_frequencies: Dict[ModuleLocFeatures, Dict[StepType, float]]
+    indel_frequencies_cnt: Dict[ModuleLocFeatures, Dict[StepType, int]]
+    indel_frequencies_bgc_fragments: Dict[BGC_Fragment_Loc_Features, Tuple[int, int]]
+    indel_frequencies_genes: Dict[GeneLocFeatures, Tuple[int, int]]
+    indel_frequencies_nrp_fragments: Tuple[int, int]
     modifications_scores: Dict[str, Dict[str, float]]
     heuristic_matching_cfg: HeuristicMatchingConfig
 
+    def to_dict(self):
+        # Custom method to handle the conversion of ModuleLocation keys
+        return {
+            'mismatched_pairs_with_perfect_prediction': self.mismatched_pairs_with_perfect_prediction,
+            'step_function': self.step_function,
+            'insert_probabilities': {
+                tuple(loc): freq_dict for loc, freq_dict in self.insert_probabilities.items()
+            },
+            'insert_cnts': {
+                tuple(loc): dict(counter) for loc, counter in self.indel_cnts.items()
+            },
+            'skip_probabilities': {
+                tuple(f.name for f in loc): {'MATCH': cnt[0], 'SKIP': cnt[1]}
+                for loc, cnt in self.skip_probabilities.items()
+            },
+            'indel_frequencies_genes': {
+                tuple(f.name for f in loc): {'MATCH': cnt[0], 'SKIP': cnt[1]}
+                for loc, cnt in self.indel_frequencies_genes.items()
+            },
+            'indel_frequencies_nrp_fragments': {
+                'MATCH': self.indel_frequencies_nrp_fragments[0],
+                'SKIP': self.indel_frequencies_nrp_fragments[1]
+            },
+            'modifications_scores': self.modifications_scores,
+            'heuristic_matching_cfg': asdict(self.heuristic_matching_cfg)
+        }
 
-def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[MatchDict, BGC_VariantDict]],
+
+def calculate_training_parameters(matches_with_bgcs_nrps: List[Tuple[MatchDict, BGC_VariantDict, NRP_VariantDict]],
                                   norine_stats: dict,
                                   output_dir: Path) -> TrainedParameters:
     print('Extracting unique alignment steps...')
-    alignment_steps_info = get_steps_info(matches_with_variants_for_bgc)
+    matches_with_bgcs = [(match, bgc_variant) for match, bgc_variant, _ in matches_with_bgcs_nrps]
+    alignment_steps_info = get_steps_info(matches_with_bgcs)
 
     results = {}
     print('Writing mismatched pairs with perfect prediction...')
@@ -133,7 +161,8 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
     results['step_function'] = fit_step_function(alignment_steps_info, 100, 1000,
                                                  output_dir)  # TODO: put in config
     print('Calculating indel frequencies...')
-    results['indel_frequencies'] = get_indel_frequencies(alignment_steps_info)
+    results['insert_probabilities'] = get_insert_probabilities(alignment_steps_info)
+    results['skip_probabilities'] = get_skip_probabilities(matches_with_bgcs_nrps)
 
     print('Calculating modifications frequencies...')
     default_freqs = {'METHYLATION': norine_stats['methylated'] / norine_stats['total_monomers'],
@@ -141,7 +170,7 @@ def calculate_training_parameters(matches_with_variants_for_bgc: List[Tuple[Matc
     results['modifications_scores'] = get_modifications_scores(alignment_steps_info, default_freqs)
 
     print('Creating HeuristicMatchingConfig...')
-    results['heuristic_matching_cfg'] = calculate_heuristic_parameters(matches_with_variants_for_bgc, output_dir)
+    results['heuristic_matching_cfg'] = calculate_heuristic_parameters(matches_with_bgcs, output_dir)
 
     print('Done!')
 

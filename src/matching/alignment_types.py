@@ -31,8 +31,8 @@ class AlignmentStepType(Enum):
 
 
 class AlignmentStep(NamedTuple):
-    bgc_module: Union[BGC_Module, None]
-    nrp_monomer: Union[NRP_Monomer, None]
+    bgc_module: Optional[BGC_Module]
+    nrp_monomer: Optional[NRP_Monomer]
     score: Union[LogProb, Tuple[LogProb, LogProb, LogProb, LogProb]]
     action: AlignmentStepType
 

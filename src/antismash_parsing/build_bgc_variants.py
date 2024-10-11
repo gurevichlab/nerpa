@@ -22,7 +22,8 @@ from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
     BGC_Fragment,
-    ModuleLocation,
+    ModuleLocFeature,
+    ModuleLocFeatures,
     LogProb
 )
 from src.monomer_names_helper import MonomerNamesHelper, antiSMASH_MonomerName, MonomerResidue
@@ -31,7 +32,7 @@ from src.config import antiSMASH_Parsing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
 from src.generic.functional import cached_by_key
-from itertools import chain, takewhile
+from itertools import chain, takewhile, compress
 import pandas as pd
 from collections import defaultdict
 
@@ -94,13 +95,16 @@ def find_pks_downstream(gene: Gene, module_idx: int) -> bool:
     return DomainType.PKS in takewhile(lambda domain: domain != domain.A, domains_downstream)
 
 
-def get_module_location(gene: Gene, gene_loc: GeneLocation, module_idx: int) -> ModuleLocation:
-    return ModuleLocation(start_of_gene=module_idx == 0,
-                          end_of_gene=module_idx == len(gene.modules) - 1,
-                          start_of_fragment=gene_loc.start_of_fragment and module_idx == 0,
-                          end_of_fragment=gene_loc.end_of_fragment and module_idx == len(gene.modules) - 1,
-                          pks_upstream=find_pks_upstream(gene, module_idx) or (module_idx == 0 and gene_loc.pks_upstream),
-                          pks_downstream=find_pks_downstream(gene, module_idx) or (module_idx == len(gene.modules) - 1 and gene_loc.pks_downstream))
+def get_module_loc_features(gene: Gene, gene_loc: GeneLocation, module_idx: int) -> ModuleLocFeatures:
+    pairs = [(ModuleLocFeature.START_OF_GENE, module_idx == 0),
+             (ModuleLocFeature.END_OF_GENE, module_idx == len(gene.modules) - 1),
+             (ModuleLocFeature.START_OF_FRAGMENT, gene_loc.start_of_fragment and module_idx == 0),
+             (ModuleLocFeature.END_OF_FRAGMENT, gene_loc.end_of_fragment and module_idx == len(gene.modules) - 1),
+             (ModuleLocFeature.PKS_UPSTREAM,
+              find_pks_upstream(gene, module_idx) or (module_idx == 0 and gene_loc.pks_upstream)),
+             (ModuleLocFeature.PKS_DOWNSTREAM,
+              find_pks_downstream(gene, module_idx) or (module_idx == len(gene.modules) - 1 and gene_loc.pks_downstream))]
+    return frozenset(compress(*zip(*pairs)))
 
 
 def build_gene_assembly_line(gene: Gene,
@@ -124,7 +128,7 @@ def build_gene_assembly_line(gene: Gene,
                                             config)
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
-                                        module_loc=get_module_location(gene, gene_loc, module_idx),
+                                        module_loc=get_module_loc_features(gene, gene_loc, module_idx),
                                         a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
                                         modifications=modules_modifications[module_idx],

@@ -131,13 +131,13 @@ def main():
     else:
         print('All matches are correct')
 
-    matches_with_bgcs_for_training = [(match, bgc_variants[match['NRP']])
+    matches_with_bgcs_nrps_for_training = [(match, bgc_variants[match['NRP']], nrp_variants[match['NRP']])
                                       for match in matches
                                       if match['NRP'] in nrp_ids_good_matches]
     print('Calculating training parameters')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
     norine_stats = yaml.safe_load(args.norine.read_text())
-    parameters = calculate_training_parameters(matches_with_bgcs_for_training,
+    parameters = calculate_training_parameters(matches_with_bgcs_nrps_for_training,
                                                norine_stats, args.output_dir)
     print('Writing results')
     write_results(matches, bgc_variants, nrp_variants,
