@@ -32,11 +32,17 @@ from src.config import antiSMASH_Parsing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
 from src.generic.functional import cached_by_key
+from src.antismash_parsing.location_features import (
+    BGC_Fragment_Loc_Features,
+    GeneLocFeatures,
+    ModuleLocFeatures,
+    get_bgc_fragment_loc_features,
+    get_gene_loc_features,
+    get_module_loc_features,
+)
 from itertools import chain, takewhile, compress
 import pandas as pd
 from collections import defaultdict
-
-generated_predictions = dict()  # TODO: use @cache decorator or smth similar (it's tricky because I don't need to cache all the arguments)
 
 
 # TODO: figure out how to write it as "lambda args: (args['a_domain'].aa10, args['a_domain'].aa34)"
@@ -45,9 +51,6 @@ def get_residue_scores(a_domain: A_Domain,
                        residue_scoring_model: Callable[[pd.DataFrame], Dict[MonomerResidue, LogProb]],
                        monomer_names_helper: MonomerNamesHelper,
                        config: antiSMASH_Parsing_Config) -> Dict[MonomerResidue, LogProb]:
-    if (a_domain.aa10, a_domain.aa34) in generated_predictions:
-        return generated_predictions[a_domain.aa10, a_domain.aa34]
-
     def svm_score(aa_name: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
         svm_prediction_substrates = {monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
                                      for monomer_name in svm_level_prediction.substrates}
@@ -73,42 +76,11 @@ def get_residue_scores(a_domain: A_Domain,
         scoring_table.loc[aa_name] = aa_code_scores + svm_scores
 
     result = residue_scoring_model(scoring_table)
-    generated_predictions[a_domain.aa10, a_domain.aa34] = result
     return result
 
 
-class GeneLocation(NamedTuple):
-    start_of_fragment: bool
-    end_of_fragment: bool
-    pks_upstream: bool
-    pks_downstream: bool
-
-
-def find_pks_upstream(gene: Gene, module_idx: int) -> bool:
-    domains_upstream = chain(*(module.domains_sequence[::-1]
-                               for module in reversed(gene.modules[:module_idx])))
-    return DomainType.PKS in takewhile(lambda domain: domain != domain.A, domains_upstream)
-
-def find_pks_downstream(gene: Gene, module_idx: int) -> bool:
-    domains_downstream = chain(*(module.domains_sequence
-                                 for module in gene.modules[module_idx + 1:]))
-    return DomainType.PKS in takewhile(lambda domain: domain != domain.A, domains_downstream)
-
-
-def get_module_loc_features(gene: Gene, gene_loc: GeneLocation, module_idx: int) -> ModuleLocFeatures:
-    pairs = [(ModuleLocFeature.START_OF_GENE, module_idx == 0),
-             (ModuleLocFeature.END_OF_GENE, module_idx == len(gene.modules) - 1),
-             (ModuleLocFeature.START_OF_FRAGMENT, gene_loc.start_of_fragment and module_idx == 0),
-             (ModuleLocFeature.END_OF_FRAGMENT, gene_loc.end_of_fragment and module_idx == len(gene.modules) - 1),
-             (ModuleLocFeature.PKS_UPSTREAM,
-              find_pks_upstream(gene, module_idx) or (module_idx == 0 and gene_loc.pks_upstream)),
-             (ModuleLocFeature.PKS_DOWNSTREAM,
-              find_pks_downstream(gene, module_idx) or (module_idx == len(gene.modules) - 1 and gene_loc.pks_downstream))]
-    return frozenset(compress(*zip(*pairs)))
-
-
 def build_gene_assembly_line(gene: Gene,
-                             gene_loc: GeneLocation,
+                             gene_loc_features: GeneLocFeatures,
                              residue_scoring_model: Any,
                              monomer_names_helper: MonomerNamesHelper,
                              config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
@@ -128,7 +100,7 @@ def build_gene_assembly_line(gene: Gene,
                                             config)
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
-                                        module_loc=get_module_loc_features(gene, gene_loc, module_idx),
+                                        module_loc=get_module_loc_features(module_idx, gene, gene_loc_features),
                                         a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
                                         modifications=modules_modifications[module_idx],
@@ -140,22 +112,14 @@ def build_gene_assembly_line(gene: Gene,
     return built_modules
 
 
-def build_bgc_assembly_line(bgc_genes: List[Gene],
-                            pks_upstream: bool,
-                            pks_downstream: bool,
-                            residue_scoring_model: Any,
-                            monomer_names_helper: MonomerNamesHelper,
-                            config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
-    def get_gene_loc(gene_idx: int) -> GeneLocation:
-        return GeneLocation(start_of_fragment=gene_idx == 0,
-                            end_of_fragment=gene_idx == len(bgc_genes) - 1,
-                            pks_upstream=any([gene_idx == 0 and pks_upstream,
-                                              gene_idx > 0 and find_pks_upstream(bgc_genes[gene_idx - 1], len(bgc_genes[gene_idx - 1].modules))]),
-                            pks_downstream=any([gene_idx == len(bgc_genes) - 1 and pks_downstream,
-                                                gene_idx < len(bgc_genes) - 1 and find_pks_downstream(bgc_genes[gene_idx + 1], -1)]))
+def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
+                                     fragment_features: BGC_Fragment_Loc_Features,
+                                     residue_scoring_model: Any,
+                                     monomer_names_helper: MonomerNamesHelper,
+                                     config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
 
     return list(chain.from_iterable(build_gene_assembly_line(gene,
-                                                             get_gene_loc(gene_idx),
+                                                             get_gene_loc_features(gene_idx, bgc_genes, fragment_features),
                                                              residue_scoring_model,
                                                              monomer_names_helper,
                                                              config)
@@ -166,19 +130,12 @@ def build_bgc_fragments(raw_fragmented_bgc: List[BGC_Cluster],
                         residue_scoring_model: Any,
                         monomer_names_helper: MonomerNamesHelper,
                         config: antiSMASH_Parsing_Config) -> List[BGC_Fragment]:
-    def get_pks_upstream(fgmnt_idx: int) -> bool:
-        return (fgmnt_idx > 0 and
-                DomainType.PKS in raw_fragmented_bgc[fgmnt_idx - 1].genes[-1].modules[-1].domains_sequence)
-    def get_pks_downstream(fgmnt_idx: int) -> bool:
-        return (fgmnt_idx < len(raw_fragmented_bgc) - 1 and
-                DomainType.PKS in raw_fragmented_bgc[fgmnt_idx + 1].genes[0].modules[0].domains_sequence)
 
-    return [build_bgc_assembly_line(bgc_fragment.genes,
-                                    pks_upstream=get_pks_upstream(fgmnt_idx),
-                                    pks_downstream=get_pks_downstream(fgmnt_idx),
-                                    residue_scoring_model=residue_scoring_model,
-                                    monomer_names_helper=monomer_names_helper,
-                                    config=config)
+    return [build_bgc_fragment_assembly_line(bgc_fragment.genes,
+                                             fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
+                                             residue_scoring_model=residue_scoring_model,
+                                             monomer_names_helper=monomer_names_helper,
+                                             config=config)
             for fgmnt_idx, bgc_fragment in enumerate(raw_fragmented_bgc)]
 
 

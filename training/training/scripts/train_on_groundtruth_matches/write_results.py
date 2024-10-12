@@ -88,4 +88,4 @@ def write_results(matches: List[dict],
 
 
     # q: write parameters in a yaml file
-    write_yaml(parameters.to_dict(), output_dir / 'parameters.yaml')  # asdict does not work for nested dataclasses
+    write_yaml(asdict(parameters), output_dir / 'parameters.yaml')  # asdict does not work for nested dataclasses
