@@ -13,6 +13,7 @@ from src.monomer_names_helper import (
     NRP_Monomer_Modification,
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
+from src.antismash_parsing.location_features import ModuleLocFeatures, ModuleLocFeature
 from enum import auto, Enum
 import yaml
 import os
@@ -36,6 +37,7 @@ class Chirality(Enum):
 
 yaml.add_representer(Chirality, enum_representer)
 yaml.add_representer(NRP_Monomer_Modification, enum_representer)
+yaml.add_representer(ModuleLocFeature, enum_representer)
 
 
 @dataclass
@@ -64,19 +66,6 @@ class BGC_Module_Modification(Enum):
 
 yaml.add_representer(BGC_Module_Modification, enum_representer)
 
-class ModuleLocFeature(Enum):
-    START_OF_GENE = auto()
-    END_OF_GENE = auto()
-    START_OF_FRAGMENT = auto()
-    END_OF_FRAGMENT = auto()
-    PKS_UPSTREAM = auto()
-    PKS_DOWNSTREAM = auto()
-
-
-yaml.add_representer(ModuleLocFeature, enum_representer)
-
-ModuleLocFeatures = FrozenSet[ModuleLocFeature]
-
 
 @dataclass
 class BGC_Module:
@@ -94,8 +83,8 @@ class BGC_Module:
     def from_yaml_dict(cls, data: dict) -> BGC_Module:  # TODO: use dacite from_dict or smth
         return cls(gene_id=data['gene_id'],
                    a_domain_idx=data['a_domain_idx'],
-                     module_loc=frozenset(ModuleLocFeature[loc_feature]
-                                          for loc_feature in data['module_loc']),
+                   module_loc=tuple(ModuleLocFeature[loc_feature]
+                                    for loc_feature in data['module_loc']),
                    residue_score=data['residue_score'],
                    modifications=tuple(BGC_Module_Modification[mod]
                                        for mod in data['modifications']),
