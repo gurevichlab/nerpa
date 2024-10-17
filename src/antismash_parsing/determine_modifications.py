@@ -43,10 +43,10 @@ def get_iterative_genes_orphan_c(genes: List[Gene],  # should be sorted
         if gene1.coords.strand == gene2.coords.strand == STRAND.REVERSE:
             gene1, gene2 = gene2, gene1
         if orphan_c_domains_per_gene[gene2.gene_id][0]:
-            iterative_genes_ids.add(gene2.gene_id)
-        if orphan_c_domains_per_gene[gene1.gene_id][1] \
-                and (not gene2.modules or any(domain.in_c_domain_group()
-                                              for domain in gene2.modules[0].domains_sequence)):
+            iterative_genes_ids.add(gene1.gene_id)
+        if orphan_c_domains_per_gene[gene1.gene_id][1]:
+            #and (not gene2.modules or any(domain.in_c_domain_group()
+            #                              for domain in gene2.modules[0].domains_sequence)):
             iterative_genes_ids.add(gene1.gene_id)
     if orphan_c_domains_per_gene[genes[-1].gene_id][1]:
         iterative_genes_ids.add(genes[-1].gene_id)

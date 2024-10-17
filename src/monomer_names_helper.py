@@ -32,6 +32,10 @@ class ParsedMonomerName(NamedTuple):
 @dataclass
 class MonomerNamesHelper:
     names_table: pd.DataFrame
+    pks_names: List[NorineMonomerName] = None  # placeholder for PKS names
+
+    def __post_init__(self):
+        self.pks_names = []
 
     def my_parser(self, name: str) -> ParsedMonomerName:  # stub before monomer table is finished
         *mods, res = name.split('-')

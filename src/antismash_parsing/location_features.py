@@ -1,6 +1,8 @@
+from __future__ import annotations
 from typing import (
     List,
     NewType,
+    Optional,
     Tuple
 )
 from enum import Enum, auto
@@ -46,6 +48,30 @@ class BGC_Fragment_Loc_Feature(Enum):
 ModuleLocFeatures = Tuple[ModuleLocFeature, ...]
 GeneLocFeatures = Tuple[GeneLocFeature, ...]
 BGC_Fragment_Loc_Features = Tuple[BGC_Fragment_Loc_Feature, ...]
+
+
+def module_features_to_gene_features(fst_module_features: ModuleLocFeatures,
+                                     last_module_features: ModuleLocFeatures) -> GeneLocFeatures:
+    pairs = [
+        (GeneLocFeature.START_OF_BGC, ModuleLocFeature.START_OF_BGC in fst_module_features),
+        (GeneLocFeature.END_OF_BGC, ModuleLocFeature.END_OF_BGC in last_module_features),
+        (GeneLocFeature.START_OF_FRAGMENT, ModuleLocFeature.START_OF_FRAGMENT in fst_module_features),
+        (GeneLocFeature.END_OF_FRAGMENT, ModuleLocFeature.END_OF_FRAGMENT in last_module_features),
+        (GeneLocFeature.PKS_UPSTREAM, ModuleLocFeature.PKS_UPSTREAM_PREV_GENE in fst_module_features),
+        (GeneLocFeature.PKS_DOWNSTREAM, ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE in last_module_features)
+    ]
+    return tuple(feature for feature, is_present in pairs if is_present)
+
+
+def module_features_to_fragment_features(fst_module_features: ModuleLocFeatures,
+                                         last_module_features: ModuleLocFeatures) -> BGC_Fragment_Loc_Features:
+    pairs = [
+        (BGC_Fragment_Loc_Feature.START_OF_BGC, ModuleLocFeature.START_OF_BGC in fst_module_features),
+        (BGC_Fragment_Loc_Feature.END_OF_BGC, ModuleLocFeature.END_OF_BGC in last_module_features),
+        (BGC_Fragment_Loc_Feature.PKS_UPSTREAM, ModuleLocFeature.PKS_UPSTREAM_PREV_GENE in fst_module_features),
+        (BGC_Fragment_Loc_Feature.PKS_DOWNSTREAM, ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE in last_module_features)
+    ]
+    return tuple(feature for feature, is_present in pairs if is_present)
 
 
 def find_pks_upstream(gene: Gene, module_idx: int) -> bool:

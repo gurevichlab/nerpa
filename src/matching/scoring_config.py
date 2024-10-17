@@ -12,8 +12,14 @@ import dacite
 from src.data_types import (
     Chirality,
     LogProb,
+    ModuleLocFeatures,
     MonomerResidue,
     NRP_Monomer_Modification,
+)
+from src.antismash_parsing.location_features import (
+    BGC_Fragment_Loc_Features,
+    GeneLocFeatures,
+    ModuleLocFeature,
 )
 from src.monomer_names_helper import UNKNOWN_RESIDUE
 from src.matching.alignment_types import AlignmentStepType
@@ -46,10 +52,10 @@ class HeuristicMatchingConfig:
 @dataclass
 class ScoringConfig:
     match_score: LogProb
-    bgc_module_skip_score: LogProb
-    nrp_monomer_skip_score: Dict[MonomerResidue, LogProb]
+    bgc_module_skip_score: Dict[ModuleLocFeatures, LogProb]
+    nrp_monomer_insert_at_start_score: Dict[ModuleLocFeatures, LogProb]
+    nrp_monomer_insert_score: Dict[ModuleLocFeatures, LogProb]
 
-    num_unknown_residues: int
     mod_score: Dict[ModMatch, LogProb]
     chirality_score: Dict[ChiralityMatch, LogProb]
 
@@ -60,25 +66,12 @@ class ScoringConfig:
     max_gene_reps: int
     max_module_reps: int
 
-    normalization: Literal['AVERAGING', 'RANDOM_NULL_MODEL', 'NONE']
-
     pks_residues: List[str]
-    unknown_nrp_monomer_skip_penalty_at_end: LogProb
-    nrp_monomer_skip_penalty_at_end: LogProb
-    max_unknown_residue_match_score: LogProb
-    bgc_fragment_skip_penalty: LogProb
-    bgc_fragment_skip_penalty_at_end: LogProb
-    bgc_fragment_skip_penalty_in_middle: LogProb
-
-    bgc_module_skip_penalty_at_end: LogProb
-    nrp_fragment_skip_penalty: LogProb
-
-    join_fragments_alignments: bool
-    iterative_bgc_alignment: bool
-    one_to_one_fragment_alignment: bool
 
     MAX_PERMUTATIONS: int
     heuristic_matching_cfg: HeuristicMatchingConfig
+
+
 
 
 def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:

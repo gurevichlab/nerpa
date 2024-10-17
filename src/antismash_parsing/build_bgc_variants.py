@@ -81,6 +81,7 @@ def get_residue_scores(a_domain: A_Domain,
 
 def build_gene_assembly_line(gene: Gene,
                              gene_loc_features: GeneLocFeatures,
+                             fragment_idx: int,
                              residue_scoring_model: Any,
                              monomer_names_helper: MonomerNamesHelper,
                              config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
@@ -100,6 +101,7 @@ def build_gene_assembly_line(gene: Gene,
                                             config)
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
+                                        fragment_idx=fragment_idx,
                                         module_loc=get_module_loc_features(module_idx, gene, gene_loc_features),
                                         a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
@@ -114,12 +116,14 @@ def build_gene_assembly_line(gene: Gene,
 
 def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
                                      fragment_features: BGC_Fragment_Loc_Features,
+                                     fragment_idx: int,
                                      residue_scoring_model: Any,
                                      monomer_names_helper: MonomerNamesHelper,
                                      config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
 
     return list(chain.from_iterable(build_gene_assembly_line(gene,
                                                              get_gene_loc_features(gene_idx, bgc_genes, fragment_features),
+                                                             fragment_idx,
                                                              residue_scoring_model,
                                                              monomer_names_helper,
                                                              config)
@@ -133,6 +137,7 @@ def build_bgc_fragments(raw_fragmented_bgc: List[BGC_Cluster],
 
     return [build_bgc_fragment_assembly_line(bgc_fragment.genes,
                                              fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
+                                             fragment_idx=fgmnt_idx,
                                              residue_scoring_model=residue_scoring_model,
                                              monomer_names_helper=monomer_names_helper,
                                              config=config)

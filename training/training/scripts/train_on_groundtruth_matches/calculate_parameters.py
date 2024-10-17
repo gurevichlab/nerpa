@@ -23,7 +23,7 @@ NRP_VariantDict = dict
 def get_mismatched_pairs_with_perfect_prediction(alignment_steps_info: List[AlignmentStepInfo]) \
         -> Dict[Tuple[MonomerResidue, MonomerResidue], int]:  # (predicted, actual) -> count
     mismatched_pairs = Counter()
-    for specificity_predictions, step_info, step_location in alignment_steps_info:
+    for specificity_predictions, step_info, step_location, _ in alignment_steps_info:
         if step_info['Alignment_step'] != 'MATCH':
             continue
         if specificity_predictions[step_info['NRP_residue']] == 0.0:
@@ -36,7 +36,7 @@ def get_mismatched_pairs_with_perfect_prediction(alignment_steps_info: List[Alig
 
 def get_score_correctness(alignment_steps_info: List[AlignmentStepInfo]) -> List[Tuple[LogProb, bool]]:
     score_correcntess = []
-    for specificity_predicion, step_info, step_location in alignment_steps_info:
+    for specificity_predicion, step_info, step_location, _ in alignment_steps_info:
         if step_info['Alignment_step'] != 'MATCH':
             continue
         for predicted_residue, score in specificity_predicion.items():
@@ -59,7 +59,7 @@ def get_modifications_frequencies(alignment_steps_info: List[AlignmentStepInfo])
     # (METHYLATION/EPIMERIZATION) -> (BGC_{True/False}_NRP_{True/False} -> frequency)
     mt_cnt = Counter()
     ep_cnt = Counter()
-    for specificity_predicion, step_info, step_location in alignment_steps_info:
+    for specificity_predicion, step_info, step_location, _ in alignment_steps_info:
         if step_info['Alignment_step'] != 'MATCH':
             continue
         bgc_mods = step_info['Modifying_domains'].split(',')

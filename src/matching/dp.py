@@ -8,9 +8,12 @@ from typing import (
 
 from src.data_types import (
     BGC_Module,
+    BGC_MODULE_DUMMY,
     Chirality,
+    GeneId,
     LogProb,
     NRP_Monomer,
+    NRP_MONOMER_DUMMY
 )
 from src.matching.scoring_helper import ScoringHelper, FUNCTION_NAME_TO_STEP_TYPE
 from src.matching.alignment_types import Alignment, AlignmentStep, AlignmentStepType
@@ -33,14 +36,34 @@ def dp_recalc(dp_table: DP_Table,
                default=None)
 
 
+def get_genes_intervals(assembly_line: List[BGC_Module]) -> Dict[GeneId, Tuple[int, int]]:  # gene_id -> (start, end)
+    return {gene_id: (next(i
+                           for i, module in enumerate(assembly_line)
+                           if module.gene_id == gene_id),
+                      next(len(assembly_line) - 1 - i
+                           for i, module in enumerate(reversed(assembly_line))
+                           if module.gene_id == gene_id))
+            for gene_id in {module.gene_id for module in assembly_line}}
+
+
+def get_fragments_intervals(assembly_line: List[BGC_Module]) -> Dict[int, Tuple[int, int]]:  # fragment_idx -> (start, end)
+    return {fragment_idx: (next(i
+                                for i, module in enumerate(assembly_line)
+                                if module.fragment_idx == fragment_idx),
+                            next(len(assembly_line) - 1 - i
+                                for i, module in enumerate(reversed(assembly_line))
+                                if module.fragment_idx == fragment_idx))
+            for fragment_idx in {module.fragment_idx for module in assembly_line}}
+
+
 def calculate_dp(assembly_line: List[BGC_Module],
                  nrp_monomers: List[NRP_Monomer],
                  dp_helper: ScoringHelper) -> DP_Table:  # functions computing scores and other parameters
     dp_helper.set_bgc_modules(assembly_line)
     dp_helper.set_nrp_monomers(nrp_monomers)
 
-    gene_lengths = {gene_id: len(list(modules))
-                    for gene_id, modules in groupby(assembly_line, lambda module: module.gene_id)}
+    genes_intervals = get_genes_intervals(assembly_line)
+    fragments_intervals = get_fragments_intervals(assembly_line)
     max_gene_reps = dp_helper.scoring_config.max_gene_reps if any(module.iterative_gene for module in assembly_line) \
         else 0
     max_module_reps = dp_helper.scoring_config.max_module_reps if any(module.iterative_module for module in assembly_line) \
@@ -50,29 +73,45 @@ def calculate_dp(assembly_line: List[BGC_Module],
                         dtype=DP_Value)
     dp_table[START_STATE] = DP_Value(0, START_STATE, AlignmentStepType.MATCH)  # step type is not important
 
-    pred_dummy = BGC_Module('', -1, {}, (), False, False, '', '')  # placeholders for more concise code
-    mon_dummy = NRP_Monomer('', (), Chirality.UNKNOWN, '', 0)  # dummies are not actually used in the alignment
-
     recalc = partial(dp_recalc, dp_table)
     for gene_reps in range(max_gene_reps + 1):
         for module_reps in range(max_module_reps + 1):
-            for i, bgc_module in enumerate([pred_dummy] + assembly_line):
-                for j, nrp_mon in enumerate([mon_dummy] + nrp_monomers):
+            for i, bgc_module in enumerate([BGC_MODULE_DUMMY] + assembly_line):
+                for j, nrp_mon in enumerate([NRP_MONOMER_DUMMY] + nrp_monomers):
                     if i == 0 and j == 0:
                         continue
 
+                    # regular match/bgc_module_skip/nrp_mon_skip
                     transitions = [(DP_State(i - 1, j, gene_reps, module_reps), dp_helper.bgc_module_skip, (i - 1,)),
-                                   (DP_State(i, j - 1, gene_reps, module_reps), dp_helper.nrp_mon_skip, (j - 1,)),
-                                   (DP_State(i - 1, j - 1, gene_reps, module_reps), dp_helper.match, (bgc_module, nrp_mon))]
+                                   (DP_State(i, j - 1, gene_reps, module_reps), dp_helper.nrp_mon_insert, (j - 1,)),
+                                   (DP_State(i - 1, j - 1, gene_reps, module_reps), dp_helper.match, (i - 1, j - 1))]
 
-                    if i < len(assembly_line) and assembly_line[i].iterative_module:  # note that assembly_line[i] is right AFTER bgc_pred
+                    prev_bgc_module = assembly_line[i - 2] if i > 1 else None
+                    next_bgc_module = assembly_line[i] if i < len(assembly_line) else None
+
+                    # gene skip
+                    if prev_bgc_module is not None and bgc_module.gene_id != prev_bgc_module.gene_id:
+                        prev_gene_start, prev_gene_end = genes_intervals[prev_bgc_module.gene_id]
+                        transitions.append((DP_State(prev_gene_start, j, gene_reps - 1, module_reps),
+                                            dp_helper.gene_skip, (prev_gene_start, prev_gene_end)))
+
+                    # fragment skip
+                    if prev_bgc_module is not None and bgc_module.fragment_idx != prev_bgc_module.fragment_idx:
+                        prev_fragment_start, prev_fragment_end = fragments_intervals[prev_bgc_module.fragment_idx]
+                        transitions.append((DP_State(prev_fragment_start, j, gene_reps, module_reps - 1),
+                                            dp_helper.fragment_skip, (prev_fragment_start, prev_fragment_end)))
+
+                    # iterate module
+                    if next_bgc_module is not None and next_bgc_module.iterative_module:
                         transitions.append((DP_State(i + 1, j, gene_reps, module_reps - 1),
                                             dp_helper.iterate_module, ()))
 
-                    if i < len(assembly_line) and assembly_line[i].iterative_gene \
-                        and assembly_line[i].gene_id != bgc_module.gene_id:
-                        gene_len = gene_lengths[assembly_line[i].gene_id]
-                        transitions.append((DP_State(i + gene_len, j, gene_reps - 1, module_reps),
+                    # iterate gene
+                    if next_bgc_module is not None \
+                            and next_bgc_module.gene_id != bgc_module.gene_id \
+                            and next_bgc_module.iterative_gene:
+                        next_gene_end = genes_intervals[next_bgc_module.gene_id][1]
+                        transitions.append((DP_State(next_gene_end + 1, j, gene_reps - 1, module_reps),
                                             dp_helper.iterate_gene, ()))
                     dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*(args + (dp_state,))),
                                                                                FUNCTION_NAME_TO_STEP_TYPE[transition.__name__])
