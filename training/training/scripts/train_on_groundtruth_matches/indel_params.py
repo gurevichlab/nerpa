@@ -1,5 +1,7 @@
 from typing import List, Dict, Tuple, TypeVar, NamedTuple
 from collections import Counter, defaultdict
+from src.write_results import write_yaml
+from pathlib import Path
 
 import yaml
 
@@ -26,6 +28,7 @@ def get_insert_cnts(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[Modul
     for predictions, step_info, mod_locs_with_step_types, nrp_id in alignment_steps_info:
         for mod_loc, step_type in mod_locs_with_step_types:
             cnt_per_mod_loc[mod_loc][step_type].append(nrp_id)
+    write_yaml(cnt_per_mod_loc, Path('insert_cnts.yaml'))
     return cnt_per_mod_loc
 
 
@@ -33,8 +36,8 @@ def get_insert_probabilities(alignment_steps_info: List[AlignmentStepInfo]) \
         -> Tuple[Dict[ModuleLocFeatures, float], Dict[ModuleLocFeatures, float]]:  # insert_after, insert_before
     insert_cnts = get_insert_cnts(alignment_steps_info)
     frequent_locs = {mod_loc for mod_loc, step_type_to_steps in insert_cnts.items()
-                     if sum(map(len, step_type_to_steps.values())) >= 100
-                     or sum(map(len, step_type_to_steps.values())) >= 10 and any([StepType.INSERTION_BEFORE in step_type_to_steps,
+                     if sum(map(len, step_type_to_steps.values())) >= 50
+                     or sum(map(len, step_type_to_steps.values())) >= 7 and any([StepType.INSERTION_BEFORE in step_type_to_steps,
                                                                                  StepType.INSERTION_AFTER in step_type_to_steps])}
     assert frequent_locs, 'No frequent locations found for insertions'
     ins_prob_before, ins_prob_after = dict(), dict()
@@ -44,11 +47,11 @@ def get_insert_probabilities(alignment_steps_info: List[AlignmentStepInfo]) \
         matches = len(insert_cnts[loc][StepType.MATCH])
         mean_insert_after = (inserts_after + 1) / (matches + 2)  # Laplace rule of succession
         p_finish = 1 / (mean_insert_after + 1)  # geometric distribution (at each step we have p_finish chance to finish)
-        ins_prob_after[loc] = p_finish
+        ins_prob_after[loc] = 1 - p_finish
         if ModuleLocFeature.START_OF_BGC in loc:
             mean_insert_before = (inserts_before + 1) / (matches + 2)
             p_finish = 1 / (mean_insert_before + 1)
-            ins_prob_before[loc] = p_finish
+            ins_prob_before[loc] = 1 - p_finish
 
     return ins_prob_after, ins_prob_before
 
@@ -220,6 +223,10 @@ class SkipsAndMatchesCnts(NamedTuple):
         }
 
 
+def attach_id(cnts: Dict[Tuple[T, ...], MatchesSkipsCnt], nrp_id: str) -> Dict[Tuple[T, ...], Tuple[List[str], List[str]]]:
+    return {features: ([nrp_id]*matches, [nrp_id]*skips)
+            for features, (matches, skips) in cnts.items()}  # {features -> (matches_ids, skips_ids)}
+
 def get_skips_and_matches_cnts(steps: List[Dict],
                                bgc_variant: BGC_VariantDict,
                                gene_to_bgc_fragment: Dict[str, int],
@@ -241,15 +248,18 @@ def get_skips_and_matches_cnts(steps: List[Dict],
             fragment_genes_params, fragment_modules_params = get_genes_and_modules_skips_and_matches(fragment_steps, bgc_variant)
             genes_params = sum_pairs_dicts(genes_params, fragment_genes_params)
             modules_params = sum_pairs_dicts(modules_params, fragment_modules_params)
+    nrp_fragments_cnts, nrp_monomers_cnts = get_nrp_skips_and_matches(steps, rban_idx_to_nrp_fragment)
     return SkipsAndMatchesCnts(fragments_params, genes_params, modules_params,
-                               *get_nrp_skips_and_matches(steps, rban_idx_to_nrp_fragment),
-                               attach_ids(fragments_params))
+                                 nrp_fragments_cnts, nrp_monomers_cnts,
+                               attach_id(fragments_params, nrp_id),
+                               attach_id(genes_params, nrp_id),
+                               attach_id(modules_params, nrp_id))
 
 
 def cnts_to_freqs(cnts: Dict[Tuple[T, ...], MatchesSkipsCnt]) \
     -> Dict[Tuple[T, ...], float]:  # (matches, skips) -> (match_freq, skip_freq) for each list of features T
     frequent_features = set(features for features, cnts in cnts.items()
-                            if sum(cnts) >= 100 or sum(cnts) >= 10 and all(v > 0 for v in cnts))
+                            if sum(cnts) >= 50 or sum(cnts) >= 7 and all(v > 0 for v in cnts))
     assert frequent_features, 'No frequent features found for skips'
     result = dict()
     for features in frequent_features:
@@ -282,7 +292,9 @@ def get_skip_probs(matches_with_bgcs_nrps: List[Tuple[MatchDict, BGC_VariantDict
                                                defaultdict(lambda: MatchesSkipsCnt(0, 0)),
                                                defaultdict(lambda: MatchesSkipsCnt(0, 0)),
                                                MatchesSkipsCnt(0, 0),
-                                               MatchesSkipsCnt(0, 0))
+                                               MatchesSkipsCnt(0, 0),
+                                               dict(), dict(), dict())
+
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
         gene_to_bgc_fragment = get_gene_to_bgc_fragment(bgc_variant)
         rban_idx_to_nrp_fragment = get_rban_idx_to_nrp_fragment(nrp_variant)
@@ -290,7 +302,11 @@ def get_skip_probs(matches_with_bgcs_nrps: List[Tuple[MatchDict, BGC_VariantDict
                        for alignment in match['Alignments']
                        for step in alignment
                        if step['Alignment_step'] not in ('ITERATE_GENE', 'ITERATE_MODULE')]
-        skips_matches_counts += get_skips_and_matches_cnts(match_steps, bgc_variant, gene_to_bgc_fragment, rban_idx_to_nrp_fragment)
+        skips_matches_counts += get_skips_and_matches_cnts(match_steps,
+                                                           bgc_variant,
+                                                           gene_to_bgc_fragment,
+                                                           rban_idx_to_nrp_fragment,
+                                                           match['NRP'])
 
     with open('skips_matches_counts.yaml', 'w') as f:
         yaml.dump(skips_matches_counts.to_dict(), f)  # for debug

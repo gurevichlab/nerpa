@@ -11,6 +11,7 @@ from src.data_types import (
     NRP_Fragment,
     NRP_Variant
 )
+from src.matching.dp import get_alignment
 from src.matching.scoring_helper import ScoringHelper
 from src.matching.alignment_types import (
     Alignment,
@@ -59,31 +60,27 @@ def get_normalized_score(bgc_variant: BGC_Variant,
 def get_match(bgc_variant: BGC_Variant,
               nrp_variant: NRP_Variant,
               dp_helper: ScoringHelper) -> Optional[Match]:  # match can be discarded based on heuristics
-    dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains)  # I don't really like that dp_helper carries some state
+    dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains())  # I don't really like that dp_helper carries some state
 
     fragments_alignments: List[List[Alignment]] = []
 
     heuristic_discard = get_heuristic_discard(bgc_variant, nrp_variant, dp_helper.scoring_config.heuristic_matching_cfg) \
         if dp_helper.heuristic_discard_on else DiscardVerdict(False, False)
-    if dp_helper.scoring_config.join_fragments_alignments and not heuristic_discard.joined:
+
+    if not heuristic_discard.joined:
         fragments_permutations = permutations(nrp_variant.fragments) \
             if len(nrp_variant.fragments) <= 3 else [nrp_variant.fragments]
-        fragments_alignments.extend(get_multiple_fragments_alignment(bgc_variant.fragments,
-                                                                     list(nrp_fragments),
-                                                                     dp_helper)
+        fragments_alignments.extend([get_alignment(bgc_variant.modules,
+                                                   list(chain(*nrp_fragments)),
+                                                   dp_helper)]
                                     for nrp_fragments in fragments_permutations)
         # TODO: this is a stub, we should implement a more reasonable way to handle many fragments
         #  instead of just cutting off at some point
         # (e.g. by first finding the best bgc_fragment for each nrp_fragment to retrieve their order)
     if dp_helper.scoring_config.iterative_bgc_alignment and not heuristic_discard.iterative:
-        fragments_alignments.append(get_iterative_bgc_alignment(bgc_variant.fragments,
+        fragments_alignments.append(get_iterative_bgc_alignment(bgc_variant.modules,
                                                                 nrp_variant.fragments,
                                                                 dp_helper))
-    if dp_helper.scoring_config.one_to_one_fragment_alignment:
-        fragments_alignments.extend([get_fragments_alignment(bgc_fragment, nrp_fragment, dp_helper)]
-                                     for bgc_fragment, nrp_fragment in product(bgc_variant.fragments,
-                                                                               nrp_variant.fragments))
-
 
     if not fragments_alignments:
         return None
