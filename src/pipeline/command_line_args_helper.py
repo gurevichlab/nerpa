@@ -76,6 +76,8 @@ def add_config_arguments(parser: argparse.ArgumentParser):
                                help="immediately discard bad matches based on heuristics", action="store_true")
     configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
                                help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
+    configs_group.add_argument("--draw-molecules", action="store_true", default=False,
+                               help="draw NRP molecule and monomer graps in PNG")
     configs_group.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")
 
