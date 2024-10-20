@@ -69,14 +69,16 @@ def write_matches_per_id(matches: List[T],
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
                        config_paths: ConfigPaths,
-                       rban_records: Union[List[Parsed_rBAN_Record], None] = None):
+                       rban_records: Union[List[Parsed_rBAN_Record], None] = None,
+                       draw: bool = True):
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records], config_paths.rban_graphs)
         for rban_record in rban_records:
             monomer_graph = MonomerGraph.from_rban_record(rban_record)
-            draw_molecule(monomer_graph, config_paths.nrp_images_dir / Path(f'molecules/{rban_record.compound_id}.png'))
-            draw_monomer_graph(monomer_graph,
-                               output_file=config_paths.nrp_images_dir / Path(f'graphs/{rban_record.compound_id}.png'))
+            if draw:
+                draw_molecule(monomer_graph, config_paths.nrp_images_dir / Path(f'molecules/{rban_record.compound_id}.png'))
+                draw_monomer_graph(monomer_graph,
+                                   output_file=config_paths.nrp_images_dir / Path(f'graphs/{rban_record.compound_id}.png'))
 
     config_paths.nrp_variants_dir.mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
@@ -110,6 +112,7 @@ def write_results(matches: List[Match],
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True,
+                  draw_molecules: bool = True,
                   html_report: bool = True):
     config_paths.report.write_text(build_report(matches))
 
@@ -121,7 +124,7 @@ def write_results(matches: List[Match],
         config_paths.bgc_variants_dir.mkdir()
         write_bgc_variants(bgc_variants, config_paths.bgc_variants_dir)
     if nrp_variants is not None:
-        write_nrp_variants(nrp_variants, config_paths, rban_records)
+        write_nrp_variants(nrp_variants, config_paths, rban_records, draw=draw_molecules)
 
     if matches_details:
         write_matches_details(matches, config_paths.matches_details)
