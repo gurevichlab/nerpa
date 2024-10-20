@@ -1,12 +1,13 @@
+import json
 import csv
 from pathlib import Path
 from src.config import ConfigPaths
 
 
-def create_html_report(config_paths: ConfigPaths):
+def create_html_report(config_paths: ConfigPaths, json_report_path: Path):
     current_dir = Path(__file__).resolve().parent
     template_file = current_dir / 'report_template.html'
-    tsv_report_file = config_paths.report
+    # tsv_report_file = config_paths.report
     html_report_file = config_paths.html_report
 
     # Read the template HTML
@@ -18,6 +19,7 @@ def create_html_report(config_paths: ConfigPaths):
     # (in report_template.html)
 
     # Read the TSV file and generate table headers and rows
+    """
     with open(tsv_report_file, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
         headers = next(reader)
@@ -25,9 +27,11 @@ def create_html_report(config_paths: ConfigPaths):
         rows_html = ''.join(
             ['<tr>' + ''.join([f'<td>{cell}</td>' for cell in row]) + '</tr>' for row in reader]
         )
+    """
 
     # Replace placeholders with actual headers and rows
-    final_html = html_template.replace('{{table_headers}}', headers_html).replace('{{table_rows}}', rows_html)
+    # final_html = html_template.replace('{{table_headers}}', headers_html).replace('{{table_rows}}', rows_html)
+    final_html = html_template.replace('{{json_report_path}}', json_report_path.name)
 
     # Write the final HTML file with data
     with open(html_report_file, 'w') as file:
