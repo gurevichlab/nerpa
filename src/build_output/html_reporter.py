@@ -1,37 +1,30 @@
 import json
 import csv
 from pathlib import Path
+from typing import List
 from src.config import ConfigPaths
+from src.matching.alignment_types import Match
 
 
-def create_html_report(config_paths: ConfigPaths, json_report_path: Path):
+def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
     current_dir = Path(__file__).resolve().parent
     template_file = current_dir / 'report_template.html'
-    # tsv_report_file = config_paths.report
     html_report_file = config_paths.html_report
 
     # Read the template HTML
     with open(template_file, 'r') as file:
         html_template = file.read()
 
-    # FIXME: don't read from TSV and generate HTML table manually
-    # Better generate JSON (report.json) and read/generate the table from it directly in JavaScript
-    # (in report_template.html)
+    # TODO: Maybe add these paths directly to config_paths?
+    html_aux_dir = config_paths.main_out_dir / 'html_aux'
+    report_data_js_path = html_aux_dir / 'report_data.js'
+    html_aux_dir.mkdir()
+    with open(report_data_js_path, 'w') as json_file:
+        json_file.write('var data = ')
+        json.dump([match.to_dict_light() for match in matches], json_file, indent=4)
 
-    # Read the TSV file and generate table headers and rows
-    """
-    with open(tsv_report_file, 'r') as file:
-        reader = csv.reader(file, delimiter='\t')
-        headers = next(reader)
-        headers_html = ''.join([f'<th>{header}</th>' for header in headers])
-        rows_html = ''.join(
-            ['<tr>' + ''.join([f'<td>{cell}</td>' for cell in row]) + '</tr>' for row in reader]
-        )
-    """
-
-    # Replace placeholders with actual headers and rows
-    # final_html = html_template.replace('{{table_headers}}', headers_html).replace('{{table_rows}}', rows_html)
-    final_html = html_template.replace('{{json_report_path}}', json_report_path.name)
+    final_html = html_template.replace('{{REPORT_DATA_JS_PATH}}',
+                                       str(report_data_js_path.relative_to(config_paths.main_out_dir)))
 
     # Write the final HTML file with data
     with open(html_report_file, 'w') as file:

@@ -40,6 +40,8 @@
     </style>
 </head>
 <body>
+    <script src="{{REPORT_DATA_JS_PATH}}"></script>
+
     <h1>Nerpa report</h1>
 
     <!-- Filter Input Fields -->
@@ -85,8 +87,8 @@
             tableBody.innerHTML = ''; // Clear existing table rows
             
             // Check if data.Results exists and is an array
-            if (data.Results && Array.isArray(data.Results)) {
-                data.Results.forEach(item => {
+            if (data && Array.isArray(data)) {
+                data.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                     <td>${item.Score}</td>
@@ -102,24 +104,8 @@
                 console.error('Invalid data structure: Results array not found');
             }
         }
-        
-        // Modify the fetch part to use the correct data structure
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch('./../../nerpa_results/test_example/report.json')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log(data); // Debug: Check if data is fetched correctly
-                    populateTable(data);
-                })
-                .catch(error => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-        });
+
+        populateTable(data);
 
         // Function to sort table by column
         function sortTable(n) {
