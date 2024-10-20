@@ -60,16 +60,52 @@
 
     <table id="reportTable">
         <thead>
-            <tr>
-                {{table_headers}}
+            <tr id="tableHeaderRow">
             </tr>
         </thead>
-        <tbody>
-            {{table_rows}}
+        <tbody id="tableBody">
         </tbody>
     </table>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('{{json_report_path}}')  // Replace placeholder with JSON path
+                .then(response => response.json());
+                .then(data => populateTable(data));
+        });
+
+        // Function to fulfil table with JSON data
+        function populateTable(data) {
+            // Get the header row and body from the table
+            const headerRow = document.getElementById('tableHeaderRow');
+            const tableBody = document.getElementById('tableBody');
+
+            // Clear previous content in case the function is called multiple times
+            headerRow.innerHTML = '';  
+            tableBody.innerHTML = '';
+
+            // Extract headers from the first data object
+            const headers = Object.keys(data[0]);  
+            
+            // Create table headers
+            headers.forEach(header => {
+                const th = document.createElement('th');  // Create a new table header cell
+                th.textContent = header;  // Set the header text
+                headerRow.appendChild(th);  // Append the header cell to the header row
+            });
+
+            // Create table rows
+            data.forEach(rowData => {
+                const tr = document.createElement('tr');  // Create a new table row
+                headers.forEach(header => {
+                    const td = document.createElement('td');  // Create a new table data cell
+                    td.textContent = rowData[header];  // Set the cell text from the corresponding row data
+                    tr.appendChild(td);  // Append the cell to the row
+                });
+                tableBody.appendChild(tr);  // Append the row to the table body
+            });
+        }
+        
         // Function to detect if a value is numeric
         function isNumeric(value) {
             return !isNaN(parseFloat(value)) && isFinite(value);
@@ -77,7 +113,9 @@
 
         // Function to sort table by column
         function sortTable(n) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+       // Clear previous content in case the function is called multiple times
+    headerRow.innerHTML = '';  
+    tableBody.innerHTML = '';     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
             table = document.getElementById("reportTable");
             switching = true;
             dir = "asc"; // Set the sorting direction to ascending
