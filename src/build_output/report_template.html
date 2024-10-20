@@ -60,58 +60,62 @@
 
     <table id="reportTable">
         <thead>
-            <tr id="tableHeaderRow">
-                {{table_headers}}
+            <tr>
+                <th>Score</th>
+                <th>NRP_ID</th>
+                <th>NRP_Variant_Idx</th>
+                <th>Genome_ID</th>
+                <th>BGC_ID</th>
+                <th>BGC_Variant_Idx</th>
             </tr>
         </thead>
-        <tbody id="tableBody">
-            {{table_rows}}
+        <tbody>
+            <!-- Rows will be populated here by JavaScript -->
         </tbody>
     </table>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch('./../../nerpa_results/test_example/report.json') # ! Currently has only a path to example output
-            .then(response => response.json());
-            .then(data => populateTable(data));
-        });
-
-        // Function to fulfil table with JSON data
-        function populateTable(data) {
-            // Get the header row and body from the table
-            const headerRow = document.getElementById('tableHeaderRow');
-            const tableBody = document.getElementById('tableBody');
-
-            // Clear previous content in case the function is called multiple times
-            headerRow.innerHTML = '';  
-            tableBody.innerHTML = '';
-
-            // Extract headers from the first data object
-            const headers = Object.keys(data[0]);  
-            
-            // Create table headers
-            headers.forEach(header => {
-                const th = document.createElement('th');  // Create a new table header cell
-                th.textContent = header;  // Set the header text
-                headerRow.appendChild(th);  // Append the header cell to the header row
-            });
-
-            // Create table rows
-            data.forEach(rowData => {
-                const tr = document.createElement('tr');  // Create a new table row
-                headers.forEach(header => {
-                    const td = document.createElement('td');  // Create a new table data cell
-                    td.textContent = rowData[header];  // Set the cell text from the corresponding row data
-                    tr.appendChild(td);  // Append the cell to the row
-                });
-                tableBody.appendChild(tr);  // Append the row to the table body
-            });
-        }
-        
         // Function to detect if a value is numeric
         function isNumeric(value) {
             return !isNaN(parseFloat(value)) && isFinite(value);
         }
+        
+        // Function to populate the table with JSON data
+        function populateTable(data) {
+            const tableBody = document.querySelector('#reportTable tbody');
+            tableBody.innerHTML = ''; // Clear existing table rows
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.Score}</td>
+                    <td>${item.NRP_ID}</td>
+                    <td>${item.NRP_Variant_Idx}</td>
+                    <td>${item.Genome_ID}</td>
+                    <td>${item.BGC_ID}</td>
+                    <td>${item.BGC_Variant_Idx}</td>
+                    `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fetch JSON data when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('./../../nerpa_results/test_example/report.json')  // !It is the path to EXAMPLE report.json file
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); // Debug: Check if data is fetched correctly
+                populateTable(data);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        });
 
         // Function to sort table by column
         function sortTable(n) {
