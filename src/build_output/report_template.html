@@ -61,17 +61,19 @@
     <table id="reportTable">
         <thead>
             <tr id="tableHeaderRow">
+                {{table_headers}}
             </tr>
         </thead>
         <tbody id="tableBody">
+            {{table_rows}}
         </tbody>
     </table>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('{{json_report_path}}')  // Replace placeholder with JSON path
-                .then(response => response.json());
-                .then(data => populateTable(data));
+            fetch('./../../nerpa_results/test_example/report.json') # ! Currently has only a path to example output
+            .then(response => response.json());
+            .then(data => populateTable(data));
         });
 
         // Function to fulfil table with JSON data
@@ -113,9 +115,7 @@
 
         // Function to sort table by column
         function sortTable(n) {
-       // Clear previous content in case the function is called multiple times
-    headerRow.innerHTML = '';  
-    tableBody.innerHTML = '';     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
             table = document.getElementById("reportTable");
             switching = true;
             dir = "asc"; // Set the sorting direction to ascending
