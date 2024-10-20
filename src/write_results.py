@@ -18,6 +18,7 @@ from pathlib import Path
 from io import StringIO
 import csv
 import yaml
+import json
 from itertools import groupby
 
 T = TypeVar('T')
@@ -112,6 +113,10 @@ def write_results(matches: List[Match],
                   html_report: bool = True):
     config_paths.report.write_text(build_report(matches))
 
+    json_report_path = config_paths.report.with_suffix('.json')
+    with open(json_report_path, 'w') as json_file:
+        json.dump([match.to_dict_light() for match in matches], json_file, indent=4)
+
     if bgc_variants is not None:
         config_paths.bgc_variants_dir.mkdir()
         write_bgc_variants(bgc_variants, config_paths.bgc_variants_dir)
@@ -122,5 +127,5 @@ def write_results(matches: List[Match],
         write_matches_details(matches, config_paths.matches_details)
 
     if html_report:
-        create_html_report(config_paths)  # TODO?: pass the matches directly instead of reading from 'report.tsv'
+        create_html_report(config_paths, json_report_path)  # TODO?: pass the matches directly instead of reading from 'report.tsv'
 
