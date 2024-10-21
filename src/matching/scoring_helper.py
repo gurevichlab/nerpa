@@ -31,11 +31,15 @@ from src.generic.other import get_score
 from dataclasses import dataclass
 from enum import Enum, auto
 
-FUNCTION_NAME_TO_STEP_TYPE = {'bgc_module_skip': AlignmentStepType.BGC_MODULE_SKIP,
-                              'nrp_mon_skip': AlignmentStepType.NRP_MONOMER_SKIP,
-                              'match': AlignmentStepType.MATCH,
-                              'iterate_module': AlignmentStepType.ITERATE_MODULE,
-                              'iterate_gene': AlignmentStepType.ITERATE_GENE}
+FUNCTION_NAME_TO_STEP_TYPE = {
+    'bgc_module_skip': AlignmentStepType.BGC_MODULE_SKIP,
+    'gene_skip': AlignmentStepType.GENE_SKIP,
+    'bgc_fragment_skip': AlignmentStepType.BGC_FRAGMENT_SKIP,
+    'nrp_mon_insert': AlignmentStepType.NRP_MONOMER_INSERT,
+    'match': AlignmentStepType.MATCH,
+    'iterate_module': AlignmentStepType.ITERATE_MODULE,
+    'iterate_gene': AlignmentStepType.ITERATE_GENE
+}
 
 @dataclass
 class ScoringHelper:
@@ -99,8 +103,10 @@ class ScoringHelper:
                                 module_features: ModuleLocFeatures,
                                 nrp_chirality: Chirality,
                                 monomer_features: MonomerFeatures) -> LogProb:
+        if nrp_chirality == Chirality.UNKNOWN:
+            return 0
         chirality_match = ChiralityMatch(BGC_Module_Modification.EPIMERIZATION in bgc_modifications,
-                                        nrp_chirality)
+                                         nrp_chirality)
         return self.scoring_config.chirality_score[chirality_match]
 
     def match_steptype_score(self, module_features: ModuleLocFeatures) -> LogProb:
@@ -150,14 +156,8 @@ class ScoringHelper:
         return get_score(self.scoring_config.gene_skip_score, gene_features)
 
 
-    def fragment_skip(self, fst_module_idx: int, last_module_idx: int,
-                      dp_state: Optional[DP_State] = None) -> LogProb:
+    def bgc_fragment_skip(self, fst_module_idx: int, last_module_idx: int,
+                          dp_state: Optional[DP_State] = None) -> LogProb:
             fragment_features = module_features_to_fragment_features(self.bgc_modules[fst_module_idx].module_loc,
                                                                     self.bgc_modules[last_module_idx].module_loc)
-            return get_score(self.scoring_config.fragment_skip_score, fragment_features)
-
-    def skip_bgc_fragment_score(self, bgc_fragment: BGC_Fragment) -> LogProb:
-        return self.scoring_config.bgc_fragment_skip_penalty * len(bgc_fragment)
-
-    def skip_nrp_fragment_score(self, nrp_fragment: NRP_Fragment) -> LogProb:
-        return self.scoring_config.nrp_fragment_skip_penalty * len(nrp_fragment.monomers)
+            return get_score(self.scoring_config.bgc_fragment_skip_score, fragment_features)

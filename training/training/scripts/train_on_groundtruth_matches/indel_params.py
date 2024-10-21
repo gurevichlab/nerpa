@@ -32,9 +32,29 @@ def get_insert_cnts(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[Modul
     return cnt_per_mod_loc
 
 
+def get_insert_prob(num_matches: int, num_inserts: int,
+                    pseudocounts: bool = False,
+                    min_prob: float = 0,
+                    max_prob: float = 1) -> float:
+    if pseudocounts:
+        num_inserts += 1
+        num_matches += 2  # +2 because insert is always after match
+    mean_insert_after = num_inserts / num_matches
+    p_finish = 1 / (mean_insert_after + 1)  # geometric distribution (at each step we have p_finish chance to finish)
+    p_insert = 1 - p_finish  # probability to continue inserting
+    return max(min_prob, min(max_prob, p_insert))
+
+
 def get_insert_probabilities(alignment_steps_info: List[AlignmentStepInfo]) \
         -> Tuple[Dict[ModuleLocFeatures, float], Dict[ModuleLocFeatures, float]]:  # insert_after, insert_before
     insert_cnts = get_insert_cnts(alignment_steps_info)
+    total_steps_for_step_type = {step_type: sum(len(step_type_to_steps[step_type])
+                                                for mod_loc, step_type_to_steps in insert_cnts.items())
+                                 for step_type in StepType}
+    default_insert_pro = get_insert_prob(total_steps_for_step_type[StepType.MATCH],
+                                         total_steps_for_step_type[StepType.INSERTION_AFTER],
+                                         pseudocounts=True)
+    max_insert_pro = 0.1  # TODO: put it in the config
     frequent_locs = {mod_loc for mod_loc, step_type_to_steps in insert_cnts.items()
                      if sum(map(len, step_type_to_steps.values())) >= 50
                      or sum(map(len, step_type_to_steps.values())) >= 7 and any([StepType.INSERTION_BEFORE in step_type_to_steps,
@@ -45,22 +65,19 @@ def get_insert_probabilities(alignment_steps_info: List[AlignmentStepInfo]) \
         inserts_after = len(insert_cnts[loc][StepType.INSERTION_AFTER])
         inserts_before = len(insert_cnts[loc][StepType.INSERTION_BEFORE])
         matches = len(insert_cnts[loc][StepType.MATCH])
-        mean_insert_after = (inserts_after + 1) / (matches + 2)  # Laplace rule of succession
-        p_finish = 1 / (mean_insert_after + 1)  # geometric distribution (at each step we have p_finish chance to finish)
-        ins_prob_after[loc] = 1 - p_finish
+        ins_prob_after[loc] = get_insert_prob(matches, inserts_after, pseudocounts=False,
+                                              min_prob=default_insert_pro, max_prob=max_insert_pro)
         if ModuleLocFeature.START_OF_BGC in loc:
-            mean_insert_before = (inserts_before + 1) / (matches + 2)
-            p_finish = 1 / (mean_insert_before + 1)
-            ins_prob_before[loc] = 1 - p_finish
+            ins_prob_before[loc] = get_insert_prob(matches, inserts_before, pseudocounts=False,
+                                                   min_prob=default_insert_pro, max_prob=max_insert_pro)
 
     return ins_prob_after, ins_prob_before
 
 
 def get_gene_to_bgc_fragment(bgc_variant: Dict) -> Dict[str, int]:  # gene_id -> fragment_idx
     gene_to_fragment = dict()
-    for fragment_idx, fragment in enumerate(bgc_variant['fragments']):
-        for module in fragment:
-            gene_to_fragment[module['gene_id']] = fragment_idx
+    for module in bgc_variant['modules']:
+        gene_to_fragment[module['gene_id']] = module['fragment_idx']
     return gene_to_fragment
 
 
@@ -73,10 +90,15 @@ def get_rban_idx_to_nrp_fragment(nrp_variant: Dict) -> Dict[int, int]:  # rban_i
 
 
 def get_bgc_fragment_features(fragment_idx: int, bgc_variant: BGC_VariantDict) -> BGC_Fragment_Loc_Features:
-    fst_module = bgc_variant['fragments'][fragment_idx][0]
-    lst_module = bgc_variant['fragments'][fragment_idx][-1]
+    fst_module = next(module
+                      for module in bgc_variant['modules']
+                      if module['fragment_idx'] == fragment_idx)
+    lst_module = next(module
+                      for module in reversed(bgc_variant['modules'])
+                      if module['fragment_idx'] == fragment_idx)
+    fragments_cnt = max(module['fragment_idx'] for module in bgc_variant['modules']) + 1
     pairs = [(BGC_Fragment_Loc_Feature.START_OF_BGC, fragment_idx == 0),
-             (BGC_Fragment_Loc_Feature.END_OF_BGC, fragment_idx == len(bgc_variant['fragments']) - 1),
+             (BGC_Fragment_Loc_Feature.END_OF_BGC, fragment_idx == fragments_cnt - 1),
              (BGC_Fragment_Loc_Feature.PKS_UPSTREAM, 'PKS_UPSTREAM' in fst_module['module_loc']),
              (BGC_Fragment_Loc_Feature.PKS_DOWNSTREAM, 'PKS_DOWNSTREAM' in lst_module['module_loc'])]
     return tuple(feature for feature, is_present in pairs if is_present)
@@ -84,13 +106,11 @@ def get_bgc_fragment_features(fragment_idx: int, bgc_variant: BGC_VariantDict) -
 
 def get_gene_features(gene_id: str, bgc_variant: BGC_VariantDict) -> GeneLocFeatures:
     fst_module = next(module
-                      for fragment in bgc_variant['fragments']
-                      for module in fragment
+                      for module in bgc_variant['modules']
                       if module['gene_id'] == gene_id)
     lst_module = next(module
-                        for fragment in reversed(bgc_variant['fragments'])
-                        for module in reversed(fragment)
-                        if module['gene_id'] == gene_id)
+                      for module in reversed(bgc_variant['modules'])
+                      if module['gene_id'] == gene_id)
     pairs = [(GeneLocFeature.START_OF_BGC, 'START_OF_BGC' in fst_module['module_loc']),
              (GeneLocFeature.END_OF_BGC, 'END_OF_BGC' in lst_module['module_loc']),
              (GeneLocFeature.START_OF_FRAGMENT, 'START_OF_FRAGMENT' in fst_module['module_loc']),
@@ -104,8 +124,7 @@ def get_module_features(gene_id: str,
                         a_domain_idx: int,
                         bgc_variant: BGC_VariantDict) -> ModuleLocFeatures:
     module = next(module
-                  for fragment in bgc_variant['fragments']
-                  for module in fragment
+                  for module in bgc_variant['modules']
                   if module['gene_id'] == gene_id and module['a_domain_idx'] == a_domain_idx)
     return tuple(ModuleLocFeature[loc_feature] for loc_feature in module['module_loc'])
 
@@ -261,10 +280,16 @@ def cnts_to_freqs(cnts: Dict[Tuple[T, ...], MatchesSkipsCnt]) \
     frequent_features = set(features for features, cnts in cnts.items()
                             if sum(cnts) >= 50 or sum(cnts) >= 7 and all(v > 0 for v in cnts))
     assert frequent_features, 'No frequent features found for skips'
+    total_matches = sum(cnts[features].matches for features in frequent_features)
+    total_skips = sum(cnts[features].skips for features in frequent_features)
+    default_skip_prob = (total_skips + 1) / (total_matches + total_skips + 2)  # Laplace rule of succession
+    max_skip_prob = 0.1  # TODO: put it in the config
     result = dict()
     for features in frequent_features:
         matches, skips = cnts[features]
-        result[features] = (skips + 1) / (matches + skips + 2)  # Laplace rule of succession
+        skip_prob = skips / (matches + skips)
+        skip_prob = max(default_skip_prob, min(max_skip_prob, skip_prob))
+        result[features] = skip_prob
 
     return result
 

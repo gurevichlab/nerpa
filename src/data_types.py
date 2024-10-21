@@ -14,7 +14,7 @@ from src.monomer_names_helper import (
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.antismash_parsing.location_features import ModuleLocFeatures, ModuleLocFeature
-from src.rban_parsing.monomer_features import MonomerFeature, MonomerFeatures
+from src.rban_parsing.monomer_features_types import MonomerFeature, MonomerFeatures
 from enum import auto, Enum
 import yaml
 import os
@@ -146,9 +146,12 @@ class NRP_Variant:
     variant_idx: int
     nrp_id: str
     fragments: List[NRP_Fragment]
+    isolated_unknown_monomers: List[NRP_Monomer] = None
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Variant:
         return cls(variant_idx=data['variant_idx'],
                    nrp_id=data['nrp_id'],
-                   fragments=list(map(NRP_Fragment.from_yaml_dict, data['fragments'])))
+                   fragments=list(map(NRP_Fragment.from_yaml_dict, data['fragments'])),
+                   isolated_unknown_monomers=list(map(NRP_Monomer.from_yaml_dict, data['isolated_monomers']))
+                   if data.get('isolated_monomers') else None)

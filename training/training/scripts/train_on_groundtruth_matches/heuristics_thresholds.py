@@ -25,8 +25,7 @@ def top_n_predictions(residue_scores: Dict[MonomerResidue, LogProb],
 def bgc_residues(bgc_variant: dict,
                  num_top_predictions: int = 1) -> List[MonomerResidue]:
     return list(chain(*[top_n_predictions(bgc_module['residue_score'], num_top_predictions)
-                        for bgc_fragment in bgc_variant['fragments']
-                        for bgc_module in bgc_fragment]))
+                        for bgc_module in bgc_variant['modules']]))
 
 
 def num_common_residues(match: dict,
@@ -41,8 +40,7 @@ def get_common_cons_pairs_cnt(match: dict, bgc_variant: dict) -> int:
     nrp_pairs = pairwise(nrp_residues(match))
 
     bgc_set_pairs = pairwise(top_n_predictions(bgc_module['residue_score'], 3)
-                             for bgc_fragment in bgc_variant['fragments']
-                             for bgc_module in bgc_fragment)
+                             for bgc_module in bgc_variant['modules'])
     bgc_pairs = chain(*(product(s1, s2) for s1, s2 in bgc_set_pairs))
     return len(intersection_with_repeats(nrp_pairs, bgc_pairs))
 
@@ -103,7 +101,7 @@ def plot_box_plots(crc_for_nrp_len: Dict[int, List[int]],
 def calculate_heuristic_parameters(matches_with_bgc_variants: List[Tuple[dict, dict]],
                                    output_dir: Path) -> HeuristicMatchingConfig:
     def bgc_len(bgc_variant: dict) -> int:
-        return sum(len(fragment) for fragment in bgc_variant['fragments'])
+        return len(bgc_variant['modules'])
 
     def nrp_len(match: dict) -> int:
         return len(nrp_residues(match))

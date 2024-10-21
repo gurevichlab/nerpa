@@ -4,27 +4,16 @@ from typing import (
     NamedTuple,
     List,
     Optional,
-    Tuple,
-    Union
 )
 from src.data_types import (
-    BGC_Module,
-    NRP_Monomer,
-    BGC_Variant,
     LogProb,
-    NRP_Variant,
-    NRP_Fragment,
     BGC_Module_Modification,
     Chirality
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer_Modification
-from dataclasses import dataclass
-from prettytable import PrettyTable
-from io import StringIO
 from enum import Enum, auto
 from collections import OrderedDict
-import more_itertools
 
 
 class AlignmentStep_BGC_Module_Info(NamedTuple):
@@ -157,141 +146,3 @@ class AlignmentStep(NamedTuple):
                    score=data['Score'],
                    match_detailed_score=match_detailed_score,
                    step_type=step_type)
-
-
-Alignment = List[AlignmentStep]
-
-def alignment_score(alignment: Alignment) -> LogProb:
-    return sum(alignment_step.get_score() for alignment_step in alignment)
-
-
-def combined_alignments_score(alignments: List[Alignment]) -> LogProb:
-    return sum(alignment_score(alignment) for alignment in alignments)
-
-
-def show_alignment(alignment: Alignment) -> str:
-    rows = [alignment_step.to_dict()
-            for alignment_step in alignment]
-
-    t = PrettyTable(rows[0].keys(), align='l', border=False)
-    t.add_rows(row.values() for row in rows)
-    return str(t)
-
-
-def alignment_from_str(alignment_str: str) -> Alignment:
-    lines = alignment_str.strip().split('\n')
-    step_lines = more_itertools.split_at(lines, lambda line: line.startswith('Gene'))
-    return [AlignmentStep(bgc_module=BGC_Module.from_str(step_lines[0][0].split('=')[1]),
-                          nrp_monomer=NRP_Monomer.from_str(step_lines[0][1].split('=')[1]),
-                          score=eval(step_lines[0][2].split('=')[1]),
-                          action=AlignmentStepType[step_lines[0][3].split('=')[1])]
-            for step_lines in step_lines]
-
-
-def alignment_to_str(alignment_str: str) -> Alignment:
-
-@dataclass
-class Match:
-    bgc_variant: BGC_Variant
-    nrp_variant: NRP_Variant
-    alignments: List[Alignment]  # alignments of each fragment
-    normalized_score: float
-
-    def raw_score(self) -> LogProb:
-        return sum(map(alignment_score, self.alignments))
-
-    def __str__(self):
-        out = StringIO()
-        out.write('\n'.join([f'Genome={self.bgc_variant.genome_id}',
-                             f'BGC={self.bgc_variant.bgc_idx}',
-                             f'BGC_variant={self.bgc_variant.variant_idx}',
-                             f'NRP={self.nrp_variant.nrp_id}',
-                             f'NRP_variant={self.nrp_variant.variant_idx}',
-                             f'NormalisedScore={self.normalized_score}',
-                             f'Score={self.raw_score()}']))
-        out.write('\n')
-
-        for i, alignment in enumerate(self.alignments):
-            if len(self.alignments) > 1:
-                out.write(f'Fragment_#{i}\n')
-            out.write(show_alignment(alignment) + '\n')
-
-        return out.getvalue()
-
-    def to_dict_light(self) -> dict:  # because full Match is too big to write
-        return {'Genome': self.bgc_variant.genome_id,
-                'BGC': self.bgc_variant.bgc_idx,
-                'BGC_variant_idx': self.bgc_variant.variant_idx,
-                'NRP': self.nrp_variant.nrp_id,
-                'NRP_variant_idx': self.nrp_variant.variant_idx,
-                'NormalisedScore': self.normalized_score,
-                'Score': self.raw_score(),
-                'Alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
-                                for alignment_step in alignment]
-                               for alignment in self.alignments]}
-
-    @classmethod
-    def from_yaml_dict(cls, data: dict) -> Match:
-        return cls(bgc_variant=BGC_Variant.from_yaml_dict(data['bgc_variant']),
-                   nrp_variant=NRP_Variant.from_yaml_dict(data['nrp_variant']),
-                   alignments=[[AlignmentStep.from_yaml_dict(alignment_step_data)
-                                for alignment_step_data in alignment_data]
-                               for alignment_data in data['alignments']],
-                   normalized_score=data['normalised_score'])
-
-
-@dataclass
-class MatchLight:
-    genome_id: str
-    bgc_idx: int
-    bgc_variant_idx: int
-    nrp_id: str
-    nrp_variant_idx: int
-    normalized_score: LogProb
-    alignments: List[Alignment]
-
-    def raw_score(self) -> LogProb:
-        return sum(map(alignment_score, self.alignments))
-
-    def __str__(self):
-        out = StringIO()
-        out.write('\n'.join([f'Genome={self.genome_id}',
-                             f'BGC={self.bgc_idx}',
-                             f'BGC_variant={self.bgc_variant_idx}',
-                             f'NRP={self.nrp_id}',
-                             f'NRP_variant={self.nrp_variant_idx}',
-                             f'NormalizedScore={self.normalized_score}',
-                             f'Score={self.raw_score()}']))
-        out.write('\n')
-
-        for i, alignment in enumerate(self.alignments):
-            if len(self.alignments) > 1:
-                out.write(f'Fragment_#{i}\n')
-            out.write(show_alignment(alignment) + '\n')
-
-        return out.getvalue()
-
-    @classmethod
-    def from_str(cls, string: str) -> MatchLight:
-        lines = string.strip().split('\n')
-        genome_id = lines[0].split('=')[1]
-        bgc_idx = int(lines[1].split('=')[1])
-        bgc_variant_idx = int(lines[2].split('=')[1])
-        nrp_id = lines[3].split('=')[1]
-        nrp_variant_idx = int(lines[4].split('=')[1])
-        normalized_score = float(lines[5].split('=')[1])
-
-        alignments = []
-        if lines[6].startswith('Fragment'):
-            fragments_strs = more_itertools.split_at(lines[6:], lambda line: line.startswith('Fragment'))
-        else:
-            fragments_strs = [lines[6:]]
-        alignments = [alignment_from_str(fragment_str)
-                        for fragment_str in fragments_strs]
-        return cls(genome_id=genome_id,
-                   bgc_idx=bgc_idx,
-                   bgc_variant_idx=bgc_variant_idx,
-                   nrp_id=nrp_id,
-                   nrp_variant_idx=nrp_variant_idx,
-                   normalized_score=normalized_score,
-                   alignments=alignments)

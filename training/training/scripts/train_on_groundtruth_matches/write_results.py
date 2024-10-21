@@ -36,9 +36,14 @@ def get_fragmented_matches_nrp_ids(matches: List[dict],
                                    bgc_variants: Dict[str, dict],
                                    nrp_variants: Dict[str, dict]) -> List[str]:
     nrp_ids = {match['NRP'] for match in matches}
+    def bgc_fragments_cnt(nrp_id: str) -> int:
+        return max(module['fragment_idx']
+                   for module in bgc_variants[nrp_id]['modules']) + 1
+    def nrp_fragments_cnt(nrp_id: str) -> int:
+        return len(nrp_variants[nrp_id]['fragments'])
     return [nrp_id for nrp_id in nrp_ids
-            if len(bgc_variants[nrp_id]['fragments']) > 1
-            or len(nrp_variants[nrp_id]['fragments']) > 1]
+            if bgc_fragments_cnt(nrp_id) > 1
+            or nrp_fragments_cnt(nrp_id) > 1]
 
 
 def write_results(matches: List[dict],

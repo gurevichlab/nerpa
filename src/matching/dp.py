@@ -99,7 +99,7 @@ def calculate_dp(assembly_line: List[BGC_Module],
                     if prev_bgc_module is not None and bgc_module.fragment_idx != prev_bgc_module.fragment_idx:
                         prev_fragment_start, prev_fragment_end = fragments_intervals[prev_bgc_module.fragment_idx]
                         transitions.append((DP_State(prev_fragment_start, j, gene_reps, module_reps - 1),
-                                            dp_helper.fragment_skip, (prev_fragment_start, prev_fragment_end)))
+                                            dp_helper.bgc_fragment_skip, (prev_fragment_start, prev_fragment_end)))
 
                     # iterate module
                     if next_bgc_module is not None and next_bgc_module.iterative_module:
@@ -113,6 +113,7 @@ def calculate_dp(assembly_line: List[BGC_Module],
                         next_gene_end = genes_intervals[next_bgc_module.gene_id][1]
                         transitions.append((DP_State(next_gene_end + 1, j, gene_reps - 1, module_reps),
                                             dp_helper.iterate_gene, ()))
+
                     dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*(args + (dp_state,))),
                                                                                FUNCTION_NAME_TO_STEP_TYPE[transition.__name__])
                                                                               for dp_state, transition, args in transitions
@@ -130,16 +131,36 @@ def retrieve_alignment(dp_table: DP_Table,
         return []
 
     parent = dp_table[state].parent
-    bgc_module = assembly_line[parent.module_pos] if parent.module_pos < state.module_pos else None
+    # more than one bgc module in case of gene/fragment skip
+    bgc_modules = assembly_line[parent.module_pos:state.module_pos] if parent.module_pos < state.module_pos else None
     nrp_monomer = nrp_monomers[parent.monomer_pos] if parent.monomer_pos < state.monomer_pos else None
-    score = scoring_helper.match_detailed_score(bgc_module, nrp_monomer) if dp_table[state].action == AlignmentStepType.MATCH \
-            else dp_table[state].score - dp_table[parent].score
+    score = scoring_helper.match_detailed_score(bgc_modules[0], nrp_monomer) if dp_table[state].action == AlignmentStepType.MATCH \
+        else dp_table[state].score - dp_table[parent].score
 
-    return (retrieve_alignment(dp_table, parent, assembly_line, nrp_monomers, scoring_helper)
-            + [AlignmentStep(bgc_module=bgc_module,
-                             nrp_monomer=nrp_monomer,
-                             score=score,
-                             action=dp_table[state].action)])
+    match dp_table[state].action:
+        case AlignmentStepType.MATCH:
+            alignment_steps = [AlignmentStep(bgc_module=bgc_modules[0],
+                                             nrp_monomer=nrp_monomer,
+                                             score=score,
+                                             action=AlignmentStepType.MATCH)]
+        case AlignmentStepType.BGC_MODULE_SKIP | AlignmentStepType.GENE_SKIP | AlignmentStepType.BGC_FRAGMENT_SKIP:
+            step_scores = [score] + [0] * (len(bgc_modules) - 1)
+            alignment_steps = [AlignmentStep(bgc_module=bgc_module,
+                                             nrp_monomer=nrp_monomer,
+                                             score=step_score,
+                                             action=dp_table[state].action)
+                               for bgc_module, step_score in zip(bgc_modules, step_scores)]
+        case AlignmentStepType.NRP_MONOMER_INSERT:
+            alignment_steps = [AlignmentStep(bgc_module=None,
+                                             nrp_monomer=nrp_monomer,
+                                             score=score,
+                                             action=AlignmentStepType.NRP_MONOMER_INSERT)]
+        case AlignmentStepType.ITERATE_MODULE | AlignmentStepType.ITERATE_GENE:
+            alignment_steps = [AlignmentStep(bgc_module=None,
+                                             nrp_monomer=None,
+                                             score=score,
+                                             action=dp_table[state].action)]
+    return retrieve_alignment(dp_table, parent, assembly_line, nrp_monomers, scoring_helper) + alignment_steps
 
 
 def get_alignment(assembly_line: List[BGC_Module],

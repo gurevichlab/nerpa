@@ -104,11 +104,19 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
 
     backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, monomer_names_helper=monomer_names_helper)
 
-    # all fragments individually
+    all_fragments = [backbone_to_fragment(backbone)
+                     for backbone in putative_backbones(graph)]
+    proper_fragments = [fragment
+                        for fragment in all_fragments
+                        if len(fragment.monomers) > 1 or fragment.monomers[0].residue != UNKNOWN_RESIDUE]
+    isolated_unknown_monomers = [fragment.monomers[0]
+                                 for fragment in all_fragments
+                                 if len(fragment.monomers) == 1 and fragment.monomers[0].residue == UNKNOWN_RESIDUE]
+
     return NRP_Variant(variant_idx=0,
                        nrp_id=rban_record.compound_id,
-                       fragments=[backbone_to_fragment(backbone)
-                                  for backbone in putative_backbones(graph)])
+                       fragments=proper_fragments,
+                       isolated_unknown_monomers=isolated_unknown_monomers)
 
 
 def retrieve_nrp_variants(rban_records: List[Parsed_rBAN_Record],

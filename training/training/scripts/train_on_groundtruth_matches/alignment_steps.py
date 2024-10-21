@@ -20,8 +20,7 @@ def module_for_step(step: AlignmentStepDict,
     if step['Alignment_step'] == 'NRP_MONOMER_SKIP':
         return None
     return next(module
-                for fragment in bgc_variant['fragments']
-                for module in fragment
+                for module in bgc_variant['modules']
                 if module['gene_id'] == step['Gene'] and module['a_domain_idx'] == step['A-domain_idx'])
 
 def specificity_predictions_for_step(step: AlignmentStepDict,
@@ -119,12 +118,12 @@ def get_step_key(step_idx: int, alignment: List[dict]) -> StepKey:
                            nrp_residue=step['NRP_residue'])
         case 'NRP_MONOMER_SKIP':
             if previous_match_step_idx is None:
-                return StepKey(step_type=AlignmentStepType.NRP_MONOMER_SKIP,
+                return StepKey(step_type=AlignmentStepType.NRP_MONOMER_INSERT,
                                dist_to_previous_match_step=None,
                                dist_to_next_match_step=next_match_step_idx - step_idx)
             else:
                 previous_match_step = alignment[previous_match_step_idx]
-                return StepKey(step_type=AlignmentStepType.NRP_MONOMER_SKIP,
+                return StepKey(step_type=AlignmentStepType.NRP_MONOMER_INSERT,
                                gene=previous_match_step['Gene'],
                                a_domain_idx=previous_match_step['A-domain_idx'],
                                dist_to_previous_match_step=step_idx - previous_match_step_idx)
