@@ -30,10 +30,9 @@ def calibrated_bgc_variants(_bgc_variants: List[BGC_Variant],
                             specificity_prediction_config: SpecificityPredictionConfig) -> List[BGC_Variant]:
     bgc_variants = deepcopy(_bgc_variants)
     for bgc_variant in bgc_variants:
-        for bgc_fragment in bgc_variant.fragments:
-            for module in bgc_fragment:
-                module.residue_score = calibrate_scores(module.residue_score,
-                                                        specificity_prediction_config)
+        for module in bgc_variant.modules:
+            module.residue_score = calibrate_scores(module.residue_score,
+                                                    specificity_prediction_config)
     return bgc_variants
 
 

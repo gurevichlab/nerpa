@@ -130,18 +130,18 @@ def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
                                     for gene_idx, gene in enumerate(bgc_genes)))
 
 
-def build_bgc_fragments(raw_fragmented_bgc: List[BGC_Cluster],
-                        residue_scoring_model: Any,
-                        monomer_names_helper: MonomerNamesHelper,
-                        config: antiSMASH_Parsing_Config) -> List[BGC_Fragment]:
+def build_bgc_assembly_line(raw_fragmented_bgc: List[BGC_Cluster],
+                            residue_scoring_model: Any,
+                            monomer_names_helper: MonomerNamesHelper,
+                            config: antiSMASH_Parsing_Config) -> List[BGC_Module]:
 
-    return [build_bgc_fragment_assembly_line(bgc_fragment.genes,
-                                             fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
-                                             fragment_idx=fgmnt_idx,
-                                             residue_scoring_model=residue_scoring_model,
-                                             monomer_names_helper=monomer_names_helper,
-                                             config=config)
-            for fgmnt_idx, bgc_fragment in enumerate(raw_fragmented_bgc)]
+    return list(chain(*(build_bgc_fragment_assembly_line(bgc_fragment.genes,
+                                                         fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
+                                                         fragment_idx=fgmnt_idx,
+                                                         residue_scoring_model=residue_scoring_model,
+                                                         monomer_names_helper=monomer_names_helper,
+                                                         config=config)
+                        for fgmnt_idx, bgc_fragment in enumerate(raw_fragmented_bgc))))
 
 
 # TODO: sometimes a module is split between genes (see BGC0002484). Maybe it's better to merge such modules?
@@ -168,9 +168,9 @@ def build_bgc_variants(bgc: BGC_Cluster,
     return [BGC_Variant(genome_id=bgc.genome_id,
                         variant_idx=idx,
                         bgc_idx=bgc.bgc_idx,
-                        fragments=build_bgc_fragments(raw_fragmented_bgc,
-                                                      residue_scoring_model,
-                                                      monomer_names_helper,
-                                                      config),
-                        has_pks_domains=bgc.has_pks_domains())
-            for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)]
+                        modules=assembly_line)
+            for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)
+            if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,
+                                                         residue_scoring_model,
+                                                         monomer_names_helper,
+                                                         config))]

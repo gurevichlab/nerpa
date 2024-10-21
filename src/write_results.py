@@ -87,12 +87,7 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
                        output_dir: Path):
     for (genome_id, bgc_id), bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: (bgc_variant.genome_id, bgc_variant.bgc_idx)):
-        bgc_variants_to_write = deepcopy(list(bgc_id_variants))
-        for bgc_variant in bgc_variants_to_write:
-            for fragment in bgc_variant.fragments:
-                for module in fragment:
-                    module.module_loc = list(module.module_loc)  # stub to get rid of nested lists in the output
-        write_yaml(bgc_variants_to_write, output_dir / f'{genome_id}_{bgc_id}.yaml')
+        write_yaml(list(bgc_id_variants), output_dir / f'{genome_id}_{bgc_id}.yaml')
 
 
 def write_matches_details(matches: List[Match],

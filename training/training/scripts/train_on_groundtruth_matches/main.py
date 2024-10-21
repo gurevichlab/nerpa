@@ -8,7 +8,7 @@ from check_matches import find_wrong_match
 from calculate_parameters import calculate_training_parameters
 from collections import defaultdict
 from write_results import write_results, show_match
-
+from itertools import islice
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train NERPA on groundtruth matches')
