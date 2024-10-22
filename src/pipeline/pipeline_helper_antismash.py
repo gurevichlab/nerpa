@@ -53,9 +53,6 @@ class PipelineHelper_antiSMASH:
         else:
             self.antismash_exec = get_path_to_program('antismash', min_version='5.0')
 
-    def load_antismash_results(self):
-        pass
-
     def preprocessed_bgc_variants(self) -> bool:
         return self.args.predictions is not None
 
@@ -69,8 +66,17 @@ class PipelineHelper_antiSMASH:
 
         return bgc_variants
 
+    # TODO: watch out for name collisions
+    def create_symlinks_to_antismash_results(self, antismash_dirs: Iterable[Path]):
+        for antismash_dir in antismash_dirs:
+            if antismash_dir.parent == self.config.paths.antismash_out_dir:
+                continue
+            symlink = self.config.paths.antismash_out_dir / antismash_dir.name
+            symlink.symlink_to(antismash_dir.resolve())
+
     # TODO: refactor: this function is doing too much
     def get_antismash_results(self) -> Iterable[antiSMASH_record]:
+        self.config.paths.antismash_out_dir.mkdir(exist_ok=True)
         antismash_results: List[Path] = []
         if self.args.antismash is not None:
             antismash_results.extend(self.args.antismash)
@@ -96,7 +102,8 @@ class PipelineHelper_antiSMASH:
         antismash_jsons = [antismash_json_file
                            for antismash_dir in antismash_results
                            for antismash_json_file in antismash_dir.glob('**/*.json')]
-        copy_to_main_out_dir()  # TBWR
+        self.create_symlinks_to_antismash_results(antismash_json.parent
+                                                  for antismash_json in antismash_jsons)
         return (antiSMASH_record(json.loads(antismash_json_file.read_text()))
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
