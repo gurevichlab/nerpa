@@ -45,7 +45,7 @@ def download_results_zip(job_id: str,
     response = requests.get(download_url)
 
     if response.status_code == 200:
-        downloaded_zip_filename = output_dir / f"antismash_results_{job_id}.zip"
+        downloaded_zip_filename = output_dir / f"{job_id}.zip"
 
         # Save the content as a zip file
         with downloaded_zip_filename.open("wb") as file:
@@ -71,7 +71,7 @@ def download_antismash_results(job_id: str,
     """
 
     results_zip = download_results_zip(job_id, output_dir, log)
-    results_dir = output_dir / f'antiSMASH_results_{job_id}'
+    results_dir = output_dir / job_id
     results_dir.mkdir()
     with zipfile.ZipFile(results_zip, 'r') as zip_ref:
         # Extract all contents to the specified directory
