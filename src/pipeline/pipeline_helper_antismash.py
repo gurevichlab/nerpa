@@ -7,6 +7,7 @@ from typing import (
 )
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
+from src.pipeline.download_antismash_results import download_antismash_results
 from src.config import Config, SpecificityPredictionConfig
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
@@ -52,6 +53,9 @@ class PipelineHelper_antiSMASH:
         else:
             self.antismash_exec = get_path_to_program('antismash', min_version='5.0')
 
+    def load_antismash_results(self):
+        pass
+
     def preprocessed_bgc_variants(self) -> bool:
         return self.args.predictions is not None
 
@@ -65,6 +69,7 @@ class PipelineHelper_antiSMASH:
 
         return bgc_variants
 
+    # TODO: refactor: this function is doing too much
     def get_antismash_results(self) -> Iterable[antiSMASH_record]:
         antismash_results: List[Path] = []
         if self.args.antismash is not None:
@@ -83,6 +88,15 @@ class PipelineHelper_antiSMASH:
                 raise e
             antismash_results.append(new_results)
 
+        if self.args.antismash_job_ids is not None:
+            antismash_results.extend(download_antismash_results(job_id,
+                                                                self.config.paths.antismash_out_dir,
+                                                                self.log)
+                                     for job_id in self.args.antismash_job_ids)
+        antismash_jsons = [antismash_json_file
+                           for antismash_dir in antismash_results
+                           for antismash_json_file in antismash_dir.glob('**/*.json')]
+        copy_to_main_out_dir()  # TBWR
         return (antiSMASH_record(json.loads(antismash_json_file.read_text()))
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
