@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import (
     Dict,
     Iterable,
@@ -34,7 +35,7 @@ from dataclasses import dataclass
 from itertools import groupby
 
 @dataclass
-class ModuleMatchInfo:
+class ModuleMatchStepInfo:
     step: AlignmentStep
     nrp_id: str
     bgc_module_context: ModuleLocFeatures
@@ -50,7 +51,7 @@ class ModuleMatchInfo:
 
 
 @dataclass
-class ModuleSkipInfo:
+class ModuleSkipStepInfo:
     step: AlignmentStep
     nrp_id: str
     bgc_module_context: ModuleLocFeatures
@@ -103,12 +104,28 @@ class BGCFragmentMatchInfo:
 
 @dataclass
 class MatchesSkipsSteps:
-    module_matches: List[ModuleMatchInfo]
-    module_skips: List[ModuleSkipInfo]
+    module_matches: List[ModuleMatchStepInfo]
+    module_skips: List[ModuleSkipStepInfo]
     gene_matches: List[GeneMatchInfo]
     gene_skips: List[GeneSkipInfo]
     bgc_fragment_matches: List[BGCFragmentMatchInfo]
     bgc_fragment_skips: List[BGCFragmentSkipInfo]
+
+
+    def join(self, other: MatchesSkipsSteps,
+             unique: bool = False) -> MatchesSkipsSteps:
+        joined_data = {}
+        for attr in self.__annotations__.keys():
+            current_list = getattr(self, attr)[:]
+            other_list = getattr(other, attr)
+            if unique:
+                for item in other_list:
+                    if item not in current_list:
+                        current_list.append(item)
+            else:
+                current_list.extend(other_list)
+            joined_data[attr] = current_list
+        return MatchesSkipsSteps(**joined_data)
 
 
 def fragments_matches_skips_info(steps_wo_ins: List[AlignmentStep],
@@ -191,14 +208,14 @@ def extract_matches_skips_info(alignment: List[AlignmentStep],
                       if module.gene_id == gene_id and module.a_domain_idx == a_domain_idx)
 
         if step.nrp_monomer_info is None:
-            module_skips.append(ModuleSkipInfo(step=step,
-                                              nrp_id=nrp_id,
-                                              bgc_module_context=module.module_loc))
+            module_skips.append(ModuleSkipStepInfo(step=step,
+                                                   nrp_id=nrp_id,
+                                                   bgc_module_context=module.module_loc))
         else:
-            module_matches.append(ModuleMatchInfo(step=step,
-                                                nrp_id=nrp_id,
-                                                bgc_module_context=module.module_loc,
-                                                residue_scores=module.residue_score))
+            module_matches.append(ModuleMatchStepInfo(step=step,
+                                                      nrp_id=nrp_id,
+                                                      bgc_module_context=module.module_loc,
+                                                      residue_scores=module.residue_score))
     return MatchesSkipsSteps(module_matches=module_matches,
                             module_skips=module_skips,
                             gene_matches=genes_matches,

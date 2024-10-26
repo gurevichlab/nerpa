@@ -13,13 +13,13 @@ from src.data_types import (
 )
 from src.matching.dp import get_alignment
 from src.matching.scoring_helper import ScoringHelper
-from src.matching.alignment_types import (
+from src.matching.matching_types_alignment import (
     Alignment,
     alignment_score,
     combined_alignments_score,
-    Match,
     show_alignment
 )
+from src.matching.matching_types_match import Match
 from src.matching.multiple_fragments_alignment_handling import (
     get_multiple_fragments_alignment,
     get_iterative_bgc_alignment,
@@ -93,10 +93,10 @@ def get_match(bgc_variant: BGC_Variant,
     normalized_score = get_normalized_score(bgc_variant, nrp_variant,
                                             best_fragments_alignment,
                                             dp_helper)
-    return Match(bgc_variant,
-                 nrp_variant,
-                 best_fragments_alignment,
-                 normalized_score)
+    return Match(bgc_variant=bgc_variant,
+                 nrp_variant=nrp_variant,
+                 alignments=best_fragments_alignment,
+                 normalized_score=normalized_score)
 
 
 def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,

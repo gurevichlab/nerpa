@@ -26,16 +26,49 @@ from src.data_types import (
     LogProb,
     NRP_Variant
 )
-from auxilary_types import StepInfo
+from extract_insert_steps import InsertRunsInfo, extract_inserts_info
+from extract_matches_skips_steps import MatchesSkipsSteps, extract_matches_skips_info
 
 
+@dataclass
+class StepsInfo:
+    matches_and_skips: MatchesSkipsSteps
+    insert_runs: InsertRunsInfo
 
 
-def get_matches_stats(match: Match,
-                      bgc_variant: BGC_Variant,
-                      nrp_variant: NRP_Variant) -> MatchStats:
-    module_skips, gene_skips, fragment_skips = get_skips(match, bgc_variant)
-    return MatchStats(match_steps=match.alignment)
+def get_steps_info(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> StepsInfo:
+    matches_and_skips = MatchesSkipsSteps(module_matches=[], module_skips=[],
+                                          gene_matches=[], gene_skips=[],
+                                          bgc_fragment_matches=[], bgc_fragment_skips=[])
+    insert_runs = InsertRunsInfo(inserts=[], inserts_at_start=[])
 
-def get_matches_stats_for_bgc(matches_with_bgc_nrp: Iterable[MatchWithBGCNRP]):
-    pass
+    # q: group matches by bgc_id
+    bgc_id_to_bgc_variant = {(match_with_bgcs_nrps.bgc_variant.genome_id, match_with_bgcs_nrps.bgc_variant.bgc_idx): match_with_bgcs_nrps.bgc_variant
+                              for match_with_bgcs_nrps in matches_with_bgcs_nrps}
+    bgc_id_to_matches = {(match_with_bgcs_nrps.bgc_variant.genome_id, match_with_bgcs_nrps.bgc_variant.bgc_idx): []
+                         for match_with_bgcs_nrps in matches_with_bgcs_nrps}
+    for match_with_bgcs_nrps in matches_with_bgcs_nrps:
+        bgc_id_to_matches[(match_with_bgcs_nrps.bgc_variant.genome_id, match_with_bgcs_nrps.bgc_variant.bgc_idx)].append(match_with_bgcs_nrps.match)
+
+    for bgc_id, bgc_variant in bgc_id_to_bgc_variant.items():
+        matches = bgc_id_to_matches[bgc_id]
+        new_steps_info = get_matches_stats_for_bgc(matches, bgc_variant)
+        matches_and_skips.join(new_steps_info.matches_and_skips, unique=False)
+        insert_runs.join(new_steps_info.insert_runs, unique=False)
+    return StepsInfo(matches_and_skips, insert_runs)
+
+
+# TODO: in the future normalize counts for each NRP family to avoid overfitting
+def get_matches_stats_for_bgc(matches: List[Match],
+                              bgc_variant: BGC_Variant) -> StepsInfo:
+    matches_and_skips = MatchesSkipsSteps(module_matches=[], module_skips=[],
+                                          gene_matches=[], gene_skips=[],
+                                          bgc_fragment_matches=[], bgc_fragment_skips=[])
+    insert_runs = InsertRunsInfo(inserts=[], inserts_at_start=[])
+    for match in matches:
+        for alignment in match.alignments:
+            new_matches_and_skips = extract_matches_skips_info(alignment, bgc_variant, match.nrp_variant_info.nrp_id)
+            new_insert_runs = extract_inserts_info(alignment, bgc_variant, match.nrp_variant_info.nrp_id)
+            matches_and_skips.join(new_matches_and_skips, unique=False)
+            insert_runs.join(new_insert_runs, unique=False)
+    return StepsInfo(matches_and_skips, insert_runs)

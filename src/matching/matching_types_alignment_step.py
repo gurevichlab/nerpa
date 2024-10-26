@@ -4,16 +4,20 @@ from typing import (
     NamedTuple,
     List,
     Optional,
+    Tuple
 )
 from src.data_types import (
-    LogProb,
+    BGC_Module,
     BGC_Module_Modification,
+    LogProb,
+    NRP_Monomer,
     Chirality
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer_Modification
 from enum import Enum, auto
 from collections import OrderedDict
+from dataclasses import dataclass
 
 
 class AlignmentStep_BGC_Module_Info(NamedTuple):
@@ -25,16 +29,16 @@ class AlignmentStep_BGC_Module_Info(NamedTuple):
     aa34_code: str
 
     @classmethod
-    def from_bgc_module(cls, BGC_Module) -> AlignmentStep_BGC_Module_Info:
-        top_score = max(BGC_Module.residue_score.values())
-        top_residues = [res for res, score in BGC_Module.residue_score.items()
+    def from_bgc_module(cls, bgc_module: BGC_Module) -> AlignmentStep_BGC_Module_Info:
+        top_score = max(bgc_module.residue_score.values())
+        top_residues = [res for res, score in bgc_module.residue_score.items()
                         if score == top_score]
-        return cls(gene_id=BGC_Module.gene_id,
-                   a_domain_idx=BGC_Module.a_domain_idx,
+        return cls(gene_id=bgc_module.gene_id,
+                   a_domain_idx=bgc_module.a_domain_idx,
                    top_scoring_residues=top_residues,
-                   modifying_domains=BGC_Module.modifications,
-                   aa10_code=BGC_Module.aa10_code,
-                   aa34_code=BGC_Module.aa34_code)
+                   modifying_domains=list(bgc_module.modifications),
+                   aa10_code=bgc_module.aa10_code,
+                   aa34_code=bgc_module.aa34_code)
 
 
 class AlignmentStep_NRP_Monomer_Info(NamedTuple):
@@ -45,12 +49,12 @@ class AlignmentStep_NRP_Monomer_Info(NamedTuple):
     rban_idx: int
 
     @classmethod
-    def from_nrp_monomer(cls, NRP_Monomer) -> AlignmentStep_NRP_Monomer_Info:
-        return cls(residue=NRP_Monomer.residue,
-                   chirality=NRP_Monomer.chirality,
-                   modifications=NRP_Monomer.modifications,
-                   rban_name=NRP_Monomer.rban_name,
-                   rban_idx=NRP_Monomer.rban_idx)
+    def from_nrp_monomer(cls, nrp_monomer: NRP_Monomer) -> AlignmentStep_NRP_Monomer_Info:
+        return cls(residue=nrp_monomer.residue,
+                   chirality=nrp_monomer.chirality,
+                   modifications=list(nrp_monomer.modifications),
+                   rban_name=nrp_monomer.rban_name,
+                   rban_idx=nrp_monomer.rban_idx)
 
 
 class AlignmentStepType(Enum):
@@ -69,7 +73,8 @@ class MatchDetailedScore(NamedTuple):
     chirality_score: LogProb
 
 
-class AlignmentStep(NamedTuple):
+@dataclass
+class AlignmentStep:
     bgc_module_info: Optional[AlignmentStep_BGC_Module_Info]
     nrp_monomer_info: Optional[AlignmentStep_NRP_Monomer_Info]
     score: LogProb
@@ -77,6 +82,21 @@ class AlignmentStep(NamedTuple):
     step_type: AlignmentStepType
 
     NA = '---'
+
+    def __init__(self,
+                 bgc_module: Optional[BGC_Module],
+                 nrp_monomer: Optional[NRP_Monomer],
+                 score: LogProb,
+                 step_type: AlignmentStepType,
+                 match_detailed_score: Optional[MatchDetailedScore] = None):
+        self.bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
+            if bgc_module else None
+        self.nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
+            if nrp_monomer else None
+        self.score = score
+        self.match_detailed_score = match_detailed_score
+        self.step_type = step_type
+
 
     def get_score(self) -> LogProb:  # TODO: this method is kept for backward compatibility, remove it in the future
         return self.score

@@ -22,7 +22,7 @@ from src.antismash_parsing.location_features import (
     ModuleLocFeature,
 )
 from src.monomer_names_helper import UNKNOWN_RESIDUE
-from src.matching.alignment_types import AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStepType
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
