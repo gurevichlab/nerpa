@@ -15,6 +15,7 @@ from training.training.scripts.train_on_groundtruth_matches.alignment_steps impo
 from alignment_steps import AlignmentStepInfo, StepType
 from itertools import groupby
 from enum import Enum, auto
+from extract_insert_steps import InsertRunsInfo
 
 MatchDict = dict
 NRP_VariantDict = dict
@@ -23,7 +24,8 @@ BGC_VariantDict = dict
 T = TypeVar('T')
 
 
-def get_insert_cnts(alignment_steps_info: List[AlignmentStepInfo]) -> Dict[ModuleLocFeatures, Dict[StepType, List[str]]]:
+def group_by_module_context(inserts_info: InsertRunsInfo) \
+        -> Tuple[Dict[ModuleLocFeatures, 
     cnt_per_mod_loc = defaultdict(lambda: defaultdict(list))
     for predictions, step_info, mod_locs_with_step_types, nrp_id in alignment_steps_info:
         for mod_loc, step_type in mod_locs_with_step_types:
@@ -47,7 +49,7 @@ def get_insert_prob(num_matches: int, num_inserts: int,
 
 def get_insert_probabilities(alignment_steps_info: List[AlignmentStepInfo]) \
         -> Tuple[Dict[ModuleLocFeatures, float], Dict[ModuleLocFeatures, float]]:  # insert_after, insert_before
-    insert_cnts = get_insert_cnts(alignment_steps_info)
+    insert_cnts = group_by_module_context(alignment_steps_info)
     total_steps_for_step_type = {step_type: sum(len(step_type_to_steps[step_type])
                                                 for mod_loc, step_type_to_steps in insert_cnts.items())
                                  for step_type in StepType}

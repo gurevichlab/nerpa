@@ -2,13 +2,18 @@ import argparse
 import pandas as pd
 from pathlib import Path
 import yaml
-from typing import Dict, List
+from typing import Dict, List, NamedTuple
 from run_nerpa import run_nerpa_on_all_pairs
 from check_matches import find_wrong_match
 from calculate_parameters import calculate_training_parameters
 from collections import defaultdict
 from write_results import write_results, show_match
+from src.matching.matching_types_match import Match
+from src.data_types import BGC_Variant, NRP_Variant
+from norine_stats import NorineStats
+from auxilary_types import MatchWithBGCNRP
 from itertools import islice
+import dacite
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train NERPA on groundtruth matches')
@@ -41,12 +46,14 @@ def parse_args():
     return args
 
 
-def load_matches(nerpa_results_dir: Path) -> List[dict]:
+def load_matches(nerpa_results_dir: Path) -> List[Match]:
     matches = []
     for results_dir in nerpa_results_dir.iterdir():
         with open(results_dir / 'matches_details/matches.yaml') as matches_file:
-            best_match = max(yaml.safe_load(matches_file),
-                             key=lambda match: match['NormalisedScore'],
+            loaded_matches = map(lambda match_dict: Match.from_dict(match_dict),
+                                 yaml.safe_load(matches_file))
+            best_match = max(loaded_matches,
+                             key=lambda match: match.normalized_score,
                              default=None)
             if best_match is None:
                 with open('warning.txt', 'a') as f:
@@ -56,9 +63,9 @@ def load_matches(nerpa_results_dir: Path) -> List[dict]:
     return matches
 
 
-def load_bgc_variants_for_matches(matches: List[dict],
-                                  nerpa_results_dir: Path) -> Dict[str, dict]:  # nrp_id -> bgc_variant
-    nrp_ids = {match['NRP'] for match in matches}
+def load_bgc_variants_for_matches(matches: List[Match],
+                                  nerpa_results_dir: Path) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
+    nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
     bgc_variants = defaultdict(list)
     for nrp_id in nrp_ids:
         bgc_dir = nerpa_results_dir / nrp_id
@@ -69,30 +76,35 @@ def load_bgc_variants_for_matches(matches: List[dict],
             print(f'No BGC variants for {nrp_id}')
             raise
         for yaml_file in yaml_files:
-            bgc_variants[nrp_id].extend(yaml.safe_load(yaml_file.read_text()))
+            bgc_variants[nrp_id].extend(BGC_Variant.from_yaml_dict(bgc_variant_dict)
+                                        for bgc_variant_dict in yaml.safe_load(yaml_file.read_text()))
 
     nrp_id_to_bgc_variant = {}
     for match in matches:
+        nrp_id = match.nrp_variant_info.nrp_id
+        bgc_variant_idx = match.bgc_variant_info.variant_idx
         try:
-            bgc_variant = next(variant for variant in bgc_variants[match['NRP']]
-                               if variant['variant_idx'] == match['BGC_variant_idx'])
+            bgc_variant = next(bgc_variant
+                               for bgc_variant in bgc_variants[nrp_id]
+                               if bgc_variant.variant_idx == bgc_variant_idx)
         except StopIteration:
-            print(f'No BGC variant {match["BGC_variant_idx"]} for {match["NRP"]}')
+            print(f'No BGC variant {bgc_variant_idx} for {nrp_id}')
             raise
-        nrp_id_to_bgc_variant[match['NRP']] = bgc_variant
+        nrp_id_to_bgc_variant[nrp_id] = bgc_variant
     return nrp_id_to_bgc_variant
 
 
-def load_nrp_variants_for_matches(matches: List[dict],
-                                  nerpa_results_dir: Path) -> Dict[str, dict]:  # nrp_id -> nrp_variant
+def load_nrp_variants_for_matches(matches: List[Match],
+                                  nerpa_results_dir: Path) -> Dict[str, NRP_Variant]:  # nrp_id -> nrp_variant
         nrp_variants = {}
         for match in matches:
-            nrp_id = match['NRP']
-            nrp_id_matches_file = nerpa_results_dir / nrp_id / 'NRP_variants' / f'{nrp_id}.yaml'
-            nrp_id_matches = yaml.safe_load(nrp_id_matches_file.read_text())
-            nrp_variants[nrp_id] = next(nrp_id_match
-                                        for nrp_id_match in nrp_id_matches
-                                        if nrp_id_match['variant_idx'] == match['NRP_variant_idx'])
+            nrp_id = match.nrp_variant_info.nrp_id
+            yaml_file = nerpa_results_dir / nrp_id / 'NRP_variants' / f'{nrp_id}.yaml'
+            loaded_nrp_variants = (NRP_Variant.from_yaml_dict(nrp_variant_dict)
+                                   for nrp_variant_dict in yaml.safe_load(yaml_file.read_text()))
+            nrp_variants[nrp_id] = next(nrp_variant
+                                        for nrp_variant in loaded_nrp_variants
+                                        if nrp_variant.variant_idx == match.nrp_variant_info.variant_idx)
         return nrp_variants
 
 
@@ -115,28 +127,27 @@ def main():
     nrp_variants = load_nrp_variants_for_matches(matches, nerpa_results_dir)
 
     nrp_ids_good_matches = list(matches_table[matches_table['Verdict'] == 'good']['NRP variant'])
-    approved_matches = [match  # in case some good matches were reconsidered
-                        for match in yaml.safe_load(args.approved_matches.read_text())
-                        if match['NRP'] in nrp_ids_good_matches]
+    approved_matches = [Match.from_dict(match_dict)
+                        for match_dict in yaml.safe_load(args.approved_matches.read_text())]
+    approved_matches = [match for match in approved_matches
+                        if match.nrp_variant_info.nrp_id in nrp_ids_good_matches]  # in case some good matches were reconsidered
 
     print('Checking matches')
     if (wrong_match_info := find_wrong_match(matches, approved_matches)) is not None:
-        nrp_id, wrong_match_str = wrong_match_info
-        correct_match_str = show_match(next(match for match in approved_matches
-                                            if match['NRP'] == nrp_id))
-        print(f'Error in matches: {nrp_id}\nAborting')
-        (args.output_dir / 'wrong_match.txt').write_text(f'Wrong:\n{wrong_match_str}\n\nCorrect:\n{correct_match_str}')
+        wrong_match, correct_match = wrong_match_info
+        print(f'Error in matches: {wrong_match.nrp_variant_info.nrp_id}\nAborting')
+        (args.output_dir / 'wrong_match.txt').write_text(f'Wrong:\n{wrong_match}\n\nCorrect:\n{correct_match}')
         print(f'First wrong match is saved in {args.output_dir / "wrong_match.txt"}')
         exit(0)
     else:
         print('All matches are correct')
 
-    matches_with_bgcs_nrps_for_training = [(match, bgc_variants[match['NRP']], nrp_variants[match['NRP']])
-                                      for match in matches
-                                      if match['NRP'] in nrp_ids_good_matches]
+    matches_with_bgcs_nrps_for_training = [MatchWithBGCNRP(match, bgc_variants[nrp_id], nrp_variants[nrp_id])
+                                           for match in matches
+                                           if (nrp_id := match.nrp_variant_info.nrp_id) in nrp_ids_good_matches]
     print('Calculating training parameters')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
-    norine_stats = yaml.safe_load(args.norine.read_text())
+    norine_stats = dacite.from_dict(NorineStats, yaml.safe_load(args.norine.read_text()))
     parameters = calculate_training_parameters(matches_with_bgcs_nrps_for_training,
                                                norine_stats, args.output_dir)
     print('Writing results')

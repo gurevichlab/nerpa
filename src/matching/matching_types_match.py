@@ -2,7 +2,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from io import StringIO
 from typing import List, NamedTuple
-from src.data_types import LogProb, GeneId
+from src.data_types import (
+    BGC_Variant,
+    LogProb,
+    NRP_Variant,
+    GeneId
+)
 from src.matching.matching_types_alignment_step import AlignmentStep
 from src.matching.matching_types_alignment import Alignment, alignment_score, show_alignment, alignment_from_str
 from more_itertools import split_at
@@ -24,6 +29,20 @@ class Match:
     nrp_variant_info: Match_NRP_Variant_Info
     normalized_score: float
     alignments: List[Alignment]  # alignments of each fragment
+
+    def __init__(self,
+                 bgc_variant: BGC_Variant,
+                 nrp_variant: NRP_Variant,
+                 normalized_score: float,
+                 alignments: List[Alignment]):
+        self.bgc_variant_info = Match_BGC_Variant_Info(genome_id=bgc_variant.genome_id,
+                                                       bgc_idx=bgc_variant.bgc_idx,
+                                                       variant_idx=bgc_variant.variant_idx)
+        self.nrp_variant_info = Match_NRP_Variant_Info(nrp_id=nrp_variant.nrp_id,
+                                                         variant_idx=nrp_variant.variant_idx)
+        self.normalized_score = normalized_score
+        self.alignments = alignments
+
 
     def raw_score(self) -> LogProb:
         return sum(map(alignment_score, self.alignments))

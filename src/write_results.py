@@ -7,7 +7,7 @@ from typing import (
     Optional,
     Union
 )
-from src.matching.alignment_types import Match
+from src.matching.matching_types_match import Match
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
@@ -51,11 +51,11 @@ def build_report(matches: List[Match]) -> str:
                                 delimiter='\t')
     csv_writer.writeheader()
     csv_writer.writerows({'Score': match.normalized_score,
-                          'NRP_ID': match.nrp_variant.nrp_id,
-                          'NRP_Variant_Idx': match.nrp_variant.variant_idx,
-                          'Genome_ID': match.bgc_variant.genome_id,
-                          'BGC_ID': match.bgc_variant.bgc_idx,
-                          'BGC_Variant_Idx': match.bgc_variant.variant_idx}
+                          'NRP_ID': match.nrp_variant_info.nrp_id,
+                          'NRP_Variant_Idx': match.nrp_variant_info.variant_idx,
+                          'Genome_ID': match.bgc_variant_info.genome_id,
+                          'BGC_ID': match.bgc_variant_info.bgc_idx,
+                          'BGC_Variant_Idx': match.bgc_variant_info.variant_idx}
                          for match in matches)
     return result.getvalue()
 
@@ -93,16 +93,16 @@ def write_bgc_variants(bgc_variants: List[BGC_Variant],
 def write_matches_details(matches: List[Match],
                           output_dir: Path):
     (output_dir / Path('matches_details')).mkdir()
-    write_yaml([match.to_dict_light() for match in matches],
+    write_yaml([match.to_dict() for match in matches],
                output_dir / Path(f'matches_details/matches.yaml'))
 
     (output_dir / Path('matches_details/per_BGC')).mkdir()
     write_matches_per_id(matches, output_dir / Path('matches_details/per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant.genome_id}_{match.bgc_variant.bgc_idx}')
+                         get_id=lambda match: f'{match.bgc_variant_info.genome_id}_{match.bgc_variant_info.bgc_idx}')
 
     (output_dir / Path('matches_details/per_NRP')).mkdir()
     write_matches_per_id(matches, output_dir / Path('matches_details/per_NRP'),
-                         get_id=lambda match: match.nrp_variant.nrp_id)
+                         get_id=lambda match: match.nrp_variant_info.nrp_id)
 
 
 def write_results(matches: List[Match],

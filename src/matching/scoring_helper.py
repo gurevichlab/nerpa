@@ -26,7 +26,7 @@ from src.monomer_names_helper import UNKNOWN_RESIDUE, MonomerResidue
 
 from src.matching.dp_types import DP_State
 from src.matching.scoring_config import ScoringConfig, ModMatch, ChiralityMatch
-from src.matching.alignment_types import AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStepType, MatchDetailedScore
 from src.generic.other import get_score
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -113,7 +113,7 @@ class ScoringHelper:
         return 0  # placeholder for future scoring
 
     def match_detailed_score(self, bgc_module: BGC_Module,
-                             nrp_monomer: NRP_Monomer) -> Tuple[LogProb, LogProb, LogProb, LogProb]:
+                             nrp_monomer: NRP_Monomer) -> MatchDetailedScore:
         residue_score = self.match_residue_score(bgc_module.residue_score,
                                                  bgc_module.module_loc,
                                                  nrp_monomer.residue,
@@ -129,10 +129,9 @@ class ScoringHelper:
                                                      nrp_monomer.monomer_features)
 
         match_steptype_score = self.match_steptype_score(bgc_module.module_loc)
-        return (residue_score,
-                modifications_score,
-                chirality_score,
-                match_steptype_score)
+        return MatchDetailedScore(residue_score,
+                                  modifications_score,
+                                  chirality_score)
 
     def match(self, bgc_module_idx: int, nrp_monomer_idx: int, dp_state: Optional[DP_State] = None) -> LogProb:
         return sum(self.match_detailed_score(self.bgc_modules[bgc_module_idx],self.nrp_monomers[nrp_monomer_idx]))

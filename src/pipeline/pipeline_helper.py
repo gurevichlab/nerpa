@@ -22,7 +22,7 @@ from src.monomer_names_helper import MonomerNamesHelper
 
 from src.matching.scoring_config import load_scoring_config
 from src.matching.scoring_helper import ScoringHelper
-from src.matching.alignment_types import Match
+from src.matching.matching_types_match import Match
 from src.matching.matcher import get_matches
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 import src.write_results as report

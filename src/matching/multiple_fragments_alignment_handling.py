@@ -7,11 +7,11 @@ from typing import (
 )
 from src.data_types import BGC_Fragment, NRP_Monomer, NRP_Fragment, BGC_Module
 from src.generic.combinatorics import cyclic_shifts, split_sequence_subseqs
-from src.matching.alignment_types import Alignment, combined_alignments_score
+from src.matching.matching_types_alignment import Alignment, alignment_score, combined_alignments_score
 from src.matching.scoring_helper import ScoringHelper
 from src.matching.dp import LogProb
 from src.matching.dp import get_alignment
-from src.matching.alignment_types import alignment_score, AlignmentStep, AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStep, AlignmentStepType
 from itertools import chain, combinations, product, permutations
 
 

@@ -1,6 +1,6 @@
 from typing import NamedTuple, Optional
 import numpy.typing as npt
-from src.matching.alignment_types import AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStepType
 from src.data_types import LogProb
 
 
@@ -14,7 +14,7 @@ class DP_State(NamedTuple):
 class DP_Value(NamedTuple):
     score: LogProb
     parent: DP_State
-    action: AlignmentStepType
+    step_type: AlignmentStepType
 
 DP_Table = npt.NDArray[Optional[DP_Value]]
 
