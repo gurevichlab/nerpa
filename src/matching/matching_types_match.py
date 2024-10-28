@@ -18,10 +18,21 @@ class Match_BGC_Variant_Info(NamedTuple):
     bgc_idx: int
     variant_idx: int
 
+    @classmethod
+    def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> Match_BGC_Variant_Info:
+        return cls(genome_id=bgc_variant.genome_id,
+                   bgc_idx=bgc_variant.bgc_idx,
+                   variant_idx=bgc_variant.variant_idx)
+
 
 class Match_NRP_Variant_Info(NamedTuple):
     nrp_id: str
     variant_idx: int
+
+    @classmethod
+    def from_nrp_variant(cls, nrp_variant: NRP_Variant) -> Match_NRP_Variant_Info:
+        return cls(nrp_id=nrp_variant.nrp_id,
+                   variant_idx=nrp_variant.variant_idx)
 
 @dataclass
 class Match:
@@ -29,20 +40,6 @@ class Match:
     nrp_variant_info: Match_NRP_Variant_Info
     normalized_score: float
     alignments: List[Alignment]  # alignments of each fragment
-
-    def __init__(self,
-                 bgc_variant: BGC_Variant,
-                 nrp_variant: NRP_Variant,
-                 normalized_score: float,
-                 alignments: List[Alignment]):
-        self.bgc_variant_info = Match_BGC_Variant_Info(genome_id=bgc_variant.genome_id,
-                                                       bgc_idx=bgc_variant.bgc_idx,
-                                                       variant_idx=bgc_variant.variant_idx)
-        self.nrp_variant_info = Match_NRP_Variant_Info(nrp_id=nrp_variant.nrp_id,
-                                                         variant_idx=nrp_variant.variant_idx)
-        self.normalized_score = normalized_score
-        self.alignments = alignments
-
 
     def raw_score(self) -> LogProb:
         return sum(map(alignment_score, self.alignments))
@@ -66,7 +63,7 @@ class Match:
                                                            variant_idx=data['BGC_variant_idx']),
                    nrp_variant_info=Match_NRP_Variant_Info(nrp_id=data['NRP'],
                                                            variant_idx=data['NRP_variant_idx']),
-                   normalized_score=data['Normalised_score'],
+                   normalized_score=data['NormalisedScore'],
                    alignments=[[AlignmentStep.from_dict(alignment_step_data)
                                 for alignment_step_data in alignment_data]
                                for alignment_data in data['Alignments']])

@@ -17,6 +17,8 @@ from src.data_types import (
 )
 from src.matching.scoring_helper import ScoringHelper, FUNCTION_NAME_TO_STEP_TYPE
 from src.matching.matching_types_alignment_step import (
+    AlignmentStep_BGC_Module_Info,
+    AlignmentStep_NRP_Monomer_Info,
     AlignmentStep,
     AlignmentStepType,
     MatchDetailedScore
@@ -137,36 +139,24 @@ def retrieve_alignment(dp_table: DP_Table,
 
     parent = dp_table[state].parent
     # more than one bgc module in case of gene/fragment skip
-    bgc_modules = assembly_line[parent.module_pos:state.module_pos] if parent.module_pos < state.module_pos else None
+    bgc_modules = assembly_line[parent.module_pos:state.module_pos] if parent.module_pos < state.module_pos else [None]
     nrp_monomer = nrp_monomers[parent.monomer_pos] if parent.monomer_pos < state.monomer_pos else None
     score = dp_table[state].score - dp_table[parent].score
     match_detailed_score = scoring_helper.match_detailed_score(bgc_modules[0], nrp_monomer)  \
         if dp_table[state].step_type == AlignmentStepType.MATCH else None
+    step_scores = [score] + [0] * (len(bgc_modules) - 1)  # more than one bgc module in case of gene/fragment skip
 
-    match dp_table[state].step_type:
-        case AlignmentStepType.MATCH:
-            alignment_steps = [AlignmentStep(bgc_module=bgc_modules[0],
-                                             nrp_monomer=nrp_monomer,
-                                             score=score,
-                                             match_detailed_score=match_detailed_score,
-                                             step_type=AlignmentStepType.MATCH)]
-        case AlignmentStepType.BGC_MODULE_SKIP | AlignmentStepType.GENE_SKIP | AlignmentStepType.BGC_FRAGMENT_SKIP:
-            step_scores = [score] + [0] * (len(bgc_modules) - 1)
-            alignment_steps = [AlignmentStep(bgc_module=bgc_module,
-                                             nrp_monomer=nrp_monomer,
+    alignment_steps = []
+    for bgc_module, step_score in zip(bgc_modules, step_scores):
+        bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
+            if bgc_module is not None else None
+        nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
+            if nrp_monomer is not None else None
+        alignment_steps.append(AlignmentStep(bgc_module_info=bgc_module_info,
+                                             nrp_monomer_info=nrp_monomer_info,
                                              score=step_score,
-                                             step_type=dp_table[state].step_type)
-                               for bgc_module, step_score in zip(bgc_modules, step_scores)]
-        case AlignmentStepType.NRP_MONOMER_INSERT:
-            alignment_steps = [AlignmentStep(bgc_module=None,
-                                             nrp_monomer=nrp_monomer,
-                                             score=score,
-                                             step_type=AlignmentStepType.NRP_MONOMER_INSERT)]
-        case AlignmentStepType.ITERATE_MODULE | AlignmentStepType.ITERATE_GENE:
-            alignment_steps = [AlignmentStep(bgc_module=None,
-                                             nrp_monomer=None,
-                                             score=score,
-                                             step_type=dp_table[state].step_type)]
+                                             match_detailed_score=match_detailed_score,
+                                             step_type=dp_table[state].step_type))
     return retrieve_alignment(dp_table, parent, assembly_line, nrp_monomers, scoring_helper) + alignment_steps
 
 

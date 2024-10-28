@@ -48,7 +48,7 @@ def parse_args():
 
 def load_matches(nerpa_results_dir: Path) -> List[Match]:
     matches = []
-    for results_dir in nerpa_results_dir.iterdir():
+    for results_dir in islice(nerpa_results_dir.iterdir(), 10):
         with open(results_dir / 'matches_details/matches.yaml') as matches_file:
             loaded_matches = map(lambda match_dict: Match.from_dict(match_dict),
                                  yaml.safe_load(matches_file))
@@ -119,7 +119,8 @@ def main():
         nerpa_dir = Path('/home/ilianolhin/git/nerpa2')  # TODO: remove hardcoded path
         nerpa_results_dir = run_nerpa_on_all_pairs(matches_table,
                                                    args.antismash_results_dir, args.rban_results_dir,
-                                                   nerpa_dir, args.output_dir / 'nerpa_results')
+                                                   nerpa_dir, args.output_dir / 'nerpa_results',
+                                                   max_num_pairs=10)
 
     print('Loading Nerpa results')
     matches = load_matches(nerpa_results_dir)

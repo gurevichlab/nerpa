@@ -83,21 +83,6 @@ class AlignmentStep:
 
     NA = '---'
 
-    def __init__(self,
-                 bgc_module: Optional[BGC_Module],
-                 nrp_monomer: Optional[NRP_Monomer],
-                 score: LogProb,
-                 step_type: AlignmentStepType,
-                 match_detailed_score: Optional[MatchDetailedScore] = None):
-        self.bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
-            if bgc_module else None
-        self.nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
-            if nrp_monomer else None
-        self.score = score
-        self.match_detailed_score = match_detailed_score
-        self.step_type = step_type
-
-
     def get_score(self) -> LogProb:  # TODO: this method is kept for backward compatibility, remove it in the future
         return self.score
 
@@ -133,11 +118,13 @@ class AlignmentStep:
         if data['Gene'] == AlignmentStep.NA:
             bgc_module_info = None
         else:
+            modifying_domains = [BGC_Module_Modification[mod]
+                                 for mod in data['Modifying_domains'].split(',')] \
+                if data['Modifying_domains'] != AlignmentStep.NA else []
             bgc_module_info = AlignmentStep_BGC_Module_Info(gene_id=data['Gene'],
                                                             a_domain_idx=data['A-domain_idx'],
                                                             top_scoring_residues=data['Top_scoring_residues'].split(','),
-                                                            modifying_domains=[BGC_Module_Modification[mod]
-                                                                               for mod in data['Modifying_domains'].split(',')],
+                                                            modifying_domains=modifying_domains,
                                                             aa10_code=data['aa10_code'],
                                                             aa34_code=data['aa34_code'])
 
@@ -145,10 +132,12 @@ class AlignmentStep:
         if data['NRP_residue'] == AlignmentStep.NA:
             nrp_monomer_info = None
         else:
+            modifications = [NRP_Monomer_Modification[mod]
+                             for mod in data['NRP_modifications'].split(',')] \
+                if data['NRP_modifications'] != AlignmentStep.NA else []
             nrp_monomer_info = AlignmentStep_NRP_Monomer_Info(residue=data['NRP_residue'],
                                                               chirality=Chirality[data['NRP_chirality']],
-                                                              modifications=[NRP_Monomer_Modification[mod]
-                                                                             for mod in data['NRP_modifications'].split(',')],
+                                                              modifications=modifications,
                                                               rban_name=data['rBAN_name'],
                                                               rban_idx=data['rBAN_idx'])
 
