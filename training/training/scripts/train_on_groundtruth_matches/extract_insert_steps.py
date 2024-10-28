@@ -39,13 +39,13 @@ from more_itertools import split_at
 class MonomerInsertRunInfo:
     nrp_id: str
     inserted_monomers: List[MonomerResidue]
-    prev_module_context: ModuleLocFeatures  # or the first module in the BGC if dist_to_prev_module is negative
-    prev_module_info: AlignmentStep_BGC_Module_Info  # or the first module in the BGC if dist_to_prev_module is negative
+    module_context: ModuleLocFeatures  # the module in the alignment matched to a monomer right before the inserted monomers
+    module_info: AlignmentStep_BGC_Module_Info
 
     def __eq__(self, other):
         return all([
-            self.prev_module_info.gene_id == other.prev_module_info.gene_id,
-            self.prev_module_info.a_domain_idx == other.prev_module_info.a_domain_idx,
+            self.module_info.gene_id == other.module_info.gene_id,
+            self.module_info.a_domain_idx == other.module_info.a_domain_idx,
             self.inserted_monomers == other.inserted_monomers
             ])
 
@@ -54,13 +54,13 @@ class MonomerInsertRunInfo:
 class MonomerInsertAtStartRunInfo:
     nrp_id: str
     inserted_monomers: List[MonomerResidue]
-    next_module_context: ModuleLocFeatures  # or the first module in the BGC if dist_to_prev_module is negative
-    next_module_info: AlignmentStep_BGC_Module_Info  # or the first module in the BGC if dist_to_prev_module is negative
+    module_context: ModuleLocFeatures  # the first module in the alignment matched to a monomer
+    module_info: AlignmentStep_BGC_Module_Info  # or the first module in the BGC if dist_to_prev_module is negative
 
     def __eq__(self, other):
         return all([
-            self.next_module_info.gene_id == other.prev_module_info.gene_id,
-            self.next_module_info.a_domain_idx == other.prev_module_info.a_domain_idx,
+            self.module_info.gene_id == other.module_info.gene_id,
+            self.module_info.a_domain_idx == other.module_info.a_domain_idx,
             self.inserted_monomers == other.inserted_monomers
         ])
 
@@ -108,8 +108,8 @@ def extract_inserts_info(alignment: List[AlignmentStep],
             nrp_id=nrp_id,
             inserted_monomers=[step.nrp_monomer_info.residue
                                for step in insert_runs[0]],
-            next_module_context=module.module_loc,
-            next_module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
+            module_context=module.module_loc,
+            module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
         ))
     else:
         gene_id = insert_runs[0][0].bgc_module_info.gene_id
@@ -119,8 +119,8 @@ def extract_inserts_info(alignment: List[AlignmentStep],
         insert_at_start_steps_info.append(MonomerInsertAtStartRunInfo(
             nrp_id=nrp_id,
             inserted_monomers=[],
-            next_module_context=module.module_loc,
-            next_module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
+            module_context=module.module_loc,
+            module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
         ))
 
     for steps1, steps2 in pairwise(insert_runs):
@@ -138,8 +138,8 @@ def extract_inserts_info(alignment: List[AlignmentStep],
         insert_steps_info.append(MonomerInsertRunInfo(
             nrp_id=nrp_id,
             inserted_monomers=inserted_monomers,
-            prev_module_context=module.module_loc,
-            prev_module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
+            module_context=module.module_loc,
+            module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
         ))
 
     return InsertRunsInfo(

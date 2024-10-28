@@ -39,6 +39,7 @@ class Chirality(Enum):
 yaml.add_representer(Chirality, enum_representer)
 yaml.add_representer(NRP_Monomer_Modification, enum_representer)
 yaml.add_representer(ModuleLocFeature, enum_representer)
+yaml.add_representer(MonomerFeature, enum_representer)
 
 
 @dataclass

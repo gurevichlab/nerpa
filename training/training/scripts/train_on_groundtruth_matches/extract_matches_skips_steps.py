@@ -38,7 +38,7 @@ from itertools import groupby
 class ModuleMatchStepInfo:
     step: AlignmentStep
     nrp_id: str
-    bgc_module_context: ModuleLocFeatures
+    context: ModuleLocFeatures
     residue_scores: Dict[MonomerResidue, LogProb]
 
     def __eq__(self, other):
@@ -54,7 +54,7 @@ class ModuleMatchStepInfo:
 class ModuleSkipStepInfo:
     step: AlignmentStep
     nrp_id: str
-    bgc_module_context: ModuleLocFeatures
+    context: ModuleLocFeatures
 
     def __eq__(self, other):
         return all([
@@ -67,7 +67,7 @@ class ModuleSkipStepInfo:
 class GeneSkipInfo:
     nrp_id: str
     gene_id: GeneId
-    bgc_gene_context: GeneLocFeatures
+    context: GeneLocFeatures
 
     def __eq__(self, other):
         return self.gene_id == other.gene_id
@@ -77,7 +77,7 @@ class GeneSkipInfo:
 class GeneMatchInfo:
     nrp_id: str
     gene_id: GeneId
-    bgc_gene_context: GeneLocFeatures
+    context: GeneLocFeatures
 
     def __eq__(self, other):
         return self.gene_id == other.gene_id
@@ -86,7 +86,7 @@ class GeneMatchInfo:
 class BGCFragmentSkipInfo:
     nrp_id: str
     fragment_genes: List[GeneId]
-    bgc_fragment_context: BGC_Fragment_Loc_Features
+    context: BGC_Fragment_Loc_Features
 
     def __eq__(self, other):
         return self.fragment_genes == other.fragment_genes  # account for the order of genes?
@@ -96,7 +96,7 @@ class BGCFragmentSkipInfo:
 class BGCFragmentMatchInfo:
     nrp_id: str
     fragment_genes: List[GeneId]
-    bgc_fragment_context: BGC_Fragment_Loc_Features
+    context: BGC_Fragment_Loc_Features
 
     def __eq__(self, other):
         return self.fragment_genes == other.fragment_genes  # account for the order of genes?
@@ -150,11 +150,11 @@ def fragments_matches_skips_info(steps_wo_ins: List[AlignmentStep],
         if all(step.nrp_monomer_info is None for step in fragment_steps):
             fragments_skips.append(BGCFragmentSkipInfo(nrp_id=nrp_id,
                                                        fragment_genes=fragment_genes,
-                                                       bgc_fragment_context=fragment_context))
+                                                       context=fragment_context))
         else:
             fragments_matches.append(BGCFragmentMatchInfo(nrp_id=nrp_id,
                                                           fragment_genes=fragment_genes,
-                                                          bgc_fragment_context=fragment_context))
+                                                          context=fragment_context))
     return fragments_matches, fragments_skips
 
 
@@ -175,11 +175,11 @@ def genes_matches_skips_info(steps_wo_ins: List[AlignmentStep],
             if all(step.nrp_monomer_info is None for step in gene_steps):
                 genes_skips.append(GeneSkipInfo(nrp_id=nrp_id,
                                                 gene_id=gene_id,
-                                                bgc_gene_context=gene_context))
+                                                context=gene_context))
             else:
                 genes_matches.append(GeneMatchInfo(nrp_id=nrp_id,
                                                    gene_id=gene_id,
-                                                   bgc_gene_context=gene_context))
+                                                   context=gene_context))
         return genes_matches, genes_skips
 
 
@@ -210,11 +210,11 @@ def extract_matches_skips_info(alignment: List[AlignmentStep],
         if step.nrp_monomer_info is None:
             module_skips.append(ModuleSkipStepInfo(step=step,
                                                    nrp_id=nrp_id,
-                                                   bgc_module_context=module.module_loc))
+                                                   context=module.module_loc))
         else:
             module_matches.append(ModuleMatchStepInfo(step=step,
                                                       nrp_id=nrp_id,
-                                                      bgc_module_context=module.module_loc,
+                                                      context=module.module_loc,
                                                       residue_scores=module.residue_score))
     return MatchesSkipsSteps(module_matches=module_matches,
                             module_skips=module_skips,

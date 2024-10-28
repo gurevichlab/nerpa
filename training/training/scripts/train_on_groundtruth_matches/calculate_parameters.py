@@ -18,7 +18,7 @@ from norine_stats import NorineStats
 from src.matching.heuristic_matching import HeuristicMatchingConfig
 from heuristics_thresholds import calculate_heuristic_parameters
 from indel_params import (
-    get_insert_probabilities,
+    get_insert_probabilities_all,
     get_skip_probs,
     SkipsProbs,
     BGC_Fragment_Loc_Features,
@@ -143,7 +143,7 @@ def calculate_training_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
     results['step_function'] = fit_step_function(match_steps, 100, 1000,
                                                  output_dir)  # TODO: put in config
     print('Calculating indel frequencies...')
-    results['insert_after_prob'], results['insert_at_start_prob'] = get_insert_probabilities(steps_info.insert_runs)
+    results['insert_after_prob'], results['insert_at_start_prob'] = get_insert_probabilities_all(steps_info.insert_runs)
     results['skip_probs'] = get_skip_probs(steps_info.matches_and_skips).to_dict()
 
     print('Calculating modifications frequencies...')

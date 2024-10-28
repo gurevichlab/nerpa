@@ -5,7 +5,7 @@ import dacite
 
 from src.data_types import LogProb, ModuleLocFeature, ModuleLocFeatures
 from src.monomer_names_helper import MonomerResidue
-from src.matching.alignment_types import AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStepType
 import yaml
 
 
