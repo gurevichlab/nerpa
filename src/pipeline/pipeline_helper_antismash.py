@@ -72,7 +72,8 @@ class PipelineHelper_antiSMASH:
             if antismash_dir.parent == self.config.paths.antismash_out_dir:
                 continue
             symlink = self.config.paths.antismash_out_dir / antismash_dir.name
-            symlink.symlink_to(antismash_dir.resolve())
+            if not symlink.exists():  # in case of a name collision keep only the first path (TODO: handle properly)
+                symlink.symlink_to(antismash_dir.resolve())
 
     # TODO: refactor: this function is doing too much
     def get_antismash_results(self) -> Iterable[antiSMASH_record]:
