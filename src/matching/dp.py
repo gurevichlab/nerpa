@@ -34,6 +34,7 @@ from src.matching.dp_types import (
 import numpy as np
 from itertools import groupby
 from functools import partial
+from collections import defaultdict
 
 
 def dp_recalc(dp_table: DP_Table,
@@ -44,23 +45,25 @@ def dp_recalc(dp_table: DP_Table,
 
 
 def get_genes_intervals(assembly_line: List[BGC_Module]) -> Dict[GeneId, Tuple[int, int]]:  # gene_id -> (start, end)
-    return {gene_id: (next(i
+    return defaultdict(lambda: (-1, -1),
+                       {gene_id: (next(i
                            for i, module in enumerate(assembly_line)
                            if module.gene_id == gene_id),
                       next(len(assembly_line) - 1 - i
                            for i, module in enumerate(reversed(assembly_line))
                            if module.gene_id == gene_id))
-            for gene_id in {module.gene_id for module in assembly_line}}
+            for gene_id in {module.gene_id for module in assembly_line}})
 
 
 def get_fragments_intervals(assembly_line: List[BGC_Module]) -> Dict[int, Tuple[int, int]]:  # fragment_idx -> (start, end)
-    return {fragment_idx: (next(i
+    return defaultdict(lambda: (-1, -1),
+                       {fragment_idx: (next(i
                                 for i, module in enumerate(assembly_line)
                                 if module.fragment_idx == fragment_idx),
                             next(len(assembly_line) - 1 - i
                                 for i, module in enumerate(reversed(assembly_line))
                                 if module.fragment_idx == fragment_idx))
-            for fragment_idx in {module.fragment_idx for module in assembly_line}}
+            for fragment_idx in {module.fragment_idx for module in assembly_line}})
 
 
 def calculate_dp(assembly_line: List[BGC_Module],
@@ -97,16 +100,16 @@ def calculate_dp(assembly_line: List[BGC_Module],
                     next_bgc_module = assembly_line[i] if i < len(assembly_line) else None
 
                     # gene skip
-                    if prev_bgc_module is not None and bgc_module.gene_id != prev_bgc_module.gene_id:
-                        prev_gene_start, prev_gene_end = genes_intervals[prev_bgc_module.gene_id]
-                        transitions.append((DP_State(prev_gene_start, j, gene_reps - 1, module_reps),
-                                            dp_helper.gene_skip, (prev_gene_start, prev_gene_end)))
+                    if next_bgc_module is None or next_bgc_module.gene_id != bgc_module.gene_id:
+                        gene_start, gene_end = genes_intervals[bgc_module.gene_id]
+                        transitions.append((DP_State(gene_start, j, gene_reps, module_reps),
+                                            dp_helper.gene_skip, (gene_start, gene_end)))
 
                     # fragment skip
-                    if prev_bgc_module is not None and bgc_module.fragment_idx != prev_bgc_module.fragment_idx:
-                        prev_fragment_start, prev_fragment_end = fragments_intervals[prev_bgc_module.fragment_idx]
-                        transitions.append((DP_State(prev_fragment_start, j, gene_reps, module_reps - 1),
-                                            dp_helper.bgc_fragment_skip, (prev_fragment_start, prev_fragment_end)))
+                    if next_bgc_module is None or next_bgc_module.fragment_idx != bgc_module.fragment_idx:
+                        fragment_start, fragment_end = fragments_intervals[bgc_module.fragment_idx]
+                        transitions.append((DP_State(fragment_start, j, gene_reps, module_reps),
+                                            dp_helper.bgc_fragment_skip, (fragment_start, fragment_end)))
 
                     # iterate module
                     if next_bgc_module is not None and next_bgc_module.iterative_module:

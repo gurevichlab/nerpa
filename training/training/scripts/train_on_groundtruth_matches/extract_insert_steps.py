@@ -95,9 +95,10 @@ def extract_inserts_info(alignment: List[AlignmentStep],
                          bgc_variant: BGC_Variant,
                          nrp_id: str) -> InsertRunsInfo:
     steps_wo_skips = [step for step in alignment if step.nrp_monomer_info is not None]
-    insert_runs = [list(steps)
+    insert_runs = [steps_list
                    for steps in split_at(steps_wo_skips, lambda step: step.step_type == AlignmentStepType.MATCH,
-                                         keep_separator=True)]
+                                         keep_separator=True)
+                   if (steps_list := list(steps))]  # to remove empty list in the beginning if the first step is a match
     insert_at_start_steps_info, insert_steps_info = [], []
     if insert_runs[0][0].step_type == AlignmentStepType.NRP_MONOMER_INSERT:
         gene_id = insert_runs[1][0].bgc_module_info.gene_id

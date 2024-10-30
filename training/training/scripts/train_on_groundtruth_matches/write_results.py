@@ -8,47 +8,27 @@ from dataclasses import asdict
 from src.write_results import write_yaml
 from step_function import plot_step_function
 from itertools import chain
+from src.matching.matching_types_match import Match
+from src.data_types import BGC_Variant, NRP_Variant
 
 
-def show_match(match: dict) -> str:
-    result = ''
-    result += f"Genome: {match['Genome']}\n"
-    result += f"BGC_variant_idx: {match['BGC_variant_idx']}\n"
-    result += f"NRP: {match['NRP']}\n"
-    result += f"NRP_variant_idx: {match['NRP_variant_idx']}\n"
-    result += f"NormalisedScore: {match['NormalisedScore']}\n"
-    result += f"Score: {match['Score']}\n"
-    result += f"Alignment:\n"
-    for i, alignment in enumerate(match['Alignments']):
-        if len(match['Alignments']) > 1:
-            result += f'Fragment_{i}\n'
-        fields = ['Gene', 'A-domain_idx', 'Top_scoring_residues', 'Modifying_domains', 'NRP_residue', 'NRP_chirality',
-                  'NRP_modifications', 'rBAN_name', 'rBAN_idx', 'Alignment_step',
-                  'Score', 'ResidueScore', 'MethylationScore', 'ChiralityScore']
-        t = PrettyTable(fields, align='l', border=False)
-        t.add_rows([alignment_step[field] for field in fields] for alignment_step in alignment)
-        result += str(t) + '\n'
-
-    return result
-
-
-def get_fragmented_matches_nrp_ids(matches: List[dict],
-                                   bgc_variants: Dict[str, dict],
-                                   nrp_variants: Dict[str, dict]) -> List[str]:
-    nrp_ids = {match['NRP'] for match in matches}
+def get_fragmented_matches_nrp_ids(matches: List[Match],
+                                   bgc_variants_by_nrp_id: Dict[str, BGC_Variant],
+                                   nrp_variants_by_nrp_id: Dict[str, NRP_Variant]) -> List[str]:
+    nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
     def bgc_fragments_cnt(nrp_id: str) -> int:
-        return max(module['fragment_idx']
-                   for module in bgc_variants[nrp_id]['modules']) + 1
+        return max(module.fragment_idx
+                   for module in bgc_variants_by_nrp_id[nrp_id].modules) + 1
     def nrp_fragments_cnt(nrp_id: str) -> int:
-        return len(nrp_variants[nrp_id]['fragments'])
+        return len(nrp_variants_by_nrp_id[nrp_id].fragments)
     return [nrp_id for nrp_id in nrp_ids
             if bgc_fragments_cnt(nrp_id) > 1
             or nrp_fragments_cnt(nrp_id) > 1]
 
 
-def write_results(matches: List[dict],
-                  bgc_variants: Dict[str, dict],
-                  nrp_variants: Dict[str, dict],
+def write_results(matches: List[Match],
+                  bgc_variants_by_nrp_id: Dict[str, BGC_Variant],
+                  nrp_variants_by_nrp_id: Dict[str, NRP_Variant],
                   matches_table: pd.DataFrame,
                   parameters: TrainedParameters,
                   output_dir: Path):
@@ -56,12 +36,19 @@ def write_results(matches: List[dict],
     nrp_ids_to_investigate = list(matches_table[matches_table['Verdict'] == 'for investigation']['NRP variant'])
     nrp_ids_to_correct = list(matches_table[matches_table['Verdict'] == 'to be corrected']['NRP variant'])
     nrp_ids_fragmented_matches = get_fragmented_matches_nrp_ids(matches,
-                                                                bgc_variants,
-                                                                nrp_variants)
+                                                                bgc_variants_by_nrp_id,
+                                                                nrp_variants_by_nrp_id)
 
-    nrp_id_to_match = {match['NRP']: match for match in matches}
+    nrp_id_to_match = {match.nrp_variant_info.nrp_id: match for match in matches}
+
+    nrp_ids_good_matches = set(nrp_ids_good_matches) & set(nrp_id_to_match)
+    nrp_ids_to_investigate = set(nrp_ids_to_investigate) & set(nrp_id_to_match)
+    nrp_ids_to_correct = set(nrp_ids_to_correct) & set(nrp_id_to_match)
+    nrp_ids_fragmented_matches = set(nrp_ids_fragmented_matches) & set(nrp_id_to_match)
+
     nrp_ids_to_investigate_many_fragments = (set(nrp_ids_to_investigate) | set(nrp_ids_to_correct)) & set(nrp_ids_fragmented_matches)
-    good_matches = [nrp_id_to_match[nrp_id] for nrp_id in nrp_ids_good_matches]
+    good_matches = [nrp_id_to_match[nrp_id] for nrp_id in nrp_ids_good_matches
+                    if nrp_id in nrp_id_to_match]
 
     output_dir.mkdir(exist_ok=True, parents=True)
     # q: write good matches in a yaml file
@@ -70,16 +57,16 @@ def write_results(matches: List[dict],
     # q: write "to investigate" matches in a human-readable format
     with open(output_dir / 'matches_to_investigate.txt', 'w') as f:
             for nrp_id in nrp_ids_to_investigate:
-                f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+                f.write(str(nrp_id_to_match[nrp_id]) + '\n')
 
     # q: write "to correct" matches in a human-readable format
     with open(output_dir / 'matches_to_correct.txt', 'w') as f:
             for nrp_id in nrp_ids_to_correct:
-                f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+                f.write(str(nrp_id_to_match[nrp_id]) + '\n')
 
     with open(output_dir / 'matches_to_investigate_many_fragments.txt', 'w') as f:
         for nrp_id in nrp_ids_to_investigate_many_fragments:
-            f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+            f.write(str(nrp_id_to_match[nrp_id]) + '\n')
 
     nrp_ids_list = list(nrp_ids_to_investigate_many_fragments)
     block_size = (len(nrp_ids_to_investigate_many_fragments) + 3) // 4  # round up
@@ -89,7 +76,7 @@ def write_results(matches: List[dict],
             f.write('\n'.join(nrp_ids_for_person))
         with open(output_dir / f'matches_to_investigate_{name}_alignments.txt', 'w') as f:
             for nrp_id in nrp_ids_for_person:
-                f.write(show_match(nrp_id_to_match[nrp_id]) + '\n')
+                f.write(str(nrp_id_to_match[nrp_id]) + '\n')
 
 
     # q: write parameters in a yaml file

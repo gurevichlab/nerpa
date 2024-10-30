@@ -116,13 +116,13 @@ def get_modifications_scores(alignment_steps_info: List[ModuleMatchStepInfo],
 
 @dataclass
 class TrainedParameters:
-    mismatched_pairs_with_perfect_prediction: List[Tuple[Tuple[MonomerResidue, MonomerResidue], int]]  # (predicted, actual) -> count. Dict is displated incorrectly, so list
+    # mismatched_pairs_with_perfect_prediction: List[Tuple[Tuple[MonomerResidue, MonomerResidue], int]]  # (predicted, actual) -> count. Dict is displated incorrectly, so list
     step_function: List[float]
     insert_after_prob: Dict[ModuleLocFeatures, float]
     insert_at_start_prob: Dict[ModuleLocFeatures, float]
     skip_probs: dict  # SkipsProbs.to_dict() for dumping
     modifications_scores: Dict[str, Dict[str, float]]
-    heuristic_matching_cfg: HeuristicMatchingConfig
+    # heuristic_matching_cfg: HeuristicMatchingConfig
 
 
 def calculate_training_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP],

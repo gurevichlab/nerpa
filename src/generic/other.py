@@ -7,6 +7,7 @@ from typing import (
     TypeVar
 )
 import re
+from src.antismash_parsing.location_features import ModuleLocFeature
 
 T = TypeVar('T')
 
@@ -14,9 +15,12 @@ def get_score(scores: Dict[Tuple[T, ...], float], features: Tuple[T, ...]) -> fl
     if features in scores:
         return scores[features]
     features_set = set(features)
-    return max(scores[x]
-               for x in scores
-               if set(x).issubset(features_set))
+    if ModuleLocFeature.END_OF_BGC in features_set:
+        pass
+    result = max(scores[x]
+                 for x in scores
+                 if set(x).issubset(features_set))
+    return result
 
 
 def parse_pretty_table(table: str) -> List[Dict[str, str]]:

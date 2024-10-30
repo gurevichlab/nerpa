@@ -9,4 +9,4 @@ class NorineStats:
     total_monomers: int
     methylated: int
     d_chirality: int
-    residue_frequecies: Dict[MonomerResidue, float]
+    residue_frequencies: Dict[MonomerResidue, float]

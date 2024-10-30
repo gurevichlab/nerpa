@@ -46,7 +46,7 @@ class Match:
 
     def to_dict(self) -> dict:  # because full Match is too big to write
         return {'Genome': self.bgc_variant_info.genome_id,
-                'BGC': self.bgc_variant_info.bgc_idx,
+                #'BGC': self.bgc_variant_info.bgc_idx,
                 'BGC_variant_idx': self.bgc_variant_info.variant_idx,
                 'NRP': self.nrp_variant_info.nrp_id,
                 'NRP_variant_idx': self.nrp_variant_info.variant_idx,
@@ -59,7 +59,7 @@ class Match:
     @classmethod
     def from_dict(cls, data: dict) -> Match:
         return cls(bgc_variant_info=Match_BGC_Variant_Info(genome_id=GeneId(data['Genome']),
-                                                           bgc_idx=data['BGC'],
+                                                           bgc_idx=0,#data['BGC'],
                                                            variant_idx=data['BGC_variant_idx']),
                    nrp_variant_info=Match_NRP_Variant_Info(nrp_id=data['NRP'],
                                                            variant_idx=data['NRP_variant_idx']),
@@ -70,13 +70,14 @@ class Match:
 
     def __str__(self):
         out = StringIO()
-        out.write('\n'.join([f'Genome={self.bgc_variant_info.genome_id}',
-                             f'BGC={self.bgc_variant_info.bgc_idx}',
-                             f'BGC_variant={self.bgc_variant_info.variant_idx}',
-                             f'NRP={self.nrp_variant_info.nrp_id}',
-                             f'NRP_variant={self.nrp_variant_info.variant_idx}',
-                             f'NormalisedScore={self.normalized_score}',
-                             f'Score={self.raw_score()}']))
+        out.write('\n'.join([f'Genome: {self.bgc_variant_info.genome_id}',
+                             f'BGC: {self.bgc_variant_info.bgc_idx}',
+                             f'BGC_variant: {self.bgc_variant_info.variant_idx}',
+                             f'NRP: {self.nrp_variant_info.nrp_id}',
+                             f'NRP_variant: {self.nrp_variant_info.variant_idx}',
+                             f'NormalisedScore: {self.normalized_score}',
+                             f'Score: {self.raw_score()}',
+                             'Alignment:']))
         out.write('\n')
 
         for i, alignment in enumerate(self.alignments):
@@ -92,15 +93,15 @@ class Match:
         # q: remove empty lines at the beginning and end
         fst_non_empty_line = next(i for i, line in enumerate(lines) if line.strip())
         last_non_empty_line = next(i for i, line in enumerate(reversed(lines)) if line.strip())
-        lines = lines[fst_non_empty_line:len(lines) - last_non_empty_line]
+        lines_iter = iter(lines[fst_non_empty_line:len(lines) - last_non_empty_line])
 
-        genome_id = lines[0].split('=')[1]
-        bgc_idx = int(lines[1].split('=')[1])
-        bgc_variant_idx = int(lines[2].split('=')[1])
-        nrp_id = lines[3].split('=')[1]
-        nrp_variant_idx = int(lines[4].split('=')[1])
-        normalized_score = float(lines[5].split('=')[1])
-        score = float(lines[6].split('=')[1])
+        genome_id = next(lines_iter).split(': ')[1]
+        bgc_idx = 0 #int(lines[1].split(': ')[1])
+        bgc_variant_idx = int(next(lines_iter).split(': ')[1])
+        nrp_id = next(lines_iter).split(': ')[1]
+        nrp_variant_idx = int(next(lines_iter).split(': ')[1])
+        normalized_score = float(next(lines_iter).split(': ')[1])
+        score = float(next(lines_iter).split(': ')[1])
 
         bgc_variant_info = Match_BGC_Variant_Info(genome_id=genome_id,
                                                   bgc_idx=bgc_idx,
@@ -108,10 +109,12 @@ class Match:
         nrp_variant_info = Match_NRP_Variant_Info(nrp_id=nrp_id,
                                                   variant_idx=nrp_variant_idx)
 
-        if lines[7].startswith('Fragment'):
-            fragments_blocks = split_at(lines[7:], lambda x: x.startswith('Fragment'))
+        next(lines_iter)  # skip 'Alignment:'
+        fst_alignment_line = next(lines_iter)
+        if fst_alignment_line.startswith('Fragment'):
+            fragments_blocks = split_at(lines_iter, lambda x: x.startswith('Fragment'))
         else:
-            fragments_blocks = [lines[7:]]
+            fragments_blocks = [[fst_alignment_line] + list(lines_iter)]
         alignments = [alignment_from_str('\n'.join(fragment_block))
                       for fragment_block in fragments_blocks]
         return cls(bgc_variant_info=bgc_variant_info,

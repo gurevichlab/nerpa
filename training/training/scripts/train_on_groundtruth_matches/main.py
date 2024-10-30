@@ -2,12 +2,12 @@ import argparse
 import pandas as pd
 from pathlib import Path
 import yaml
-from typing import Dict, List, NamedTuple
+from typing import Dict, List, NamedTuple, Optional
 from run_nerpa import run_nerpa_on_all_pairs
 from check_matches import find_wrong_match
 from calculate_parameters import calculate_training_parameters
 from collections import defaultdict
-from write_results import write_results, show_match
+from write_results import write_results
 from src.matching.matching_types_match import Match
 from src.data_types import BGC_Variant, NRP_Variant
 from norine_stats import NorineStats
@@ -46,9 +46,10 @@ def parse_args():
     return args
 
 
-def load_matches(nerpa_results_dir: Path) -> List[Match]:
+def load_matches(nerpa_results_dir: Path,
+                 max_num_matches: Optional[int] = None) -> List[Match]:
     matches = []
-    for results_dir in islice(nerpa_results_dir.iterdir(), 10):
+    for results_dir in islice(nerpa_results_dir.iterdir(), max_num_matches):
         with open(results_dir / 'matches_details/matches.yaml') as matches_file:
             loaded_matches = map(lambda match_dict: Match.from_dict(match_dict),
                                  yaml.safe_load(matches_file))
@@ -107,8 +108,20 @@ def load_nrp_variants_for_matches(matches: List[Match],
                                         if nrp_variant.variant_idx == match.nrp_variant_info.variant_idx)
         return nrp_variants
 
+def load_new_approved_matches(nrp_ids_good_matches: List[str]) -> List[Match]:
+    matches_txt = Path('/home/ilianolhin/git/nerpa2/training/training/matches_for_inspection/matches_to_investigate_many_fragments.txt')
+    matches_strs = matches_txt.read_text().split('\n\n')
+    matches_strs = [match_str for match_str in matches_strs
+                    if match_str.strip()]
+    matches = [Match.from_str(matches_str)
+               for matches_str in matches_strs]
+    return [match for match in matches
+            if match.nrp_variant_info.nrp_id in nrp_ids_good_matches]
+
 
 def main():
+    max_num_pairs = None  # for debugging
+
     args = parse_args()
     matches_table = pd.read_csv(args.matches_table, sep='\t')
     matches_table['NRP variant'] = matches_table['NRP variant'].apply(lambda x: x.split('#')[0])  # TODO: modify the table
@@ -120,18 +133,22 @@ def main():
         nerpa_results_dir = run_nerpa_on_all_pairs(matches_table,
                                                    args.antismash_results_dir, args.rban_results_dir,
                                                    nerpa_dir, args.output_dir / 'nerpa_results',
-                                                   max_num_pairs=10)
+                                                   max_num_pairs=max_num_pairs)
 
     print('Loading Nerpa results')
-    matches = load_matches(nerpa_results_dir)
+    nrp_ids_good_matches = list(matches_table[matches_table['Verdict'] == 'good']['NRP variant'])
+    new_approved_matches = load_new_approved_matches(nrp_ids_good_matches)
+    new_approved_matches_nrp_ids = [match.nrp_variant_info.nrp_id for match in new_approved_matches]
+    matches = load_matches(nerpa_results_dir, max_num_matches=max_num_pairs)
     bgc_variants = load_bgc_variants_for_matches(matches, nerpa_results_dir)
     nrp_variants = load_nrp_variants_for_matches(matches, nerpa_results_dir)
 
-    nrp_ids_good_matches = list(matches_table[matches_table['Verdict'] == 'good']['NRP variant'])
     approved_matches = [Match.from_dict(match_dict)
                         for match_dict in yaml.safe_load(args.approved_matches.read_text())]
     approved_matches = [match for match in approved_matches
-                        if match.nrp_variant_info.nrp_id in nrp_ids_good_matches]  # in case some good matches were reconsidered
+                        if match.nrp_variant_info.nrp_id in nrp_ids_good_matches  # in case some good matches were reconsidered
+                        and match.nrp_variant_info.nrp_id not in new_approved_matches_nrp_ids]  # some old approved matches are deprecated
+    approved_matches += new_approved_matches
 
     print('Checking matches')
     if (wrong_match_info := find_wrong_match(matches, approved_matches)) is not None:

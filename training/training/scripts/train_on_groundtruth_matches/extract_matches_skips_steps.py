@@ -170,8 +170,10 @@ def genes_matches_skips_info(steps_wo_ins: List[AlignmentStep],
             if gene_to_fragment[gene_id] in skipped_fragments:
                 continue
             gene_steps = list(gene_steps)
-            gene_context = module_features_to_gene_features(gene_steps[0].bgc_module_info.module_loc,
-                                                            gene_steps[-1].bgc_module_info.module_loc)
+            gene_modules = [module for module in bgc_variant.modules
+                            if module.gene_id == gene_id]
+            gene_context = module_features_to_gene_features(gene_modules[0].module_loc,
+                                                            gene_modules[-1].module_loc)
             if all(step.nrp_monomer_info is None for step in gene_steps):
                 genes_skips.append(GeneSkipInfo(nrp_id=nrp_id,
                                                 gene_id=gene_id,
