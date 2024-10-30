@@ -66,6 +66,12 @@ class AlignmentStepType(Enum):
     ITERATE_MODULE = auto()
     ITERATE_GENE = auto()
 
+    def __le__(self, other):
+        return self.value <= other.value
+
+    def __lt__(self, other):
+        return self.value < other.value
+
 
 class MatchDetailedScore(NamedTuple):
     residue_score: LogProb
@@ -122,11 +128,11 @@ class AlignmentStep:
                                  for mod in data['Modifying_domains'].split(',')] \
                 if data['Modifying_domains'] != AlignmentStep.NA else []
             bgc_module_info = AlignmentStep_BGC_Module_Info(gene_id=data['Gene'],
-                                                            a_domain_idx=data['A-domain_idx'],
+                                                            a_domain_idx=int(data['A-domain_idx']),
                                                             top_scoring_residues=data['Top_scoring_residues'].split(','),
                                                             modifying_domains=modifying_domains,
-                                                            aa10_code=data['aa10_code'],
-                                                            aa34_code=data['aa34_code'])
+                                                            aa10_code=data.get('aa10_code', AlignmentStep.NA),
+                                                            aa34_code=data.get('aa34_code', AlignmentStep.NA))
 
         # get nrp monomer info
         if data['NRP_residue'] == AlignmentStep.NA:
@@ -142,16 +148,18 @@ class AlignmentStep:
                                                               rban_idx=data['rBAN_idx'])
 
         # get match detailed score
+        if data['Alignment_step'] == 'NRP_MONOMER_SKIP':
+            data['Alignment_step'] = 'NRP_MONOMER_INSERT'  # for backward compatibility, to be removed in the future
         step_type = AlignmentStepType[data['Alignment_step']]
         if step_type == AlignmentStepType.MATCH:
-            match_detailed_score = MatchDetailedScore(residue_score=data['ResidueScore'],
-                                                      methylation_score=data['MethylationScore'],
-                                                      chirality_score=data['ChiralityScore'])
+            match_detailed_score = MatchDetailedScore(residue_score=float(data['ResidueScore']),
+                                                      methylation_score=float(data['MethylationScore']),
+                                                      chirality_score=float(data['ChiralityScore']))
         else:
             match_detailed_score = None
 
         return cls(bgc_module_info=bgc_module_info,
                    nrp_monomer_info=nrp_monomer_info,
-                   score=data['Score'],
+                   score=float(data['Score']),
                    match_detailed_score=match_detailed_score,
                    step_type=step_type)

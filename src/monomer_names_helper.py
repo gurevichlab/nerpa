@@ -65,9 +65,13 @@ class MonomerNamesHelper:
                 case other: return NRP_Monomer_Modification.UNKNOWN
 
         mods_list = eval(mods_str)
-        return () if mods_list == ['-'] else tuple(map(parse_mod, mods_list))
+        return () if mods_list == [''] else tuple(map(parse_mod, mods_list))
 
     def parsed_name(self, name: str, name_format: Literal['antismash', 'norine']) -> ParsedMonomerName:
+        if name == 'Ile/aIle':
+            name = 'Ile'  # temporary fix for the table
+        if name == 'NMe-aIle/NMe-Ile':
+            name = 'NMe-Ile'
         if name_format == 'norine' and name.startswith('X'):
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 

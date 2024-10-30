@@ -53,8 +53,27 @@ def a_pcp_module(module: Module) -> bool:
     return {DomainType.A, DomainType.PCP}.issubset(domains_set) and all(not DomainType.in_c_domain_group(domain)
                                                                         for domain in domains_set)
 
+def genes_contents_consistent(genes: List[Gene]) -> bool:
+    if len(genes) == 1:
+        return True
+
+    joined_modules = [module for gene in genes for module in gene.modules]
+
+    at_least_one_A_domain = any(DomainType.A in module.domains_sequence for module in joined_modules)
+    c_starter_consistent = sum((DomainType.C_STARTER in module.domains_sequence) for module in joined_modules) <= 1
+    a_pcp_consistent = sum(a_pcp_module(module) for module in joined_modules) <= 1
+    te_td_consistent = sum((DomainType.TE_TD in module.domains_sequence) for module in joined_modules) <= 1
+
+    return all([at_least_one_A_domain,
+                a_pcp_consistent,
+                c_starter_consistent,
+                te_td_consistent])
+
 
 def genes_sequence_consistent(genes: List[Gene]) -> bool:
+    if len(genes) == 1:
+        return True
+
     joined_modules = [module for gene in genes for module in gene.modules]
 
     at_least_one_A_domain = any(DomainType.A in module.domains_sequence for module in joined_modules)
@@ -76,7 +95,10 @@ def genes_sequence_consistent(genes: List[Gene]) -> bool:
 
 def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
     if all(gene.coords.strand == STRAND.REVERSE for gene in genes):
-        return genes[::-1]
+        reversed_genes = genes[::-1]
+        for gene in reversed_genes:
+            gene.coords = gene.coords._replace(strand=STRAND.FORWARD)
+        return reversed_genes
     else:
         return genes[:]
 
@@ -86,17 +108,20 @@ def get_genes_rearrangements(_genes: List[Gene], config: antiSMASH_Parsing_Confi
     if genes_sequence_consistent(genes):
         return [genes]
 
-    starting_gene = [gene for gene in genes
-                     if DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])]
-    terminal_gene = [gene for gene in genes
-                     if DomainType.TE_TD in gene.modules[-1].domains_sequence]
+    # this function is called only after consistency check
+    # so there is at most one starting gene and one terminal gene
+    starting_gene = next(([gene] for gene in genes
+                          if DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])),
+                         [])
+    terminal_gene = next(([gene] for gene in genes
+                          if DomainType.TE_TD in gene.modules[-1].domains_sequence),
+                         [])
     interior_genes = [gene for gene in genes
                       if gene not in starting_gene + terminal_gene]
-    result = [starting_gene + permuted_interior_genes + terminal_gene
-              for permuted_interior_genes in islice(generate_permutations(interior_genes),
-                                                    config.MAX_PERMUTATIONS_PER_BGC)
-              if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
-    return result if result else [genes]
+    return [starting_gene + permuted_interior_genes + terminal_gene
+            for permuted_interior_genes in islice(generate_permutations(interior_genes),
+                                                  config.MAX_PERMUTATIONS_PER_BGC)
+            if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
 
 
 # NOTE: the function can yield identical fragmented bgcs because of genes with no A-domains
@@ -123,24 +148,32 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config)
 
     genes_fragments_list = list(islice((genes_fragments
                                         for genes_fragments in split_sequence_blocks(genes)
-                                        if all(genes_sequence_consistent(genes_fragment)
+                                        if all(genes_contents_consistent(genes_fragment)
                                                for genes_fragment in genes_fragments)
-                                        and not any(genes_sequence_consistent(genes1 + genes2)
+                                        and not any(genes_contents_consistent(genes1 + genes2)
                                                     for genes1, genes2 in pairwise(genes_fragments))),
                                        config.MAX_BGC_SPLITS_INTO_FRAGMENTS))
 
     if not genes_fragments_list:
         genes_fragments_list = [[genes]]
-    return (build_fragmented_bgc(rearranged_fragments)
-            for genes_fragments in genes_fragments_list
-            for rearranged_fragments in get_rearranged_fragments(genes_fragments))
+    result = (build_fragmented_bgc(rearranged_fragments)
+              for genes_fragments in genes_fragments_list
+              for rearranged_fragments in get_rearranged_fragments(genes_fragments))
+
+    fst_result = next(result, None)
+    if fst_result is None:
+        return [[BGC_Cluster(genome_id=bgc.genome_id,
+                             contig_id=bgc.contig_id,
+                             bgc_idx=bgc.bgc_idx,
+                             genes=genes)]]  # return the original BGC if no valid fragments were found
+    return chain([fst_result], result)
 
 
 def split_and_reorder(bgc_: BGC_Cluster,
                       config: antiSMASH_Parsing_Config,
                       log: NerpaLogger) -> List[Fragmented_BGC_Cluster]:
     result = list(islice((fragmented_bgc
-                          for bgc in split_by_dist(bgc_, config=config)
+                          for bgc in [bgc_]  # split_by_dist(bgc_, config=config)
                           for fragmented_bgc in generate_fragmented_bgcs(bgc, config=config)),
                          config.MAX_VARIANTS_PER_BGC + 1))
     if len(result) > config.MAX_VARIANTS_PER_BGC:

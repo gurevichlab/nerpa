@@ -36,6 +36,22 @@ class StepsInfo:
     insert_runs: InsertRunsInfo
 
 
+# TODO: in the future normalize counts for each NRP family to avoid overfitting
+def get_matches_stats_for_bgc(matches: List[Match],
+                              bgc_variant: BGC_Variant) -> StepsInfo:
+    matches_and_skips = MatchesSkipsSteps(module_matches=[], module_skips=[],
+                                          gene_matches=[], gene_skips=[],
+                                          bgc_fragment_matches=[], bgc_fragment_skips=[])
+    insert_runs = InsertRunsInfo(inserts=[], inserts_at_start=[])
+    for match in matches:
+        for alignment in match.alignments:
+            new_matches_and_skips = extract_matches_skips_info(alignment, bgc_variant, match.nrp_variant_info.nrp_id)
+            new_insert_runs = extract_inserts_info(alignment, bgc_variant, match.nrp_variant_info.nrp_id)
+            matches_and_skips.join(new_matches_and_skips, unique=False)
+            insert_runs.join(new_insert_runs, unique=False)
+    return StepsInfo(matches_and_skips, insert_runs)
+
+
 def get_steps_info(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> StepsInfo:
     matches_and_skips = MatchesSkipsSteps(module_matches=[], module_skips=[],
                                           gene_matches=[], gene_skips=[],
@@ -57,18 +73,3 @@ def get_steps_info(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> StepsInfo:
         insert_runs.join(new_steps_info.insert_runs, unique=False)
     return StepsInfo(matches_and_skips, insert_runs)
 
-
-# TODO: in the future normalize counts for each NRP family to avoid overfitting
-def get_matches_stats_for_bgc(matches: List[Match],
-                              bgc_variant: BGC_Variant) -> StepsInfo:
-    matches_and_skips = MatchesSkipsSteps(module_matches=[], module_skips=[],
-                                          gene_matches=[], gene_skips=[],
-                                          bgc_fragment_matches=[], bgc_fragment_skips=[])
-    insert_runs = InsertRunsInfo(inserts=[], inserts_at_start=[])
-    for match in matches:
-        for alignment in match.alignments:
-            new_matches_and_skips = extract_matches_skips_info(alignment, bgc_variant, match.nrp_variant_info.nrp_id)
-            new_insert_runs = extract_inserts_info(alignment, bgc_variant, match.nrp_variant_info.nrp_id)
-            matches_and_skips.join(new_matches_and_skips, unique=False)
-            insert_runs.join(new_insert_runs, unique=False)
-    return StepsInfo(matches_and_skips, insert_runs)
