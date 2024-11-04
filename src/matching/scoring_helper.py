@@ -11,6 +11,7 @@ from src.data_types import (
     BGC_Module_Modification,
     BGC_Fragment,
     Chirality,
+    GeneId,
     NRP_Monomer,
     NRP_Fragment,
     LogProb,
@@ -29,7 +30,9 @@ from src.matching.scoring_config import ScoringConfig, ModMatch, ChiralityMatch
 from src.matching.matching_types_alignment_step import AlignmentStepType, MatchDetailedScore
 from src.generic.other import get_score
 from dataclasses import dataclass
+from itertools import groupby
 from enum import Enum, auto
+from math import log
 
 FUNCTION_NAME_TO_STEP_TYPE = {
     'bgc_module_skip': AlignmentStepType.BGC_MODULE_SKIP,
@@ -38,7 +41,9 @@ FUNCTION_NAME_TO_STEP_TYPE = {
     'nrp_mon_insert': AlignmentStepType.NRP_MONOMER_INSERT,
     'match': AlignmentStepType.MATCH,
     'iterate_module': AlignmentStepType.ITERATE_MODULE,
-    'iterate_gene': AlignmentStepType.ITERATE_GENE
+    'iterate_gene': AlignmentStepType.ITERATE_GENE,
+    'skip_from_start': AlignmentStepType.SKIP_FROM_START,
+    'skip_to_end': AlignmentStepType.SKIP_TO_END
 }
 
 @dataclass
@@ -48,9 +53,24 @@ class ScoringHelper:
     bgc_modules: List[BGC_Module] = None
     nrp_monomers: List[NRP_Monomer] = None
     pks_domains_in_bgc: bool = False
+    gene_pos_in_fragment: Dict[GeneId, int] = None
+    genes_in_fragment: Dict[int, int] = None
+    modules_in_gene: Dict[GeneId, int] = None
 
     def set_bgc_modules(self, bgc_modules: List[BGC_Module]):
         self.bgc_modules = bgc_modules
+        self.gene_pos_in_fragment = {}
+        self.genes_in_fragment = {}
+        self.modules_in_gene = {}
+        for fragment_idx, fragment_modules in groupby(bgc_modules, key=lambda module: module.fragment_idx):
+            fragment_modules = list(fragment_modules)
+            self.genes_in_fragment[fragment_idx] = len(set(module.gene_id for module in fragment_modules))
+            for i, (gene_id, gene_modules) in enumerate(groupby(fragment_modules, key=lambda module: module.gene_id)):
+                self.modules_in_gene[gene_id] = len(list(gene_modules))
+                self.gene_pos_in_fragment[gene_id] = i
+
+
+
 
     def set_nrp_monomers(self, nrp_monomers: List[NRP_Monomer]):
         self.nrp_monomers = nrp_monomers
@@ -137,10 +157,10 @@ class ScoringHelper:
         return sum(self.match_detailed_score(self.bgc_modules[bgc_module_idx],self.nrp_monomers[nrp_monomer_idx]))
 
     def iterate_module(self, dp_state: Optional[DP_State] = None) -> LogProb:
-        return 0
+        return -0.5  # placeholder for future scoring
 
     def iterate_gene(self, dp_state: Optional[DP_State] = None) -> LogProb:
-        return 0
+        return -0.5
 
     def null_hypothesis_score(self, nrp_monomer: NRP_Monomer) -> LogProb:
         return self.scoring_config.null_hypothesis_residue_score[nrp_monomer.residue] \
@@ -160,3 +180,41 @@ class ScoringHelper:
             fragment_features = module_features_to_fragment_features(self.bgc_modules[fst_module_idx].module_loc,
                                                                     self.bgc_modules[last_module_idx].module_loc)
             return get_score(self.scoring_config.bgc_fragment_skip_score, fragment_features)
+
+    # skip all modules [0:i) and monomers [0:j) from the start
+    # TODO: account for context
+    def skip_from_start(self,
+                        module_idx: int,
+                        monomer_idx: int,
+                        dp_state: DP_State) -> LogProb:
+        module = self.bgc_modules[module_idx]
+        fragment_skips = module.fragment_idx
+        gene_skips = self.gene_pos_in_fragment[module.gene_id]
+        module_skips = module.a_domain_idx
+        return -3 + monomer_idx * get_score(self.scoring_config.nrp_monomer_insert_at_start_score, module.module_loc)
+        '''
+        return (fragment_skips * log(0.1)  # TODO: put in config
+                + gene_skips * log(0.05)
+                + module_skips * log(0.03)
+                + monomer_idx * get_score(self.scoring_config.nrp_monomer_insert_at_start_score, module.module_loc)
+                )
+        '''
+
+    # skip modules [i:] and monomers [j:]
+    def skip_to_end(self,
+                    pi: int,
+                    pj: int,
+                    dp_state: Optional[DP_State] = None) -> LogProb:
+        module = self.bgc_modules[pi - 1]  # last matched module
+        fragment_skips = self.bgc_modules[-1].fragment_idx - module.fragment_idx
+        gene_skips = self.genes_in_fragment[module.fragment_idx] - self.gene_pos_in_fragment[module.gene_id]
+        module_skips = self.modules_in_gene[module.gene_id] - module.a_domain_idx
+        monomer_skips = len(self.nrp_monomers) - pj
+        return -3 + monomer_skips * get_score(self.scoring_config.nrp_monomer_insert_at_start_score, module.module_loc)  # should be insert at end score
+        '''
+        return (fragment_skips * log(0.1)  # TODO: put in config
+                + gene_skips * log(0.05)
+                + module_skips * log(0.03)
+                + monomer_skips * get_score(self.scoring_config.nrp_monomer_insert_at_start_score, module.module_loc)  # should be insert at end score
+                )
+        '''

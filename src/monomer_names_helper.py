@@ -72,6 +72,12 @@ class MonomerNamesHelper:
             name = 'Ile'  # temporary fix for the table
         if name == 'NMe-aIle/NMe-Ile':
             name = 'NMe-Ile'
+        if name == 'aThr/Thr':
+            name = 'Thr'
+        if name == 'NMe-aThr/NMe-Thr':
+            name = 'NMe-Thr'
+        if name == 'NMe-bMe-Leu/diMe-aIle':
+            name = 'NMe-Leu'
         if name_format == 'norine' and name.startswith('X'):
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 

@@ -32,7 +32,7 @@ from src.matching.dp_types import (
     valid_state
 )
 import numpy as np
-from itertools import groupby
+from itertools import groupby, chain
 from functools import partial
 from collections import defaultdict
 
@@ -96,7 +96,20 @@ def calculate_dp(assembly_line: List[BGC_Module],
                                    (DP_State(i, j - 1, gene_reps, module_reps), dp_helper.nrp_mon_insert, (j - 1,)),
                                    (DP_State(i - 1, j - 1, gene_reps, module_reps), dp_helper.match, (i - 1, j - 1))]
 
-                    prev_bgc_module = assembly_line[i - 2] if i > 1 else None
+                    # skip all modules [0:i) and monomers [0:j) from the start
+                    if all([gene_reps == 0,
+                            module_reps == 0,
+                            i < len(assembly_line),
+                            j < len(nrp_monomers)]):
+                        transitions.append((START_STATE, dp_helper.skip_from_start, (i, j)))
+
+                    # skip all modules [pi:) and monomers [pj:)
+                    if i == len(assembly_line) and j == len(nrp_monomers):
+                        for pi in range(1, len(assembly_line)):
+                            for pj in range(1, len(nrp_monomers)):
+                                transitions.append((DP_State(pi, pj, gene_reps, module_reps),
+                                                    dp_helper.skip_to_end, (pi, pj)))
+
                     next_bgc_module = assembly_line[i] if i < len(assembly_line) else None
 
                     # gene skip
@@ -124,6 +137,7 @@ def calculate_dp(assembly_line: List[BGC_Module],
                         transitions.append((DP_State(next_gene_end + 1, j, gene_reps - 1, module_reps),
                                             dp_helper.iterate_gene, ()))
 
+
                     dp_table[DP_State(i, j, gene_reps, module_reps)] = recalc((dp_state, transition(*(args + (dp_state,))),
                                                                                FUNCTION_NAME_TO_STEP_TYPE[transition.__name__])
                                                                               for dp_state, transition, args in transitions
@@ -142,24 +156,47 @@ def retrieve_alignment(dp_table: DP_Table,
 
     parent = dp_table[state].parent
     # more than one bgc module in case of gene/fragment skip
-    bgc_modules = assembly_line[parent.module_pos:state.module_pos] if parent.module_pos < state.module_pos else [None]
-    nrp_monomer = nrp_monomers[parent.monomer_pos] if parent.monomer_pos < state.monomer_pos else None
+    step_bgc_modules = assembly_line[parent.module_pos:state.module_pos] if parent.module_pos < state.module_pos else [None]
+    step_nrp_monomers = nrp_monomers[parent.monomer_pos:state.monomer_pos] if parent.monomer_pos < state.monomer_pos else [None]
     score = dp_table[state].score - dp_table[parent].score
-    match_detailed_score = scoring_helper.match_detailed_score(bgc_modules[0], nrp_monomer)  \
-        if dp_table[state].step_type == AlignmentStepType.MATCH else None
-    step_scores = [score] + [0] * (len(bgc_modules) - 1)  # more than one bgc module in case of gene/fragment skip
+    try:
+        match_detailed_score = scoring_helper.match_detailed_score(step_bgc_modules[0], step_nrp_monomers[0])  \
+            if dp_table[state].step_type == AlignmentStepType.MATCH else None
+    except IndexError:
+        pass
 
+    # TODO: refactor this, handle different step types more uniformly
     alignment_steps = []
-    for bgc_module, step_score in zip(bgc_modules, step_scores):
-        bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
-            if bgc_module is not None else None
-        nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
-            if nrp_monomer is not None else None
-        alignment_steps.append(AlignmentStep(bgc_module_info=bgc_module_info,
-                                             nrp_monomer_info=nrp_monomer_info,
-                                             score=step_score,
-                                             match_detailed_score=match_detailed_score,
-                                             step_type=dp_table[state].step_type))
+    match dp_table[state].step_type:
+        case AlignmentStepType.SKIP_FROM_START | AlignmentStepType.SKIP_TO_END:  # the case with multiple nrp monomers
+            if step_nrp_monomers[0] is None:
+                step_nrp_monomers = []
+            if step_bgc_modules[0] is None:
+                step_bgc_modules = []
+            step_scores = [score] + [0] * (len(step_bgc_modules) + len(step_nrp_monomers) - 1)
+            for (bgc_module, nrp_monomer), step_score in zip(chain(zip(step_bgc_modules, [None] * len(step_bgc_modules)),
+                                                                   zip([None] * len(step_nrp_monomers), step_nrp_monomers)),
+                                                             step_scores):
+                bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
+                    if bgc_module is not None else None
+                nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
+                    if nrp_monomer is not None else None
+                alignment_steps.append(AlignmentStep(bgc_module_info=bgc_module_info,
+                                                     nrp_monomer_info=nrp_monomer_info,
+                                                     score=step_score,
+                                                     match_detailed_score=match_detailed_score,
+                                                     step_type=dp_table[state].step_type))
+        case _:
+            for bgc_module, step_score in zip(step_bgc_modules, [score] + [0] * (len(step_bgc_modules) - 1)):
+                bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
+                    if bgc_module is not None else None
+                nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(step_nrp_monomers[0]) \
+                    if step_nrp_monomers[0] is not None else None
+                alignment_steps.append(AlignmentStep(bgc_module_info=bgc_module_info,
+                                                     nrp_monomer_info=nrp_monomer_info,
+                                                     score=step_score,
+                                                     match_detailed_score=match_detailed_score,
+                                                     step_type=dp_table[state].step_type))
     return retrieve_alignment(dp_table, parent, assembly_line, nrp_monomers, scoring_helper) + alignment_steps
 
 

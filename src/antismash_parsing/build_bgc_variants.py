@@ -89,7 +89,7 @@ def build_gene_assembly_line(gene: Gene,
     modules_modifications = get_modules_modifications(gene)
 
     built_modules = []
-    a_domain_idx = 0  # indexes start from 1 for backward compatibility. Maybe change this in the future
+    a_domain_idx = -1  # indexes start from 0
     for module_idx, module in enumerate(gene.modules):
         if module.a_domain is None:
             continue

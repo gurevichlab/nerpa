@@ -15,7 +15,7 @@ from src.antismash_parsing.antismash_parser_types import (
 from src.config import antiSMASH_Parsing_Config
 from src.generic.combinatorics import generate_permutations, split_sequence_blocks
 from functools import partial
-from itertools import chain, islice, pairwise, product
+from itertools import chain, islice, pairwise, product, groupby
 from more_itertools import split_before, split_at
 from src.pipeline.logger import NerpaLogger
 
@@ -103,8 +103,8 @@ def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
         return genes[:]
 
 
-def get_genes_rearrangements(_genes: List[Gene], config: antiSMASH_Parsing_Config) -> List[List[Gene]]:
-    genes = reverse_if_all_neg(_genes)
+def get_genes_rearrangements(genes_: Iterable[Gene], config: antiSMASH_Parsing_Config) -> List[List[Gene]]:
+    genes = list(genes_)
     if genes_sequence_consistent(genes):
         return [genes]
 
@@ -118,22 +118,61 @@ def get_genes_rearrangements(_genes: List[Gene], config: antiSMASH_Parsing_Confi
                          [])
     interior_genes = [gene for gene in genes
                       if gene not in starting_gene + terminal_gene]
-    return [starting_gene + permuted_interior_genes + terminal_gene
-            for permuted_interior_genes in islice(generate_permutations(interior_genes),
-                                                  config.MAX_PERMUTATIONS_PER_BGC)
-            if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
+    result = [starting_gene + permuted_interior_genes + terminal_gene
+              for permuted_interior_genes in islice(generate_permutations(interior_genes),
+                                                    config.MAX_PERMUTATIONS_PER_BGC)
+              if genes_sequence_consistent(starting_gene + permuted_interior_genes + terminal_gene)]
+    return result if result else [genes]
 
 
-# NOTE: the function can yield identical fragmented bgcs because of genes with no A-domains
-# TODO: maybe filter out identical bgcs in the future?
+BGC_Fragment = List[Gene]  # an assembly line (usually starts with C_STARTER or A-PCP and ends with TE)
+Gene_Block = List[BGC_Fragment]  # sequence of BGC fragments with the same orientation
+
+def get_bgc_fragments(block_: Iterable[Gene]) -> List[List[Gene]]:
+    # it is assumed that all genes are on the same strand
+    block = list(block_)
+    if block[0].coords.strand == STRAND.REVERSE:
+        block = block[::-1]
+
+    # sometimes genes work in reverse order. This is a stub for the case of just 2 genes
+    # sometimes even making fragments inconsistent (see BGC0000437)
+    if all([len(block) == 2,
+            not genes_sequence_consistent(block),
+            genes_sequence_consistent(block[::-1])]):
+        return [block[::-1]]
+
+    fragments = []
+    fragment = []
+    for gene in block:
+        is_start_gene = DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])
+        is_end_gene = DomainType.TE_TD in gene.modules[-1].domains_sequence
+
+        if is_start_gene:
+            if fragment:
+                fragments.append(fragment)
+            fragment = []
+
+        fragment.append(gene)
+
+        if is_end_gene:
+            fragments.append(fragment)
+            fragment = []
+
+    if fragment:
+        fragments.append(fragment)
+
+    return fragments
+
+
+# TODO: handle more complex rearrangements
+def get_block_fragments_rearrangements(block: List[BGC_Fragment]) -> Iterable[List[BGC_Fragment]]:
+    if len(block) == 1 or block[0][0].coords.strand == STRAND.FORWARD:
+        return [block]
+    else:
+        return [block, block[::-1]]
+
+
 def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config) -> Iterable[Fragmented_BGC_Cluster]:
-    genes = reverse_if_all_neg(bgc.genes)
-    if genes_sequence_consistent(genes):
-        return [[BGC_Cluster(genome_id=bgc.genome_id,
-                             contig_id=bgc.contig_id,
-                             bgc_idx=bgc.bgc_idx,
-                             genes=genes)]]
-
     def get_rearranged_fragments(genes_fragments: List[List[Gene]]) -> Iterable[Tuple[List[Gene]]]:
         return islice(product(*(get_genes_rearrangements(genes_fragment, config=config)
                                 for genes_fragment in genes_fragments)),
@@ -146,27 +185,24 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config)
                             genes=genes_fragment)
                 for genes_fragment in genes_fragments]
 
-    genes_fragments_list = list(islice((genes_fragments
-                                        for genes_fragments in split_sequence_blocks(genes)
-                                        if all(genes_contents_consistent(genes_fragment)
-                                               for genes_fragment in genes_fragments)
-                                        and not any(genes_contents_consistent(genes1 + genes2)
-                                                    for genes1, genes2 in pairwise(genes_fragments))),
-                                       config.MAX_BGC_SPLITS_INTO_FRAGMENTS))
+    gene_blocks: List[Gene_Block] = [get_bgc_fragments(genes_group)
+                                     for _, genes_group in groupby(bgc.genes, key=lambda gene: gene.coords.strand)]  # split genes by strand
+    block_rearrangements_ = product(*(get_block_fragments_rearrangements(block_fragments)
+                                      for block_fragments in gene_blocks))
 
-    if not genes_fragments_list:
-        genes_fragments_list = [[genes]]
-    result = (build_fragmented_bgc(rearranged_fragments)
-              for genes_fragments in genes_fragments_list
-              for rearranged_fragments in get_rearranged_fragments(genes_fragments))
+    if len(gene_blocks) == 2:  # a stub for the cases like BGC0000289 TODO: handle more general cases
+        block_rearrangements = chain(block_rearrangements_,
+                                     product(*(get_block_fragments_rearrangements(block_fragments)
+                                               for block_fragments in gene_blocks[::-1])))
+    else:
+        block_rearrangements = block_rearrangements_
 
-    fst_result = next(result, None)
-    if fst_result is None:
-        return [[BGC_Cluster(genome_id=bgc.genome_id,
-                             contig_id=bgc.contig_id,
-                             bgc_idx=bgc.bgc_idx,
-                             genes=genes)]]  # return the original BGC if no valid fragments were found
-    return chain([fst_result], result)
+    fragments_sequences = [[fragment for block in rearranged_blocks for fragment in block]
+                            for rearranged_blocks in block_rearrangements]
+
+    return (build_fragmented_bgc(rearranged_fragments)
+            for fragments_sequence in fragments_sequences
+            for rearranged_fragments in get_rearranged_fragments(fragments_sequence))
 
 
 def split_and_reorder(bgc_: BGC_Cluster,
