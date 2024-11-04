@@ -65,6 +65,8 @@ class AlignmentStepType(Enum):
     BGC_FRAGMENT_SKIP = auto()
     ITERATE_MODULE = auto()
     ITERATE_GENE = auto()
+    SKIP_FROM_START = auto()
+    SKIP_TO_END = auto()
 
     def __le__(self, other):
         return self.value <= other.value

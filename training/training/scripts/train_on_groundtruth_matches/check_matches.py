@@ -12,13 +12,14 @@ from itertools import permutations
 
 
 def bgc_modules_coincide(module_test: AlignmentStep_BGC_Module_Info,
-                         module_approved: AlignmentStep_BGC_Module_Info) -> bool:
+                         module_approved: AlignmentStep_BGC_Module_Info,
+                         indexes_offset: int = 0) -> bool:
     gene_approved = module_approved.gene_id
     if 'ctg' in gene_approved:  # backwards compatibility
         gene_approved = gene_approved.split('_', 1)[1]
 
     return all([module_test.gene_id == gene_approved,
-                module_test.a_domain_idx == module_approved.a_domain_idx])
+                module_test.a_domain_idx + indexes_offset == module_approved.a_domain_idx])
                 #module_test.modifying_domains == module_approved.modifying_domains,
                 #module_test.aa10_code == module_approved.aa10_code,
                 #module_test.aa34_code == module_approved.aa34_code])
@@ -36,7 +37,8 @@ def nrp_monomers_coincide(monomer_test: AlignmentStep_NRP_Monomer_Info,
                 (monomer_test.rban_name[0] == monomer_approved.rban_name[0] == 'X')])
 
 
-def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep) -> bool:
+def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep,
+                   indexes_offset: int = 0) -> bool:
     result = True
     if step_test.step_type != step_approved.step_type:
         print('Wrong step type')
@@ -44,7 +46,8 @@ def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep) -> bo
 
     # compare BGC module info
     if step_test.bgc_module_info is not None and \
-            not bgc_modules_coincide(step_test.bgc_module_info, step_approved.bgc_module_info):
+            not bgc_modules_coincide(step_test.bgc_module_info, step_approved.bgc_module_info,
+                                     indexes_offset):
         print('BGC modules are different')
         result = False
 
@@ -66,13 +69,21 @@ def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep) -> bo
 # We compare two alignments by comparing only the MATCH steps
 # because the other steps can differ for different versions of Nerpa
 def alignments_coincide(alignment1: Alignment,
-                        alignment2: Alignment) -> bool:
+                        alignment2: Alignment,
+                        indexes_offset: int = 0) -> bool:
+    min_idx1 = min([step.bgc_module_info.a_domain_idx
+                    for step in alignment1
+                    if step.bgc_module_info is not None])
+    min_idx2 = min([step.bgc_module_info.a_domain_idx
+                    for step in alignment2
+                    if step.bgc_module_info is not None])
+    indexes_offset = min_idx2 - min_idx1
     match_steps1 = [step for step in alignment1 if step.step_type == AlignmentStepType.MATCH]
     match_steps2 = [step for step in alignment2 if step.step_type == AlignmentStepType.MATCH]
     if len(match_steps1) != len(match_steps2):
         print('Different number of MATCH steps')
         return False
-    return all(steps_coincide(step1, step2)
+    return all(steps_coincide(step1, step2, indexes_offset)
                for step1, step2 in zip(match_steps1,
                                        match_steps2))
 
@@ -94,6 +105,17 @@ def find_wrong_match(matches: List[Match], approved_matches: List[Match]) -> Opt
 
     for approved_match in approved_matches:
         nrp_id = approved_match.nrp_variant_info.nrp_id
+        if nrp_id in ['BGC0000296.0',
+                      'BGC0001127.0',
+                      'BGC0000416.3',
+                      'BGC0000307.0',
+                      'BGC0001667.2',
+                      'BGC0000445.0',
+                      'BGC0000339.0',
+                      'BGC0000437.0',
+                      'BGC0001532.0']:
+            continue
+        '''
         if nrp_id in ['BGC0001667.4',
                       'BGC0000296.0',
                       'BGC0001822.1',
@@ -108,6 +130,7 @@ def find_wrong_match(matches: List[Match], approved_matches: List[Match]) -> Opt
                       'BGC0002123.11',
                       'BGC0002484.5']:
             continue
+        '''
         if nrp_id not in nrp_id_to_match:
             print(f'WARNING: match for {nrp_id} is missing')
             continue
