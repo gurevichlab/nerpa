@@ -1,5 +1,6 @@
 import json
 import math
+import os
 from pathlib import Path
 from typing import List, Dict
 from src.config import ConfigPaths
@@ -60,6 +61,8 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
             json_file.write('var data = ')
             json.dump(match_dict, json_file, indent=4)
         match_html_report = match_report_html_template.replace('{{DATA_JSON_PATH}}',
-                                                               str(match_data_js_path.relative_to(html_aux_dir)))
+                                                               str(match_data_js_path.relative_to(html_aux_dir))
+                                                        ).replace('{{MAIN_REPORT_PATH}}',
+                                                                  os.path.relpath(main_report_path, start=html_aux_dir))
         with open(match_html_report_path, 'w') as file:
             file.write(match_html_report)
