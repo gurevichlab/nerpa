@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Detailed View</title>
+    <style>
+        table {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            cursor: pointer;
+            background-color: #f2f2f2;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 33%; /* Set width to one-third of the page */
+            box-sizing: border-box;
+            margin-left: 10px; /* Add space between label and input */
+        }
+        label {
+            font-weight: bold;
+            display: inline-block; /* Keep label next to input */
+            width: auto;
+        }
+        .filter-section {
+            margin-bottom: 12px;
+        }
+        .explanation {
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <script src="{{DATA_JSON_PATH}}"></script>
+
+    <h1>Nerpa detailed match view</h1>
+
+    <!-- Metadata section -->
+    <div id="metadata">
+        <h2>Metadata</h2>
+        <div id="metadata-content"></div>
+    </div>
+
+    <!-- Alignment section -->
+    <div id="alignment">
+        <h2>Alignment</h2>
+        <table id="alignmentTable">
+            <thead>
+                <tr>
+                    <th>Gene</th>
+                    <th>A-domain_idx</th>
+                    <th>Top_scoring_residues</th>
+                    <th>Modifying_domains</th>
+                    <th>NRP_residue</th>
+                    <th>NRP_chirality</th>
+                    <th>NRP_modifications</th>
+                    <th>rBAN_name</th>
+                    <th>rBAN_idx</th>
+                    <th>Alignment_step</th>
+                    <th>Score</th>
+                    <th>ResidueScore</th>
+                    <th>MethylationScore</th>
+                    <th>ChiralityScore</th>
+                    <th>aa10_code</th>
+                    <th>aa34_code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function populateTable(data) {
+            // Populate metadata
+            const metadataContent = document.querySelector('#metadata-content');
+            metadataContent.innerHTML = `
+                <p><strong>Match_ID:</strong> ${data.Match_ID}</p>
+                <p><strong>Score:</strong> ${data.Score}</p>
+                <p><strong>NRP:</strong> ${data.NRP}</p>
+                <p><strong>NRP_variant_idx:</strong> ${data.NRP_variant_idx}</p>
+                <p><strong>Genome:</strong> ${data.Genome}</p>
+                <p><strong>BGC:</strong> ${data.BGC}</p>
+                <p><strong>BGC_variant_idx:</strong> ${data.BGC_variant_idx}</p>
+            `;
+
+            // Populate alignments table
+            const alignmentTableBody = document.querySelector('#alignmentTable tbody');
+            alignmentTableBody.innerHTML = ''; // Clear existing rows
+
+            // Check if alignments data exists and is an array
+            if (data.Alignments && Array.isArray(data.Alignments)) {
+                data.Alignments.forEach(alignmentSet => {
+                    alignmentSet.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.Gene}</td>
+                            <td>${item['A-domain_idx']}</td>
+                            <td>${item.Top_scoring_residues}</td>
+                            <td>${item.Modifying_domains}</td>
+                            <td>${item.NRP_residue}</td>
+                            <td>${item.NRP_chirality}</td>
+                            <td>${item.NRP_modifications}</td>
+                            <td>${item.rBAN_name}</td>
+                            <td>${item.rBAN_idx}</td>
+                            <td>${item.Alignment_step}</td>
+                            <td>${item.Score}</td>
+                            <td>${item.ResidueScore}</td>
+                            <td>${item.MethylationScore}</td>
+                            <td>${item.ChiralityScore}</td>
+                            <td>${item.aa10_code}</td>
+                            <td>${item.aa34_code}</td>
+                        `;
+                        alignmentTableBody.appendChild(row);
+                    });
+                });
+            } else {
+                console.error('Invalid data structure: Alignments array not found');
+            }
+        }
+
+        populateTable(data); // Call the function with the data
+    </script>
+</body>
+</html>
+

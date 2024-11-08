@@ -40,9 +40,9 @@
     </style>
 </head>
 <body>
-    <script src="{{REPORT_DATA_JS_PATH}}"></script>
+    <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
 
-    <h1>Nerpa report</h1>
+    <h1>Nerpa main report</h1>
 
     <!-- Filter Input Fields -->
     <div class="filter-section">
@@ -57,12 +57,13 @@
 
     <!-- Explanation for sorting -->
     <div class="explanation">
-        Press the column name to sort the rows
+        Click a column name to sort the rows. Click a Match ID to open the detailed match report.
     </div>
 
     <table id="reportTable">
         <thead>
             <tr>
+                <th>Match_ID</th>
                 <th>Score</th>
                 <th>NRP_ID</th>
                 <th>NRP_Variant_Idx</th>
@@ -91,6 +92,7 @@
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                    <td><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
                     <td>${item.Score}</td>
                     <td>${item.NRP}</td>
                     <td>${item.NRP_variant_idx}</td>
