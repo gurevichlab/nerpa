@@ -12,7 +12,7 @@
 They can be installed via:
 
 ```
-pip install dacite parse more_itertools pandas rdkit networkx matplotlib  
+pip install dacite parse more_itertools pandas rdkit networkx matplotlib pyyaml 
 ```
 
 
