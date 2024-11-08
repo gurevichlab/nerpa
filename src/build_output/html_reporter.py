@@ -7,7 +7,7 @@ from src.config import ConfigPaths
 from src.matching.alignment_types import Match
 
 
-def create_match_dicts(matches: List[Match]) -> List[Dict]:
+def _create_match_dicts(matches: List[Match]) -> List[Dict]:
     # TODO: think if we need some minimal leading_zeros always, e.g., at least 3
     # Determine the number of digits needed based on the length of matches
     min_leading_zeros = 3
@@ -21,6 +21,12 @@ def create_match_dicts(matches: List[Match]) -> List[Dict]:
         }
         for i, match in enumerate(matches)
     ]
+
+
+def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
+    for placeholder, value in substitutions.items():
+        template = template.replace(placeholder, value)
+    return template
 
 
 def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
@@ -41,14 +47,16 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
     html_aux_dir = config_paths.main_out_dir / 'html_aux'
     report_data_js_path = html_aux_dir / 'report_data.js'
     html_aux_dir.mkdir()
-    match_dicts = create_match_dicts(matches)
+    match_dicts = _create_match_dicts(matches)
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:
         json_file.write('var data = ')
         json.dump(match_dicts, json_file, indent=4)
 
-    main_html_report = main_report_html_template.replace('{{HTML_AUX_DIR}}',
-                                       str(html_aux_dir.relative_to(config_paths.main_out_dir)))
+    path_substitutions = {
+        '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(config_paths.main_out_dir))
+    }
+    main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
     with open(main_report_path, 'w') as file:
         file.write(main_html_report)
 
@@ -60,9 +68,14 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
         with open(match_data_js_path, 'w') as json_file:
             json_file.write('var data = ')
             json.dump(match_dict, json_file, indent=4)
-        match_html_report = match_report_html_template.replace('{{DATA_JSON_PATH}}',
-                                                               str(match_data_js_path.relative_to(html_aux_dir))
-                                                        ).replace('{{MAIN_REPORT_PATH}}',
-                                                                  os.path.relpath(main_report_path, start=html_aux_dir))
+
+        path_substitutions = {
+            # Note: the first one could be done with Path's .relative_to()
+            # but it will fail for the rest two -- it can't properly form the "../" like output
+            '{{DATA_JSON_PATH}}': os.path.relpath(match_data_js_path, start=html_aux_dir),
+            '{{MAIN_REPORT_PATH}}': os.path.relpath(main_report_path, start=html_aux_dir),
+            '{{ANTISMASH_OUT_DIR}}': os.path.relpath(config_paths.antismash_out_dir, start=html_aux_dir)
+        }
+        match_html_report = _apply_substitutions(match_report_html_template, path_substitutions)
         with open(match_html_report_path, 'w') as file:
             file.write(match_html_report)
