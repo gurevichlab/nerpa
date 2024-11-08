@@ -165,11 +165,30 @@
             var genomeFilter = genomeInput.value.toLowerCase();
             var table = document.getElementById("reportTable");
             var tr = table.getElementsByTagName("tr");
+            var headers = table.getElementsByTagName("th");
+
+            // Get column indices dynamically by column name
+            var nrpIndex = -1;
+            var genomeIndex = -1;
+
+            for (var i = 0; i < headers.length; i++) {
+                var headerText = headers[i].textContent || headers[i].innerText;
+                if (headerText === "NRP_ID") {
+                    nrpIndex = i;
+                } else if (headerText === "Genome_ID") {
+                    genomeIndex = i;
+                }
+            }
+
+            if (nrpIndex === -1 || genomeIndex === -1) {
+                console.error("NRP_ID or Genome_ID column not found.");
+                return;
+            }
 
             for (var i = 1; i < tr.length; i++) {
                 var showRow = true; // Start by assuming the row should be shown
-                var nrpTd = tr[i].getElementsByTagName("td")[1]; // Column 1: NRP_ID
-                var genomeTd = tr[i].getElementsByTagName("td")[3]; // Column 3: Genome_ID
+                var nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
+                var genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
 
                 if (nrpTd) {
                     var nrpValue = nrpTd.textContent || nrpTd.innerText;
