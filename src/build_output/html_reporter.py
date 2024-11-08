@@ -74,7 +74,8 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
             # but it will fail for the rest two -- it can't properly form the "../" like output
             '{{DATA_JSON_PATH}}': os.path.relpath(match_data_js_path, start=html_aux_dir),
             '{{MAIN_REPORT_PATH}}': os.path.relpath(main_report_path, start=html_aux_dir),
-            '{{ANTISMASH_OUT_DIR}}': os.path.relpath(config_paths.antismash_out_dir, start=html_aux_dir)
+            '{{ANTISMASH_OUT_DIR}}': os.path.relpath(config_paths.antismash_out_dir, start=html_aux_dir),
+            '{{NRP_IMAGES_DIR}}': os.path.relpath(config_paths.nrp_images_dir, start=html_aux_dir)
         }
         match_html_report = _apply_substitutions(match_report_html_template, path_substitutions)
         with open(match_html_report_path, 'w') as file:
