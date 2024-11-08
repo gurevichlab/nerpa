@@ -82,7 +82,12 @@
         </table>
     </div>
 
-    <div id="nrpImagesSection">
+    <div id="bgc">
+        <h2>BGC Annotation</h2>
+        <div id="bgc-content"></div>
+    </div>
+
+    <div id="nrp">
         <h2>NRP Annotation</h2>
         <div id="nrp-images-content"></div>
     </div>
@@ -95,25 +100,10 @@
                 <p><strong>Score:</strong> ${data.Score}</p>
                 <p><strong>NRP:</strong> ${data.NRP}</p>
                 <p><strong>NRP_variant_idx:</strong> ${data.NRP_variant_idx}</p>
-                <p><strong>Genome:</strong> <a href="{{ANTISMASH_OUT_DIR}}/${data.Genome}/index.html">${data.Genome}</a></p>
+<!--                <p><strong>Genome:</strong> <a href="{{ANTISMASH_OUT_DIR}}/${data.Genome}/index.html">${data.Genome}</a></p>-->
+                <p><strong>Genome:</strong> ${data.Genome} </p>
                 <p><strong>BGC:</strong> ${data.BGC}</p>
                 <p><strong>BGC_variant_idx:</strong> ${data.BGC_variant_idx}</p>
-            `;
-        }
-
-        function populateNrpImages(data) {
-            const imagesSection = document.querySelector('#nrp-images-content');
-            imagesSection.innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <div style="flex: 1; padding: 10px;">
-                        <h4>Annotated molecular structure</h4>
-                        <img src="{{NRP_IMAGES_DIR}}/molecules/${data.NRP}.png" alt="Molecule image for ${data.NRP} is missing. Did you forget to use '--draw-molecules'?" style="width: 100%; height: auto;"/>
-                    </div>
-                    <div style="flex: 1; padding: 10px;">
-                        <h4>Monomer graph</h4>
-                        <img src="{{NRP_IMAGES_DIR}}/graphs/${data.NRP}.png" alt="Graph image for ${data.NRP} is missing. Did you forget to use '--draw-molecules'?" style="width: 100%; height: auto;"/>
-                    </div>
-                </div>
             `;
         }
 
@@ -153,9 +143,35 @@
             }
         }
 
+        function populateNrpImages(data) {
+            const imagesSection = document.querySelector('#nrp-images-content');
+            imagesSection.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1; padding: 10px;">
+                        <h4>Annotated molecular structure</h4>
+                        <img src="{{NRP_IMAGES_DIR}}/molecules/${data.NRP}.png" alt="Molecule image for ${data.NRP} is missing. Did you forget to use '--draw-molecules'?" style="width: 100%; height: auto;"/>
+                    </div>
+                    <div style="flex: 1; padding: 10px;">
+                        <h4>Monomer graph</h4>
+                        <img src="{{NRP_IMAGES_DIR}}/graphs/${data.NRP}.png" alt="Graph image for ${data.NRP} is missing. Did you forget to use '--draw-molecules'?" style="width: 100%; height: auto;"/>
+                    </div>
+                </div>
+            `;
+        }
+
+        function populateBgcSection(data) {
+            const bgcSection = document.querySelector('#bgc-content');
+            // FIXME: we should point the report to the actual BGC, not always #r1c1
+            // we probably can "retrieve" it from BGC idx or add a special dedicated field in the Match JSON
+            bgcSection.innerHTML = `
+                <iframe src="{{ANTISMASH_OUT_DIR}}/${data.Genome}/index.html#r1c1" width="100%" height="600px"></iframe>
+            `;
+        }
+
         populateMetadata(data);
-        populateNrpImages(data);
         populateTable(data);
+        populateNrpImages(data);
+        populateBgcSection(data);
     </script>
 </body>
 </html>
