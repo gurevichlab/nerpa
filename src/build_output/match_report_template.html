@@ -48,13 +48,13 @@
 
     <!-- Metadata section -->
     <div id="metadata">
-        <h2>General information</h2>
+        <h2>Match data</h2>
         <div id="metadata-content"></div>
     </div>
 
     <!-- Alignment section -->
     <div id="alignment">
-        <h2>Alignment</h2>
+        <h2>BGC-NRP Alignment</h2>
         <table id="alignmentTable">
             <thead>
                 <tr>
@@ -82,9 +82,13 @@
         </table>
     </div>
 
+    <div id="nrpImagesSection">
+        <h2>NRP Annotation</h2>
+        <div id="nrp-images-content"></div>
+    </div>
+
     <script>
-        function populateTable(data) {
-            // Populate metadata
+        function populateMetadata(data) {
             const metadataContent = document.querySelector('#metadata-content');
             metadataContent.innerHTML = `
                 <p><strong>Match_ID:</strong> ${data.Match_ID}</p>
@@ -95,7 +99,25 @@
                 <p><strong>BGC:</strong> ${data.BGC}</p>
                 <p><strong>BGC_variant_idx:</strong> ${data.BGC_variant_idx}</p>
             `;
+        }
 
+        function populateNrpImages(data) {
+            const imagesSection = document.querySelector('#nrp-images-content');
+            imagesSection.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1; padding: 10px;">
+                        <h4>Annotated molecular structure</h4>
+                        <img src="{{NRP_IMAGES_DIR}}/molecules/${data.NRP}.png" alt="Molecule image for ${data.NRP} is missing. Did you forget to use '--draw-molecules'?" style="width: 100%; height: auto;"/>
+                    </div>
+                    <div style="flex: 1; padding: 10px;">
+                        <h4>Monomer graph</h4>
+                        <img src="{{NRP_IMAGES_DIR}}/graphs/${data.NRP}.png" alt="Graph image for ${data.NRP} is missing. Did you forget to use '--draw-molecules'?" style="width: 100%; height: auto;"/>
+                    </div>
+                </div>
+            `;
+        }
+
+        function populateTable(data) {
             // Populate alignments table
             const alignmentTableBody = document.querySelector('#alignmentTable tbody');
             alignmentTableBody.innerHTML = ''; // Clear existing rows
@@ -131,7 +153,9 @@
             }
         }
 
-        populateTable(data); // Call the function with the data
+        populateMetadata(data);
+        populateNrpImages(data);
+        populateTable(data);
     </script>
 </body>
 </html>
