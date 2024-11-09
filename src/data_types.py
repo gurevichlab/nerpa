@@ -114,6 +114,7 @@ BGC_Fragment = List[BGC_Module]
 class BGC_Variant:
     variant_idx: int
     genome_id: str
+    contig_idx: int
     bgc_idx: int
     modules: List[BGC_Module]
 
@@ -122,8 +123,10 @@ class BGC_Variant:
         return cls(variant_idx=data['variant_idx'],
                    genome_id=data['genome_id'],
                    bgc_idx=data['bgc_idx'],
+                   contig_idx=data.get('contig_idx', 0),  # for compatibility with old yaml files
                    modules=[BGC_Module.from_yaml_dict(module_dict)
                                for module_dict in data['modules']])
+
 
     def has_pks_domains(self) -> bool:
         return any('PKS' in feature.name

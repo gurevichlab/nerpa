@@ -216,7 +216,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
             if bgc_genes:
                 bgcs.append(BGC_Cluster(genome_id=genome_id,
-                                        contig_id=f'ctg{ctg_idx + 1}',
+                                        contig_idx=ctg_idx,
                                         bgc_idx=bgc_idx,
                                         genes=bgc_genes))
     return bgcs

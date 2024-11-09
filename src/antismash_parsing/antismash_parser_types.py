@@ -93,7 +93,7 @@ class Gene:
 @dataclass
 class BGC_Cluster:
     genome_id: str
-    contig_id: str
+    contig_idx: int
     bgc_idx: int
     genes: List[Gene]
 

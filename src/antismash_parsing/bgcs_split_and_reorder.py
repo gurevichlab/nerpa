@@ -28,7 +28,7 @@ def split_by_dist(bgc_cluster: BGC_Cluster,
     gene_groups = list(split_before(pairwise([dummy_gene] + bgc_cluster.genes),
                                     lambda p: p[1].coords.start - p[0].coords.end > config.MAX_DISTANCE_BETWEEN_GENES))
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
-                        contig_id=bgc_cluster.contig_id,
+                        contig_idx=bgc_cluster.contig_idx,
                         bgc_idx=bgc_cluster.bgc_idx,
                         genes=[gene for _, gene in group])
             for group in gene_groups]
@@ -42,7 +42,7 @@ def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
                            keep_separator=True)
     gene_groups = [list(group) for group in gene_groups]
     return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
-                        contig_id=bgc_cluster.contig_id,
+                        contig_idx=bgc_cluster.contig_idx,
                         bgc_idx=bgc_cluster.bgc_idx,
                         genes=group)
             for group in gene_groups
@@ -180,7 +180,7 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config)
 
     def build_fragmented_bgc(genes_fragments: Iterable[List[Gene]]) -> Fragmented_BGC_Cluster:
         return [BGC_Cluster(genome_id=bgc.genome_id,
-                            contig_id=bgc.contig_id,
+                            contig_idx=bgc.contig_idx,
                             bgc_idx=bgc.bgc_idx,
                             genes=genes_fragment)
                 for genes_fragment in genes_fragments]

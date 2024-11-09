@@ -149,7 +149,7 @@ def remove_genes_with_no_a_domains(bgc: BGC_Cluster) -> BGC_Cluster:
     def has_a_domains(gene: Gene) -> bool:
         return any(module.a_domain is not None for module in gene.modules)
     return BGC_Cluster(genome_id=bgc.genome_id,
-                       contig_id=bgc.contig_id,
+                       contig_idx=bgc.contig_idx,
                        bgc_idx=bgc.bgc_idx,
                        genes=[gene for gene in bgc.genes if has_a_domains(gene)])
 
@@ -166,8 +166,9 @@ def build_bgc_variants(bgc: BGC_Cluster,
         return []
     raw_fragmented_bgcs = split_and_reorder(bgc, config, log)
     return [BGC_Variant(genome_id=bgc.genome_id,
-                        variant_idx=idx,
+                        contig_idx=bgc.contig_idx,
                         bgc_idx=bgc.bgc_idx,
+                        variant_idx=idx,
                         modules=assembly_line)
             for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)
             if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,
