@@ -191,7 +191,7 @@ def extract_matches_skips_info(alignment: List[AlignmentStep],
                                nrp_id: str) -> MatchesSkipsSteps:
     gene_to_fragment = {module.gene_id: module.fragment_idx
                         for module in bgc_variant.modules}
-    steps_wo_ins = [step for step in alignment if step.step_type != AlignmentStepType.NRP_MONOMER_INSERT]
+    steps_wo_ins = [step for step in alignment if step.bgc_module_info is not None]
     fragments_matches, fragments_skips = fragments_matches_skips_info(steps_wo_ins, bgc_variant, nrp_id, gene_to_fragment)
     skipped_fragments = {gene_to_fragment[gene_id]
                          for fragment in fragments_skips
