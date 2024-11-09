@@ -11,18 +11,20 @@ from src.data_types import (
     NRP_Fragment,
     NRP_Variant
 )
+from src.matching.dp import get_alignment
 from src.matching.scoring_helper import ScoringHelper
-from src.matching.alignment_types import (
+from src.matching.matching_types_alignment import (
     Alignment,
     alignment_score,
     combined_alignments_score,
-    Match,
     show_alignment
 )
+from src.matching.matching_types_match import Match, Match_BGC_Variant_Info, Match_NRP_Variant_Info
 from src.matching.multiple_fragments_alignment_handling import (
     get_multiple_fragments_alignment,
     get_iterative_bgc_alignment,
-    get_fragments_alignment
+    get_fragments_alignment,
+    fragments_joined_monomer_sequences
 )
 from src.matching.heuristic_matching import filter_out_bad_nrp_candidates, get_heuristic_discard, DiscardVerdict
 from itertools import chain, islice, takewhile, permutations, product
@@ -42,6 +44,7 @@ def get_normalized_score(bgc_variant: BGC_Variant,
                          dp_helper: ScoringHelper) -> LogProb:
     combined_score = combined_alignments_score(alignments)
 
+    '''
     match dp_helper.scoring_config.normalization:
         case 'RANDOM_NULL_MODEL':
             null_score = sum(null_hypothesis_score(fragment, dp_helper) for fragment in nrp_variant.fragments)
@@ -53,37 +56,36 @@ def get_normalized_score(bgc_variant: BGC_Variant,
             normalized_score = combined_score
         case _:
             raise ValueError(f'Unknown normalization method: {dp_helper.scoring_config.normalization}')
-    return normalized_score
+    '''
+    return combined_score
 
 
 def get_match(bgc_variant: BGC_Variant,
               nrp_variant: NRP_Variant,
               dp_helper: ScoringHelper) -> Optional[Match]:  # match can be discarded based on heuristics
-    dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains)  # I don't really like that dp_helper carries some state
+    dp_helper.set_pks_domains_in_bgc(bgc_variant.has_pks_domains())  # I don't really like that dp_helper carries some state
 
     fragments_alignments: List[List[Alignment]] = []
 
     heuristic_discard = get_heuristic_discard(bgc_variant, nrp_variant, dp_helper.scoring_config.heuristic_matching_cfg) \
         if dp_helper.heuristic_discard_on else DiscardVerdict(False, False)
-    if dp_helper.scoring_config.join_fragments_alignments and not heuristic_discard.joined:
+
+    if not heuristic_discard.joined:
         fragments_permutations = permutations(nrp_variant.fragments) \
             if len(nrp_variant.fragments) <= 3 else [nrp_variant.fragments]
-        fragments_alignments.extend(get_multiple_fragments_alignment(bgc_variant.fragments,
-                                                                     list(nrp_fragments),
-                                                                     dp_helper)
-                                    for nrp_fragments in fragments_permutations)
+        monomer_sequences = chain(*(fragments_joined_monomer_sequences(fragments_permutation)
+                                    for fragments_permutation in fragments_permutations))
+        fragments_alignments.extend([get_alignment(bgc_variant.modules,
+                                                   monomer_sequence,
+                                                   dp_helper)]
+                                    for monomer_sequence in monomer_sequences)
         # TODO: this is a stub, we should implement a more reasonable way to handle many fragments
         #  instead of just cutting off at some point
         # (e.g. by first finding the best bgc_fragment for each nrp_fragment to retrieve their order)
-    if dp_helper.scoring_config.iterative_bgc_alignment and not heuristic_discard.iterative:
-        fragments_alignments.append(get_iterative_bgc_alignment(bgc_variant.fragments,
+    if not heuristic_discard.iterative:
+        fragments_alignments.append(get_iterative_bgc_alignment(bgc_variant.modules,
                                                                 nrp_variant.fragments,
                                                                 dp_helper))
-    if dp_helper.scoring_config.one_to_one_fragment_alignment:
-        fragments_alignments.extend([get_fragments_alignment(bgc_fragment, nrp_fragment, dp_helper)]
-                                     for bgc_fragment, nrp_fragment in product(bgc_variant.fragments,
-                                                                               nrp_variant.fragments))
-
 
     if not fragments_alignments:
         return None
@@ -91,10 +93,10 @@ def get_match(bgc_variant: BGC_Variant,
     normalized_score = get_normalized_score(bgc_variant, nrp_variant,
                                             best_fragments_alignment,
                                             dp_helper)
-    return Match(bgc_variant,
-                 nrp_variant,
-                 best_fragments_alignment,
-                 normalized_score)
+    return Match(bgc_variant_info=Match_BGC_Variant_Info.from_bgc_variant(bgc_variant),
+                 nrp_variant_info=Match_NRP_Variant_Info.from_nrp_variant(nrp_variant),
+                 alignments=best_fragments_alignment,
+                 normalized_score=normalized_score)
 
 
 def get_matches_for_bgc_variant(bgc_variant: BGC_Variant,
@@ -130,11 +132,13 @@ def get_matches(bgc_variants: List[BGC_Variant],
                 log=None) -> List[Match]:
     if log is not None:
         log.info(f'Matching {len(bgc_variants)} BGC variants against {len(nrp_variants)} NRP variants')
-    print('Max NRP fragments cnt', max(len(nrp_variant.fragments) for nrp_variant in nrp_variants))
-    print('Max BGC fragments cnt', max(len(bgc_variant.fragments) for bgc_variant in bgc_variants))
     matches = chain(*Parallel(n_jobs=num_threads)(delayed(get_matches_for_bgc_variant)(bgc_variant, nrp_variants,
                                                                                        scoring_helper,
                                                                                        min_score, max_num_matches,
                                                                                        log)
                                                   for bgc_variant in bgc_variants))
+    # q: sort matches by normalized score
     return sorted(matches, key=lambda m: m.normalized_score, reverse=True)
+
+    #return sorted(matches, key=lambda m: m.normalized_score, reverse=True)
+

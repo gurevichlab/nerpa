@@ -1,4 +1,10 @@
-from typing import List, Dict, Tuple, Optional
+from typing import (
+    List,
+    Dict,
+    Tuple,
+    Optional,
+    Set
+)
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
     antiSMASH_record,
@@ -6,6 +12,7 @@ from src.antismash_parsing.antismash_parser_types import (
     Coords,
     DomainType,
     Gene,
+    GeneId,
     Module,
     SVM_LEVEL,
     SVM_Prediction,
@@ -16,8 +23,7 @@ from src.monomer_names_helper import antiSMASH_MonomerName
 from parse import parse
 from collections import defaultdict
 from itertools import pairwise
-
-GeneId = str
+from src.antismash_parsing.determine_modifications import ends_with_pcp_pcp, get_iterative_genes_orphan_c
 
 
 class A_Domain_Id:
@@ -101,10 +107,10 @@ def parse_cds_coordinates(location: str) -> Coords:
                   strand=parsed_location_parts[0].strand)  # it is assumed that all parts have the same strand
 
 
-def extract_gene_id(feature_qualifiers: dict) -> str:
+def extract_gene_id(feature_qualifiers: dict) -> GeneId:
     for gene_id_key in ['locus_tag', 'gene', 'protein_id']:
         if gene_id_key in feature_qualifiers:
-            return feature_qualifiers[gene_id_key][0]
+            return GeneId(feature_qualifiers[gene_id_key][0])
     raise KeyError('Gene ID not found in feature qualifiers')
 
 
@@ -146,7 +152,7 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
 
 
 def check_orphan_c_domains(gene_data: dict,
-                           config: antiSMASH_Parsing_Config) -> Tuple[bool, bool]:
+                           config: antiSMASH_Parsing_Config) -> Tuple[bool, bool]:  # (orphan_c_at_start, orphan_c_at_end)
     modules_start = min((domain['domain']['query_start']
                         for module in gene_data['modules']
                         for domain in module['components']),
@@ -181,7 +187,7 @@ def extract_genes(contig_data: dict,
     gene_coords = extract_gene_coords(contig_data)
 
     genes = []
-    orphan_c_domains_per_gene: Dict[str, Tuple[bool, bool]] = {}
+    orphan_c_domains_per_gene: Dict[GeneId, Tuple[bool, bool]] = {}  # gene_id -> (orphan_c_at_start, orphan_c_at_end)
     for gene_id, gene_data in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
         modules = extract_modules(gene_data, a_domains_per_gene[gene_id], config)
         orphan_c_domains_per_gene[gene_id] = check_orphan_c_domains(gene_data, config)
@@ -190,19 +196,12 @@ def extract_genes(contig_data: dict,
                           modules=modules))
 
     genes.sort(key=lambda gene: gene.coords.start)
-    for gene1, gene2 in pairwise(genes):
-        if gene1.coords.strand != gene2.coords.strand:
-            continue
-        if gene1.coords.strand == gene2.coords.strand == STRAND.REVERSE:
-            gene1, gene2 = gene2, gene1
-        if orphan_c_domains_per_gene[gene2.gene_id][0]:
-            gene1.is_iterative = True
-        if orphan_c_domains_per_gene[gene1.gene_id][1] \
-                and (not gene2.modules or any(domain.in_c_domain_group()
-                                              for domain in gene2.modules[0].domains_sequence)):
-            gene1.is_iterative = True
-    if orphan_c_domains_per_gene[genes[-1].gene_id][1]:
-        genes[-1].is_iterative = True
+
+    iterative_genes_orphan_c = get_iterative_genes_orphan_c(genes, orphan_c_domains_per_gene)
+    iterative_genes_pcp = {gene.gene_id for gene in genes if ends_with_pcp_pcp(gene)}
+
+    for gene in genes:
+        gene.is_iterative = gene.gene_id in iterative_genes_orphan_c or gene.gene_id in iterative_genes_pcp
 
     return list(filter(lambda gene: gene.modules, genes))
 
@@ -217,7 +216,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
             if bgc_genes:
                 bgcs.append(BGC_Cluster(genome_id=genome_id,
-                                        contig_id=f'ctg{ctg_idx + 1}',
+                                        contig_idx=ctg_idx,
                                         bgc_idx=bgc_idx,
                                         genes=bgc_genes))
     return bgcs

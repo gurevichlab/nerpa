@@ -107,7 +107,7 @@ def update_config(nerpa_dir: Path,
                   core_frequencies: Dict[MonomerResidue, float],
                   monomer_names_helper: MonomerNamesHelper,
                   UNKNOWN_RESIDUE: MonomerResidue):
-    config = yaml.safe_load((nerpa_dir / 'data' / 'old_config.yaml').read_text())
+    config = yaml.safe_load((nerpa_dir / 'data' / 'config.yaml').read_text())
     config['specificity_prediction_config']['apriori_residue_prob'] = core_frequencies
 
     svm_cores = list(filter(lambda res: res != UNKNOWN_RESIDUE,
@@ -134,7 +134,7 @@ def main():
  'Dpr', 'Iva', 'Hty', 'Pip', 'Hse', 'Bmt', 'Pen', 'Bza', 'bLys', 'Kyn', 
  'Aad', 'oxoDec']
 
-    monomer_names_table = pd.read_csv(nerpa_dir / 'data' / 'monomers_unique.tsv', sep='\t')
+    monomer_names_table = pd.read_csv(nerpa_dir / 'data' / 'monomer_names_table.tsv', sep='\t')
     monomer_names_table = remove_unsupported_monomers(monomer_names_table, supported_monomers, UNKNOWN_RESIDUE)
     monomer_names_helper = MonomerNamesHelper(monomer_names_table)
 

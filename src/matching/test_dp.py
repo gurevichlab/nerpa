@@ -121,10 +121,10 @@ def parse_result_alignment(alignment: Alignment) -> TestAlignment:
 
     bgc = [best_pred(trans.bgc_module) if trans.bgc_module else None
            for trans in alignment
-           if trans.action not in ('iterate_module', 'iterate_gene')]
+           if trans.step_type not in ('iterate_module', 'iterate_gene')]
     nrp = [trans.nrp_monomer.residue if trans.nrp_monomer else None
            for trans in alignment
-           if trans.action not in ('iterate_module', 'iterate_gene')]
+           if trans.step_type not in ('iterate_module', 'iterate_gene')]
     return bgc, nrp
 
 

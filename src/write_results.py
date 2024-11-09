@@ -4,15 +4,20 @@ from typing import (
     List,
     TypeVar,
     Tuple,
+    Optional,
     Union
 )
-from src.matching.alignment_types import Match
+from src.matching.matching_types_match import Match
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
 from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
+
+from src.pipeline.logger import NerpaLogger
+
 from src.config import ConfigPaths
+
 
 from pathlib import Path
 from io import StringIO
@@ -20,6 +25,7 @@ import csv
 import yaml
 import json
 from itertools import groupby
+from copy import deepcopy
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -51,11 +57,11 @@ def build_report(matches: List[Match]) -> str:
                                 delimiter='\t')
     csv_writer.writeheader()
     csv_writer.writerows({'Score': match.normalized_score,
-                          'NRP_ID': match.nrp_variant.nrp_id,
-                          'NRP_Variant_Idx': match.nrp_variant.variant_idx,
-                          'Genome_ID': match.bgc_variant.genome_id,
-                          'BGC_ID': match.bgc_variant.bgc_idx,
-                          'BGC_Variant_Idx': match.bgc_variant.variant_idx}
+                          'NRP_ID': match.nrp_variant_info.nrp_id,
+                          'NRP_Variant_Idx': match.nrp_variant_info.variant_idx,
+                          'Genome_ID': match.bgc_variant_info.genome_id,
+                          'BGC_ID': match.bgc_variant_info.bgc_idx,
+                          'BGC_Variant_Idx': match.bgc_variant_info.variant_idx}
                          for match in matches)
     return result.getvalue()
 
@@ -68,17 +74,23 @@ def write_matches_per_id(matches: List[T],
 
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
-                       config_paths: ConfigPaths,
-                       rban_records: Union[List[Parsed_rBAN_Record], None] = None,
-                       draw: bool = True):
+                       output_dir: Path,
+                       rban_records: Optional[List[Parsed_rBAN_Record]] = None,
+                       draw_graphs: bool = False,
+                       log: Optional[NerpaLogger] = None):
     if rban_records is not None:
-        write_yaml([rban_record.to_compact_dict() for rban_record in rban_records], config_paths.rban_graphs)
-        for rban_record in rban_records:
-            monomer_graph = MonomerGraph.from_rban_record(rban_record)
-            if draw:
-                draw_molecule(monomer_graph, config_paths.nrp_images_dir / Path(f'molecules/{rban_record.compound_id}.png'))
+        write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
+                   output_dir / Path('rban_graphs.yaml'))
+        if draw_graphs:
+            for rban_record in rban_records:
+                monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   output_file=config_paths.nrp_images_dir / Path(f'graphs/{rban_record.compound_id}.png'))
+                                   output_file=output_dir / Path(f'nrp_images/graphs/{rban_record.compound_id}.png'))
+                try:
+                    draw_molecule(monomer_graph, output_dir / Path(f'nrp_images/molecules/{rban_record.compound_id}.png'))
+                except Exception as e:
+                    if log is not None:
+                        log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
 
     config_paths.nrp_variants_dir.mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
