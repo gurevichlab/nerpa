@@ -104,7 +104,8 @@ class PipelineHelper:
         report.write_results(matches, self.config.paths.main_out_dir,
                              bgc_variants, nrp_variants,
                              rban_records,
-                             matches_details)
+                             matches_details,
+                             log=self.log)
         self.log.finish()
 
 

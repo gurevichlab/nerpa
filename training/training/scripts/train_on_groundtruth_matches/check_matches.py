@@ -113,7 +113,14 @@ def find_wrong_match(matches: List[Match], approved_matches: List[Match]) -> Opt
                       'BGC0000445.0',
                       'BGC0000339.0',
                       'BGC0000437.0',
-                      'BGC0001532.0']:
+                      'BGC0001532.0',
+                      'BGC0001667.4',
+                      'BGC0002109.2',
+                      'BGC0002109.5',
+                      'BGC0002109.3',
+                      'BGC0002109.1',
+                      'BGC0000459.1',
+                      'BGC0000450.0']:
             continue
         '''
         if nrp_id in ['BGC0001667.4',

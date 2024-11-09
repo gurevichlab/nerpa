@@ -6,6 +6,7 @@ from typing import (
     Tuple,
     Union)
 
+from src.antismash_parsing.location_features import ModuleLocFeature
 from src.data_types import (
     BGC_Module,
     BGC_MODULE_DUMMY,
@@ -101,11 +102,14 @@ def calculate_dp(assembly_line: List[BGC_Module],
                             module_reps == 0,
                             i < len(assembly_line),
                             j < len(nrp_monomers)]):
-                        transitions.append((START_STATE, dp_helper.skip_from_start, (i, j)))
+                       if ModuleLocFeature.START_OF_FRAGMENT in assembly_line[i].module_loc:  # skip only whole fragments
+                            transitions.append((START_STATE, dp_helper.skip_from_start, (i, j)))
 
                     # skip all modules [pi:) and monomers [pj:)
                     if i == len(assembly_line) and j == len(nrp_monomers):
                         for pi in range(1, len(assembly_line)):
+                            if not ModuleLocFeature.START_OF_FRAGMENT in assembly_line[pi].module_loc:  # skip only whole fragments
+                                continue
                             for pj in range(1, len(nrp_monomers)):
                                 transitions.append((DP_State(pi, pj, gene_reps, module_reps),
                                                     dp_helper.skip_to_end, (pi, pj)))
