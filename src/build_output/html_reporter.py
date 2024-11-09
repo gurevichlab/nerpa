@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Dict
 from src.config import ConfigPaths
-from src.matching.alignment_types import Match
+from src.matching.matching_types_match import Match
 
 
 def _create_match_dicts(matches: List[Match]) -> List[Dict]:
@@ -16,7 +16,7 @@ def _create_match_dicts(matches: List[Match]) -> List[Dict]:
 
     return [
         {
-            **match.to_dict_light(),
+            **match.to_dict(),
             'Match_ID': f'{i:0{leading_zeros}d}'
         }
         for i, match in enumerate(matches)

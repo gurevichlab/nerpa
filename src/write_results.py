@@ -74,27 +74,27 @@ def write_matches_per_id(matches: List[T],
 
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
-                       output_dir: Path,
+                       config_paths: ConfigPaths,
                        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
-                       draw_graphs: bool = False,
+                       draw: bool = False,
                        log: Optional[NerpaLogger] = None):
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
-                   output_dir / Path('rban_graphs.yaml'))
-        if draw_graphs:
+                   config_paths.main_out_dir / Path('rban_graphs.yaml'))
+        if draw:
             for rban_record in rban_records:
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   output_file=output_dir / Path(f'nrp_images/graphs/{rban_record.compound_id}.png'))
+                                   output_file=config_paths.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
                 try:
-                    draw_molecule(monomer_graph, output_dir / Path(f'nrp_images/molecules/{rban_record.compound_id}.png'))
+                    draw_molecule(monomer_graph, config_paths.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
 
     config_paths.nrp_variants_dir.mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
-        write_yaml(list(nrp_id_variants), config_paths.nrp_variants_dir / Path(f'{nrp_id}.yaml'))
+        write_yaml(list(nrp_id_variants), config_paths.nrp_variants_dir / f'{nrp_id}.yaml')
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
@@ -106,16 +106,16 @@ def write_bgc_variants(bgc_variants: List[BGC_Variant],
 def write_matches_details(matches: List[Match],
                           matches_details_output_dir: Path):
     matches_details_output_dir.mkdir()
-    write_yaml([match.to_dict_light() for match in matches],
+    write_yaml([match.to_dict() for match in matches],
                matches_details_output_dir / 'matches.yaml')
 
     (matches_details_output_dir / Path('per_BGC')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant.genome_id}_{match.bgc_variant.bgc_idx}')
+                         get_id=lambda match: f'{match.bgc_variant_info.genome_id}_{match.bgc_variant_info.get_antismash_id()}')
 
     (matches_details_output_dir / Path('per_NRP')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_NRP'),
-                         get_id=lambda match: match.nrp_variant.nrp_id)
+                         get_id=lambda match: match.nrp_variant_info.nrp_id)
 
 
 def write_results(matches: List[Match],
@@ -125,14 +125,19 @@ def write_results(matches: List[Match],
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True,
                   draw_molecules: bool = True,
-                  html_report: bool = True):
+                  html_report: bool = True,
+                  log: Optional[NerpaLogger] = None):
     config_paths.report.write_text(build_report(matches))
 
     if bgc_variants is not None:
         config_paths.bgc_variants_dir.mkdir()
         write_bgc_variants(bgc_variants, config_paths.bgc_variants_dir)
     if nrp_variants is not None:
-        write_nrp_variants(nrp_variants, config_paths, rban_records, draw=draw_molecules)
+        write_nrp_variants(nrp_variants,
+                           rban_records=rban_records,
+                           config_paths=config_paths,
+                           draw=draw_molecules,
+                           log=log)
 
     if matches_details:
         write_matches_details(matches, config_paths.matches_details)

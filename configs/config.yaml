@@ -92,7 +92,7 @@ antismash_parsing_config:
 paths: {rban_dir: external_tools/rBAN, nerpa_monomers: configs/monomersdb_nerpa.json,
   nerpa_monomers_info: configs/monomer_names_table.tsv, aa_codes: configs/aa_codes.yaml,
   specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib,
-  configs_input: configs, configs_output: configs, scoring_config: configs/scoring_config.yaml
+  configs_input: configs, configs_output: configs, scoring_config: configs/scoring_config.yaml,
   antismash_out_dir: antismash_output, report: report.tsv, html_report: report.html,
   matches_details: matches_details, bgc_variants_dir: BGC_variants, nrp_variants_dir: NRP_variants,
   nrp_images_dir: NRP_images, rban_graphs: rban_graphs.yaml, default_results_root_dirname: nerpa_results,

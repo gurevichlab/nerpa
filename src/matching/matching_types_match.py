@@ -27,7 +27,7 @@ class Match_BGC_Variant_Info(NamedTuple):
                    variant_idx=bgc_variant.variant_idx)
 
     def get_antismash_id(self) -> str:
-        return f'r{self.contig_idx + 1}c{self.bgc_idx + 1}'
+        return f'r{self.contig_idx}c{self.bgc_idx}'
 
 
 class Match_NRP_Variant_Info(NamedTuple):
@@ -78,7 +78,8 @@ class Match:
     def __str__(self):
         out = StringIO()
         out.write('\n'.join([f'Genome: {self.bgc_variant_info.genome_id}',
-                             f'BGC: {self.bgc_variant_info.bgc_idx}',
+                             f'Contig_idx: {self.bgc_variant_info.contig_idx}',
+                             f'BGC_idx: {self.bgc_variant_info.bgc_idx}',
                              f'BGC_variant: {self.bgc_variant_info.variant_idx}',
                              f'NRP: {self.nrp_variant_info.nrp_id}',
                              f'NRP_variant: {self.nrp_variant_info.variant_idx}',
@@ -102,8 +103,10 @@ class Match:
         last_non_empty_line = next(i for i, line in enumerate(reversed(lines)) if line.strip())
         lines_iter = iter(lines[fst_non_empty_line:len(lines) - last_non_empty_line])
 
+        # TODO: handle missing fields in old yaml files
         genome_id = next(lines_iter).split(': ')[1]
-        bgc_idx = 0 #int(lines[1].split(': ')[1])
+        contig_idx = int(next(lines_iter).split(': ')[1])
+        bgc_idx = int(lines[1].split(': ')[1])
         bgc_variant_idx = int(next(lines_iter).split(': ')[1])
         nrp_id = next(lines_iter).split(': ')[1]
         nrp_variant_idx = int(next(lines_iter).split(': ')[1])
@@ -111,6 +114,7 @@ class Match:
         score = float(next(lines_iter).split(': ')[1])
 
         bgc_variant_info = Match_BGC_Variant_Info(genome_id=genome_id,
+                                                  contig_idx=contig_idx,
                                                   bgc_idx=bgc_idx,
                                                   variant_idx=bgc_variant_idx)
         nrp_variant_info = Match_NRP_Variant_Info(nrp_id=nrp_id,
