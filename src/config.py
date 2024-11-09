@@ -81,12 +81,17 @@ class ConfigPaths:
     specificity_prediction_model: Path
     nerpa_monomers: Path  # TODO: rename
     nerpa_monomers_info: Path
+    rban_dir: Path
     configs_input: Path
     configs_output: Path
     scoring_config: Path
     report: Path
-    rban_dir: Path
+    html_report: Path
     matches_details: Path
+    bgc_variants_dir: Path
+    nrp_variants_dir: Path
+    nrp_images_dir: Path
+    rban_graphs: Path
     default_results_root_dirname: str
     default_results_dirname_prefix: str
 
@@ -101,13 +106,17 @@ class ConfigPaths:
         self.specificity_prediction_model = nerpa_dir / Path(paths_cfg_dict['specificity_prediction_model'])
         self.nerpa_monomers = nerpa_dir / Path(paths_cfg_dict['nerpa_monomers'])
         self.nerpa_monomers_info = nerpa_dir / Path(paths_cfg_dict['nerpa_monomers_info'])
+        self.rban_dir = nerpa_dir / Path(paths_cfg_dict['rban_dir'])
         self.configs_input = configs_dir if configs_dir else nerpa_dir / Path(paths_cfg_dict['configs_input'])
         self.configs_output = main_out_dir / Path('configs_output')
         self.scoring_config = nerpa_dir / Path(paths_cfg_dict['scoring_config'])
         self.report = main_out_dir / Path(paths_cfg_dict['report'])
         self.html_report = main_out_dir / Path(paths_cfg_dict['html_report'])
         self.matches_details = main_out_dir / Path(paths_cfg_dict['matches_details'])
-        self.rban_dir = nerpa_dir / Path(paths_cfg_dict['rban_dir'])
+        self.bgc_variants_dir = main_out_dir / Path(paths_cfg_dict['bgc_variants_dir'])
+        self.nrp_variants_dir = main_out_dir / Path(paths_cfg_dict['nrp_variants_dir'])
+        self.nrp_images_dir = main_out_dir / Path(paths_cfg_dict['nrp_images_dir'])
+        self.rban_graphs = main_out_dir / Path(paths_cfg_dict['rban_graphs'])
         self.default_results_root_dirname = paths_cfg_dict['default_results_root_dirname']
         self.default_results_dirname_prefix = paths_cfg_dict['default_results_dirname_prefix']
 

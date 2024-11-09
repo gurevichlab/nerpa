@@ -96,16 +96,17 @@ class PipelineHelper:
                       bgc_variants: List[BGC_Variant],
                       nrp_variants: List[NRP_Variant],
                       rban_records: List[Parsed_rBAN_Record],
-                      matches_details:  bool = True):
+                      matches_details: bool = True):
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.paths.report), indent=1)
         self.log.info("HTML report is saved to " + str(self.config.paths.html_report), indent=1)
         self.log.info("Detailed reports are saved to " + str(self.config.paths.matches_details), indent=1)
-        report.write_results(matches, self.config.paths.main_out_dir,
+        report.write_results(matches, self.config.paths,
                              bgc_variants, nrp_variants,
                              rban_records,
                              matches_details,
-                             log=self.log)
+                             log=self.log,
+                             draw_molecules=self.args.draw_molecules)
         self.log.finish()
 
 
