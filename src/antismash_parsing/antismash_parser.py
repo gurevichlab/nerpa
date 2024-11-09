@@ -209,7 +209,7 @@ def extract_genes(contig_data: dict,
 def extract_bgc_clusters(genome_id: str, ctg_idx: int,
                          contig_data: dict, genes: List[Gene]) -> List[BGC_Cluster]:
     bgcs = []
-    for bgc_idx, bgc_data in enumerate(contig_data['areas']):
+    for bgc_idx, bgc_data in enumerate(contig_data['areas'], start=1):
         if 'NRPS' in bgc_data['products']:
             bgc_genes = [gene for gene in genes
                          if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
@@ -226,7 +226,7 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
                          config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
-    for ctg_idx, contig_data in enumerate(antismash_json['records']):
+    for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
         a_domains_per_gene = extract_a_domains_info(contig_data)
         if not any(a_domains for a_domains in a_domains_per_gene.values()):  # no A-domains found in the contig
             continue
