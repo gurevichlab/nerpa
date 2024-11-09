@@ -40,7 +40,9 @@
     </style>
 </head>
 <body>
-    <h1>Nerpa report</h1>
+    <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
+
+    <h1>Nerpa main report</h1>
 
     <!-- Filter Input Fields -->
     <div class="filter-section">
@@ -55,17 +57,23 @@
 
     <!-- Explanation for sorting -->
     <div class="explanation">
-        Press the column name to sort the rows
+        Click a column name to sort the rows. Click a Match ID to open the detailed match report.
     </div>
 
     <table id="reportTable">
         <thead>
             <tr>
-                {{table_headers}}
+                <th>Match_ID</th>
+                <th>Score</th>
+                <th>NRP_ID</th>
+                <th>NRP_Variant_Idx</th>
+                <th>Genome_ID</th>
+                <th>BGC_ID</th>
+                <th>BGC_Variant_Idx</th>
             </tr>
         </thead>
         <tbody>
-            {{table_rows}}
+            <!-- Rows will be populated here by JavaScript -->
         </tbody>
     </table>
 
@@ -74,6 +82,32 @@
         function isNumeric(value) {
             return !isNaN(parseFloat(value)) && isFinite(value);
         }
+        
+        function populateTable(data) {
+            const tableBody = document.querySelector('#reportTable tbody');
+            tableBody.innerHTML = ''; // Clear existing table rows
+            
+            // Check if data.Results exists and is an array
+            if (data && Array.isArray(data)) {
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
+                    <td>${item.Score}</td>
+                    <td>${item.NRP}</td>
+                    <td>${item.NRP_variant_idx}</td>
+                    <td>${item.Genome}</td>
+                    <td>${item.BGC}</td>
+                    <td>${item.BGC_variant_idx}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                console.error('Invalid data structure: Results array not found');
+            }
+        }
+
+        populateTable(data);
 
         // Function to sort table by column
         function sortTable(n) {
@@ -131,11 +165,30 @@
             var genomeFilter = genomeInput.value.toLowerCase();
             var table = document.getElementById("reportTable");
             var tr = table.getElementsByTagName("tr");
+            var headers = table.getElementsByTagName("th");
+
+            // Get column indices dynamically by column name
+            var nrpIndex = -1;
+            var genomeIndex = -1;
+
+            for (var i = 0; i < headers.length; i++) {
+                var headerText = headers[i].textContent || headers[i].innerText;
+                if (headerText === "NRP_ID") {
+                    nrpIndex = i;
+                } else if (headerText === "Genome_ID") {
+                    genomeIndex = i;
+                }
+            }
+
+            if (nrpIndex === -1 || genomeIndex === -1) {
+                console.error("NRP_ID or Genome_ID column not found.");
+                return;
+            }
 
             for (var i = 1; i < tr.length; i++) {
                 var showRow = true; // Start by assuming the row should be shown
-                var nrpTd = tr[i].getElementsByTagName("td")[1]; // Column 1: NRP_ID
-                var genomeTd = tr[i].getElementsByTagName("td")[3]; // Column 3: Genome_ID
+                var nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
+                var genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
 
                 if (nrpTd) {
                     var nrpValue = nrpTd.textContent || nrpTd.innerText;

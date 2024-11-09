@@ -7,6 +7,7 @@ from typing import (
 )
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
+from src.pipeline.download_antismash_results import download_antismash_results
 from src.config import Config, SpecificityPredictionConfig
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
@@ -64,7 +65,18 @@ class PipelineHelper_antiSMASH:
 
         return bgc_variants
 
+    # TODO: watch out for name collisions
+    def create_symlinks_to_antismash_results(self, antismash_dirs: Iterable[Path]):
+        for antismash_dir in antismash_dirs:
+            if antismash_dir.parent == self.config.paths.antismash_out_dir:
+                continue
+            symlink = self.config.paths.antismash_out_dir / antismash_dir.name
+            if not symlink.exists():  # in case of a name collision keep only the first path (TODO: handle properly)
+                symlink.symlink_to(antismash_dir.resolve())
+
+    # TODO: refactor: this function is doing too much
     def get_antismash_results(self) -> Iterable[antiSMASH_record]:
+        self.config.paths.antismash_out_dir.mkdir(exist_ok=True)
         antismash_results: List[Path] = []
         if self.args.antismash is not None:
             antismash_results.extend(self.args.antismash)
@@ -82,6 +94,16 @@ class PipelineHelper_antiSMASH:
                 raise e
             antismash_results.append(new_results)
 
+        if self.args.antismash_job_ids is not None:
+            antismash_results.extend(download_antismash_results(job_id,
+                                                                self.config.paths.antismash_out_dir,
+                                                                self.log)
+                                     for job_id in self.args.antismash_job_ids)
+        antismash_jsons = [antismash_json_file
+                           for antismash_dir in antismash_results
+                           for antismash_json_file in antismash_dir.glob('**/*.json')]
+        self.create_symlinks_to_antismash_results(antismash_json.parent
+                                                  for antismash_json in antismash_jsons)
         return (antiSMASH_record(json.loads(antismash_json_file.read_text()))
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))

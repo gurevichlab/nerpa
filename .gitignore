@@ -5,3 +5,4 @@
 *.deb
 .DS_Store
 nerpa_results
+*.~undo-tree~
