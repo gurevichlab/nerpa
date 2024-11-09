@@ -7,11 +7,11 @@ from typing import (
 )
 from src.data_types import BGC_Fragment, NRP_Monomer, NRP_Fragment, BGC_Module
 from src.generic.combinatorics import cyclic_shifts, split_sequence_subseqs
-from src.matching.alignment_types import Alignment, combined_alignments_score
+from src.matching.matching_types_alignment import Alignment, alignment_score, combined_alignments_score
 from src.matching.scoring_helper import ScoringHelper
 from src.matching.dp import LogProb
 from src.matching.dp import get_alignment
-from src.matching.alignment_types import alignment_score, AlignmentStep, AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStep, AlignmentStepType
 from itertools import chain, combinations, product, permutations
 
 
@@ -138,14 +138,20 @@ def get_fragments_alignment(bgc_fragment: BGC_Fragment,
                key=alignment_score)
 
 
-def get_iterative_bgc_alignment(bgc_fragments: List[BGC_Fragment],
+def get_iterative_bgc_alignment(bgc_modules: List[BGC_Module],
                                 nrp_fragments: List[NRP_Fragment],
                                 dp_helper: ScoringHelper) -> List[Alignment]:
     joined_alignments = []
     nrp_fragments_splits = split_sequence_subseqs(nrp_fragments) if len(nrp_fragments) == 3 \
         else [[[nrp_fragment] for nrp_fragment in nrp_fragments]]  # TODO: do smth more meaningful for more than 3 fragments
     for nrp_fragments_split in nrp_fragments_splits:
-        joined_alignments.append(list(chain(*(get_multiple_fragments_alignment(bgc_fragments, nrp_fragments_subseq, dp_helper,
-                                                                               permute_fragments=True)
-                                              for nrp_fragments_subseq in nrp_fragments_split))))
+        joined_alignment = []
+        for nrp_fragments in nrp_fragments_split:
+            monomer_sequences = fragments_joined_monomer_sequences(nrp_fragments)
+            best_alignment = max((get_alignment(bgc_modules, monomers_sequence, dp_helper)
+                                  for monomers_sequence in monomer_sequences),
+                                 key=alignment_score)
+            joined_alignment.append(best_alignment)
+        joined_alignments.append(joined_alignment)
+
     return max(joined_alignments, key=combined_alignments_score)

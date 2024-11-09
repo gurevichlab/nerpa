@@ -32,6 +32,10 @@ class ParsedMonomerName(NamedTuple):
 @dataclass
 class MonomerNamesHelper:
     names_table: pd.DataFrame
+    pks_names: List[NorineMonomerName] = None  # placeholder for PKS names
+
+    def __post_init__(self):
+        self.pks_names = []
 
     def my_parser(self, name: str) -> ParsedMonomerName:  # stub before monomer table is finished
         *mods, res = name.split('-')
@@ -61,18 +65,29 @@ class MonomerNamesHelper:
                 case other: return NRP_Monomer_Modification.UNKNOWN
 
         mods_list = eval(mods_str)
-        return () if mods_list == ['-'] else tuple(map(parse_mod, mods_list))
+        return () if mods_list == [''] else tuple(map(parse_mod, mods_list))
 
     def parsed_name(self, name: str, name_format: Literal['antismash', 'norine']) -> ParsedMonomerName:
+        if name == 'Ile/aIle':
+            name = 'Ile'  # temporary fix for the table
+        if name == 'NMe-aIle/NMe-Ile':
+            name = 'NMe-Ile'
+        if name == 'aThr/Thr':
+            name = 'Thr'
+        if name == 'NMe-aThr/NMe-Thr':
+            name = 'NMe-Thr'
+        if name == 'NMe-bMe-Leu/diMe-aIle':
+            name = 'NMe-Leu'
         if name_format == 'norine' and name.startswith('X'):
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 
-        column_name = 'as_short' if name_format == 'antismash' else 'as_norine'
+        column_name = 'as_short' if name_format == 'antismash' else 'norine_rban_code'
 
         try:
             row = self.names_table[self.names_table[column_name] == name].iloc[0]
         except IndexError:
-            return self.my_parser(name)  # stub before monomer table is finished
+            return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())  # TODO: raise ValueError when the table is ready
+            # raise ValueError(f'Name {name} not found in the names table')
 
         return ParsedMonomerName(residue=MonomerResidue(row['core']),
                                  modifications=self.parsed_modifications(row['modifications']))

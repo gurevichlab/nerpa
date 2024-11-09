@@ -12,11 +12,17 @@ import dacite
 from src.data_types import (
     Chirality,
     LogProb,
+    ModuleLocFeatures,
     MonomerResidue,
     NRP_Monomer_Modification,
 )
+from src.antismash_parsing.location_features import (
+    BGC_Fragment_Loc_Features,
+    GeneLocFeatures,
+    ModuleLocFeature,
+)
 from src.monomer_names_helper import UNKNOWN_RESIDUE
-from src.matching.alignment_types import AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStepType
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,36 +52,19 @@ class HeuristicMatchingConfig:
 @dataclass
 class ScoringConfig:
     match_score: LogProb
-    bgc_module_skip_score: LogProb
-    nrp_monomer_skip_score: Dict[MonomerResidue, LogProb]
+    bgc_module_skip_score: Dict[ModuleLocFeatures, LogProb]
+    gene_skip_score: Dict[GeneLocFeatures, LogProb]
+    bgc_fragment_skip_score: Dict[BGC_Fragment_Loc_Features, LogProb]
+    nrp_monomer_insert_at_start_score: Dict[ModuleLocFeatures, LogProb]
+    nrp_monomer_insert_score: Dict[ModuleLocFeatures, LogProb]
 
-    num_unknown_residues: int
     mod_score: Dict[ModMatch, LogProb]
     chirality_score: Dict[ChiralityMatch, LogProb]
-
-    null_hypothesis_residue_score: Dict[MonomerResidue, LogProb]
-    null_hypothesis_mod_score: Dict[Tuple[NRP_Monomer_Modification, bool], LogProb]
-    null_hypothesis_chirality_score: Dict[Chirality, LogProb]
 
     max_gene_reps: int
     max_module_reps: int
 
-    normalization: Literal['AVERAGING', 'RANDOM_NULL_MODEL', 'NONE']
-
     pks_residues: List[str]
-    unknown_nrp_monomer_skip_penalty_at_end: LogProb
-    nrp_monomer_skip_penalty_at_end: LogProb
-    max_unknown_residue_match_score: LogProb
-    bgc_fragment_skip_penalty: LogProb
-    bgc_fragment_skip_penalty_at_end: LogProb
-    bgc_fragment_skip_penalty_in_middle: LogProb
-
-    bgc_module_skip_penalty_at_end: LogProb
-    nrp_fragment_skip_penalty: LogProb
-
-    join_fragments_alignments: bool
-    iterative_bgc_alignment: bool
-    one_to_one_fragment_alignment: bool
 
     MAX_PERMUTATIONS: int
     heuristic_matching_cfg: HeuristicMatchingConfig
@@ -91,7 +80,7 @@ def load_modificatons_score(cfg: dict) -> Dict[ModMatch, LogProb]:
 
 def load_chirality_score(cfg: dict) -> Dict[ChiralityMatch, LogProb]:
     return {ChiralityMatch(bgc_epim=bgc_epim, nrp_chr=nrp_chr):
-                cfg['chirality_score'][f'BGC_{bgc_epim}_NRP_{nrp_chr.name}']
+                cfg['modification_score'][f'Mod_EPIMERIZATION_BGC_{bgc_epim}_NRP_{nrp_chr.name}']
             for bgc_epim in (False, True)
             for nrp_chr in Chirality}
 
@@ -136,39 +125,27 @@ def load_null_hypothesis_chirality_score(cfg: dict) -> Dict[Chirality, LogProb]:
 
 def load_scoring_config(path_to_config: Path) -> ScoringConfig:
     cfg = yaml.safe_load(path_to_config.open('r'))
+    for key in ['bgc_module_skip_score', 'gene_skip_score', 'bgc_fragment_skip_score',
+                'nrp_monomer_insert_at_start_score', 'nrp_monomer_insert_score']:
+        cfg[key] = {tuple(ModuleLocFeature[feature_str]
+                          for feature_str in features_str.split(',')
+                          if feature_str != ''): log(score)
+                    for features_str, score in cfg[key].items()}
 
-    nrp_monomer_skip_score = load_nrp_monomer_skip_score(cfg)
     mod_score = load_modificatons_score(cfg)
     chirality_score = load_chirality_score(cfg)
 
-    null_hypothesis_residue_score = load_null_hypothesis_residue_score(cfg)
-    null_hypothesis_mod_score = load_null_hypothesis_mod_score(cfg)
-    null_hypothesis_chirality_score = load_null_hypothesis_chirality_score(cfg)
-
     return ScoringConfig(match_score=log(cfg['alignment_step_frequency']['MATCH']),
-                         bgc_module_skip_score=log(cfg['alignment_step_frequency']['BGC_MODULE_SKIP']),
-                         nrp_monomer_skip_score=nrp_monomer_skip_score,
-                         num_unknown_residues=cfg['num_unknown_residues'],
+                         bgc_module_skip_score=cfg['bgc_module_skip_score'],
+                         gene_skip_score=cfg['gene_skip_score'],
+                         bgc_fragment_skip_score=cfg['bgc_fragment_skip_score'],
+                         nrp_monomer_insert_score=cfg['nrp_monomer_insert_score'],
+                         nrp_monomer_insert_at_start_score=cfg['nrp_monomer_insert_at_start_score'],
                          mod_score=mod_score,
                          chirality_score=chirality_score,
-                         null_hypothesis_residue_score=null_hypothesis_residue_score,
-                         null_hypothesis_mod_score=null_hypothesis_mod_score,
-                         null_hypothesis_chirality_score=null_hypothesis_chirality_score,
                          max_gene_reps=cfg['max_gene_repetitions'],
                          max_module_reps=cfg['max_module_repetitions'],
-                         normalization=cfg['normalization'],
                          pks_residues=cfg['pks_residues'],
-                         unknown_nrp_monomer_skip_penalty_at_end=cfg['unknown_nrp_monomer_skip_penalty_at_end'],
-                         nrp_monomer_skip_penalty_at_end=cfg['nrp_monomer_skip_penalty_at_end'],
-                         bgc_module_skip_penalty_at_end=cfg['bgc_module_skip_penalty_at_end'],
-                         max_unknown_residue_match_score=cfg['max_unknown_residue_match_score'],
-                         bgc_fragment_skip_penalty=cfg['bgc_fragment_skip_penalty'],
-                         bgc_fragment_skip_penalty_at_end=cfg['bgc_fragment_skip_penalty_at_end'],
-                         bgc_fragment_skip_penalty_in_middle=cfg['bgc_fragment_skip_penalty_in_middle'],
-                         nrp_fragment_skip_penalty=cfg['nrp_fragment_skip_penalty'],
-                         join_fragments_alignments=cfg['join_fragments_alignments'],
-                         iterative_bgc_alignment=cfg['iterative_bgc_alignment'],
-                         one_to_one_fragment_alignment=cfg['one_to_one_fragment_alignment'],
                          MAX_PERMUTATIONS=cfg['MAX_PERMUTATIONS'],
                          heuristic_matching_cfg=dacite.from_dict(HeuristicMatchingConfig,
                                                                  cfg['heuristic_matching_cfg'],
