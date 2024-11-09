@@ -15,14 +15,19 @@ from more_itertools import split_at
 
 class Match_BGC_Variant_Info(NamedTuple):
     genome_id: str
+    contig_idx: int
     bgc_idx: int
     variant_idx: int
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> Match_BGC_Variant_Info:
         return cls(genome_id=bgc_variant.genome_id,
+                   contig_idx=bgc_variant.contig_idx,
                    bgc_idx=bgc_variant.bgc_idx,
                    variant_idx=bgc_variant.variant_idx)
+
+    def get_antismash_id(self) -> str:
+        return f'r{self.contig_idx + 1}c{self.bgc_idx + 1}'
 
 
 class Match_NRP_Variant_Info(NamedTuple):
@@ -46,7 +51,8 @@ class Match:
 
     def to_dict(self) -> dict:  # because full Match is too big to write
         return {'Genome': self.bgc_variant_info.genome_id,
-                #'BGC': self.bgc_variant_info.bgc_idx,
+                'Contig_idx': self.bgc_variant_info.contig_idx,
+                'BGC_idx': self.bgc_variant_info.bgc_idx,
                 'BGC_variant_idx': self.bgc_variant_info.variant_idx,
                 'NRP': self.nrp_variant_info.nrp_id,
                 'NRP_variant_idx': self.nrp_variant_info.variant_idx,
@@ -59,7 +65,8 @@ class Match:
     @classmethod
     def from_dict(cls, data: dict) -> Match:
         return cls(bgc_variant_info=Match_BGC_Variant_Info(genome_id=GeneId(data['Genome']),
-                                                           bgc_idx=0,#data['BGC'],
+                                                           contig_idx=data.get('Contig_idx', 0),
+                                                           bgc_idx=data.get('BGC_idx', 0),
                                                            variant_idx=data['BGC_variant_idx']),
                    nrp_variant_info=Match_NRP_Variant_Info(nrp_id=data['NRP'],
                                                            variant_idx=data['NRP_variant_idx']),
