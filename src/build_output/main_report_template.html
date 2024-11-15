@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sortable and Filterable Report</title>
+    <title>Nerpa Report</title>
     <style>
         table {
             font-family: Arial, sans-serif;
@@ -14,10 +14,6 @@
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
-        }
-        th {
-            cursor: pointer;
-            background-color: #f2f2f2;
         }
         input[type="text"] {
             padding: 8px;
@@ -37,6 +33,27 @@
             margin-bottom: 12px;
             font-style: italic;
         }
+        /* Align header text to the center */
+        th {
+            text-align: center;
+            cursor: pointer;
+            background-color: #f2f2f2;
+        }
+        /* Align Match ID and Score columns to the right */
+        td.match-id, td.score {
+            text-align: right;
+        }
+        /* Alternate row colors */
+        tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        /* Hover effect for rows */
+        tbody tr:hover {
+            background-color: #e6f7ff;
+        }
     </style>
 </head>
 <body>
@@ -46,12 +63,12 @@
 
     <!-- Filter Input Fields -->
     <div class="filter-section">
-        <label for="nrpFilterInput">Filter by NRP_ID</label>
+        <label for="nrpFilterInput">Filter by NRP</label>
         <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
     </div>
 
     <div class="filter-section">
-        <label for="genomeFilterInput">Filter by Genome_ID</label>
+        <label for="genomeFilterInput">Filter by Genome</label>
         <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
     </div>
 
@@ -63,13 +80,11 @@
     <table id="reportTable">
         <thead>
             <tr>
-                <th>Match_ID</th>
+                <th>Match ID</th>
                 <th>Score</th>
-                <th>NRP_ID</th>
-                <th>NRP_Variant_Idx</th>
-                <th>Genome_ID</th>
-                <th>BGC_ID</th>
-                <th>BGC_Variant_Idx</th>
+                <th>NRP</th>
+                <th>Genome</th>
+                <th>BGC ID</th>
             </tr>
         </thead>
         <tbody>
@@ -83,22 +98,37 @@
             return !isNaN(parseFloat(value)) && isFinite(value);
         }
         
+        // Detect column indices by header names
+        const columnIndices = {};
+        const headers = document.querySelectorAll('#reportTable th');
+
+        headers.forEach((header, index) => {
+            const headerText = header.textContent.trim();
+            if (headerText === 'Score') {
+                columnIndices.score = index;
+            } else if (headerText === 'Match ID') {
+                columnIndices.matchID = index;
+            } else if (headerText === 'NRP') {
+                columnIndices.nrp = index;
+            } else if (headerText === 'Genome') {
+                columnIndices.genome = index;
+            }
+        });
+
+        // Populate table with rounded scores and right-aligned columns
         function populateTable(data) {
             const tableBody = document.querySelector('#reportTable tbody');
-            tableBody.innerHTML = ''; // Clear existing table rows
-            
-            // Check if data.Results exists and is an array
+            tableBody.innerHTML = '';
+
             if (data && Array.isArray(data)) {
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                    <td><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
-                    <td>${item.Score}</td>
-                    <td>${item.NRP}</td>
-                    <td>${item.NRP_variant_idx}</td>
-                    <td>${item.Genome}</td>
-                    <td>${item.BGC}</td>
-                    <td>${item.BGC_variant_idx}</td>
+                        <td class="match-id"><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
+                        <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
+                        <td>${item.NRP}</td>
+                        <td>${item.Genome}</td>
+                        <td>${item.BGC}</td>
                     `;
                     tableBody.appendChild(row);
                 });
@@ -107,98 +137,74 @@
             }
         }
 
-        populateTable(data);
-
-        // Function to sort table by column
+        // Function to sort table by column with toggleable sorting direction
         function sortTable(n) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-            table = document.getElementById("reportTable");
-            switching = true;
-            dir = "asc"; // Set the sorting direction to ascending
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[n];
-                    y = rows[i + 1].getElementsByTagName("TD")[n];
-                    if (isNumeric(x.innerHTML) && isNumeric(y.innerHTML)) {
-                        var xVal = parseFloat(x.innerHTML);
-                        var yVal = parseFloat(y.innerHTML);
-                        if (dir == "asc" && xVal > yVal) {
-                            shouldSwitch = true;
-                            break;
-                        } else if (dir == "desc" && xVal < yVal) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    } else {
-                        var xText = x.innerHTML.toLowerCase();
-                        var yText = y.innerHTML.toLowerCase();
-                        if (dir == "asc" && xText > yText) {
-                            shouldSwitch = true;
-                            break;
-                        } else if (dir == "desc" && xText < yText) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    }
-                }
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                    switchcount++;
+            const table = document.getElementById("reportTable");
+            const headers = table.querySelectorAll("th");
+            const rows = Array.from(table.querySelectorAll("tbody tr"));
+            let dir = headers[n].dataset.sortDirection === "asc" ? "desc" : "asc"; // Toggle direction
+
+            // Store the new sort direction in the clicked header
+            headers.forEach(header => header.dataset.sortDirection = ""); // Reset directions
+            headers[n].dataset.sortDirection = dir; // Set new direction for clicked column
+
+            // Sort rows based on the direction and column index
+            rows.sort((a, b) => {
+                const x = a.getElementsByTagName("TD")[n].textContent.trim();
+                const y = b.getElementsByTagName("TD")[n].textContent.trim();
+
+                if (isNumeric(x) && isNumeric(y)) {
+                    return dir === "asc" ? x - y : y - x;
                 } else {
-                    if (switchcount == 0 && dir == "asc") {
-                        dir = "desc";
-                        switching = true;
-                    }
+                    return dir === "asc" ? x.localeCompare(y) : y.localeCompare(x);
                 }
-            }
+            });
+
+            // Append sorted rows to the table body
+            const tbody = table.querySelector("tbody");
+            tbody.innerHTML = ''; // Clear current rows
+            rows.forEach(row => tbody.appendChild(row)); // Append sorted rows
         }
+
+        // Event listener for sortable columns with initial setup for "Score" column
+        document.addEventListener('DOMContentLoaded', function () {
+            const headers = document.querySelectorAll("#reportTable th");
+            headers.forEach((header, index) => {
+                header.dataset.sortDirection = (index === columnIndices.score) ? "desc" : ""; // Initialize "Score" to "desc"
+                header.addEventListener("click", function () {
+                    sortTable(index);
+                });
+            });
+        });
+
+        populateTable(data);
 
         // Function to filter the table based on NRP_ID and Genome_ID
         function filterTable() {
-            var nrpInput = document.getElementById("nrpFilterInput");
-            var genomeInput = document.getElementById("genomeFilterInput");
-            var nrpFilter = nrpInput.value.toLowerCase();
-            var genomeFilter = genomeInput.value.toLowerCase();
-            var table = document.getElementById("reportTable");
-            var tr = table.getElementsByTagName("tr");
-            var headers = table.getElementsByTagName("th");
+            const nrpIndex = columnIndices.nrp; // Use columnIndices for NRP
+            const genomeIndex = columnIndices.genome; // Use columnIndices for Genome
+            const nrpInput = document.getElementById("nrpFilterInput");
+            const genomeInput = document.getElementById("genomeFilterInput");
+            const nrpFilter = nrpInput.value.toLowerCase();
+            const genomeFilter = genomeInput.value.toLowerCase();
+            const table = document.getElementById("reportTable");
+            const tr = table.getElementsByTagName("tr");
+            const headers = table.getElementsByTagName("th");
 
-            // Get column indices dynamically by column name
-            var nrpIndex = -1;
-            var genomeIndex = -1;
-
-            for (var i = 0; i < headers.length; i++) {
-                var headerText = headers[i].textContent || headers[i].innerText;
-                if (headerText === "NRP_ID") {
-                    nrpIndex = i;
-                } else if (headerText === "Genome_ID") {
-                    genomeIndex = i;
-                }
-            }
-
-            if (nrpIndex === -1 || genomeIndex === -1) {
-                console.error("NRP_ID or Genome_ID column not found.");
-                return;
-            }
-
-            for (var i = 1; i < tr.length; i++) {
-                var showRow = true; // Start by assuming the row should be shown
-                var nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
-                var genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
+            for (let i = 1; i < tr.length; i++) {
+                let showRow = true; // Start by assuming the row should be shown
+                const nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
+                const genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
 
                 if (nrpTd) {
-                    var nrpValue = nrpTd.textContent || nrpTd.innerText;
+                    const nrpValue = nrpTd.textContent || nrpTd.innerText;
                     if (nrpFilter && nrpValue.toLowerCase().indexOf(nrpFilter) === -1) {
                         showRow = false; // Hide row if NRP_ID does not match
                     }
                 }
 
                 if (genomeTd) {
-                    var genomeValue = genomeTd.textContent || genomeTd.innerText;
+                    const genomeValue = genomeTd.textContent || genomeTd.innerText;
                     if (genomeFilter && genomeValue.toLowerCase().indexOf(genomeFilter) === -1) {
                         showRow = false; // Hide row if Genome_ID does not match
                     }
@@ -212,16 +218,6 @@
         // Event listeners for filter inputs
         document.getElementById("nrpFilterInput").addEventListener("keyup", filterTable);
         document.getElementById("genomeFilterInput").addEventListener("keyup", filterTable);
-
-        // Event listener to sort columns
-        document.addEventListener('DOMContentLoaded', function() {
-            var headers = document.querySelectorAll('th');
-            headers.forEach(function(header, index) {
-                header.addEventListener('click', function() {
-                    sortTable(index);
-                });
-            });
-        });
     </script>
 </body>
 </html>
