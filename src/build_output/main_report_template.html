@@ -5,41 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nerpa Report</title>
      <style>
-        /* General Table Styling */
-        table {
+        body {
             font-family: Arial, sans-serif;
-            border-collapse: collapse;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #fff;
+            background-color: #333;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .filter-section {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+            width: 30%; /* Make labels uniform width */
+        }
+
+        .filter-section input[type="text"] {
+            width: 65%; /* Adjust input width */
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .filter-section input {
+            margin-left: 10px; /* Space between label and input */
+        }
+
+        .explanation {
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        table {
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
         th, td {
             border: 1px solid #dddddd;
-            text-align: left;
+            text-align: center;
             padding: 8px;
         }
 
-        /* Input field and labels styling */
-        input[type="text"] {
-            padding: 8px;
-            width: 33%; /* Set width to one-third of the page */
-            box-sizing: border-box;
-            margin-left: 10px; /* Add space between label and input */
-        }
-
-        label {
-            font-weight: bold;
-            display: inline-block; /* Keep label next to input */
-            width: auto;
-        }
-
-        /* Filter and explanation sections */
-        .filter-section {
-            margin-bottom: 12px;
-        }
-
-        .explanation {
-            margin-bottom: 12px;
-            font-style: italic;
+        th {
+            background-color: #f2f2f2;
         }
 
         /* Align header text to the center, but align indicator to the right */
@@ -81,40 +110,49 @@
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Nerpa Main Report</h1>
+
+        <!-- Filter Input Fields -->
+        <div class="filter-section">
+            <label for="nrpFilterInput">Filter by NRP</label>
+            <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
+        </div>
+
+        <div class="filter-section">
+            <label for="genomeFilterInput">Filter by Genome</label>
+            <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
+        </div>
+
+        <div class="filter-section">
+            <label for="bgcIDFilterInput">Filter by BGC ID</label>
+            <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC_ID to filter...">
+        </div>
+
+        <!-- Explanation for sorting -->
+        <div class="explanation">
+            Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). <br>
+            Click a Match ID to open the detailed match report.
+        </div>
+
+        <!-- Table -->
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>Match ID</th>
+                    <th>Score</th>
+                    <th>NRP</th>
+                    <th>Genome</th>
+                    <th>BGC ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
     <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
-
-    <h1>Nerpa main report</h1>
-
-    <!-- Filter Input Fields -->
-    <div class="filter-section">
-        <label for="nrpFilterInput">Filter by NRP</label>
-        <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
-    </div>
-
-    <div class="filter-section">
-        <label for="genomeFilterInput">Filter by Genome</label>
-        <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
-    </div>
-
-    <!-- Explanation for sorting -->
-    <div class="explanation">
-        Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). Click a Match ID to open the detailed match report.
-    </div>
-
-    <table id="reportTable">
-        <thead>
-            <tr>
-                <th>Match ID</th>
-                <th>Score</th>
-                <th>NRP</th>
-                <th>Genome</th>
-                <th>BGC ID</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be populated here by JavaScript -->
-        </tbody>
-    </table>
 
     <script>
         // Function to detect if a value is numeric
@@ -136,6 +174,8 @@
                 columnIndices.nrp = index;
             } else if (headerText === 'Genome') {
                 columnIndices.genome = index;
+            } else if (headerText === 'BGC ID') {
+                columnIndices.bgcID = index;
             }
         });
 
@@ -239,18 +279,21 @@
         function filterTable() {
             const nrpIndex = columnIndices.nrp; // Use columnIndices for NRP
             const genomeIndex = columnIndices.genome; // Use columnIndices for Genome
+            const bgcIDIndex = columnIndices.bgcID; // Use columnIndices for BGC ID
             const nrpInput = document.getElementById("nrpFilterInput");
             const genomeInput = document.getElementById("genomeFilterInput");
+            const bgcIDInput = document.getElementById("bgcIDFilterInput"); // New input for BGC ID
             const nrpFilter = nrpInput.value.toLowerCase();
             const genomeFilter = genomeInput.value.toLowerCase();
+            const bgcIDFilter = bgcIDInput.value.toLowerCase(); // Get the value for BGC ID filter
             const table = document.getElementById("reportTable");
             const tr = table.getElementsByTagName("tr");
-            const headers = table.getElementsByTagName("th");
 
             for (let i = 1; i < tr.length; i++) {
                 let showRow = true; // Start by assuming the row should be shown
                 const nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
                 const genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
+                const bgcIDTd = tr[i].getElementsByTagName("td")[bgcIDIndex]; // Get BGC ID column dynamically
 
                 if (nrpTd) {
                     const nrpValue = nrpTd.textContent || nrpTd.innerText;
@@ -266,6 +309,13 @@
                     }
                 }
 
+                if (bgcIDTd) {
+                    const bgcIDValue = bgcIDTd.textContent || bgcIDTd.innerText;
+                    if (bgcIDFilter && bgcIDValue.toLowerCase().indexOf(bgcIDFilter) === -1) {
+                        showRow = false; // Hide row if BGC ID does not match
+                    }
+                }
+
                 // Show or hide the row based on the filter results
                 tr[i].style.display = showRow ? "" : "none";
             }
@@ -274,6 +324,7 @@
         // Event listeners for filter inputs
         document.getElementById("nrpFilterInput").addEventListener("keyup", filterTable);
         document.getElementById("genomeFilterInput").addEventListener("keyup", filterTable);
+        document.getElementById("bgcIDFilterInput").addEventListener("keyup", filterTable);
     </script>
 </body>
 </html>
