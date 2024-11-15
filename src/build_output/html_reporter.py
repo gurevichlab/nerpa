@@ -1,6 +1,7 @@
 import json
 import math
 import os
+import shutil
 from pathlib import Path
 from typing import List, Dict
 from src.config import ConfigPaths
@@ -59,6 +60,8 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
     main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
     with open(main_report_path, 'w') as file:
         file.write(main_html_report)
+    # copying logo to be embedded in the HTML report
+    shutil.copy(config_paths.logo, html_aux_dir)
 
     # per-match detailed HTML reports and associated JSONs
     # TODO?: limit the number of generate reports to the first (best) X matches? e.g., 1000
