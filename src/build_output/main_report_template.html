@@ -4,52 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nerpa Report</title>
-    <style>
+     <style>
+        /* General Table Styling */
         table {
             font-family: Arial, sans-serif;
             border-collapse: collapse;
             width: 100%;
         }
+
         th, td {
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
         }
+
+        /* Input field and labels styling */
         input[type="text"] {
             padding: 8px;
             width: 33%; /* Set width to one-third of the page */
             box-sizing: border-box;
             margin-left: 10px; /* Add space between label and input */
         }
+
         label {
             font-weight: bold;
             display: inline-block; /* Keep label next to input */
             width: auto;
         }
+
+        /* Filter and explanation sections */
         .filter-section {
             margin-bottom: 12px;
         }
+
         .explanation {
             margin-bottom: 12px;
             font-style: italic;
         }
-        /* Align header text to the center */
+
+        /* Align header text to the center, but align indicator to the right */
         th {
             text-align: center;
             cursor: pointer;
             background-color: #f2f2f2;
+            position: relative; /* To position the indicator */
         }
+
+        /* Indicator styling */
+        th .indicator {
+            position: absolute;
+            right: 8px; /* Space from the right edge */
+            top: 50%; /* Vertically center the indicator */
+            transform: translateY(-50%); /* Adjust for exact vertical centering */
+            visibility: hidden; /* Initially hidden */
+            font-weight: bold; /* Bold indicator */
+        }
+
         /* Align Match ID and Score columns to the right */
         td.match-id, td.score {
             text-align: right;
         }
+
         /* Alternate row colors */
         tbody tr:nth-child(odd) {
             background-color: #ffffff;
         }
+
         tbody tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         /* Hover effect for rows */
         tbody tr:hover {
             background-color: #e6f7ff;
@@ -74,7 +98,7 @@
 
     <!-- Explanation for sorting -->
     <div class="explanation">
-        Click a column name to sort the rows. Click a Match ID to open the detailed match report.
+        Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). Click a Match ID to open the detailed match report.
     </div>
 
     <table id="reportTable">
@@ -148,6 +172,22 @@
             headers.forEach(header => header.dataset.sortDirection = ""); // Reset directions
             headers[n].dataset.sortDirection = dir; // Set new direction for clicked column
 
+            // Hide all indicators first
+            headers.forEach(header => {
+                const indicator = header.querySelector('.indicator');
+                if (indicator) {
+                    indicator.style.visibility = 'hidden'; // Hide all indicators
+                }
+            });
+
+            // Show the indicator for the clicked column
+            const clickedHeader = headers[n];
+            const indicator = clickedHeader.querySelector('.indicator');
+            if (indicator) {
+                indicator.style.visibility = 'visible'; // Show the indicator
+                indicator.textContent = dir === 'asc' ? '▲' : '▼'; // Set the appropriate indicator (▲ for asc, ▼ for desc)
+            }
+
             // Sort rows based on the direction and column index
             rows.sort((a, b) => {
                 const x = a.getElementsByTagName("TD")[n].textContent.trim();
@@ -170,11 +210,27 @@
         document.addEventListener('DOMContentLoaded', function () {
             const headers = document.querySelectorAll("#reportTable th");
             headers.forEach((header, index) => {
-                header.dataset.sortDirection = (index === columnIndices.score) ? "desc" : ""; // Initialize "Score" to "desc"
+                // Set initial sorting direction for "Score" column to "desc"
+                header.dataset.sortDirection = (index === columnIndices.score) ? "desc" : "";
+
+                // Add event listener for sorting
                 header.addEventListener("click", function () {
                     sortTable(index);
                 });
+
+                // Create an indicator element for each header
+                const indicator = document.createElement('span');
+                indicator.classList.add('indicator');
+                header.appendChild(indicator);
             });
+
+            // Ensure the indicator for the "Score" column is visible initially with "desc" direction
+            const scoreHeader = headers[columnIndices.score];
+            const scoreIndicator = scoreHeader.querySelector('.indicator');
+            if (scoreIndicator) {
+                scoreIndicator.style.visibility = 'visible'; // Show the indicator for "Score"
+                scoreIndicator.textContent = '▼'; // Set "Score" to descending initially
+            }
         });
 
         populateTable(data);
