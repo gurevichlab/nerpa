@@ -57,13 +57,14 @@
 
         .logo-container {
             width: 33%; /* Allocate one-third of the width for the logo */
-            display: flex;
-            justify-content: flex-end; /* Align logo to the right */
+            height: auto;
+            text-align: right; /* Align content to the right */
         }
 
         .logo-container img {
-            max-width: 60%; /* Make sure the image fits within its container */
-            height: auto; /* Maintain aspect ratio */
+            height: auto;
+            display: inline-block;
+            max-width: 55%; /* Ensures the image doesn't overflow its container */*/
         }
 
         table {
@@ -146,18 +147,18 @@
                     <label for="bgcIDFilterInput">Filter by BGC ID</label>
                     <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC_ID to filter...">
                 </div>
-
-                <!-- Explanation for sorting -->
-                <div class="explanation">
-                    Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). <br>
-                    Click a Match ID to open the detailed match report.
-                </div>
             </div>
 
             <!-- Logo Section -->
             <div class="logo-container">
                 <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo">
             </div>
+        </div>
+
+        <!-- Explanation for sorting -->
+        <div class="explanation">
+            Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). <br>
+            Click a Match ID to open the detailed match report.
         </div>
 
         <!-- Table -->
