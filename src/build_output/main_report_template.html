@@ -128,6 +128,11 @@
         <div style="display: flex; justify-content: space-between; width: 100%;">
              <div style="width: 66%;">
                 <div class="filter-section">
+                    <label for="scoreFilterInput">Filter by Score</label>
+                    <input type="text" id="scoreFilterInput" placeholder="Enter minimal Score to filter...">
+                </div>
+
+                <div class="filter-section">
                     <label for="nrpFilterInput">Filter by NRP</label>
                     <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
                 </div>
@@ -301,17 +306,20 @@
 
         populateTable(data);
 
-        // Function to filter the table based on NRP_ID and Genome_ID
+        // Function to filter the table based on NRP_ID, Genome_ID, BGC_ID, and Score
         function filterTable() {
             const nrpIndex = columnIndices.nrp; // Use columnIndices for NRP
             const genomeIndex = columnIndices.genome; // Use columnIndices for Genome
             const bgcIDIndex = columnIndices.bgcID; // Use columnIndices for BGC ID
+            const scoreIndex = columnIndices.score; // Use columnIndices for Score
             const nrpInput = document.getElementById("nrpFilterInput");
             const genomeInput = document.getElementById("genomeFilterInput");
-            const bgcIDInput = document.getElementById("bgcIDFilterInput"); // New input for BGC ID
+            const bgcIDInput = document.getElementById("bgcIDFilterInput");
+            const scoreInput = document.getElementById("scoreFilterInput"); // New input for Score filter
             const nrpFilter = nrpInput.value.toLowerCase();
             const genomeFilter = genomeInput.value.toLowerCase();
             const bgcIDFilter = bgcIDInput.value.toLowerCase(); // Get the value for BGC ID filter
+            const scoreFilter = parseFloat(scoreInput.value); // Get the value for Score filter and convert to number
             const table = document.getElementById("reportTable");
             const tr = table.getElementsByTagName("tr");
 
@@ -322,6 +330,7 @@
                 const nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
                 const genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
                 const bgcIDTd = tr[i].getElementsByTagName("td")[bgcIDIndex]; // Get BGC ID column dynamically
+                const scoreTd = tr[i].getElementsByTagName("td")[scoreIndex]; // Get Score column dynamically
 
                 if (nrpTd) {
                     const nrpValue = nrpTd.textContent || nrpTd.innerText;
@@ -344,6 +353,13 @@
                     }
                 }
 
+                if (scoreTd) {
+                    const scoreValue = parseFloat(scoreTd.textContent || scoreTd.innerText); // Parse score value
+                    if (scoreFilter && scoreValue < scoreFilter) {
+                        showRow = false; // Hide row if Score is less than the filter value
+                    }
+                }
+
                 // Show or hide the row based on the filter results
                 tr[i].style.display = showRow ? "" : "none";
 
@@ -354,13 +370,14 @@
             }
 
             // Update the row counter text
-            document.getElementById("rowCounter").textContent = `Number of matches: ${visibleRowCount}`;
+            document.getElementById("rowCounter").textContent = `Filtered matches: ${visibleRowCount}`;
         }
 
         // Event listeners for filter inputs
         document.getElementById("nrpFilterInput").addEventListener("keyup", filterTable);
         document.getElementById("genomeFilterInput").addEventListener("keyup", filterTable);
         document.getElementById("bgcIDFilterInput").addEventListener("keyup", filterTable);
+        document.getElementById("scoreFilterInput").addEventListener("keyup", filterTable); // Add event listener for Score filter
     </script>
 </body>
 </html>
