@@ -55,7 +55,8 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match]):
         json.dump(match_dicts, json_file, indent=4)
 
     path_substitutions = {
-        '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(config_paths.main_out_dir))
+        '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(config_paths.main_out_dir)),
+        '{{ANTISMASH_OUT_DIR}}': str(config_paths.antismash_out_dir.relative_to(config_paths.main_out_dir))
     }
     main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
     with open(main_report_path, 'w') as file:

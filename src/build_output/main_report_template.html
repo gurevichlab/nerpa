@@ -210,6 +210,18 @@
 
         <!-- Row Counter -->
         <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;"></div>
+
+        <div>
+            <!-- Button and label for hiding the iframe -->
+            <div id="genomeViewerControls">
+                <button id="hideGenomeViewerBtn" onclick="toggleGenomeViewer()" style="display: none;">Hide antiSMASH output</button>
+                <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display the corresponding antiSMASH output</p>
+            </div>
+
+            <!-- Genome Viewer iframe -->
+            <iframe id="genomeViewer" src="" width="100%" height="600px" style="display: none; border: none;"></iframe>
+        </div>
+
     </div>
 
     <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
@@ -239,7 +251,7 @@
             }
         });
 
-        // Populate table with rounded scores and right-aligned columns
+        // Populate table
         function populateTable(data) {
             const tableBody = document.querySelector('#reportTable tbody');
             tableBody.innerHTML = '';
@@ -251,10 +263,29 @@
                         <td class="match-id"><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
                         <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
                         <td>${item.NRP}</td>
-                        <td>${item.Genome}</td>
+                        <td><a href="#" class="genome-link" data-genome="${item.Genome}">${item.Genome}</a></td>
                         <td>${item.BGC}</td>
                     `;
                     tableBody.appendChild(row);
+                });
+
+                // Add click event listeners for Genome links
+                document.querySelectorAll('.genome-link').forEach(link => {
+                    link.addEventListener('click', event => {
+                        event.preventDefault(); // Prevent default link behavior
+                        const genomeID = link.dataset.genome; // Get the Genome ID
+                        const iframe = document.getElementById('genomeViewer');
+                        const hideBtn = document.getElementById('hideGenomeViewerBtn');
+                        const label = document.getElementById('genomeViewerLabel');
+
+                        // Set iframe source and make it visible
+                        iframe.src = `{{ANTISMASH_OUT_DIR}}/${genomeID}/index.html`; // Set iframe source, for specific BGC, use e.g., #r1c1
+                        iframe.style.display = 'block'; // Make iframe visible
+
+                        // Hide label and show the hide button
+                        label.style.display = 'none';
+                        hideBtn.style.display = 'block';
+                    });
                 });
             } else {
                 console.error('Invalid data structure: Results array not found');
@@ -262,6 +293,17 @@
 
             // Update the initial row counter after populating the table
             filterTable();
+        }
+
+        // Toggle function for hiding the iframe and showing the label
+        function toggleGenomeViewer() {
+            const iframe = document.getElementById('genomeViewer');
+            const hideBtn = document.getElementById('hideGenomeViewerBtn');
+            const label = document.getElementById('genomeViewerLabel');
+
+            iframe.style.display = 'none'; // Hide iframe
+            label.style.display = 'block'; // Show label
+            hideBtn.style.display = 'none'; // Hide the button
         }
 
         // Function to sort table by column with toggleable sorting direction
