@@ -211,6 +211,7 @@
         <!-- Row Counter -->
         <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;"></div>
 
+        <!-- antiSMASH (Genome/BGC) Viewer -->
         <div>
             <!-- Button and label for hiding the iframe -->
             <div id="genomeViewerControls">
@@ -222,6 +223,29 @@
             <iframe id="genomeViewer" src="" width="100%" height="600px" style="display: none; border: none;"></iframe>
         </div>
 
+        <!-- NRP Viewer -->
+        <div>
+            <div id="nrpViewerControls">
+                <button id="hideNrpViewerBtn" onclick="hideNrpViewer()" style="display: none;">Hide NRP</button>
+                <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
+            </div>
+            <div id="nrpViewerContainer" class="viewer" style="display: none;">
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1; padding: 10px;">
+                        <img id="moleculeImage"
+                             src=""
+                             alt="Molecule image is missing. Did you forget to use '--draw-molecules'?"
+                             style="width: 100%; height: auto;"/>
+                    </div>
+                    <div style="flex: 1; padding: 10px;">
+                        <img id="graphImage"
+                             src=""
+                             alt="Graph image is missing. Did you forget to use '--draw-molecules'?"
+                             style="width: 100%; height: auto;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
@@ -262,14 +286,14 @@
                     row.innerHTML = `
                         <td class="match-id"><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
                         <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
-                        <td>${item.NRP}</td>
+                        <td><a href="#" class="nrp-link" data-nrp="${item.NRP}">${item.NRP}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="">${item.Genome}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="r${item.Contig_idx}c${item.BGC_idx}">Region ${item.Contig_idx}.${item.BGC_idx}</td>
                     `;
                     tableBody.appendChild(row);
                 });
 
-                // Add click event listeners for Genome links
+                // Add click event listeners for Genome/BGC links
                 document.querySelectorAll('.genome-link').forEach(link => {
                     link.addEventListener('click', event => {
                         event.preventDefault(); // Prevent default link behavior
@@ -288,6 +312,29 @@
                         hideBtn.style.display = 'block';
                     });
                 });
+
+                // Add click event listeners for NRP links
+                document.querySelectorAll('.nrp-link').forEach(link => {
+                    link.addEventListener('click', event => {
+                        event.preventDefault(); // Prevent default link behavior
+                        const nrpID = link.dataset.nrp; // Get the NRP ID
+                        const moleculeImage = document.getElementById('moleculeImage');
+                        const graphImage = document.getElementById('graphImage');
+                        const hideBtn = document.getElementById('hideNrpViewerBtn');
+                        const label = document.getElementById('nrpViewerLabel');
+                        const frame = document.getElementById('nrpViewerContainer');
+
+
+                        // Update image sources dynamically
+                        moleculeImage.src = `NRP_images/molecules/${nrpID}.png`;
+                        graphImage.src = `NRP_images/graphs/${nrpID}.png`;
+
+                        // Hide label and show the hide button
+                        frame.style.display = 'block';
+                        label.style.display = 'none';
+                        hideBtn.style.display = 'block';
+                    });
+                });
             } else {
                 console.error('Invalid data structure: Results array not found');
             }
@@ -296,13 +343,24 @@
             filterTable();
         }
 
-        // Toggle function for hiding the iframe and showing the label
-        function toggleGenomeViewer() {
+        // Toggle function for hiding the antiSMASH (Genome/BGC) iframe and showing the label
+        function hideGenomeViewer() {
             const iframe = document.getElementById('genomeViewer');
             const hideBtn = document.getElementById('hideGenomeViewerBtn');
             const label = document.getElementById('genomeViewerLabel');
 
             iframe.style.display = 'none'; // Hide iframe
+            label.style.display = 'block'; // Show label
+            hideBtn.style.display = 'none'; // Hide the button
+        }
+
+        // Toggle function for hiding the NRP images and showing the label
+        function hideNrpViewer() {
+            const frame = document.getElementById('nrpViewerContainer');
+            const hideBtn = document.getElementById('hideNrpViewerBtn');
+            const label = document.getElementById('nrpViewerLabel');
+
+            frame.style.display = 'none'; // Hide frame (div) with images
             label.style.display = 'block'; // Show label
             hideBtn.style.display = 'none'; // Hide the button
         }
