@@ -263,8 +263,8 @@
                         <td class="match-id"><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
                         <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
                         <td>${item.NRP}</td>
-                        <td><a href="#" class="genome-link" data-genome="${item.Genome}">${item.Genome}</a></td>
-                        <td>${item.BGC}</td>
+                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="">${item.Genome}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="r${item.Contig_idx}c${item.BGC_idx}">Region ${item.Contig_idx}.${item.BGC_idx}</td>
                     `;
                     tableBody.appendChild(row);
                 });
@@ -274,12 +274,13 @@
                     link.addEventListener('click', event => {
                         event.preventDefault(); // Prevent default link behavior
                         const genomeID = link.dataset.genome; // Get the Genome ID
+                        const bgcID = link.dataset.bgc; // Get the specific BGC ID within the genome
                         const iframe = document.getElementById('genomeViewer');
                         const hideBtn = document.getElementById('hideGenomeViewerBtn');
                         const label = document.getElementById('genomeViewerLabel');
 
                         // Set iframe source and make it visible
-                        iframe.src = `{{ANTISMASH_OUT_DIR}}/${genomeID}/index.html`; // Set iframe source, for specific BGC, use e.g., #r1c1
+                        iframe.src = `{{ANTISMASH_OUT_DIR}}/${genomeID}/index.html#${bgcID}`; // Set iframe source
                         iframe.style.display = 'block'; // Make iframe visible
 
                         // Hide label and show the hide button
