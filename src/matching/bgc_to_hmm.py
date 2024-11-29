@@ -56,16 +56,16 @@ def add_skip_gene_and_fragments_middle(adj_list: Dict[int, List[DetailedHMMEdge]
     # SKIP GENES AND FRAGMENTS IN THE MIDDLE
     for i, module in enumerate(bgc_variant.modules):
         module_start_state_idx = module_idx_to_start_state_idx[i]
-        gene_end_state_idx = module_idx_to_start_state_idx[gene_intervals[module.gene_id][1]]
-        fragment_end_state_idx = module_idx_to_start_state_idx[fragment_intervals[module.fragment_idx][1]]
+        next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, -1)
+        next_fragment_start_state_idx = module_idx_to_start_state_idx.get(fragment_intervals[module.fragment_idx][1] + 1, None)
         if i == 0 or module.gene_id != bgc_variant.modules[i - 1].gene_id:
             adj_list[module_start_state_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
                                                                     log_prob=0,  # TODO: fill in
-                                                                    to=gene_end_state_idx))
-        if i == 0 or module.fragment_idx != bgc_variant.modules[i - 1].fragment_idx:
+                                                                    to=next_gene_start_state_idx))
+        if i not in (0, len(bgc_variant.modules) - 1) and module.fragment_idx != bgc_variant.modules[i - 1].fragment_idx:
             adj_list[module_start_state_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_FRAGMENT,
                                                                     log_prob=0,  # TODO: fill in
-                                                                    to=fragment_end_state_idx))
+                                                                    to=next_fragment_start_state_idx))
 
 
 
@@ -117,6 +117,7 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
                                                    to=next_state_idx))
 
 
+# TODO: module and gene iterations!
 def bgc_variant_to_detailed_hmm(cls,
                                 bgc_variant: BGC_Variant):
                                 #scoring_helper: ScoringHelper):  # -> DetailedHMM:
@@ -125,11 +126,15 @@ def bgc_variant_to_detailed_hmm(cls,
 
     states = [DetailedHMMState(state_type=DetailedHMMStateType.INITIAL, emissions={})]
     adj_list = defaultdict(list)
+    start_state_idx = 0
     final_state_idx = -1  # a bit hacky, but it's fine
 
     # ADD MODULES' STATES
     module_idx_to_start_state_idx = add_modules(states, adj_list, bgc_variant, final_state_idx)
     state_idx_to_module_idx = {v: k for k, v in module_idx_to_start_state_idx.items()}
+    adj_list[start_state_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_MATCHING,
+                                                    log_prob=0,  # TODO: fill in
+                                                    to=module_idx_to_start_state_idx[0]))
 
     # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
     add_skip_gene_and_fragments_middle(adj_list,
@@ -143,6 +148,15 @@ def bgc_variant_to_detailed_hmm(cls,
 
     # SKIP AT THE END
     add_skip_at_the_end(states, adj_list, module_idx_to_start_state_idx, fragment_intervals)
+
+    # ADD FINAL STATE
+    states.append(DetailedHMMState(state_type=DetailedHMMStateType.FINAL, emissions={}))
+    final_state_idx = len(states) - 1
+    # substitute -1 with final state index
+    for state_idx, edges in adj_list.items():
+        for i in range(len(edges)):
+            if edges[i].to == -1:
+                edges[i] = edges[i]._replace(to=final_state_idx)
 
     return cls(states=states,
                adj_list=adj_list,
