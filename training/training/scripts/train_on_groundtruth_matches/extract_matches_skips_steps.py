@@ -103,6 +103,13 @@ class BGCFragmentMatchInfo:
 
 
 @dataclass
+class SkipsRunAtStartInfo:
+    nrp_id: str
+    skipped_modules: List[AlignmentStep_BGC_Module_Info]
+    module_context: ModuleLocFeatures
+
+
+@dataclass
 class MatchesSkipsSteps:
     module_matches: List[ModuleMatchStepInfo]
     module_skips: List[ModuleSkipStepInfo]
@@ -189,9 +196,19 @@ def genes_matches_skips_info(steps_wo_ins: List[AlignmentStep],
 def extract_matches_skips_info(alignment: List[AlignmentStep],
                                bgc_variant: BGC_Variant,
                                nrp_id: str) -> MatchesSkipsSteps:
+    steps_wo_ins = [step for step in alignment if step.bgc_module_info is not None]
+    fst_match_idx = next(idx for idx, step in enumerate(steps_wo_ins)
+                         if step.step_type == AlignmentStepType.MATCH)
+    last_match_idx = next(len(steps_wo_ins) - idx - 1
+                          for idx, step in enumerate(reversed(steps_wo_ins))
+                          if step.step_type == AlignmentStepType.MATCH)
+    skips_at_start = steps_wo_ins[:fst_match_idx]
+    skips_at_end = steps_wo_ins[last_match_idx + 1:]
+    steps_wo_ins = steps_wo_ins[fst_match_idx:last_match_idx + 1]
+
+
     gene_to_fragment = {module.gene_id: module.fragment_idx
                         for module in bgc_variant.modules}
-    steps_wo_ins = [step for step in alignment if step.bgc_module_info is not None]
     fragments_matches, fragments_skips = fragments_matches_skips_info(steps_wo_ins, bgc_variant, nrp_id, gene_to_fragment)
     skipped_fragments = {gene_to_fragment[gene_id]
                          for fragment in fragments_skips

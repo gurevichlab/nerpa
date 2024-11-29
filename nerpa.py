@@ -1,12 +1,14 @@
 import sys
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logger import NerpaLogger
-
+from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+from pathlib import Path
 
 def main(log: NerpaLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(log)
 
     bgc_variants = pipeline_helper.pipeline_helper_antismash.get_bgc_variants()
+    DetailedHMM.from_bgc_variant(bgc_variants[0]).draw(Path('hmm.png'))
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()
 
     if pipeline_helper.args.only_preprocessing:

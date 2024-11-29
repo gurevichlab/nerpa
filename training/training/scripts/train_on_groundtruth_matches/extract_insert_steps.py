@@ -55,7 +55,7 @@ class MonomerInsertAtStartRunInfo:
     nrp_id: str
     inserted_monomers: List[MonomerResidue]
     module_context: ModuleLocFeatures  # the first module in the alignment matched to a monomer
-    module_info: AlignmentStep_BGC_Module_Info  # or the first module in the BGC if dist_to_prev_module is negative
+    module_info: AlignmentStep_BGC_Module_Info
 
     def __eq__(self, other):
         return all([

@@ -78,6 +78,7 @@ class MonomerNamesHelper:
             name = 'NMe-Thr'
         if name == 'NMe-bMe-Leu/diMe-aIle':
             name = 'NMe-Leu'
+
         if name_format == 'norine' and name.startswith('X'):
             return ParsedMonomerName(residue=UNKNOWN_RESIDUE, modifications=())
 
