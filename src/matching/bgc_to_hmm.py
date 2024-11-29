@@ -58,7 +58,7 @@ def add_skip_gene_and_fragments_middle(adj_list: Dict[int, List[DetailedHMMEdge]
         module_start_state_idx = module_idx_to_start_state_idx[i]
         next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, -1)
         next_fragment_start_state_idx = module_idx_to_start_state_idx.get(fragment_intervals[module.fragment_idx][1] + 1, None)
-        if i == 0 or module.gene_id != bgc_variant.modules[i - 1].gene_id:
+        if (i == 0 and next_gene_start_state_idx != -1) or module.gene_id != bgc_variant.modules[i - 1].gene_id:
             adj_list[module_start_state_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
                                                                     log_prob=0,  # TODO: fill in
                                                                     to=next_gene_start_state_idx))
