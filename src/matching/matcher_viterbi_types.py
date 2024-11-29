@@ -13,8 +13,10 @@ class HMM(NamedTuple):
 class DetailedHMMStateType(Enum):
     INITIAL = auto()
 
-    SKIP_AT_BEGINNING_START = auto()
-    SKIP_FRAGMENT_AT_BEGINNING = auto()
+    SKIP_MODULE_AT_START = auto()
+    SKIP_GENE_AT_START = auto()
+    SKIP_FRAGMENT_AT_START = auto()
+    INSERT_AT_START = auto()
 
     MODULE_START = auto()
     MATCH = auto()
@@ -33,9 +35,11 @@ class DetailedHMMState:
 
 
 class DetailedHMMEdgeType(Enum):
-    START_SKIPPING_AT_START = auto()
-    CONTINUE_SKIPPING_AT_START = auto()
-    END_SKIPPING_AT_START = auto()
+    START_INSERTING_AT_START = auto()
+    START_SKIP_MODULES_AT_START = auto()
+    START_SKIP_GENES_AT_START = auto()
+    START_SKIP_FRAGMENTS_AT_START = auto()
+    CONTINUE_SKIP_FRAGMENTS_AT_START = auto()
 
     START_MATCHING = auto()
 
@@ -44,6 +48,9 @@ class DetailedHMMEdgeType(Enum):
     START_INSERTING = auto()
     CONTINUE_INSERTING = auto()
     END_INSERTING = auto()
+
+    ITERATE_MODULE = auto()
+    ITERATE_GENE = auto()
 
     SKIP_MODULE = auto()
     SKIP_GENE = auto()

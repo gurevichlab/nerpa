@@ -1,10 +1,11 @@
 from typing import List, Tuple, NamedTuple
+from src.data_types import LogProb
 #from src.matching.matcher_viterbi_types import HMM
 
 
 class HMM(NamedTuple):
-    adj_list: List[List[Tuple[int, float]]]  # u -> [(v, log_prob(u -> v))]
-    emission_log_probs: List[List[float]]  # u -> [log_prob(u -> emission)]
+    adj_list: List[List[Tuple[int, LogProb]]]  # u -> [(v, log_prob(u -> v))]
+    emission_log_probs: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
 
 
 def viterbi_algorithm(hmm: HMM, seq: List[int]) -> List[int]:
