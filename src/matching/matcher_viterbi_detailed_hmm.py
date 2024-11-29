@@ -20,7 +20,7 @@ class DetailedHMM:
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
-        pass  # defined after DetailedHMM definition
+        return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
 
     def to_hmm(self) -> HMM:
         num_states = len(self.states)
@@ -34,33 +34,83 @@ class DetailedHMM:
                    emission_log_probs=emission_log_probs)
 
     def draw(self, output_path: Optional[Path] = None) -> Digraph:
-        """
-        Draws the Hidden Markov Model (HMM) as a graph using Graphviz.
-
-        Args:
-            output_path (Optional[str]): The path to save the rendered graph.
-                                         If None, the graph is returned without saving.
-        Returns:
-            Digraph: The Graphviz Digraph object representing the HMM.
-        """
         graph = Digraph(format='png')
-        graph.attr(rankdir='LR')  # Left-to-right graph orientation
+        graph.attr(rankdir='BT')  # Top-to-bottom layout
 
-        # Add nodes for all states without emissions
+        # Separate nodes into layers
+        bottom_layer = []
+        middle_layer = []
+        top_layer = []
+
+        nodes_to_draw = [idx for idx, state in enumerate(self.states)
+                         if state.state_type in {
+                             DetailedHMMStateType.INITIAL,
+                             DetailedHMMStateType.MODULE_START,
+                             DetailedHMMStateType.FINAL,
+                            DetailedHMMStateType.MATCH,
+                            DetailedHMMStateType.INSERT_MONOMER}]
         for idx, state in enumerate(self.states):
-            state_label = f"{idx}: {state.state_type.name}"
-            graph.node(str(idx), label=state_label, shape="ellipse")
+            if state.state_type in {
+                DetailedHMMStateType.INITIAL,
+                DetailedHMMStateType.MODULE_START,
+                DetailedHMMStateType.FINAL,
+            }:
+                if state.state_type == DetailedHMMStateType.MODULE_START:
+                    module = self.bgc_variant.modules[self.state_idx_to_module_idx[idx]]
+                    label = f'{idx}:{module.gene_id}:{module.a_domain_idx}'
+                else:
+                    label = f'{idx}:{state.state_type.name}'
+                bottom_layer.append((str(idx), label))
+            elif state.state_type == DetailedHMMStateType.MATCH:
+                middle_layer.append((str(idx), f'{idx}:{state.state_type.name}'))
+            elif state.state_type == DetailedHMMStateType.INSERT_MONOMER:
+                top_layer.append((str(idx), f'{idx}:{state.state_type.name}'))
 
-        # Add edges from adj_list
+        # Define layers
+        with graph.subgraph() as sub:
+            sub.attr(rank="same")
+            for node, label in bottom_layer:
+                sub.node(node, label=label, shape="ellipse")
+
+        with graph.subgraph() as sub:
+            sub.attr(rank="same")
+            for node, label in middle_layer:
+                sub.node(node, label=label, shape="ellipse")
+
+        with graph.subgraph() as sub:
+            sub.attr(rank="same")
+            for node, label in top_layer:
+                sub.node(node, label=label, shape="ellipse")
+
+        # Add edges
         for from_idx, edges in self.adj_list.items():
             for edge in edges:
-                edge_label = edge.edge_type.name  # Only include edge type, no probabilities
-                graph.edge(str(from_idx), str(edge.to), label=edge_label)
+                if from_idx not in nodes_to_draw or edge.to not in nodes_to_draw:
+                    continue
+                if str(from_idx) == str(edge.to):  # Self-loop case
+                    graph.edge(
+                        str(from_idx),
+                        str(edge.to),
+                        label='',#edge.edge_type.name,
+                        arrowhead="vee",
+                        arrowsize="0.5",
+                        headport="n",  # Anchor at the top of the node
+                        tailport="n",  # Start at the top of the node
+                    )
+                else:
+                    graph.edge(
+                        str(from_idx),
+                        str(edge.to),
+                        label='',#edge.edge_type.name,
+                        arrowhead="vee",
+                        arrowsize="0.5",
+                    )
 
         # Optionally save the graph
         if output_path:
-            graph.render(output_path, cleanup=True)
+            if '.' in output_path.name and not output_path.name.endswith('.png'):
+                graph.render(output_path.name.rsplit('.', 1)[0], cleanup=True)
+            else:
+                graph.render(output_path.name, cleanup=True)
         return graph
 
-
-DetailedHMM.from_bgc_variant = bgc_variant_to_detailed_hmm

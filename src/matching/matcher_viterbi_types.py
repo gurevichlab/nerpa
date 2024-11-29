@@ -37,6 +37,8 @@ class DetailedHMMEdgeType(Enum):
     CONTINUE_SKIPPING_AT_START = auto()
     END_SKIPPING_AT_START = auto()
 
+    START_MATCHING = auto()
+
     MATCH = auto()
     NO_INSERTIONS = auto()
     START_INSERTING = auto()
