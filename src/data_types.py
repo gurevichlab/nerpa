@@ -51,6 +51,7 @@ class NRP_Monomer:
     rban_idx: int
     monomer_features: MonomerFeatures
 
+
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Monomer:
         return cls(residue=MonomerResidue(data['residue']),

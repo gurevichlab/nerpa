@@ -105,39 +105,8 @@ def find_wrong_match(matches: List[Match], approved_matches: List[Match]) -> Opt
 
     for approved_match in approved_matches:
         nrp_id = approved_match.nrp_variant_info.nrp_id
-        if nrp_id in ['BGC0000296.0',
-                      'BGC0001127.0',
-                      'BGC0000416.3',
-                      'BGC0000307.0',
-                      'BGC0001667.2',
-                      'BGC0000445.0',
-                      'BGC0000339.0',
-                      'BGC0000437.0',
-                      'BGC0001532.0',
-                      'BGC0001667.4',
-                      'BGC0002109.2',
-                      'BGC0002109.5',
-                      'BGC0002109.3',
-                      'BGC0002109.1',
-                      'BGC0000459.1',
-                      'BGC0000450.0']:
+        if nrp_id in []:
             continue
-        '''
-        if nrp_id in ['BGC0001667.4',
-                      'BGC0000296.0',
-                      'BGC0001822.1',
-                      'BGC0002572.0',
-                      'BGC0001127.0',
-                      'BGC0001822.3',
-                      'BGC0002117.1',
-                      'BGC0000416.3',
-                      'BGC0000307.0',
-                      'BGC0001667.2',
-                      'BGC0000383.0',
-                      'BGC0002123.11',
-                      'BGC0002484.5']:
-            continue
-        '''
         if nrp_id not in nrp_id_to_match:
             print(f'WARNING: match for {nrp_id} is missing')
             continue
