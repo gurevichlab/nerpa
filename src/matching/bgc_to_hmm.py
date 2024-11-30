@@ -8,6 +8,17 @@ from src.matching.matcher_viterbi_types import DetailedHMMEdgeType, DetailedHMMS
 from src.matching.auxilary import get_genes_intervals, get_fragments_intervals, get_emissions
 from collections import defaultdict
 from itertools import pairwise
+from functools import partial
+
+
+def gene_len(gene_id: GeneId, genes_intervals: Dict[GeneId, Tuple[int, int]]) -> int:
+    return genes_intervals[gene_id][1] - genes_intervals[gene_id][0] + 1
+
+
+def num_genes_in_fragment(fragment_idx: int, fragment_intervals: Dict[int, Tuple[int, int]],
+                          bgc_variant: BGC_Variant) -> int:
+    return len(set(bgc_variant.modules[i].gene_id for i in range(fragment_intervals[fragment_idx][0],
+                                                                 fragment_intervals[fragment_idx][1] + 1)))
 
 
 def add_modules(states: List[DetailedHMMState],
@@ -16,6 +27,7 @@ def add_modules(states: List[DetailedHMMState],
                 gene_intervals: Dict[GeneId, Tuple[int, int]],
                 initial_state_idx: int = 0,
                 final_state_idx: int = -1) -> Dict[int, int]:  # module_idx -> module_start_state_idx
+    _gene_len = partial(gene_len, genes_intervals=gene_intervals)
     module_idx_to_start_state_idx = {i: 3 * i + 1 for i in range(len(bgc_variant.modules))}
 
     # MODULE STATES: MODULE_START -> MATCH -> INSERT_MONOMER -> MODULE_START -> ...
@@ -25,19 +37,20 @@ def add_modules(states: List[DetailedHMMState],
                                        emissions={}))
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.MATCH,
                                        emissions=get_emissions(module)))
-        states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT_MONOMER,
+        states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT,
                                        emissions={}))  # TODO: fill in
 
         # add edges
         start_idx, match_idx, insert_idx = 3 * i + 1, 3 * i + 2, 3 * i + 3
         next_module_idx = 3 * i + 4 if i + 1 < len(bgc_variant.modules) else final_state_idx
         prev_module_idx = 3 * i - 2 if i - 1 >= 0 else initial_state_idx
-        adj_list[start_idx] = [DetailedHMMEdge(edge_type=DetailedHMMEdgeType.MATCH,
-                                               log_prob=0,  # TODO: fill in
-                                               to=match_idx),
-                               DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
-                                               log_prob=0,  # TODO: fill in
-                                               to=next_module_idx)]
+        adj_list[start_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.MATCH,
+                                                   log_prob=0,  # TODO: fill in
+                                                   to=match_idx))
+        if _gene_len(module.gene_id) > 1:
+            adj_list[start_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
+                                                       log_prob=0,  # TODO: fill in
+                                                       to=next_module_idx))
         adj_list[match_idx] = [DetailedHMMEdge(edge_type=DetailedHMMEdgeType.NO_INSERTIONS,
                                                log_prob=0,  # TODO: fill in
                                                to=next_module_idx),
@@ -68,15 +81,16 @@ def add_skip_gene_and_fragments_middle(adj_list: Dict[int, List[DetailedHMMEdge]
                                        fragment_intervals: Dict[int, Tuple[int, int]],
                                        module_idx_to_start_state_idx: Dict[int, int]) -> None:
     # SKIP GENES AND FRAGMENTS IN THE MIDDLE
-    for i, module in enumerate(bgc_variant.modules):
+    for i, module in enumerate(bgc_variant.modules[1:], start=1):  # skipping the first gene/fragment is handled separately
         module_start_state_idx = module_idx_to_start_state_idx[i]
         next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, -1)
         next_fragment_start_state_idx = module_idx_to_start_state_idx.get(fragment_intervals[module.fragment_idx][1] + 1, None)
-        if (i == 0 and next_gene_start_state_idx != -1) or module.gene_id != bgc_variant.modules[i - 1].gene_id:
+        if module != bgc_variant.modules[i - 1].gene_id:  # module is the first in the gene
             adj_list[module_start_state_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
                                                                     log_prob=0,  # TODO: fill in
                                                                     to=next_gene_start_state_idx))
-        if i not in (0, len(bgc_variant.modules) - 1) and module.fragment_idx != bgc_variant.modules[i - 1].fragment_idx:
+        if (module.fragment_idx != bgc_variant.modules[i - 1].fragment_idx   # module is the first in the fragment
+                and next_fragment_start_state_idx is not None):  # skipping the last fragment is handled separately
             adj_list[module_start_state_idx].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_FRAGMENT,
                                                                     log_prob=0,  # TODO: fill in
                                                                     to=next_fragment_start_state_idx))
@@ -89,12 +103,8 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                               genes_intervals: Dict[GeneId, Tuple[int, int]],
                               fragment_intervals: Dict[int, Tuple[int, int]],
                               initial_state: int = 0) -> None:
-    def gene_len(gene_id: GeneId) -> int:
-        return genes_intervals[gene_id][1] - genes_intervals[gene_id][0] + 1
-
-    def num_genes_in_fragment(fragment_idx: int) -> int:
-        return len(set(bgc_variant.modules[i].gene_id for i in range(fragment_intervals[fragment_idx][0],
-                                                                      fragment_intervals[fragment_idx][1] + 1)))
+    _gene_len = partial(gene_len, genes_intervals=genes_intervals)
+    _num_genes_in_fragment = partial(num_genes_in_fragment, fragment_intervals=fragment_intervals, bgc_variant=bgc_variant)
 
     # 1. Add inserts before modules
     module_idx_to_insert_state_idx = {}
@@ -102,9 +112,12 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT_AT_START,
                                        emissions={}))  # TODO: fill emissions
         module_idx_to_insert_state_idx[i] = len(states) - 1
-        adj_list[len(states) - 1].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_MATCHING,
+        adj_list[len(states) - 1].extend([DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_MATCHING,
                                                          log_prob=0,  # TODO: fill in
-                                                         to=module_idx_to_start_state_idx[i]))
+                                                         to=module_idx_to_start_state_idx[i]),
+                                         DetailedHMMEdge(edge_type=DetailedHMMEdgeType.CONTINUE_INSERTING,
+                                                         log_prob=0,  # TODO: fill in
+                                                         to=len(states) - 1)])
 
     # 2. No skips at the beginning
     adj_list[initial_state].extend([DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
@@ -135,7 +148,7 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                                                                         log_prob=0,  # TODO: fill in
                                                                         to=len(states) - 1))  # skip the previous module
 
-    if gene_len(bgc_variant.modules[0].gene_id) > 1:
+    if _gene_len(bgc_variant.modules[0].gene_id) > 1:
         adj_list[initial_state].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_SKIP_MODULES_AT_START,
                                                        log_prob=0,  # TODO: fill in
                                                        to=module_idx_to_module_skip_state_idx[0]))
@@ -157,7 +170,7 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                                           DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
                                                           log_prob=0,  # TODO: fill in
                                                           to=module_idx_to_insert_state_idx[last_module_idx + 1])])
-        if gene_len(bgc_variant.modules[last_module_idx + 1].gene_id) > 1:  # if the next gene has one module, skip gene instead
+        if _gene_len(bgc_variant.modules[last_module_idx + 1].gene_id) > 1:  # if the next gene has one module, skip gene instead
             adj_list[len(states) - 1].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
                                                              log_prob=0,
                                                              to=module_idx_to_module_skip_state_idx[last_module_idx + 1]))
@@ -168,7 +181,7 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                                                                      log_prob=0,  # TODO: fill in
                                                                      to=len(states) - 1))
 
-    if num_genes_in_fragment(0) > 1:
+    if _num_genes_in_fragment(0) > 1:
         adj_list[initial_state].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_SKIP_GENES_AT_START,
                                                        log_prob=0,  # TODO: fill in
                                                        to=gene_id_to_gene_skip_state_idx[bgc_variant.modules[0].gene_id]))
@@ -187,11 +200,11 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                                                             log_prob=0,  # TODO: fill in
                                                             to=module_idx_to_insert_state_idx[last_module_idx + 1])])
         next_gene_id = bgc_variant.modules[last_module_idx + 1].gene_id
-        if num_genes_in_fragment(fragment_idx + 1) > 1:
+        if _num_genes_in_fragment(fragment_idx + 1) > 1:
             adj_list[len(states) - 1].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
                                                              log_prob=0,  # TODO: fill in
                                                              to=gene_id_to_gene_skip_state_idx[next_gene_id]))
-        if gene_len(next_gene_id) > 1:
+        if _gene_len(next_gene_id) > 1:
             adj_list[len(states) - 1].append(DetailedHMMEdge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
                                                              log_prob=0,  # TODO: fill in
                                                              to=module_idx_to_module_skip_state_idx[last_module_idx + 1]))
@@ -211,7 +224,8 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
 def add_skip_at_the_end(states: List[DetailedHMMState],
                         adj_list: Dict[int, List[DetailedHMMEdge]],
                         module_idx_to_start_state_idx: Dict[int, int],
-                        fragment_intervals: Dict[int, Tuple[int, int]]) -> None:
+                        fragment_intervals: Dict[int, Tuple[int, int]],
+                        final_state_idx = -1) -> None:
     # SKIP AT THE END
     num_fragments = len(fragment_intervals)
     for fragment_idx in range(1, num_fragments):  # start from 1 because all fragments can't be skipped

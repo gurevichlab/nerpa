@@ -40,7 +40,7 @@ class DetailedHMM:
 
         # Define the layer types and reverse for top-to-bottom ordering
         layer_types = [[DetailedHMMStateType.SKIP_FRAGMENT_END],
-                       [DetailedHMMStateType.INSERT_MONOMER],
+                       [DetailedHMMStateType.INSERT],
                        [DetailedHMMStateType.MATCH],
                        [DetailedHMMStateType.INITIAL, DetailedHMMStateType.MODULE_START, DetailedHMMStateType.FINAL],
                        [DetailedHMMStateType.INSERT_AT_START],
@@ -49,47 +49,62 @@ class DetailedHMM:
                        [DetailedHMMStateType.SKIP_FRAGMENT_AT_START]][::-1]  # Reverse to match top-to-bottom order
 
         layers = [[] for _ in range(len(layer_types))]
-        dummy_nodes = [f'dummy{i}' for i in range(len(layer_types))]
+
+        def state_idx_to_label(idx: int) -> str:
+            state = self.states[idx]
+            if state.state_type == DetailedHMMStateType.MODULE_START:
+                module = self.bgc_variant.modules[self.state_idx_to_module_idx[idx]]
+                return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+            else:
+                return f'{idx}:{state.state_type.name}'
+
+        def state_idx_to_color(idx: int) -> str:
+            match self.states[idx].state_type:
+                case DetailedHMMStateType.MODULE_START:
+                    return "lightblue"
+                case DetailedHMMStateType.INITIAL:
+                    return "grey"
+                case DetailedHMMStateType.FINAL:
+                    return "grey"
+                case _:
+                    return "white"
 
         # Assign nodes to their respective layers
         for idx, state in enumerate(self.states):
-            if state.state_type == DetailedHMMStateType.MODULE_START:
-                module = self.bgc_variant.modules[self.state_idx_to_module_idx[idx]]
-                label = f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
-            else:
-                label = f'{idx}:{state.state_type.name}'
-
             for layer_idx, layer_state_types in enumerate(layer_types):
                 if state.state_type in layer_state_types:
-                    layers[layer_idx].append((str(idx), label))
-                    break
+                    layers[layer_idx].append(idx)
 
-        # Define layers and connect dummy nodes to enforce rank
+        # Sort nodes within each layer to enforce order
+        for layer in layers:
+            layer.sort()
+
+        dummy_nodes = [f'dummy{i}' for i in range(len(layer_types))]  # Dummy nodes for enforcing horizontal order
+        # Define layers and enforce horizontal order using invisible chains
         for layer_idx, (layer, dummy_node) in enumerate(zip(layers, dummy_nodes)):
             with graph.subgraph() as sub:
                 sub.attr(rank="same")
                 sub.node(dummy_node, label="", shape="none", width="0", height="0", style="invis")  # Add dummy node
 
-                if layer_idx == 4:  # Make Layer 4 more sparse
-                    for i, (node, label) in enumerate(layer):
-                        # Add the actual node
-                        sub.node(node, label=label, shape="ellipse",
-                                 fillcolor="lightblue" if sum(c == ':' for c in label) > 1 else "grey",
-                                 style="filled")
-                        if i > 0:
-                            dummy_spacing = f'spacer_{layer_idx}_{i-1}'  # previous dummy
-                            sub.edge(dummy_spacing, node, style="invis")
-                        # Add an invisible dummy node for spacing
-                        if i < len(layer) - 1:  # No dummy node after the last node
-                            dummy_spacing = f'spacer_{layer_idx}_{i}'
-                            sub.node(dummy_spacing, label="", shape="none", width="0", height="0", style="invis")
-                            sub.edge(node, dummy_spacing, style="invis")
-                else:
-                    # Regular layer handling for all other layers
-                    for node, label in layer:
-                        sub.node(node, label=label, shape="ellipse")
-                    for node, label in layer:
-                        graph.edge(dummy_node, node, style="invis")  # Attach all layer nodes to the dummy node
+                # Create an invisible chain for horizontal order
+                invisible_chain = []
+                for i in range(len(layer)):
+                    chain_node = f'chain_{layer_idx}_{i}'
+                    invisible_chain.append(chain_node)
+                    sub.node(chain_node, label="", shape="none", width="0", height="0",
+                             style="invis")  # Invisible chain node
+
+                # Connect the invisible chain sequentially
+                for chain1, chain2 in zip(invisible_chain[:-1], invisible_chain[1:]):
+                    sub.edge(chain1, chain2, style="invis")
+
+                # Anchor each actual node to its position in the invisible chain
+                for state_idx, chain_node in zip(layer, invisible_chain):
+                    sub.node(str(state_idx), label=state_idx_to_label(state_idx), shape="ellipse",
+                             fillcolor=state_idx_to_color(state_idx),
+                             style="filled")
+                    sub.edge(chain_node, str(state_idx), style="invis")
+                    sub.edge(dummy_node, str(state_idx), style="invis")  # Tie to dummy node
 
         # Connect dummy nodes **sequentially** to enforce correct layer order
         for dummy1, dummy2 in zip(dummy_nodes[:-1], dummy_nodes[1:]):
@@ -98,24 +113,21 @@ class DetailedHMM:
         # Add actual edges between nodes
         for from_idx, edges in self.adj_list.items():
             for edge in edges:
+                edge_args = {
+                    'tail_name': str(from_idx),
+                    'head_name': str(edge.to),
+                    'label':  edge.edge_type.name,
+                    'arrowhead': "vee",
+                    'arrowsize': "0.5"
+                }
                 if str(from_idx) == str(edge.to):  # Self-loop case
-                    graph.edge(
-                        str(from_idx),
-                        str(edge.to),
-                        label='',  # Optional: edge.edge_type.name
-                        arrowhead="vee",
-                        arrowsize="0.5",
-                        headport="n",  # Anchor at the top of the node
-                        tailport="n",  # Start at the top of the node
-                    )
-                else:
-                    graph.edge(
-                        str(from_idx),
-                        str(edge.to),
-                        label='',  # Optional: edge.edge_type.name
-                        arrowhead="vee",
-                        arrowsize="0.5",
-                    )
+                    if self.states[from_idx].state_type == DetailedHMMStateType.INSERT:
+                        edge_args['headport'] = "n"  # point upwards
+                        edge_args['tailport'] = "n"
+                    else:  # INSERT_AT_START
+                        edge_args['headport'] = "s"  # point downwards
+                        edge_args['tailport'] = "s"
+                graph.edge(**edge_args)
 
         # Optionally save the graph
         if output_path:

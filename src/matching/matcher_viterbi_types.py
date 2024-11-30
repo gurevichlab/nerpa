@@ -20,7 +20,7 @@ class DetailedHMMStateType(Enum):
 
     MODULE_START = auto()
     MATCH = auto()
-    INSERT_MONOMER = auto()
+    INSERT = auto()
 
     SKIP_AT_END_START = auto()
     SKIP_FRAGMENT_END = auto()
