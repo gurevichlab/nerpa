@@ -34,8 +34,12 @@ class DetailedHMMState:
     emissions: Dict[NRP_Monomer, float]
 
 
+# TODO: I don't like these "CONTINUE" states,
+#  maybe refactor to have just INSERT, etc. To do this I need to revisit the HMM generation
+#  -- so that first goes the emission and then the transition
 class DetailedHMMEdgeType(Enum):
     START_INSERTING_AT_START = auto()
+    CONTINUE_INSERTING_AT_START = auto()
     START_SKIP_MODULES_AT_START = auto()
     START_SKIP_GENES_AT_START = auto()
     START_SKIP_FRAGMENTS_AT_START = auto()
@@ -57,7 +61,7 @@ class DetailedHMMEdgeType(Enum):
     SKIP_FRAGMENT = auto()
 
     START_SKIPPING_AT_END = auto()
-    CONTINUE_SKIPPING_AT_END = auto()
+    CONTINUE_SKIPPING_FRAGMENTS_AT_END = auto()
 
 
 class DetailedHMMEdge(NamedTuple):
