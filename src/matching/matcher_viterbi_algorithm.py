@@ -51,3 +51,4 @@ def viterbi_algorithm(hmm: HMM, seq: List[int]) -> List[int]:
         u, k = prev[u][k], k - int(bool(hmm.emission_log_probs[u]))
         ext_path.append((u, k))
     return [state for state, _ in reversed(ext_path)]
+

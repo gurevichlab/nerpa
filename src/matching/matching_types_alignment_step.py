@@ -15,6 +15,8 @@ from src.data_types import (
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer_Modification
+from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
+from src.generic.functional import make_optional
 from enum import Enum, auto
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -57,6 +59,7 @@ class AlignmentStep_NRP_Monomer_Info(NamedTuple):
                    rban_idx=nrp_monomer.rban_idx)
 
 
+'''
 class AlignmentStepType(Enum):
     MATCH = auto()
     NRP_MONOMER_INSERT = auto()
@@ -73,6 +76,7 @@ class AlignmentStepType(Enum):
 
     def __lt__(self, other):
         return self.value < other.value
+'''
 
 
 class MatchDetailedScore(NamedTuple):
@@ -87,7 +91,7 @@ class AlignmentStep:
     nrp_monomer_info: Optional[AlignmentStep_NRP_Monomer_Info]
     score: LogProb
     match_detailed_score: Optional[MatchDetailedScore]  # only for MATCH, sum(match_detailed_score) == score
-    step_type: AlignmentStepType
+    step_type: Optional[DetailedHMMEdgeType]  # optional for backward compatibility -- when reading old alignments with different step types
 
     NA = '---'
 
@@ -152,8 +156,9 @@ class AlignmentStep:
         # get match detailed score
         if data['Alignment_step'] == 'NRP_MONOMER_SKIP':
             data['Alignment_step'] = 'NRP_MONOMER_INSERT'  # for backward compatibility, to be removed in the future
-        step_type = AlignmentStepType[data['Alignment_step']]
-        if step_type == AlignmentStepType.MATCH:
+        step_type = DetailedHMMEdgeType[data['Alignment_step']] \
+            if data['Alignment_step'] in DetailedHMMEdgeType.__members__ else None  # for backward compatibility
+        if step_type == DetailedHMMEdgeType.MATCH:
             match_detailed_score = MatchDetailedScore(residue_score=float(data['ResidueScore']),
                                                       methylation_score=float(data['MethylationScore']),
                                                       chirality_score=float(data['ChiralityScore']))

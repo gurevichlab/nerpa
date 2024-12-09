@@ -136,3 +136,16 @@ class DetailedHMM:
             else:
                 graph.render(output_path.name, cleanup=True)
         return graph
+
+    def to_alignment(self, path: List[int]) -> List[Tuple[BGC_Module, NRP_Monomer]]:
+        alignment = []
+        for (from_idx, to_idx) in pairwise(path):
+            from_state = self.states[from_idx]
+            to_state = self.states[to_idx]
+            edge = next(edge for edge in self.adj_list[from_idx] if edge.to == to_idx)
+            if from_state.state_type == DetailedHMMStateType.MATCH:
+                module = self.bgc_variant.modules[self.state_idx_to_module_idx[from_idx]]
+                monomer = next(monomer for monomer, log_prob in from_state.emissions.items()
+                               if log_prob == edge.log_prob)
+                alignment.append((module, monomer))
+        return alignment
