@@ -1,5 +1,13 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.matching.matcher_viterbi_algorithm import DetailedHMM
 from typing import List
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, DetailedHMM
+from src.matching.matcher_viterbi_types import (
+    DetailedHMMEdgeType,
+    DetailedHMMStateType,
+    DetailedHMMState,
+    DetailedHMMEdge,
+)
 from src.matching.matching_types_alignment_step import AlignmentStep
 from itertools import pairwise
 from src.data_types import NRP_Monomer
@@ -12,9 +20,10 @@ from src.matching.matching_types_alignment_step import (
 from src.matching.scoring_helper import ScoringHelper
 
 
-def detailed_hmm_to_alignment(hmm: DetailedHMM, path: List[int],
-                              nrp_monomers: List[NRP_Monomer],
-                              scoring_helper: ScoringHelper) -> Alignment:
+def hmm_path_to_alignment(hmm: DetailedHMM,
+                          path: List[int],
+                          nrp_monomers: List[NRP_Monomer],
+                          scoring_helper: ScoringHelper) -> Alignment:
     # The idea is that first the transition is made and then the emission -- in the new state
     # TODO: maybe refactor to do first emission and then transition to make it more similar to the standard Viterbi algorithm
     alignment = []
@@ -26,8 +35,8 @@ def detailed_hmm_to_alignment(hmm: DetailedHMM, path: List[int],
         # and hence yield multiple alignment steps
         if edge.edge_type in (DetailedHMMEdgeType.SKIP_GENE,
                               DetailedHMMEdgeType.SKIP_FRAGMENT,
-                              DetailedHMMEdgeType.CONTINUE_SKIP_FRAGMENTS_AT_START,
-                              DetailedHMMEdgeType.CONTINUE_SKIPPING_FRAGMENTS_AT_END):
+                              DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
+                              DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END):
             fst_module_idx = hmm.state_idx_to_module_idx[edge_from]
             last_module_idx = hmm.state_idx_to_module_idx[edge_to]
             alignment.extend(AlignmentStep(bgc_module_info=AlignmentStep_BGC_Module_Info(hmm.bgc_variant.modules[module_idx]),
@@ -52,12 +61,12 @@ def detailed_hmm_to_alignment(hmm: DetailedHMM, path: List[int],
                 match_detailed_score = scoring_helper.match_detailed_score(bgc_module, nrp_monomers[mon_idx])
                 emission_score = sum(match_detailed_score)
                 mon_idx += 1
-            case DetailedHMMEdgeType.START_INSERTING | DetailedHMMEdgeType.CONTINUE_INSERTING:
+            case DetailedHMMEdgeType.START_INSERTING | DetailedHMMEdgeType.INSERT:
                 bgc_module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[edge_from]]
                 nrp_monomer = nrp_monomers[mon_idx]
                 # in the current setup, emission_score is always 0 for insertions, as if the emission is always the same
                 mon_idx += 1
-            case DetailedHMMEdgeType.START_INSERTING_AT_START | DetailedHMMEdgeType.CONTINUE_INSERTING_AT_START:
+            case DetailedHMMEdgeType.START_INSERTING_AT_START | DetailedHMMEdgeType.INSERT_AT_START:
                 next_module_state_idx = next(next_edge.to
                                              for next_edge in hmm.adj_list[edge_to]
                                              if hmm.states[next_edge.to].state_type == DetailedHMMStateType.MODULE_START)
