@@ -57,7 +57,7 @@ def add_modules(states: List[DetailedHMMState],
                                DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_INSERTING,
                                                log_prob=0,  # TODO: fill in
                                                to=insert_idx)]
-        adj_list[insert_idx] = [DetailedHMMEdge(edge_type=DetailedHMMEdgeType.CONTINUE_INSERTING,
+        adj_list[insert_idx] = [DetailedHMMEdge(edge_type=DetailedHMMEdgeType.INSERT,
                                                 log_prob=0,  # TODO: fill in
                                                 to=insert_idx),
                                 DetailedHMMEdge(edge_type=DetailedHMMEdgeType.END_INSERTING,
@@ -115,7 +115,7 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
         adj_list[len(states) - 1].extend([DetailedHMMEdge(edge_type=DetailedHMMEdgeType.START_MATCHING,
                                                          log_prob=0,  # TODO: fill in
                                                          to=module_idx_to_start_state_idx[i]),
-                                         DetailedHMMEdge(edge_type=DetailedHMMEdgeType.CONTINUE_INSERTING,
+                                         DetailedHMMEdge(edge_type=DetailedHMMEdgeType.INSERT,
                                                          log_prob=0,  # TODO: fill in
                                                          to=len(states) - 1)])
 
@@ -300,4 +300,7 @@ def bgc_variant_to_detailed_hmm(cls,
     return cls(states=states,
                adj_list=adj_list,
                bgc_variant=bgc_variant,
-               state_idx_to_module_idx=state_idx_to_module_idx)
+               state_idx_to_module_idx=state_idx_to_module_idx,
+               _module_idx_to_state_idx=module_idx_to_state_idx,
+               start_state_idx=start_state_idx,
+               final_state_idx=final_state_idx)
