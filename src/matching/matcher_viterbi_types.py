@@ -1,8 +1,20 @@
 from __future__ import annotations
-from typing import List, Tuple, NamedTuple, Dict, Optional
+from typing import (
+    List,
+    Tuple,
+    NamedTuple,
+    Dict,
+    Optional,
+    Union
+)
 from dataclasses import dataclass
 from enum import Enum, auto
 
+from src.antismash_parsing.location_features import (
+    ModuleLocFeatures,
+    GeneLocFeatures,
+    BGC_Fragment_Loc_Features
+)
 from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant
 from src.matching.bgc_to_hmm import bgc_variant_to_detailed_hmm
 from itertools import pairwise
@@ -77,9 +89,13 @@ class DetailedHMMEdgeType(Enum):
 class DetailedHMMEdge(NamedTuple):
     edge_type: DetailedHMMEdgeType
     log_prob: float
-    to: int
+    # edges have different weights, depending on the type and the context
+    genomic_context: Union[ModuleLocFeatures, GeneLocFeatures, BGC_Fragment_Loc_Features, None]
+    # edge_key is used in parameter estimation to not count the same edge multiple times when it's used for different NRP compounds and the same BCG
+    # edge_key: Optional[tuple]
 
 
+'''
 @dataclass
 class DetailedHMM:
     states: List[DetailedHMMState]
@@ -179,3 +195,4 @@ class DetailedHMM:
         return alignment
 
 
+'''
