@@ -3,6 +3,11 @@ from typing import List, Tuple, NamedTuple, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum, auto
 
+from src.antismash_parsing.location_features import (
+    ModuleLocFeature,
+    GeneLocFeature,
+    BGC_Fragment_Loc_Feature
+)
 from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant, GeneId, LogProb
 from src.matching.matcher_viterbi_types import (
     DetailedHMMEdgeType,
@@ -28,7 +33,7 @@ from pathlib import Path
 @dataclass
 class DetailedHMM:
     states: List[DetailedHMMState]
-    adj_list: List[List[DetailedHMMEdge]]
+    adj_list: List[Dict[int, DetailedHMMEdge]]
     start_state_idx: int
     final_state_idx: int
     bgc_variant: BGC_Variant
@@ -71,4 +76,42 @@ class DetailedHMM:
 
     def draw(self, filename: Path) -> Digraph:
         return draw_hmm(self, filename)
+
+# captures all context relevant for parameter training
+class EdgeFingerprint(NamedTuple):
+    edge_type: DetailedHMMEdgeType
+    bgc_module_context: Optional[ModuleLocFeature] = None
+    bgc_gene_context: Optional[GeneLocFeature] = None
+    bgc_fragment_context: Optional[BGC_Fragment_Loc_Feature] = None
+
+def edge_fingerprint(hmm: DetailedHMM,
+                     path: List[Tuple[int, NRP_Monomer]],
+                     edge_idx: int) -> EdgeFingerprint:
+    u, v = path[edge_idx][0], path[edge_idx + 1][0]
+    edge = hmm.adj_list[u][v]
+
+    # find corresponding bgc module
+    match edge.edge_type:
+        # genomic info not relevant
+        case (
+        # before matching
+            DetailedHMMEdgeType.START_INSERTING_AT_START |
+            DetailedHMMEdgeType.INSERT_AT_START |
+            DetailedHMMEdgeType.START_SKIP_MODULES_AT_START |
+            DetailedHMMEdgeType.START_SKIP_GENES_AT_START |
+            DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START |
+        # at matching
+            DetailedHMMEdgeType.INSERT |
+            DetailedHMMEdgeType.END_INSERTING
+        ):
+            return EdgeFingerprint(edge_type=edge.edge_type)
+        # only fragment context relevant
+        case (
+            DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START |
+            DetailedHMMEdgeType.SKIP_FRAGMENT |
+            DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END
+        ):
+            return EdgeFingerprint(edge_type=edge.edge_type,
+                                   bgc_fragment_context=hmm.bgc_variant.fragments[hmm.state_idx_to_module_idx[u]].loc)
+
 
