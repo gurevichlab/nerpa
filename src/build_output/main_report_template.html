@@ -215,7 +215,7 @@
         <div>
             <!-- Button and label for hiding the iframe -->
             <div id="genomeViewerControls">
-                <button id="hideGenomeViewerBtn" onclick="toggleGenomeViewer()" style="display: none;">Hide antiSMASH output</button>
+                <button id="hideGenomeViewerBtn" onclick="hideGenomeViewer()" style="display: none;">Hide antiSMASH output</button>
                 <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display the corresponding antiSMASH output</p>
             </div>
 
@@ -328,9 +328,9 @@
                         // Update image sources dynamically
                         moleculeImage.src = `NRP_images/molecules/${nrpID}.png`;
                         graphImage.src = `NRP_images/graphs/${nrpID}.png`;
+                        frame.style.display = 'block';
 
                         // Hide label and show the hide button
-                        frame.style.display = 'block';
                         label.style.display = 'none';
                         hideBtn.style.display = 'block';
                     });
