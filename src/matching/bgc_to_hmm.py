@@ -16,6 +16,7 @@ from src.matching.auxilary import get_genes_intervals, get_fragments_intervals, 
 from collections import defaultdict
 from itertools import pairwise
 from functools import partial
+from collections import OrderedDict
 
 
 def make_edge(edge_type: DetailedHMMEdgeType,
@@ -25,7 +26,11 @@ def make_edge(edge_type: DetailedHMMEdgeType,
     if fst_module_idx is None:
         return DetailedHMMEdge(edge_type=edge_type,
                                log_prob=log_prob,
-                               genomic_context=None)
+                               genomic_context=None,
+                               edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx))
+
+    fst_module = bgc_variant.modules[fst_module_idx]
+
     if edge_type == DetailedHMMEdgeType.SKIP_GENE:
         gene_id = bgc_variant.modules[fst_module_idx].gene_id
         lst_module_idx = next(i for i in range(fst_module_idx, len(bgc_variant.modules))
@@ -34,7 +39,9 @@ def make_edge(edge_type: DetailedHMMEdgeType,
                                                         bgc_variant.modules[lst_module_idx].module_loc)
         return DetailedHMMEdge(edge_type=edge_type,
                                log_prob=log_prob,
-                               genomic_context=gene_context)
+                               genomic_context=gene_context,
+                               edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx,
+                                         fst_module.gene_id))
     if edge_type in (
             DetailedHMMEdgeType.SKIP_FRAGMENT,
             DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
@@ -44,13 +51,19 @@ def make_edge(edge_type: DetailedHMMEdgeType,
                               if bgc_variant.modules[i].fragment_idx != fragment_idx)
         fragment_context = module_features_to_fragment_features(bgc_variant.modules[fst_module_idx].module_loc,
                                                                 bgc_variant.modules[lst_module_idx].module_loc)
+        genes_ids = list(OrderedDict.fromkeys(bgc_variant.modules[i].gene_id
+                                              for i in range(fst_module_idx, lst_module_idx + 1)))
         return DetailedHMMEdge(edge_type=edge_type,
                                log_prob=log_prob,
-                               genomic_context=fragment_context)
+                               genomic_context=fragment_context,
+                               edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx,
+                                         *genes_ids))
     module_context = bgc_variant.modules[fst_module_idx].module_loc
     return DetailedHMMEdge(edge_type=edge_type,
                            log_prob=log_prob,
-                           genomic_context=module_context)
+                           genomic_context=module_context,
+                           edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx,
+                                     fst_module.gene_id, fst_module.a_domain_idx))
 
 
 def gene_len(gene_id: GeneId, genes_intervals: Dict[GeneId, Tuple[int, int]]) -> int:
