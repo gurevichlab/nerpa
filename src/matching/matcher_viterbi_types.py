@@ -86,13 +86,16 @@ class DetailedHMMEdgeType(Enum):
     SKIP_FRAGMENT_AT_END = auto()
 
 
+GenomicContext = Union[ModuleLocFeatures, GeneLocFeatures, BGC_Fragment_Loc_Features]
+EdgeKey = tuple
+
 class DetailedHMMEdge(NamedTuple):
     edge_type: DetailedHMMEdgeType
     log_prob: float
     # edges have different weights, depending on the type and the context
-    genomic_context: Union[ModuleLocFeatures, GeneLocFeatures, BGC_Fragment_Loc_Features, None]
+    genomic_context: Optional[GenomicContext]
     # edge_key is used in parameter estimation to not count the same edge multiple times when it's used for different NRP compounds and the same BCG
-    # edge_key: Optional[tuple]
+    edge_key: Optional[tuple]
 
 
 '''

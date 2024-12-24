@@ -191,13 +191,15 @@ def main():
                                            for match in approved_matches]
 
     print('Calculating training parameters')
+    hmm_parameters = train_hmm_parameters(matches_with_bgcs_nrps_for_training)
+    write_hmm_parameters(hmm_parameters, args.output_dir)
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
-    norine_stats = dacite.from_dict(NorineStats, yaml.safe_load(args.norine.read_text()))
-    parameters = calculate_training_parameters(matches_with_bgcs_nrps_for_training,
-                                               norine_stats, args.output_dir)
+    #norine_stats = dacite.from_dict(NorineStats, yaml.safe_load(args.norine.read_text()))
+    #parameters = calculate_training_parameters(matches_with_bgcs_nrps_for_training,
+    #                                           norine_stats, args.output_dir)
     print('Writing results')
-    write_results(matches, bgc_variants, nrp_variants,
-                  matches_table, parameters, args.output_dir)
+    #write_results(matches, bgc_variants, nrp_variants,
+    #              matches_table, parameters, args.output_dir)
 
 
 if __name__ == "__main__":
