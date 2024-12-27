@@ -280,10 +280,10 @@
                                 <th title="Gene name">Gene</th>
                                 <th title="Index of the A-domain within the gene">A index</th>
                                 <th title="Top scoring residue prediction for the A-domain">A residue</th>
-                                <th title="Modifying domains inside the module corresponding to the A-domain (E, MT or '---' for none)">Module mods</th>
+                                <th title="Modifying domains inside the module corresponding to the A-domain ('E' for epimerization, 'MT' for methylation, '---' for none)">Module mods</th>
                                 <th title="Core NRP residue (Nerpa naming)">NRP residue</th>
-                                <th title="Parsed chirality of the NRP residue (D, L or Unknown)">NRP chirality</th>
-                                <th title="Modifications of the core NRP residue (MT, Unknown or '---' for none)">NRP mods</th>
+                                <th title="Parsed chirality of the NRP residue ('D', 'L' or 'unk' when unknown/failed to parse)">NRP chirality</th>
+                                <th title="Modifications of the core NRP residue ('MT' for methylation, 'unk' for other modifications, '---' for none)">NRP mods</th>
                                 <th title="NRP residue (rBAN naming)">rBAN residue</th>
                                 <th title="rBAN index of the NRP residue in the structure and monomer graph">NRP index</th>
                                 <th title="Alignment step">Step</th>
@@ -307,8 +307,8 @@
         <div>
             <!-- Button and label for hiding the iframe -->
             <div id="genomeViewerControls">
-                <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true)" style="display: none;">Hide antiSMASH output</button>
-                <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display the corresponding antiSMASH output</p>
+                <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true)" style="display: none;">Hide Genome/BGC annotation</button>
+                <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
             </div>
 
             <!-- Genome Viewer iframe -->
@@ -318,7 +318,7 @@
         <!-- NRP Viewer -->
         <div>
             <div id="nrpViewerControls">
-                <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true)" style="display: none;">Hide NRP</button>
+                <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true)" style="display: none;">Hide NRP annotation</button>
                 <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
             </div>
             <div id="nrpViewerContainer" class="viewer" style="display: none;">
@@ -683,6 +683,7 @@
             const tr = table.getElementsByTagName("tr");
 
             let visibleRowCount = 0; // Initialize counter for visible rows
+            let totalRowCount = 0; // Initialize counter for total rows
 
             for (let i = 1; i < tr.length; i++) {
                 let showRow = true; // Start by assuming the row should be shown
@@ -726,10 +727,11 @@
                 if (showRow) {
                     visibleRowCount++;
                 }
+                totalRowCount++;
             }
 
             // Update the row counter text
-            document.getElementById("rowCounter").textContent = `Number of matches: ${visibleRowCount}`;
+            document.getElementById("rowCounter").textContent = `Number of matches ( filtered / total ): ${visibleRowCount} / ${totalRowCount}`;
         }
 
         // Event listeners for filter inputs
