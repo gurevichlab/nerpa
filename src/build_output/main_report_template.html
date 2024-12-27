@@ -130,7 +130,7 @@
         }
 
         /* Ensure the table spans full width */
-        #reportTable {
+        .scrollable-table {
             width: 100%; /* Full width for table */
             border-collapse: collapse; /* Collapse borders */
             margin: 0; /* Reset margin */
@@ -139,7 +139,7 @@
         }
 
         /* Fix the header row */
-        #reportTable thead {
+        .scrollable-table thead {
             position: sticky; /* Makes the header sticky */
             top: 0; /* Sticks to the top of the container */
             z-index: 1; /* Ensure it stays above table rows */
@@ -152,6 +152,12 @@
         button.hide-button {
             margin-top: 15px;
             margin-bottom: 5px;
+        }
+
+        #alignmentLabel {
+            font-weight: bold;
+            text-align: left;
+            padding-left: 20px;
         }
     </style>
 </head>
@@ -196,7 +202,7 @@
 
         <!-- Table -->
         <div class="table-container">
-            <table id="reportTable">
+            <table class="scrollable-table" id="reportTable">
                 <thead>
                     <tr>
                         <th>Match ID</th>
@@ -231,6 +237,28 @@
                                 <th>NRP</th>
                                 <th>Genome</th>
                                 <th>BGC ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <p id="alignmentLabel">Alignment details</p>
+                <div class="table-container">
+                    <table class="scrollable-table" id="alignmentTable">
+                        <thead>
+                            <tr>
+                                <th title="Gene name">Gene</th>
+                                <th title="Index of the A-domain within the gene">A index</th>
+                                <th title="Top scoring residue prediction for the A-domain">A residue</th>
+                                <th title="Modifying domains corresponding to the A-domain (E, MT or '---' for none)">A mods</th>
+                                <th title="Core NRP residue (Nerpa naming)">NRP residue</th>
+                                <th title="Parsed chirality of the NRP residue (D, L or Unknown)">NRP chirality</th>
+                                <th title="Modifications of the core NRP residue (MT, Unknown or '---' for none)">NRP mods</th>
+                                <th title="rBAN index of the NRP residue in the structure and monomer graph">NRP index</th>
+                                <th title="Alignment step">Step</th>
+                                <th title="Total score of the alignment row (sum of the residue, methylation and chirality scores)">Score</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -305,6 +333,20 @@
             }
         });
 
+        // Mapping for alignment table column names (JSON values to HTML table header names)
+        const alignment_column_names_mapping = {
+            'Gene': 'Gene',
+            'A index': 'A-domain_idx',
+            'A residue': 'Top_scoring_residues',
+            'A mods': 'Modifying_domains',
+            'NRP residue': 'NRP_residue',
+            'NRP chirality': 'NRP_chirality',
+            'NRP mods': 'NRP_modifications',
+            'NRP index': 'rBAN_idx',
+            'Step': 'Alignment_step',
+            'Score': 'Score'
+        };
+
         // Populate table
         function populateTable(data) {
             const tableBody = document.querySelector('#reportTable tbody');
@@ -375,6 +417,7 @@
             } else {
                 // Update table content
                 var item = data.at(matchID);
+                // Basic match info
                 const matchTableBody = document.querySelector('#matchTable tbody');
                 matchTableBody.innerHTML = '';
                 const matchRow = document.createElement('tr');
@@ -386,6 +429,29 @@
                     <td>Region ${item.Contig_idx}.${item.BGC_idx}</td>
                 `;
                 matchTableBody.appendChild(matchRow);
+                // Match alignment info
+                const alignmentTableBody = document.querySelector('#alignmentTable tbody');
+                alignmentTableBody.innerHTML = '';
+
+                // Iterate over each alignment array in the "Alignments" field
+                const alignments = item.Alignments;
+                alignments.forEach(rows => {
+                    rows.forEach(row => {
+                        // Create a new table row
+                        const tr = document.createElement('tr');
+
+                        // Add a cell for each mapping
+                        Object.keys(alignment_column_names_mapping).forEach(header => {
+                            const td = document.createElement('td');
+                            td.textContent = row[alignment_column_names_mapping[header]] ?? 'n/a'; // Use 'n/a' if value is missing
+                            tr.appendChild(td);
+                        });
+
+                        // Append the row to the table body
+                        alignmentTableBody.appendChild(tr);
+                    });
+                });
+
                 // showing/hiding the corresponding frame, button, and label
                 frame.style.display = 'block';
                 label.style.display = 'none';
