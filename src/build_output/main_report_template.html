@@ -51,8 +51,9 @@
         }
 
         .explanation {
-            font-style: italic;
-            margin-bottom: 15px;
+            font-style: normal;
+            font-size: 0.9em; /* Slightly smaller than the default */
+            margin-bottom: 5px;
         }
 
         .logo-container {
@@ -157,7 +158,8 @@
         #alignmentLabel {
             font-weight: bold;
             text-align: left;
-            padding-left: 20px;
+            margin-top: 0px;
+            margin-bottom: 0px;
         }
     </style>
 </head>
@@ -244,7 +246,33 @@
                         </tbody>
                     </table>
                 </div>
-                <p id="alignmentLabel">Alignment details</p>
+                <div style="display: grid; grid-template-columns: 1fr 5fr; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px;">
+                    <p id="alignmentLabel">Alignment details</p>
+                    <div id="columnControls" style="display: flex; align-items: center;">
+                        <a href="#" id="toggleColumnsButton">Select columns to display</a>
+                        <div id="checkboxContainer" style="display: none; margin-left: 10px;">
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Gene" checked> Gene</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A index" checked> A index</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A residue" checked> A residue</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Module mods" checked> Module mods</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP residue" checked> NRP residue</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP chirality" checked> NRP chirality</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP mods" checked> NRP mods</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="rBAN residue"> rBAN residue</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP index" checked> NRP index</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Step" checked> Step</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Score" checked> Score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Residue score"> Residue score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Methylation score"> Methylation score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Chirality score"> Chirality score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="aa10 code"> aa10 code</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="aa34 code"> aa34 code</label></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="explanation">
+                    Hover over a column name to view its description.
+                </div>
                 <div class="table-container">
                     <table class="scrollable-table" id="alignmentTable">
                         <thead>
@@ -252,13 +280,19 @@
                                 <th title="Gene name">Gene</th>
                                 <th title="Index of the A-domain within the gene">A index</th>
                                 <th title="Top scoring residue prediction for the A-domain">A residue</th>
-                                <th title="Modifying domains corresponding to the A-domain (E, MT or '---' for none)">A mods</th>
+                                <th title="Modifying domains inside the module corresponding to the A-domain (E, MT or '---' for none)">Module mods</th>
                                 <th title="Core NRP residue (Nerpa naming)">NRP residue</th>
                                 <th title="Parsed chirality of the NRP residue (D, L or Unknown)">NRP chirality</th>
                                 <th title="Modifications of the core NRP residue (MT, Unknown or '---' for none)">NRP mods</th>
+                                <th title="NRP residue (rBAN naming)">rBAN residue</th>
                                 <th title="rBAN index of the NRP residue in the structure and monomer graph">NRP index</th>
                                 <th title="Alignment step">Step</th>
                                 <th title="Total score of the alignment row (sum of the residue, methylation and chirality scores)">Score</th>
+                                <th title="Score for the residues (mis)match">Residue score</th>
+                                <th title="Score for the methylation (mis)match">Methylation score</th>
+                                <th title="Score for the chirality (mis)match">Chirality score</th>
+                                <th title="Stachelhaus code of the A-domain (10 amino acids)">aa10 code</th>
+                                <th title="NRPSpredictor2 code of the A-domain (34 amino acids)">aa34 code</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -338,13 +372,19 @@
             'Gene': 'Gene',
             'A index': 'A-domain_idx',
             'A residue': 'Top_scoring_residues',
-            'A mods': 'Modifying_domains',
+            'Module mods': 'Modifying_domains',
             'NRP residue': 'NRP_residue',
             'NRP chirality': 'NRP_chirality',
             'NRP mods': 'NRP_modifications',
+            'rBAN residue': 'rBAN_name',
             'NRP index': 'rBAN_idx',
             'Step': 'Alignment_step',
-            'Score': 'Score'
+            'Score': 'Score',
+            'Residue score': 'ResidueScore',
+            'Methylation score': 'MethylationScore',
+            'Chirality score': 'ChiralityScore',
+            'aa10 code': 'aa10_code',
+            'aa34 code': 'aa34_code'
         };
 
         // Populate table
@@ -452,6 +492,8 @@
                     });
                 });
 
+                toggleAlignmentColumnVisibility();
+
                 // showing/hiding the corresponding frame, button, and label
                 frame.style.display = 'block';
                 label.style.display = 'none';
@@ -505,6 +547,49 @@
                 hideBtn.style.display = 'block';
             }
         }
+
+        document.getElementById('toggleColumnsButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            const checkboxContainer = document.getElementById('checkboxContainer');
+            if (checkboxContainer.style.display === 'none' || checkboxContainer.style.display === '') {
+                checkboxContainer.style.display = 'block';
+            } else {
+                checkboxContainer.style.display = 'none';
+            }
+        });
+
+        // Function to toggle column visibility
+        function toggleAlignmentColumnVisibility() {
+            // Get all checkboxes
+            const checkboxes = document.querySelectorAll('#columnControls input[type="checkbox"]');
+
+            checkboxes.forEach(checkbox => {
+                // Get the column name from the checkbox
+                const columnName = checkbox.getAttribute('data-column');
+
+                // Find the index of the column in the table
+                const th = Array.from(document.querySelectorAll('#alignmentTable th'))
+                    .find(th => th.textContent === columnName);
+
+                if (!th) return; // Skip if column is not found
+
+                const columnIndex = Array.from(th.parentNode.children).indexOf(th);
+
+                // Toggle visibility of the column in both <th> and <td>
+                const cells = document.querySelectorAll(
+                    `#alignmentTable th:nth-child(${columnIndex + 1}), #alignmentTable td:nth-child(${columnIndex + 1})`
+                );
+
+                cells.forEach(cell => {
+                    cell.style.display = checkbox.checked ? '' : 'none';
+                });
+            });
+        }
+
+        // Add event listeners to all checkboxes
+        document.querySelectorAll('#columnControls input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', toggleAlignmentColumnVisibility);
+        });
 
         // Function to sort table by column with toggleable sorting direction
         function sortTable(n) {
