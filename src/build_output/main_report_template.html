@@ -148,6 +148,11 @@
             padding: 0; /* Reset padding */
             box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 0 rgba(0, 0, 0, 0.2); /* Add thin borders at top and bottom */
         }
+
+        button.hide-button {
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -187,7 +192,6 @@
         <!-- Explanation for sorting -->
         <div class="explanation">
             Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). <br>
-            Click a Match ID to open the detailed match report.
         </div>
 
         <!-- Table -->
@@ -211,11 +215,37 @@
         <!-- Row Counter -->
         <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;"></div>
 
+        <!-- Match Viewer -->
+        <div>
+            <div id="matchViewerControls">
+                <button class="hide-button" id="hideMatchViewerBtn" onclick="toggleMatchViewer(true)" style="display: none;">Hide match details and BGC/NRP annotations</button>
+                <p id="matchViewerLabel" style="display: block;">Click on a Match ID to display the detailed match report and the corresponding BGC and NRP annotations</p>
+            </div>
+            <div id="matchViewerContainer" class="viewer" style="display: none;">
+                <div class="table-container">
+                    <table id="matchTable">
+                        <thead>
+                            <tr>
+                                <th>Match ID</th>
+                                <th>Score</th>
+                                <th>NRP</th>
+                                <th>Genome</th>
+                                <th>BGC ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- antiSMASH (Genome/BGC) Viewer -->
         <div>
             <!-- Button and label for hiding the iframe -->
             <div id="genomeViewerControls">
-                <button id="hideGenomeViewerBtn" onclick="hideGenomeViewer()" style="display: none;">Hide antiSMASH output</button>
+                <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true)" style="display: none;">Hide antiSMASH output</button>
                 <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display the corresponding antiSMASH output</p>
             </div>
 
@@ -226,18 +256,18 @@
         <!-- NRP Viewer -->
         <div>
             <div id="nrpViewerControls">
-                <button id="hideNrpViewerBtn" onclick="hideNrpViewer()" style="display: none;">Hide NRP</button>
+                <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true)" style="display: none;">Hide NRP</button>
                 <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
             </div>
             <div id="nrpViewerContainer" class="viewer" style="display: none;">
                 <div style="display: flex; justify-content: space-between;">
-                    <div style="flex: 1; padding: 10px;">
+                    <div style="flex: 1; padding-right: 5px;">
                         <img id="moleculeImage"
                              src=""
                              alt="Molecule image is missing. Did you forget to use '--draw-molecules'?"
                              style="width: 100%; height: auto;"/>
                     </div>
-                    <div style="flex: 1; padding: 10px;">
+                    <div style="flex: 1; padding-left: 5px;">
                         <img id="graphImage"
                              src=""
                              alt="Graph image is missing. Did you forget to use '--draw-molecules'?"
@@ -284,13 +314,22 @@
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="match-id"><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
+                        <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
                         <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
                         <td><a href="#" class="nrp-link" data-nrp="${item.NRP}">${item.NRP}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="">${item.Genome}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="r${item.Contig_idx}c${item.BGC_idx}">Region ${item.Contig_idx}.${item.BGC_idx}</td>
+                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="r${item.Contig_idx}c${item.BGC_idx}">Region ${item.Contig_idx}.${item.BGC_idx}</a></td>
                     `;
                     tableBody.appendChild(row);
+                });
+
+                // Add click event listeners for Match links
+                document.querySelectorAll('.match-link').forEach(link => {
+                    link.addEventListener('click', event => {
+                        event.preventDefault(); // Prevent default link behavior
+                        const matchID = link.dataset.match; // Get the Match ID
+                        toggleMatchViewer(false, matchID)
+                    });
                 });
 
                 // Add click event listeners for Genome/BGC links
@@ -299,17 +338,7 @@
                         event.preventDefault(); // Prevent default link behavior
                         const genomeID = link.dataset.genome; // Get the Genome ID
                         const bgcID = link.dataset.bgc; // Get the specific BGC ID within the genome
-                        const iframe = document.getElementById('genomeViewer');
-                        const hideBtn = document.getElementById('hideGenomeViewerBtn');
-                        const label = document.getElementById('genomeViewerLabel');
-
-                        // Set iframe source and make it visible
-                        iframe.src = `{{ANTISMASH_OUT_DIR}}/${genomeID}/index.html#${bgcID}`; // Set iframe source
-                        iframe.style.display = 'block'; // Make iframe visible
-
-                        // Hide label and show the hide button
-                        label.style.display = 'none';
-                        hideBtn.style.display = 'block';
+                        toggleGenomeViewer(false, genomeID, bgcID)
                     });
                 });
 
@@ -318,21 +347,7 @@
                     link.addEventListener('click', event => {
                         event.preventDefault(); // Prevent default link behavior
                         const nrpID = link.dataset.nrp; // Get the NRP ID
-                        const moleculeImage = document.getElementById('moleculeImage');
-                        const graphImage = document.getElementById('graphImage');
-                        const hideBtn = document.getElementById('hideNrpViewerBtn');
-                        const label = document.getElementById('nrpViewerLabel');
-                        const frame = document.getElementById('nrpViewerContainer');
-
-
-                        // Update image sources dynamically
-                        moleculeImage.src = `NRP_images/molecules/${nrpID}.png`;
-                        graphImage.src = `NRP_images/graphs/${nrpID}.png`;
-                        frame.style.display = 'block';
-
-                        // Hide label and show the hide button
-                        label.style.display = 'none';
-                        hideBtn.style.display = 'block';
+                        toggleNrpViewer(false, nrpID)
                     });
                 });
             } else {
@@ -343,26 +358,86 @@
             filterTable();
         }
 
-        // Toggle function for hiding the antiSMASH (Genome/BGC) iframe and showing the label
-        function hideGenomeViewer() {
+        // Toggle function for hiding/showing the Match details
+        function toggleMatchViewer(hide, matchID) {
+            const frame = document.getElementById('matchViewerContainer');
+            const hideBtn = document.getElementById('hideMatchViewerBtn');
+            const label = document.getElementById('matchViewerLabel');
+
+            if (hide) {
+                frame.style.display = 'none'; // Hide frame (div) with images
+                label.style.display = 'block'; // Show label
+                hideBtn.style.display = 'none'; // Hide the button
+
+                // hiding corresponding Genome and NRP viewers
+                toggleGenomeViewer(hide)
+                toggleNrpViewer(hide)
+            } else {
+                // Update table content
+                var item = data.at(matchID);
+                const matchTableBody = document.querySelector('#matchTable tbody');
+                matchTableBody.innerHTML = '';
+                const matchRow = document.createElement('tr');
+                matchRow.innerHTML = `
+                    <td class="match-id">${item.Match_ID}</td>
+                    <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
+                    <td>${item.NRP}</td>
+                    <td>${item.Genome}</td>
+                    <td>Region ${item.Contig_idx}.${item.BGC_idx}</td>
+                `;
+                matchTableBody.appendChild(matchRow);
+                // showing/hiding the corresponding frame, button, and label
+                frame.style.display = 'block';
+                label.style.display = 'none';
+                hideBtn.style.display = 'block';
+
+                // showing corresponding Genome and NRP viewers
+                toggleGenomeViewer(false, item.Genome, `r${item.Contig_idx}c${item.BGC_idx}`)
+                toggleNrpViewer(false, item.NRP)
+            }
+        }
+
+        // Toggle function for hiding/showing the antiSMASH (Genome/BGC) iframe
+        function toggleGenomeViewer(hide, genomeID, bgcID) {
             const iframe = document.getElementById('genomeViewer');
             const hideBtn = document.getElementById('hideGenomeViewerBtn');
             const label = document.getElementById('genomeViewerLabel');
 
-            iframe.style.display = 'none'; // Hide iframe
-            label.style.display = 'block'; // Show label
-            hideBtn.style.display = 'none'; // Hide the button
+            if (hide) {
+                iframe.style.display = 'none'; // Hide iframe
+                label.style.display = 'block'; // Show label
+                hideBtn.style.display = 'none'; // Hide the hide button
+            } else {
+                iframe.src = `antismash_output/${genomeID}/index.html#${bgcID}`; // Set iframe source
+                iframe.style.display = 'block'; // Show iframe
+                label.style.display = 'none'; // Hide label
+                hideBtn.style.display = 'block'; // Show the hide button
+            }
         }
 
-        // Toggle function for hiding the NRP images and showing the label
-        function hideNrpViewer() {
+        // Toggle function for hiding/showing the NRP images
+        function toggleNrpViewer(hide, nrpID) {
             const frame = document.getElementById('nrpViewerContainer');
             const hideBtn = document.getElementById('hideNrpViewerBtn');
             const label = document.getElementById('nrpViewerLabel');
 
-            frame.style.display = 'none'; // Hide frame (div) with images
-            label.style.display = 'block'; // Show label
-            hideBtn.style.display = 'none'; // Hide the button
+            if (hide) {
+                frame.style.display = 'none'; // Hide frame (div) with images
+                label.style.display = 'block'; // Show label
+                hideBtn.style.display = 'none'; // Hide the button
+            } else {
+                const moleculeImage = document.getElementById('moleculeImage');
+                const graphImage = document.getElementById('graphImage');
+
+                // Update image sources dynamically
+                moleculeImage.src = `NRP_images/molecules/${nrpID}.png`;
+                graphImage.src = `NRP_images/graphs/${nrpID}.png`;
+                frame.style.display = 'block';
+
+                // Hide label and show the hide button
+                label.style.display = 'none';
+                hideBtn.style.display = 'block';
+            }
         }
 
         // Function to sort table by column with toggleable sorting direction
