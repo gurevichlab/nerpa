@@ -516,7 +516,7 @@
                 label.style.display = 'block'; // Show label
                 hideBtn.style.display = 'none'; // Hide the hide button
             } else {
-                iframe.src = `antismash_output/${genomeID}/index.html#${bgcID}`; // Set iframe source
+                iframe.src = `antismash_output/${genomeID}/index.html?timestamp=${Date.now()}#${bgcID}`; // Set iframe source
                 iframe.style.display = 'block'; // Show iframe
                 label.style.display = 'none'; // Hide label
                 hideBtn.style.display = 'block'; // Show the hide button
