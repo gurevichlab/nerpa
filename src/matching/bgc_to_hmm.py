@@ -11,6 +11,7 @@ from src.antismash_parsing.location_features import (
     module_features_to_fragment_features
 )
 from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant, GeneId
+from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.matcher_viterbi_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, HMM
 from src.matching.auxilary import get_genes_intervals, get_fragments_intervals, get_emissions
 from collections import defaultdict
@@ -33,8 +34,9 @@ def make_edge(edge_type: DetailedHMMEdgeType,
 
     if edge_type == DetailedHMMEdgeType.SKIP_GENE:
         gene_id = bgc_variant.modules[fst_module_idx].gene_id
-        lst_module_idx = next(i for i in range(fst_module_idx, len(bgc_variant.modules))
-                              if bgc_variant.modules[i].gene_id != gene_id)
+        lst_module_idx = next((i for i in range(fst_module_idx, len(bgc_variant.modules) - 1)
+                               if bgc_variant.modules[i + 1].gene_id != gene_id),
+                              len(bgc_variant.modules) - 1)
         gene_context = module_features_to_gene_features(bgc_variant.modules[fst_module_idx].module_loc,
                                                         bgc_variant.modules[lst_module_idx].module_loc)
         return DetailedHMMEdge(edge_type=edge_type,
@@ -47,8 +49,9 @@ def make_edge(edge_type: DetailedHMMEdgeType,
             DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
             DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END):
         fragment_idx = bgc_variant.modules[fst_module_idx].fragment_idx
-        lst_module_idx = next(i for i in range(fst_module_idx, len(bgc_variant.modules))
-                              if bgc_variant.modules[i].fragment_idx != fragment_idx)
+        lst_module_idx = next((i for i in range(fst_module_idx, len(bgc_variant.modules) - 1)
+                               if bgc_variant.modules[i + 1].fragment_idx != fragment_idx),
+                                len(bgc_variant.modules) - 1)
         fragment_context = module_features_to_fragment_features(bgc_variant.modules[fst_module_idx].module_loc,
                                                                 bgc_variant.modules[lst_module_idx].module_loc)
         genes_ids = list(OrderedDict.fromkeys(bgc_variant.modules[i].gene_id
@@ -66,6 +69,21 @@ def make_edge(edge_type: DetailedHMMEdgeType,
                                      fst_module.gene_id, fst_module.a_domain_idx))
 
 
+def get_bgc_module_emissions(bgc_module: BGC_Module,
+                             monomer_names_helper: MonomerNamesHelper) -> Dict[NRP_Monomer, float]:
+    return {mon: 0 for mon in monomer_names_helper.mon_to_int}  # TODO: fill in based on ScoringHelper
+
+
+def get_insert_emissions(bgc_module: BGC_Module,
+                         monomer_names_helper: MonomerNamesHelper) -> Dict[NRP_Monomer, float]:
+    return {mon: 0 for mon in monomer_names_helper.mon_to_int}  # TODO: fill in based on ScoringHelper
+
+
+def get_insert_at_start_emissions(bgc_module: BGC_Module,
+                                  monomer_names_helper: MonomerNamesHelper) -> Dict[NRP_Monomer, float]:
+    return {mon: 0 for mon in monomer_names_helper.mon_to_int}  # TODO: fill in based on ScoringHelper
+
+
 def gene_len(gene_id: GeneId, genes_intervals: Dict[GeneId, Tuple[int, int]]) -> int:
     return genes_intervals[gene_id][1] - genes_intervals[gene_id][0] + 1
 
@@ -79,6 +97,7 @@ def num_genes_in_fragment(fragment_idx: int, fragment_intervals: Dict[int, Tuple
 def add_modules(states: List[DetailedHMMState],
                 adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                 bgc_variant: BGC_Variant,
+                monomer_names_helper: MonomerNamesHelper,
                 gene_intervals: Dict[GeneId, Tuple[int, int]],
                 initial_state_idx: int = 0,
                 final_state_idx: int = -1) -> Dict[int, int]:  # module_idx -> module_start_state_idx
@@ -94,9 +113,9 @@ def add_modules(states: List[DetailedHMMState],
             DetailedHMMState(state_type=DetailedHMMStateType.MODULE_START,
                              emissions={}),
             DetailedHMMState(state_type=DetailedHMMStateType.MATCH,
-                             emissions=get_emissions(module)),
+                             emissions=get_bgc_module_emissions(module, monomer_names_helper)),
             DetailedHMMState(state_type=DetailedHMMStateType.INSERT,
-                             emissions={})
+                             emissions=get_insert_emissions(module, monomer_names_helper)),
         ])
 
         # add edges
@@ -162,6 +181,7 @@ def add_skip_gene_and_fragments_middle(adj_list: Dict[int, Dict[int, DetailedHMM
 def add_skip_at_the_beginning(states: List[DetailedHMMState],
                               adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                               bgc_variant: BGC_Variant,
+                              monomer_names_helper: MonomerNamesHelper,
                               module_idx_to_start_state_idx: Dict[int, int],
                               genes_intervals: Dict[GeneId, Tuple[int, int]],
                               fragment_intervals: Dict[int, Tuple[int, int]],
@@ -174,7 +194,7 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
     module_idx_to_insert_state_idx = {}
     for i, module in enumerate(bgc_variant.modules):
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT_AT_START,
-                                       emissions={}))  # TODO: fill emissions
+                                       emissions=get_insert_at_start_emissions(module, monomer_names_helper)))  # TODO: fill emissions
         module_idx_to_insert_state_idx[i] = len(states) - 1
         adj_list[len(states) - 1][module_idx_to_start_state_idx[i]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
                                                                                  log_prob=0,  # TODO: fill in
@@ -327,6 +347,7 @@ def bgc_variant_to_detailed_hmm(cls,
     module_idx_to_state_idx = add_modules(states,
                                           adj_list,
                                           bgc_variant,
+                                          cls.monomer_names_helper,
                                           gene_intervals,
                                           start_state_idx,
                                           final_state_idx)  # module_idx -> module_start_state_idx
@@ -346,6 +367,7 @@ def bgc_variant_to_detailed_hmm(cls,
     add_skip_at_the_beginning(states,
                               adj_list,
                               bgc_variant,
+                              cls.monomer_names_helper,
                               module_idx_to_state_idx,
                               gene_intervals,
                               fragment_intervals)

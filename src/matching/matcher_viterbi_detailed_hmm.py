@@ -1,5 +1,12 @@
 from __future__ import annotations
-from typing import List, Tuple, NamedTuple, Dict, Optional
+from typing import (
+    ClassVar,
+    Dict,
+    List,
+    NamedTuple,
+    Tuple,
+    Optional
+)
 from dataclasses import dataclass
 from enum import Enum, auto
 
@@ -19,12 +26,14 @@ from src.matching.matcher_viterbi_types import (
 from src.matching.matcher_viterbi_algorithm import get_opt_path_with_emissions
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.build_output.draw_hmm import draw_hmm
+from src.monomer_names_helper import MonomerNamesHelper
+from src.rban_parsing.rban_monomer import rBAN_Monomer
 from collections import defaultdict
 
 from src.matching.bgc_to_hmm import bgc_variant_to_detailed_hmm
 from src.matching.hmm_to_alignment import hmm_path_to_alignment
 from src.matching.matching_types_alignment import Alignment
-from src.matching.scoring_helper import ScoringHelper
+# from src.matching.scoring_helper import ScoringHelper
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
@@ -39,6 +48,7 @@ class DetailedHMM:
     bgc_variant: BGC_Variant
     state_idx_to_module_idx: Dict[int, int]
     _module_idx_to_state_idx: List[int]  # points to MODULE_START state for each module. Used for building hmm from alignment
+    monomer_names_helper: ClassVar[Optional[MonomerNamesHelper]] = None
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
@@ -46,11 +56,13 @@ class DetailedHMM:
 
     def to_hmm(self) -> HMM:
         num_states = len(self.states)
-        adj_list = [[(edge.to, edge.log_prob) for edge in self.adj_list[u]]
-                    for u in range(num_states)]
+        adj_list = [[(edge_to, edge_data.log_prob)
+                     for edge_to, edge_data in self.adj_list[edge_from].items()]
+                    for edge_from in range(num_states)]
 
         emission_log_probs = [[state.emissions[mon]
-                               for mon in sorted(state.emissions, key=lambda m: int(m))]  # TODO: define int(m) or use monomer_names_helper
+                               for mon in sorted(state.emissions,
+                                                 key=lambda m: self.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
         return HMM(adj_list=adj_list,
                    emission_log_probs=emission_log_probs)
@@ -58,24 +70,28 @@ class DetailedHMM:
     def get_opt_path_with_emissions(self,
                                     start: int,
                                     finish: int,
-                                    emitted_monomers: List[NRP_Monomer]) -> List[Tuple[int, Optional[NRP_Monomer]]]:
+                                    emitted_monomers: List[rBAN_Monomer]) -> List[Tuple[int, Optional[rBAN_Monomer]]]:
+        monomer_codes = [self.monomer_names_helper.mon_to_int[mon.to_base_mon()] for mon in emitted_monomers]
         score, path_with_emissions = get_opt_path_with_emissions(self.to_hmm(),
                                                                  start, finish,
-                                                                 [int(mon) for mon in emitted_monomers])
-        return [(u, NRP_Monomer.from_int(mon_int))
+                                                                 monomer_codes)
+        emitted_monomers_iter = iter(emitted_monomers)
+        return [(u, None if mon_int is None else next(emitted_monomers_iter))
                 for u, mon_int in path_with_emissions]
 
     def path_to_alignment(self,
                           path: List[int],
-                          nrp_monomers: List[NRP_Monomer],
-                          scoring_helper: ScoringHelper) -> Alignment:
+                          nrp_monomers: List[rBAN_Monomer],
+                          scoring_helper=None) -> Alignment:
         return hmm_path_to_alignment(self, path, nrp_monomers, scoring_helper)
 
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:
         return alignment_to_hmm_path(self, alignment)
 
-    def draw(self, filename: Path) -> Digraph:
-        return draw_hmm(self, filename)
+    def draw(self,
+             filename: Path,
+             highlight_path: Optional[List[int]] = None) -> Digraph:
+        return draw_hmm(self, filename, highlight_path)
 
 # captures all context relevant for parameter training
 class EdgeFingerprint(NamedTuple):

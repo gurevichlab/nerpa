@@ -10,11 +10,13 @@ from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
     LogProb,
-    NRP_Monomer,
-    Chirality
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
-from src.monomer_names_helper import MonomerResidue, NRP_Monomer_Modification
+from src.monomer_names_helper import (
+    MonomerResidue,
+    Chirality
+)
+from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
 from src.generic.functional import make_optional
 from enum import Enum, auto
@@ -22,6 +24,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 
 
+# whole BGC_Module is too big
 class AlignmentStep_BGC_Module_Info(NamedTuple):
     gene_id: GeneId
     a_domain_idx: int
@@ -43,42 +46,6 @@ class AlignmentStep_BGC_Module_Info(NamedTuple):
                    aa34_code=bgc_module.aa34_code)
 
 
-class AlignmentStep_NRP_Monomer_Info(NamedTuple):
-    residue: MonomerResidue
-    chirality: Chirality
-    modifications: List[NRP_Monomer_Modification]
-    rban_name: str
-    rban_idx: int
-
-    @classmethod
-    def from_nrp_monomer(cls, nrp_monomer: NRP_Monomer) -> AlignmentStep_NRP_Monomer_Info:
-        return cls(residue=nrp_monomer.residue,
-                   chirality=nrp_monomer.chirality,
-                   modifications=list(nrp_monomer.modifications),
-                   rban_name=nrp_monomer.rban_name,
-                   rban_idx=nrp_monomer.rban_idx)
-
-
-'''
-class AlignmentStepType(Enum):
-    MATCH = auto()
-    NRP_MONOMER_INSERT = auto()
-    BGC_MODULE_SKIP = auto()
-    GENE_SKIP = auto()
-    BGC_FRAGMENT_SKIP = auto()
-    ITERATE_MODULE = auto()
-    ITERATE_GENE = auto()
-    SKIP_FROM_START = auto()
-    SKIP_TO_END = auto()
-
-    def __le__(self, other):
-        return self.value <= other.value
-
-    def __lt__(self, other):
-        return self.value < other.value
-'''
-
-
 class MatchDetailedScore(NamedTuple):
     residue_score: LogProb
     methylation_score: LogProb
@@ -87,8 +54,8 @@ class MatchDetailedScore(NamedTuple):
 
 @dataclass
 class AlignmentStep:
-    bgc_module_info: Optional[AlignmentStep_BGC_Module_Info]
-    nrp_monomer_info: Optional[AlignmentStep_NRP_Monomer_Info]
+    bgc_module: Optional[AlignmentStep_BGC_Module_Info]
+    nrp_monomer: Optional[rBAN_Monomer]
     score: LogProb
     match_detailed_score: Optional[MatchDetailedScore]  # only for MATCH, sum(match_detailed_score) == score
     step_type: Optional[DetailedHMMEdgeType]  # optional for backward compatibility -- when reading old alignments with different step types
@@ -101,19 +68,19 @@ class AlignmentStep:
 
     def to_dict(self) -> Dict[str, str]:
         NA = AlignmentStep.NA
-        return OrderedDict({'Gene': self.bgc_module_info.gene_id if self.bgc_module_info else NA,
-                            'A-domain_idx': self.bgc_module_info.a_domain_idx if self.bgc_module_info else NA,
-                            'Top_scoring_residues': ','.join(self.bgc_module_info.top_scoring_residues)
-                            if self.bgc_module_info else NA,
-                            'Modifying_domains': ','.join(mod.name for mod in self.bgc_module_info.modifying_domains)
-                            if self.bgc_module_info and self.bgc_module_info.modifying_domains else NA,
-                            'NRP_residue': self.nrp_monomer_info.residue if self.nrp_monomer_info else NA,
-                            'NRP_chirality': self.nrp_monomer_info.chirality.name if self.nrp_monomer_info else NA,
-                            'NRP_modifications': ','.join(mod.name for mod in self.nrp_monomer_info.modifications)
-                            if self.nrp_monomer_info and self.nrp_monomer_info.modifications else NA,
-                            'rBAN_name': self.nrp_monomer_info.rban_name if self.nrp_monomer_info else NA,
-                            'rBAN_idx': self.nrp_monomer_info.rban_idx if self.nrp_monomer_info else NA,
-                            'Alignment_step': self.step_type.name,
+        return OrderedDict({'Gene': self.bgc_module.gene_id if self.bgc_module else NA,
+                            'A-domain_idx': self.bgc_module.a_domain_idx if self.bgc_module else NA,
+                            'Top_scoring_residues': ','.join(self.bgc_module.top_scoring_residues)
+                            if self.bgc_module else NA,
+                            'Modifying_domains': ','.join(mod.name for mod in self.bgc_module.modifying_domains)
+                            if self.bgc_module and self.bgc_module.modifying_domains else NA,
+                            'NRP_residue': self.nrp_monomer.residue if self.nrp_monomer else NA,
+                            'NRP_chirality': self.nrp_monomer.chirality.name if self.nrp_monomer else NA,
+                            'NRP_methylated': str(self.nrp_monomer.methylated)
+                            if self.nrp_monomer else NA,
+                            'rBAN_name': self.nrp_monomer.rban_name if self.nrp_monomer else NA,
+                            'rBAN_idx': self.nrp_monomer.rban_idx if self.nrp_monomer else NA,
+                            'Alignment_step': self.step_type.name if self.step_type else NA,
                             'Score': round(self.score, 3),
                             'ResidueScore': round(self.match_detailed_score.residue_score, 3)
                             if self.match_detailed_score else NA,
@@ -121,19 +88,19 @@ class AlignmentStep:
                             if self.match_detailed_score else NA,
                             'ChiralityScore': round(self.match_detailed_score.chirality_score, 3)
                             if self.match_detailed_score else NA,
-                            'aa10_code': self.bgc_module_info.aa10_code if self.bgc_module_info else NA,
-                            'aa34_code': self.bgc_module_info.aa34_code if self.bgc_module_info else NA})
+                            'aa10_code': self.bgc_module.aa10_code if self.bgc_module else NA,
+                            'aa34_code': self.bgc_module.aa34_code if self.bgc_module else NA})
 
     @classmethod
     def from_dict(cls, data: dict) -> AlignmentStep:
         # get bgc module info
         if data['Gene'] == AlignmentStep.NA:
-            bgc_module_info = None
+            bgc_module = None
         else:
             modifying_domains = [BGC_Module_Modification[mod]
                                  for mod in data['Modifying_domains'].split(',')] \
                 if data['Modifying_domains'] != AlignmentStep.NA else []
-            bgc_module_info = AlignmentStep_BGC_Module_Info(gene_id=data['Gene'],
+            bgc_module = AlignmentStep_BGC_Module_Info(gene_id=data['Gene'],
                                                             a_domain_idx=int(data['A-domain_idx']),
                                                             top_scoring_residues=data['Top_scoring_residues'].split(','),
                                                             modifying_domains=modifying_domains,
@@ -142,16 +109,17 @@ class AlignmentStep:
 
         # get nrp monomer info
         if data['NRP_residue'] == AlignmentStep.NA:
-            nrp_monomer_info = None
+            nrp_monomer = None
         else:
-            modifications = [NRP_Monomer_Modification[mod]
-                             for mod in data['NRP_modifications'].split(',')] \
-                if data['NRP_modifications'] != AlignmentStep.NA else []
-            nrp_monomer_info = AlignmentStep_NRP_Monomer_Info(residue=data['NRP_residue'],
-                                                              chirality=Chirality[data['NRP_chirality']],
-                                                              modifications=modifications,
-                                                              rban_name=data['rBAN_name'],
-                                                              rban_idx=data['rBAN_idx'])
+            if 'NRP_modifications' in data:  # backward compatibility
+                methylated = 'METHYLATION' in data['NRP_modifications'].split(',')
+            else:
+                methylated = data['NRP_methylated'] == 'True'
+            nrp_monomer = rBAN_Monomer(residue=data['NRP_residue'],
+                                       chirality=Chirality[data['NRP_chirality']],
+                                       methylated=methylated,
+                                       rban_name=data['rBAN_name'],
+                                       rban_idx=data['rBAN_idx'])
 
         # get match detailed score
         if data['Alignment_step'] == 'NRP_MONOMER_SKIP':
@@ -165,8 +133,8 @@ class AlignmentStep:
         else:
             match_detailed_score = None
 
-        return cls(bgc_module_info=bgc_module_info,
-                   nrp_monomer_info=nrp_monomer_info,
+        return cls(bgc_module=bgc_module,
+                   nrp_monomer=nrp_monomer,
                    score=float(data['Score']),
                    match_detailed_score=match_detailed_score,
                    step_type=step_type)

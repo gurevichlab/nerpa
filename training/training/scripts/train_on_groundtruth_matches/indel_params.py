@@ -18,8 +18,6 @@ from src.antismash_parsing.location_features import (
     GeneLocFeature, GeneLocFeatures,
     BGC_Fragment_Loc_Feature, BGC_Fragment_Loc_Features
 )
-from training.training.scripts.train_on_groundtruth_matches.alignment_steps import AlignmentStepInfo, StepType
-from alignment_steps import AlignmentStepInfo, StepType
 from itertools import groupby
 from enum import Enum, auto
 from extract_insert_steps import (

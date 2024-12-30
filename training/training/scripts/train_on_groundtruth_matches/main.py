@@ -5,15 +5,20 @@ import yaml
 from typing import Dict, List, NamedTuple, Optional
 from run_nerpa import run_nerpa_on_all_pairs
 from check_matches import find_wrong_match
-from calculate_parameters import calculate_training_parameters
+#from calculate_parameters import calculate_training_parameters
 from collections import defaultdict
-from write_results import write_results
 from src.matching.matching_types_match import Match
 from src.data_types import BGC_Variant, NRP_Variant
+from src.write_results import write_yaml
+from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper import monomer_names_helper as mon_helper
+from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from norine_stats import NorineStats
 from auxilary_types import MatchWithBGCNRP
 from itertools import islice, chain
 import dacite
+from train_hmm import estimate_parameters
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train NERPA on groundtruth matches')
@@ -145,8 +150,14 @@ def load_approved_matches(approved_matches: Path, nrp_ids_good_matches: List[str
     return approved_matches
 
 
+def load_monomer_names_helper() -> MonomerNamesHelper:
+    monomer_names_csv = Path('/home/ilianolhin/git/nerpa2/configs/monomer_names_table.tsv')
+    return MonomerNamesHelper(pd.read_csv(monomer_names_csv, delimiter='\t'))
+
 def main():
     max_num_matches = None  # for debugging
+    monomer_names_helper = load_monomer_names_helper()
+    DetailedHMM.monomer_names_helper = monomer_names_helper
 
     args = parse_args()
     matches_table = pd.read_csv(args.matches_table, sep='\t')
@@ -164,7 +175,7 @@ def main():
 
     # currently it is a mess but in the future it will be just one file
     print('Loading approved matches')
-    approved_matches = load_approved_matches(args.approved_matches, matches_table)
+    approved_matches = load_approved_matches(args.approved_matches, nrp_ids_good_matches)
 
     print('Loading Nerpa results')
     matches = load_matches(nerpa_results_dir, max_num_matches=max_num_matches)
@@ -188,11 +199,14 @@ def main():
     matches_with_bgcs_nrps_for_training = [MatchWithBGCNRP(match,
                                                            bgc_variants[match.nrp_variant_info.nrp_id],
                                                            nrp_variants[match.nrp_variant_info.nrp_id])
-                                           for match in approved_matches]
+                                           for match in approved_matches
+                                           if match.nrp_variant_info.nrp_id in bgc_variants
+                                             and match.nrp_variant_info.nrp_id in nrp_variants
+                                           ]
 
     print('Calculating training parameters')
-    hmm_parameters = train_hmm_parameters(matches_with_bgcs_nrps_for_training)
-    write_hmm_parameters(hmm_parameters, args.output_dir)
+    hmm_parameters = estimate_parameters(matches_with_bgcs_nrps_for_training)
+    write_yaml(hmm_parameters, args.output_dir / 'hmm_parameters.yaml')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
     #norine_stats = dacite.from_dict(NorineStats, yaml.safe_load(args.norine.read_text()))
     #parameters = calculate_training_parameters(matches_with_bgcs_nrps_for_training,

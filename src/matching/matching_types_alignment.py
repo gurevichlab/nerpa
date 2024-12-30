@@ -2,7 +2,7 @@ from typing import List
 from prettytable import PrettyTable
 import more_itertools
 from src.data_types import LogProb, BGC_Module
-from src.matching.matching_types_alignment_step import AlignmentStep, AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStep
 from src.generic.other import parse_pretty_table
 
 Alignment = List[AlignmentStep]

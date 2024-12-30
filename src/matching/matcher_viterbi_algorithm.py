@@ -67,7 +67,7 @@ def get_opt_path_with_emissions(hmm: HMM,
         if i == n and hmm.emission_log_probs[u]:  # if u should emit a symbol but we have processed all symbols
             continue
         for v, edge_log_prob in hmm.adj_list[u]:
-            if hmm.emission_log_probs[u]:
+            if hmm.emission_log_probs[u]:  # if u emits a symbol
                 new_log_prob = log_prob + edge_log_prob + hmm.emission_log_probs[u][observed_sequence[i]]
                 num_symbols = i + 1
             else:
@@ -86,7 +86,7 @@ def get_opt_path_with_emissions(hmm: HMM,
     u, k = final_state, n
     while u != initial_state:
         prev_state = prev[u][k]
-        symbol_was_emitted = bool(hmm.emission_log_probs[u])
+        symbol_was_emitted = bool(hmm.emission_log_probs[prev_state])
         emitted_symbol = observed_sequence[k - 1] if symbol_was_emitted else None
         u, k = prev_state, k - int(symbol_was_emitted)
         ext_path.append((u, k))

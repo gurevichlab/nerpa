@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
 from src.matching.matcher_viterbi_types import (
     HMM,
@@ -9,10 +9,12 @@ from src.matching.matcher_viterbi_types import (
     GenomicContext,
     EdgeKey
 )
+from src.matching.matching_types_alignment import show_alignment
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from auxilary_types import MatchWithBGCNRP
 from itertools import pairwise
 from dataclasses import dataclass
+from pathlib import Path
 from collections import defaultdict
 
 
@@ -63,9 +65,14 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> 
     turns_info = []
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
         detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant)
-        for alignment in match.alignments:
+        detailed_hmm.draw(Path(f"bgc_{bgc_variant.genome_id}.png"))
+        for i, alignment in enumerate(match.alignments):
+            with open(f"bgc_{bgc_variant.genome_id}_alignment_{i}.txt", "w") as f:
+                f.write(show_alignment(alignment))
             path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
             path = [state_idx for state_idx, _ in path_with_emissions]
+            detailed_hmm.draw(Path(f"bgc_{bgc_variant.genome_id}_alignment_{i}.png"),
+                              highlight_path=path)
             turns_info.extend(get_turns_info(detailed_hmm, path))
 
     seen_edge_keys = set()
@@ -98,13 +105,20 @@ def filter_context(genomic_context: GenomicContext) -> GenomicContext:
     return genomic_context
 
 
-def estimate_parameters(data: DataForTraining) -> None:
+# parameters are estimated for single features only
+# for multiple features, parameters are computed based on the single features
+SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
+
+def estimate_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) \
+    -> Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]:
+    data = extract_data_for_training(matches_with_bgcs_nrps)
     cnts = defaultdict(lambda: defaultdict(lambda: (0,0)))
     for edge_type, genomic_context, chosen in data.edge_choices:
-        genomic_context = filter_context(genomic_context)
         if not genomic_context:
-            cnts[edge_type][()] = (cnts[edge_type][genomic_context][0] + 1 - int(chosen),
-                                                cnts[edge_type][genomic_context][1] + int(chosen))
+            cnts[edge_type][None] = (cnts[edge_type][genomic_context][0] + 1 - int(chosen),
+                                     cnts[edge_type][genomic_context][1] + int(chosen))
+            continue
+        genomic_context = filter_context(genomic_context)
         for loc_feature in genomic_context:
             cnts[edge_type][loc_feature] = (cnts[edge_type][loc_feature][0] + 1 - int(chosen),
                                             cnts[edge_type][loc_feature][1] + int(chosen))
@@ -124,87 +138,90 @@ def estimate_parameters(data: DataForTraining) -> None:
                 print(f"Warning: not enough data for edge type {edge_type} and loc feature {loc_feature}")
 
             probs[edge_type][loc_feature] = chosen / (chosen + not_chosen)
-            '''
-            mu_p = 0.1  # prior mean TODO: base it on default_prob[edge_type] or smth instead of hardcoding
-            k = 1  # concentration parameter (k = alpha + beta for Beta distribution)
-            prior_params = (mu_p, 1 - mu_p)  # Beta distribution parameters
-            posterior_params = (prior_params[0] + chosen, prior_params[1] + not_chosen)
-            posterior_mean = posterior_params[0] / sum(posterior_params)
+    return probs
 
-            probs[edge_type][loc_feature] = posterior_mean
-            '''
 
-    def get_edge_weights(hmm: DetailedHMM,
-                         probs: Dict[DetailedHMMEdgeType, Dict[GenomicContext, float]]) \
-            -> Dict[Tuple[int, int], float]:
-        # weights of the following edge types are determined based on the other edge types
-        # these are the edge types corresponding to "natural" flow
-        dependent_edge_types = {
-            DetailedHMMEdgeType.START_MATCHING,
-            DetailedHMMEdgeType.MATCH,
-            DetailedHMMEdgeType.NO_INSERTIONS,
-            DetailedHMMEdgeType.END_INSERTING
-        }
+def get_edge_weights(hmm: DetailedHMM,
+                     probs: Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]) \
+        -> Dict[Tuple[int, int], float]:
+    # weights of the following edge types are determined based on the other edge types
+    # these are the edge types corresponding to "natural" flow
+    dependent_edge_types = {
+        DetailedHMMEdgeType.START_MATCHING,
+        DetailedHMMEdgeType.MATCH,
+        DetailedHMMEdgeType.NO_INSERTIONS,
+        DetailedHMMEdgeType.END_INSERTING
+    }
 
-        # TODO: introduce other features, e.g. single module in gene
-        genomic_location_features = {
-            ModuleLocFeature.START_OF_BGC,
-            ModuleLocFeature.END_OF_BGC,
-            ModuleLocFeature.START_OF_FRAGMENT,
-            ModuleLocFeature.END_OF_FRAGMENT,
-            ModuleLocFeature.START_OF_GENE,
-            ModuleLocFeature.END_OF_GENE,
+    # TODO: introduce other features, e.g. single module in gene
+    genomic_location_features = {
+        ModuleLocFeature.START_OF_BGC,
+        ModuleLocFeature.END_OF_BGC,
+        ModuleLocFeature.START_OF_FRAGMENT,
+        ModuleLocFeature.END_OF_FRAGMENT,
+        ModuleLocFeature.START_OF_GENE,
+        ModuleLocFeature.END_OF_GENE,
 
-            GeneLocFeature.START_OF_BGC,
-            GeneLocFeature.END_OF_BGC,
-            GeneLocFeature.START_OF_FRAGMENT,
-            GeneLocFeature.END_OF_FRAGMENT,
+        GeneLocFeature.START_OF_BGC,
+        GeneLocFeature.END_OF_BGC,
+        GeneLocFeature.START_OF_FRAGMENT,
+        GeneLocFeature.END_OF_FRAGMENT,
 
-            BGC_Fragment_Loc_Feature.START_OF_BGC,
-            BGC_Fragment_Loc_Feature.END_OF_BGC
-        }
+        BGC_Fragment_Loc_Feature.START_OF_BGC,
+        BGC_Fragment_Loc_Feature.END_OF_BGC
+    }
 
-        pks_context_features = {
-            ModuleLocFeature.PKS_UPSTREAM_PREV_GENE,
-            ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE,
-            ModuleLocFeature.PKS_UPSTREAM_SAME_GENE,
-            ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE,
+    pks_context_features = {
+        ModuleLocFeature.PKS_UPSTREAM_PREV_GENE,
+        ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE,
+        ModuleLocFeature.PKS_UPSTREAM_SAME_GENE,
+        ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE,
 
-            GeneLocFeature.PKS_UPSTREAM,
-            GeneLocFeature.PKS_DOWNSTREAM,
+        GeneLocFeature.PKS_UPSTREAM,
+        GeneLocFeature.PKS_DOWNSTREAM,
 
-            BGC_Fragment_Loc_Feature.PKS_UPSTREAM,
-            BGC_Fragment_Loc_Feature.PKS_DOWNSTREAM
-        }
+        BGC_Fragment_Loc_Feature.PKS_UPSTREAM,
+        BGC_Fragment_Loc_Feature.PKS_DOWNSTREAM
+    }
 
-        # determine edge weights for non-dependent edge types
-        edge_weights = {}
-        for u in range(len(hmm.states)):
-            for v, edge_info in hmm.adj_list[u].items():
-                if edge_info.edge_type in dependent_edge_types:
-                    continue
+    # determine edge weights for non-dependent edge types
+    edge_weights = {}
+    for u in range(len(hmm.states)):
+        for v, edge_info in hmm.adj_list[u].items():
+            if edge_info.edge_type in dependent_edge_types:
+                continue
 
-                genomic_loc_prob = max((probs[edge_info.edge_type][loc_feature]
-                                        for loc_feature in genomic_location_features
-                                        if loc_feature in edge_info.genomic_context),
-                                       default=0)
-                pks_context_prob = max((probs[edge_info.edge_type][loc_feature]
-                                        for loc_feature in pks_context_features
-                                        if loc_feature in edge_info.genomic_context),
-                                       default=0)
-                base_prob = probs[edge_info.edge_type][()]
-                edge_weights[(u, v)] = 1 - (1 - genomic_loc_prob) * (1 - pks_context_prob) * (1 - base_prob)
+            genomic_loc_prob = max((probs[edge_info.edge_type][loc_feature]
+                                    for loc_feature in genomic_location_features
+                                    if loc_feature in edge_info.genomic_context),
+                                   default=0)
+            pks_context_prob = max((probs[edge_info.edge_type][loc_feature]
+                                    for loc_feature in pks_context_features
+                                    if loc_feature in edge_info.genomic_context),
+                                   default=0)
+            base_prob = probs[edge_info.edge_type][None]
+            edge_weights[(u, v)] = 1 - (1 - genomic_loc_prob) * (1 - pks_context_prob) * (1 - base_prob)
 
-        # determine edge weights for dependent edge types
-        for u in range(len(hmm.states)):
-            for v, edge_info in hmm.adj_list[u].items():
-                if edge_info.edge_type not in dependent_edge_types:
-                    continue
+    # determine edge weights for dependent edge types
+    for u in range(len(hmm.states)):
+        for v, edge_info in hmm.adj_list[u].items():
+            if edge_info.edge_type not in dependent_edge_types:
+                continue
 
-                sum_other_edges = sum(edge_weights[(u, w)]
-                                      for w in hmm.adj_list[u]
-                                      if w != v)
-                edge_weights[(u, v)] = 1 - sum_other_edges
+            sum_other_edges = sum(edge_weights[(u, w)]
+                                  for w in hmm.adj_list[u]
+                                  if w != v)
+            edge_weights[(u, v)] = 1 - sum_other_edges
 
-        return edge_weights
+    return edge_weights
 
+
+'''
+mu_p = 0.1  # prior mean TODO: base it on default_prob[edge_type] or smth instead of hardcoding
+k = 1  # concentration parameter (k = alpha + beta for Beta distribution)
+prior_params = (mu_p, 1 - mu_p)  # Beta distribution parameters
+posterior_params = (prior_params[0] + chosen, prior_params[1] + not_chosen)
+posterior_mean = posterior_params[0] / sum(posterior_params)
+
+probs[edge_type][loc_feature] = posterior_mean
+'''
