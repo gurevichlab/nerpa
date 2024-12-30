@@ -1,27 +1,48 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_algorithm import DetailedHMM
+    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from typing import List, Tuple, Optional
 from src.matching.matching_types_alignment import Alignment
 from src.matching.matcher_viterbi_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.generic.graphs import shortest_path_through
 import networkx as nx
-from src.data_types import NRP_Monomer
+from src.data_types import GeneId
+from src.monomer_names_helper import NRP_Monomer, MonomerNamesHelper, monomer_names_helper
 from src.matching.matcher_viterbi_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.matching.matching_types_alignment import Alignment
-from src.matching.matching_types_alignment_step import (
-    AlignmentStep,
-    AlignmentStep_BGC_Module_Info,
-    AlignmentStep_NRP_Monomer_Info
-)
 from itertools import pairwise
 from copy import deepcopy
+from pathlib import Path
+
+
+def fix_indexing_in_alignment(alignment: Alignment):
+    if min(step.bgc_module.a_domain_idx
+           for step in alignment
+           if step.bgc_module is not None) == 1:
+        for step in alignment:
+            if step.bgc_module is not None:
+                step.bgc_module = step.bgc_module._replace(a_domain_idx=step.bgc_module.a_domain_idx - 1)
+
+def fix_gene_names_in_alignment(alignment: Alignment):
+    if all(step.bgc_module.gene_id.startswith('ctg')
+           for step in alignment
+           if step.bgc_module is not None) == 1:
+        for step in alignment:
+            if step.bgc_module is not None:
+                step.bgc_module = step.bgc_module._replace(gene_id=GeneId(step.bgc_module.gene_id.split('_')[1]))
+
+def fix_residue_names_in_alignment(alignment: Alignment):
+    for step in alignment:
+        if step.nrp_monomer is not None:
+            parsed_monomer = monomer_names_helper.parsed_name(step.nrp_monomer.rban_name, name_format='norine')
+            step.nrp_monomer = step.nrp_monomer._replace(residue=parsed_monomer.residue)
 
 
 def check_compatability(alignment: Alignment, hmm: DetailedHMM) -> bool:
-    alignment_modules = [(step.bgc_module_info.gene_id, step.bgc_module_info.a_domain_idx)
+    alignment_modules = [(step.bgc_module.gene_id, step.bgc_module.a_domain_idx)
                          for step in alignment
-                         if step.bgc_module_info is not None]
+                         if step.bgc_module is not None]
     hmm_modules = [(module.gene_id, module.a_domain_idx)
                    for module in hmm.bgc_variant.modules]
     return alignment_modules == hmm_modules
@@ -36,19 +57,25 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     so that the path skippes the whole fragments or genes instead of individual modules.
     Also, I assign weight 0 to auxiliary edges so that only edges corresponding to the alignment are relevant.
     '''
-    assert check_compatability(alignment, hmm), 'Alignment and HMM are incompatible'
+    fix_indexing_in_alignment(alignment)  # indexing starts from 1 in the old format
+    fix_gene_names_in_alignment(alignment)  # gene names start with ctg_%d in the old format
+    fix_residue_names_in_alignment(alignment)  # residue names are in the old format (e.g. 'arg' instead of 'Arg')
+    assert check_compatability(alignment, hmm), f'{hmm.bgc_variant.genome_id}: Alignment and HMM are incompatible'
 
     # I can't use step.step_type here, because of backwards compatibility issues
     match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
-                                  if step.bgc_module_info is not None and step.nrp_monomer_info is not None]
+                                  if step.bgc_module is not None and step.nrp_monomer is not None]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
 
     # it could be that the same module is matched multiple times in case of iterations, I need all occurrences
-    matched_module_idxs = [step.bgc_module_info.a_domain_idx for step in match_steps]
+    module_idx_in_bgc = {(module.gene_id, module.a_domain_idx): i
+                         for i, module in enumerate(hmm.bgc_variant.modules)}
+    matched_module_idxs = [module_idx_in_bgc[(step.bgc_module.gene_id, step.bgc_module.a_domain_idx)]
+                           for step in match_steps]
 
-    module_match_state_idxs = [next(edge.to
-                                    for edge in hmm.adj_list[hmm._module_idx_to_state_idx[module_idx]]
-                                    if hmm.states[edge.to].state_type == DetailedHMMStateType.MATCH)
+    module_match_state_idxs = [next(edge_to
+                                    for edge_to in hmm.adj_list[hmm._module_idx_to_state_idx[module_idx]]
+                                    if hmm.states[edge_to].state_type == DetailedHMMStateType.MATCH)
                                for module_idx in range(len(hmm.bgc_variant.modules))]
 
     # subpaths between adjacent matches
@@ -61,15 +88,15 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                             hmm.final_state_idx))  # path after the last match
 
     # monomers inserted between matches
-    monomers_subseqs = [alignment[step_idx].nrp_monomer_info  # monomers inserted before the first match
-                        for step_idx in range(match_steps_alignment_idxs[0])]
+    monomers_subseqs = [[alignment[step_idx].nrp_monomer  # monomers inserted before the first match
+                        for step_idx in range(match_steps_alignment_idxs[0])]]
     for step_idx, next_step_idx in pairwise(match_steps_alignment_idxs):
-        monomers_subseqs.extend([alignment[i].nrp_monomer_info
+        monomers_subseqs.append([alignment[i].nrp_monomer
                                  for i in range(step_idx, next_step_idx)
-                                 if alignment[i].nrp_monomer_info is not None])
-    monomers_subseqs.extend([alignment[step_idx].nrp_monomer_info  # monomers inserted after the last match
+                                 if alignment[i].nrp_monomer is not None])
+    monomers_subseqs.append([alignment[step_idx].nrp_monomer  # monomers inserted after the last match
                              for step_idx in range(match_steps_alignment_idxs[-1], len(alignment))
-                             if alignment[step_idx].nrp_monomer_info is not None])
+                             if alignment[step_idx].nrp_monomer is not None])
 
     # edges which correspond to aligning steps with bgc_info != None or nrp_info != None
     main_edge_types = (
@@ -85,30 +112,34 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
 
 
     path_with_emissions = []
+    cnt = 0
     for (start, finish), emitted_monomers in zip(paths_endpoints, monomers_subseqs):
         # build path between consequent matches
+        cnt += 1
         sub_hmm = deepcopy(hmm)
         for state_idx, state in enumerate(sub_hmm.states):
-            if state.state_type == DetailedHMMStateType.MATCH and state_idx not in (start, finish):
-                sub_hmm.adj_list[state_idx] = []  # by design there shouldn't be any matches in between so I make match states "deadends"
+            if state.state_type == DetailedHMMStateType.MATCH and state_idx != start:
+                sub_hmm.adj_list[state_idx] = {}  # by design there shouldn't be any matches in between so I make match states "deadends"
             # essentially, there's only one path between start and finish.
             # However, I need to make sure that the path skips the whole fragments or genes instead of individual modules
             # and chooses SKIP_FRAGMENT_AT_START/END instead of just SKIP_FRAGMENT when possible
             # that's why I assign these edge weights. Yes, dirty hacks :sweat_smile:
-            for edge in sub_hmm.adj_list[state_idx]:
-                match edge.edge_type:
+            for edge_to, edge_info in sub_hmm.adj_list[state_idx].items():
+                match edge_info.edge_type:
                     case DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START | DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END:
-                        edge.log_prob = 0
+                        log_prob = 0
                     case DetailedHMMEdgeType.SKIP_FRAGMENT:
-                        edge.log_prob = -1
+                        log_prob = -1
                     case DetailedHMMEdgeType.SKIP_GENE:
-                        edge.log_prob = -2
+                        log_prob = -2
                     case DetailedHMMEdgeType.SKIP_MODULE:
-                        edge.log_prob = -3
+                        log_prob = -3
                     case _:
-                        edge.log_prob = 0
-
+                        log_prob = 0
+                sub_hmm.adj_list[state_idx][edge_to] = sub_hmm.adj_list[state_idx][edge_to]._replace(log_prob=log_prob)
+        # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
         path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
+        path_with_emissions.append((finish, None))  # add the last state without emitted monomer
 
     return path_with_emissions
 

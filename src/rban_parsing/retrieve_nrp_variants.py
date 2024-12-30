@@ -11,10 +11,13 @@ import networkx as nx
 
 from src.data_types import (
     NRP_Fragment,
-    NRP_Monomer,
     NRP_Variant,
 )
-from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
+from src.monomer_names_helper import (
+    MonomerNamesHelper,
+    NRP_Monomer,
+    UNKNOWN_RESIDUE
+)
 from src.rban_parsing.rban_parser import MonomerInfo
 from src.rban_parsing.monomer_features import get_monomer_features
 from src.generic.graphs import (
@@ -25,6 +28,7 @@ from src.generic.graphs import (
 from src.pipeline.logger import NerpaLogger
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.config import rBAN_Processing_Config
+from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 NerpaMonomerGraph = nx.DiGraph
 
@@ -32,18 +36,17 @@ NerpaMonomerGraph = nx.DiGraph
 def build_monomer(mon_info: MonomerInfo,
                   idx: int,
                   backbone_sequence: BackboneSequence,
-                  monomer_names_helper: MonomerNamesHelper) -> NRP_Monomer:
+                  monomer_names_helper: MonomerNamesHelper) -> rBAN_Monomer:
     parsed_name = monomer_names_helper.parsed_name(mon_info.name, name_format='norine')
     monomer_features = get_monomer_features(monomer_idx=idx,
                                             monomer_info=mon_info,
                                             backbone_sequence=backbone_sequence,
                                             names_helper=monomer_names_helper)
-    return NRP_Monomer(residue=parsed_name.residue,
-                       modifications=parsed_name.modifications,
-                       chirality=mon_info.chirality,
-                       rban_name=mon_info.name,
-                       rban_idx=idx,
-                       monomer_features=monomer_features)
+    return rBAN_Monomer(residue=parsed_name.residue,
+                        methylated=parsed_name.methylated,
+                        chirality=mon_info.chirality,
+                        rban_name=mon_info.name,
+                        rban_idx=idx)
 
 
 def build_nx_graph(rban_record: Parsed_rBAN_Record,

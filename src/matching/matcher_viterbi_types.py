@@ -15,17 +15,7 @@ from src.antismash_parsing.location_features import (
     GeneLocFeatures,
     BGC_Fragment_Loc_Features
 )
-from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant
-from src.matching.bgc_to_hmm import bgc_variant_to_detailed_hmm
-from itertools import pairwise
-from src.matching.matching_types_alignment_step import (
-    AlignmentStep,
-    AlignmentStep_BGC_Module_Info,
-    AlignmentStep_NRP_Monomer_Info
-)
-from src.matching.matching_types_alignment import Alignment
-from src.matching.scoring_helper import ScoringHelper
-
+from src.data_types import NRP_Monomer
 
 class HMM(NamedTuple):
     adj_list: List[List[Tuple[int, float]]]  # u -> [(v, log_prob(u -> v))]

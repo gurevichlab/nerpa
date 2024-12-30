@@ -1,6 +1,7 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_algorithm import DetailedHMM
+    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from typing import List
 from src.matching.matcher_viterbi_types import (
     DetailedHMMEdgeType,
@@ -15,21 +16,21 @@ from src.matching.matching_types_alignment import Alignment
 from src.matching.matching_types_alignment_step import (
     AlignmentStep,
     AlignmentStep_BGC_Module_Info,
-    AlignmentStep_NRP_Monomer_Info
 )
-from src.matching.scoring_helper import ScoringHelper
+from src.rban_parsing.rban_monomer import rBAN_Monomer
+#from src.matching.scoring_helper import ScoringHelper
 
 
 def hmm_path_to_alignment(hmm: DetailedHMM,
                           path: List[int],
-                          nrp_monomers: List[NRP_Monomer],
-                          scoring_helper: ScoringHelper) -> Alignment:
+                          nrp_monomers: List[rBAN_Monomer],
+                          scoring_helper=None) -> Alignment:
     # The idea is that first the transition is made and then the emission -- in the new state
     # TODO: maybe refactor to do first emission and then transition to make it more similar to the standard Viterbi algorithm
     alignment = []
     mon_idx = 0
     for edge_from, edge_to in pairwise(path):
-        edge = next(edge for edge in hmm.adj_list[edge_from] if edge.to == edge_to)  # maybe use dicts for speedup?
+        edge = hmm.adj_list[edge_from][edge_to]
 
         # these edge types are handled separately because they involve multiple modules
         # and hence yield multiple alignment steps
@@ -39,11 +40,12 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                               DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END):
             fst_module_idx = hmm.state_idx_to_module_idx[edge_from]
             last_module_idx = hmm.state_idx_to_module_idx[edge_to]
-            alignment.extend(AlignmentStep(bgc_module_info=AlignmentStep_BGC_Module_Info(hmm.bgc_variant.modules[module_idx]),
-                                           nrp_monomer_info=None,
-                                           score=edge.log_prob,
-                                           match_detailed_score=None,
-                                           step_type=edge.edge_type)
+            alignment.extend(AlignmentStep(
+                bgc_module=AlignmentStep_BGC_Module_Info(hmm.bgc_variant.modules[module_idx]),
+                nrp_monomer=None,
+                score=edge.log_prob,
+                match_detailed_score=None,
+                step_type=edge.edge_type)
                              for module_idx in range(fst_module_idx, last_module_idx + 1))
             continue
 
@@ -81,10 +83,8 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
         score = transition_score + emission_score
         bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
             if bgc_module is not None else None
-        nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
-            if nrp_monomer is not None else None
-        alignment.append(AlignmentStep(bgc_module_info=bgc_module_info,
-                                       nrp_monomer_info=nrp_monomer_info,
+        alignment.append(AlignmentStep(bgc_module=bgc_module_info,
+                                       nrp_monomer=nrp_monomer,
                                        score=score,
                                        match_detailed_score=match_detailed_score,
                                        step_type=edge.edge_type))

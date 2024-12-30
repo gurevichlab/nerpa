@@ -185,8 +185,8 @@ def retrieve_alignment(dp_table: DP_Table,
                     if bgc_module is not None else None
                 nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(nrp_monomer) \
                     if nrp_monomer is not None else None
-                alignment_steps.append(AlignmentStep(bgc_module_info=bgc_module_info,
-                                                     nrp_monomer_info=nrp_monomer_info,
+                alignment_steps.append(AlignmentStep(bgc_module=bgc_module_info,
+                                                     nrp_monomer=nrp_monomer_info,
                                                      score=step_score,
                                                      match_detailed_score=match_detailed_score,
                                                      step_type=dp_table[state].step_type))
@@ -196,8 +196,8 @@ def retrieve_alignment(dp_table: DP_Table,
                     if bgc_module is not None else None
                 nrp_monomer_info = AlignmentStep_NRP_Monomer_Info.from_nrp_monomer(step_nrp_monomers[0]) \
                     if step_nrp_monomers[0] is not None else None
-                alignment_steps.append(AlignmentStep(bgc_module_info=bgc_module_info,
-                                                     nrp_monomer_info=nrp_monomer_info,
+                alignment_steps.append(AlignmentStep(bgc_module=bgc_module_info,
+                                                     nrp_monomer=nrp_monomer_info,
                                                      score=step_score,
                                                      match_detailed_score=match_detailed_score,
                                                      step_type=dp_table[state].step_type))
