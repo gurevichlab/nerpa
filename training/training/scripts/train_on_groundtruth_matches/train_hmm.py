@@ -64,14 +64,15 @@ def get_turns_info(detailed_hmm: DetailedHMM, path: List[int]) \
 def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> DataForTraining:
     turns_info = []
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
+        print(f"Processing match {match.nrp_variant_info.nrp_id}")
         detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant)
-        detailed_hmm.draw(Path(f"bgc_{bgc_variant.genome_id}.png"))
+        detailed_hmm.draw(Path(f"bgc.png"))
         for i, alignment in enumerate(match.alignments):
-            with open(f"bgc_{bgc_variant.genome_id}_alignment_{i}.txt", "w") as f:
+            with open(f"alignment.txt", "w") as f:
                 f.write(show_alignment(alignment))
             path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
             path = [state_idx for state_idx, _ in path_with_emissions]
-            detailed_hmm.draw(Path(f"bgc_{bgc_variant.genome_id}_alignment_{i}.png"),
+            detailed_hmm.draw(Path(f"optimal_path.png"),
                               highlight_path=path)
             turns_info.extend(get_turns_info(detailed_hmm, path))
 
@@ -124,20 +125,22 @@ def estimate_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) \
                                             cnts[edge_type][loc_feature][1] + int(chosen))
 
     default_prob = {}
+    pseudocount = 0.1  # to avoid zero probabilities
     for edge_type in cnts:
         total_not_chosen = sum(cnts[edge_type][loc_feature][0] for loc_feature in cnts[edge_type])
         total_chosen = sum(cnts[edge_type][loc_feature][1] for loc_feature in cnts[edge_type])
 
-        default_prob[edge_type] = total_chosen / (total_chosen + total_not_chosen)
+        default_prob[edge_type] = (total_chosen + pseudocount) / (total_chosen + total_not_chosen + 2 * pseudocount)
 
     probs = defaultdict(lambda: defaultdict(float))
     for edge_type in cnts:
         for loc_feature in cnts[edge_type]:
             not_chosen, chosen = cnts[edge_type][loc_feature]
-            if not_chosen + chosen < 10:
+            if not_chosen + chosen < 5:
                 print(f"Warning: not enough data for edge type {edge_type} and loc feature {loc_feature}")
-
-            probs[edge_type][loc_feature] = chosen / (chosen + not_chosen)
+                probs[edge_type][loc_feature] = default_prob[edge_type]
+            else:
+                probs[edge_type][loc_feature] = (chosen + pseudocount)  / (chosen + not_chosen + 2 * pseudocount)
     return probs
 
 

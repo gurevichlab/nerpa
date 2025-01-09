@@ -57,12 +57,8 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     so that the path skippes the whole fragments or genes instead of individual modules.
     Also, I assign weight 0 to auxiliary edges so that only edges corresponding to the alignment are relevant.
     '''
-    fix_indexing_in_alignment(alignment)  # indexing starts from 1 in the old format
-    fix_gene_names_in_alignment(alignment)  # gene names start with ctg_%d in the old format
-    fix_residue_names_in_alignment(alignment)  # residue names are in the old format (e.g. 'arg' instead of 'Arg')
-    assert check_compatability(alignment, hmm), f'{hmm.bgc_variant.genome_id}: Alignment and HMM are incompatible'
-
     # I can't use step.step_type here, because of backwards compatibility issues
+    print(hmm.bgc_variant.genome_id)
     match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
                                   if step.bgc_module is not None and step.nrp_monomer is not None]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
@@ -84,12 +80,13 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     for module_idx, next_module_idx in pairwise(matched_module_idxs):  # paths between matches
         paths_endpoints.append((module_match_state_idxs[module_idx],
                                 hmm._module_idx_to_state_idx[next_module_idx]))
-    paths_endpoints.append((module_match_state_idxs[-1],
+    paths_endpoints.append((module_match_state_idxs[matched_module_idxs[-1]],
                             hmm.final_state_idx))  # path after the last match
 
     # monomers inserted between matches
     monomers_subseqs = [[alignment[step_idx].nrp_monomer  # monomers inserted before the first match
-                        for step_idx in range(match_steps_alignment_idxs[0])]]
+                        for step_idx in range(match_steps_alignment_idxs[0])
+                         if alignment[step_idx].nrp_monomer is not None]]
     for step_idx, next_step_idx in pairwise(match_steps_alignment_idxs):
         monomers_subseqs.append([alignment[i].nrp_monomer
                                  for i in range(step_idx, next_step_idx)

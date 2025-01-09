@@ -16,12 +16,10 @@ from src.monomer_names_helper import (
 )
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.antismash_parsing.location_features import ModuleLocFeatures, ModuleLocFeature
-from src.rban_parsing.monomer_features_types import MonomerFeature, MonomerFeatures
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from enum import auto, Enum
-import yaml
-import os
 from dataclasses import asdict, dataclass
+from itertools import chain, permutations, product
 
 Logger = Any  # some magical logger used throughout the pipeline
 
@@ -111,7 +109,7 @@ class NRP_Variant:
     variant_idx: int
     nrp_id: str
     fragments: List[NRP_Fragment]
-    isolated_unknown_monomers: List[NRP_Monomer] = None
+    isolated_unknown_monomers: List[rBAN_Monomer] = None
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Variant:
@@ -120,3 +118,21 @@ class NRP_Variant:
                    fragments=list(map(NRP_Fragment.from_yaml_dict, data['fragments'])),
                    isolated_unknown_monomers=list(map(rBAN_Monomer.from_yaml_dict, data['isolated_monomers']))
                    if data.get('isolated_monomers') else None)
+
+    def get_linearizations(self, max_num_fragments_to_permute: int = 3) -> List[List[rBAN_Monomer]]:
+        def fragment_linearizations(fragment: NRP_Fragment) -> List[List[rBAN_Monomer]]:
+            if fragment.is_cyclic:
+                return [fragment.monomers[i:] + fragment.monomers[:i]
+                        for i in range(len(fragment.monomers))]
+            else:
+                return [fragment.monomers]
+
+        fragments_permutations = permutations(self.fragments) \
+            if len(self.fragments) <= max_num_fragments_to_permute else [self.fragments]
+
+        linearizations = []
+        for fragments in fragments_permutations:
+            for fragments_linearization in product(*(fragment_linearizations(fragment)
+                                                     for fragment in fragments)):
+                linearizations.append(list(chain(*fragments_linearization)))
+        return linearizations

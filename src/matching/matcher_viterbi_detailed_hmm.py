@@ -88,10 +88,18 @@ class DetailedHMM:
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:
         return alignment_to_hmm_path(self, alignment)
 
+    def get_alignment(self, emitted_monomers: List[rBAN_Monomer]) -> Alignment:
+        opt_path, emissions = self.get_opt_path_with_emissions(self.start_state_idx,
+                                                               self.final_state_idx,
+                                                               emitted_monomers)
+        return self.path_to_alignment(opt_path, emitted_monomers)
+
+
     def draw(self,
              filename: Path,
              highlight_path: Optional[List[int]] = None) -> Digraph:
         return draw_hmm(self, filename, highlight_path)
+
 
 # captures all context relevant for parameter training
 class EdgeFingerprint(NamedTuple):

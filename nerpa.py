@@ -8,13 +8,13 @@ def main(log: NerpaLogger):  # log is passed as an argument to make it easier to
     pipeline_helper = PipelineHelper(log)
 
     bgc_variants = pipeline_helper.pipeline_helper_antismash.get_bgc_variants()
-    DetailedHMM.from_bgc_variant(bgc_variants[0]).draw(Path('hmm'))
+    hmms = pipeline_helper.construct_hmms(bgc_variants)
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()
 
     if pipeline_helper.args.only_preprocessing:
         matches = []
     else:
-        matches = pipeline_helper.get_matches(bgc_variants, nrp_variants)
+        matches = pipeline_helper.get_matches(hmms, nrp_variants)
     pipeline_helper.write_results(matches, bgc_variants, nrp_variants, rban_records)
 
 
