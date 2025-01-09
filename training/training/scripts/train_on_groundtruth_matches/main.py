@@ -13,6 +13,7 @@ from src.write_results import write_yaml
 from src.monomer_names_helper import MonomerNamesHelper
 from src.monomer_names_helper import monomer_names_helper as mon_helper
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+from fix_match import bgc_variant_match_compatible, fix_match, fix_bgc_variant
 from norine_stats import NorineStats
 from auxilary_types import MatchWithBGCNRP
 from itertools import islice, chain
@@ -70,7 +71,8 @@ def load_matches(nerpa_results_dir: Path,
 
 
 def load_bgc_variants_for_matches(matches: List[Match],
-                                  nerpa_results_dir: Path) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
+                                  nerpa_results_dir: Path,
+                                  check_by_bgc_variant_id: bool = True) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
     nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
     bgc_variants = defaultdict(list)
     for nrp_id in nrp_ids:
@@ -90,12 +92,17 @@ def load_bgc_variants_for_matches(matches: List[Match],
         nrp_id = match.nrp_variant_info.nrp_id
         bgc_variant_idx = match.bgc_variant_info.variant_idx
         try:
-            bgc_variant = next(bgc_variant
-                               for bgc_variant in bgc_variants[nrp_id]
-                               if bgc_variant.variant_idx == bgc_variant_idx)
+            if check_by_bgc_variant_id:
+                bgc_variant = next(bgc_variant
+                                   for bgc_variant in bgc_variants[nrp_id]
+                                   if bgc_variant.variant_idx == bgc_variant_idx)
+            else:
+                bgc_variant = next(bgc_variant
+                                   for bgc_variant in bgc_variants[nrp_id]
+                                   if bgc_variant_match_compatible(bgc_variant, match))
         except StopIteration:
             print(f'No BGC variant {bgc_variant_idx} for {nrp_id}')
-            raise
+            continue
         nrp_id_to_bgc_variant[nrp_id] = bgc_variant
     return nrp_id_to_bgc_variant
 
@@ -163,7 +170,7 @@ def main():
     matches_table = pd.read_csv(args.matches_table, sep='\t')
     matches_table['NRP variant'] = matches_table['NRP variant'].apply(lambda x: x.split('#')[0])  # TODO: modify the table
     nrp_ids_good_matches = list(matches_table[matches_table['Verdict'] == 'good']['NRP variant'])
-
+    #nrp_ids_good_matches = ['BGC0001620.1']
     if args.precomputed_nerpa_results is not None:
         nerpa_results_dir = args.precomputed_nerpa_results
     else:
@@ -176,7 +183,16 @@ def main():
     # currently it is a mess but in the future it will be just one file
     print('Loading approved matches')
     approved_matches = load_approved_matches(args.approved_matches, nrp_ids_good_matches)
+    print('Fixing matches')
+    approved_matches = [fix_match(match) for match in approved_matches]
+    # As variants ids may differ, load bgc variants based on compatibility, not by id
+    bgc_variants_approved_matches = load_bgc_variants_for_matches(approved_matches,
+                                                                  nerpa_results_dir,
+                                                                  check_by_bgc_variant_id=False)
+    bgc_variants_approved_matches = {nrp_id: fix_bgc_variant(bgc_variant)
+                                     for nrp_id, bgc_variant in bgc_variants_approved_matches.items()}
 
+    '''
     print('Loading Nerpa results')
     matches = load_matches(nerpa_results_dir, max_num_matches=max_num_matches)
     bgc_variants = load_bgc_variants_for_matches(matches, nerpa_results_dir)
@@ -194,18 +210,29 @@ def main():
             exit(0)
         else:
             print('All matches are correct')
+    '''
 
     # note: alignments are taken from "old" approved matches while bgc predictions are taken from current matches
+    matches_with_bgcs_nrps_for_training = [
+        MatchWithBGCNRP(match,
+                        bgc_variants_approved_matches[match.nrp_variant_info.nrp_id],
+                        None)
+        for match in approved_matches
+        if match.nrp_variant_info.nrp_id in bgc_variants_approved_matches
+    ]
+    '''
     matches_with_bgcs_nrps_for_training = [MatchWithBGCNRP(match,
-                                                           bgc_variants[match.nrp_variant_info.nrp_id],
+                                                           bgc_variants_approved_matches[match.nrp_variant_info.nrp_id],
                                                            nrp_variants[match.nrp_variant_info.nrp_id])
                                            for match in approved_matches
-                                           if match.nrp_variant_info.nrp_id in bgc_variants
+                                           if match.nrp_variant_info.nrp_id in bgc_variants_approved_matches
                                              and match.nrp_variant_info.nrp_id in nrp_variants
                                            ]
+    '''
 
     print('Calculating training parameters')
     hmm_parameters = estimate_parameters(matches_with_bgcs_nrps_for_training)
+    hmm_parameters = {key: value for key, value in hmm_parameters.items()}  # convert defaultdict to dict
     write_yaml(hmm_parameters, args.output_dir / 'hmm_parameters.yaml')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
     #norine_stats = dacite.from_dict(NorineStats, yaml.safe_load(args.norine.read_text()))
