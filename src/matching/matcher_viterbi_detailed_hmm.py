@@ -61,6 +61,7 @@ class DetailedHMM:
 
     def to_hmm(self) -> HMM:
         num_states = len(self.states)
+
         adj_list = [[(edge_to, edge_data.log_prob)
                      for edge_to, edge_data in self.adj_list[edge_from].items()]
                     for edge_from in range(num_states)]
@@ -86,9 +87,8 @@ class DetailedHMM:
 
     def path_to_alignment(self,
                           path: List[int],
-                          nrp_monomers: List[rBAN_Monomer],
-                          scoring_helper=None) -> Alignment:
-        return hmm_path_to_alignment(self, path, nrp_monomers, scoring_helper)
+                          nrp_monomers: List[rBAN_Monomer]) -> Alignment:
+        return hmm_path_to_alignment(self, path, nrp_monomers)
 
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:
         return alignment_to_hmm_path(self, alignment)
@@ -103,6 +103,8 @@ class DetailedHMM:
             opt_path, _ = self.get_opt_path_with_emissions(self.start_state_idx,
                                                            self.final_state_idx,
                                                            emitted_monomers)
+        self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
+        print('opt_path', opt_path)
         return self.path_to_alignment(opt_path, emitted_monomers)
 
 

@@ -35,9 +35,10 @@ class HMMHelper:
             return -math.inf  # PKS residues are never matched to BGC modules
 
         # if there are no PKS domains in the BGC, PKS hybrids are treated as unknown residues
-        nrp_residue = UNKNOWN_RESIDUE \
-            if nrp_monomer.is_pks_hybrid and not pks_domains_in_bgc \
-            else nrp_residue = nrp_monomer.residue
+        if nrp_monomer.is_pks_hybrid and not pks_domains_in_bgc:
+            nrp_residue = UNKNOWN_RESIDUE
+        else:
+            nrp_residue = nrp_monomer.residue
         return bgc_module.residue_score[nrp_residue]
 
     def match_methylation_score(self,

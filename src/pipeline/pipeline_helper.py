@@ -20,8 +20,6 @@ from src.rban_parsing.rban_parser import (
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.scoring_config import load_scoring_config
-from src.matching.scoring_helper import ScoringHelper
 from src.matching.matching_types_match import Match
 from src.matching.hmm_matcher import get_matches
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
@@ -44,7 +42,6 @@ class PipelineHelper:
     monomer_names_helper: MonomerNamesHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
-    scoring_helper: ScoringHelper
 
     def __init__(self, log: NerpaLogger):
         self.log = log

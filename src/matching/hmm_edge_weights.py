@@ -1,7 +1,5 @@
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
-import yaml
-
 if TYPE_CHECKING:
     from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 
@@ -11,6 +9,8 @@ from src.antismash_parsing.location_features import (
     GeneLocFeature,
     BGC_Fragment_Loc_Feature,
 )
+from src.matching.hmm_config import EdgeWeightsParams
+from math import log
 
 
 def get_edge_weights(hmm,  # type: DetailedHMM
@@ -63,15 +63,24 @@ def get_edge_weights(hmm,  # type: DetailedHMM
             if edge_info.edge_type in dependent_edge_types:
                 continue
 
-            genomic_loc_prob = max((probs[edge_info.edge_type][loc_feature]
+            if edge_info.genomic_context is None:
+                genomic_loc_prob = 0
+            else:
+                genomic_loc_prob = max((probs[edge_info.edge_type][loc_feature]
                                     for loc_feature in genomic_location_features
-                                    if loc_feature in edge_info.genomic_context),
+                                    if loc_feature in edge_info.genomic_context
+                                    and loc_feature in probs[edge_info.edge_type]),
                                    default=0)
-            pks_context_prob = max((probs[edge_info.edge_type][loc_feature]
-                                    for loc_feature in pks_context_features
-                                    if loc_feature in edge_info.genomic_context),
-                                   default=0)
-            base_prob = probs[edge_info.edge_type][None]
+
+            if edge_info.genomic_context is None:
+                pks_context_prob = 0
+            else:
+                pks_context_prob = max((probs[edge_info.edge_type][loc_feature]
+                                        for loc_feature in pks_context_features
+                                        if loc_feature in edge_info.genomic_context
+                                        and loc_feature in probs[edge_info.edge_type]),
+                                       default=0)
+            base_prob = probs[edge_info.edge_type].get(None, 1e-3)
             edge_weights[(u, v)] = 1 - (1 - genomic_loc_prob) * (1 - pks_context_prob) * (1 - base_prob)
 
     # determine edge weights for dependent edge types
@@ -85,4 +94,7 @@ def get_edge_weights(hmm,  # type: DetailedHMM
                                   if w != v)
             edge_weights[(u, v)] = 1 - sum_other_edges
 
+    for u in range(len(hmm.states)):
+        for v, edge_info in hmm.adj_list[u].items():
+            edge_weights[(u, v)] = log(edge_weights[(u, v)])
     return edge_weights

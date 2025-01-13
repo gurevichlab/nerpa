@@ -3,6 +3,7 @@ from src.data_types import LogProb
 from src.matching.matcher_viterbi_types import HMM
 from src.data_types import LogProb
 from math import log
+from src.monomer_names_helper import monomer_names_helper
 
 
 def viterbi_algorithm(hmm: HMM, seq: List[int]) -> List[int]:
@@ -68,7 +69,11 @@ def get_opt_path_with_emissions(hmm: HMM,
             continue
         for v, edge_log_prob in hmm.adj_list[u]:
             if hmm.emission_log_probs[u]:  # if u emits a symbol
-                new_log_prob = log_prob + edge_log_prob + hmm.emission_log_probs[u][observed_sequence[i]]
+                try:
+                    new_log_prob = log_prob + edge_log_prob + hmm.emission_log_probs[u][observed_sequence[i]]
+                except IndexError:
+                    print(f"State {u}: does not emit symbol {observed_sequence[i]}: {monomer_names_helper.int_to_mon[observed_sequence[i]]}")
+                    raise IndexError
                 num_symbols = i + 1
             else:
                 new_log_prob = log_prob + edge_log_prob

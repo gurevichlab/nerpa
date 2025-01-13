@@ -58,15 +58,15 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                 emission_score = sum(match_detailed_score)
                 mon_idx += 1
             case DetailedHMMEdgeType.START_INSERTING | DetailedHMMEdgeType.INSERT:
-                bgc_module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[edge_from]]
+                # bgc_module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[edge_from]]
                 nrp_monomer = nrp_monomers[mon_idx]
                 # in the current setup, emission_score is always 0 for insertions, as if the emission is always the same
                 mon_idx += 1
             case DetailedHMMEdgeType.START_INSERTING_AT_START | DetailedHMMEdgeType.INSERT_AT_START:
-                next_module_state_idx = next(next_vertex
-                                             for next_vertex in hmm.adj_list[edge_to]
-                                             if hmm.states[next_vertex].state_type == DetailedHMMStateType.MODULE_START)
-                bgc_module = hmm.bgc_variant.modules[next_module_state_idx]
+                #next_module_state_idx = next(next_vertex
+                #                             for next_vertex in hmm.adj_list[edge_to]
+                #                             if hmm.states[next_vertex].state_type == DetailedHMMStateType.MODULE_START)
+                #bgc_module = hmm.bgc_variant.modules[next_module_state_idx]
                 # in the current setup, emission_score is always 0 for insertions, as if the emission is always the same
                 nrp_monomer = nrp_monomers[mon_idx]
                 mon_idx += 1
