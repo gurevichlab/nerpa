@@ -19,6 +19,7 @@ antiSMASH_MonomerName = NewType('antiSMASH_MonomerName', str)  # antiSMASH Short
 NorineMonomerName = NewType('NorineMonomerName', str)
 MonomerResidue = NewType('MonomerResidue', str)
 UNKNOWN_RESIDUE = MonomerResidue('unknown')
+PKS = MonomerResidue('PKS')
 
 def enum_representer(dumper, e: Enum):
     return dumper.represent_scalar(f'!{e.__class__.__name__}', e.name)
@@ -42,9 +43,10 @@ class NRP_Monomer:
     residue: MonomerResidue
     methylated: bool = False
     chirality: Chirality = Chirality.UNKNOWN
+    is_pks_hybrid: bool = False
 
     def __hash__(self):
-        return hash((self.residue, self.methylated, self.chirality))
+        return hash((self.residue, self.methylated, self.chirality, self.is_pks_hybrid))
 
 
 @dataclass
@@ -55,7 +57,8 @@ class MonomerNamesHelper:
     pks_names: List[NorineMonomerName] = None  # placeholder for PKS names
 
     def __post_init__(self):
-        self.pks_names = []
+        if self.pks_names is None:
+            self.pks_names = []
 
         self.int_to_mon = {}
         self.mon_to_int = {}
@@ -63,10 +66,14 @@ class MonomerNamesHelper:
         for mon_res_int, mon_res in enumerate(mon_residues):
             for meth_int, methylated in enumerate([False, True]):
                 for chir_int, chirality in enumerate([Chirality.L, Chirality.D, Chirality.UNKNOWN]):
-                    mon = NRP_Monomer(residue=MonomerResidue(mon_res), methylated=methylated, chirality=chirality)
-                    mon_int = mon_res_int * 6 + meth_int * 3 + chir_int
-                    self.mon_to_int[mon] = mon_int
-                    self.int_to_mon[mon_int] = mon
+                    for is_pks_hybrid_int, is_pks_hybrid in enumerate([False, True]):
+                        mon = NRP_Monomer(residue=MonomerResidue(mon_res),
+                                          methylated=methylated,
+                                          chirality=chirality,
+                                          is_pks_hybrid=is_pks_hybrid)
+                        mon_int = mon_res_int * 18 + meth_int * 9 + chir_int * 3 + is_pks_hybrid_int
+                        self.mon_to_int[mon] = mon_int
+                        self.int_to_mon[mon_int] = mon
 
 
     def my_parser(self, name: str) -> NRP_Monomer:  # stub before monomer table is finished
@@ -83,7 +90,9 @@ class MonomerNamesHelper:
             res = 'Thr'
         if res == 'Ile/aIle':
             res = 'Ile'
-        if res not in self.names_table['core'].values:
+        if res in self.pks_names:
+            residue = PKS
+        elif res not in self.names_table['core'].values:
             res = UNKNOWN_RESIDUE
         return NRP_Monomer(residue=MonomerResidue(res),
                            methylated=NRP_Monomer_Modification.METHYLATION in modifications,
@@ -130,5 +139,6 @@ class MonomerNamesHelper:
                            chirality=Chirality.UNKNOWN)
 
 
+# that's for testing purposes. Remove it on the final version
 monomer_names_csv = Path('/home/ilianolhin/git/nerpa2/configs/monomer_names_table.tsv')
 monomer_names_helper = MonomerNamesHelper(pd.read_csv(monomer_names_csv, sep='\t'))
