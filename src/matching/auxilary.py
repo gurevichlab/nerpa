@@ -23,7 +23,3 @@ def get_fragments_intervals(assembly_line: List[BGC_Module]) -> Dict[int, Tuple[
                                             for i, module in enumerate(reversed(assembly_line))
                                             if module.fragment_idx == fragment_idx))
                         for fragment_idx in {module.fragment_idx for module in assembly_line}})
-
-
-def get_emissions(module: BGC_Module) -> Dict[NRP_Monomer, LogProb]:
-    pass  # TODO: fill in, maybe put in scoring helper

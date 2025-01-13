@@ -18,7 +18,7 @@ def get_monomer_features(monomer_idx: int,
         (MonomerFeature.START_OF_FRAGMENT, monomer_pos == 0),
         (MonomerFeature.END_OF_FRAGMENT, monomer_pos == len(backbone_sequence) - 1),
         (MonomerFeature.UNKNOWN_RESIDUE, names_helper.parsed_name(monomer_info.name, 'norine').residue == UNKNOWN_RESIDUE),
-        (MonomerFeature.PKS_HYBRID, monomer_info.is_hybrid),
+        (MonomerFeature.PKS_HYBRID, monomer_info.is_pks_hybrid),
         (MonomerFeature.PKS, monomer_info.name in names_helper.pks_names)
     ]
     return tuple(feature for feature, is_present in pairs if is_present)

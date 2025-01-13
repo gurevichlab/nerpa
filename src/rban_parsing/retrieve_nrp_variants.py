@@ -45,6 +45,7 @@ def build_monomer(mon_info: MonomerInfo,
     return rBAN_Monomer(residue=parsed_name.residue,
                         methylated=parsed_name.methylated,
                         chirality=mon_info.chirality,
+                        is_pks_hybrid=mon_info.is_pks_hybrid,
                         rban_name=mon_info.name,
                         rban_idx=idx)
 

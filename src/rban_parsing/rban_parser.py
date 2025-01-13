@@ -39,7 +39,7 @@ class MonomerInfo(NamedTuple):
     name: NorineMonomerName
     atoms: List[AtomId]
     chirality: Chirality
-    is_hybrid: bool = False
+    is_pks_hybrid: bool = False
 
 
 class MonomerEdgeInfo(NamedTuple):
@@ -91,7 +91,7 @@ class Parsed_rBAN_Record:
                              MonomerInfo(name=get_monomer_name(idx),
                                          atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
                                          chirality=chiralities[idx],
-                                         is_hybrid=idx in hybrid_monomers)
+                                         is_pks_hybrid=idx in hybrid_monomers)
                          for monomer in rban_record['monomericGraph']['monomericGraph']['monomers']}
 
         self.atomic_bonds = {(AtomId(bond['atoms'][0]), AtomId(bond['atoms'][1])):

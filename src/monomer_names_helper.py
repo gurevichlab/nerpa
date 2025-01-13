@@ -71,7 +71,7 @@ class MonomerNamesHelper:
                                           methylated=methylated,
                                           chirality=chirality,
                                           is_pks_hybrid=is_pks_hybrid)
-                        mon_int = mon_res_int * 18 + meth_int * 9 + chir_int * 3 + is_pks_hybrid_int
+                        mon_int = mon_res_int * 12 + meth_int * 6 + chir_int * 2 + is_pks_hybrid_int
                         self.mon_to_int[mon] = mon_int
                         self.int_to_mon[mon_int] = mon
 

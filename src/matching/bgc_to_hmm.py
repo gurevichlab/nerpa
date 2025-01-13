@@ -10,12 +10,10 @@ from src.antismash_parsing.location_features import (
     module_features_to_gene_features,
     module_features_to_fragment_features
 )
-from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant, GeneId
-from src.monomer_names_helper import MonomerNamesHelper
+from src.data_types import BGC_Variant, GeneId
 from src.matching.matcher_viterbi_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, HMM
-from src.matching.auxilary import get_genes_intervals, get_fragments_intervals, get_emissions
+from src.matching.auxilary import get_genes_intervals, get_fragments_intervals
 from collections import defaultdict
-from itertools import pairwise
 from functools import partial
 from collections import OrderedDict
 from src.matching.hmm_edge_weights import get_edge_weights
@@ -156,7 +154,7 @@ def add_skip_gene_and_fragments_middle(adj_list: Dict[int, Dict[int, DetailedHMM
         module_start_state_idx = module_idx_to_start_state_idx[i]
         next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, -1)
         next_fragment_start_state_idx = module_idx_to_start_state_idx.get(fragment_intervals[module.fragment_idx][1] + 1, None)
-        if module != bgc_variant.modules[i - 1].gene_id:  # module is the first in the gene
+        if module.gene_id != bgc_variant.modules[i - 1].gene_id:  # module is the first in the gene
             adj_list[module_start_state_idx][next_gene_start_state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
                                                                                      log_prob=0,  # TODO: fill in
                                                                                      fst_module_idx=i)
@@ -356,7 +354,7 @@ def bgc_variant_to_detailed_hmm(cls,
     add_skip_at_the_beginning(states,
                               adj_list,
                               bgc_variant,
-                              cls.monomer_names_helper,
+                              cls.hmm_helper,
                               module_idx_to_state_idx,
                               gene_intervals,
                               fragment_intervals)
@@ -388,8 +386,8 @@ def bgc_variant_to_detailed_hmm(cls,
               final_state_idx=final_state_idx)
 
     # set edge weights
-    edge_weights = get_edge_weights(hmm, cls.edge_weight_parameters)
+    edge_weights = cls.hmm_helper.get_edge_weights(hmm)
     for u, v in edge_weights:
-        edge_info = hmm.adj_list[u][v]
-        edge_info.log_prob = edge_weights[(u, v)]
+       hmm.adj_list[u][v]._replace(log_prob=edge_weights[(u, v)])
+
     return hmm
