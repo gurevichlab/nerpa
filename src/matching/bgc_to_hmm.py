@@ -18,6 +18,8 @@ from collections import defaultdict
 from itertools import pairwise
 from functools import partial
 from collections import OrderedDict
+from src.matching.hmm_edge_weights import get_edge_weights
+from src.matching.hmm_scoring_helper import HMMHelper
 
 
 def make_edge(edge_type: DetailedHMMEdgeType,
@@ -69,21 +71,6 @@ def make_edge(edge_type: DetailedHMMEdgeType,
                                      fst_module.gene_id, fst_module.a_domain_idx))
 
 
-def get_bgc_module_emissions(bgc_module: BGC_Module,
-                             monomer_names_helper: MonomerNamesHelper) -> Dict[NRP_Monomer, float]:
-    return {mon: 0 for mon in monomer_names_helper.mon_to_int}  # TODO: fill in based on ScoringHelper
-
-
-def get_insert_emissions(bgc_module: BGC_Module,
-                         monomer_names_helper: MonomerNamesHelper) -> Dict[NRP_Monomer, float]:
-    return {mon: 0 for mon in monomer_names_helper.mon_to_int}  # TODO: fill in based on ScoringHelper
-
-
-def get_insert_at_start_emissions(bgc_module: BGC_Module,
-                                  monomer_names_helper: MonomerNamesHelper) -> Dict[NRP_Monomer, float]:
-    return {mon: 0 for mon in monomer_names_helper.mon_to_int}  # TODO: fill in based on ScoringHelper
-
-
 def gene_len(gene_id: GeneId, genes_intervals: Dict[GeneId, Tuple[int, int]]) -> int:
     return genes_intervals[gene_id][1] - genes_intervals[gene_id][0] + 1
 
@@ -97,12 +84,14 @@ def num_genes_in_fragment(fragment_idx: int, fragment_intervals: Dict[int, Tuple
 def add_modules(states: List[DetailedHMMState],
                 adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                 bgc_variant: BGC_Variant,
-                monomer_names_helper: MonomerNamesHelper,
+                hmm_helper: HMMHelper,
                 gene_intervals: Dict[GeneId, Tuple[int, int]],
                 initial_state_idx: int = 0,
                 final_state_idx: int = -1) -> Dict[int, int]:  # module_idx -> module_start_state_idx
     _gene_len = partial(gene_len, genes_intervals=gene_intervals)
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
+    _get_emissions = partial(hmm_helper.get_emissions, pks_domains_in_bgc=bgc_variant.has_pks_domains())
+    _get_insert_emissions = partial(hmm_helper.get_insert_emissions, pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
     module_idx_to_start_state_idx = {i: 3 * i + 1 for i in range(len(bgc_variant.modules))}
 
@@ -113,9 +102,9 @@ def add_modules(states: List[DetailedHMMState],
             DetailedHMMState(state_type=DetailedHMMStateType.MODULE_START,
                              emissions={}),
             DetailedHMMState(state_type=DetailedHMMStateType.MATCH,
-                             emissions=get_bgc_module_emissions(module, monomer_names_helper)),
+                             emissions=_get_emissions(module)),
             DetailedHMMState(state_type=DetailedHMMStateType.INSERT,
-                             emissions=get_insert_emissions(module, monomer_names_helper)),
+                             emissions=_get_insert_emissions(module)),
         ])
 
         # add edges
@@ -181,7 +170,7 @@ def add_skip_gene_and_fragments_middle(adj_list: Dict[int, Dict[int, DetailedHMM
 def add_skip_at_the_beginning(states: List[DetailedHMMState],
                               adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                               bgc_variant: BGC_Variant,
-                              monomer_names_helper: MonomerNamesHelper,
+                              hmm_helper: HMMHelper,
                               module_idx_to_start_state_idx: Dict[int, int],
                               genes_intervals: Dict[GeneId, Tuple[int, int]],
                               fragment_intervals: Dict[int, Tuple[int, int]],
@@ -189,12 +178,13 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
     _gene_len = partial(gene_len, genes_intervals=genes_intervals)
     _num_genes_in_fragment = partial(num_genes_in_fragment, fragment_intervals=fragment_intervals, bgc_variant=bgc_variant)
+    _get_insert_at_start_emissions = partial(hmm_helper.get_insert_at_start_emissions, pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
     # 1. Add inserts before modules
     module_idx_to_insert_state_idx = {}
     for i, module in enumerate(bgc_variant.modules):
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT_AT_START,
-                                       emissions=get_insert_at_start_emissions(module, monomer_names_helper)))  # TODO: fill emissions
+                                       emissions=_get_insert_at_start_emissions(module)))
         module_idx_to_insert_state_idx[i] = len(states) - 1
         adj_list[len(states) - 1][module_idx_to_start_state_idx[i]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
                                                                                  log_prob=0,  # TODO: fill in
@@ -333,7 +323,6 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
 
 def bgc_variant_to_detailed_hmm(cls,
                                 bgc_variant: BGC_Variant):
-                                #scoring_helper: ScoringHelper):  # -> DetailedHMM:
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
     gene_intervals = get_genes_intervals(bgc_variant.modules)
     fragment_intervals = get_fragments_intervals(bgc_variant.modules)
@@ -347,7 +336,7 @@ def bgc_variant_to_detailed_hmm(cls,
     module_idx_to_state_idx = add_modules(states,
                                           adj_list,
                                           bgc_variant,
-                                          cls.monomer_names_helper,
+                                          cls.hmm_helper,
                                           gene_intervals,
                                           start_state_idx,
                                           final_state_idx)  # module_idx -> module_start_state_idx
@@ -390,10 +379,17 @@ def bgc_variant_to_detailed_hmm(cls,
             neighbors[final_state_idx] = neighbors[-1]
             del neighbors[-1]
 
-    return cls(states=states,
-               adj_list=adj_list,
-               bgc_variant=bgc_variant,
-               state_idx_to_module_idx=state_idx_to_module_idx,
-               _module_idx_to_state_idx=module_idx_to_state_idx,
-               start_state_idx=start_state_idx,
-               final_state_idx=final_state_idx)
+    hmm = cls(states=states,
+              adj_list=adj_list,
+              bgc_variant=bgc_variant,
+              state_idx_to_module_idx=state_idx_to_module_idx,
+              _module_idx_to_state_idx=module_idx_to_state_idx,
+              start_state_idx=start_state_idx,
+              final_state_idx=final_state_idx)
+
+    # set edge weights
+    edge_weights = get_edge_weights(hmm, cls.edge_weight_parameters)
+    for u, v in edge_weights:
+        edge_info = hmm.adj_list[u][v]
+        edge_info.log_prob = edge_weights[(u, v)]
+    return hmm

@@ -116,8 +116,8 @@ def estimate_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) \
     cnts = defaultdict(lambda: defaultdict(lambda: (0,0)))
     for edge_type, genomic_context, chosen in data.edge_choices:
         if not genomic_context:
-            cnts[edge_type][None] = (cnts[edge_type][genomic_context][0] + 1 - int(chosen),
-                                     cnts[edge_type][genomic_context][1] + int(chosen))
+            cnts[edge_type][None] = (cnts[edge_type][None][0] + 1 - int(chosen),
+                                     cnts[edge_type][None][1] + int(chosen))
             continue
         genomic_context = filter_context(genomic_context)
         for loc_feature in genomic_context:

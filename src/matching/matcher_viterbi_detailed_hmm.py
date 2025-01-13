@@ -25,6 +25,7 @@ from src.matching.matcher_viterbi_types import (
 )
 from src.matching.matcher_viterbi_algorithm import get_opt_path_with_emissions
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
+from src.matching.hmm_edge_weights import EdgeWeightsParams
 from src.build_output.draw_hmm import draw_hmm
 from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.rban_monomer import rBAN_Monomer
@@ -33,7 +34,8 @@ from collections import defaultdict
 from src.matching.bgc_to_hmm import bgc_variant_to_detailed_hmm
 from src.matching.hmm_to_alignment import hmm_path_to_alignment
 from src.matching.matching_types_alignment import Alignment
-# from src.matching.scoring_helper import ScoringHelper
+from src.matching.hmm_anchors_heuristic import heuristic_opt_path
+from src.matching.hmm_scoring_helper import HMMHelper
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
@@ -48,10 +50,13 @@ class DetailedHMM:
     bgc_variant: BGC_Variant
     state_idx_to_module_idx: Dict[int, int]
     _module_idx_to_state_idx: List[int]  # points to MODULE_START state for each module. Used for building hmm from alignment
-    monomer_names_helper: ClassVar[Optional[MonomerNamesHelper]] = None
+
+    hmm_helper: ClassVar[Optional[HMMHelper]] = None
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
+        if cls.hmm_helper is None:
+            raise ValueError("HMM helper must be set before calling DetailedHMM.from_bgc_variant")
         return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
 
     def to_hmm(self) -> HMM:
@@ -62,7 +67,7 @@ class DetailedHMM:
 
         emission_log_probs = [[state.emissions[mon]
                                for mon in sorted(state.emissions,
-                                                 key=lambda m: self.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
+                                                 key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
         return HMM(adj_list=adj_list,
                    emission_log_probs=emission_log_probs)
@@ -71,7 +76,7 @@ class DetailedHMM:
                                     start: int,
                                     finish: int,
                                     emitted_monomers: List[rBAN_Monomer]) -> List[Tuple[int, Optional[rBAN_Monomer]]]:
-        monomer_codes = [self.monomer_names_helper.mon_to_int[mon.to_base_mon()] for mon in emitted_monomers]
+        monomer_codes = [self.hmm_helper.monomer_names_helper.mon_to_int[mon.to_base_mon()] for mon in emitted_monomers]
         score, path_with_emissions = get_opt_path_with_emissions(self.to_hmm(),
                                                                  start, finish,
                                                                  monomer_codes)
@@ -88,10 +93,16 @@ class DetailedHMM:
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:
         return alignment_to_hmm_path(self, alignment)
 
-    def get_alignment(self, emitted_monomers: List[rBAN_Monomer]) -> Alignment:
-        opt_path, emissions = self.get_opt_path_with_emissions(self.start_state_idx,
-                                                               self.final_state_idx,
-                                                               emitted_monomers)
+    def get_alignment(self, emitted_monomers: List[rBAN_Monomer],
+                      heuristic_matching: bool = True) -> Alignment:
+        if heuristic_matching:
+            bgc_predictions = [self.hmm_helper.get_emissions(module, self.bgc_variant.has_pks_domains())
+                               for module in self.bgc_variant.modules]
+            opt_path = heuristic_opt_path(self, bgc_predictions, emitted_monomers)
+        else:
+            opt_path, _ = self.get_opt_path_with_emissions(self.start_state_idx,
+                                                           self.final_state_idx,
+                                                           emitted_monomers)
         return self.path_to_alignment(opt_path, emitted_monomers)
 
 

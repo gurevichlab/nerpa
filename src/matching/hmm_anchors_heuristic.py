@@ -19,7 +19,7 @@ def nrp_monomer_matches_prediction(nrp_monomer: rBAN_Monomer,
 
 
 def heuristic_opt_path(hmm: DetailedHMM,
-                       bgc_predictions: Dict[NRP_Monomer, float],
+                       bgc_predictions: List[Dict[NRP_Monomer, float]],
                        nrp_monomers: List[rBAN_Monomer]) -> List[int]:
     bgc_module_idx_to_match_state_idx = {module_idx: hmm._module_idx_to_state_idx[module_idx] + 2
                                          for module_idx in range(len(hmm.bgc_variant.modules))}

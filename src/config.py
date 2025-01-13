@@ -94,6 +94,7 @@ class ConfigPaths:
     rban_graphs: Path
     default_results_root_dirname: str
     default_results_dirname_prefix: str
+    hmm_edge_weights_params: Path
 
     def __init__(self,
                  paths_cfg_dict: dict,
@@ -119,6 +120,7 @@ class ConfigPaths:
         self.rban_graphs = main_out_dir / Path(paths_cfg_dict['rban_graphs'])
         self.default_results_root_dirname = paths_cfg_dict['default_results_root_dirname']
         self.default_results_dirname_prefix = paths_cfg_dict['default_results_dirname_prefix']
+        self.hmm_scoring_config = nerpa_dir / Path(paths_cfg_dict['hmm_scoring_config'])
 
 
 @dataclass
