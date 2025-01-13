@@ -232,8 +232,14 @@ def main():
 
     print('Calculating training parameters')
     hmm_parameters = estimate_parameters(matches_with_bgcs_nrps_for_training)
-    hmm_parameters = {key: value for key, value in hmm_parameters.items()}  # convert defaultdict to dict
-    write_yaml(hmm_parameters, args.output_dir / 'hmm_parameters.yaml')
+
+    # I need to convert the nested dict to plain dict to be able to save it to yaml
+    hmm_params_plain_dict = {}
+    for edge_type, context_to_prob in hmm_parameters.items():
+        context_to_prob_plain = {context.name if context is not None else 'None': prob for context, prob in context_to_prob.items()}
+        hmm_params_plain_dict[edge_type.name] = context_to_prob_plain
+
+    write_yaml(hmm_params_plain_dict, args.output_dir / 'hmm_parameters.yaml')
     # I pass output_dir to save the step function plot. In the future, the function could be made pure
     #norine_stats = dacite.from_dict(NorineStats, yaml.safe_load(args.norine.read_text()))
     #parameters = calculate_training_parameters(matches_with_bgcs_nrps_for_training,
