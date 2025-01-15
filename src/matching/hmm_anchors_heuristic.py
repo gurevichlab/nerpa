@@ -30,8 +30,10 @@ def heuristic_opt_path(hmm, # type: DetailedHMM, # can't import DetailedHMM here
                                                           emitted_monomers=nrp_monomers)
     opt_path = [state for state, _ in path_with_emissions]
 
+    '''
     hmm.draw(Path('hmm.png'), opt_path)  # for debugging
     with open('alignment.txt', 'w') as f:  # for debugging
         f.write(show_alignment(hmm_path_to_alignment(hmm, opt_path, nrp_monomers)))
+    '''
 
     return opt_path

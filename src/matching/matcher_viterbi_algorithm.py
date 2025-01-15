@@ -87,15 +87,18 @@ def get_opt_path_with_emissions(hmm: HMM,
     # final_state = max([i for i in range(m) if emission_matrix[i][observed_sequence[n-1]] > 0],
     #                  key=lambda k: dp[k][n-1] + log(emission_matrix[k][observed_sequence[n-1]]))
     ext_path = [(final_state, n)]
-    emitted_symbols = []
+    emitted_symbols = [(final_state, None)]
     u, k = final_state, n
     while u != initial_state:
         prev_state = prev[u][k]
+        assert prev_state != -1, 'prev_state not defined!!!'
         symbol_was_emitted = bool(hmm.emission_log_probs[prev_state])
         emitted_symbol = observed_sequence[k - 1] if symbol_was_emitted else None
         u, k = prev_state, k - int(symbol_was_emitted)
         ext_path.append((u, k))
         emitted_symbols.append((u, emitted_symbol))
 
+    path = [state for state, symbol in reversed(emitted_symbols)]
+    assert path[0] == initial_state and path[-1] == final_state, 'the path endpoints are wrong!!!'
     return dp[final_state][n], list(reversed(emitted_symbols))
 

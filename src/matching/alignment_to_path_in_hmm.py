@@ -136,7 +136,6 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                 sub_hmm.adj_list[state_idx][edge_to] = sub_hmm.adj_list[state_idx][edge_to]._replace(log_prob=log_prob)
         # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
         path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
-        path_with_emissions.append((finish, None))  # add the last state without emitted monomer
 
     return path_with_emissions
 
