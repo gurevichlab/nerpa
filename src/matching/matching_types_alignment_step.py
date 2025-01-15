@@ -115,11 +115,16 @@ class AlignmentStep:
                 methylated = 'METHYLATION' in data['NRP_modifications'].split(',')
             else:
                 methylated = data['NRP_methylated'] == 'True'
+            if 'is_pks_hybrid' in data:
+                is_pks_hybrid = data['is_pks_hybrid']
+            else:
+                is_pks_hybrid = False
             nrp_monomer = rBAN_Monomer(residue=data['NRP_residue'],
                                        chirality=Chirality[data['NRP_chirality']],
                                        methylated=methylated,
                                        rban_name=data['rBAN_name'],
-                                       rban_idx=data['rBAN_idx'])
+                                       rban_idx=data['rBAN_idx'],
+                                       is_pks_hybrid=is_pks_hybrid)
 
         # get match detailed score
         if data['Alignment_step'] == 'NRP_MONOMER_SKIP':

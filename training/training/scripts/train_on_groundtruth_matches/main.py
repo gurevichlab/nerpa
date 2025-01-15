@@ -13,6 +13,8 @@ from src.write_results import write_yaml
 from src.monomer_names_helper import MonomerNamesHelper
 from src.monomer_names_helper import monomer_names_helper as mon_helper
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+from src.matching.hmm_config import load_hmm_scoring_config
+from src.matching.hmm_scoring_helper import HMMHelper
 from fix_match import bgc_variant_match_compatible, fix_match, fix_bgc_variant
 from norine_stats import NorineStats
 from auxilary_types import MatchWithBGCNRP
@@ -164,7 +166,8 @@ def load_monomer_names_helper() -> MonomerNamesHelper:
 def main():
     max_num_matches = None  # for debugging
     monomer_names_helper = load_monomer_names_helper()
-    DetailedHMM.monomer_names_helper = monomer_names_helper
+    hmm_scoring_config = load_hmm_scoring_config(Path('/home/ilianolhin/git/nerpa2/configs/hmm_scoring_config.yaml'))
+    DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     args = parse_args()
     matches_table = pd.read_csv(args.matches_table, sep='\t')
@@ -230,6 +233,8 @@ def main():
                                            ]
     '''
 
+    with open('matches_for_training.txt', 'w') as out:
+        out.write('\n\n'.join(str(match) for match, _, _ in matches_with_bgcs_nrps_for_training))
     print('Calculating training parameters')
     hmm_parameters = estimate_parameters(matches_with_bgcs_nrps_for_training)
 

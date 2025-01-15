@@ -31,7 +31,10 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                               DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
                               DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END):
             fst_module_idx = hmm.state_idx_to_module_idx[edge_from]
-            last_module_idx = hmm.state_idx_to_module_idx[edge_to]
+            if edge_to == hmm.final_state_idx:
+                last_module_idx = len(hmm.bgc_variant.modules) - 1
+            else:
+                last_module_idx = hmm.state_idx_to_module_idx[edge_to] - 1
             alignment.extend(AlignmentStep(
                 bgc_module=AlignmentStep_BGC_Module_Info.from_bgc_module(hmm.bgc_variant.modules[module_idx]),
                 nrp_monomer=None,

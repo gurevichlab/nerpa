@@ -103,8 +103,8 @@ class DetailedHMM:
             opt_path, _ = self.get_opt_path_with_emissions(self.start_state_idx,
                                                            self.final_state_idx,
                                                            emitted_monomers)
-        self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
-        print('opt_path', opt_path)
+        #self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
+        #print('opt_path', opt_path)
         return self.path_to_alignment(opt_path, emitted_monomers)
 
 
