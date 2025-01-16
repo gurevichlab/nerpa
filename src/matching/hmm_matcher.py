@@ -80,7 +80,7 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
 
 
 def get_matches(hmms: List[DetailedHMM],
-                nrp_linearizations: Dict[str, NRP_Linearizations],
+                nrp_linearizations: Dict[Match_NRP_Variant_Info, NRP_Linearizations],
                 max_num_matches_per_bgc_variant: Optional[int] = None,
                 num_threads: int = 1,
                 log=None) -> List[Match]:
