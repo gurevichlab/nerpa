@@ -86,7 +86,7 @@ class PipelineHelper:
         return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
 
     def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) -> Dict[Match_NRP_Variant_Info, NRP_Linearizations]:
-        self.log.info("\n======= Getting NRP linearizations")
+        self.log.info("\n======= Generating NRP linearizations")
         return get_all_nrp_linearizations(nrp_variants)
 
     def get_matches(self,

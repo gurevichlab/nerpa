@@ -103,8 +103,11 @@ def load_bgc_variants_for_matches(matches: List[Match],
                                    for bgc_variant in bgc_variants[nrp_id]
                                    if bgc_variant_match_compatible(bgc_variant, match))
         except StopIteration:
-            print(f'No BGC variant {bgc_variant_idx} for {nrp_id}')
-            continue
+            print(f'No compatible BGC variant for {nrp_id}')
+            with open('warning.txt', 'w') as f:
+                f.write(f'WARNING! No compatible BGC variant for {nrp_id}\n')
+                f.write(f'Match:\n {match}\n')
+            raise
         nrp_id_to_bgc_variant[nrp_id] = bgc_variant
     return nrp_id_to_bgc_variant
 
@@ -186,6 +189,8 @@ def main():
     # currently it is a mess but in the future it will be just one file
     print('Loading approved matches')
     approved_matches = load_approved_matches(args.approved_matches, nrp_ids_good_matches)
+    print(f'{len(approved_matches)} matches loaded')
+
     print('Fixing matches')
     approved_matches = [fix_match(match) for match in approved_matches]
     # As variants ids may differ, load bgc variants based on compatibility, not by id
