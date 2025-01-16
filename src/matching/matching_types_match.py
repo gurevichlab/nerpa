@@ -98,7 +98,8 @@ class Match:
         return out.getvalue()
 
     @classmethod
-    def from_str(cls, match_str: str) -> Match:
+    def from_str(cls, match_str: str,
+                 print_warnings: bool = False) -> Match:
         lines = match_str.splitlines()
         # q: remove empty lines at the beginning and end
         fst_non_empty_line = next(i for i, line in enumerate(lines) if line.strip())
@@ -121,7 +122,13 @@ class Match:
         for line in field_lines:
             field_name, value = line.split(': ')
             if field_name in field_type:
-                data[field_name] = field_type[field_name](value)
+                try:
+                    data[field_name] = field_type[field_name](value)
+                except:
+                    if print_warnings:
+                        print('Error parsing field:', field_name, value)
+                        print('Assigning None')
+                    data[field_name] = None
 
         bgc_variant_info = Match_BGC_Variant_Info(genome_id=data['Genome'],
                                                   contig_idx=data['Contig_idx'],

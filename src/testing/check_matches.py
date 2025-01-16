@@ -99,17 +99,17 @@ def matches_coincide(match1: Match,
 
 
 def find_wrong_matches(matches: List[Match], approved_matches: List[Match]) -> Iterable[Tuple[Match, Match]]:
-    nrp_id_to_match = {match.nrp_variant_info.nrp_id: match
-                       for match in matches}
-
     for approved_match in approved_matches:
         nrp_id = approved_match.nrp_variant_info.nrp_id
-        if nrp_id in []:
-            continue
-        if nrp_id not in nrp_id_to_match:
+        bgc_id = nrp_id.split('.')[0]
+        try:
+            test_match = next(match for match in matches
+                              if match.nrp_variant_info.nrp_id == nrp_id
+                              and match.bgc_variant_info.genome_id == bgc_id)
+        except StopIteration:
             print(f'WARNING: match for {nrp_id} is missing')
             continue
-        test_match = nrp_id_to_match[nrp_id]
+        print('Testing ', nrp_id)
         if not matches_coincide(test_match, approved_match):
             yield test_match, approved_match
 

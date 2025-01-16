@@ -102,3 +102,37 @@ def get_opt_path_with_emissions(hmm: HMM,
     assert path[0] == initial_state and path[-1] == final_state, 'the path endpoints are wrong!!!'
     return dp[final_state][n], list(reversed(emitted_symbols))
 
+
+def get_hmm_score(hmm: HMM,
+                  observed_sequence: List[int]) -> LogProb:
+    n = len(observed_sequence)  # length of the sequence
+    m = len(hmm.adj_list)  # number of states
+
+    initial_state = 0
+    final_state = m - 1
+    q = [(initial_state, 0, 0)]  # (state, num symbols, log probability)
+    dp = [[float('-inf')] * (n + 1)
+          for _ in range(m)]  # dp[u][i] = max log probability for a path of ending in state u with i symbols processed
+    prev = [[-1] * (n + 1) for _ in range(m)]  # prev[u][i] = previous state of state u if i symbols have been processed
+
+    while q:
+        u, i, log_prob = q.pop(0)
+        if i == n and hmm.emission_log_probs[u]:  # if u should emit a symbol but we have processed all symbols
+            continue
+        for v, edge_log_prob in hmm.adj_list[u]:
+            if hmm.emission_log_probs[u]:  # if u emits a symbol
+                try:
+                    new_log_prob = log_prob + edge_log_prob + hmm.emission_log_probs[u][observed_sequence[i]]
+                except IndexError:
+                    print(f"State {u}: does not emit symbol {observed_sequence[i]}: {monomer_names_helper.int_to_mon[observed_sequence[i]]}")
+                    raise IndexError
+                num_symbols = i + 1
+            else:
+                new_log_prob = log_prob + edge_log_prob
+                num_symbols = i
+            if new_log_prob > dp[v][num_symbols]:
+                dp[v][num_symbols] = new_log_prob
+                prev[v][num_symbols] = u
+                q.append((v, num_symbols, new_log_prob))
+
+    return dp[final_state][n]

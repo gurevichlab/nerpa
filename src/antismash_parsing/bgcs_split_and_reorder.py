@@ -183,7 +183,10 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config)
                             contig_idx=bgc.contig_idx,
                             bgc_idx=bgc.bgc_idx,
                             genes=genes_fragment)
-                for genes_fragment in genes_fragments]
+                for genes_fragment in genes_fragments
+                if any(module.a_domain is not None
+                       for gene in genes_fragment
+                       for module in gene.modules)]
 
     gene_blocks: List[Gene_Block] = [get_bgc_fragments(genes_group)
                                      for _, genes_group in groupby(bgc.genes, key=lambda gene: gene.coords.strand)]  # split genes by strand
@@ -214,5 +217,6 @@ def split_and_reorder(bgc_: BGC_Cluster,
                          config.MAX_VARIANTS_PER_BGC + 1))
     if len(result) > config.MAX_VARIANTS_PER_BGC:
         log.info(f'WARNING: Too many BGC variants. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
-        del result[-1]
+        # del result[-1]  # what is the purpose of this line?
+        result = result[:config.MAX_VARIANTS_PER_BGC]
     return result
