@@ -3,79 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sortable and Filterable Report</title>
-    <style>
-        table {
+    <title>Nerpa Report</title>
+     <style>
+        body {
             font-family: Arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #fff;
+            background-color: #333;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .filter-section {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+            width: 30%; /* Make labels uniform width */
+        }
+
+        .filter-section input[type="text"] {
+            width: 65%; /* Adjust input width */
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .filter-section input {
+            margin-left: 10px; /* Space between label and input */
+        }
+
+        .explanation {
+            font-style: normal;
+            font-size: 0.9em; /* Slightly smaller than the default */
+            margin-bottom: 5px;
+        }
+
+        .logo-container {
+            width: 33%; /* Allocate one-third of the width for the logo */
+            height: auto;
+            text-align: right; /* Align content to the right */
+        }
+
+        .logo-container img {
+            height: auto;
+            display: inline-block;
+            max-width: 55%; /* Ensures the image doesn't overflow its container */*/
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
         th, td {
             border: 1px solid #dddddd;
-            text-align: left;
+            text-align: center;
             padding: 8px;
         }
+
         th {
-            cursor: pointer;
             background-color: #f2f2f2;
         }
-        input[type="text"] {
-            padding: 8px;
-            width: 33%; /* Set width to one-third of the page */
-            box-sizing: border-box;
-            margin-left: 10px; /* Add space between label and input */
+
+        /* Align header text to the center, but align indicator to the right */
+        th {
+            text-align: center;
+            cursor: pointer;
+            background-color: #f2f2f2;
+            position: relative; /* To position the indicator */
         }
-        label {
+
+        /* Indicator styling */
+        th .indicator {
+            position: absolute;
+            right: 8px; /* Space from the right edge */
+            top: 50%; /* Vertically center the indicator */
+            transform: translateY(-50%); /* Adjust for exact vertical centering */
+            visibility: hidden; /* Initially hidden */
+            font-weight: bold; /* Bold indicator */
+        }
+
+        /* Align Match ID and Score columns to the right */
+        td.match-id, td.score {
+            text-align: right;
+        }
+
+        /* Alternate row colors */
+        tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Hover effect for rows */
+        tbody tr:hover {
+            background-color: #e6f7ff;
+        }
+
+        /* Scrollable table container */
+        .table-container {
+            max-height: 400px; /* Limit the height of the scrollable area */
+            overflow-y: auto; /* Add vertical scroll */
+            position: relative; /* Ensure positioning works */
+            margin: 0; /* Ensure no margin around the container */
+            padding: 0; /* Reset padding */
+        }
+
+        /* Ensure the table spans full width */
+        .scrollable-table {
+            width: 100%; /* Full width for table */
+            border-collapse: collapse; /* Collapse borders */
+            margin: 0; /* Reset margin */
+            padding: 0; /* Reset padding */
+            border-spacing: 0; /* Ensure no spacing between table cells */
+        }
+
+        /* Fix the header row */
+        .scrollable-table thead {
+            position: sticky; /* Makes the header sticky */
+            top: 0; /* Sticks to the top of the container */
+            z-index: 1; /* Ensure it stays above table rows */
+            background-color: #f2f2f2; /* Match header background color */
+            margin: 0; /* Reset margin */
+            padding: 0; /* Reset padding */
+            box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 0 rgba(0, 0, 0, 0.2); /* Add thin borders at top and bottom */
+        }
+
+        button.hide-button {
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        #alignmentLabel {
             font-weight: bold;
-            display: inline-block; /* Keep label next to input */
-            width: auto;
-        }
-        .filter-section {
-            margin-bottom: 12px;
-        }
-        .explanation {
-            margin-bottom: 12px;
-            font-style: italic;
+            text-align: left;
+            margin-top: 0px;
+            margin-bottom: 0px;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Nerpa Report</h1>
+
+        <!-- Filter and Explanation Section -->
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+             <div style="width: 66%;">
+                <div class="filter-section">
+                    <label for="scoreFilterInput">Filter by Score</label>
+                    <input type="text" id="scoreFilterInput" placeholder="Enter minimal Score to filter...">
+                </div>
+
+                <div class="filter-section">
+                    <label for="nrpFilterInput">Filter by NRP</label>
+                    <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
+                </div>
+
+                <div class="filter-section">
+                    <label for="genomeFilterInput">Filter by Genome</label>
+                    <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
+                </div>
+
+                <div class="filter-section">
+                    <label for="bgcIDFilterInput">Filter by BGC ID</label>
+                    <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC_ID to filter...">
+                </div>
+            </div>
+
+            <!-- Logo Section -->
+            <div class="logo-container">
+                <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo">
+            </div>
+        </div>
+
+        <!-- Explanation for sorting -->
+        <div class="explanation">
+            Click a column name to sort the rows; click again to toggle the sort direction (▲/▼). <br>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table class="scrollable-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Match ID</th>
+                        <th>Score</th>
+                        <th>NRP</th>
+                        <th>Genome</th>
+                        <th>BGC ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be populated here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Row Counter -->
+        <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;"></div>
+
+        <!-- Match Viewer -->
+        <div>
+            <div id="matchViewerControls">
+                <button class="hide-button" id="hideMatchViewerBtn" onclick="toggleMatchViewer(true)" style="display: none;">Hide match details and BGC/NRP annotations</button>
+                <p id="matchViewerLabel" style="display: block;">Click on a Match ID to display the detailed match report and the corresponding BGC and NRP annotations</p>
+            </div>
+            <div id="matchViewerContainer" class="viewer" style="display: none;">
+                <div class="table-container">
+                    <table id="matchTable">
+                        <thead>
+                            <tr>
+                                <th>Match ID</th>
+                                <th>Score</th>
+                                <th>NRP</th>
+                                <th>Genome</th>
+                                <th>BGC ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 5fr; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px;">
+                    <p id="alignmentLabel">Alignment details</p>
+                    <div id="columnControls" style="display: flex; align-items: center;">
+                        <a href="#" id="toggleColumnsButton">Select columns to display</a>
+                        <div id="checkboxContainer" style="display: none; margin-left: 10px;">
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Gene" checked> Gene</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A index" checked> A index</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A residue" checked> A residue</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Module mods" checked> Module mods</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP residue" checked> NRP residue</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP chirality" checked> NRP chirality</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP mods" checked> NRP mods</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="rBAN residue"> rBAN residue</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP index" checked> NRP index</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Step" checked> Step</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Score" checked> Score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Residue score"> Residue score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Methylation score"> Methylation score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Chirality score"> Chirality score</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="aa10 code"> aa10 code</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="aa34 code"> aa34 code</label></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="explanation">
+                    Hover over a column name to view its description.
+                </div>
+                <div class="table-container">
+                    <table class="scrollable-table" id="alignmentTable">
+                        <thead>
+                            <tr>
+                                <th title="Gene name">Gene</th>
+                                <th title="Index of the A-domain within the gene">A index</th>
+                                <th title="Top scoring residue prediction for the A-domain">A residue</th>
+                                <th title="Modifying domains inside the module corresponding to the A-domain ('E' for epimerization, 'MT' for methylation, '---' for none)">Module mods</th>
+                                <th title="Core NRP residue (Nerpa naming)">NRP residue</th>
+                                <th title="Parsed chirality of the NRP residue ('D', 'L' or 'unk' when unknown/failed to parse)">NRP chirality</th>
+                                <th title="Modifications of the core NRP residue ('MT' for methylation, 'unk' for other modifications, '---' for none)">NRP mods</th>
+                                <th title="NRP residue (rBAN naming)">rBAN residue</th>
+                                <th title="rBAN index of the NRP residue in the structure and monomer graph">NRP index</th>
+                                <th title="Alignment step">Step</th>
+                                <th title="Total score of the alignment row (sum of the residue, methylation and chirality scores)">Score</th>
+                                <th title="Score for the residues (mis)match">Residue score</th>
+                                <th title="Score for the methylation (mis)match">Methylation score</th>
+                                <th title="Score for the chirality (mis)match">Chirality score</th>
+                                <th title="Stachelhaus code of the A-domain (10 amino acids)">aa10 code</th>
+                                <th title="NRPSpredictor2 code of the A-domain (34 amino acids)">aa34 code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- antiSMASH (Genome/BGC) Viewer -->
+        <div>
+            <!-- Button and label for hiding the iframe -->
+            <div id="genomeViewerControls">
+                <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true)" style="display: none;">Hide Genome/BGC annotation</button>
+                <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
+            </div>
+
+            <!-- Genome Viewer iframe -->
+            <iframe id="genomeViewer" src="" width="100%" height="600px" style="display: none; border: none;"></iframe>
+        </div>
+
+        <!-- NRP Viewer -->
+        <div>
+            <div id="nrpViewerControls">
+                <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true)" style="display: none;">Hide NRP annotation</button>
+                <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
+            </div>
+            <div id="nrpViewerContainer" class="viewer" style="display: none;">
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1; padding-right: 5px;">
+                        <img id="moleculeImage"
+                             src=""
+                             alt="Molecule image is missing. Did you forget to use '--draw-molecules'?"
+                             style="width: 100%; height: auto;"/>
+                    </div>
+                    <div style="flex: 1; padding-left: 5px;">
+                        <img id="graphImage"
+                             src=""
+                             alt="Graph image is missing. Did you forget to use '--draw-molecules'?"
+                             style="width: 100%; height: auto;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
-
-    <h1>Nerpa main report</h1>
-
-    <!-- Filter Input Fields -->
-    <div class="filter-section">
-        <label for="nrpFilterInput">Filter by NRP_ID</label>
-        <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
-    </div>
-
-    <div class="filter-section">
-        <label for="genomeFilterInput">Filter by Genome_ID</label>
-        <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
-    </div>
-
-    <!-- Explanation for sorting -->
-    <div class="explanation">
-        Click a column name to sort the rows. Click a Match ID to open the detailed match report.
-    </div>
-
-    <table id="reportTable">
-        <thead>
-            <tr>
-                <th>Match_ID</th>
-                <th>Score</th>
-                <th>NRP_ID</th>
-                <th>NRP_Variant_Idx</th>
-                <th>Genome_ID</th>
-                <th>BGC_ID</th>
-                <th>BGC_Variant_Idx</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be populated here by JavaScript -->
-        </tbody>
-    </table>
 
     <script>
         // Function to detect if a value is numeric
@@ -83,145 +348,397 @@
             return !isNaN(parseFloat(value)) && isFinite(value);
         }
         
+        // Detect column indices by header names
+        const columnIndices = {};
+        const headers = document.querySelectorAll('#reportTable th');
+
+        headers.forEach((header, index) => {
+            const headerText = header.textContent.trim();
+            if (headerText === 'Score') {
+                columnIndices.score = index;
+            } else if (headerText === 'Match ID') {
+                columnIndices.matchID = index;
+            } else if (headerText === 'NRP') {
+                columnIndices.nrp = index;
+            } else if (headerText === 'Genome') {
+                columnIndices.genome = index;
+            } else if (headerText === 'BGC ID') {
+                columnIndices.bgcID = index;
+            }
+        });
+
+        // Mapping for alignment table column names (JSON values to HTML table header names)
+        const alignment_column_names_mapping = {
+            'Gene': 'Gene',
+            'A index': 'A-domain_idx',
+            'A residue': 'Top_scoring_residues',
+            'Module mods': 'Modifying_domains',
+            'NRP residue': 'NRP_residue',
+            'NRP chirality': 'NRP_chirality',
+            'NRP mods': 'NRP_modifications',
+            'rBAN residue': 'rBAN_name',
+            'NRP index': 'rBAN_idx',
+            'Step': 'Alignment_step',
+            'Score': 'Score',
+            'Residue score': 'ResidueScore',
+            'Methylation score': 'MethylationScore',
+            'Chirality score': 'ChiralityScore',
+            'aa10 code': 'aa10_code',
+            'aa34 code': 'aa34_code'
+        };
+
+        // Populate table
         function populateTable(data) {
             const tableBody = document.querySelector('#reportTable tbody');
-            tableBody.innerHTML = ''; // Clear existing table rows
-            
-            // Check if data.Results exists and is an array
+            tableBody.innerHTML = '';
+
             if (data && Array.isArray(data)) {
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                    <td><a href="{{HTML_AUX_DIR}}/match_${item.Match_ID}.html">${item.Match_ID}</a></td>
-                    <td>${item.Score}</td>
-                    <td>${item.NRP}</td>
-                    <td>${item.NRP_variant_idx}</td>
-                    <td>${item.Genome}</td>
-                    <td>${item.BGC}</td>
-                    <td>${item.BGC_variant_idx}</td>
+                        <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
+                        <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
+                        <td><a href="#" class="nrp-link" data-nrp="${item.NRP}">${item.NRP}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="">${item.Genome}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="r${item.Contig_idx}c${item.BGC_idx}">Region ${item.Contig_idx}.${item.BGC_idx}</a></td>
                     `;
                     tableBody.appendChild(row);
+                });
+
+                // Add click event listeners for Match links
+                document.querySelectorAll('.match-link').forEach(link => {
+                    link.addEventListener('click', event => {
+                        event.preventDefault(); // Prevent default link behavior
+                        const matchID = link.dataset.match; // Get the Match ID
+                        toggleMatchViewer(false, matchID)
+                    });
+                });
+
+                // Add click event listeners for Genome/BGC links
+                document.querySelectorAll('.genome-link').forEach(link => {
+                    link.addEventListener('click', event => {
+                        event.preventDefault(); // Prevent default link behavior
+                        const genomeID = link.dataset.genome; // Get the Genome ID
+                        const bgcID = link.dataset.bgc; // Get the specific BGC ID within the genome
+                        toggleGenomeViewer(false, genomeID, bgcID)
+                    });
+                });
+
+                // Add click event listeners for NRP links
+                document.querySelectorAll('.nrp-link').forEach(link => {
+                    link.addEventListener('click', event => {
+                        event.preventDefault(); // Prevent default link behavior
+                        const nrpID = link.dataset.nrp; // Get the NRP ID
+                        toggleNrpViewer(false, nrpID)
+                    });
                 });
             } else {
                 console.error('Invalid data structure: Results array not found');
             }
+
+            // Update the initial row counter after populating the table
+            filterTable();
         }
+
+        // Toggle function for hiding/showing the Match details
+        function toggleMatchViewer(hide, matchID) {
+            const frame = document.getElementById('matchViewerContainer');
+            const hideBtn = document.getElementById('hideMatchViewerBtn');
+            const label = document.getElementById('matchViewerLabel');
+
+            if (hide) {
+                frame.style.display = 'none'; // Hide frame (div) with images
+                label.style.display = 'block'; // Show label
+                hideBtn.style.display = 'none'; // Hide the button
+
+                // hiding corresponding Genome and NRP viewers
+                toggleGenomeViewer(hide)
+                toggleNrpViewer(hide)
+            } else {
+                // Update table content
+                var item = data.at(matchID);
+                // Basic match info
+                const matchTableBody = document.querySelector('#matchTable tbody');
+                matchTableBody.innerHTML = '';
+                const matchRow = document.createElement('tr');
+                matchRow.innerHTML = `
+                    <td class="match-id">${item.Match_ID}</td>
+                    <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
+                    <td>${item.NRP}</td>
+                    <td>${item.Genome}</td>
+                    <td>Region ${item.Contig_idx}.${item.BGC_idx}</td>
+                `;
+                matchTableBody.appendChild(matchRow);
+                // Match alignment info
+                const alignmentTableBody = document.querySelector('#alignmentTable tbody');
+                alignmentTableBody.innerHTML = '';
+
+                // Iterate over each alignment array in the "Alignments" field
+                const alignments = item.Alignments;
+                alignments.forEach(rows => {
+                    rows.forEach(row => {
+                        // Create a new table row
+                        const tr = document.createElement('tr');
+
+                        // Add a cell for each mapping
+                        Object.keys(alignment_column_names_mapping).forEach(header => {
+                            const td = document.createElement('td');
+                            td.textContent = row[alignment_column_names_mapping[header]] ?? 'n/a'; // Use 'n/a' if value is missing
+                            tr.appendChild(td);
+                        });
+
+                        // Append the row to the table body
+                        alignmentTableBody.appendChild(tr);
+                    });
+                });
+
+                toggleAlignmentColumnVisibility();
+
+                // showing/hiding the corresponding frame, button, and label
+                frame.style.display = 'block';
+                label.style.display = 'none';
+                hideBtn.style.display = 'block';
+
+                // showing corresponding Genome and NRP viewers
+                toggleGenomeViewer(false, item.Genome, `r${item.Contig_idx}c${item.BGC_idx}`)
+                toggleNrpViewer(false, item.NRP)
+            }
+        }
+
+        // Toggle function for hiding/showing the antiSMASH (Genome/BGC) iframe
+        function toggleGenomeViewer(hide, genomeID, bgcID) {
+            const iframe = document.getElementById('genomeViewer');
+            const hideBtn = document.getElementById('hideGenomeViewerBtn');
+            const label = document.getElementById('genomeViewerLabel');
+
+            if (hide) {
+                iframe.style.display = 'none'; // Hide iframe
+                label.style.display = 'block'; // Show label
+                hideBtn.style.display = 'none'; // Hide the hide button
+            } else {
+                iframe.src = `antismash_output/${genomeID}/index.html?timestamp=${Date.now()}#${bgcID}`; // Set iframe source
+                iframe.style.display = 'block'; // Show iframe
+                label.style.display = 'none'; // Hide label
+                hideBtn.style.display = 'block'; // Show the hide button
+            }
+        }
+
+        // Toggle function for hiding/showing the NRP images
+        function toggleNrpViewer(hide, nrpID) {
+            const frame = document.getElementById('nrpViewerContainer');
+            const hideBtn = document.getElementById('hideNrpViewerBtn');
+            const label = document.getElementById('nrpViewerLabel');
+
+            if (hide) {
+                frame.style.display = 'none'; // Hide frame (div) with images
+                label.style.display = 'block'; // Show label
+                hideBtn.style.display = 'none'; // Hide the button
+            } else {
+                const moleculeImage = document.getElementById('moleculeImage');
+                const graphImage = document.getElementById('graphImage');
+
+                // Update image sources dynamically
+                moleculeImage.src = `NRP_images/molecules/${nrpID}.png`;
+                graphImage.src = `NRP_images/graphs/${nrpID}.png`;
+                frame.style.display = 'block';
+
+                // Hide label and show the hide button
+                label.style.display = 'none';
+                hideBtn.style.display = 'block';
+            }
+        }
+
+        document.getElementById('toggleColumnsButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            const checkboxContainer = document.getElementById('checkboxContainer');
+            if (checkboxContainer.style.display === 'none' || checkboxContainer.style.display === '') {
+                checkboxContainer.style.display = 'block';
+            } else {
+                checkboxContainer.style.display = 'none';
+            }
+        });
+
+        // Function to toggle column visibility
+        function toggleAlignmentColumnVisibility() {
+            // Get all checkboxes
+            const checkboxes = document.querySelectorAll('#columnControls input[type="checkbox"]');
+
+            checkboxes.forEach(checkbox => {
+                // Get the column name from the checkbox
+                const columnName = checkbox.getAttribute('data-column');
+
+                // Find the index of the column in the table
+                const th = Array.from(document.querySelectorAll('#alignmentTable th'))
+                    .find(th => th.textContent === columnName);
+
+                if (!th) return; // Skip if column is not found
+
+                const columnIndex = Array.from(th.parentNode.children).indexOf(th);
+
+                // Toggle visibility of the column in both <th> and <td>
+                const cells = document.querySelectorAll(
+                    `#alignmentTable th:nth-child(${columnIndex + 1}), #alignmentTable td:nth-child(${columnIndex + 1})`
+                );
+
+                cells.forEach(cell => {
+                    cell.style.display = checkbox.checked ? '' : 'none';
+                });
+            });
+        }
+
+        // Add event listeners to all checkboxes
+        document.querySelectorAll('#columnControls input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', toggleAlignmentColumnVisibility);
+        });
+
+        // Function to sort table by column with toggleable sorting direction
+        function sortTable(n) {
+            const table = document.getElementById("reportTable");
+            const headers = table.querySelectorAll("th");
+            const rows = Array.from(table.querySelectorAll("tbody tr"));
+            let dir = headers[n].dataset.sortDirection === "asc" ? "desc" : "asc"; // Toggle direction
+
+            // Store the new sort direction in the clicked header
+            headers.forEach(header => header.dataset.sortDirection = ""); // Reset directions
+            headers[n].dataset.sortDirection = dir; // Set new direction for clicked column
+
+            // Hide all indicators first
+            headers.forEach(header => {
+                const indicator = header.querySelector('.indicator');
+                if (indicator) {
+                    indicator.style.visibility = 'hidden'; // Hide all indicators
+                }
+            });
+
+            // Show the indicator for the clicked column
+            const clickedHeader = headers[n];
+            const indicator = clickedHeader.querySelector('.indicator');
+            if (indicator) {
+                indicator.style.visibility = 'visible'; // Show the indicator
+                indicator.textContent = dir === 'asc' ? '▲' : '▼'; // Set the appropriate indicator (▲ for asc, ▼ for desc)
+            }
+
+            // Sort rows based on the direction and column index
+            rows.sort((a, b) => {
+                const x = a.getElementsByTagName("TD")[n].textContent.trim();
+                const y = b.getElementsByTagName("TD")[n].textContent.trim();
+
+                if (isNumeric(x) && isNumeric(y)) {
+                    return dir === "asc" ? x - y : y - x;
+                } else {
+                    return dir === "asc" ? x.localeCompare(y) : y.localeCompare(x);
+                }
+            });
+
+            // Append sorted rows to the table body
+            const tbody = table.querySelector("tbody");
+            tbody.innerHTML = ''; // Clear current rows
+            rows.forEach(row => tbody.appendChild(row)); // Append sorted rows
+        }
+
+        // Event listener for sortable columns with initial setup for "Score" column
+        document.addEventListener('DOMContentLoaded', function () {
+            const headers = document.querySelectorAll("#reportTable th");
+            headers.forEach((header, index) => {
+                // Set initial sorting direction for "Score" column to "desc"
+                header.dataset.sortDirection = (index === columnIndices.score) ? "desc" : "";
+
+                // Add event listener for sorting
+                header.addEventListener("click", function () {
+                    sortTable(index);
+                });
+
+                // Create an indicator element for each header
+                const indicator = document.createElement('span');
+                indicator.classList.add('indicator');
+                header.appendChild(indicator);
+            });
+
+            // Ensure the indicator for the "Score" column is visible initially with "desc" direction
+            const scoreHeader = headers[columnIndices.score];
+            const scoreIndicator = scoreHeader.querySelector('.indicator');
+            if (scoreIndicator) {
+                scoreIndicator.style.visibility = 'visible'; // Show the indicator for "Score"
+                scoreIndicator.textContent = '▼'; // Set "Score" to descending initially
+            }
+        });
 
         populateTable(data);
 
-        // Function to sort table by column
-        function sortTable(n) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-            table = document.getElementById("reportTable");
-            switching = true;
-            dir = "asc"; // Set the sorting direction to ascending
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[n];
-                    y = rows[i + 1].getElementsByTagName("TD")[n];
-                    if (isNumeric(x.innerHTML) && isNumeric(y.innerHTML)) {
-                        var xVal = parseFloat(x.innerHTML);
-                        var yVal = parseFloat(y.innerHTML);
-                        if (dir == "asc" && xVal > yVal) {
-                            shouldSwitch = true;
-                            break;
-                        } else if (dir == "desc" && xVal < yVal) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    } else {
-                        var xText = x.innerHTML.toLowerCase();
-                        var yText = y.innerHTML.toLowerCase();
-                        if (dir == "asc" && xText > yText) {
-                            shouldSwitch = true;
-                            break;
-                        } else if (dir == "desc" && xText < yText) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    }
-                }
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                    switchcount++;
-                } else {
-                    if (switchcount == 0 && dir == "asc") {
-                        dir = "desc";
-                        switching = true;
-                    }
-                }
-            }
-        }
-
-        // Function to filter the table based on NRP_ID and Genome_ID
+        // Function to filter the table based on NRP_ID, Genome_ID, BGC_ID, and Score
         function filterTable() {
-            var nrpInput = document.getElementById("nrpFilterInput");
-            var genomeInput = document.getElementById("genomeFilterInput");
-            var nrpFilter = nrpInput.value.toLowerCase();
-            var genomeFilter = genomeInput.value.toLowerCase();
-            var table = document.getElementById("reportTable");
-            var tr = table.getElementsByTagName("tr");
-            var headers = table.getElementsByTagName("th");
+            const nrpIndex = columnIndices.nrp; // Use columnIndices for NRP
+            const genomeIndex = columnIndices.genome; // Use columnIndices for Genome
+            const bgcIDIndex = columnIndices.bgcID; // Use columnIndices for BGC ID
+            const scoreIndex = columnIndices.score; // Use columnIndices for Score
+            const nrpInput = document.getElementById("nrpFilterInput");
+            const genomeInput = document.getElementById("genomeFilterInput");
+            const bgcIDInput = document.getElementById("bgcIDFilterInput");
+            const scoreInput = document.getElementById("scoreFilterInput"); // New input for Score filter
+            const nrpFilter = nrpInput.value.toLowerCase();
+            const genomeFilter = genomeInput.value.toLowerCase();
+            const bgcIDFilter = bgcIDInput.value.toLowerCase(); // Get the value for BGC ID filter
+            const scoreFilter = parseFloat(scoreInput.value); // Get the value for Score filter and convert to number
+            const table = document.getElementById("reportTable");
+            const tr = table.getElementsByTagName("tr");
 
-            // Get column indices dynamically by column name
-            var nrpIndex = -1;
-            var genomeIndex = -1;
+            let visibleRowCount = 0; // Initialize counter for visible rows
+            let totalRowCount = 0; // Initialize counter for total rows
 
-            for (var i = 0; i < headers.length; i++) {
-                var headerText = headers[i].textContent || headers[i].innerText;
-                if (headerText === "NRP_ID") {
-                    nrpIndex = i;
-                } else if (headerText === "Genome_ID") {
-                    genomeIndex = i;
-                }
-            }
-
-            if (nrpIndex === -1 || genomeIndex === -1) {
-                console.error("NRP_ID or Genome_ID column not found.");
-                return;
-            }
-
-            for (var i = 1; i < tr.length; i++) {
-                var showRow = true; // Start by assuming the row should be shown
-                var nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
-                var genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
+            for (let i = 1; i < tr.length; i++) {
+                let showRow = true; // Start by assuming the row should be shown
+                const nrpTd = tr[i].getElementsByTagName("td")[nrpIndex]; // Get NRP_ID column dynamically
+                const genomeTd = tr[i].getElementsByTagName("td")[genomeIndex]; // Get Genome_ID column dynamically
+                const bgcIDTd = tr[i].getElementsByTagName("td")[bgcIDIndex]; // Get BGC ID column dynamically
+                const scoreTd = tr[i].getElementsByTagName("td")[scoreIndex]; // Get Score column dynamically
 
                 if (nrpTd) {
-                    var nrpValue = nrpTd.textContent || nrpTd.innerText;
+                    const nrpValue = nrpTd.textContent || nrpTd.innerText;
                     if (nrpFilter && nrpValue.toLowerCase().indexOf(nrpFilter) === -1) {
                         showRow = false; // Hide row if NRP_ID does not match
                     }
                 }
 
                 if (genomeTd) {
-                    var genomeValue = genomeTd.textContent || genomeTd.innerText;
+                    const genomeValue = genomeTd.textContent || genomeTd.innerText;
                     if (genomeFilter && genomeValue.toLowerCase().indexOf(genomeFilter) === -1) {
                         showRow = false; // Hide row if Genome_ID does not match
                     }
                 }
 
+                if (bgcIDTd) {
+                    const bgcIDValue = bgcIDTd.textContent || bgcIDTd.innerText;
+                    if (bgcIDFilter && bgcIDValue.toLowerCase().indexOf(bgcIDFilter) === -1) {
+                        showRow = false; // Hide row if BGC ID does not match
+                    }
+                }
+
+                if (scoreTd) {
+                    const scoreValue = parseFloat(scoreTd.textContent || scoreTd.innerText); // Parse score value
+                    if (scoreFilter && scoreValue < scoreFilter) {
+                        showRow = false; // Hide row if Score is less than the filter value
+                    }
+                }
+
                 // Show or hide the row based on the filter results
                 tr[i].style.display = showRow ? "" : "none";
+
+                // If the row is shown, increment the visible row count
+                if (showRow) {
+                    visibleRowCount++;
+                }
+                totalRowCount++;
             }
+
+            // Update the row counter text
+            document.getElementById("rowCounter").textContent = `Number of matches ( filtered / total ): ${visibleRowCount} / ${totalRowCount}`;
         }
 
         // Event listeners for filter inputs
         document.getElementById("nrpFilterInput").addEventListener("keyup", filterTable);
         document.getElementById("genomeFilterInput").addEventListener("keyup", filterTable);
-
-        // Event listener to sort columns
-        document.addEventListener('DOMContentLoaded', function() {
-            var headers = document.querySelectorAll('th');
-            headers.forEach(function(header, index) {
-                header.addEventListener('click', function() {
-                    sortTable(index);
-                });
-            });
-        });
+        document.getElementById("bgcIDFilterInput").addEventListener("keyup", filterTable);
+        document.getElementById("scoreFilterInput").addEventListener("keyup", filterTable); // Add event listener for Score filter
     </script>
 </body>
 </html>
