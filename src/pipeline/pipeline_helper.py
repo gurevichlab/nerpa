@@ -1,4 +1,5 @@
 from typing import (
+    Dict,
     List,
     Tuple
 )
@@ -13,14 +14,13 @@ from src.data_types import (
     BGC_Variant,
     NRP_Variant
 )
-
 import src.pipeline.nerpa_utils as nerpa_utils
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.matching_types_match import Match
+from src.matching.matching_types_match import Match, Match_NRP_Variant_Info
 from src.matching.hmm_matcher import get_matches
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
@@ -31,7 +31,7 @@ import src.write_results as report
 import shutil
 import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
-
+from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 
 
 
@@ -85,11 +85,15 @@ class PipelineHelper:
         self.log.info("\n======= Constructing HMMs")
         return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
 
+    def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) -> Dict[Match_NRP_Variant_Info, NRP_Linearizations]:
+        self.log.info("\n======= Getting NRP linearizations")
+        return get_all_nrp_linearizations(nrp_variants)
+
     def get_matches(self,
                     hmms: List[DetailedHMM],
-                    nrp_variants: List[NRP_Variant]) -> List[Match]:
+                    nrp_linearizations: Dict[str, NRP_Linearizations]) -> List[Match]:
         self.log.info("\n======= Nerpa matching")
-        return get_matches(hmms, nrp_variants,
+        return get_matches(hmms, nrp_linearizations,
                            max_num_matches_per_bgc_variant=self.args.num_matches,
                            num_threads=self.args.threads,
                            log=self.log)

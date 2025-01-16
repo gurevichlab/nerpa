@@ -98,4 +98,11 @@ class BGC_Cluster:
     genes: List[Gene]
 
     def has_pks_domains(self) -> bool:
-        return any(DomainType.PKS in gene.modules for gene in self.genes)
+        return any(DomainType.PKS in module.domains_sequence
+                   for gene in self.genes
+                   for module in gene.modules)
+
+    def has_a_domains(self) -> bool:
+        return any(module.a_domain is not None
+                   for gene in self.genes
+                   for module in gene.modules)

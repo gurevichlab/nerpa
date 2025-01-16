@@ -39,6 +39,7 @@ from src.matching.hmm_scoring_helper import HMMHelper
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
+from functools import cache
 
 
 @dataclass
@@ -52,6 +53,7 @@ class DetailedHMM:
     _module_idx_to_state_idx: List[int]  # points to MODULE_START state for each module. Used for building hmm from alignment
 
     hmm_helper: ClassVar[Optional[HMMHelper]] = None
+    _hmm: HMM = None
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
@@ -60,6 +62,8 @@ class DetailedHMM:
         return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
 
     def to_hmm(self) -> HMM:
+        if self._hmm is not None:
+            return self._hmm
         num_states = len(self.states)
 
         adj_list = [[(edge_to, edge_data.log_prob)
@@ -70,8 +74,9 @@ class DetailedHMM:
                                for mon in sorted(state.emissions,
                                                  key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
-        return HMM(adj_list=adj_list,
-                   emission_log_probs=emission_log_probs)
+        self._hmm = HMM(adj_list=adj_list,
+                        emission_log_probs=emission_log_probs)
+        return self._hmm
 
     def get_opt_path_with_emissions(self,
                                     start: int,
@@ -103,6 +108,7 @@ class DetailedHMM:
             opt_path, _ = self.get_opt_path_with_emissions(self.start_state_idx,
                                                            self.final_state_idx,
                                                            emitted_monomers)
+            opt_path = [state for state, _ in opt_path]
         #self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
         #print('opt_path', opt_path)
         return self.path_to_alignment(opt_path, emitted_monomers)

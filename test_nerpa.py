@@ -6,22 +6,11 @@ from src.testing.check_matches import find_wrong_matches
 from itertools import islice
 import subprocess
 
-def load_matches(nerpa_results_dir: Path,
-                 max_num_matches: Optional[int] = None) -> List[Match]:
-    matches = []
-    for results_dir in islice(nerpa_results_dir.iterdir(), max_num_matches):
-        with open(results_dir / 'matches_details/matches.yaml') as matches_file:
-            loaded_matches = map(lambda match_dict: Match.from_dict(match_dict),
-                                 yaml.safe_load(matches_file))
-            best_match = max(loaded_matches,
-                             key=lambda match: match.normalized_score,
-                             default=None)
-            if best_match is None:
-                with open('warning.txt', 'a') as f:
-                    f.write(f'WARNING! {results_dir} has no matches\n')
-                continue
-            matches.append(best_match)
-    return matches
+def load_matches(nerpa_results_dir: Path) -> List[Match]:
+    with open(nerpa_results_dir / 'matches_details/matches.yaml') as matches_file:
+        loaded_matches = [Match.from_dict(match_dict)
+                          for match_dict in yaml.safe_load(matches_file)]
+    return loaded_matches
 
 
 def load_matches_from_txt(matches_txt: Path) -> List[Match]:
@@ -55,7 +44,8 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
         "--antismash", str(antismash_inputs),
         "--rban-json", str(rban_inputs),
         "--output_dir", str(output_dir),
-        "--force-existing-outdir"
+        "--force-existing-outdir",
+        "--num-matches", "10"
     ]
 
     # Execute the command and capture output
@@ -71,6 +61,10 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
+
+    print('Loading approved matches')
+    approved_matches = load_matches_from_txt(nerpa_dir / 'test_data/approved_matches/approved_matches.txt')
+
     print('Running Nerpa')
     run_nerpa(nerpa_dir,
               antismash_inputs=nerpa_dir / 'test_data/approved_matches/antismash_jsons',
@@ -81,15 +75,12 @@ def main():
     print('Loading Nerpa results')
     matches = load_matches(nerpa_dir / 'test_results/nerpa_results')
 
-    print('Loading approved matches')
-    approved_matches = load_matches_from_txt(nerpa_dir / 'test_data/approved_matches.txt')
-
     print('Checking matches')
     check_results = list(find_wrong_matches(matches, approved_matches))
 
     if check_results:
         print(f'{len(check_results)}/{len(approved_matches)} matches are incorrect')
-        wrong_matches_txt = nerpa_dir / 'test_data/wrong_matches.txt'
+        wrong_matches_txt = nerpa_dir / 'test_results/wrong_matches.txt'
         with open(wrong_matches_txt, 'w') as f:
             for nerpa_match, correct_match in check_results:
                 f.write(f'Nerpa match (wrong):\n{nerpa_match}\n\nCorrect match:\n{correct_match}\n\n')
