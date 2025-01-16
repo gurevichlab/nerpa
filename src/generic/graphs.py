@@ -1,4 +1,5 @@
 from typing import (
+    Dict,
     Iterable,
     List,
     NamedTuple,
@@ -9,7 +10,7 @@ from typing import (
 )
 import networkx as nx
 import copy
-from itertools import chain, permutations
+from itertools import chain, permutations, pairwise
 
 
 def hamiltonian_path(G: nx.DiGraph,
@@ -110,3 +111,32 @@ def get_boundary_edges(nodes: List[NodeId],
             for u, v in edges
             if any([u in nodes and v not in nodes,
                     v in nodes and u not in nodes])]
+
+
+def shortest_path_through(G: nx.DiGraph,
+                          include_nodes: Optional[List[NodeId]] = None,
+                          exclude_nodes: Optional[List[NodeId]] = None,
+                          edge_weights: Dict[Tuple[NodeId, NodeId], float] = None) -> Optional[List[NodeId]]:
+    '''
+    finds the shortest path that goes through include_nodes and avoids exclude_nodes
+    the path goes through the include_nodes in the order they are given
+    include_nodes can have repetitions, in which case the path will go through them multiple times
+    '''
+
+    if include_nodes is None:
+        include_nodes = []
+    if exclude_nodes is None:
+        exclude_nodes = []
+    if edge_weights is None:
+        edge_weights = {edge: 1 for edge in G.edges()}
+    _G = G.copy()
+    _G.remove_nodes_from(exclude_nodes)
+
+    edge_weight_fun = lambda u, v, d: edge_weights[(u, v)]
+    path = [include_nodes[0]]
+    for start, finish in pairwise(include_nodes):
+        path_segment = nx.shortest_path(_G, start, finish, weight=edge_weight_fun)
+        if path_segment is None:
+            return None
+        path.extend(path_segment[1:])
+    return path

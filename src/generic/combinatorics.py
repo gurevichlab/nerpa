@@ -98,3 +98,16 @@ def intersection_with_repeats(xs: Iterable[T], ys: Iterable[T]) -> List[T]:
     returns a list of elements that are present in both lists (with repeats)
     '''
     return list((Counter(xs) & Counter(ys)).elements())
+
+
+def is_subsequence(subseq: List[T], seq: List[T]) -> bool:
+    '''
+    checks if subseq is a subsequence of seq
+    '''
+    subseq_idx = 0
+    seq_idx = 0
+    while subseq_idx < len(subseq) and seq_idx < len(seq):
+        if subseq[subseq_idx] == seq[seq_idx]:
+            subseq_idx += 1
+        seq_idx += 1
+    return subseq_idx == len(subseq)

@@ -2,7 +2,7 @@ from typing import List
 from prettytable import PrettyTable
 import more_itertools
 from src.data_types import LogProb, BGC_Module
-from src.matching.matching_types_alignment_step import AlignmentStep, AlignmentStepType
+from src.matching.matching_types_alignment_step import AlignmentStep
 from src.generic.other import parse_pretty_table
 
 Alignment = List[AlignmentStep]
@@ -17,7 +17,9 @@ def combined_alignments_score(alignments: List[Alignment]) -> LogProb:
 
 def show_alignment(alignment: Alignment) -> str:
     rows = [alignment_step.to_dict()
-            for alignment_step in alignment]
+            for alignment_step in alignment
+            if alignment_step.bgc_module is not None
+            or alignment_step.nrp_monomer is not None]
 
     t = PrettyTable(rows[0].keys(), align='l', border=False)
     t.add_rows(row.values() for row in rows)

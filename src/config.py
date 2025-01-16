@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.monomer_names_helper import NorineMonomerName, antiSMASH_MonomerName, MonomerResidue
-from src.matching.scoring_config import load_scoring_config, ScoringConfig
 import yaml
 import dacite
 
@@ -94,6 +93,7 @@ class ConfigPaths:
     rban_graphs: Path
     default_results_root_dirname: str
     default_results_dirname_prefix: str
+    hmm_edge_weights_params: Path
 
     def __init__(self,
                  paths_cfg_dict: dict,
@@ -119,6 +119,7 @@ class ConfigPaths:
         self.rban_graphs = main_out_dir / Path(paths_cfg_dict['rban_graphs'])
         self.default_results_root_dirname = paths_cfg_dict['default_results_root_dirname']
         self.default_results_dirname_prefix = paths_cfg_dict['default_results_dirname_prefix']
+        self.hmm_scoring_config = nerpa_dir / Path(paths_cfg_dict['hmm_scoring_config'])
 
 
 @dataclass
@@ -133,11 +134,6 @@ class SpecificityPredictionConfig:
     compute_evidence: bool
 
 
-@dataclass
-class MatchingConfig:
-    scoring_config: ScoringConfig
-    heuristic_discard_on: bool
-
 
 @dataclass
 class Config:
@@ -146,7 +142,6 @@ class Config:
     specificity_prediction_config: SpecificityPredictionConfig
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
-    matching_config: MatchingConfig
 
 
 
@@ -169,11 +164,8 @@ def load_config(args: CommandLineArgs) -> Config:
                                                         yaml.safe_load(paths_config.aa_codes.open('r')))
     specificity_prediction_config = dacite.from_dict(SpecificityPredictionConfig,
                                                      cfg['specificity_prediction_config'])
-    matching_config = MatchingConfig(heuristic_discard_on=args.heuristic_discard,
-                                     scoring_config=load_scoring_config(paths_config.scoring_config))
     return Config(paths=paths_config,
                   antismash_parsing_config=antismash_parsing_config,
                   rban_config=rban_config,
                   rban_processing_config=rban_processing_config,
-                  specificity_prediction_config=specificity_prediction_config,
-                  matching_config=matching_config)
+                  specificity_prediction_config=specificity_prediction_config)

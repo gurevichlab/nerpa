@@ -11,6 +11,8 @@ from src.data_types import (
 from src.matching.matching_types_alignment_step import AlignmentStep
 from src.matching.matching_types_alignment import Alignment, alignment_score, show_alignment, alignment_from_str
 from more_itertools import split_at
+from collections import defaultdict
+from itertools import takewhile
 
 
 class Match_BGC_Variant_Info(NamedTuple):
@@ -96,31 +98,45 @@ class Match:
         return out.getvalue()
 
     @classmethod
-    def from_str(cls, match_str: str) -> Match:
+    def from_str(cls, match_str: str,
+                 print_warnings: bool = False) -> Match:
         lines = match_str.splitlines()
         # q: remove empty lines at the beginning and end
         fst_non_empty_line = next(i for i, line in enumerate(lines) if line.strip())
         last_non_empty_line = next(i for i, line in enumerate(reversed(lines)) if line.strip())
         lines_iter = iter(lines[fst_non_empty_line:len(lines) - last_non_empty_line])
 
-        # TODO: handle missing fields in old yaml files
-        genome_id = next(lines_iter).split(': ')[1]
-        contig_idx = int(next(lines_iter).split(': ')[1])
-        bgc_idx = int(lines[1].split(': ')[1])
-        bgc_variant_idx = int(next(lines_iter).split(': ')[1])
-        nrp_id = next(lines_iter).split(': ')[1]
-        nrp_variant_idx = int(next(lines_iter).split(': ')[1])
-        normalized_score = float(next(lines_iter).split(': ')[1])
-        score = float(next(lines_iter).split(': ')[1])
+        # parsing is a bit weird because of backward compatibility: some fields are optional
+        data = defaultdict(lambda: None)
+        field_type = {
+            'Genome': str,
+            'Contig_idx': int,
+            'BGC_idx': int,
+            'BGC_variant_idx': int,
+            'NRP': str,
+            'NRP_variant_idx': int,
+            'NormalisedScore': float,
+            'Score': float
+        }
+        field_lines = takewhile(lambda x: not x.startswith('Alignment:'), lines_iter)
+        for line in field_lines:
+            field_name, value = line.split(': ')
+            if field_name in field_type:
+                try:
+                    data[field_name] = field_type[field_name](value)
+                except:
+                    if print_warnings:
+                        print('Error parsing field:', field_name, value)
+                        print('Assigning None')
+                    data[field_name] = None
 
-        bgc_variant_info = Match_BGC_Variant_Info(genome_id=genome_id,
-                                                  contig_idx=contig_idx,
-                                                  bgc_idx=bgc_idx,
-                                                  variant_idx=bgc_variant_idx)
-        nrp_variant_info = Match_NRP_Variant_Info(nrp_id=nrp_id,
-                                                  variant_idx=nrp_variant_idx)
+        bgc_variant_info = Match_BGC_Variant_Info(genome_id=data['Genome'],
+                                                  contig_idx=data['Contig_idx'],
+                                                  bgc_idx=data['BGC_idx'],
+                                                  variant_idx=data['BGC_variant_idx'])
+        nrp_variant_info = Match_NRP_Variant_Info(nrp_id=data['NRP'],
+                                                  variant_idx=data['NRP_variant_idx'])
 
-        next(lines_iter)  # skip 'Alignment:'
         fst_alignment_line = next(lines_iter)
         if fst_alignment_line.startswith('Fragment'):
             fragments_blocks = split_at(lines_iter, lambda x: x.startswith('Fragment'))
@@ -131,4 +147,4 @@ class Match:
         return cls(bgc_variant_info=bgc_variant_info,
                    nrp_variant_info=nrp_variant_info,
                    alignments=alignments,
-                   normalized_score=normalized_score)
+                   normalized_score=data['NormalisedScore'])

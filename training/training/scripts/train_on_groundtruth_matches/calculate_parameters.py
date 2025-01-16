@@ -3,7 +3,6 @@ from collections import Counter, defaultdict
 from step_function import create_bins, fit_step_function_to_bins, plot_step_function
 from src.monomer_names_helper import MonomerResidue
 from src.data_types import LogProb, ModuleLocFeature, ModuleLocFeatures
-from src.matching.matching_types_alignment_step import AlignmentStepType
 from src.matching.matching_types_match import Match
 from src.data_types import (
     NRP_Variant,
@@ -51,7 +50,7 @@ def get_score_correctness(match_steps: List[ModuleMatchStepInfo]) -> List[Tuple[
     score_correcntess = []
     for match_step in match_steps:
         for predicted_residue, score in match_step.residue_scores.items():
-            score_correcntess.append((score, predicted_residue == match_step.step.nrp_monomer_info.residue))
+            score_correcntess.append((score, predicted_residue == match_step.step.nrp_monomer.residue))
     return score_correcntess
 
 
@@ -71,13 +70,13 @@ def get_modifications_frequencies(match_steps_info: List[ModuleMatchStepInfo]) -
     mt_cnt = Counter()
     ep_cnt = Counter()
     for step_info in match_steps_info:
-        bgc_mods = step_info.step.bgc_module_info.modifying_domains
+        bgc_mods = step_info.step.bgc_module.modifying_domains
         bgc_meth = BGC_Module_Modification.METHYLATION in bgc_mods
         bgc_chir = BGC_Module_Modification.EPIMERIZATION in bgc_mods
 
-        nrp_mods = step_info.step.nrp_monomer_info.modifications
+        nrp_mods = step_info.step.nrp_monomer.modifications
         nrp_meth = NRP_Monomer_Modification.METHYLATION in nrp_mods
-        nrp_chir = step_info.step.nrp_monomer_info.chirality
+        nrp_chir = step_info.step.nrp_monomer.chirality
 
         mt_cnt[f'BGC_{bgc_meth}_NRP_{nrp_meth}'] += 1
         ep_cnt[f'BGC_{bgc_chir}_NRP_{nrp_chir.name}'] += 1

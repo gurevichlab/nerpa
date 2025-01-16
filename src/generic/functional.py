@@ -38,3 +38,13 @@ def compose(*funs):
         return funs[0]
     else:
         return funs[0](compose(*funs[1:]))
+
+
+def make_optional(f: Callable) -> Callable:
+    def optional_f(*args, **kwargs):
+        # If any positional argument is `None`, return `None`
+        if any(arg is None for arg in args):
+            return None
+        # Call the wrapped function
+        return f(*args, **kwargs)
+    return optional_f

@@ -43,10 +43,10 @@ class ModuleMatchStepInfo:
 
     def __eq__(self, other):
         return all([
-            self.step.bgc_module_info.gene_id == other.step.bgc_module_info.gene_id,
-            self.step.bgc_module_info.a_domain_idx == other.step.bgc_module_info.a_domain_idx,
-            self.step.bgc_module_info.modifying_domains == other.step.bgc_module_info.modifying_domains,
-            self.step.nrp_monomer_info.rban_name == other.step.nrp_monomer_info.rban_name
+            self.step.bgc_module.gene_id == other.step.bgc_module.gene_id,
+            self.step.bgc_module.a_domain_idx == other.step.bgc_module.a_domain_idx,
+            self.step.bgc_module.modifying_domains == other.step.bgc_module.modifying_domains,
+            self.step.nrp_monomer.rban_name == other.step.nrp_monomer.rban_name
         ])
 
 
@@ -58,8 +58,8 @@ class ModuleSkipStepInfo:
 
     def __eq__(self, other):
         return all([
-            self.step.bgc_module_info.gene_id == other.step.bgc_module_info.gene_id,
-            self.step.bgc_module_info.a_domain_idx == other.step.bgc_module_info.a_domain_idx
+            self.step.bgc_module.gene_id == other.step.bgc_module.gene_id,
+            self.step.bgc_module.a_domain_idx == other.step.bgc_module.a_domain_idx
         ])
 
 
@@ -103,6 +103,13 @@ class BGCFragmentMatchInfo:
 
 
 @dataclass
+class SkipsRunAtStartInfo:
+    nrp_id: str
+    skipped_modules: List[AlignmentStep_BGC_Module_Info]
+    module_context: ModuleLocFeatures
+
+
+@dataclass
 class MatchesSkipsSteps:
     module_matches: List[ModuleMatchStepInfo]
     module_skips: List[ModuleSkipStepInfo]
@@ -134,7 +141,7 @@ def fragments_matches_skips_info(steps_wo_ins: List[AlignmentStep],
                                  gene_to_fragment: Dict[GeneId, int]) \
     -> Tuple[List[BGCFragmentMatchInfo], List[BGCFragmentSkipInfo]]:
     steps_by_fragment = groupby(steps_wo_ins,
-                                key=lambda step: gene_to_fragment[step.bgc_module_info.gene_id])
+                                key=lambda step: gene_to_fragment[step.bgc_module.gene_id])
     fragments_matches, fragments_skips = [], []
     for fragment_idx, fragment_steps in steps_by_fragment:
         fragment_steps = list(fragment_steps)
@@ -147,7 +154,7 @@ def fragments_matches_skips_info(steps_wo_ins: List[AlignmentStep],
             if module.gene_id not in fragment_genes:
                 fragment_genes.append(module.gene_id)
 
-        if all(step.nrp_monomer_info is None for step in fragment_steps):
+        if all(step.nrp_monomer is None for step in fragment_steps):
             fragments_skips.append(BGCFragmentSkipInfo(nrp_id=nrp_id,
                                                        fragment_genes=fragment_genes,
                                                        context=fragment_context))
@@ -164,7 +171,7 @@ def genes_matches_skips_info(steps_wo_ins: List[AlignmentStep],
                              gene_to_fragment: Dict[GeneId, int],
                              skipped_fragments: Set[int]) -> Tuple[List[GeneMatchInfo], List[GeneSkipInfo]]:
         steps_by_gene = groupby(steps_wo_ins,
-                                key=lambda step: step.bgc_module_info.gene_id)
+                                key=lambda step: step.bgc_module.gene_id)
         genes_matches, genes_skips = [], []
         for gene_id, gene_steps in steps_by_gene:
             if gene_to_fragment[gene_id] in skipped_fragments:
@@ -174,7 +181,7 @@ def genes_matches_skips_info(steps_wo_ins: List[AlignmentStep],
                             if module.gene_id == gene_id]
             gene_context = module_features_to_gene_features(gene_modules[0].module_loc,
                                                             gene_modules[-1].module_loc)
-            if all(step.nrp_monomer_info is None for step in gene_steps):
+            if all(step.nrp_monomer is None for step in gene_steps):
                 genes_skips.append(GeneSkipInfo(nrp_id=nrp_id,
                                                 gene_id=gene_id,
                                                 context=gene_context))
@@ -189,9 +196,19 @@ def genes_matches_skips_info(steps_wo_ins: List[AlignmentStep],
 def extract_matches_skips_info(alignment: List[AlignmentStep],
                                bgc_variant: BGC_Variant,
                                nrp_id: str) -> MatchesSkipsSteps:
+    steps_wo_ins = [step for step in alignment if step.bgc_module is not None]
+    fst_match_idx = next(idx for idx, step in enumerate(steps_wo_ins)
+                         if step.step_type == AlignmentStepType.MATCH)
+    last_match_idx = next(len(steps_wo_ins) - idx - 1
+                          for idx, step in enumerate(reversed(steps_wo_ins))
+                          if step.step_type == AlignmentStepType.MATCH)
+    skips_at_start = steps_wo_ins[:fst_match_idx]
+    skips_at_end = steps_wo_ins[last_match_idx + 1:]
+    steps_wo_ins = steps_wo_ins[fst_match_idx:last_match_idx + 1]
+
+
     gene_to_fragment = {module.gene_id: module.fragment_idx
                         for module in bgc_variant.modules}
-    steps_wo_ins = [step for step in alignment if step.bgc_module_info is not None]
     fragments_matches, fragments_skips = fragments_matches_skips_info(steps_wo_ins, bgc_variant, nrp_id, gene_to_fragment)
     skipped_fragments = {gene_to_fragment[gene_id]
                          for fragment in fragments_skips
@@ -201,15 +218,15 @@ def extract_matches_skips_info(alignment: List[AlignmentStep],
 
     module_matches, module_skips = [], []
     for step in steps_wo_ins:
-        gene_id = step.bgc_module_info.gene_id
-        a_domain_idx = step.bgc_module_info.a_domain_idx
+        gene_id = step.bgc_module.gene_id
+        a_domain_idx = step.bgc_module.a_domain_idx
         if gene_id in skipped_genes or gene_to_fragment[gene_id] in skipped_fragments:
             continue
 
         module = next(module for module in bgc_variant.modules
                       if module.gene_id == gene_id and module.a_domain_idx == a_domain_idx)
 
-        if step.nrp_monomer_info is None:
+        if step.nrp_monomer is None:
             module_skips.append(ModuleSkipStepInfo(step=step,
                                                    nrp_id=nrp_id,
                                                    context=module.module_loc))

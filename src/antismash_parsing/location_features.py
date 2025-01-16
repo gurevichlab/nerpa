@@ -3,7 +3,8 @@ from typing import (
     List,
     NewType,
     Optional,
-    Tuple
+    Tuple,
+    Union
 )
 from enum import Enum, auto
 from itertools import (
@@ -48,6 +49,7 @@ class BGC_Fragment_Loc_Feature(Enum):
 ModuleLocFeatures = Tuple[ModuleLocFeature, ...]
 GeneLocFeatures = Tuple[GeneLocFeature, ...]
 BGC_Fragment_Loc_Features = Tuple[BGC_Fragment_Loc_Feature, ...]
+
 
 
 def module_features_to_gene_features(fst_module_features: ModuleLocFeatures,
