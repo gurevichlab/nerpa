@@ -1,4 +1,5 @@
 from typing import (
+    Dict,
     List,
     Tuple
 )
@@ -13,24 +14,24 @@ from src.data_types import (
     BGC_Variant,
     NRP_Variant
 )
-
 import src.pipeline.nerpa_utils as nerpa_utils
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.scoring_config import load_scoring_config
-from src.matching.scoring_helper import ScoringHelper
-from src.matching.matching_types_match import Match
-from src.matching.matcher import get_matches
+from src.matching.matching_types_match import Match, Match_NRP_Variant_Info
+from src.matching.hmm_matcher import get_matches
+from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
+from src.matching.hmm_config import load_hmm_scoring_config
+from src.matching.hmm_scoring_helper import HMMHelper
 import src.write_results as report
 
 import shutil
 import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
-
+from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 
 
 
@@ -41,7 +42,6 @@ class PipelineHelper:
     monomer_names_helper: MonomerNamesHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
-    scoring_helper: ScoringHelper
 
     def __init__(self, log: NerpaLogger):
         self.log = log
@@ -66,8 +66,8 @@ class PipelineHelper:
         monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.paths.nerpa_monomers_info, sep='\t'))
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
-        self.scoring_helper = ScoringHelper(scoring_config=self.config.matching_config.scoring_config,
-                                            heuristic_discard_on=self.config.matching_config.heuristic_discard_on)
+        hmm_scoring_config = load_hmm_scoring_config(self.config.paths.hmm_scoring_config)
+        DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
         return self.pipeline_helper_antismash.get_bgc_variants()
@@ -81,13 +81,20 @@ class PipelineHelper:
             nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
         return nrp_variants, rban_records
 
+    def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
+        self.log.info("\n======= Constructing HMMs")
+        return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
+
+    def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) -> Dict[Match_NRP_Variant_Info, NRP_Linearizations]:
+        self.log.info("\n======= Getting NRP linearizations")
+        return get_all_nrp_linearizations(nrp_variants)
+
     def get_matches(self,
-                    bgc_variants: List[BGC_Variant],
-                    nrp_variants: List[NRP_Variant]) -> List[Match]:
+                    hmms: List[DetailedHMM],
+                    nrp_linearizations: Dict[str, NRP_Linearizations]) -> List[Match]:
         self.log.info("\n======= Nerpa matching")
-        return get_matches(bgc_variants, nrp_variants, self.scoring_helper,
-                           min_score=self.args.min_score,
-                           max_num_matches=self.args.num_matches,
+        return get_matches(hmms, nrp_linearizations,
+                           max_num_matches_per_bgc_variant=self.args.num_matches,
                            num_threads=self.args.threads,
                            log=self.log)
 
@@ -107,6 +114,6 @@ class PipelineHelper:
                              matches_details,
                              log=self.log,
                              draw_molecules=self.args.draw_molecules)
-        self.log.finish()
+        self.log.finish()  # TODO: create a separate method for this and "cleaning up"
 
 

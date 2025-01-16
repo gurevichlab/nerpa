@@ -20,7 +20,6 @@ from src.antismash_parsing.location_features import (
 )
 from src.matching.matching_types_alignment_step import (
     AlignmentStep,
-    AlignmentStepType,
     AlignmentStep_BGC_Module_Info
 )
 from src.matching.matching_types_match import Match
@@ -55,7 +54,7 @@ class MonomerInsertAtStartRunInfo:
     nrp_id: str
     inserted_monomers: List[MonomerResidue]
     module_context: ModuleLocFeatures  # the first module in the alignment matched to a monomer
-    module_info: AlignmentStep_BGC_Module_Info  # or the first module in the BGC if dist_to_prev_module is negative
+    module_info: AlignmentStep_BGC_Module_Info
 
     def __eq__(self, other):
         return all([
@@ -94,27 +93,27 @@ class InsertRunsInfo:
 def extract_inserts_info(alignment: List[AlignmentStep],
                          bgc_variant: BGC_Variant,
                          nrp_id: str) -> InsertRunsInfo:
-    steps_wo_skips = [step for step in alignment if step.nrp_monomer_info is not None]
+    steps_wo_skips = [step for step in alignment if step.nrp_monomer is not None]
     insert_runs = [steps_list
                    for steps in split_at(steps_wo_skips, lambda step: step.step_type == AlignmentStepType.MATCH,
                                          keep_separator=True)
                    if (steps_list := list(steps))]  # to remove empty list in the beginning if the first step is a match
     insert_at_start_steps_info, insert_steps_info = [], []
     if insert_runs[0][0].step_type == AlignmentStepType.NRP_MONOMER_INSERT:
-        gene_id = insert_runs[1][0].bgc_module_info.gene_id
-        a_domain_idx = insert_runs[1][0].bgc_module_info.a_domain_idx
+        gene_id = insert_runs[1][0].bgc_module.gene_id
+        a_domain_idx = insert_runs[1][0].bgc_module.a_domain_idx
         module = next(module for module in bgc_variant.modules
                       if module.gene_id == gene_id and module.a_domain_idx == a_domain_idx)
         insert_at_start_steps_info.append(MonomerInsertAtStartRunInfo(
             nrp_id=nrp_id,
-            inserted_monomers=[step.nrp_monomer_info.residue
+            inserted_monomers=[step.nrp_monomer.residue
                                for step in insert_runs[0]],
             module_context=module.module_loc,
             module_info=AlignmentStep_BGC_Module_Info.from_bgc_module(module)
         ))
     else:
-        gene_id = insert_runs[0][0].bgc_module_info.gene_id
-        a_domain_idx = insert_runs[0][0].bgc_module_info.a_domain_idx
+        gene_id = insert_runs[0][0].bgc_module.gene_id
+        a_domain_idx = insert_runs[0][0].bgc_module.a_domain_idx
         module = next(module for module in bgc_variant.modules
                       if module.gene_id == gene_id and module.a_domain_idx == a_domain_idx)
         insert_at_start_steps_info.append(MonomerInsertAtStartRunInfo(
@@ -129,10 +128,10 @@ def extract_inserts_info(alignment: List[AlignmentStep],
             continue
         prev_match_step = steps1[0]
         module = next(module for module in bgc_variant.modules
-                      if module.gene_id == prev_match_step.bgc_module_info.gene_id and
-                      module.a_domain_idx == prev_match_step.bgc_module_info.a_domain_idx)
+                      if module.gene_id == prev_match_step.bgc_module.gene_id and
+                      module.a_domain_idx == prev_match_step.bgc_module.a_domain_idx)
         if steps2[0].step_type == AlignmentStepType.NRP_MONOMER_INSERT:
-            inserted_monomers = [step.nrp_monomer_info.residue
+            inserted_monomers = [step.nrp_monomer.residue
                                  for step in steps2]
         else:
             inserted_monomers = []
