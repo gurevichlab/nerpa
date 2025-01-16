@@ -15,12 +15,20 @@ from joblib import delayed, Parallel
 
 def get_best_linearizations_for_nrp(hmm: HMM,
                                     nrp_linearizations: NRP_Linearizations,
-                                    monomer_names_helper: MonomerNamesHelper) \
+                                    monomer_names_helper: MonomerNamesHelper,
+                                    detailed_hmm: DetailedHMM,
+                                    use_anchors_heuristic: bool = False) \
     -> Tuple[float, List[Linearization]]:
+    if use_anchors_heuristic:
+        _get_hmm_score = lambda mons: alignment_score(detailed_hmm.get_alignment(mons))
+    else:
+        _get_hmm_score = lambda mons: get_hmm_score(hmm,
+                                                    [monomer_names_helper.mon_to_int[mon.to_base_mon()]
+                                                     for mon in mons])
     def linearization_score(linearization: List[rBAN_Monomer]) -> LogProb:
-        mons = [monomer_names_helper.mon_to_int[mon.to_base_mon()]
-                for mon in linearization]
-        return get_hmm_score(hmm, mons)
+        #mons = [monomer_names_helper.mon_to_int[mon.to_base_mon()]
+        #        for mon in linearization]
+        return _get_hmm_score(linearization)
 
     best_non_iterative_score, best_non_iterative_linearization = \
         max(((linearization_score(non_iterative_linearization), non_iterative_linearization)
@@ -59,7 +67,9 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
     matched_nrps_with_linearizations = []
     for nrp_info, nrp_linearizations in nrp_linearizations.items():
         score, linearizations = get_best_linearizations_for_nrp(hmm, nrp_linearizations,
-                                                                detailed_hmm.hmm_helper.monomer_names_helper)
+                                                                detailed_hmm.hmm_helper.monomer_names_helper,
+                                                                detailed_hmm,
+                                                                use_anchors_heuristic=True)
         matched_nrps_with_linearizations.append((score, nrp_info, linearizations))
 
     best_matched_linearizations = sorted(matched_nrps_with_linearizations,
