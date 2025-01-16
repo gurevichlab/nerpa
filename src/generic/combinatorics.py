@@ -111,3 +111,20 @@ def is_subsequence(subseq: List[T], seq: List[T]) -> bool:
             subseq_idx += 1
         seq_idx += 1
     return subseq_idx == len(subseq)
+
+
+def remove_runs_of_equal_elements(xs: Iterable[T]) -> Iterable[T]:
+    xs_it = iter(xs)
+    try:
+        last = next(xs_it)  # Initialize result with the first element of the input list
+        yield last
+
+    except StopIteration:
+        return []
+    while True:
+        try:
+            while (x := next(xs_it)) == last:
+                pass
+            yield (last := x)
+        except StopIteration:
+            break
