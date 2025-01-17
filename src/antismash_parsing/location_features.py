@@ -17,6 +17,8 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     Gene
 )
+from src.monomer_names_helper import enum_representer
+import yaml
 
 class ModuleLocFeature(Enum):
     START_OF_BGC = auto()
@@ -30,6 +32,8 @@ class ModuleLocFeature(Enum):
     PKS_DOWNSTREAM_NEXT_GENE = auto()
     PKS_DOWNSTREAM_SAME_GENE = auto()
 
+yaml.add_representer(ModuleLocFeature, enum_representer)
+
 
 class GeneLocFeature(Enum):
     START_OF_BGC = auto()
@@ -39,12 +43,15 @@ class GeneLocFeature(Enum):
     PKS_UPSTREAM = auto()
     PKS_DOWNSTREAM = auto()
 
+yaml.add_representer(GeneLocFeature, enum_representer)
 
 class BGC_Fragment_Loc_Feature(Enum):
     START_OF_BGC = auto()
     END_OF_BGC = auto()
     PKS_UPSTREAM = auto()
     PKS_DOWNSTREAM = auto()
+
+yaml.add_representer(BGC_Fragment_Loc_Feature, enum_representer)
 
 ModuleLocFeatures = Tuple[ModuleLocFeature, ...]
 GeneLocFeatures = Tuple[GeneLocFeature, ...]

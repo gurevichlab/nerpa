@@ -17,9 +17,11 @@ from src.monomer_names_helper import (
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.antismash_parsing.location_features import ModuleLocFeatures, ModuleLocFeature
 from src.rban_parsing.rban_monomer import rBAN_Monomer
+from src.monomer_names_helper import enum_representer
 from enum import auto, Enum
 from dataclasses import asdict, dataclass
 from itertools import chain, permutations, product
+import yaml
 
 Logger = Any  # some magical logger used throughout the pipeline
 
@@ -31,6 +33,8 @@ ResidueScores = Dict[MonomerResidue, LogProb]
 class BGC_Module_Modification(Enum):
     EPIMERIZATION = auto()
     METHYLATION = auto()
+
+yaml.add_representer(BGC_Module_Modification, enum_representer)
 
 
 @dataclass
@@ -48,18 +52,22 @@ class BGC_Module:
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> BGC_Module:  # TODO: use dacite from_dict or smth
-        return cls(gene_id=data['gene_id'],
-                   fragment_idx=data['fragment_idx'],
-                   a_domain_idx=data['a_domain_idx'],
-                   module_loc=tuple(ModuleLocFeature[loc_feature]
-                                    for loc_feature in data['module_loc']),
-                   residue_score=data['residue_score'],
-                   modifications=tuple(BGC_Module_Modification[mod]
-                                       for mod in data['modifications']),
-                   iterative_module=data['iterative_module'],
-                   iterative_gene=data['iterative_gene'],
-                   aa10_code=data.get('aa10_code') if data.get('aa10_code') != '---'  else None,
-                   aa34_code=data.get('aa34_code') if data.get('aa34_code') != '---' else None)
+        try:
+            res = cls(gene_id=data['gene_id'],
+                       fragment_idx=data['fragment_idx'],
+                       a_domain_idx=data['a_domain_idx'],
+                       module_loc=tuple(ModuleLocFeature[loc_feature]
+                                        for loc_feature in data['module_loc']),
+                       residue_score=data['residue_score'],
+                       modifications=tuple(BGC_Module_Modification[mod]
+                                           for mod in data['modifications']),
+                       iterative_module=data['iterative_module'],
+                       iterative_gene=data['iterative_gene'],
+                       aa10_code=data.get('aa10_code') if data.get('aa10_code') != '---'  else None,
+                       aa34_code=data.get('aa34_code') if data.get('aa34_code') != '---' else None)
+        except:
+            raise
+        return res
 
 
 BGC_MODULE_DUMMY = BGC_Module(gene_id=GeneId(''), fragment_idx=-1, module_loc=(), a_domain_idx=-1,
