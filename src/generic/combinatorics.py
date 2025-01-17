@@ -128,3 +128,16 @@ def remove_runs_of_equal_elements(xs: Iterable[T]) -> Iterable[T]:
             yield (last := x)
         except StopIteration:
             break
+
+
+def filter_unique(xs: Iterable[T]) -> Iterable[T]:
+    seen = set()
+    xs_it = iter(xs)
+    while True:
+        try:
+            x = next(xs_it)
+        except StopIteration:
+            break
+        if x not in seen:
+            seen.add(x)
+            yield x

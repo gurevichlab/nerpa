@@ -16,6 +16,8 @@ from src.antismash_parsing.location_features import (
     BGC_Fragment_Loc_Features
 )
 from src.data_types import NRP_Monomer
+from src.monomer_names_helper import enum_representer
+import yaml
 
 class HMM(NamedTuple):
     adj_list: List[List[Tuple[int, float]]]  # u -> [(v, log_prob(u -> v))]
@@ -75,6 +77,7 @@ class DetailedHMMEdgeType(Enum):
     START_SKIPPING_AT_END = auto()
     SKIP_FRAGMENT_AT_END = auto()
 
+yaml.add_representer(DetailedHMMEdgeType, enum_representer)
 
 GenomicContext = Union[ModuleLocFeatures, GeneLocFeatures, BGC_Fragment_Loc_Features]
 EdgeKey = tuple

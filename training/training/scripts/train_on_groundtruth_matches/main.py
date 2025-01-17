@@ -21,6 +21,7 @@ from auxilary_types import MatchWithBGCNRP
 from itertools import islice, chain
 import dacite
 from train_hmm import estimate_parameters
+from fix_matches_truncated_genes import fix_approved_matches
 
 
 def parse_args():
@@ -72,23 +73,23 @@ def load_matches(nerpa_results_dir: Path,
     return matches
 
 
-def load_bgc_variants_for_matches(matches: List[Match],
-                                  nerpa_results_dir: Path,
-                                  check_by_bgc_variant_id: bool = True) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
+def load_all_bgc_variants(matches: List[Match],
+                          nerpa_results_dir: Path) -> Dict[str, List[BGC_Variant]]:  # nrp_id -> bgc_variants
     nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
     bgc_variants = defaultdict(list)
     for nrp_id in nrp_ids:
         bgc_dir = nerpa_results_dir / nrp_id
-        try:
-            yaml_files = [f for f in (bgc_dir / 'BGC_variants_before_calibration').iterdir()
-                          if f.name.endswith('.yaml')]
-        except FileNotFoundError:
-            print(f'No BGC variants for {nrp_id}')
-            raise
+        yaml_files = [f for f in (bgc_dir / 'BGC_variants_before_calibration').iterdir()
+                      if f.name.endswith('.yaml')]
         for yaml_file in yaml_files:
             bgc_variants[nrp_id].extend(BGC_Variant.from_yaml_dict(bgc_variant_dict)
                                         for bgc_variant_dict in yaml.safe_load(yaml_file.read_text()))
+    return bgc_variants
 
+
+def load_bgc_variants_for_matches(matches: List[Match],
+                                  bgc_variants: Dict[str, List[BGC_Variant]],
+                                  check_by_bgc_variant_id: bool = True) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
     nrp_id_to_bgc_variant = {}
     for match in matches:
         nrp_id = match.nrp_variant_info.nrp_id
@@ -191,11 +192,16 @@ def main():
     approved_matches = load_approved_matches(args.approved_matches, nrp_ids_good_matches)
     print(f'{len(approved_matches)} matches loaded')
 
+    print('Loading BGC variants')
+    bgc_variants = load_all_bgc_variants(approved_matches, nerpa_results_dir)
+
     print('Fixing matches')
     approved_matches = [fix_match(match) for match in approved_matches]
+    approved_matches = fix_approved_matches(approved_matches, bgc_variants)
+
     # As variants ids may differ, load bgc variants based on compatibility, not by id
     bgc_variants_approved_matches = load_bgc_variants_for_matches(approved_matches,
-                                                                  nerpa_results_dir,
+                                                                  bgc_variants,
                                                                   check_by_bgc_variant_id=False)
     bgc_variants_approved_matches = {nrp_id: fix_bgc_variant(bgc_variant)
                                      for nrp_id, bgc_variant in bgc_variants_approved_matches.items()}
