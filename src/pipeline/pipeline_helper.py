@@ -114,7 +114,8 @@ class PipelineHelper:
                              rban_records,
                              matches_details,
                              log=self.log,
-                             draw_molecules=self.args.draw_molecules)
+                             draw_molecules=self.args.draw_molecules,
+                             debug_output=self.args.debug)
         self.log.finish()  # TODO: create a separate method for this and "cleaning up"
 
 
