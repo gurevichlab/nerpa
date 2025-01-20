@@ -11,11 +11,14 @@ from src.matching.matcher_viterbi_types import (
 )
 from src.matching.matching_types_alignment import show_alignment
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+from src.write_results import write_yaml
 from auxilary_types import MatchWithBGCNRP
 from itertools import pairwise
 from dataclasses import dataclass
 from pathlib import Path
 from collections import defaultdict
+import yaml
+
 
 
 @dataclass
@@ -66,14 +69,14 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> 
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
         print(f"Processing match {match.nrp_variant_info.nrp_id}")
         detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant)
-        detailed_hmm.draw(Path(f"bgc.png"))
+        # detailed_hmm.draw(Path(f"bgc.png"))
         for i, alignment in enumerate(match.alignments):
-            with open(f"alignment.txt", "w") as f:
-                f.write(show_alignment(alignment))
+            #with open(f"alignment.txt", "w") as f:
+            #    f.write(show_alignment(alignment))
             path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
             path = [state_idx for state_idx, _ in path_with_emissions]
-            detailed_hmm.draw(Path(f"optimal_path.png"),
-                              highlight_path=path)
+            #detailed_hmm.draw(Path(f"optimal_path.png"),
+            #                  highlight_path=path)
             turns_info.extend(get_turns_info(detailed_hmm, path))
 
     seen_edge_keys = set()
@@ -110,38 +113,88 @@ def filter_context(genomic_context: GenomicContext) -> GenomicContext:
 # for multiple features, parameters are computed based on the single features
 SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
 
+
+def total_choices(data: DataForTraining,
+                  edge_type: DetailedHMMEdgeType) -> Tuple[int, int]:  # (not chosen, chosen)
+    return sum(1 - int(chosen) for edge_type_, _, chosen in data.edge_choices if edge_type_ == edge_type), \
+              sum(int(chosen) for edge_type_, _, chosen in data.edge_choices if edge_type_ == edge_type)
+
+EDGE_TYPE_DEPENDENCIES = {
+    # Insertion edge dependencies
+    DetailedHMMEdgeType.START_INSERTING_AT_START: {
+        ModuleLocFeature.START_OF_BGC,
+        ModuleLocFeature.START_OF_FRAGMENT,
+        ModuleLocFeature.START_OF_GENE,
+        ModuleLocFeature.PKS_UPSTREAM_PREV_GENE,
+        ModuleLocFeature.PKS_UPSTREAM_SAME_GENE
+    },
+    DetailedHMMEdgeType.INSERT_AT_START: set(),
+    DetailedHMMEdgeType.START_INSERTING: {
+        ModuleLocFeature.END_OF_BGC,
+        ModuleLocFeature.END_OF_FRAGMENT,
+        ModuleLocFeature.END_OF_GENE,
+        ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE,
+        ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE
+    },
+    DetailedHMMEdgeType.INSERT: set(),
+    DetailedHMMEdgeType.END_INSERTING: set(),
+
+    # Skip edge dependencies (empty for now)
+    DetailedHMMEdgeType.START_SKIP_MODULES_AT_START: set(),
+    DetailedHMMEdgeType.START_SKIP_GENES_AT_START: set(),
+    DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START: set(),
+    DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START: set(),
+    DetailedHMMEdgeType.SKIP_MODULE: set(),
+    DetailedHMMEdgeType.SKIP_GENE: set(),
+    DetailedHMMEdgeType.SKIP_FRAGMENT: set(),
+    DetailedHMMEdgeType.START_SKIPPING_AT_END: set(),
+    DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END: set(),
+
+    # Iteration edge dependencies (empty for now)
+    DetailedHMMEdgeType.ITERATE_MODULE: set(),
+    DetailedHMMEdgeType.ITERATE_GENE: set()
+}
+
+def get_filtered_data(data: DataForTraining) -> Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, Tuple[int, int]]]:
+    filtered_data = {}
+    for edge_type, context, chosen in data.edge_choices:
+        if edge_type not in EDGE_TYPE_DEPENDENCIES:
+            continue
+        if context is None:
+            context = ()
+        context = filter_context(context)
+        context = tuple(feature for feature in context if feature in EDGE_TYPE_DEPENDENCIES[edge_type])
+        if edge_type not in filtered_data:
+            filtered_data[edge_type] = {}
+        if context not in filtered_data[edge_type]:
+            filtered_data[edge_type][context] = (0, 0)
+        filtered_data[edge_type][context] = (filtered_data[edge_type][context][0] + 1 - int(chosen),
+                                                filtered_data[edge_type][context][1] + int(chosen))
+
+    write_yaml(filtered_data, Path('filtered_data.yaml'))
+    return filtered_data
+
+
+def laplace(neg: int, pos: int) -> float:
+    return (pos + 1) / (neg + pos + 2)
+
+
 def estimate_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) \
     -> Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]:
     data = extract_data_for_training(matches_with_bgcs_nrps)
-    cnts = defaultdict(lambda: defaultdict(lambda: (0,0)))
-    for edge_type, genomic_context, chosen in data.edge_choices:
-        if not genomic_context:
-            cnts[edge_type][None] = (cnts[edge_type][None][0] + 1 - int(chosen),
-                                     cnts[edge_type][None][1] + int(chosen))
-            continue
-        genomic_context = filter_context(genomic_context)
-        for loc_feature in genomic_context:
-            cnts[edge_type][loc_feature] = (cnts[edge_type][loc_feature][0] + 1 - int(chosen),
-                                            cnts[edge_type][loc_feature][1] + int(chosen))
+    filtered_data = get_filtered_data(data)
 
-    default_prob = {}
-    pseudocount = 0.1  # to avoid zero probabilities
-    for edge_type in cnts:
-        total_not_chosen = sum(cnts[edge_type][loc_feature][0] for loc_feature in cnts[edge_type])
-        total_chosen = sum(cnts[edge_type][loc_feature][1] for loc_feature in cnts[edge_type])
+    lower_bound_prob = 0.01  # no probability should be lower than this
 
-        default_prob[edge_type] = (total_chosen + pseudocount) / (total_chosen + total_not_chosen + 2 * pseudocount)
+    probs = {}
+    MF = ModuleLocFeature
+    GF = GeneLocFeature
+    FF = BGC_Fragment_Loc_Feature
 
-    probs = defaultdict(lambda: defaultdict(float))
-    for edge_type in cnts:
-        for loc_feature in cnts[edge_type]:
-            not_chosen, chosen = cnts[edge_type][loc_feature]
-            if not_chosen + chosen < 5:
-                print(f"Warning: not enough data for edge type {edge_type} and loc feature {loc_feature}")
-                probs[edge_type][loc_feature] = default_prob[edge_type]
-            else:
-                probs[edge_type][loc_feature] = (chosen + pseudocount)  / (chosen + not_chosen + 2 * pseudocount)
-    return probs
+    # 1. START_INSERTING_AT_START
+    tp = DetailedHMMEdgeType.START_INSERTING_AT_START
+    # we have many cases of 'START_OF_BGC', so I just use Laplace smoothing
+    probs[tp][MF.START_OF_BGC] = laplace(*filtered_data[tp][MF.START_OF_BGC])
 
 
 def get_edge_weights(hmm: DetailedHMM,

@@ -388,6 +388,6 @@ def bgc_variant_to_detailed_hmm(cls,
     # set edge weights
     edge_weights = cls.hmm_helper.get_edge_weights(hmm)
     for u, v in edge_weights:
-       hmm.adj_list[u][v]._replace(log_prob=edge_weights[(u, v)])
+       hmm.adj_list[u][v] = hmm.adj_list[u][v]._replace(log_prob=edge_weights[(u, v)])
 
     return hmm

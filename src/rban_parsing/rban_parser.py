@@ -123,7 +123,7 @@ class Parsed_rBAN_Record:
     def to_nx_monomer_graph(self) -> DiGraph:
         G = DiGraph()
         for mon_idx, mon_info in self.monomers.items():
-            G.add_node(mon_idx, name=mon_info.name)
+            G.add_node(mon_idx, name=f'{mon_info.name}_{mon_info.chirality.name}_{mon_info.is_pks_hybrid}')
         for (u, v), edge_info in self.monomer_bonds.items():
             G.add_edge(u, v, bond_type=edge_info.bondType)
         return G

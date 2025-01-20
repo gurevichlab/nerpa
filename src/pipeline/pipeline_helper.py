@@ -64,6 +64,7 @@ class PipelineHelper:
         shutil.copytree(self.config.paths.configs_input, self.config.paths.configs_output, copy_function=shutil.copy)
 
         monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.paths.nerpa_monomers_info, sep='\t'))
+        self.monomer_names_helper = monomer_names_helper
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
         hmm_scoring_config = load_hmm_scoring_config(self.config.paths.hmm_scoring_config)
