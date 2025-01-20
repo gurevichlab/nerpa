@@ -103,8 +103,11 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                 nrp_monomer = nrp_monomers[mon_idx]
                 mon_idx += 1
             # skips
-            case DetailedHMMEdgeType.SKIP_MODULE | DetailedHMMEdgeType.SKIP_GENE | DetailedHMMEdgeType.SKIP_FRAGMENT:
-                bgc_module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[edge_from]]
+            case DetailedHMMEdgeType.SKIP_MODULE:
+                try:
+                    bgc_module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[edge_from]]
+                except:
+                    pass
 
         score = transition_score + emission_score
         bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \
