@@ -126,6 +126,7 @@ def write_results(matches: List[Match],
                   matches_details: bool = True,
                   draw_molecules: bool = True,
                   html_report: bool = True,
+                  debug_output: bool = False,
                   log: Optional[NerpaLogger] = None):
     config_paths.report.write_text(build_report(matches))
 
@@ -143,5 +144,5 @@ def write_results(matches: List[Match],
         write_matches_details(matches, config_paths.matches_details)
 
     if html_report:
-        create_html_report(config_paths, matches)
+        create_html_report(config_paths, matches, debug_output)
 
