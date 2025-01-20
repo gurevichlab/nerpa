@@ -254,12 +254,12 @@
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Gene" checked> Gene</label></span>
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A index" checked> A index</label></span>
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A residue" checked> A residue</label></span>
-                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Module mods" checked> Module mods</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="A mods" checked> A mods</label></span>
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP residue" checked> NRP residue</label></span>
-                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP chirality" checked> NRP chirality</label></span>
-                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP mods" checked> NRP mods</label></span>
-                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="rBAN residue"> rBAN residue</label></span>
-                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP index" checked> NRP index</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="rBAN name"> rBAN name</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Index" checked> Index</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Chirality" checked> Chirality</label></span>
+                            <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Mods" checked> Mods</label></span>
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Step" checked> Step</label></span>
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Score" checked> Score</label></span>
                             <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Residue score"> Residue score</label></span>
@@ -280,12 +280,12 @@
                                 <th title="Gene name">Gene</th>
                                 <th title="Index of the A-domain within the gene">A index</th>
                                 <th title="Top scoring residue prediction for the A-domain">A residue</th>
-                                <th title="Modifying domains inside the module corresponding to the A-domain ('E' for epimerization, 'MT' for methylation, '---' for none)">Module mods</th>
+                                <th title="Modifying domains inside the module corresponding to the A-domain ('E' for epimerization, 'MT' for methylation, '---' for none)">A mods</th>
                                 <th title="Core NRP residue (Nerpa naming)">NRP residue</th>
-                                <th title="Parsed chirality of the NRP residue ('D', 'L' or 'unk' when unknown/failed to parse)">NRP chirality</th>
-                                <th title="Modifications of the core NRP residue ('MT' for methylation, 'unk' for other modifications, '---' for none)">NRP mods</th>
-                                <th title="NRP residue (rBAN naming)">rBAN residue</th>
-                                <th title="rBAN index of the NRP residue in the structure and monomer graph">NRP index</th>
+                                <th title="rBAN name of the NRP residue">rBAN name</th>
+                                <th title="rBAN index of the NRP residue in the structure and monomer graph">Index</th>
+                                <th title="Parsed chirality of the NRP residue ('D', 'L' or 'unk' when unknown/failed to parse)">Chirality</th>
+                                <th title="Modifications of the core NRP residue ('MT' for methylation, '---' for none or other modifications)">Mods</th>
                                 <th title="Alignment step">Step</th>
                                 <th title="Total score of the alignment row (sum of the residue, methylation and chirality scores)">Score</th>
                                 <th title="Score for the residues (mis)match">Residue score</th>
@@ -372,12 +372,12 @@
             'Gene': 'Gene',
             'A index': 'A-domain_idx',
             'A residue': 'Top_scoring_residues',
-            'Module mods': 'Modifying_domains',
+            'A mods': 'Modifying_domains',
             'NRP residue': 'NRP_residue',
-            'NRP chirality': 'NRP_chirality',
-            'NRP mods': 'NRP_modifications',
-            'rBAN residue': 'rBAN_name',
-            'NRP index': 'rBAN_idx',
+            'rBAN name': 'rBAN_name',
+            'Index': 'rBAN_idx',
+            'Chirality': 'NRP_chirality',
+            'Mods': 'NRP_modifications',
             'Step': 'Alignment_step',
             'Score': 'Score',
             'Residue score': 'ResidueScore',
