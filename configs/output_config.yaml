@@ -1,0 +1,25 @@
+default_results_root_dirname: nerpa_results
+default_results_dirname_prefix: results_
+
+configs_output: configs
+
+antismash_out_dir: antismash_output
+
+bgc_variants_dir: BGC_variants
+nrp_variants_dir: NRP_variants,
+nrp_images_dir: NRP_images
+rban_graphs: rban_graphs.yaml
+
+matches_details: matches_details
+
+report: report.tsv
+html_report: report.html
+logo: docs/img/logo.png,
+
+
+rban:
+    default_monomers_file: rban_monomers_db.json
+    default_input_file: rban.input.json
+    default_output_file_name: rban.output.json
+    putative_hybrids_input_file: hybrid_monomers_input.json
+    putative_hybrids_output_file_name: hybrid_monomers_output.json
