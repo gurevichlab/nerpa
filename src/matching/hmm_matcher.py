@@ -5,6 +5,7 @@ from src.matching.matcher_viterbi_types import HMM
 from src.matching.matching_types_match import Match, Match_BGC_Variant_Info, Match_NRP_Variant_Info
 from src.matching.matching_types_alignment import Alignment, alignment_score, combined_alignments_score
 from src.matching.matcher_viterbi_algorithm import get_hmm_score, get_opt_path_with_emissions
+from src.matching.hmm_scoring_helper import HMMHelper
 from src.rban_parsing.get_linearizations import NRP_Linearizations, Linearization
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.generic.combinatorics import split_sequence_subseqs
@@ -59,10 +60,12 @@ def get_best_linearizations_for_nrp(hmm: HMM,
 def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                         nrp_linearizations: Dict[Match_NRP_Variant_Info, NRP_Linearizations],
                         max_num_matches_per_bgc_variant: Optional[int],
+                        hmm_helper: HMMHelper,
                         log=None) -> List[Match]:
     if log is not None:
         log.info(f'Processing BGC {detailed_hmm.bgc_variant.genome_id} variant {detailed_hmm.bgc_variant.variant_idx}')
 
+    DetailedHMM.hmm_helper = hmm_helper
     hmm = detailed_hmm.to_hmm()
     matched_nrps_with_linearizations = []
     for nrp_info, nrp_linearizations in nrp_linearizations.items():
@@ -103,6 +106,7 @@ def get_matches(hmms: List[DetailedHMM],
         log.info(f'Matching {len(hmms)} BGC variants against {total_linearizations} NRP linearizations')
     matches = chain(*Parallel(n_jobs=num_threads)(delayed(get_matches_for_hmm)(hmm, nrp_linearizations,
                                                                                max_num_matches_per_bgc_variant,
+                                                                               DetailedHMM.hmm_helper,
                                                                                log)
                                                   for hmm in hmms))
     # q: sort matches by normalized score

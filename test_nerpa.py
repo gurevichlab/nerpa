@@ -3,6 +3,9 @@ import yaml
 from typing import List, Optional
 from src.matching.matching_types_match import Match
 from src.testing.check_matches import find_wrong_matches
+from src.training.extract_data_for_training import extract_data_for_training
+from src.training.hmm_infer_edge_params import infer_edge_params
+from src.training.hmm_infer_emission_params import infer_emission_params
 from itertools import islice
 import subprocess
 
@@ -45,7 +48,8 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
         "--rban-json", str(rban_inputs),
         "--output_dir", str(output_dir),
         "--force-existing-outdir",
-        "--num-matches", "10"
+        "--num-matches", "10",
+        "--threads", "10",
     ]
 
     # Execute the command and capture output

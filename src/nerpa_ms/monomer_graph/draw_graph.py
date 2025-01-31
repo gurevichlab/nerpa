@@ -11,6 +11,7 @@ from src.nerpa_ms.monomer_graph.chem_helper import (
 )
 import networkx as nx
 import matplotlib.pyplot as plt
+from io import StringIO
 
 
 def monomer_color_dict() -> Dict[str, Tuple[float, float, float]]:
@@ -61,7 +62,8 @@ def draw_molecule(G: MonomerGraph, output_file: Path):
             bond_idx = mol.GetBondBetweenAtoms(index1, index2).GetIdx()
             bonds_to_highlight.append(bond_idx)
 
-        drawer = rdMolDraw2D.MolDraw2DCairo(1000, 1000)
+        drawer = rdMolDraw2D.MolDraw2DSVG(1000, 1000)
+        #drawer = rdMolDraw2D.MolDraw2DCairo(1000, 1000)
         
         opts = drawer.drawOptions()
         for atom_index, label in atom_labels.items():  # write names of monomers
@@ -73,7 +75,8 @@ def draw_molecule(G: MonomerGraph, output_file: Path):
 
         drawer.FinishDrawing()
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        output_file.write_bytes(drawer.GetDrawingText())
+        output_file.write_text(drawer.GetDrawingText())
+        #output_file.write_bytes(drawer.GetDrawingText())
 
 
 def make_graph_to_draw(G: MonomerGraph) -> nx.DiGraph:
@@ -134,6 +137,8 @@ def draw_monomer_graph(G: MonomerGraph, output_file: Path,
                      node_size=500,
                      width=3)
     output_file.parent.mkdir(exist_ok=True, parents=True)
-    plt.savefig(output_file)
+    svg_buffer = StringIO()
+    plt.savefig(svg_buffer, format='svg')
+    output_file.write_text(svg_buffer.getvalue())
     plt.clf()
 

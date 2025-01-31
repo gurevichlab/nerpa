@@ -140,5 +140,5 @@ class MonomerNamesHelper:
 
 
 # that's for testing purposes. Remove it on the final version
-monomer_names_csv = Path('/home/ilianolhin/git/nerpa2/configs/monomer_names_table.tsv')
+monomer_names_csv = Path(__file__).parent.parent / 'configs/monomer_names_table.tsv'
 monomer_names_helper = MonomerNamesHelper(pd.read_csv(monomer_names_csv, sep='\t'))

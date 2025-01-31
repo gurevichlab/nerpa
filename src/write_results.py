@@ -85,9 +85,9 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
             for rban_record in rban_records:
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   output_file=config_paths.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
+                                   output_file=config_paths.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg')
                 try:
-                    draw_molecule(monomer_graph, config_paths.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
+                    draw_molecule(monomer_graph, config_paths.nrp_images_dir / f'molecules/{rban_record.compound_id}.svg')
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
