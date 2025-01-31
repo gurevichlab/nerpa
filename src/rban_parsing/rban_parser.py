@@ -11,6 +11,7 @@ from src.data_types import (
     SMILES
 )
 from src.monomer_names_helper import NorineMonomerName
+from networkx import DiGraph, is_isomorphic
 
 from collections import defaultdict
 from dataclasses import dataclass
@@ -39,7 +40,7 @@ class MonomerInfo(NamedTuple):
     name: NorineMonomerName
     atoms: List[AtomId]
     chirality: Chirality
-    is_hybrid: bool = False
+    is_pks_hybrid: bool = False
 
 
 class MonomerEdgeInfo(NamedTuple):
@@ -91,7 +92,7 @@ class Parsed_rBAN_Record:
                              MonomerInfo(name=get_monomer_name(idx),
                                          atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
                                          chirality=chiralities[idx],
-                                         is_hybrid=idx in hybrid_monomers)
+                                         is_pks_hybrid=idx in hybrid_monomers)
                          for monomer in rban_record['monomericGraph']['monomericGraph']['monomers']}
 
         self.atomic_bonds = {(AtomId(bond['atoms'][0]), AtomId(bond['atoms'][1])):
@@ -118,6 +119,27 @@ class Parsed_rBAN_Record:
                           for mon_idx, mon_info in self.monomers.items()},
                 'edges': [(u, v, edge_info.bondType)
                           for (u, v), edge_info in self.monomer_bonds.items()]}
+
+    def to_nx_monomer_graph(self) -> DiGraph:
+        G = DiGraph()
+        for mon_idx, mon_info in self.monomers.items():
+            G.add_node(mon_idx, name=f'{mon_info.name}_{mon_info.chirality.name}_{mon_info.is_pks_hybrid}')
+        for (u, v), edge_info in self.monomer_bonds.items():
+            G.add_edge(u, v, bond_type=edge_info.bondType)
+        return G
+
+    @classmethod
+    def graphs_isomorphic(cls, graph1: DiGraph, graph2: DiGraph) -> bool:
+        def node_match(n1, n2):
+            name1, name2 = n1.get('name'), n2.get('name')
+            return any([name1 == name2,  # same amino acid
+                        name1.startswith('X') and name2.startswith('X'),  # both unknown
+                        ':' in name1 and ':'])  # both lipid tails
+
+        def edge_match(e1, e2):
+            return e1.get('bond_type') == e2.get('bond_type')
+
+        return is_isomorphic(graph1, graph2, node_match=node_match, edge_match=edge_match)
 
 
 def get_hybrid_monomers_smiles(rban_record: Raw_rBAN_Record) -> List[Tuple[MonomerIdx, SMILES]]:

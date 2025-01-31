@@ -31,3 +31,20 @@ def cached_by_key(key: Callable):
     def decorator(f: Callable):
         return CachedByKey(f, key)
     return decorator
+
+
+def compose(*funs):
+    if len(funs) == 1:
+        return funs[0]
+    else:
+        return funs[0](compose(*funs[1:]))
+
+
+def make_optional(f: Callable) -> Callable:
+    def optional_f(*args, **kwargs):
+        # If any positional argument is `None`, return `None`
+        if any(arg is None for arg in args):
+            return None
+        # Call the wrapped function
+        return f(*args, **kwargs)
+    return optional_f

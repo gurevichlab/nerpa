@@ -12,6 +12,8 @@ from src.monomer_names_helper import antiSMASH_MonomerName
 
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
+GeneId = NewType('GeneId', str)
+
 
 class SVM_LEVEL(Enum):
     SINGLE_AMINO = auto()
@@ -82,17 +84,25 @@ class Coords(NamedTuple):
 
 @dataclass
 class Gene:
-    gene_id: str
+    gene_id: GeneId
     coords: Coords
     modules: List[Module]  # modules are in the order of appearance in the gene
+    is_iterative: bool = False
 
 
 @dataclass
 class BGC_Cluster:
     genome_id: str
-    contig_id: str
+    contig_idx: int
     bgc_idx: int
     genes: List[Gene]
 
     def has_pks_domains(self) -> bool:
-        return any(DomainType.PKS in gene.modules for gene in self.genes)
+        return any(DomainType.PKS in module.domains_sequence
+                   for gene in self.genes
+                   for module in gene.modules)
+
+    def has_a_domains(self) -> bool:
+        return any(module.a_domain is not None
+                   for gene in self.genes
+                   for module in gene.modules)

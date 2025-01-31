@@ -1,76 +1,123 @@
-from typing import List, Optional, Tuple
+from src.matching.matching_types_alignment_step import (
+    AlignmentStep,
+    AlignmentStep_BGC_Module_Info,
+)
+from src.data_types import NRP_Monomer_Modification
+from src.matching.matching_types_alignment import Alignment
+from src.matching.matching_types_match import Match
+from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
+from src.rban_parsing.rban_monomer import rBAN_Monomer
+from typing import Iterable, List, Optional, Tuple
 from itertools import permutations
-from training.training.scripts.train_on_groundtruth_matches.write_results import show_match
 
 
-def steps_coincide(step_test, step_approved) -> bool:  # step2 is approved
-    wrong_field = next((field_name
-                        for field_name in ['Alignment_step',
-                                           'Modifying_domains',
-                                           'NRP_chirality',
-                                           #'NRP_modifications',
-                                           #'NRP_residue',
-                                           'aa10_code',
-                                           'aa34_code']
-                        if step_test[field_name] != step_approved[field_name]), None)
-    if wrong_field is not None:
-        print(wrong_field)
+def bgc_modules_coincide(module_test: AlignmentStep_BGC_Module_Info,
+                         module_approved: AlignmentStep_BGC_Module_Info,
+                         indexes_offset: int = 0) -> bool:
+    gene_approved = module_approved.gene_id
+    if 'ctg' in gene_approved:  # backwards compatibility
+        gene_approved = gene_approved.split('_', 1)[1]
+
+    return all([module_test.gene_id == gene_approved,
+                module_test.a_domain_idx + indexes_offset == module_approved.a_domain_idx])
+                #module_test.modifying_domains == module_approved.modifying_domains,
+                #module_test.aa10_code == module_approved.aa10_code,
+                #module_test.aa34_code == module_approved.aa34_code])
+
+
+def filter_out_unknown(modifications: Iterable[NRP_Monomer_Modification]) -> List[NRP_Monomer_Modification]:
+    return [mod for mod in modifications if mod != NRP_Monomer_Modification.UNKNOWN]
+
+
+def nrp_monomers_coincide(monomer_test: rBAN_Monomer,
+                          monomer_approved: rBAN_Monomer) -> bool:
+    return all([monomer_test.chirality == monomer_approved.chirality,
+                (monomer_test.rban_name == monomer_approved.rban_name) or
+                (monomer_test.rban_name[0] == monomer_approved.rban_name[0] == 'X')])
+
+
+def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep,
+                   indexes_offset: int = 0) -> bool:
+    result = True
+    if step_test.step_type != step_approved.step_type:
+        print('Wrong step type')
+        result = False
+
+    # compare BGC module info
+    if step_test.bgc_module is not None and \
+            not bgc_modules_coincide(step_test.bgc_module, step_approved.bgc_module,
+                                     indexes_offset):
+        print('BGC modules are different')
+        result = False
+
+    # compare NRP monomer info
+    if step_test.nrp_monomer is not None and \
+            not nrp_monomers_coincide(step_test.nrp_monomer, step_approved.nrp_monomer):
+        print('NRP monomers are different')
+        result = False
+
+    if not result:
+        print('Test step:')
+        print(step_test)
+        print('Approved step:')
+        print(step_approved)
+
+    return result
+
+
+# We compare two alignments by comparing only the MATCH steps
+# because the other steps can differ for different versions of Nerpa
+def alignments_coincide(alignment1: Alignment,
+                        alignment2: Alignment,
+                        indexes_offset: int = 0) -> bool:
+    min_idx1 = min([step.bgc_module.a_domain_idx
+                    for step in alignment1
+                    if step.bgc_module is not None])
+    min_idx2 = min([step.bgc_module.a_domain_idx
+                    for step in alignment2
+                    if step.bgc_module is not None])
+    indexes_offset = min_idx2 - min_idx1
+    match_steps1 = [step for step in alignment1 if step.step_type == DetailedHMMEdgeType.MATCH]
+    match_steps2 = [step for step in alignment2 if step.step_type == DetailedHMMEdgeType.MATCH]
+    if len(match_steps1) != len(match_steps2):
+        print('Different number of MATCH steps')
         return False
-    if not (step_test['rBAN_name'] == step_approved['rBAN_name'] or step_test['rBAN_name'][0] == step_approved['rBAN_name'][0] == 'X'):
-        print('rBAN_name')
-        return False
-    if not (step_test['A-domain_idx'] == step_approved['A-domain_idx'] == '---' or step_test['A-domain_idx'] == step_approved['A-domain_idx']):
-        print('A-domain_idx')
-        return False
-    if not (step_test['Gene'] == step_approved['Gene'] or ('_' in step_approved['Gene'] and step_test['Gene'] == step_approved['Gene'].split('_', 1)[1])):
-        print('Gene')
-        return False
-    return all(step_test[field_name] == step_approved[field_name]
-               for field_name in ['Alignment_step',
-                                  'Modifying_domains',
-                                  'NRP_chirality',
-                                  #'NRP_modifications',
-                                  'aa10_code',
-                                  'aa34_code'])
+    return all(steps_coincide(step1, step2, indexes_offset)
+               for step1, step2 in zip(match_steps1,
+                                       match_steps2))
 
 
-def alignments_coincide(alignment1, alignment2) -> bool:
-    match_steps1 = [step for step in alignment1 if step['Alignment_step'] == 'MATCH']
-    match_steps2 = [step for step in alignment2 if step['Alignment_step'] == 'MATCH']
-    return len(match_steps1) == len(match_steps2) and \
-        all(steps_coincide(step1, step2)
-            for step1, step2 in zip(match_steps1,
-                                    match_steps2))
+def matches_coincide(match1: Match,
+                     match2: Match) -> bool:
+    joined_alignments1 = [alignment_step
+                          for alignment in match1.alignments
+                          for alignment_step in alignment]
+    joined_alignments2 = [alignment_step
+                          for alignment in match2.alignments
+                          for alignment_step in alignment]
+    return alignments_coincide(joined_alignments1, joined_alignments2)
 
 
-def matches_coincide(match1, match2) -> bool:
-    alignments1 = match1['Alignments']
-    alignments2 = match2['Alignments']
-    for perm_alignments1 in permutations(alignments1):
-        for perm_alignments2 in permutations(alignments2):
-            joined_alignments1 = [alignment_step for alignment in perm_alignments1
-                                  for alignment_step in alignment]
-            joined_alignments2 = [alignment_step for alignment in perm_alignments2
-                                  for alignment_step in alignment]
-            if alignments_coincide(joined_alignments1, joined_alignments2):
-                return True
-    return False
+def find_wrong_match(matches: List[Match], approved_matches: List[Match]) -> Optional[Tuple[Match, Match]]:
+    nrp_id_to_match = {match.nrp_variant_info.nrp_id: match
+                       for match in matches}
 
-
-def find_wrong_match(matches: List[dict], approved_matches: List[dict]) -> Optional[Tuple[str, str]]:
-    nrp_id_to_match = {match['NRP']: match for match in matches}
-    nrp_id_to_approved_match = {match['NRP']: match for match in approved_matches}
-
-    for match in matches:
-        if match['NRP'] not in nrp_id_to_approved_match:
+    for approved_match in approved_matches:
+        nrp_id = approved_match.nrp_variant_info.nrp_id
+        if nrp_id in []:
             continue
-        approved_match = nrp_id_to_approved_match[match['NRP']]
-        if not matches_coincide(match, approved_match):
-            #return match['NRP'], show_match(match)
-
+        if nrp_id not in nrp_id_to_match:
+            print(f'WARNING: match for {nrp_id} is missing')
+            continue
+        test_match = nrp_id_to_match[nrp_id]
+        if not matches_coincide(test_match, approved_match):
+            '''
             with open('/home/ilianolhin/git/nerpa2/training/training/scripts/train_on_groundtruth_matches/wrong_matches.txt', 'a') as f:
                 f.write('Wrong match:\n')
                 f.write(show_match(match) + '\n\n')
                 f.write('Approved match:\n')
                 f.write(show_match(approved_match) + '\n\n')
+            '''
+            return test_match, approved_match
+    return None
 

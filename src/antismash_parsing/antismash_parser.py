@@ -1,4 +1,10 @@
-from typing import List, Dict, Tuple, Optional
+from typing import (
+    List,
+    Dict,
+    Tuple,
+    Optional,
+    Set
+)
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
     antiSMASH_record,
@@ -6,6 +12,7 @@ from src.antismash_parsing.antismash_parser_types import (
     Coords,
     DomainType,
     Gene,
+    GeneId,
     Module,
     SVM_LEVEL,
     SVM_Prediction,
@@ -15,8 +22,8 @@ from src.config import antiSMASH_Parsing_Config
 from src.monomer_names_helper import antiSMASH_MonomerName
 from parse import parse
 from collections import defaultdict
-
-GeneId = str
+from itertools import pairwise
+from src.antismash_parsing.determine_modifications import ends_with_pcp_pcp, get_iterative_genes_orphan_c
 
 
 class A_Domain_Id:
@@ -100,10 +107,10 @@ def parse_cds_coordinates(location: str) -> Coords:
                   strand=parsed_location_parts[0].strand)  # it is assumed that all parts have the same strand
 
 
-def extract_gene_id(feature_qualifiers: dict) -> str:
+def extract_gene_id(feature_qualifiers: dict) -> GeneId:
     for gene_id_key in ['locus_tag', 'gene', 'protein_id']:
         if gene_id_key in feature_qualifiers:
-            return feature_qualifiers[gene_id_key][0]
+            return GeneId(feature_qualifiers[gene_id_key][0])
     raise KeyError('Gene ID not found in feature qualifiers')
 
 
@@ -144,34 +151,72 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
     return modules
 
 
+def check_orphan_c_domains(gene_data: dict,
+                           config: antiSMASH_Parsing_Config) -> Tuple[bool, bool]:  # (orphan_c_at_start, orphan_c_at_end)
+    modules_start = min((domain['domain']['query_start']
+                        for module in gene_data['modules']
+                        for domain in module['components']),
+                        default=None)
+
+    modules_end = max((domain['domain']['query_end']
+                      for module in gene_data['modules']
+                      for domain in module['components']),
+                        default=None)
+
+    fst_c_domain_start = min((domain['query_start']
+                             for domain in gene_data['domain_hmms']
+                             if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES and
+                             DomainType[config.ANTISMASH_DOMAINS_NAMES[domain['hit_id']]].in_c_domain_group()),
+                            default=None)
+    last_c_domain_end = max((domain['query_end']
+                            for domain in gene_data['domain_hmms']
+                            if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES and
+                            DomainType[config.ANTISMASH_DOMAINS_NAMES[domain['hit_id']]].in_c_domain_group()),
+                            default=None)
+
+    orphan_c_start = fst_c_domain_start is not None and (
+            modules_start is None or modules_start > fst_c_domain_start)
+    orphan_c_end = last_c_domain_end is not None and (
+            modules_end is None or modules_end < last_c_domain_end)
+    return orphan_c_start, orphan_c_end
+
+
 def extract_genes(contig_data: dict,
                   a_domains_per_gene: Dict[GeneId, List[A_Domain]],
                   config: antiSMASH_Parsing_Config) -> List[Gene]:
     gene_coords = extract_gene_coords(contig_data)
 
     genes = []
+    orphan_c_domains_per_gene: Dict[GeneId, Tuple[bool, bool]] = {}  # gene_id -> (orphan_c_at_start, orphan_c_at_end)
     for gene_id, gene_data in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
         modules = extract_modules(gene_data, a_domains_per_gene[gene_id], config)
-        if modules:
-            genes.append(Gene(gene_id=gene_id,
-                              coords=gene_coords[gene_id],
-                              modules=modules))
+        orphan_c_domains_per_gene[gene_id] = check_orphan_c_domains(gene_data, config)
+        genes.append(Gene(gene_id=gene_id,
+                          coords=gene_coords[gene_id],
+                          modules=modules))
 
     genes.sort(key=lambda gene: gene.coords.start)
-    return genes
+
+    iterative_genes_orphan_c = get_iterative_genes_orphan_c(genes, orphan_c_domains_per_gene)
+    iterative_genes_pcp = {gene.gene_id for gene in genes if ends_with_pcp_pcp(gene)}
+
+    for gene in genes:
+        gene.is_iterative = gene.gene_id in iterative_genes_orphan_c or gene.gene_id in iterative_genes_pcp
+
+    return list(filter(lambda gene: gene.modules, genes))
 
 
 def extract_bgc_clusters(genome_id: str, ctg_idx: int,
                          contig_data: dict, genes: List[Gene]) -> List[BGC_Cluster]:
     bgcs = []
-    for bgc_idx, bgc_data in enumerate(contig_data['areas']):
+    for bgc_idx, bgc_data in enumerate(contig_data['areas'], start=1):
         if 'NRPS' in bgc_data['products']:
             bgc_genes = [gene for gene in genes
                          if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
 
             if bgc_genes:
                 bgcs.append(BGC_Cluster(genome_id=genome_id,
-                                        contig_id=f'ctg{ctg_idx + 1}',
+                                        contig_idx=ctg_idx,
                                         bgc_idx=bgc_idx,
                                         genes=bgc_genes))
     return bgcs
@@ -181,7 +226,7 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
                          config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
-    for ctg_idx, contig_data in enumerate(antismash_json['records']):
+    for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
         a_domains_per_gene = extract_a_domains_info(contig_data)
         if not any(a_domains for a_domains in a_domains_per_gene.values()):  # no A-domains found in the contig
             continue

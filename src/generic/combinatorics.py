@@ -65,10 +65,32 @@ def split_into_k_blocks(seq: List[T], k: int) -> Generator[List[List[T]], None, 
         for rest in split_into_k_blocks(seq[i:], k - 1):
             yield [first_part] + rest
 
-def split_sequence(seq: List[T]) -> Generator[List[List[T]], None, None]:
+def split_sequence_blocks(seq: List[T]) -> Generator[List[List[T]], None, None]:
     """Generate all ways to split a sequence into increasing number of blocks."""
     for k in range(1, len(seq) + 1):  # Iterate through all possible number of blocks
         yield from split_into_k_blocks(seq, k)
+
+
+def all_subsets(xs: List[T]) -> Generator[List[T], None, None]:
+    for k in range(len(xs) + 1):
+        yield from combinations(xs, k)
+
+
+def split_sequence_subseqs_idxs(seq: List[int]) -> Iterable[List[List[int]]]:
+    if not seq:
+        yield []
+        return
+    for fst_subset in all_subsets(seq[1:]):  # first subset contains the first element
+        fst_subset = [seq[0]] + list(fst_subset)
+        rest = [x for x in seq if x not in fst_subset]
+        for next_subsets in split_sequence_subseqs_idxs(rest):
+            yield [fst_subset] + next_subsets
+
+
+def split_sequence_subseqs(seq: List[T]) -> Iterable[List[List[T]]]:
+    for subseq_idxs_split in split_sequence_subseqs_idxs(list(range(len(seq)))):
+        yield [[seq[i] for i in subseq_idxs]
+               for subseq_idxs in subseq_idxs_split]
 
 
 def intersection_with_repeats(xs: Iterable[T], ys: Iterable[T]) -> List[T]:
@@ -76,3 +98,46 @@ def intersection_with_repeats(xs: Iterable[T], ys: Iterable[T]) -> List[T]:
     returns a list of elements that are present in both lists (with repeats)
     '''
     return list((Counter(xs) & Counter(ys)).elements())
+
+
+def is_subsequence(subseq: List[T], seq: List[T]) -> bool:
+    '''
+    checks if subseq is a subsequence of seq
+    '''
+    subseq_idx = 0
+    seq_idx = 0
+    while subseq_idx < len(subseq) and seq_idx < len(seq):
+        if subseq[subseq_idx] == seq[seq_idx]:
+            subseq_idx += 1
+        seq_idx += 1
+    return subseq_idx == len(subseq)
+
+
+def remove_runs_of_equal_elements(xs: Iterable[T]) -> Iterable[T]:
+    xs_it = iter(xs)
+    try:
+        last = next(xs_it)  # Initialize result with the first element of the input list
+        yield last
+
+    except StopIteration:
+        return []
+    while True:
+        try:
+            while (x := next(xs_it)) == last:
+                pass
+            yield (last := x)
+        except StopIteration:
+            break
+
+
+def filter_unique(xs: Iterable[T]) -> Iterable[T]:
+    seen = set()
+    xs_it = iter(xs)
+    while True:
+        try:
+            x = next(xs_it)
+        except StopIteration:
+            break
+        if x not in seen:
+            seen.add(x)
+            yield x
