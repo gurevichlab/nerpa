@@ -4,17 +4,28 @@ from typing import (
     List,
     TypeVar,
     Tuple,
+    Optional,
     Union
 )
-from src.matching.alignment_types import Match
+from src.matching.matching_types_match import Match
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.build_output.html_reporter import create_html_report
+from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
+from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
+
+from src.pipeline.logger import NerpaLogger
+
+from src.config import ConfigPaths
+
 
 from pathlib import Path
 from io import StringIO
 import csv
 import yaml
+import json
 from itertools import groupby
+from copy import deepcopy
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -46,11 +57,11 @@ def build_report(matches: List[Match]) -> str:
                                 delimiter='\t')
     csv_writer.writeheader()
     csv_writer.writerows({'Score': match.normalized_score,
-                          'NRP_ID': match.nrp_variant.nrp_id,
-                          'NRP_Variant_Idx': match.nrp_variant.variant_idx,
-                          'Genome_ID': match.bgc_variant.genome_id,
-                          'BGC_ID': match.bgc_variant.bgc_idx,
-                          'BGC_Variant_Idx': match.bgc_variant.variant_idx}
+                          'NRP_ID': match.nrp_variant_info.nrp_id,
+                          'NRP_Variant_Idx': match.nrp_variant_info.variant_idx,
+                          'Genome_ID': match.bgc_variant_info.genome_id,
+                          'BGC_ID': match.bgc_variant_info.bgc_idx,
+                          'BGC_Variant_Idx': match.bgc_variant_info.variant_idx}
                          for match in matches)
     return result.getvalue()
 
@@ -63,15 +74,27 @@ def write_matches_per_id(matches: List[T],
 
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
-                       output_dir: Path,
-                       rban_records: Union[List[Parsed_rBAN_Record], None] = None):
+                       config_paths: ConfigPaths,
+                       rban_records: Optional[List[Parsed_rBAN_Record]] = None,
+                       draw: bool = False,
+                       log: Optional[NerpaLogger] = None):
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
-                   output_dir / Path('rban_graphs.yaml'))
+                   config_paths.main_out_dir / Path('rban_graphs.yaml'))
+        if draw:
+            for rban_record in rban_records:
+                monomer_graph = MonomerGraph.from_rban_record(rban_record)
+                draw_monomer_graph(monomer_graph,
+                                   output_file=config_paths.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
+                try:
+                    draw_molecule(monomer_graph, config_paths.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
+                except Exception as e:
+                    if log is not None:
+                        log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
 
-    (output_dir / Path('NRP_variants')).mkdir()
+    config_paths.nrp_variants_dir.mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
-        write_yaml(list(nrp_id_variants), output_dir / Path(f'NRP_variants/{nrp_id}.yaml'))
+        write_yaml(list(nrp_id_variants), config_paths.nrp_variants_dir / f'{nrp_id}.yaml')
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
@@ -81,33 +104,45 @@ def write_bgc_variants(bgc_variants: List[BGC_Variant],
 
 
 def write_matches_details(matches: List[Match],
-                          output_dir: Path):
-    (output_dir / Path('matches_details')).mkdir()
-    write_yaml([match.to_dict_light() for match in matches],
-               output_dir / Path(f'matches_details/matches.yaml'))
+                          matches_details_output_dir: Path):
+    matches_details_output_dir.mkdir()
+    write_yaml([match.to_dict() for match in matches],
+               matches_details_output_dir / 'matches.yaml')
 
-    (output_dir / Path('matches_details/per_BGC')).mkdir()
-    write_matches_per_id(matches, output_dir / Path('matches_details/per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant.genome_id}_{match.bgc_variant.bgc_idx}')
+    (matches_details_output_dir / Path('per_BGC')).mkdir()
+    write_matches_per_id(matches, matches_details_output_dir / Path('per_BGC'),
+                         get_id=lambda match: f'{match.bgc_variant_info.genome_id}_{match.bgc_variant_info.get_antismash_id()}')
 
-    (output_dir / Path('matches_details/per_NRP')).mkdir()
-    write_matches_per_id(matches, output_dir / Path('matches_details/per_NRP'),
-                         get_id=lambda match: match.nrp_variant.nrp_id)
+    (matches_details_output_dir / Path('per_NRP')).mkdir()
+    write_matches_per_id(matches, matches_details_output_dir / Path('per_NRP'),
+                         get_id=lambda match: match.nrp_variant_info.nrp_id)
 
 
 def write_results(matches: List[Match],
-                  output_dir: Path,
+                  config_paths: ConfigPaths,
                   bgc_variants: Union[List[BGC_Variant], None] = None,
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
-                  matches_details: bool = True):
-    (output_dir / 'report.tsv').write_text(build_report(matches))
+                  matches_details: bool = True,
+                  draw_molecules: bool = True,
+                  html_report: bool = True,
+                  debug_output: bool = False,
+                  log: Optional[NerpaLogger] = None):
+    config_paths.report.write_text(build_report(matches))
 
     if bgc_variants is not None:
-        (output_dir / 'BGC_variants').mkdir()
-        write_bgc_variants(bgc_variants, output_dir / 'BGC_variants')
+        config_paths.bgc_variants_dir.mkdir()
+        write_bgc_variants(bgc_variants, config_paths.bgc_variants_dir)
     if nrp_variants is not None:
-        write_nrp_variants(nrp_variants, output_dir, rban_records)
+        write_nrp_variants(nrp_variants,
+                           rban_records=rban_records,
+                           config_paths=config_paths,
+                           draw=draw_molecules,
+                           log=log)
 
     if matches_details:
-        write_matches_details(matches, output_dir)
+        write_matches_details(matches, config_paths.matches_details)
+
+    if html_report:
+        create_html_report(config_paths, matches, debug_output)
+

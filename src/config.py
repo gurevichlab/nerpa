@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.monomer_names_helper import NorineMonomerName, antiSMASH_MonomerName, MonomerResidue
-from src.matching.scoring_config import load_scoring_config, ScoringConfig
 import yaml
 import dacite
 
@@ -54,6 +53,7 @@ class antiSMASH_Parsing_Config:
     MAX_DISTANCE_BETWEEN_GENES: int
     MAX_VARIANTS_PER_BGC: int
     MAX_PERMUTATIONS_PER_BGC: int
+    MAX_BGC_SPLITS_INTO_FRAGMENTS: int
     SCORING_TABLE_COLUMNS: List[str]
     SCORING_TABLE_INDEX: str
     SVM_SUBSTRATES: List[MonomerResidue]
@@ -80,14 +80,20 @@ class ConfigPaths:
     specificity_prediction_model: Path
     nerpa_monomers: Path  # TODO: rename
     nerpa_monomers_info: Path
+    rban_dir: Path
     configs_input: Path
     configs_output: Path
     scoring_config: Path
     report: Path
-    rban_dir: Path
+    html_report: Path
     matches_details: Path
+    bgc_variants_dir: Path
+    nrp_variants_dir: Path
+    nrp_images_dir: Path
+    rban_graphs: Path
     default_results_root_dirname: str
     default_results_dirname_prefix: str
+    hmm_edge_weights_params: Path
 
     def __init__(self,
                  paths_cfg_dict: dict,
@@ -100,14 +106,21 @@ class ConfigPaths:
         self.specificity_prediction_model = nerpa_dir / Path(paths_cfg_dict['specificity_prediction_model'])
         self.nerpa_monomers = nerpa_dir / Path(paths_cfg_dict['nerpa_monomers'])
         self.nerpa_monomers_info = nerpa_dir / Path(paths_cfg_dict['nerpa_monomers_info'])
+        self.rban_dir = nerpa_dir / Path(paths_cfg_dict['rban_dir'])
         self.configs_input = configs_dir if configs_dir else nerpa_dir / Path(paths_cfg_dict['configs_input'])
         self.configs_output = main_out_dir / Path('configs_output')
         self.scoring_config = nerpa_dir / Path(paths_cfg_dict['scoring_config'])
         self.report = main_out_dir / Path(paths_cfg_dict['report'])
+        self.html_report = main_out_dir / Path(paths_cfg_dict['html_report'])
+        self.logo = nerpa_dir / Path(paths_cfg_dict['logo'])
         self.matches_details = main_out_dir / Path(paths_cfg_dict['matches_details'])
-        self.rban_dir = nerpa_dir / Path(paths_cfg_dict['rban_dir'])
+        self.bgc_variants_dir = main_out_dir / Path(paths_cfg_dict['bgc_variants_dir'])
+        self.nrp_variants_dir = main_out_dir / Path(paths_cfg_dict['nrp_variants_dir'])
+        self.nrp_images_dir = main_out_dir / Path(paths_cfg_dict['nrp_images_dir'])
+        self.rban_graphs = main_out_dir / Path(paths_cfg_dict['rban_graphs'])
         self.default_results_root_dirname = paths_cfg_dict['default_results_root_dirname']
         self.default_results_dirname_prefix = paths_cfg_dict['default_results_dirname_prefix']
+        self.hmm_scoring_config = nerpa_dir / Path(paths_cfg_dict['hmm_scoring_config'])
 
 
 @dataclass
@@ -122,11 +135,6 @@ class SpecificityPredictionConfig:
     compute_evidence: bool
 
 
-@dataclass
-class MatchingConfig:
-    scoring_config: ScoringConfig
-    heuristic_discard_on: bool
-
 
 @dataclass
 class Config:
@@ -135,7 +143,6 @@ class Config:
     specificity_prediction_config: SpecificityPredictionConfig
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
-    matching_config: MatchingConfig
 
 
 
@@ -158,11 +165,8 @@ def load_config(args: CommandLineArgs) -> Config:
                                                         yaml.safe_load(paths_config.aa_codes.open('r')))
     specificity_prediction_config = dacite.from_dict(SpecificityPredictionConfig,
                                                      cfg['specificity_prediction_config'])
-    matching_config = MatchingConfig(heuristic_discard_on=args.heuristic_discard,
-                                     scoring_config=load_scoring_config(paths_config.scoring_config))
     return Config(paths=paths_config,
                   antismash_parsing_config=antismash_parsing_config,
                   rban_config=rban_config,
                   rban_processing_config=rban_processing_config,
-                  specificity_prediction_config=specificity_prediction_config,
-                  matching_config=matching_config)
+                  specificity_prediction_config=specificity_prediction_config)
