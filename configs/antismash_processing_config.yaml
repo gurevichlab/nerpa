@@ -1,0 +1,39 @@
+ANTISMASH_DOMAINS_NAMES_MAPPING:
+	AMP-binding: A,
+
+	PKS_AT: PKS,
+	PKS_DH: PKS,
+	PKS_DH2: PKS,
+	PKS_DHt: PKS,
+	PKS_Docking_CTERM: PKS,
+	PKS_Docking_NTERM: PKS,
+	PKS_ER: PKS,
+	PKS_KR: PKS,
+	PKS_KS: PKS,
+	PKS_PP: PKS,
+
+	PCP: PCP,
+
+	Condensation: C,
+	Cglyc: C,
+	Heterocyclization: C,
+	Condensation_Starter: C_STARTER,
+	Condensation_LCL: C_LCL,
+	Condensation_DCL: C_DCL,
+	Condensation_Dual: C_DUAL,
+
+	Epimerization: E,
+	cMT: MT,
+	nMT: MT,
+	oMT: MT,
+
+	Thioesterase: TE_TD,
+	TD: TE_TD,
+
+	NRPS-COM_Cterm: CTERM,
+	NRPS-COM_Nterm: NTERM
+
+MAX_DISTANCE_BETWEEN_GENES: 10000
+MAX_VARIANTS_PER_BGC: 100
+MAX_PERMUTATIONS_PER_BGC: 100
+MAX_BGC_SPLITS_INTO_FRAGMENTS: 100
