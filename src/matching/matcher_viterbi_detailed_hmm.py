@@ -40,6 +40,7 @@ from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
 from functools import cache
+import time
 
 
 @dataclass
@@ -104,6 +105,8 @@ class DetailedHMM:
             bgc_predictions = [self.hmm_helper.get_emissions(module, self.bgc_variant.has_pks_domains())
                                for module in self.bgc_variant.modules]
             opt_path = heuristic_opt_path(self, bgc_predictions, emitted_monomers)
+            current_time = str(time.time())
+            self.draw(Path(f'{self.bgc_variant.genome_id}_{current_time}.png'), opt_path)  # for debugging
         else:
             opt_path, _ = self.get_opt_path_with_emissions(self.start_state_idx,
                                                            self.final_state_idx,

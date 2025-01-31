@@ -1,4 +1,10 @@
-from typing import Dict, List, Tuple, Union
+from typing import (
+    Dict,
+    List,
+    Tuple,
+    Optional,
+    Union
+)
 from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
 from src.matching.matcher_viterbi_types import (
     HMM,
@@ -10,8 +16,10 @@ from src.matching.matcher_viterbi_types import (
     EdgeKey
 )
 from src.matching.matching_types_alignment import show_alignment
+from src.monomer_names_helper import NRP_Monomer
 from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
 from src.write_results import write_yaml
+from src.data_types import BGC_Module
 from auxilary_types import MatchWithBGCNRP
 from itertools import pairwise
 from dataclasses import dataclass
@@ -20,20 +28,23 @@ from collections import defaultdict
 import yaml
 
 
-
 @dataclass
 class DataForTraining:
     edge_choices: List[Tuple[DetailedHMMEdgeType, GenomicContext, bool]]  # (edge_type, genomic_context, chosen)
-    #emissions  # TBWR
+    match_emissions:  List[Tuple[BGC_Module, NRP_Monomer]]  # (module, monomer)
+    #insert_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
+    #insert_at_start_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
 
 @dataclass
 class PathTurnInfo:
     chosen_edge_key: EdgeKey
     chosen_edge_info: Tuple[DetailedHMMEdgeType, GenomicContext]
     other_edges_info: List[Tuple[DetailedHMMEdgeType, GenomicContext]]
+    bgc_module_with_emission: Optional[Tuple[BGC_Module, NRP_Monomer]] = None
 
 
-def get_turns_info(detailed_hmm: DetailedHMM, path: List[int]) \
+def get_turns_info(detailed_hmm: DetailedHMM,
+                   path_with_emissions: List[Tuple[int, Optional[NRP_Monomer]]]) \
         -> List[PathTurnInfo]:
     """
     At each turn of the path a choice between outcoming edges is made.
@@ -42,7 +53,7 @@ def get_turns_info(detailed_hmm: DetailedHMM, path: List[int]) \
     """
     num_insertions = 0
     turns_info = []
-    for u, v in pairwise(path):
+    for (u, emission), (v, _) in pairwise(path_with_emissions):
         edge = detailed_hmm.adj_list[u][v]
         if edge.edge_type == DetailedHMMEdgeType.INSERT:
             chosen_edge_key = edge.edge_key + (num_insertions,)
@@ -59,7 +70,17 @@ def get_turns_info(detailed_hmm: DetailedHMM, path: List[int]) \
                 continue
             other_edges_info.append((edge_info.edge_type, edge_info.genomic_context))
 
-        turns_info.append(PathTurnInfo(chosen_edge_key, chosen_edge_info, other_edges_info))
+        if detailed_hmm.states[u].state_type == DetailedHMMStateType.MATCH:
+            bgc_module = detailed_hmm.bgc_variant.modules[detailed_hmm.state_idx_to_module_idx[u]]
+            emitted_monomer = path_with_emissions[u][1]
+            module_with_emission = (bgc_module, emitted_monomer)
+        else:
+            module_with_emission = None
+
+        turns_info.append(PathTurnInfo(chosen_edge_key,
+                                       chosen_edge_info,
+                                       other_edges_info,
+                                       module_with_emission))
 
     return turns_info
 
@@ -74,13 +95,14 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> 
             #with open(f"alignment.txt", "w") as f:
             #    f.write(show_alignment(alignment))
             path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
-            path = [state_idx for state_idx, _ in path_with_emissions]
+            #path = [state_idx for state_idx, _ in path_with_emissions]
             #detailed_hmm.draw(Path(f"optimal_path.png"),
             #                  highlight_path=path)
-            turns_info.extend(get_turns_info(detailed_hmm, path))
+            turns_info.extend(get_turns_info(detailed_hmm, path_with_emissions))
 
     seen_edge_keys = set()
     edge_choices = []
+    match_emissions = []
     for turn_info in turns_info:
         if turn_info.chosen_edge_key in seen_edge_keys:
             continue
@@ -88,10 +110,14 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> 
         edge_choices.append((turn_info.chosen_edge_info[0],
                              turn_info.chosen_edge_info[1],
                              True))
+        if turn_info.bgc_module_with_emission is not None:
+            match_emissions.append(turn_info.bgc_module_with_emission)
+
         for edge_info in turn_info.other_edges_info:
             edge_choices.append((edge_info[0], edge_info[1], False))
 
-    return DataForTraining(edge_choices=edge_choices)
+    return DataForTraining(edge_choices=edge_choices,
+                           match_emissions=match_emissions)
 
 
 def filter_context(genomic_context: GenomicContext) -> GenomicContext:
@@ -113,11 +139,6 @@ def filter_context(genomic_context: GenomicContext) -> GenomicContext:
 # for multiple features, parameters are computed based on the single features
 SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
 
-
-def total_choices(data: DataForTraining,
-                  edge_type: DetailedHMMEdgeType) -> Tuple[int, int]:  # (not chosen, chosen)
-    return sum(1 - int(chosen) for edge_type_, _, chosen in data.edge_choices if edge_type_ == edge_type), \
-              sum(int(chosen) for edge_type_, _, chosen in data.edge_choices if edge_type_ == edge_type)
 
 EDGE_TYPE_DEPENDENCIES = {
     # Insertion edge dependencies
@@ -155,9 +176,10 @@ EDGE_TYPE_DEPENDENCIES = {
     DetailedHMMEdgeType.ITERATE_GENE: set()
 }
 
-def get_filtered_data(data: DataForTraining) -> Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, Tuple[int, int]]]:
+def get_filtered_edge_data(edge_choices: List[Tuple[DetailedHMMEdgeType, GenomicContext, bool]]) \
+        -> Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, Tuple[int, int]]]:
     filtered_data = {}
-    for edge_type, context, chosen in data.edge_choices:
+    for edge_type, context, chosen in edge_choices:
         if edge_type not in EDGE_TYPE_DEPENDENCIES:
             continue
         if context is None:
@@ -175,26 +197,15 @@ def get_filtered_data(data: DataForTraining) -> Dict[DetailedHMMEdgeType, Dict[S
     return filtered_data
 
 
-def laplace(neg: int, pos: int) -> float:
-    return (pos + 1) / (neg + pos + 2)
-
-
 def estimate_parameters(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) \
     -> Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]:
     data = extract_data_for_training(matches_with_bgcs_nrps)
-    filtered_data = get_filtered_data(data)
+    edge_data = get_filtered_edge_data(data.edge_choices)
+    edge_params = infer_edge_parameters(edge_data)
+    emission_params = infer_emission_parameters(data.match_emissions)
+    write_hmm_params(edge_params, emission_params)
+    return edge_params, emission_params
 
-    lower_bound_prob = 0.01  # no probability should be lower than this
-
-    probs = {}
-    MF = ModuleLocFeature
-    GF = GeneLocFeature
-    FF = BGC_Fragment_Loc_Feature
-
-    # 1. START_INSERTING_AT_START
-    tp = DetailedHMMEdgeType.START_INSERTING_AT_START
-    # we have many cases of 'START_OF_BGC', so I just use Laplace smoothing
-    probs[tp][MF.START_OF_BGC] = laplace(*filtered_data[tp][MF.START_OF_BGC])
 
 
 def get_edge_weights(hmm: DetailedHMM,

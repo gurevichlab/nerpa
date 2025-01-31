@@ -132,14 +132,20 @@ class Parsed_rBAN_Record:
     def graphs_isomorphic(cls, graph1: DiGraph, graph2: DiGraph) -> bool:
         def node_match(n1, n2):
             name1, name2 = n1.get('name'), n2.get('name')
-            return any([name1 == name2,  # same amino acid
-                        name1.startswith('X') and name2.startswith('X'),  # both unknown
-                        ':' in name1 and ':'])  # both lipid tails
+            res1, chr1, hybrid1 = name1.split('_')
+            res2, chr2, hybrid2 = name2.split('_')
+            chr_equal = chr1 == chr2 or chr1 == 'UNKNOWN' or chr2 == 'UNKNOWN'
+            res_equal = any([res1 == res2,  # same amino acid
+                             res1.startswith('X') and res2.startswith('X'),  # both unknown
+                             ':' in res1 and ':' in res2])  # both lipid tails
+            return res_equal and chr_equal and hybrid1 == hybrid2
 
         def edge_match(e1, e2):
             return e1.get('bond_type') == e2.get('bond_type')
 
-        return is_isomorphic(graph1, graph2, node_match=node_match, edge_match=edge_match)
+        return is_isomorphic(graph1, graph2,
+                             node_match=node_match,
+                             edge_match=edge_match)
 
 
 def get_hybrid_monomers_smiles(rban_record: Raw_rBAN_Record) -> List[Tuple[MonomerIdx, SMILES]]:

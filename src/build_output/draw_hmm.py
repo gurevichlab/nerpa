@@ -14,8 +14,15 @@ def draw_hmm(hmm: DetailedHMM,
              output_path: Optional[Path] = None,
              highlight_path: Optional[List[int]] = None,
              edge_labels: bool = False) -> Digraph:
-    graph = Digraph(format='png')
+    graph = Digraph(format='svg')
     graph.attr(rankdir='BT')  # Bottom-to-top layout to match desired top-to-bottom order
+
+    hide_states = [DetailedHMMStateType.SKIP_FRAGMENT_END,
+                   DetailedHMMStateType.SKIP_FRAGMENT_AT_START,
+                   DetailedHMMStateType.SKIP_GENE_AT_START,
+                   DetailedHMMStateType.SKIP_MODULE_AT_START,
+                   DetailedHMMStateType.INSERT_AT_START]
+    invis_nodes = set()
 
     # Define the layer types and reverse for top-to-bottom ordering
     layer_types = [[DetailedHMMStateType.SKIP_FRAGMENT_END],
@@ -33,7 +40,8 @@ def draw_hmm(hmm: DetailedHMM,
         state = hmm.states[idx]
         if state.state_type == DetailedHMMStateType.MODULE_START:
             module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[idx]]
-            return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+            return f'{idx}:{module.gene_id}:{module.a_domain_idx}'
+            #return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
         else:
             return f'{idx}:{state.state_type.name}'
 
@@ -79,9 +87,17 @@ def draw_hmm(hmm: DetailedHMM,
 
             # Anchor each actual node to its position in the invisible chain
             for state_idx, chain_node in zip(layer, invisible_chain):
-                sub.node(str(state_idx), label=state_idx_to_label(state_idx), shape="ellipse",
+                if (hmm.states[state_idx].state_type not in hide_states
+                    or highlight_path is not None and state_idx in highlight_path):
+                    node_style="filled"
+                else:
+                    node_style="invis"
+                    invis_nodes.add(state_idx)
+                sub.node(str(state_idx),
+                         label=state_idx_to_label(state_idx),
+                         shape="ellipse",
                          fillcolor=state_idx_to_color(state_idx),
-                         style="filled")
+                         style=node_style)
                 sub.edge(chain_node, str(state_idx), style="invis")
                 sub.edge(dummy_node, str(state_idx), style="invis")  # Tie to dummy node
 
@@ -111,6 +127,9 @@ def draw_hmm(hmm: DetailedHMM,
                 else:  # INSERT_AT_START
                     edge_args['headport'] = "s"  # point downwards
                     edge_args['tailport'] = "s"
+
+            if from_idx in invis_nodes or to_idx in invis_nodes:
+                edge_args['style'] = "invis"
             graph.edge(**edge_args)
 
     # Optionally save the graph
