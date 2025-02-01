@@ -53,21 +53,21 @@ class PipelineHelper:
             raise e
 
         self.config = load_config(self.args)
-        nerpa_utils.set_up_output_dir(output_dirpath=self.config.paths.main_out_dir,
+        nerpa_utils.set_up_output_dir(output_dirpath=self.config.output_config.main_out_dir,
                                       config=self.config,
                                       crash_if_exists=not self.args.output_dir_reuse,
                                       log=self.log)
 
-        self.log.set_up_file_handler(self.config.paths.main_out_dir)
+        self.log.set_up_file_handler(self.config.output_config.main_out_dir)
         self.log.start()
 
-        shutil.copytree(self.config.paths.configs_input, self.config.paths.configs_output, copy_function=shutil.copy)
+        shutil.copytree(self.config.configs_dir, self.config.output_config.configs_output, copy_function=shutil.copy)
 
-        monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.paths.nerpa_monomers_info, sep='\t'))
+        monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.monomer_names_table, sep='\t'))
         self.monomer_names_helper = monomer_names_helper
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
-        hmm_scoring_config = load_hmm_scoring_config(self.config.paths.hmm_scoring_config)
+        hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
         DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
@@ -106,10 +106,10 @@ class PipelineHelper:
                       rban_records: List[Parsed_rBAN_Record],
                       matches_details: bool = True):
         self.log.info("RESULTS:")
-        self.log.info("Main report is saved to " + str(self.config.paths.report), indent=1)
-        self.log.info("HTML report is saved to " + str(self.config.paths.html_report), indent=1)
-        self.log.info("Detailed reports are saved to " + str(self.config.paths.matches_details), indent=1)
-        report.write_results(matches, self.config.paths,
+        self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
+        self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)
+        self.log.info("Detailed reports are saved to " + str(self.config.output_config.matches_details), indent=1)
+        report.write_results(matches, self.config.output_config,
                              bgc_variants, nrp_variants,
                              rban_records,
                              matches_details,

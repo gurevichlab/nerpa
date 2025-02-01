@@ -17,7 +17,7 @@ html_report: report.html
 logo: docs/img/logo.png,
 
 
-rban:
+rban_output_config:
     default_monomers_file: rban_monomers_db.json
     default_input_file: rban.input.json
     default_output_file_name: rban.output.json
