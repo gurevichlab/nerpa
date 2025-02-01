@@ -4,7 +4,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import List, Dict
-from src.config import ConfigPaths
+from src.config import OutputConfig
 from src.matching.matching_types_match import Match
 
 
@@ -48,16 +48,16 @@ def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
     return template
 
 
-def create_html_report(config_paths: ConfigPaths, matches: List[Match], debug_output: bool = False):
+def create_html_report(output_cfg: OutputConfig, matches: List[Match], debug_output: bool = False):
     current_dir = Path(__file__).resolve().parent
     template_main_report_path = current_dir / 'main_report_template.html'
-    main_report_path = config_paths.html_report
+    main_report_path = output_cfg.html_report
 
     with open(template_main_report_path, 'r') as file:
         main_report_html_template = file.read()
 
     # TODO: Maybe add these paths directly to config_paths?
-    html_aux_dir = config_paths.main_out_dir / 'html_aux'
+    html_aux_dir = output_cfg.main_out_dir / 'html_aux'
     report_data_js_path = html_aux_dir / 'report_data.js'
     html_aux_dir.mkdir()
     match_dicts = _create_match_dicts(matches, debug_output)
@@ -67,11 +67,11 @@ def create_html_report(config_paths: ConfigPaths, matches: List[Match], debug_ou
         json.dump(match_dicts, json_file, indent=4)
 
     path_substitutions = {
-        '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(config_paths.main_out_dir)),
-        '{{ANTISMASH_OUT_DIR}}': str(config_paths.antismash_out_dir.relative_to(config_paths.main_out_dir))
+        '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(output_cfg.main_out_dir)),
+        '{{ANTISMASH_OUT_DIR}}': str(output_cfg.antismash_out_dir.relative_to(output_cfg.main_out_dir))
     }
     main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
     with open(main_report_path, 'w') as file:
         file.write(main_html_report)
     # copying logo to be embedded in the HTML report
-    shutil.copy(config_paths.logo, html_aux_dir)
+    shutil.copy(output_cfg.logo, html_aux_dir)

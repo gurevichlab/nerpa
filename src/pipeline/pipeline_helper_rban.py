@@ -46,7 +46,7 @@ class PipelineHelper_rBAN:
 
     def set_rban_helper(self):
         custom_monomers = list(chain(*(json.load(path_to_monomers.open('r'))
-                                       for path_to_monomers in (self.config.paths.nerpa_monomers,
+                                       for path_to_monomers in (self.config.rban_config.nerpa_monomers,
                                                                 self.args.rban_monomers)
                                        if path_to_monomers is not None)))
         self.rban_helper = rBAN_Helper(self.config.rban_config, custom_monomers)
@@ -101,7 +101,7 @@ class PipelineHelper_rBAN:
     def get_nrp_variants(self,
                          parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
-        self.log.info(f'results will be in {self.config.paths.main_out_dir / Path("NRP_Variants")}')
+        self.log.info(f'results will be in {self.config.output_config.main_out_dir / Path("NRP_Variants")}')
         nrp_variants = retrieve_nrp_variants(parsed_rban_records,
                                              self.monomer_names_helper,
                                              self.config.rban_processing_config,

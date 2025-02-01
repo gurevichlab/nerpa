@@ -1,7 +1,8 @@
 antismash_config: configs/antismash_config.yaml
 antismash_processing_config: configs/antismash_processing_config.yaml
+specificity_prediction_config: configs/specificity_prediction_config.yaml
 rban_config: configs/rban_config.yaml
 rban_processing_config: configs/rban_processing_config.yaml
-specificity_prediction_config: configs/specificity_prediction_config.yaml
-monomer_names_table: configs/monomer_names_table.yaml
+hmm_scoring_config: configs/hmm_scoring_config.yaml
+monomer_names_table: configs/monomer_names_table.tsv
 output_config: configs/output_config.yaml
