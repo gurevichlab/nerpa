@@ -20,37 +20,31 @@ from src.antismash_parsing.determine_modifications import (
 from src.data_types import (
     BGC_Variant,
     BGC_Module,
-    BGC_Module_Modification,
-    BGC_Fragment,
-    ModuleLocFeature,
-    ModuleLocFeatures,
     LogProb
 )
-from src.monomer_names_helper import MonomerNamesHelper, antiSMASH_MonomerName, MonomerResidue
+from src.monomer_names_helper import MonomerNamesHelper, MonomerResidue
 from src.pipeline.logger import NerpaLogger
-from src.config import antiSMASH_Processing_Config
+from src.config import antiSMASH_Processing_Config, SpecificityPredictionConfig
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
 from src.generic.functional import cached_by_key
 from src.antismash_parsing.location_features import (
     BGC_Fragment_Loc_Features,
     GeneLocFeatures,
-    ModuleLocFeatures,
     get_bgc_fragment_loc_features,
     get_gene_loc_features,
     get_module_loc_features,
 )
-from itertools import chain, takewhile, compress
+from itertools import chain
 import pandas as pd
-from collections import defaultdict
 
 
-# TODO: figure out how to write it as "lambda args: (args['a_domain'].aa10, args['a_domain'].aa34)"
-@cached_by_key(key=lambda *args, **kwargs: (args[0].aa10, args[0].aa34))
+# TODO: figure out how to write it as "lambda args: args['a_domain'].aa34"
+@cached_by_key(key=lambda *args, **kwargs: args[0].aa10)
 def get_residue_scores(a_domain: A_Domain,
                        residue_scoring_model: Callable[[pd.DataFrame], Dict[MonomerResidue, LogProb]],
                        monomer_names_helper: MonomerNamesHelper,
-                       config: antiSMASH_Processing_Config) -> Dict[MonomerResidue, LogProb]:
+                       config: SpecificityPredictionConfig) -> Dict[MonomerResidue, LogProb]:
     def svm_score(aa_name: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
         svm_prediction_substrates = {monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
                                      for monomer_name in svm_level_prediction.substrates}
@@ -84,7 +78,7 @@ def build_gene_assembly_line(gene: Gene,
                              fragment_idx: int,
                              residue_scoring_model: Any,
                              monomer_names_helper: MonomerNamesHelper,
-                             config: antiSMASH_Processing_Config) -> List[BGC_Module]:
+                             config: SpecificityPredictionConfig) -> List[BGC_Module]:
     iterative_modules_idxs = get_iterative_modules_idxs(gene)
     modules_modifications = get_modules_modifications(gene)
 
@@ -119,7 +113,7 @@ def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
                                      fragment_idx: int,
                                      residue_scoring_model: Any,
                                      monomer_names_helper: MonomerNamesHelper,
-                                     config: antiSMASH_Processing_Config) -> List[BGC_Module]:
+                                     config: SpecificityPredictionConfig) -> List[BGC_Module]:
 
     return list(chain.from_iterable(build_gene_assembly_line(gene,
                                                              get_gene_loc_features(gene_idx, bgc_genes, fragment_features),
@@ -133,7 +127,7 @@ def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
 def build_bgc_assembly_line(raw_fragmented_bgc: List[BGC_Cluster],
                             residue_scoring_model: Any,
                             monomer_names_helper: MonomerNamesHelper,
-                            config: antiSMASH_Processing_Config) -> List[BGC_Module]:
+                            config: SpecificityPredictionConfig) -> List[BGC_Module]:
 
     return list(chain(*(build_bgc_fragment_assembly_line(bgc_fragment.genes,
                                                          fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
@@ -157,14 +151,15 @@ def remove_genes_with_no_a_domains(bgc: BGC_Cluster) -> BGC_Cluster:
 def build_bgc_variants(bgc: BGC_Cluster,
                        residue_scoring_model: Any,
                        monomer_names_helper: MonomerNamesHelper,
-                       config: antiSMASH_Processing_Config,
+                       as_cfg: antiSMASH_Processing_Config,
+                       spec_pred_cfg: SpecificityPredictionConfig,
                        log: NerpaLogger) -> List[BGC_Variant]:  # TODO: replace Any with proper type
     if not any(module.a_domain is not None
                for gene in bgc.genes
                for module in gene.modules):
         log.info(f'WARNING: BGC {bgc.bgc_idx} has no genes with A-domains. Skipping.')
         return []
-    raw_fragmented_bgcs = split_and_reorder(bgc, config, log)
+    raw_fragmented_bgcs = split_and_reorder(bgc, as_cfg, log)
     return [BGC_Variant(genome_id=bgc.genome_id,
                         contig_idx=bgc.contig_idx,
                         bgc_idx=bgc.bgc_idx,
@@ -174,4 +169,4 @@ def build_bgc_variants(bgc: BGC_Cluster,
             if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,
                                                          residue_scoring_model,
                                                          monomer_names_helper,
-                                                         config))]
+                                                         spec_pred_cfg))]

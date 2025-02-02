@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+    from src.matching.detailed_hmm import DetailedHMM
 from typing import List
 from pathlib import Path
 from typing import Optional
 from graphviz import Digraph
-from src.matching.matcher_viterbi_types import DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge
+from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge
 from itertools import pairwise
 
 

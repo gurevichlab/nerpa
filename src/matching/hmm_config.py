@@ -15,7 +15,7 @@ from src.antismash_parsing.location_features import (
     GeneLocFeature,
     ModuleLocFeature,
 )
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 
 from dataclasses import dataclass
 from pathlib import Path

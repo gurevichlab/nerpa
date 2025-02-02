@@ -8,8 +8,8 @@ from src.data_types import (
     NRP_Variant,
     GeneId
 )
-from src.matching.matching_types_alignment_step import AlignmentStep
-from src.matching.matching_types_alignment import Alignment, alignment_score, show_alignment, alignment_from_str
+from src.matching.alignment_step_type import AlignmentStep
+from src.matching.alignment_type import Alignment, alignment_score, show_alignment, alignment_from_str
 from more_itertools import split_at
 from collections import defaultdict
 from itertools import takewhile

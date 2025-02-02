@@ -1,10 +1,10 @@
 from typing import Dict, List, Optional, Tuple
 from src.data_types import BGC_Variant, NRP_Variant, NRP_Fragment, LogProb
-from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
-from src.matching.matcher_viterbi_types import HMM
-from src.matching.matching_types_match import Match, Match_BGC_Variant_Info, Match_NRP_Variant_Info
-from src.matching.matching_types_alignment import Alignment, alignment_score, combined_alignments_score
-from src.matching.matcher_viterbi_algorithm import get_hmm_score, get_opt_path_with_emissions
+from src.matching.detailed_hmm import DetailedHMM
+from src.matching.hmm_auxiliary_types import HMM
+from src.matching.match_type import Match, Match_BGC_Variant_Info, Match_NRP_Variant_Info
+from src.matching.alignment_type import Alignment, alignment_score, combined_alignments_score
+from src.matching.viterbi_algorithm import get_hmm_score, get_opt_path_with_emissions
 from src.rban_parsing.get_linearizations import NRP_Linearizations, Linearization
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.generic.combinatorics import split_sequence_subseqs

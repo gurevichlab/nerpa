@@ -14,10 +14,11 @@ matches_details: matches_details
 
 report: report.tsv
 html_report: report.html
-logo: docs/img/logo.png,
+logo: docs/img/logo.png
 
 
 rban_output_config:
+    rban_output_dir: ''
     default_monomers_file: rban_monomers_db.json
     default_input_file: rban.input.json
     default_output_file_name: rban.output.json

@@ -1,6 +1,6 @@
 specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
 a_domains_signatures: data/signatures.tsv
-aa_codes: configs/aa_codes.yaml,
+aa_codes: configs/aa_codes.yaml
 
 SVM_SUBSTRATES: [dHpg, Asn, Iva, Ile, Glu, Cys, Abu, Gly, Gln, Val, Ser, Arg, Asp,
     Hpg, Leu, Trp, Ala, Lys, Phe, Orn, Thr, Tyr, Aad, Bza, Pip, Pro]

@@ -5,11 +5,11 @@ import shutil
 from pathlib import Path
 from typing import List, Dict
 from src.config import OutputConfig
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
 
 
 def _create_match_dicts(matches: List[Match], debug_output: bool) -> List[Dict]:
-    # TODO: make this function less hard-coded, maybe do all stuff in AlignmentStep.to_dict()? See matching_types_alignment_step.py
+    # TODO: make this function less hard-coded, maybe do all stuff in AlignmentStep.to_dict()? See alignment_step_type.py
     def _postprocess_alignments_for_html(match_dict: Dict) -> Dict:
         for i, alignment in enumerate(match_dict['Alignments']):
             cleaned_alignment = []

@@ -16,14 +16,14 @@ from src.antismash_parsing.location_features import (
     BGC_Fragment_Loc_Feature
 )
 from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant, GeneId, LogProb
-from src.matching.matcher_viterbi_types import (
+from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType,
     DetailedHMMState,
     DetailedHMMEdge,
     HMM
 )
-from src.matching.matcher_viterbi_algorithm import get_opt_path_with_emissions
+from src.matching.viterbi_algorithm import get_opt_path_with_emissions
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.hmm_edge_weights import EdgeWeightsParams
 from src.build_output.draw_hmm import draw_hmm
@@ -33,7 +33,7 @@ from collections import defaultdict
 
 from src.matching.bgc_to_hmm import bgc_variant_to_detailed_hmm
 from src.matching.hmm_to_alignment import hmm_path_to_alignment
-from src.matching.matching_types_alignment import Alignment
+from src.matching.alignment_type import Alignment
 from src.matching.hmm_anchors_heuristic import heuristic_opt_path
 from src.matching.hmm_scoring_helper import HMMHelper
 from itertools import pairwise

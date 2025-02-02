@@ -148,6 +148,7 @@ class PipelineHelper_antiSMASH:
                                                                    specificity_prediction_model,
                                                                    self.monomer_names_helper,
                                                                    self.config.antismash_processing_config,
+                                                                   self.config.specificity_prediction_config,
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 

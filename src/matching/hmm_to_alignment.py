@@ -1,15 +1,15 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+    from src.matching.detailed_hmm import DetailedHMM
 from typing import Dict, List, Tuple
-from src.matching.auxilary import get_genes_intervals, get_fragments_intervals
-from src.matching.matcher_viterbi_types import (
+from src.matching.genes_fragments_intervals import get_genes_intervals, get_fragments_intervals
+from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
 )
 from itertools import pairwise
-from src.matching.matching_types_alignment import Alignment
-from src.matching.matching_types_alignment_step import (
+from src.matching.alignment_type import Alignment
+from src.matching.alignment_step_type import (
     AlignmentStep,
     AlignmentStep_BGC_Module_Info,
 )

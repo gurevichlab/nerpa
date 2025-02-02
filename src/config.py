@@ -19,7 +19,8 @@ class antiSMASH_Processing_Config:
 class SpecificityPredictionConfig:
     specificity_prediction_model: Path
     a_domains_signatures: Path
-    aa_codes: Path
+    KNOWN_AA10_CODES: Dict[str, List[str]]
+    KNOWN_AA34_CODES: Dict[str, List[str]]
     SVM_SUBSTRATES: List[str]
     SVM_NOT_SUPPORTED_SCORE: float
     SVM_NO_PREDICTION_SCORE: float
@@ -36,7 +37,9 @@ class SpecificityPredictionConfig:
             setattr(self, k, v)
         self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
-        self.aa_codes = nerpa_dir / Path(cfg_dict['aa_codes'])
+        aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
+        self.KNOWN_AA10_CODES = aa_codes_dict['aa10']
+        self.KNOWN_AA34_CODES = aa_codes_dict['aa34']
 
 
 @dataclass
@@ -55,15 +58,19 @@ class rBAN_Config:
 class rBAN_Output_Config:
     default_monomers_file: Path
     default_input_file: Path
-    default_output_file_name: Path
+    default_output_file_name: str  # I have name instead of file due to rBAN quirks
     putative_hybrids_input_file: Path
-    putative_hybrids_output_file_name: Path
+    putative_hybrids_output_file_name: str
+    rban_output_dir: Path
 
     def __init__(self,
                  rban_output_cfg_dict: dict,
                  main_out_dir: Path):
         for k, v in rban_output_cfg_dict.items():
-            setattr(self, k, main_out_dir / Path(v))
+            if not k.endswith('name'):
+                setattr(self, k, main_out_dir / Path(v))
+        self.default_output_file_name = rban_output_cfg_dict['default_output_file_name']
+        self.putative_hybrids_output_file_name = rban_output_cfg_dict['putative_hybrids_output_file_name']
 
 
 @dataclass
@@ -92,25 +99,27 @@ class OutputConfig:
     matches_details: Path
     report: Path
     html_report: Path
-    logo: Path
+    logo: Path  # seems a bit out of place here
     rban_output_config: rBAN_Output_Config
 
     def __init__(self,
                  output_cfg_dict: dict,
+                 nerpa_dir: Path,
                  main_out_dir: Path):
         for k, v in output_cfg_dict.items():
             if k != 'rban_output_config':
-                print(k, v)
                 setattr(self, k, main_out_dir / Path(v))
         self.rban_output_config = rBAN_Output_Config(output_cfg_dict['rban_output_config'],
                                                      main_out_dir)
         self.main_out_dir = main_out_dir
+        self.logo = nerpa_dir / Path(output_cfg_dict['logo'])
 
 
 @dataclass
 class Config:
+    nerpa_dir: Path
     configs_dir: Path
-    monomer_names_table: Path
+    monomers_config: Path
     antismash_processing_config: antiSMASH_Processing_Config
     specificity_prediction_config: SpecificityPredictionConfig
     rban_config: rBAN_Config
@@ -138,13 +147,14 @@ def load_config(args: CommandLineArgs) -> Config:
     rban_processing_cfg = dacite.from_dict(rBAN_Processing_Config, rban_processing_cfg_dict)
 
     output_cfg_dict = yaml.safe_load((nerpa_dir / cfg['output_config']).open('r'))
-    output_cfg = OutputConfig(output_cfg_dict, main_out_dir)
+    output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, main_out_dir)
 
     return Config(antismash_processing_config=antismash_processing_cfg,
                   configs_dir=configs_dir,
+                  nerpa_dir=nerpa_dir,
                   specificity_prediction_config=specificity_prediction_cfg,
                   rban_config=rban_cfg,
                   rban_processing_config=rban_processing_cfg,
                   hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
                   output_config=output_cfg,
-                  monomer_names_table=nerpa_dir / cfg['monomer_names_table'])
+                  monomers_config=nerpa_dir / cfg['monomers_config'])

@@ -7,7 +7,7 @@ from typing import (
     Optional,
     Union
 )
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
 from src.config import OutputConfig
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
