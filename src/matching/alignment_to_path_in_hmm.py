@@ -1,51 +1,19 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+    from src.matching.detailed_hmm import DetailedHMM
 from typing import List, Tuple, Optional
-from src.matching.matching_types_alignment import Alignment
-from src.matching.matcher_viterbi_types import DetailedHMMStateType, DetailedHMMEdgeType
+from src.matching.alignment_type import Alignment
+from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.generic.graphs import shortest_path_through
 import networkx as nx
 from src.data_types import GeneId
-from src.monomer_names_helper import NRP_Monomer, MonomerNamesHelper, monomer_names_helper
-from src.matching.matcher_viterbi_types import DetailedHMMStateType, DetailedHMMEdgeType
-from src.matching.matching_types_alignment import Alignment
+from src.monomer_names_helper import NRP_Monomer
+from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
+from src.matching.alignment_type import Alignment
 from itertools import pairwise
 from copy import deepcopy
 from pathlib import Path
-
-
-def fix_indexing_in_alignment(alignment: Alignment):
-    if min(step.bgc_module.a_domain_idx
-           for step in alignment
-           if step.bgc_module is not None) == 1:
-        for step in alignment:
-            if step.bgc_module is not None:
-                step.bgc_module = step.bgc_module._replace(a_domain_idx=step.bgc_module.a_domain_idx - 1)
-
-def fix_gene_names_in_alignment(alignment: Alignment):
-    if all(step.bgc_module.gene_id.startswith('ctg')
-           for step in alignment
-           if step.bgc_module is not None) == 1:
-        for step in alignment:
-            if step.bgc_module is not None:
-                step.bgc_module = step.bgc_module._replace(gene_id=GeneId(step.bgc_module.gene_id.split('_')[1]))
-
-def fix_residue_names_in_alignment(alignment: Alignment):
-    for step in alignment:
-        if step.nrp_monomer is not None:
-            parsed_monomer = monomer_names_helper.parsed_name(step.nrp_monomer.rban_name, name_format='norine')
-            step.nrp_monomer = step.nrp_monomer._replace(residue=parsed_monomer.residue)
-
-
-def check_compatability(alignment: Alignment, hmm: DetailedHMM) -> bool:
-    alignment_modules = [(step.bgc_module.gene_id, step.bgc_module.a_domain_idx)
-                         for step in alignment
-                         if step.bgc_module is not None]
-    hmm_modules = [(module.gene_id, module.a_domain_idx)
-                   for module in hmm.bgc_variant.modules]
-    return alignment_modules == hmm_modules
 
 
 def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]

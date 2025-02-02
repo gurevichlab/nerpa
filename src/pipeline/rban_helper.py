@@ -9,7 +9,7 @@ from typing import (
 from src.monomer_names_helper import NorineMonomerName
 from src.pipeline import nerpa_utils
 from src.pipeline.logger import NerpaLogger
-from src.config import rBAN_Config
+from src.config import rBAN_Config, rBAN_Output_Config
 
 import json
 from pathlib import Path
@@ -26,11 +26,14 @@ from src.rban_parsing.rban_parser import (
 @dataclass
 class rBAN_Helper:
     config: rBAN_Config
+    output_cfg: rBAN_Output_Config
     monomers_db: List[MonomerData]
 
-    def __init__(self, config: rBAN_Config,
+    def __init__(self,
+                 config: rBAN_Config, output_cfg: rBAN_Output_Config,
                  custom_monomers: Union[List[MonomerData], None] = None):
         self.config = config
+        self.output_cfg = output_cfg
         with ZipFile(self.config.rban_jar) as zf:
             self.monomers_db = json.loads(zf.read('molecules/monomer/nrproMonomers.json'))  # default db
 
@@ -46,21 +49,21 @@ class rBAN_Helper:
                  output_file_name: Optional[str] = None,
                  report_not_processed: bool = False) -> List[Raw_rBAN_Record]:
         if input_file is None:
-            input_file = self.config.default_input_file
+            input_file = self.output_cfg.default_input_file
         if output_file_name is None:
-            output_file_name = self.config.default_output_file_name
+            output_file_name = self.output_cfg.default_output_file_name
 
         json.dump(smiles_with_ids, input_file.open('w'))
-        json.dump(self.monomers_db, self.config.default_monomers_file.open('w'))
+        json.dump(self.monomers_db, self.output_cfg.default_monomers_file.open('w'))
         command = ['java', '-jar', str(self.config.rban_jar),
                    '-inputFile', str(input_file),
-                   '-outputFolder', str(self.config.rban_out_dir) + '/',
+                   '-outputFolder', str(self.output_cfg.rban_output_dir) + '/',
                    '-outputFileName', str(output_file_name),
-                   '-monomersDB', str(self.config.default_monomers_file)]  # TODO: refactor
+                   '-monomersDB', str(self.output_cfg.default_monomers_file)]  # TODO: refactor
 
         nerpa_utils.sys_call(command, log)
 
-        rban_records = json.load((self.config.rban_out_dir / output_file_name).open('r'))
+        rban_records = json.load((self.output_cfg.rban_output_dir / output_file_name).open('r'))
 
         if report_not_processed:
             ids_in = set(record['id'] for record in smiles_with_ids)
@@ -99,14 +102,14 @@ class rBAN_Helper:
         # run rBAN on the trimmed monomers
         log.info('\n=== Resolving NRP-PK hybrid monomers candidates')
         self.run_rban(trimmed_monomers,
-                      input_file=self.config.putative_hybrids_input_file,
-                      output_file_name=self.config.putative_hybrids_output_file_name,
+                      input_file=self.output_cfg.putative_hybrids_input_file,
+                      output_file_name=self.output_cfg.putative_hybrids_output_file_name,
                       log=log)
 
         # Add newly recognized monomers to the dictionary
         hybrid_monomers_dict = defaultdict(dict)
-        new_monomers_processed = json.load((self.config.rban_out_dir /
-                                            Path(self.config.putative_hybrids_output_file_name)).open('r'))
+        new_monomers_processed = json.load((self.output_cfg.rban_output_dir /
+                                            Path(self.output_cfg.putative_hybrids_output_file_name)).open('r'))
         for rban_record in new_monomers_processed:
             struct_id, monomer_id = parse_joined_id(rban_record['id'])
             aa_smi = rban_record["isomericSmiles"]

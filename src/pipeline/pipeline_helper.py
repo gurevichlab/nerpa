@@ -3,6 +3,9 @@ from typing import (
     List,
     Tuple
 )
+
+import yaml
+
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
     get_command_line_args,
@@ -20,9 +23,9 @@ from src.rban_parsing.rban_parser import (
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.matching_types_match import Match, Match_NRP_Variant_Info
-from src.matching.hmm_matcher import get_matches
-from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+from src.matching.match_type import Match, Match_NRP_Variant_Info
+from src.matching.matcher import get_matches
+from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.matching.hmm_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
@@ -63,7 +66,11 @@ class PipelineHelper:
 
         shutil.copytree(self.config.configs_dir, self.config.output_config.configs_output, copy_function=shutil.copy)
 
-        monomer_names_helper = MonomerNamesHelper(pd.read_csv(self.config.monomer_names_table, sep='\t'))
+        monomers_cfg = yaml.safe_load(self.config.monomers_config.open('r'))
+        monomers_table_tsv = self.config.nerpa_dir / monomers_cfg['monomer_names_table']
+        monomer_names_helper = MonomerNamesHelper(pd.read_csv(monomers_table_tsv, sep='\t'),
+                                                  monomers_cfg['supported_residues'],
+                                                  monomers_cfg['pks_names'])
         self.monomer_names_helper = monomer_names_helper
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)

@@ -11,8 +11,8 @@ from src.antismash_parsing.location_features import (
     module_features_to_fragment_features
 )
 from src.data_types import BGC_Variant, GeneId
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, HMM
-from src.matching.auxilary import get_genes_intervals, get_fragments_intervals
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, HMM
+from src.matching.genes_fragments_intervals import get_genes_intervals, get_fragments_intervals
 from collections import defaultdict
 from functools import partial
 from collections import OrderedDict

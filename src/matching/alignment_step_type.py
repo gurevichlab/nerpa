@@ -17,7 +17,7 @@ from src.monomer_names_helper import (
     Chirality
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.generic.functional import make_optional
 from enum import Enum, auto
 from collections import OrderedDict

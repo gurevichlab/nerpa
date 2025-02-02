@@ -1,11 +1,11 @@
 from typing import Dict, List, TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+    from src.matching.detailed_hmm import DetailedHMM
 from src.data_types import NRP_Monomer
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.matching.hmm_to_alignment import hmm_path_to_alignment
-from src.matching.matching_types_alignment import show_alignment
+from src.matching.alignment_type import show_alignment
 from pathlib import Path
 
 

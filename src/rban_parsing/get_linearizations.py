@@ -6,7 +6,7 @@ from typing import (
 from src.data_types import NRP_Variant, NRP_Fragment
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.generic.combinatorics import split_sequence_subseqs
-from src.matching.matching_types_match import Match_NRP_Variant_Info
+from src.matching.match_type import Match_NRP_Variant_Info
 from itertools import chain, permutations, product
 
 

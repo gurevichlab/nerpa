@@ -49,7 +49,9 @@ class PipelineHelper_rBAN:
                                        for path_to_monomers in (self.config.rban_config.nerpa_monomers,
                                                                 self.args.rban_monomers)
                                        if path_to_monomers is not None)))
-        self.rban_helper = rBAN_Helper(self.config.rban_config, custom_monomers)
+        self.rban_helper = rBAN_Helper(self.config.rban_config,
+                                       self.config.output_config.rban_output_config,
+                                       custom_monomers)
 
     def get_input_for_rban(self) -> List[dict]:
         def default_id(i: int) -> str:
