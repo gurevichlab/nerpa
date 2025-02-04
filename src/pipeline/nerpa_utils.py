@@ -112,7 +112,7 @@ def get_path_to_program(program, dirpath=None, min_version=None):
         p = subprocess.Popen([fpath, '--version'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = p.communicate()
 
-        version_pattern = re.compile('(?P<major_version>\d+)\.(?P<minor_version>\d+)')
+        version_pattern = re.compile(r'(?P<major_version>\d+)\.(?P<minor_version>\d+)')
         searchstring = stdout.decode('utf8').strip()
 
         # ad hoc workaround to AS 5.2.0 printing FutureWarning to stdout
