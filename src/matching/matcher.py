@@ -1,5 +1,12 @@
-from typing import Dict, List, Optional, Tuple
+from typing import (
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple
+)
 from src.data_types import BGC_Variant, NRP_Variant, NRP_Fragment, LogProb
+from src.config import MatchingConfig
 from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_auxiliary_types import HMM
 from src.matching.match_type import Match, Match_BGC_Variant_Info, Match_NRP_Variant_Info
@@ -9,7 +16,8 @@ from src.rban_parsing.get_linearizations import NRP_Linearizations, Linearizatio
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.generic.combinatorics import split_sequence_subseqs
 from src.monomer_names_helper import MonomerNamesHelper
-from itertools import chain, permutations, product
+from collections import defaultdict
+from itertools import chain, islice
 from joblib import delayed, Parallel
 
 
@@ -58,8 +66,10 @@ def get_best_linearizations_for_nrp(hmm: HMM,
 
 def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                         nrp_linearizations: Dict[Match_NRP_Variant_Info, NRP_Linearizations],
-                        max_num_matches_per_bgc_variant: Optional[int],
+                        max_num_matches_per_bgc_variant: int,
                         log=None) -> List[Match]:
+    max_num_matches_per_bgc_variant = max_num_matches_per_bgc_variant \
+        if max_num_matches_per_bgc_variant != 0 else None
     if log is not None:
         log.info(f'Processing BGC {detailed_hmm.bgc_variant.genome_id} variant {detailed_hmm.bgc_variant.variant_idx}')
 
@@ -72,9 +82,10 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                                                                 use_anchors_heuristic=True)
         matched_nrps_with_linearizations.append((score, nrp_info, linearizations))
 
-    best_matched_linearizations = sorted(matched_nrps_with_linearizations,
-                                         key=lambda x: x[0],
-                                         reverse=True)[:max_num_matches_per_bgc_variant]
+    best_matched_linearizations = list(islice(sorted(matched_nrps_with_linearizations,
+                                                     key=lambda x: x[0],
+                                                     reverse=True),
+                                              max_num_matches_per_bgc_variant))
 
     def get_alignments_for_linearizations(linearizations: List[Linearization]) -> List[Alignment]:
         return [detailed_hmm.get_alignment(linearization) for linearization in linearizations]
@@ -88,10 +99,23 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
     return best_matches
 
 
+def remove_bad_matches_for_nrps(matches_: Iterable[Match],
+                                max_num_matches_per_nrp: int):
+    matches = sorted(matches_,
+                     key=lambda m: m.normalized_score, reverse=True)
+    matches_per_nrp = defaultdict(list)
+    for match in matches:
+        if max_num_matches_per_nrp == 0 or \
+            len(matches_per_nrp[match.nrp_variant_info]) < max_num_matches_per_nrp:
+            matches_per_nrp[match.nrp_variant_info].append(match)
+
+    return sorted(chain(*matches_per_nrp.values()),
+                  key=lambda m: m.normalized_score, reverse=True)
+
 
 def get_matches(hmms: List[DetailedHMM],
                 nrp_linearizations: Dict[Match_NRP_Variant_Info, NRP_Linearizations],
-                max_num_matches_per_bgc_variant: Optional[int] = None,
+                matching_cfg: MatchingConfig,
                 num_threads: int = 1,
                 log=None) -> List[Match]:
     total_linearizations = 0
@@ -102,8 +126,11 @@ def get_matches(hmms: List[DetailedHMM],
     if log is not None:
         log.info(f'Matching {len(hmms)} BGC variants against {total_linearizations} NRP linearizations')
     matches = chain(*Parallel(n_jobs=num_threads)(delayed(get_matches_for_hmm)(hmm, nrp_linearizations,
-                                                                               max_num_matches_per_bgc_variant,
+                                                                               matching_cfg.max_num_matches_per_bgc,
                                                                                log)
                                                   for hmm in hmms))
+    matches = remove_bad_matches_for_nrps(matches, matching_cfg.max_num_matches_per_nrp)
     # q: sort matches by normalized score
-    return sorted(matches, key=lambda m: m.normalized_score, reverse=True)
+    max_num_matches = matching_cfg.max_num_matches if matching_cfg.max_num_matches != 0 else None
+    return list(islice(sorted(matches, key=lambda m: m.normalized_score, reverse=True),
+                       max_num_matches))

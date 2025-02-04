@@ -71,15 +71,18 @@ def write_matches_per_id(matches: List[T],
 
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
+                       matches: List[Match],
                        output_cfg: OutputConfig,
                        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
-                       draw: bool = False,
                        log: Optional[NerpaLogger] = None):
+    matched_nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
                    output_cfg.main_out_dir / Path('rban_graphs.yaml'))
-        if draw:
+        if output_cfg.draw_molecules:
             for rban_record in rban_records:
+                if rban_record.compound_id not in matched_nrp_ids:
+                    continue
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
                                    output_file=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
@@ -121,7 +124,6 @@ def write_results(matches: List[Match],
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True,
-                  draw_molecules: bool = True,
                   html_report: bool = True,
                   debug_output: bool = False,
                   log: Optional[NerpaLogger] = None):
@@ -133,8 +135,8 @@ def write_results(matches: List[Match],
     if nrp_variants is not None:
         write_nrp_variants(nrp_variants,
                            rban_records=rban_records,
+                           matches=matches,
                            output_cfg=output_cfg,
-                           draw=draw_molecules,
                            log=log)
 
     if matches_details:

@@ -4,6 +4,7 @@ from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
 import yaml
 import dacite
+from datetime import datetime
 
 
 @dataclass
@@ -86,16 +87,36 @@ class HMM_Scoring_Config:
 
 
 @dataclass
+class MatchingConfig:
+    max_num_matches_per_bgc: int
+    max_num_matches_per_nrp: int  # 0 means no limit
+    max_num_matches: int
+
+    def __init__(self,
+                 cfg_dict: dict,
+                 args):
+        for k, v in cfg_dict.items():
+            setattr(self, k, v)
+        if args.max_num_matches_per_bgc is not None:
+            self.max_num_matches_per_bgc = args.max_num_matches_per_bgc
+        if args.max_num_matches_per_nrp is not None:
+            self.max_num_matches_per_nrp = args.max_num_matches_per_nrp
+        if args.max_num_matches is not None:
+            self.max_num_matches = args.max_num_matches
+
+
+@dataclass
 class OutputConfig:
     main_out_dir: Path
     default_results_root_dirname: Path
-    default_results_dirname_prefix: Path
+    symlink_to_latest: Path
     configs_output: Path
     antismash_out_dir: Path
     bgc_variants_dir: Path
     nrp_variants_dir: Path
     nrp_images_dir: Path
     rban_graphs: Path
+    draw_molecules: bool
     matches_details: Path
     report: Path
     html_report: Path
@@ -105,14 +126,20 @@ class OutputConfig:
     def __init__(self,
                  output_cfg_dict: dict,
                  nerpa_dir: Path,
-                 main_out_dir: Path):
+                 args):
+        main_out_dir = args.output_dir.resolve()
         for k, v in output_cfg_dict.items():
-            if k != 'rban_output_config':
+            if k not in ('rban_output_config', 'draw_molecules'):
                 setattr(self, k, main_out_dir / Path(v))
         self.rban_output_config = rBAN_Output_Config(output_cfg_dict['rban_output_config'],
                                                      main_out_dir)
+        if args.dont_draw_molecules is not None:
+            self.draw_molecules = not args.dont_draw_molecules
         self.main_out_dir = main_out_dir
         self.logo = nerpa_dir / Path(output_cfg_dict['logo'])
+        self.symlink_to_latest = nerpa_dir / Path(output_cfg_dict['symlink_to_latest'])
+        if self.symlink_to_latest == self.main_out_dir:
+            raise ValueError(f'Invalid output directory: the path {self.symlink_to_latest} is reserved')
 
 
 @dataclass
@@ -125,6 +152,7 @@ class Config:
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
     hmm_scoring_config: Path
+    matching_config: MatchingConfig
     output_config: OutputConfig
 
 
@@ -147,7 +175,10 @@ def load_config(args: CommandLineArgs) -> Config:
     rban_processing_cfg = dacite.from_dict(rBAN_Processing_Config, rban_processing_cfg_dict)
 
     output_cfg_dict = yaml.safe_load((nerpa_dir / cfg['output_config']).open('r'))
-    output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, main_out_dir)
+    output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, args)
+
+    matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
+    matching_cfg = MatchingConfig(matching_cfg_dict, args)
 
     return Config(antismash_processing_config=antismash_processing_cfg,
                   configs_dir=configs_dir,
@@ -157,4 +188,5 @@ def load_config(args: CommandLineArgs) -> Config:
                   rban_processing_config=rban_processing_cfg,
                   hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
                   output_config=output_cfg,
-                  monomers_config=nerpa_dir / cfg['monomers_config'])
+                  monomers_config=nerpa_dir / cfg['monomers_config'],
+                  matching_config=matching_cfg)

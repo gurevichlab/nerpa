@@ -4,5 +4,6 @@ specificity_prediction_config: configs/specificity_prediction_config.yaml
 rban_config: configs/rban_config.yaml
 rban_processing_config: configs/rban_processing_config.yaml
 hmm_scoring_config: configs/hmm_scoring_config.yaml
+matching_config: configs/matching_config.yaml
 monomers_config: configs/monomers_config.yaml
 output_config: configs/output_config.yaml
