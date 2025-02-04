@@ -10,9 +10,6 @@
     3.1. [Quick start](#sec_run_quick)</br>
     3.2. [Command-line options](#sec_run_options)</br>
     3.3. [Output files](#sec_run_results)</br>
-    3.4. [Use case 1: inspecting a genome](#sec_run_genome)</br>
-    3.5. [Use case 2: inspecting a compound](#sec_run_compound)</br>
-    3.6. [Use case 3: inspecting both](#sec_run_both)</br>
 4. [Citation](#sec_cite)</br>
 5. [Feedback and bug reports](#sec_feedback)</br>
 
@@ -21,10 +18,11 @@
 
 Nerpa is a tool for linking biosynthetic gene clusters (BGCs) to known nonribosomal peptides (NRPs).
 The paper revealing details of the Nerpa algorithm and demonstrating the practical application of the tool 
-is freely available here (*FILL IN*) The software is developed in (*FILL IN*)
+is freely available [here](https://doi.org/10.1101/2024.11.19.624380).
+The software is developed in (**FILL IN AFFILIATIONS**)
 
-This manual will help you to install and run Nerpa. Nerpa version 2.0 was released on (*FILL IN*). 
-The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see (*FILL IN*)
+This manual will help you to install and run Nerpa. Nerpa version 2.0 was released on (**FILL IN RELEASE DATE**). 
+The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see (**FILL IN LICENSE**)
 
 <a name="sec_about_pipeline"></a>
 ## Nerpa pipeline
@@ -40,7 +38,7 @@ along with respective sequences of genome-predicted residues
 2. Construct representations of the database structures as monomer graphs
 (using [rBAN](https://web.expasy.org/rban/)).
 3. Build HMMs for genome-predicted NRP synthetase assembly lines
-as described in (*FILL IN*)
+as described in [the paper](https://doi.org/10.1101/2024.11.19.624380).
 4. Extract NRP linearizations from the monomer graphs
 5. Score the NRP linearizations against the HMMs
 aligns the retrieved sequences against each other in an all-vs-all manner 
@@ -66,7 +64,8 @@ Nerpa distinguishes between L- and D-configurations of amino acids, so the use o
 * *Also accepted*: any other [**SMILES**](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system), 
 i.e., without stereochemistry information.
 
-*Note:* you can use free online converters to get (isomeric) SMILES from other popular chemical formats such as MDL MOL or INCHI, e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). Alternatively, there are many command-line convertors, e.g. [molconvert](https://docs.chemaxon.com/display/docs/molconvert.md), or programming libraries, e.g. [RDKit](https://www.rdkit.org/).
+*Note:* you can use free online converters to get (isomeric) SMILES from other popular chemical formats such as MDL MOL or INCHI,
+e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). Alternatively, there are many command-line convertors, e.g. [molconvert](https://docs.chemaxon.com/display/docs/molconvert.md), or programming libraries, e.g. [RDKit](https://www.rdkit.org/).
 
 
 <a name="sec_install"></a>
@@ -99,7 +98,9 @@ conda activate nerpa-env
 
 ### Verifying your installation
 
-We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere; otherwise, you would need to specify path from the current directory to `./nerpa.py`. All running examples below assume that Nerpa is in `PATH`.
+We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere;
+otherwise, you would need to specify path from the current directory to `./nerpa.py`.
+All running examples below assume that Nerpa is in `PATH`.
 
 To test your installation, first, try to get the list of the Nerpa command-line options:  
 
@@ -116,7 +117,7 @@ If you have any problems, please don't hesitate to [contact us](#sec_feedback).
 <a name="sec_run_quick"></a>
 ## Quick start
 
-**Download** (*FILL IN*) provided with the release (also available in the GitHub repository in `test_data`). 
+**Download** (**FILL IN LINK TO THE TEST DATA**) provided with the release (also available in the GitHub repository in `test_data`). 
 Run the following command from the Nerpa root directory:
 
 	nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv -o test_output
@@ -174,15 +175,15 @@ Default column separator (`\t`), names of the SMILES column (`SMILES`) and the c
 
 Nerpa 2 is provided with a set of NRP databases in the SMILES format: 
 compounds from 
-MIBiG 4.0 (*FILL IN REF*), 
-Norine (*FILL in REF*), 
-and putative NRPs database pNRPdb.
+[MIBiG 4.0](https://mibig.secondarymetabolites.org/),
+[Norine](https://bioinfo.cristal.univ-lille.fr/norine/index.jsp),
+and our own putative NRPs database [pNRPdb](./data/pnrpdb2rc1_summary.tsv).
 
 Alternatively, you can reuse preprocessed compounds from nerpa output for another run with
 `--nrp_variants` option. 
 Using this option can save substantial time when you want to use the same database for multiple runs.
 The preprocessed outputs can be found in the `NRP_variants` directory in the Nerpa output directory.
-Preprocessed compounds from the provided databases are available in (*FILL IN*).
+Preprocessed compounds from the provided databases are available in (**FILL IN LINK TO PREPROCESSED NRPs DBs**).
 
 ### Processing options
 
@@ -211,20 +212,20 @@ Note: files in the output directory will be overwritten in this case!
 
 The key files/directories inside the Nerpa output directory (see the `--output_dir` option) are:  
 
-* `report.html` graphical report with the best matches (see (*REF to the section*))
-* `report.tsv` matched NRP-BGC pairs with scores
+* `report.html` graphical report with the best matches.
+* `report.tsv` matched NRP-BGC pairs with scores.
 * `BGC_variants` directory with preprocessed antiSMASH outputs. They can be reused for another run with the `--bgc_variants` option.
 * `NRP_variants` directory with preprocessed compounds. They can be reused for another run with the `--nrp_variants` option.
 
 <a name="sec_cite"></a>
 ## Citation
 
-If you use Nerpa in your research, please cite (*FILL IN*).
+If you use Nerpa in your research, please cite (**FILL IN CITATION**).
 
 <a name="sec_feedback"></a>
 ## Feedback and bug reports
-You can leave your comments and bug reports at (*FILL IN*) (*recommended way*) 
-or sent it via e-mail: (*FILL IN*).
+You can leave your comments and bug reports at (**FILL IN LINK TO GITHUB ISSUES**) (*recommended way*) 
+or sent it via e-mail: (**FILL IN EMAIL ADDRESS**).
 
 Your comments, bug reports, and suggestions are **very welcomed**.
 They will help us to improve Nerpa further.
