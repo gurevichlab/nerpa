@@ -39,7 +39,7 @@ along with respective sequences of genome-predicted residues
 (using [rBAN](https://web.expasy.org/rban/)).
 3. Build HMMs for genome-predicted NRP synthetase assembly lines
 as described in [the paper](https://doi.org/10.1101/2024.11.19.624380).
-4. Extract NRP linearizations from the monomer graphs
+4. Extract NRP linearizations from the monomer graphs.
 5. Score the NRP linearizations against the HMMs all-vs-all manner 
 (using the [Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm)).
 6. Create an interactive report with the best matches and detailed alignments.
