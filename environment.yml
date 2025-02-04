@@ -1,0 +1,23 @@
+name: nerpa-env
+channels:
+    - conda-forge
+    - bioconda
+    - rdkit
+    - defaults
+dependencies:
+    - python>=3.10
+    - pip
+    - scikit-learn=1.4.1
+    - pandas>=1.5
+    - rdkit>=2022.09
+    - networkx
+    - more-itertools
+    - dacite
+    - pyyaml
+    - python-graphviz
+    - openjdk>=17.0.3
+    - prettytable
+    - requests
+    - bs4 
+    - pip:
+        - parse
