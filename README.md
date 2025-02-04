@@ -86,22 +86,20 @@ If you are not familiar with conda/bioconda, please consult with [their document
 <a name="sec_install_source"></a>
 ## Installation from source code
 
-### Requirements
-Before **compiling** Nerpa from the source code, please satisfy the following **requirements**:
-
-* 64-bit Linux system or macOS
-
-For **running** Nerpa you would also **need**:
-
-* Python v.3.10+
-* Python libraries [RDKit](https://www.rdkit.org/docs/Install.html) and [networkx](https://networkx.org/documentation/stable/install.html)
-* java (for running rBAN, i.e., only needed if you specify NRPs in the SMILES format)
-
-### Compilation
+First, clone the repository and change directory to its root:
+```
+git clone --single-branch --branch nerpa_2.0 https://github.com/gurevichlab/nerpa.git
+cd nerpa
+```
+Next, create a conda environment by running:
+```
+conda create -f environment.yml
+conda activate nerpa-env
+```
 
 ### Verifying your installation
 
-We recommend adding the Nerpa `bin` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere; otherwise, you would need to specify path from the current directory to `./nerpa.py`. All running examples below assume that Nerpa is in `PATH`.
+We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere; otherwise, you would need to specify path from the current directory to `./nerpa.py`. All running examples below assume that Nerpa is in `PATH`.
 
 To test your installation, first, try to get the list of the Nerpa command-line options:  
 
