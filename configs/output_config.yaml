@@ -1,12 +1,11 @@
 default_results_root_dirname: nerpa_results
-default_results_dirname_prefix: results_
-
+symlink_to_latest: nerpa_results/latest
 configs_output: configs
 
 antismash_out_dir: antismash_output
 
 bgc_variants_dir: BGC_variants
-nrp_variants_dir: NRP_variants,
+nrp_variants_dir: NRP_variants
 nrp_images_dir: NRP_images
 rban_graphs: rban_graphs.yaml
 
@@ -15,6 +14,7 @@ matches_details: matches_details
 report: report.tsv
 html_report: report.html
 logo: docs/img/logo.png
+draw_molecules: True
 
 
 rban_output_config:

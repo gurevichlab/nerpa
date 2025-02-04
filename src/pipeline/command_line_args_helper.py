@@ -1,20 +1,8 @@
-from typing import (
-    List,
-    Tuple
-)
-
-from src.data_types import Logger, SMILES
 from pathlib import Path
-import sys
-import os
 import argparse
 from argparse import Namespace as CommandLineArgs
 from io import StringIO
 import csv
-import site
-import shutil
-import json
-import yaml
 
 def add_genomic_arguments(parser: argparse.ArgumentParser):
     genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms (i.e. BGC predictions)')
@@ -49,16 +37,21 @@ def add_struct_arguments(parser: argparse.ArgumentParser):
 
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
-                                                     'Preprocessed BGC predictions and NRP structures in custom Nerpa-compliant formats')
-    advanced_input_group.add_argument("--predictions", "-p", dest="predictions",
+                                                     'Preprocessed BGC predictions and NRP structures '
+                                                     'in custom Nerpa-compliant formats')
+    advanced_input_group.add_argument("--bgc-variants", "-b", dest="bgc_variants",
                                       help="Folder with predicted BGC variants (yaml files)", type=Path)
-    advanced_input_group.add_argument("--structures", "-s", dest="structures",
+    advanced_input_group.add_argument("--nrp-variants", "-s", dest="nrp_variants",
                                       help="Folder with predicted NRP variants (yaml files)", type=Path)
     advanced_input_group.add_argument("--configs_dir", help="custom directory with adjusted Nerpa configs", action="store",
                                       type=Path)
     advanced_input_group.add_argument("--force-existing-outdir", dest="output_dir_reuse", action="store_true",
                                       default=False,
                                       help="don't crash if the output dir already exists")
+    #configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
+    #                           help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
+    advanced_input_group.add_argument("--debug", action="store_true", default=False,
+                                      help="run in the debug mode (keep intermediate files)")
 
 
 def add_config_arguments(parser: argparse.ArgumentParser):
@@ -70,18 +63,16 @@ def add_config_arguments(parser: argparse.ArgumentParser):
                         help="process NRP-PK hybrid monomers (requires use of rBAN)")
     configs_group.add_argument("--threads", default=1, type=int,
                                help="number of threads for running Nerpa", action="store")
-    configs_group.add_argument("--min-score", default=None, type=float,
-                               help="minimum score to report a match", action="store")
-    configs_group.add_argument("--num-matches", default=None, type=int,
+    configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int,
                                help="maximum number of matches to report per BGC", action="store")
-    configs_group.add_argument("--heuristic-discard", default=False,
-                               help="immediately discard bad matches based on heuristics", action="store_true")
-    configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
-                               help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
-    configs_group.add_argument("--draw-molecules", action="store_true", default=False,
-                               help="draw NRP molecule and monomer graps in PNG")
-    configs_group.add_argument("--debug", action="store_true", default=False,
-                        help="run in the debug mode (keep intermediate files)")
+    configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int,
+                               help="maximum number of matches to report per NRP", action="store")
+    configs_group.add_argument("--max-num-matches", default=None, type=int,
+                               help="maximum number of matches to report in total", action="store")
+    #configs_group.add_argument("--heuristic-discard", default=False,
+    #                           help="immediately discard bad matches based on heuristics", action="store_true")
+    configs_group.add_argument("--dont-draw-molecules", action="store_true", default=False,
+                               help="do not draw NRP molecule and monomer graps (they will not appear in the report)")
 
 
 def add_external_tools_args(parser: argparse.ArgumentParser):
@@ -97,8 +88,8 @@ def build_cmdline_args_parser() -> argparse.ArgumentParser:
     add_advanced_arguments(parser)
     add_config_arguments(parser)
 
-    parser.add_argument("--output_dir", "-o", help="output dir [default: nerpa_results/results_<datetime>]",
-                        type=Path, default=None)
+    parser.add_argument("--output_dir", "-o", required=True,
+                        help="output directory", type=Path)
     return parser
 
 
@@ -134,22 +125,24 @@ def validate(expr, msg=''):
 
 
 def validate_arguments(args):  # TODO: I think it all could be done with built-in argparse features
-    if not any([args.predictions,
+    if not any([args.bgc_variants,
                 args.antismash,
                 args.antismash_outpaths_file,
                 args.seqs]):
         raise ValidationError(f'one of the arguments --predictions --antismash/-a --antismash_output_list '
                               f'--sequences is required')
-    if args.predictions and (args.antismash or args.antismash_outpaths_file or args.seqs):
+    if args.bgc_variants and (args.antismash or args.antismash_outpaths_file or args.seqs):
+        # TODO: what's wrong with having both?
         raise ValidationError(f'argument --predictions: not allowed with argument --antismash/-a '
                               f'or --antismash_output_list or --sequences')
-    if not any([args.structures,
+    if not any([args.nrp_variants,
                 args.smiles,
                 args.smiles_tsv,
                 args.rban_output]):
         raise ValidationError(f'one of the arguments --rban-json --smiles-tsv --smiles --structures/-s'
                               f'is required')
-    if args.structures and (args.smiles or args.smiles_tsv or args.rban_output):
+    if args.nrp_variants and (args.smiles or args.smiles_tsv or args.rban_output):
+        # TODO: what's wrong with having both?
         raise ValidationError('argument --structures/-s: not allowed with argument --rban-json or --smiles '
                               'or --smiles-tsv')
     if args.smiles_tsv:

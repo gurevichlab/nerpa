@@ -55,9 +55,12 @@ class PipelineHelper:
             self.log.error(str(e), to_stderr=True)
             raise e
 
-        self.config = load_config(self.args)
-        nerpa_utils.set_up_output_dir(output_dirpath=self.config.output_config.main_out_dir,
-                                      config=self.config,
+        try:
+            self.config = load_config(self.args)
+        except ValueError as e:
+            self.log.error(str(e), to_stderr=True)
+            raise e
+        nerpa_utils.set_up_output_dir(output_cfg=self.config.output_config,
                                       crash_if_exists=not self.args.output_dir_reuse,
                                       log=self.log)
 
@@ -102,7 +105,7 @@ class PipelineHelper:
                     nrp_linearizations: Dict[str, NRP_Linearizations]) -> List[Match]:
         self.log.info("\n======= Nerpa matching")
         return get_matches(hmms, nrp_linearizations,
-                           max_num_matches_per_bgc_variant=self.args.num_matches,
+                           matching_cfg=self.config.matching_config,
                            num_threads=self.args.threads,
                            log=self.log)
 
@@ -120,9 +123,9 @@ class PipelineHelper:
                              bgc_variants, nrp_variants,
                              rban_records,
                              matches_details,
-                             log=self.log,
-                             draw_molecules=self.args.draw_molecules,
-                             debug_output=self.args.debug)
+                             log=self.log)
+        # q: create symlink to results in self.config.default_results_root_dirname
+
         self.log.finish()  # TODO: create a separate method for this and "cleaning up"
 
 

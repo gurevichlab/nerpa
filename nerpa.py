@@ -12,10 +12,7 @@ def main(log: NerpaLogger):  # log is passed as an argument to make it easier to
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()
     nrp_linearizations = pipeline_helper.get_nrp_linearizations(nrp_variants)
 
-    if pipeline_helper.args.only_preprocessing:
-        matches = []
-    else:
-        matches = pipeline_helper.get_matches(hmms, nrp_linearizations)
+    matches = pipeline_helper.get_matches(hmms, nrp_linearizations)
     pipeline_helper.write_results(matches, bgc_variants, nrp_variants, rban_records)
 
 
