@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logger import NerpaLogger
