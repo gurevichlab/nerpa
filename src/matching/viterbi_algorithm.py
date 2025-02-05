@@ -108,7 +108,6 @@ def get_hmm_score(hmm: HMM,
     q = [(initial_state, 0, 0)]  # (state, num symbols, log probability)
     dp = [[float('-inf')] * (n + 1)
           for _ in range(m)]  # dp[u][i] = max log probability for a path of ending in state u with i symbols processed
-    prev = [[-1] * (n + 1) for _ in range(m)]  # prev[u][i] = previous state of state u if i symbols have been processed
 
     while q:
         u, i, log_prob = q.pop(0)
@@ -123,7 +122,6 @@ def get_hmm_score(hmm: HMM,
                 num_symbols = i
             if new_log_prob > dp[v][num_symbols]:
                 dp[v][num_symbols] = new_log_prob
-                prev[v][num_symbols] = u
                 q.append((v, num_symbols, new_log_prob))
 
     return dp[final_state][n]
