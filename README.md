@@ -116,7 +116,8 @@ If you have any problems, please don't hesitate to [contact us](#sec_feedback).
 <a name="sec_run_quick"></a>
 ## Quick start
 
-**Download** (**FILL IN LINK TO THE TEST DATA**) provided with the release (also available in the GitHub repository in `test_data`). 
+**Download** 
+the test data from [here](./test_data.zip) and unpack it to the Nerpa root directory.
 Run the following command from the Nerpa root directory:
 
 	nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv -o test_output
@@ -133,13 +134,14 @@ To see the full list of available options, type
 All options are divided into four categories. The most important options in each category are listed below.
 
 ### General options
-`--process-hybrids`  process NRP-polyketide hybrid monomers (requires using rBAN)  
-`--antismash-path <ANTISMASH_PATH>`  path to antiSMASH installation directory (should contain `run_antismash.py`);
-this option is required if genome sequences are provided in the FASTA or GenBank format and antiSMASH is not in `PATH`  
-`--threads <THREADS>`   number of threads for running Nerpa  
-`--output_dir <OUTPUT_DIR>, -o <OUTPUT_DIR>`
-path to output dir; 
-if not specified, a symlink `nerpa_results/latest` pointing to the output directory is created.
+- `--process-hybrids`  
+process NRP-polyketide hybrid monomers (requires using rBAN).
+- `--antismash-path <ANTISMASH_PATH>`
+path to antiSMASH installation directory (should contain `run_antismash.py`);
+this option is required if genome sequences are provided in the FASTA or GenBank format 
+and antiSMASH is not in `PATH`.  
+- `--threads <THREADS>`   number of threads for running Nerpa.
+- `--output_dir <OUTPUT_DIR>, -o <OUTPUT_DIR>` path to output dir. 
  
 
 ### Genomic input (genome sequences)
@@ -161,7 +163,6 @@ or specify its path via `--antismash-path` option or have it in your system's `P
 
 Finally, you can reuse preprocessed antiSMASH outputs from nerpa output for another run with the `--bgc_variants` option.
 The preprocessed outputs can be found in the `BGC_variants` directory in the Nerpa output directory.
-**TODO: maybe we could provide preprocessed outputs for MIBiG 4.0, for example**
 This can be useful if you want to use the same antiSMASH output for multiple runs.
 
 ### Chemical input (compounds)
@@ -174,15 +175,15 @@ Default column separator (`\t`), names of the SMILES column (`SMILES`) and the c
 
 Nerpa 2 is provided with a set of NRP databases in the SMILES format: 
 compounds from 
-[MIBiG 4.0](https://mibig.secondarymetabolites.org/),
+[MIBiG 4.0](https://mibig.secondarymetabolites.org/) and
 [Norine](https://bioinfo.cristal.univ-lille.fr/norine/index.jsp),
-and our own putative NRPs database [pNRPdb](./data/pnrpdb2rc1_summary.tsv).
+available [here](./data/mibig_norine.tsv),
+and our own putative NRPs database pNRPDB, available [here](./data/pnrpdb2rc1_summary.tsv).
 
 Alternatively, you can reuse preprocessed compounds from nerpa output for another run with
 `--nrp_variants` option. 
 Using this option can save substantial time when you want to use the same database for multiple runs.
 The preprocessed outputs can be found in the `NRP_variants` directory in the Nerpa output directory.
-Preprocessed compounds from the provided databases are available in (**FILL IN LINK TO PREPROCESSED NRPs DBs**).
 
 ### Processing options
 
@@ -213,8 +214,10 @@ The key files/directories inside the Nerpa output directory (see the `--output_d
 
 * `report.html` graphical report with the best matches.
 * `report.tsv` matched NRP-BGC pairs with scores.
-* `BGC_variants` directory with preprocessed antiSMASH outputs. They can be reused for another run with the `--bgc_variants` option.
-* `NRP_variants` directory with preprocessed compounds. They can be reused for another run with the `--nrp_variants` option.
+* `BGC_variants` directory with preprocessed antiSMASH outputs. 
+They can be reused for another run with the `--bgc_variants` option.
+* `NRP_variants` directory with preprocessed compounds.
+They can be reused for another run with the `--nrp_variants` option.
 
 <a name="sec_cite"></a>
 ## Citation
