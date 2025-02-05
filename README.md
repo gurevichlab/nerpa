@@ -222,7 +222,8 @@ They can be reused for another run with the `--nrp_variants` option.
 <a name="sec_cite"></a>
 ## Citation
 
-If you use Nerpa in your research, please cite (**FILL IN CITATION**).
+If you use Nerpa in your research,
+please cite the [corresponding paper](https://doi.org/10.1101/2024.11.19.624380).
 
 <a name="sec_feedback"></a>
 ## Feedback and bug reports
