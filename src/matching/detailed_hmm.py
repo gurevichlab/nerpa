@@ -39,6 +39,7 @@ from src.matching.hmm_scoring_helper import HMMHelper
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
+from io import StringIO
 from functools import cache
 
 
@@ -113,6 +114,27 @@ class DetailedHMM:
         #print('opt_path', opt_path)
         return self.path_to_alignment(opt_path, emitted_monomers)
 
+    def __str__(self):
+        hmm = self.to_hmm()
+        out = StringIO()
+        bgc_info = '\n'.join([f'Genome: {self.bgc_variant.genome_id}',
+                              f'Contig_idx: {self.bgc_variant.contig_idx}',
+                              f'BGC_idx: {self.bgc_variant.bgc_idx}',
+                              f'Variant_idx: {self.bgc_variant.variant_idx}'])
+        out.write(bgc_info + '\n')
+
+        out.write('Adjacency list:\n')
+        for u, edges in enumerate(hmm.adj_list):
+            out.write(f'{u}: ')
+            out.write(', '.join([f'({v}, {log_prob:.3f})' for v, log_prob in edges]))
+
+        out.write('\nEmission log probs:\n')
+        for u, u_emissions in enumerate(hmm.emission_log_probs):
+            out.write(f'{u}: ')
+            out.write(' '.join([f'{log_prob:.3f}' for log_prob in u_emissions]))
+            out.write('\n')
+
+        return out.getvalue()
 
     def draw(self,
              filename: Path,

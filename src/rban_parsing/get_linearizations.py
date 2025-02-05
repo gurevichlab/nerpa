@@ -4,10 +4,12 @@ from typing import (
     NamedTuple,
 )
 from src.data_types import NRP_Variant, NRP_Fragment
+from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.generic.combinatorics import split_sequence_subseqs
 from src.matching.match_type import Match_NRP_Variant_Info
 from itertools import chain, permutations, product
+from io import StringIO
 
 
 Linearization = List[rBAN_Monomer]
@@ -19,6 +21,32 @@ class NRP_Linearizations(NamedTuple):
     # linearizations of one group -> List[Linearization]
     # linearizations of all group members -> List[List[Linearization]]
     # linearizations of all groups -> List[List[List[Linearization]]]
+
+def single_linearization_to_str(linearization: Linearization,
+                                monomer_names_helper: MonomerNamesHelper) -> str:
+    mon_aas = ' '.join(str(monomer_names_helper.mon_to_int[mon.to_base_mon()]
+                           for mon in linearization))
+    rban_idxs = ' '.join(str(mon.rban_idx) for mon in linearization)
+    return f'{mon_aas} ({rban_idxs})'
+
+
+def nrp_linearizations_to_str(linearizations: NRP_Linearizations,
+                              monomer_names_helper: MonomerNamesHelper) -> str:
+    out = StringIO()
+    out.write('Non-iterative linearizations:\n')
+    for linearization in linearizations.non_iterative:
+        out.write(single_linearization_to_str(linearization, monomer_names_helper) + '\n')
+
+    out.write('Iterative linearizations:\n')
+    for split_idx, linearizations_of_one_split in enumerate(linearizations.iterative):
+        out.write(f'Split {split_idx}:\n')
+        for group_idx, linearizations_of_one_group in enumerate(linearizations_of_one_split):
+            out.write(f'Group {group_idx}:\n')
+            for linearization in linearizations_of_one_group:
+                out.write(single_linearization_to_str(linearization, monomer_names_helper) + '\n')
+
+    return out.getvalue()
+
 
 def non_iterative_linearizations(fragments: List[NRP_Fragment],
                                  max_num_fragments_to_permute: int = 3) -> List[Linearization]:
