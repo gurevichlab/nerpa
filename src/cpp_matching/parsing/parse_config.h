@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "data_types.h"
+#include "../data_types.h"
 
 /**
  * Parses the matching configuration (max_num_matches_per_bgc, etc.) from JSON.

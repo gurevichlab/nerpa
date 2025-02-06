@@ -3,7 +3,7 @@
 
 #endif //NERPA2_VITERBI_ALGORITHM_H
 
-#include "data_types.h"
+#include "../data_types.h"
 
 LogProb get_hmm_score(const HMM& hmm,
                       const vector<MonCode>& nrp_monomers,
