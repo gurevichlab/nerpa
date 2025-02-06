@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <utility>
-#include "data_types.h"
+#include "../data_types.h"
 
 /**
  * Parses NRP linearizations from a JSON file.

@@ -1,4 +1,4 @@
-#include "data_types.h"
+#include "../data_types.h"
 #include <omp.h>
 #include <vector>
 #include <limits>

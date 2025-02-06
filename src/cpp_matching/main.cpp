@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-#include <stdexcept>
-#include "data_types.h"
+#include "CLI11.hpp"
+
+// Include the headers for your modules:
 #include "parse_hmms.h"
 #include "parse_nrps.h"
 #include "parse_config.h"
@@ -10,35 +11,62 @@
 
 int main(int argc, char** argv)
 {
-    if (argc < 5) {
-        std::cerr << "Usage: " << argv[0]
-                  << " <hmms_json> <nrps_json> <config_json> <num_threads> [output_json]\n";
-        return 1;
-    }
+    CLI::App app{"NRP Matching Tool"};
 
-    std::string hmms_json_path   = argv[1];
-    std::string nrps_json_path   = argv[2];
-    std::string config_json_path = argv[3];
-    int num_threads              = std::stoi(argv[4]);
-    std::string output_json_path = (argc > 5) ? argv[5] : "matches_out.json";
+    // Define variables to store the parsed arguments
+    std::string hmms_json_path;
+    std::string nrps_json_path;
+    std::string config_json_path;
+    int num_threads;
+    std::string output_json_path;
+
+    // Create command line options (very similar to argparse in Python)
+    app.add_option("-H,--hmms_json", hmms_json_path,
+                   "Path to the HMM/BGC JSON file")
+            ->required();
+
+    app.add_option("-N,--nrps_json", nrps_json_path,
+                   "Path to the NRP linearizations JSON file")
+            ->required();
+
+    app.add_option("-C,--config_json", config_json_path,
+                   "Path to the matching configuration JSON file")
+            ->required();
+
+    app.add_option("-t,--threads", num_threads,
+                   "Number of OpenMP threads to use (e.g., 4)")
+            ->required();
+
+    app.add_option("-o,--output", output_json_path,
+                   "Output JSON file for the resulting matches")
+            ->default_val("matches_out.json");
+
+    // Let CLI11 parse the command line
+    CLI11_PARSE(app, argc, argv);
 
     try {
-        // 1. Parse input data
-        auto hmms_map           = parse_hmms_from_json(hmms_json_path);
-        auto nrp_linearizations = parse_nrps_from_json(nrps_json_path);
-        auto config             = parse_config(config_json_path);
+        // 1. Parse input data (HMMs, BGC_Info)
+        auto hmms_map = parse_hmms_from_json(hmms_json_path);
 
-        // 2. Perform matching
+        // 2. Parse NRP linearizations + NRP IDs
+        auto nrp_linearizations = parse_nrps_from_json(nrps_json_path);
+
+        // 3. Parse the matching configuration
+        auto config = parse_config(config_json_path);
+
+        // 4. Call your matching function to get the final list of matches
         auto matches = get_matches(hmms_map, nrp_linearizations, config, num_threads);
 
-        // 3. Write results to JSON
+        // 5. Dump the resulting matches to an output JSON file
         write_matches_to_json(matches, output_json_path);
 
-        std::cout << "Done! Wrote " << matches.size() << " matches to " << output_json_path << "\n";
+        std::cout << "Done! Wrote " << matches.size() << " matches to "
+                  << output_json_path << "\n";
     }
     catch (const std::exception& ex) {
         std::cerr << "Error: " << ex.what() << "\n";
         return 1;
     }
+
     return 0;
 }

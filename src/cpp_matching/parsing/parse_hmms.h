@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include <string>
-#include "data_types.h"
+#include "../data_types.h"
 
 /**
  * Parses HMMs and their associated BGC_Info from a JSON file.
