@@ -1,4 +1,6 @@
 #include "../data_types.h"
+#include "matcher.h"
+#include "viterbi_algorithm.h"
 #include <omp.h>
 #include <vector>
 #include <limits>
@@ -17,7 +19,7 @@ LogProb linearization_score(const HMM& hmm,
 }
 
 
-std::pair<LogProb , std::vector<NRP_Linearization*>>
+std::pair<LogProb , std::vector<const NRP_Linearization*>>
 get_best_linearizations_for_nrp(
         const HMM& hmm,
         const NRP_Linearizations& nrp_linearizations)
@@ -25,10 +27,10 @@ get_best_linearizations_for_nrp(
 
     // Determine the best non-iterative linearization.
     LogProb best_non_iterative_score = -std::numeric_limits<double>::infinity();
-    NRP_Linearization* best_non_iterative_linearization;  // Default constructed; assumes non-empty nrp_linearizations.non_iterative
+    const NRP_Linearization* best_non_iterative_linearization;  // Default constructed; assumes non-empty nrp_linearizations.non_iterative
 
     for (const auto& non_iterative_linearization : nrp_linearizations.non_iterative) {
-        LogProb score = linearization_score(non_iterative_linearization);
+        LogProb score = linearization_score(hmm, non_iterative_linearization);
         if (score > best_non_iterative_score) {
             best_non_iterative_score = score;
             best_non_iterative_linearization = &non_iterative_linearization;
@@ -37,18 +39,18 @@ get_best_linearizations_for_nrp(
 
     // Determine the best iterative linearizations.
     double best_iterative_score = -std::numeric_limits<double>::infinity();
-    std::vector<NRP_Linearization*> best_iterative_linearizations;
+    std::vector<const NRP_Linearization*> best_iterative_linearizations;
 
     // Assuming nrp_linearizations.iterative is a vector of "groups",
     // where each group is a vector (of groups) of linearizations.
     for (const auto& linearizations_of_one_split : nrp_linearizations.iterative) {
         double split_score = 0;
-        std::vector<NRP_Linearization*> split_linearizations;
+        std::vector<const NRP_Linearization*> split_linearizations;
         for (const auto& group_linearizations : linearizations_of_one_split) {
             double group_score = -std::numeric_limits<double>::infinity();
-            NRP_Linearization* best_group_linearization;
+            const NRP_Linearization* best_group_linearization;
             for (const auto& linearization : group_linearizations) {
-                double score = linearization_score(linearization);
+                double score = linearization_score(hmm, linearization);
                 if (score > group_score) {
                     group_score = score;
                     best_group_linearization = &linearization;
@@ -74,19 +76,19 @@ get_best_linearizations_for_nrp(
 
 vector<MatchInfoLight>
 get_best_matches_for_bgc_variant(const HMM& hmm,
-                                 const BGC_info& bgc_info,
+                                 const BGC_Info& bgc_info,
                                  const vector<pair<NRP_Linearizations, NRP_ID>>& all_nrp_linearizations,
                                  const int max_num_matches_per_bgc)
 {
     vector<MatchInfoLight> best_matches;
     for (const auto& [nrp_linearizations, nrp_id] : all_nrp_linearizations) {
-        auto [score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearization);
-        best_matches.emplace({score, bgc_info, nrp_id, linearizations});
+        auto [score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
+        best_matches.push_back({score, bgc_info, nrp_id, linearizations});
     }
 
     sort(best_matches.begin(), best_matches.end(),
          [](const auto& a, const auto& b) {
-             return a.first > b.first;
+             return a.score > b.score;
          });
 
     // Truncate to at most max_num_matches_per_bgc entries.
@@ -110,12 +112,11 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
 
         // Step 2: Filter by BGC. For each BGC (ignoring variant_idx), only keep up to max_num_matches_per_bgc.
         // Define BGC_key as a tuple of (genome_id, contig_idx, bgc_idx).
-        unordered_map<tuple<string, int, int>, int> bgcCounts;
+        unordered_map<BGC_Info, int> bgcCounts;
         vector<MatchInfoLight> bgcFiltered;
         for (const auto& match : sortedMatches) {
-            auto bgcKey = make_tuple(match.bgc_info.genome_id,
-                                     match.bgc_info.contig_idx,
-                                     match.bgc_info.bgc_idx);
+            auto bgcKey = match.bgc_info;
+            variant_idx(bgcKey) = 0;  // Ignore variant_idx
             if (bgcCounts[bgcKey] < config.max_num_matches_per_bgc) {
                 bgcFiltered.push_back(match);
                 bgcCounts[bgcKey]++;

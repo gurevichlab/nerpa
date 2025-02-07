@@ -1,7 +1,7 @@
 #include "write_matches.h"
 #include <fstream>
 #include <stdexcept>
-#include <nlohmann/json.hpp>
+#include "parsing/json.hpp"
 
 void write_matches_to_json(const std::vector<MatchInfo>& matches,
                            const std::string& output_path)

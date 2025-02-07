@@ -1,7 +1,7 @@
 #include "parse_config.h"
 #include <fstream>
 #include <stdexcept>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 
 MatchingConfig parse_config(const std::string& config_json_path)
 {

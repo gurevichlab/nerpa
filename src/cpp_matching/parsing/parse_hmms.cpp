@@ -1,7 +1,7 @@
 #include "parse_hmms.h"
 #include <fstream>
 #include <stdexcept>
-#include <nlohmann/json.hpp> // https://github.com/nlohmann/json
+#include "json.hpp" // https://github.com/nlohmann/json
 
 std::unordered_map<BGC_Info, HMM>
 parse_hmms_from_json(const std::string& hmm_json_path)

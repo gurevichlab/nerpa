@@ -1,18 +1,15 @@
-#ifndef NERPA2_VITERBI_ALGORITHM_H
-#define NERPA2_VITERBI_ALGORITHM_H
-
-#endif //NERPA2_VITERBI_ALGORITHM_H
-
+#pragma once
 #include "../data_types.h"
+#include <vector>
 
 LogProb get_hmm_score(const HMM& hmm,
-                      const vector<MonCode>& nrp_monomers,
-                      const vector<pair<StateIdx, int>>& checkpoints);
+                      const std::vector<MonCode>& nrp_monomers,
+                      const std::vector<std::pair<StateIdx, int>>& checkpoints);
 
-pair<LogProb, vector<StateIdx>>
+std::pair<LogProb, std::vector<StateIdx>>
 get_opt_hmm_path(const HMM& hmm,
                  StateIdx initial_state,
                  StateIdx final_state,
-                 const vector<MonCode>& nrp_monomers);
+                 const std::vector<MonCode>& nrp_monomers);
 
 

@@ -3,10 +3,10 @@
 #include "CLI11.hpp"
 
 // Include the headers for your modules:
-#include "parse_hmms.h"
-#include "parse_nrps.h"
-#include "parse_config.h"
-#include "matcher.h"
+#include "parsing/parse_hmms.h"
+#include "parsing/parse_nrps.h"
+#include "parsing/parse_config.h"
+#include "matching/matcher.h"
 #include "write_matches.h"
 
 int main(int argc, char** argv)
