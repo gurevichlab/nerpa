@@ -1,7 +1,7 @@
 #include "parse_nrps.h"
 #include <fstream>
 #include <stdexcept>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 
 std::vector<std::pair<NRP_Linearizations, NRP_ID>>
 parse_nrps_from_json(const std::string& nrp_json_path)
