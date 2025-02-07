@@ -230,8 +230,8 @@ please cite the [corresponding paper](https://doi.org/10.1101/2024.11.19.624380)
 
 <a name="sec_feedback"></a>
 ## Feedback and bug reports
-You can leave your comments and bug reports at (**FILL IN LINK TO GITHUB ISSUES**) (*recommended way*) 
-or sent it via e-mail: (**FILL IN EMAIL ADDRESS**).
+You can leave your comments and bug reports at [https://github.com/gurevichlab/nerpa/issues](https://github.com/gurevichlab/nerpa/issues) (*recommended way*) 
+or sent it via e-mail to [alexey.gurevich@helmholtz-hips.de](alexey.gurevich@helmholtz-hips.de).
 
 Your comments, bug reports, and suggestions are **very welcomed**.
 They will help us to improve Nerpa further.
