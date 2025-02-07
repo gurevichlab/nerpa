@@ -198,7 +198,7 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     configs_dir = nerpa_dir / Path('configs')
     cfg = yaml.safe_load((configs_dir / 'config.yaml').open('r'))
     main_out_dir = args.output_dir.resolve() \
-        if args is not None else get_default_output_dir(nerpa_dir, cfg)
+        if args is not None and args.output_dir is not None else get_default_output_dir(nerpa_dir, cfg)
 
     antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
     antismash_processing_cfg = dacite.from_dict(antiSMASH_Processing_Config, antismash_processing_cfg_dict)
