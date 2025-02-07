@@ -8,76 +8,77 @@ import csv
 def add_genomic_arguments(parser: argparse.ArgumentParser):
     genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms or BGC predictions')
     genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append', type=Path,
+                               metavar='DIR',
                                help="single antiSMASH output directory or directory with many antiSMASH outputs inside")
-    genomic_group.add_argument("--antismash-paths-file", dest="antismash_outpaths_file",
+    genomic_group.add_argument("--antismash-paths-file", dest="antismash_outpaths_file", metavar='FILE',
                                help="file with list of paths to antiSMASH output directories", type=Path)
-    genomic_group.add_argument("--antismash-job-ids", dest="antismash_job_ids", nargs='*',
+    genomic_group.add_argument("--antismash-job-ids", dest="antismash_job_ids", nargs='*', metavar='STR',
                                help="space-separated job IDs to download from the antiSMASH webserver", type=str)
-    genomic_group.add_argument("--sequences", dest="seqs",
-                               help="GenBank/EMBL/FASTA file containing DNA sequences", type=Path)
+    genomic_group.add_argument("--genome", dest="seqs", action='append', metavar='FILE',
+                               help="genome sequence in the GenBank/EMBL/FASTA format", type=Path)
 
 
 def add_struct_arguments(parser: argparse.ArgumentParser):
     struct_group = parser.add_argument_group('Chemical input', 'Structures of NRP molecules')
     struct_input_group = struct_group.add_mutually_exclusive_group()
-    struct_input_group.add_argument("--smiles", dest="smiles", nargs='*',
+    struct_input_group.add_argument("--smiles", dest="smiles", nargs='*', metavar='STR',
                                     help="space-separated structures in the SMILES format", type=str)
-    struct_input_group.add_argument("--smiles-tsv", dest="smiles_tsv",
+    struct_input_group.add_argument("--smiles-tsv", dest="smiles_tsv", metavar='FILE',
                                     help="multi-column file with structures in the SMILES format and metadata", type=Path)
-    struct_group.add_argument("--col-smiles", dest="col_smiles",
+    struct_group.add_argument("--col-smiles", dest="col_smiles", metavar='STR',
                               help="column name in smiles-tsv for structures in the SMILES format [default: '%(default)s']",
                               type=str, default='SMILES')
-    struct_group.add_argument("--col-id", dest="col_id",
+    struct_group.add_argument("--col-id", dest="col_id", metavar='STR',
                               help="column name in smiles-tsv for structure identifier [if not provided, row index will be used]",
                               type=str)
-    struct_group.add_argument("--sep", dest="sep",
+    struct_group.add_argument("--sep", dest="sep", metavar='CHAR',
                               help="column separator in smiles-tsv [default: '\\t']", type=str, default='\t')
-    struct_input_group.add_argument("--rban-json", dest="rban_output",
-                                    help="JSON file with rBAN-preprocessed NRP structures", type=Path)
+    struct_input_group.add_argument("--rban-json", dest="rban_output", metavar='FILE',
+                                    help="rBAN-preprocessed NRP structures in the JSON file", type=Path)
 
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
                                                      'Preprocessed data '
                                                      'in custom Nerpa-compliant formats')
-    advanced_input_group.add_argument("--bgc-variants", dest="bgc_variants",
+    advanced_input_group.add_argument("--bgc-variants", dest="bgc_variants", metavar='DIR',
                                       help="directory with predicted BGC variants (yaml files)", type=Path)
-    advanced_input_group.add_argument("--nrp-variants", dest="nrp_variants",
+    advanced_input_group.add_argument("--nrp-variants", dest="nrp_variants", metavar='DIR',
                                       help="directory with predicted NRP variants (yaml files)", type=Path)
     advanced_input_group.add_argument("--configs-dir", help="custom directory with Nerpa configs",
-                                      action="store", type=Path)
+                                      metavar='DIR', action="store", type=Path)
     advanced_input_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,
-                                      help='file with custom monomers in rBAN compatible format')
+                                      metavar='FILE', help='file with custom monomers in rBAN compatible format')
 
 
 def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
     configs_group = parser.add_argument_group('Nerpa pipeline',
                                               'Nerpa running configuration')
 
-    # q: default_out_dir has format '.../results_%Y-%m-%d_%H-%M-%S', but we want '.../results'
-    configs_group.add_argument("--output-dir", "-o", type=Path,
+    configs_group.add_argument("--output-dir", "-o", type=Path, metavar='DIR',
                                help="output directory "
                                     f"[default: {default_cfg.output_config.main_out_dir.parent}/" "{CURRENT_TIME}]")
     configs_group.add_argument("--force-output-dir", dest="output_dir_reuse", action="store_true",
-                               help="don't crash if the output directory already exists and rewrite its content")
+                               help="do not crash if the output directory already exists and rewrite its content")
 
-    configs_group.add_argument("--threads", "-t", default=1, type=int,
+    configs_group.add_argument("--threads", "-t", default=1, type=int, metavar='INT',
                                help="number of threads for running Nerpa [default: %(default)s]", action="store")
 
     configs_group.add_argument("--process-hybrids", dest="process_hybrids", action="store_true", default=False,
                                help="process NRP-PK hybrid monomers (requires the use of rBAN)")
 
-    configs_group.add_argument("--antismash-installation-path", dest="antismash_path", type=Path, default=None,
+    configs_group.add_argument("--antismash-installation-path", dest="antismash_path", type=Path,
+                               default=None, metavar='DIR',
                                help="path to the antiSMASH installation directory containing 'run_antismash.py'")
 
-    configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int,
+    configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int, metavar='INT',
                                help="maximum number of matches to report per BGC; set 0 for unlimited "
                                     f"[default: {default_cfg.matching_config.max_num_matches_per_bgc}]",
                                action="store")
-    configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int,
+    configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int, metavar='INT',
                                help="maximum number of matches to report per NRP; set 0 for unlimited "
                                     f"[default: {default_cfg.matching_config.max_num_matches_per_nrp}]",
                                action="store")
-    configs_group.add_argument("--max-num-matches", default=None, type=int,
+    configs_group.add_argument("--max-num-matches", default=None, type=int, metavar='INT',
                                help="maximum number of matches to report in total; set 0 for unlimited "
                                     f"[default: {default_cfg.matching_config.max_num_matches}]",
                                action="store")

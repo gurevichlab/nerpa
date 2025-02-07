@@ -84,15 +84,16 @@ class PipelineHelper_antiSMASH:
             antismash_results.extend(map(Path, self.args.antismash_outpaths_file.read_text().strip().splitlines()))
 
         if self.args.seqs:
-            try:
-                new_results = self.run_antismash(self.args.seqs,
-                                                 self.args.threads,
-                                                 self.config.output_config.antismash_out_dir,
-                                                 self.log)
-            except Exception as e:
-                self.log.error(f'Error while running antismash on {self.args.seqs}, aborting')
-                raise e
-            antismash_results.append(new_results)
+            for seq in self.args.seqs:
+                try:
+                    new_results = self.run_antismash(seq,
+                                                     self.args.threads,
+                                                     self.config.output_config.antismash_out_dir,
+                                                     self.log)
+                except Exception as e:
+                    self.log.error(f'Error while running antismash on {seq}, aborting')
+                    raise e
+                antismash_results.append(new_results)
 
         if self.args.antismash_job_ids is not None:
             antismash_results.extend(download_antismash_results(job_id,
