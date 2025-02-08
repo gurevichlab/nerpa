@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "parsing/json.hpp"
+#include <algorithm>
 
 void write_matches_to_json(const std::vector<MatchInfo>& matches,
                            const std::string& output_path)
@@ -9,43 +10,28 @@ void write_matches_to_json(const std::vector<MatchInfo>& matches,
     using json = nlohmann::json;
     json j_out = json::array();
 
-    for (const auto& match : matches) {
-        json match_j;
-        match_j["score"] = match.score;
+    std::transform(matches.begin(), matches.end(), std::back_inserter(j_out), [](const auto& match) {
+        json linearizations_json;
+        std::transform(match.linearizations.begin(), match.linearizations.end(), std::back_inserter(linearizations_json),
+                       [](const auto& lin) { return lin.second; });
 
-        // BGC_Info is a tuple<string,int,int,int>
-        match_j["bgc_info"] = {
-                std::get<0>(match.bgc_info),
-                std::get<1>(match.bgc_info),
-                std::get<2>(match.bgc_info),
-                std::get<3>(match.bgc_info)
+        json optimal_paths_json;
+        std::transform(match.optimal_paths.begin(), match.optimal_paths.end(), std::back_inserter(optimal_paths_json),
+                       [](const auto& path) { return json(path); });
+
+        return json{
+                {"score", match.score},
+                {"bgc_variant_info", {
+                                  {"genome_id", std::get<0>(match.bgc_info)},
+                                  {"contig_idx", std::get<1>(match.bgc_info)},
+                                  {"bgc_idx", std::get<2>(match.bgc_info)},
+                                  {"variant_idx", std::get<3>(match.bgc_info)}
+                          }},
+                {"nrp_id", match.nrp_id},
+                {"nrp_linearizations", linearizations_json},
+                {"optimal_paths", optimal_paths_json}
         };
-
-        match_j["nrp_id"] = match.nrp_id;
-
-        // Convert linearizations
-        {
-            json lin_array = json::array();
-            for (const auto& lin : match.linearizations) {
-                json lin_j;
-                lin_j["first"]  = lin.first;
-                lin_j["second"] = lin.second;
-                lin_array.push_back(lin_j);
-            }
-            match_j["linearizations"] = lin_array;
-        }
-
-        // Convert optimal_paths
-        {
-            json paths_array = json::array();
-            for (const auto& path : match.optimal_paths) {
-                paths_array.push_back(path);
-            }
-            match_j["optimal_paths"] = paths_array;
-        }
-
-        j_out.push_back(match_j);
-    }
+    });
 
     std::ofstream ofs(output_path);
     if (!ofs.is_open()) {

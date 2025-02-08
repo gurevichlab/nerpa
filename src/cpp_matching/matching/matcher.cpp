@@ -8,9 +8,6 @@
 using namespace std;
 
 
-// Forward declarations for functions used in lambdas.
-// double alignment_score(const AlignmentType& alignment);
-// double get_hmm_score(const HMM& hmm, const std::vector<int>& seq);
 LogProb linearization_score(const HMM& hmm,
                             const NRP_Linearization& linearization){
     vector<pair<StateIdx, int>> checkpoints = { {0, 0},
@@ -140,7 +137,6 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
 
         return nrpFiltered;
     }
-    // ...
 }
 
 MatchInfo get_full_match_info(const MatchInfoLight& match_light,
@@ -175,10 +171,7 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Info, HMM>& hmms,
     omp_set_num_threads(num_threads);
 
     // Convert the unordered_map into a vector for easy index-based iteration.
-    vector<pair<BGC_Info, HMM>> bgc_hmm_pairs;
-    for (const auto& entry : hmms) {
-        bgc_hmm_pairs.push_back(entry);
-    }
+    vector<pair<BGC_Info, HMM>> bgc_hmm_pairs(hmms.begin(), hmms.end());
 
     // This vector will accumulate MatchInfoLight objects from each BGC variant.
     vector<MatchInfoLight> matches_light;
