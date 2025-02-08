@@ -1,73 +1,58 @@
-#include "../data_types.h"
-#include <queue>
-#include <tuple>
-#include <limits>
 #include <cassert>
-#include <algorithm>
+#include "data_types.h"
+#include <vector>
+#include <limits>
+#include <utility>
 using namespace std;
 
-
-// checkpoint (state_idx, num_symbols) means that by reaching state_idx, num_symbols symbols should have been emitted
+// Computes the maximum probability path through an HMM given an input sequence.
 LogProb get_hmm_score(const HMM& hmm,
                       const vector<MonCode>& nrp_monomers,
                       const vector<pair<StateIdx, int>>& checkpoints) {
-    int seq_len = static_cast<int>(nrp_monomers.size());  // length of the sequence
-    int num_states = static_cast<int>(hmm.transitions.size());  // number of states
+    int seq_len = nrp_monomers.size();       // Number of observed symbols
+    int num_states = hmm.transitions.size(); // Number of states in the HMM
 
-    // dp[u][i] = maximum log probability ending in state u after processing i symbols
-    vector<vector<LogProb>> dp(num_states,
-                               vector<LogProb>(seq_len + 1, -numeric_limits<LogProb>::infinity()));
+    // dp[state][num_symbols] = max log probability reaching `state` after processing `num_symbols` monomers
+    vector<vector<LogProb>> dp(num_states, vector<LogProb>(seq_len + 1,
+                                                           -numeric_limits<LogProb>::infinity()));
 
-    // Starting condition: at the first checkpoint, the log probability is 0.
+    // Initialize at first checkpoint
     dp[checkpoints[0].first][checkpoints[0].second] = 0.0;
 
-    queue<tuple<StateIdx, int, LogProb>> q;
-    q.emplace(checkpoints[0].first, checkpoints[0].second, 0.0);
+    // Iterate through all checkpoints except the last (final state is already covered)
+    for (size_t checkpoint_idx = 0; checkpoint_idx < checkpoints.size() - 1; ++checkpoint_idx) {
+        auto [checkpnt_state_idx, checkpnt_num_symb_processed] = checkpoints[checkpoint_idx];
+        auto [next_checkpnt_state_idx, next_checkpnt_num_symb_processed] = checkpoints[checkpoint_idx + 1];
 
-    // For each checkpoint, find the best path until that checkpoint.
-    for (const auto& [checkpnt_state_idx, checkpnt_num_symb_processed] : checkpoints) {
-        while (!q.empty()) {
-            auto [edge_from, num_symb_processed, log_prob] = q.front();
-            q.pop();
-
-            // If we've processed exactly the checkpoint's number of symbols and the current state emits,
-            // then skip this path.
-            if (num_symb_processed == checkpnt_num_symb_processed &&
-                !hmm.emissions[edge_from].empty()) {
-                continue;
-            }
-
-            // Iterate over all outgoing transitions from state 'edge_from'.
-            for (const auto& [edge_to, edge_log_prob] : hmm.transitions[edge_from]) {
-                // If the next state's nearest module start is greater than that of the checkpoint state,
-                // then the next checkpoint is unreachable from edge_to.
-                if (hmm.nearest_module_start_state[edge_to] >
-                    hmm.nearest_module_start_state[checkpnt_state_idx]) {
+        for (int num_symb_processed = checkpnt_num_symb_processed;
+             num_symb_processed <= next_checkpnt_num_symb_processed; ++num_symb_processed) {
+            for (StateIdx state_idx = checkpnt_state_idx; state_idx < next_checkpnt_state_idx; ++state_idx) {
+                if (num_symb_processed == next_checkpnt_num_symb_processed and
+                    !hmm.emissions[state_idx].empty()) {
                     continue;
                 }
-                // Initialize new variables.
-                int new_num_symb_processed = num_symb_processed;
-                LogProb new_log_prob = log_prob + edge_log_prob;
 
-                // If the current state emits a symbol, update with its emission probability.
-                if (!hmm.emissions[edge_from].empty()) {
-                    // Assumes that num_symb_processed < seq_len.
-                    new_log_prob += hmm.emissions[edge_from][nrp_monomers[num_symb_processed]];
-                    new_num_symb_processed++;
-                }
+                LogProb log_prob = dp[state_idx][num_symb_processed];
+                if (log_prob == -numeric_limits<LogProb>::infinity()) continue; // Skip uninitialized states
 
-                // Update if this new path gives a higher log probability.
-                if (new_log_prob > dp[edge_to][new_num_symb_processed]) {
-                    dp[edge_to][new_num_symb_processed] = new_log_prob;
-                    q.emplace(edge_to, new_num_symb_processed, new_log_prob);
+                for (const auto& [edge_to, edge_log_prob] : hmm.transitions[state_idx]) {
+                    int new_num_symb_processed = num_symb_processed;
+                    LogProb new_log_prob = log_prob + edge_log_prob;
+
+                    if (!hmm.emissions[state_idx].empty()) { // If the state emits a symbol
+                        new_log_prob += hmm.emissions[state_idx][nrp_monomers[num_symb_processed]];
+                        new_num_symb_processed++;
+                    }
+
+                    if (new_log_prob > dp[edge_to][new_num_symb_processed]) {
+                        dp[edge_to][new_num_symb_processed] = new_log_prob;
+                    }
                 }
             }
         }
-        // Start a new iteration from the current checkpoint.
-        q.emplace(checkpnt_state_idx, checkpnt_num_symb_processed,
-                  dp[checkpnt_state_idx][checkpnt_num_symb_processed]);
     }
 
+    // Return the probability of reaching the final state after processing all symbols
     return dp[checkpoints.back().first][checkpoints.back().second];
 }
 
@@ -79,9 +64,6 @@ get_opt_hmm_path(const HMM& hmm,
     int seq_len = static_cast<int>(nrp_monomers.size());  // number of observed symbols
     int num_states = static_cast<int>(hmm.transitions.size());  // number of states
 
-    // Each element in the queue is a tuple: (current state, num symbols processed, current log probability)
-    queue<tuple<StateIdx, int, LogProb>> q;
-    q.emplace(initial_state, 0, 0.0);
 
     // dp[u][i] = maximum log probability ending in state u after processing i symbols
     vector<vector<LogProb>> dp(num_states,
@@ -92,29 +74,29 @@ get_opt_hmm_path(const HMM& hmm,
     // Starting condition.
     dp[initial_state][0] = 0.0;
 
-    while (!q.empty()) {
-        auto [u, num_symb_processed, log_prob] = q.front();
-        q.pop();
+    // Iterate through all checkpoints except the last (final state is already covered)
+    for (int num_symb_processed = 0; num_symb_processed <= seq_len; ++num_symb_processed) {
+        for (StateIdx state_idx = 0; state_idx < num_states; ++state_idx) {
 
-        // If we've processed all symbols and the current state emits, skip this path.
-        if (num_symb_processed == seq_len && !hmm.emissions[u].empty()) {
-            continue;
-        }
+            if (num_symb_processed == seq_len and !hmm.emissions[state_idx].empty()) continue;
 
-        // Process all outgoing transitions from state 'u'.
-        for (const auto& [v, edge_log_prob] : hmm.transitions[u]) {
-            int new_num_symbols = num_symb_processed;
-            LogProb new_log_prob = log_prob + edge_log_prob;
-            // If the current state emits a symbol, incorporate its emission probability.
-            if (!hmm.emissions[u].empty()) {
-                new_log_prob += hmm.emissions[u][nrp_monomers[num_symb_processed]];
-                new_num_symbols++;
-            }
-            // Update if this new path gives a higher log probability.
-            if (new_num_symbols <= seq_len && new_log_prob > dp[v][new_num_symbols]) {
-                dp[v][new_num_symbols] = new_log_prob;
-                prev[v][new_num_symbols] = u;
-                q.emplace(v, new_num_symbols, new_log_prob);
+            LogProb log_prob = dp[state_idx][num_symb_processed];
+            if (log_prob == -numeric_limits<LogProb>::infinity()) continue; // Skip uninitialized states
+
+            // Process all outgoing transitions from the state
+            for (const auto &[next_state_idx, edge_log_prob]: hmm.transitions[state_idx]) {
+                int new_num_symbols = num_symb_processed;
+                LogProb new_log_prob = log_prob + edge_log_prob;
+                // If the current state emits a symbol, incorporate its emission probability.
+                if (!hmm.emissions[state_idx].empty()) {
+                    new_log_prob += hmm.emissions[state_idx][nrp_monomers[num_symb_processed]];
+                    new_num_symbols++;
+                }
+                // Update if this new path gives a higher log probability.
+                if (new_log_prob > dp[next_state_idx][new_num_symbols]) {
+                    dp[next_state_idx][new_num_symbols] = new_log_prob;
+                    prev[next_state_idx][new_num_symbols] = state_idx;
+                }
             }
         }
     }
