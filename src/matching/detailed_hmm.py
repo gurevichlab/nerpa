@@ -75,8 +75,20 @@ class DetailedHMM:
                                for mon in sorted(state.emissions,
                                                  key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
+
+        module_start_states = [self._module_idx_to_state_idx[module_idx]
+                               for module_idx in range(len(self.bgc_variant.modules))]
+
+        def get_match_state(start_state: int) -> int:
+            return next(state_idx for state_idx in self.adj_list[start_state]
+                        if self.states[state_idx].state_type == DetailedHMMStateType.MATCH)
+
+        module_match_states = [get_match_state(module_start_state)
+                               for module_start_state in module_start_states]
         self._hmm = HMM(adj_list=adj_list,
-                        emission_log_probs=emission_log_probs)
+                        emission_log_probs=emission_log_probs,
+                        module_start_states=module_start_states,
+                        module_match_states=module_match_states)
         return self._hmm
 
     def get_opt_path_with_emissions(self,
@@ -113,28 +125,6 @@ class DetailedHMM:
         #self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
         #print('opt_path', opt_path)
         return self.path_to_alignment(opt_path, emitted_monomers)
-
-    def __str__(self):
-        hmm = self.to_hmm()
-        out = StringIO()
-        bgc_info = '\n'.join([f'Genome: {self.bgc_variant.genome_id}',
-                              f'Contig_idx: {self.bgc_variant.contig_idx}',
-                              f'BGC_idx: {self.bgc_variant.bgc_idx}',
-                              f'Variant_idx: {self.bgc_variant.variant_idx}'])
-        out.write(bgc_info + '\n')
-
-        out.write('Adjacency list:\n')
-        for u, edges in enumerate(hmm.adj_list):
-            out.write(f'{u}: ')
-            out.write(', '.join([f'({v}, {log_prob:.3f})' for v, log_prob in edges]))
-
-        out.write('\nEmission log probs:\n')
-        for u, u_emissions in enumerate(hmm.emission_log_probs):
-            out.write(f'{u}: ')
-            out.write(' '.join([f'{log_prob:.3f}' for log_prob in u_emissions]))
-            out.write('\n')
-
-        return out.getvalue()
 
     def draw(self,
              filename: Path,

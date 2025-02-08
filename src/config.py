@@ -87,6 +87,20 @@ class HMM_Scoring_Config:
 
 
 @dataclass
+class CppOutputConfig:
+    hmms_json: Path
+    nrp_linearizations_json: Path
+    config_json: Path
+    cpp_output_json: Path
+
+    def __init__(self,
+                 cpp_cfg_dict: dict,
+                 main_out_dir: Path):
+            for k, v in cpp_cfg_dict.items():
+                setattr(self, k, main_out_dir / Path(v))
+
+
+@dataclass
 class MatchingConfig:
     max_num_matches_per_bgc: int
     max_num_matches_per_nrp: int  # 0 means no limit
@@ -122,6 +136,7 @@ class OutputConfig:
     html_report: Path
     logo: Path  # seems a bit out of place here
     rban_output_config: rBAN_Output_Config
+    cpp_output_config: CppOutputConfig
 
     def __init__(self,
                  output_cfg_dict: dict,
@@ -129,10 +144,14 @@ class OutputConfig:
                  args):
         main_out_dir = args.output_dir.resolve()
         for k, v in output_cfg_dict.items():
-            if k not in ('rban_output_config', 'draw_molecules'):
+            if k not in ('rban_output_config',
+                         'draw_molecules',
+                         'cpp_output_config'):
                 setattr(self, k, main_out_dir / Path(v))
         self.rban_output_config = rBAN_Output_Config(output_cfg_dict['rban_output_config'],
                                                      main_out_dir)
+        self.cpp_output_config = CppOutputConfig(output_cfg_dict['cpp_output_config'],
+                                                 main_out_dir)
         if args.dont_draw_molecules is not None:
             self.draw_molecules = not args.dont_draw_molecules
         self.main_out_dir = main_out_dir
@@ -153,6 +172,7 @@ class Config:
     rban_processing_config: rBAN_Processing_Config
     hmm_scoring_config: Path
     matching_config: MatchingConfig
+    cpp_matcher_exec: Path
     output_config: OutputConfig
 
 
@@ -189,4 +209,5 @@ def load_config(args: CommandLineArgs) -> Config:
                   hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
                   output_config=output_cfg,
                   monomers_config=nerpa_dir / cfg['monomers_config'],
-                  matching_config=matching_cfg)
+                  matching_config=matching_cfg,
+                  cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec'])
