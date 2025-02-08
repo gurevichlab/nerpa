@@ -38,27 +38,69 @@ from src.rban_parsing.get_linearizations import (
     NRP_Linearizations,
     nrp_linearizations_to_str
 )
+from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
+import json
+from pathlib import Path
+from dataclasses import asdict
+import subprocess
+from dataclasses import dataclass
 
 
-
+@dataclass
 class PipelineHelperCpp:
     config: Config
     args: CommandLineArgs
     log: NerpaLogger
     monomer_names_helper: MonomerNamesHelper
 
-    def dump_hmms(self, hmms: List[DetailedHMM]) -> Path:
-        with open(self.config.output_config.hmms_file, 'w') as f:
-            f.write('\n\n'.join(str(hmm) for hmm in hmms))
+    def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
+        out_file = self.config.output_config.cpp_output_config.hmms_json
+        with open(out_file, 'w') as f:
+            json.dump([detailed_hmm.to_hmm().to_json() for detailed_hmm in detailed_hmms], f, indent=4)
+        return out_file
 
-    def dump_nrp_linearizations(self, nrp_linearizations: Dict[str, NRP_Linearizations]) -> Path:
-        with open(self.config.output_config.nrp_linearizations_file, 'w') as f:
-            for nrp_id, linearizations in nrp_linearizations.items():
-                f.write(f'{nrp_id}\n')
-                f.write(nrp_linearizations_to_str(linearizations, self.monomer_names_helper))
-                f.write('\n\n')
+
+    def dump_nrp_linearizations(self, nrp_linearizations: List[NRP_Linearizations]) -> Path:
+        out_file = self.config.output_config.cpp_output_config.nrp_linearizations_json
+        with open(out_file, 'w') as f:
+            json.dump([nrp_linearization.to_mon_codes_json(self.monomer_names_helper)
+                       for nrp_linearization in nrp_linearizations], f, indent=4)
+        return out_file
 
     def run_cpp_matcher(self,
-                        hmms_file: Path,
-                        nrp_linearizations_file: Path):
-        pass
+                        hmms_json: Path,
+                        nrp_linearizations_json: Path) -> List[HMM_Match]:
+        # 1. Dump cpp config
+        cpp_config_dict = asdict(self.config.output_config.cpp_output_config)
+        cpp_config_json = self.config.output_config.cpp_output_config.config_json
+        with open(cpp_config_json, 'w') as f:
+            json.dump(cpp_config_dict, f, indent=4)
+
+        # 2. Run cpp matcher
+        # Construct the command
+        cmd = [
+            self.config.cpp_matcher_exec,  # Path to compiled C++ executable
+            "--hmms_json", hmms_json,
+            "--nrps_json", nrp_linearizations_json,
+            "--config_json", cpp_config_json,
+            "--threads", str(self.args.num_threads),
+            "--output", self.config.output_config.cpp_output_config.cpp_output_json
+        ]
+        print(f"Running C++ matcher with command: {' '.join(cmd)}")
+
+        # Run the C++ executable
+        result = subprocess.run(cmd, check=True)
+
+        # 3. Collect the results
+        with open(self.config.output_config.cpp_output_config.cpp_output_json, 'r') as f:
+            hmm_matches = [HMM_Match.from_json(json_dict)
+                           for json_dict in json.load(f)]
+        return hmm_matches
+
+    def get_hmm_matches(self,
+                        detailed_hmms: List[DetailedHMM],
+                        nrp_linearizations: List[NRP_Linearizations]) -> List[HMM_Match]:
+        hmms_json = self.dump_hmms(detailed_hmms)
+        nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations)
+        return self.run_cpp_matcher(hmms_json, nrp_linearizations_json)
+

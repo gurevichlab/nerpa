@@ -24,3 +24,9 @@ rban_output_config:
     default_output_file_name: rban.output.json
     putative_hybrids_input_file: hybrid_monomers_input.json
     putative_hybrids_output_file_name: hybrid_monomers_output.json
+
+cpp_output_config:
+    hmms_json: hmms.json
+    nrp_linearizations_json: nrp_linearizations.json
+    config_json: configs/cpp_matching_config.json
+    output_json: cpp_matching_output.json

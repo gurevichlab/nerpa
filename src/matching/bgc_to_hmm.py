@@ -18,7 +18,7 @@ from functools import partial
 from collections import OrderedDict
 from src.matching.hmm_edge_weights import get_edge_weights
 from src.matching.hmm_scoring_helper import HMMHelper
-
+import networkx as nx
 
 def make_edge(edge_type: DetailedHMMEdgeType,
               log_prob: float,
@@ -317,6 +317,47 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
                                                          fst_module_idx=None)
 
 
+def topsort_states(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
+                   module_idx_to_state_idx: Dict[int, int],
+                   state_idx_to_module_idx: Dict[int, int]) -> None:
+    """Sort states topologically using networkx."""
+
+    # Create a directed graph from the adjacency list
+    G = nx.DiGraph()
+    for state, neighbors in adj_list.items():
+        for neighbor in neighbors:
+            G.add_edge(state, neighbor)
+
+    # Perform topological sorting
+    try:
+        sorted_states = list(nx.topological_sort(G))
+    except nx.NetworkXUnfeasible:
+        raise ValueError("Cycle detected in the HMM state graph")
+
+    # Create a new mapping for state indices based on topological order
+    new_state_mapping = {old_idx: new_idx for new_idx, old_idx in enumerate(sorted_states)}
+
+    # Preserve the current state-to-module mapping before clearing
+    old_state_idx_to_module_idx = state_idx_to_module_idx.copy()
+
+    # Clear and update module index mappings
+    state_idx_to_module_idx.clear()
+    module_idx_to_state_idx.clear()
+
+    for new_idx, old_idx in enumerate(sorted_states):
+        if old_idx in old_state_idx_to_module_idx:
+            module_idx_to_state_idx[old_state_idx_to_module_idx[old_idx]] = new_idx
+        state_idx_to_module_idx[new_idx] = old_state_idx_to_module_idx.get(old_idx, None)
+
+    # Rebuild adjacency list with new state indices
+    new_adj_list = defaultdict(dict)
+    for old_idx, neighbors in adj_list.items():
+        new_idx = new_state_mapping[old_idx]
+        for neighbor, edge in neighbors.items():
+            new_adj_list[new_idx][new_state_mapping[neighbor]] = edge
+
+    adj_list.clear()
+    adj_list.update(new_adj_list)
 
 
 def bgc_variant_to_detailed_hmm(cls,
@@ -343,12 +384,6 @@ def bgc_variant_to_detailed_hmm(cls,
                                                                        log_prob=0,  # TODO: fill in
                                                                        fst_module_idx=0)
 
-    # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
-    add_skip_gene_and_fragments_middle(adj_list,
-                                       bgc_variant,
-                                       gene_intervals,
-                                       fragment_intervals,
-                                       module_idx_to_state_idx)
 
     # SKIP AT THE BEGINNING
     add_skip_at_the_beginning(states,
@@ -376,6 +411,18 @@ def bgc_variant_to_detailed_hmm(cls,
         if -1 in neighbors:
             neighbors[final_state_idx] = neighbors[-1]
             del neighbors[-1]
+
+    # Enumerate states in topological order
+    topsort_states(adj_list,
+                   module_idx_to_state_idx,
+                   state_idx_to_module_idx)
+
+    # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
+    add_skip_gene_and_fragments_middle(adj_list,
+                                       bgc_variant,
+                                       gene_intervals,
+                                       fragment_intervals,
+                                       module_idx_to_state_idx)
 
     hmm = cls(states=states,
               adj_list=adj_list,

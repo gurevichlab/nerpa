@@ -48,9 +48,13 @@ parse_hmms_from_json(const std::string& hmm_json_path)
             }
             hmm.emissions.push_back(em_vec);
         }
-        // nearest_module_start_state
-        for (auto& val : entry["hmm"]["nearest_module_start_state"]) {
-            hmm.nearest_module_start_state.push_back(val.get<StateIdx>());
+        // module_start_states
+        for (auto& val : entry["hmm"]["module_start_states"]) {
+            hmm.module_start_states.push_back(val.get<StateIdx>());
+        }
+        // module_match_states
+        for (auto& val : entry["hmm"]["module_match_states"]) {
+            hmm.module_match_states.push_back(val.get<StateIdx>());
         }
 
         // Insert into map

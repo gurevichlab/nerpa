@@ -40,8 +40,9 @@ struct HMM {
     std::vector<std::vector<std::pair<StateIdx, LogProb>>> transitions;
     // emissions[i][j]: log probability of emitting monomer j from state i
     std::vector<std::vector<LogProb>> emissions;
-    // nearest_module_start_state[i]: the nearest module start for state i
-    std::vector<StateIdx> nearest_module_start_state;
+    std::vector<StateIdx> module_start_states;
+    std::vector<StateIdx> module_match_states;
+
 };
 
 struct MatchingConfig {

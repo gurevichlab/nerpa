@@ -22,6 +22,17 @@ import yaml
 class HMM(NamedTuple):
     adj_list: List[List[Tuple[int, float]]]  # u -> [(v, log_prob(u -> v))]
     emission_log_probs: List[List[float]]  # u -> [log_prob(u -> emission)]
+    module_start_states: List[int]
+    module_match_states: List[int]
+
+    # TODO: fix the discrepancy in naming: adj_list vs transitions, emission_log_probs vs emissions
+    def to_json(self):
+        return {
+            'transitions': self.adj_list,
+            'emissions': self.emission_log_probs,
+            'module_start_states': self.module_start_states,
+            'module_match_states': self.module_match_states
+        }
 
 
 class DetailedHMMStateType(Enum):

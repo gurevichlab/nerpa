@@ -20,6 +20,7 @@ NorineMonomerName = NewType('NorineMonomerName', str)
 MonomerResidue = NewType('MonomerResidue', str)
 UNKNOWN_RESIDUE = MonomerResidue('unknown')
 PKS = MonomerResidue('PKS')
+MonCode = NewType('MonCode', int)
 
 def enum_representer(dumper, e: Enum):
     return dumper.represent_scalar(f'!{e.__class__.__name__}', e.name)
@@ -53,8 +54,8 @@ class NRP_Monomer:
 class MonomerNamesHelper:
     names_table: pd.DataFrame
     supported_residues: List[MonomerResidue]
-    mon_to_int: Dict[NRP_Monomer, int] = None
-    int_to_mon: Dict[int, NRP_Monomer] = None
+    mon_to_int: Dict[NRP_Monomer, MonCode] = None
+    int_to_mon: Dict[MonCode, NRP_Monomer] = None
     pks_names: List[NorineMonomerName] = None  # placeholder for PKS names
 
     def __post_init__(self):
@@ -72,8 +73,8 @@ class MonomerNamesHelper:
                                           chirality=chirality,
                                           is_pks_hybrid=is_pks_hybrid)
                         mon_int = mon_res_int * 12 + meth_int * 6 + chir_int * 2 + is_pks_hybrid_int
-                        self.mon_to_int[mon] = mon_int
-                        self.int_to_mon[mon_int] = mon
+                        self.mon_to_int[mon] = MonCode(mon_int)
+                        self.int_to_mon[MonCode(mon_int)] = mon
 
 
     @classmethod
