@@ -34,10 +34,8 @@ import src.write_results as report
 import shutil
 import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
-from src.rban_parsing.get_linearizations import (
-    NRP_Linearizations,
-    nrp_linearizations_to_str
-)
+from src.rban_parsing.get_linearizations import NRP_Linearizations
+
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
 import json
 from pathlib import Path
@@ -55,41 +53,66 @@ class PipelineHelperCpp:
 
     def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
         out_file = self.config.output_config.cpp_output_config.hmms_json
+        data = [detailed_hmm.to_hmm().to_json() for detailed_hmm in detailed_hmms]
+        pretty_json = json.dumps(data)
+
+        # Force newlines for lists
+        pretty_json = pretty_json.replace("[[", "[\n    [").replace("]]", "]\n]")
+        pretty_json = pretty_json.replace("], [", "],\n    [")
+        pretty_json = pretty_json.replace("}, {", "},\n    {")
+        pretty_json = pretty_json.replace(': {"', ': {\n"')
+        pretty_json = pretty_json.replace(', "',',\n"')
+
         with open(out_file, 'w') as f:
-            json.dump([detailed_hmm.to_hmm().to_json() for detailed_hmm in detailed_hmms], f, indent=4)
+            f.write(pretty_json)
         return out_file
 
 
     def dump_nrp_linearizations(self, nrp_linearizations: List[NRP_Linearizations]) -> Path:
         out_file = self.config.output_config.cpp_output_config.nrp_linearizations_json
+        data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper)
+                for nrp_linearization in nrp_linearizations]
+        pretty_json = json.dumps(data)
+
+        # Force newlines for lists
+        pretty_json = pretty_json.replace("[[", "[\n    [").replace("]]", "]\n]")
+        pretty_json = pretty_json.replace("], [", "],\n    [")
+        pretty_json = pretty_json.replace("}, {", "},\n    {")
+        pretty_json = pretty_json.replace(': {"', ': {\n"')
+        pretty_json = pretty_json.replace(', "',',\n"')
         with open(out_file, 'w') as f:
-            json.dump([nrp_linearization.to_mon_codes_json(self.monomer_names_helper)
-                       for nrp_linearization in nrp_linearizations], f, indent=4)
+            f.write(pretty_json)
         return out_file
 
     def run_cpp_matcher(self,
                         hmms_json: Path,
                         nrp_linearizations_json: Path) -> List[HMM_Match]:
         # 1. Dump cpp config
-        cpp_config_dict = asdict(self.config.output_config.cpp_output_config)
-        cpp_config_json = self.config.output_config.cpp_output_config.config_json
+        cpp_config_dict = self.config.output_config.cpp_output_config.to_dict()
+        cpp_config_json = self.config.output_config.cpp_output_config.cpp_config_json
         with open(cpp_config_json, 'w') as f:
             json.dump(cpp_config_dict, f, indent=4)
 
         # 2. Run cpp matcher
         # Construct the command
-        cmd = [
-            self.config.cpp_matcher_exec,  # Path to compiled C++ executable
-            "--hmms_json", hmms_json,
-            "--nrps_json", nrp_linearizations_json,
-            "--config_json", cpp_config_json,
-            "--threads", str(self.args.num_threads),
-            "--output", self.config.output_config.cpp_output_config.cpp_output_json
-        ]
+        cmd = list(map(str,
+                          [
+                              self.config.cpp_matcher_exec,  # Path to compiled C++ executable
+                              "--hmms_json", hmms_json,
+                              "--nrps_json", nrp_linearizations_json,
+                              "--config_json", cpp_config_json,
+                              "--threads", str(self.args.threads),
+                              "--output", self.config.output_config.cpp_output_config.cpp_output_json
+                          ]))
         print(f"Running C++ matcher with command: {' '.join(cmd)}")
+        # q: print current time
+        import datetime
+        print(datetime.datetime.now())
 
         # Run the C++ executable
-        result = subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True)
+
+        print(datetime.datetime.now())
 
         # 3. Collect the results
         with open(self.config.output_config.cpp_output_config.cpp_output_json, 'r') as f:

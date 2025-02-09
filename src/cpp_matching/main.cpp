@@ -46,6 +46,7 @@ int main(int argc, char** argv)
 
     try {
         // 1. Parse input data (HMMs, BGC_Info)
+        std::cout << "Parsing HMMs from " << hmms_json_path << std::endl;
         auto hmms_map = parse_hmms_from_json(hmms_json_path);
 
         // 2. Parse NRP linearizations + NRP IDs

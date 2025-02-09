@@ -27,10 +27,13 @@ parse_nrps_from_json(const std::string& nrp_json_path)
         // Parse non_iterative
         for (auto& lin_j : entry["non_iterative"]) {
             NRP_Linearization lin;
-            for (auto& m : lin_j["first"]) {
+            auto mon_codes_j = lin_j[0];
+            auto rban_idxs_j = lin_j[1];
+
+            for (auto& m : mon_codes_j) {
                 lin.first.push_back(m.get<MonCode>());
             }
-            for (auto& r : lin_j["second"]) {
+            for (auto& r : rban_idxs_j) {
                 lin.second.push_back(r.get<rBAN_idx>());
             }
             nrp_obj.non_iterative.push_back(lin);
@@ -43,10 +46,12 @@ parse_nrps_from_json(const std::string& nrp_json_path)
                 std::vector<NRP_Linearization> group_vec;
                 for (auto& lin_j : group_j) {
                     NRP_Linearization lin;
-                    for (auto& m : lin_j["first"]) {
+                    auto mon_codes_j = lin_j[0];
+                    auto rban_idxs_j = lin_j[1];
+                    for (auto& m : mon_codes_j) {
                         lin.first.push_back(m.get<MonCode>());
                     }
-                    for (auto& r : lin_j["second"]) {
+                    for (auto& r : rban_idxs_j) {
                         lin.second.push_back(r.get<rBAN_idx>());
                     }
                     group_vec.push_back(lin);

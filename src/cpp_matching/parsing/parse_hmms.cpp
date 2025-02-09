@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "json.hpp" // https://github.com/nlohmann/json
+#include <iostream>
 
 std::unordered_map<BGC_Info, HMM>
 parse_hmms_from_json(const std::string& hmm_json_path)
@@ -22,6 +23,7 @@ parse_hmms_from_json(const std::string& hmm_json_path)
 
     for (auto& entry : j) {
         // Parse BGC_Info
+
         auto genome_id   = entry["bgc_info"]["genome_id"].get<std::string>();
         int contig_idx   = entry["bgc_info"]["contig_idx"].get<int>();
         int bgc_idx      = entry["bgc_info"]["bgc_idx"].get<int>();
@@ -31,7 +33,7 @@ parse_hmms_from_json(const std::string& hmm_json_path)
         // Parse HMM
         HMM hmm;
         // transitions
-        for (auto& st : entry["hmm"]["transitions"]) {
+        for (auto& st : entry["transitions"]) {
             std::vector<std::pair<StateIdx, LogProb>> row;
             for (auto& pair_j : st) {
                 StateIdx st_to = pair_j[0].get<StateIdx>();
@@ -41,7 +43,7 @@ parse_hmms_from_json(const std::string& hmm_json_path)
             hmm.transitions.push_back(row);
         }
         // emissions
-        for (auto& em_row : entry["hmm"]["emissions"]) {
+        for (auto& em_row : entry["emissions"]) {
             std::vector<LogProb> em_vec;
             for (auto& val : em_row) {
                 em_vec.push_back(val.get<LogProb>());
@@ -49,11 +51,11 @@ parse_hmms_from_json(const std::string& hmm_json_path)
             hmm.emissions.push_back(em_vec);
         }
         // module_start_states
-        for (auto& val : entry["hmm"]["module_start_states"]) {
+        for (auto& val : entry["module_start_states"]) {
             hmm.module_start_states.push_back(val.get<StateIdx>());
         }
         // module_match_states
-        for (auto& val : entry["hmm"]["module_match_states"]) {
+        for (auto& val : entry["module_match_states"]) {
             hmm.module_match_states.push_back(val.get<StateIdx>());
         }
 

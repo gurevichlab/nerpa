@@ -90,7 +90,7 @@ class HMM_Scoring_Config:
 class CppOutputConfig:
     hmms_json: Path
     nrp_linearizations_json: Path
-    config_json: Path
+    cpp_config_json: Path
     cpp_output_json: Path
 
     def __init__(self,
@@ -98,6 +98,9 @@ class CppOutputConfig:
                  main_out_dir: Path):
             for k, v in cpp_cfg_dict.items():
                 setattr(self, k, main_out_dir / Path(v))
+
+    def to_dict(self):
+        return {k: str(v) for k, v in self.__dict__.items()}
 
 
 @dataclass
