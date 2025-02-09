@@ -202,7 +202,7 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Info, HMM>& hmms,
     vector<MatchInfoLight> matches_light_filtered = filter_and_sort_matches(matches_light, config);
 
     // Reconstruct the full match info for each filtered match.
-    vector<MatchInfo> matches;
+    vector<MatchInfo> matches(matches_light_filtered.size());
     for (const auto& match_light : matches_light_filtered) {
         matches.push_back(get_full_match_info(match_light, hmms.at(match_light.bgc_info)));
     }

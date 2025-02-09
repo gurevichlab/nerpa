@@ -4,6 +4,7 @@ from typing import (
     Dict,
     FrozenSet,
     List,
+    NamedTuple,
     Optional,
     Tuple
 )
@@ -144,3 +145,30 @@ class NRP_Variant:
                                                      for fragment in fragments)):
                 linearizations.append(list(chain(*fragments_linearization)))
         return linearizations
+
+
+class Match_BGC_Variant_Info(NamedTuple):
+    genome_id: str
+    contig_idx: int
+    bgc_idx: int
+    variant_idx: int
+
+    @classmethod
+    def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> Match_BGC_Variant_Info:
+        return cls(genome_id=bgc_variant.genome_id,
+                   contig_idx=bgc_variant.contig_idx,
+                   bgc_idx=bgc_variant.bgc_idx,
+                   variant_idx=bgc_variant.variant_idx)
+
+    def get_antismash_id(self) -> str:
+        return f'r{self.contig_idx}c{self.bgc_idx}'
+
+
+class Match_NRP_Variant_Info(NamedTuple):
+    nrp_id: str
+    variant_idx: int
+
+    @classmethod
+    def from_nrp_variant(cls, nrp_variant: NRP_Variant) -> Match_NRP_Variant_Info:
+        return cls(nrp_id=nrp_variant.nrp_id,
+                   variant_idx=nrp_variant.variant_idx)

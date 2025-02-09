@@ -65,6 +65,8 @@ def non_iterative_linearizations(fragments: List[NRP_Fragment],
 
 # fragments are split into groups which are then linearized (and aligned) separately
 def iterative_fragments_linearizations(nrp_fragments: List[NRP_Fragment]) -> List[List[List[Linearization]]]:
+    if len(nrp_fragments) == 1:
+        return []
     splits_into_groups = split_sequence_subseqs(nrp_fragments) if len(nrp_fragments) == 3 \
         else [[[nrp_fragment] for nrp_fragment in nrp_fragments]]  # TODO: do smth more meaningful for more than 3 fragments
     all_splits_linearizations = []

@@ -36,6 +36,7 @@ from src.matching.hmm_to_alignment import hmm_path_to_alignment
 from src.matching.alignment_type import Alignment
 from src.matching.hmm_anchors_heuristic import heuristic_opt_path
 from src.matching.hmm_scoring_helper import HMMHelper
+from src.matching.match_type import Match_BGC_Variant_Info
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
@@ -58,6 +59,7 @@ class DetailedHMM:
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
+        print('from_bgc_variant', bgc_variant.genome_id)
         if cls.hmm_helper is None:
             raise ValueError("HMM helper must be set before calling DetailedHMM.from_bgc_variant")
         return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
@@ -88,7 +90,8 @@ class DetailedHMM:
         self._hmm = HMM(adj_list=adj_list,
                         emission_log_probs=emission_log_probs,
                         module_start_states=module_start_states,
-                        module_match_states=module_match_states)
+                        module_match_states=module_match_states,
+                        bgc_info=Match_BGC_Variant_Info.from_bgc_variant(self.bgc_variant))
         return self._hmm
 
     def get_opt_path_with_emissions(self,

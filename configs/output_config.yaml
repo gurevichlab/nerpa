@@ -28,5 +28,5 @@ rban_output_config:
 cpp_output_config:
     hmms_json: hmms.json
     nrp_linearizations_json: nrp_linearizations.json
-    config_json: configs/cpp_matching_config.json
-    output_json: cpp_matching_output.json
+    cpp_config_json: configs/cpp_matching_config.json
+    cpp_output_json: cpp_matching_output.json

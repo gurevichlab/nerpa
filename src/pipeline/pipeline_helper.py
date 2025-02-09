@@ -37,6 +37,7 @@ import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
+from pathlib import Path
 
 
 
@@ -109,6 +110,8 @@ class PipelineHelper:
                     hmms: List[DetailedHMM],
                     nrp_linearizations: List[NRP_Linearizations],
                     nrp_variants: List[NRP_Variant]) -> List[Match]:
+        for i, hmm in enumerate(hmms):
+            hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
         hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
         return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
