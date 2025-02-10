@@ -21,7 +21,6 @@ get_best_linearizations_for_nrp(
         const HMM& hmm,
         const NRP_Linearizations& nrp_linearizations)
 {
-
     // Determine the best non-iterative linearization.
     LogProb best_non_iterative_score = -std::numeric_limits<double>::infinity();
     const NRP_Linearization* best_non_iterative_linearization;  // Default constructed; assumes non-empty nrp_linearizations.non_iterative
@@ -79,6 +78,9 @@ get_best_matches_for_bgc_variant(const HMM& hmm,
 {
     vector<MatchInfoLight> best_matches;
     for (const auto& [nrp_linearizations, nrp_id] : all_nrp_linearizations) {
+        if (nrp_id == "BGC0000359.1" and genome_id(bgc_info) == "BGC0002107"){
+            int x = 1;
+        }
         auto [score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
         best_matches.push_back({score, bgc_info, nrp_id, linearizations});
     }
@@ -202,7 +204,7 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Info, HMM>& hmms,
     vector<MatchInfoLight> matches_light_filtered = filter_and_sort_matches(matches_light, config);
 
     // Reconstruct the full match info for each filtered match.
-    vector<MatchInfo> matches(matches_light_filtered.size());
+    vector<MatchInfo> matches;
     for (const auto& match_light : matches_light_filtered) {
         matches.push_back(get_full_match_info(match_light, hmms.at(match_light.bgc_info)));
     }

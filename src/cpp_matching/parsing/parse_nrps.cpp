@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "json.hpp"
+#include <iostream>
 
 std::vector<std::pair<NRP_Linearizations, NRP_ID>>
 parse_nrps_from_json(const std::string& nrp_json_path)
@@ -29,6 +30,7 @@ parse_nrps_from_json(const std::string& nrp_json_path)
             NRP_Linearization lin;
             auto mon_codes_j = lin_j[0];
             auto rban_idxs_j = lin_j[1];
+            assert(mon_codes_j.size() == rban_idxs_j.size() and "Non-iterative: Monomer and rBAN index sequences must be of equal length.");
 
             for (auto& m : mon_codes_j) {
                 lin.first.push_back(m.get<MonCode>());
@@ -42,12 +44,15 @@ parse_nrps_from_json(const std::string& nrp_json_path)
         // Parse iterative
         for (auto& split_j : entry["iterative"]) {
             std::vector<std::vector<NRP_Linearization>> split_vec;
+            int group_idx = 0;
             for (auto& group_j : split_j) {
                 std::vector<NRP_Linearization> group_vec;
+                int lin_idx = 0;
                 for (auto& lin_j : group_j) {
                     NRP_Linearization lin;
                     auto mon_codes_j = lin_j[0];
                     auto rban_idxs_j = lin_j[1];
+                    assert(mon_codes_j.size() == rban_idxs_j.size() and "Iterative: Monomer and rBAN index sequences must be of equal length.");
                     for (auto& m : mon_codes_j) {
                         lin.first.push_back(m.get<MonCode>());
                     }

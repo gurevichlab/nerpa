@@ -37,9 +37,10 @@ class NRP_Linearizations(NamedTuple):
             'nrp_id': self.nrp_id,
             'non_iterative': [to_mon_codes(linearization, monomer_names_helper)
                               for linearization in self.non_iterative],
-            'iterative': [[to_mon_codes(linearization, monomer_names_helper)
+            'iterative': [[[to_mon_codes(linearization, monomer_names_helper)
                            for linearization in group]
-                          for group in chain(*self.iterative)]
+                           for group in split]
+                          for split in self.iterative]
         }
 
 

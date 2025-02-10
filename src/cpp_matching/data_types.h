@@ -10,7 +10,7 @@
 
 using MonCode    = int;
 using rBAN_idx   = int;
-using LogProb    = float;
+using LogProb    = double;
 using StateIdx   = int;
 using NRP_ID     = std::string;
 
@@ -19,6 +19,7 @@ using NRP_ID     = std::string;
 using BGC_Info   = std::tuple<std::string, int, int, int>;  // (genome_id, contig_idx, bgc_idx, variant_idx)
 // Define accessors
 constexpr auto& genome_id(BGC_Info& t) { return std::get<0>(t); }
+constexpr auto& genome_id(const BGC_Info& t) { return std::get<0>(t); }
 constexpr auto& contig_idx(BGC_Info& t) { return std::get<1>(t); }
 constexpr auto& bgc_idx(BGC_Info& t) { return std::get<2>(t); }
 constexpr auto& variant_idx(BGC_Info& t) { return std::get<3>(t); }
