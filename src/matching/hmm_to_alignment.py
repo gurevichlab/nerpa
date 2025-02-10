@@ -60,8 +60,8 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
     free_idx = next(i for i in count()
                     if not Path(f'{hmm.bgc_variant.genome_id}_path_{i}.png').exists())
     # hmm.draw(Path(f'{hmm.bgc_variant.genome_id}_path_{free_idx}.png'), path)  # for debugging
-    hmm.draw(Path(f'hmm_path.png'), path)  # for debugging
-    print('nrp monomers: ', [mon.residue for mon in nrp_monomers])
+    # hmm.draw(Path(f'hmm_path.png'), path)  # for debugging
+    # print('nrp monomers: ', [mon.residue for mon in nrp_monomers])
 
     long_edges_ranges = get_long_edges_ranges(hmm, path)
     alignment = []

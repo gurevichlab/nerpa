@@ -50,15 +50,18 @@ int main(int argc, char** argv)
         auto hmms_map = parse_hmms_from_json(hmms_json_path);
 
         // 2. Parse NRP linearizations + NRP IDs
+        std::cout << "Parsing NRP linearizations from " << hmms_json_path << std::endl;
         auto nrp_linearizations = parse_nrps_from_json(nrps_json_path);
 
         // 3. Parse the matching configuration
         auto config = parse_config(config_json_path);
 
         // 4. Call your matching function to get the final list of matches
+        std::cout << "Running matching algorithm with " << num_threads << " threads...\n";
         auto matches = get_matches(hmms_map, nrp_linearizations, config, num_threads);
 
         // 5. Dump the resulting matches to an output JSON file
+        std::cout << "Writing matches to " << output_json_path << std::endl;
         write_matches_to_json(matches, output_json_path);
 
         std::cout << "Done! Wrote " << matches.size() << " matches to "
