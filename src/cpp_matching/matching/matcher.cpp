@@ -78,9 +78,6 @@ get_best_matches_for_bgc_variant(const HMM& hmm,
 {
     vector<MatchInfoLight> best_matches;
     for (const auto& [nrp_linearizations, nrp_id] : all_nrp_linearizations) {
-        if (nrp_id == "BGC0000359.1" and genome_id(bgc_info) == "BGC0002107"){
-            int x = 1;
-        }
         auto [score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
         best_matches.push_back({score, bgc_info, nrp_id, linearizations});
     }
@@ -102,8 +99,31 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
                                                const MatchingConfig& config)
 {
     {
+        // Step 0: For each NRP, keep only the top variant per BGC
+        unordered_map<NRP_ID, unordered_map<BGC_Info, MatchInfoLight>> unique_matches_map;
+        for (const auto& match : matches) {
+            // Normalize the BGC key by setting its variant_idx to 0.
+            BGC_Info normalizedBGC = match.bgc_info;
+            variant_idx(normalizedBGC) = 0;
+
+            // Insert or update the best match for this (nrp_id, normalizedBGC) pair.
+            auto& bgc_map = unique_matches_map[match.nrp_id];
+            auto it = bgc_map.find(normalizedBGC);
+            if (it == bgc_map.end() || match.score > it->second.score) {
+                bgc_map[normalizedBGC] = match;
+            }
+        }
+
+        // Collect the unique matches.
+        vector<MatchInfoLight> unique_matches;
+        for (const auto& nrp_pair : unique_matches_map) {
+            for (const auto& bgc_pair : nrp_pair.second) {
+                unique_matches.push_back(bgc_pair.second);
+            }
+        }
+
         // Step 1: Sort all matches by descending score.
-        vector<MatchInfoLight> sortedMatches = matches;
+        vector<MatchInfoLight> sortedMatches = std::move(unique_matches);
         sort(sortedMatches.begin(), sortedMatches.end(),
              [](const MatchInfoLight& a, const MatchInfoLight& b) {
             return a.score > b.score;
@@ -116,7 +136,7 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
         for (const auto& match : sortedMatches) {
             auto bgcKey = match.bgc_info;
             variant_idx(bgcKey) = 0;  // Ignore variant_idx
-            if (bgcCounts[bgcKey] < config.max_num_matches_per_bgc) {
+            if (bgcCounts[bgcKey] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0) {
                 bgcFiltered.push_back(match);
                 bgcCounts[bgcKey]++;
             }
@@ -126,14 +146,14 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
         unordered_map<NRP_ID, int> nrpCounts;
         vector<MatchInfoLight> nrpFiltered;
         for (const auto& match : bgcFiltered) {
-            if (nrpCounts[match.nrp_id] < config.max_num_matches_per_nrp) {
+            if (nrpCounts[match.nrp_id] < config.max_num_matches_per_nrp or config.max_num_matches_per_nrp == 0) {
                 nrpFiltered.push_back(match);
                 nrpCounts[match.nrp_id]++;
             }
         }
 
         // Step 4: From the remaining matches, return only the top max_num_matches overall.
-        if (nrpFiltered.size() > static_cast<size_t>(config.max_num_matches)) {
+        if (nrpFiltered.size() > static_cast<size_t>(config.max_num_matches) and config.max_num_matches > 0) {
             nrpFiltered.resize(config.max_num_matches);
         }
 
