@@ -3,12 +3,15 @@
 import sys
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logger import NerpaLogger
+from src.write_results import write_bgc_variants
+from pathlib import Path
 
 
 def main(log: NerpaLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(log)
 
-    bgc_variants = pipeline_helper.pipeline_helper_antismash.get_bgc_variants()
+    bgc_variants = pipeline_helper.get_bgc_variants()
+    #write_bgc_variants(bgc_variants, Path('/home/ilianolhin/git/nerpa2/input'))
     hmms = pipeline_helper.construct_hmms(bgc_variants)
 
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()

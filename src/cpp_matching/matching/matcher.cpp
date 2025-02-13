@@ -88,7 +88,7 @@ get_best_matches_for_bgc_variant(const HMM& hmm,
          });
 
     // Truncate to at most max_num_matches_per_bgc entries.
-    if (best_matches.size() > static_cast<size_t>(max_num_matches_per_bgc)) {
+    if (best_matches.size() > static_cast<size_t>(max_num_matches_per_bgc) and max_num_matches_per_bgc > 0) {
         best_matches.resize(max_num_matches_per_bgc);
     }
     return best_matches;

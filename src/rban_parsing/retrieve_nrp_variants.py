@@ -130,7 +130,7 @@ def retrieve_nrp_variants(rban_records: List[Parsed_rBAN_Record],
 
     nrp_variants = []
     for rban_record in rban_records:
-        log.info(f'Processing {rban_record.compound_id}')
+        #log.info(f'Processing {rban_record.compound_id}')
         new_variant = process_single_record(rban_record, config.PNP_BONDS,
                                             monomer_names_helper=monomer_names_helper,
                                             min_recognized_nodes=config.MIN_RECOGNIZED_NODES)

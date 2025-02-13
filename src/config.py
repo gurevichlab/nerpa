@@ -87,10 +87,9 @@ class HMM_Scoring_Config:
 
 
 @dataclass
-class CppOutputConfig:
+class CppIOConfig:
     hmms_json: Path
     nrp_linearizations_json: Path
-    cpp_config_json: Path
     cpp_output_json: Path
 
     def __init__(self,
@@ -139,7 +138,7 @@ class OutputConfig:
     html_report: Path
     logo: Path  # seems a bit out of place here
     rban_output_config: rBAN_Output_Config
-    cpp_output_config: CppOutputConfig
+    cpp_io_config: CppIOConfig
 
     def __init__(self,
                  output_cfg_dict: dict,
@@ -149,12 +148,12 @@ class OutputConfig:
         for k, v in output_cfg_dict.items():
             if k not in ('rban_output_config',
                          'draw_molecules',
-                         'cpp_output_config'):
+                         'cpp_io_config'):
                 setattr(self, k, main_out_dir / Path(v))
         self.rban_output_config = rBAN_Output_Config(output_cfg_dict['rban_output_config'],
                                                      main_out_dir)
-        self.cpp_output_config = CppOutputConfig(output_cfg_dict['cpp_output_config'],
-                                                 main_out_dir)
+        self.cpp_io_config = CppIOConfig(output_cfg_dict['cpp_io_config'],
+                                         main_out_dir)
         if args.dont_draw_molecules is not None:
             self.draw_molecules = not args.dont_draw_molecules
         self.main_out_dir = main_out_dir
