@@ -6,6 +6,7 @@ from typing import (
 
 import yaml
 
+from src.generic.functional import timing_decorator
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
     get_command_line_args,
@@ -85,9 +86,11 @@ class PipelineHelper:
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
         DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
+    @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
         return self.pipeline_helper_antismash.get_bgc_variants()
 
+    @timing_decorator
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
         if self.pipeline_helper_rban.preprocessed_nrp_variants():
             rban_records = []
@@ -97,21 +100,24 @@ class PipelineHelper:
             nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
         return nrp_variants, rban_records
 
+    @timing_decorator
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
         self.log.info("\n======= Constructing HMMs")
         return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
 
+    @timing_decorator
     def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) \
             -> List[NRP_Linearizations]:
         self.log.info("\n======= Generating NRP linearizations")
         return get_all_nrp_linearizations(nrp_variants)
 
+    @timing_decorator
     def get_matches(self,
                     hmms: List[DetailedHMM],
                     nrp_linearizations: List[NRP_Linearizations],
                     nrp_variants: List[NRP_Variant]) -> List[Match]:
-        for i, hmm in enumerate(hmms):
-            hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
+        #for i, hmm in enumerate(hmms):
+        #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
         hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
         return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)

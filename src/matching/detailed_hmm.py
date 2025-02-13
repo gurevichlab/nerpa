@@ -59,7 +59,7 @@ class DetailedHMM:
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
-        print('from_bgc_variant', bgc_variant.genome_id)
+        #print('from_bgc_variant', bgc_variant.genome_id)
         if cls.hmm_helper is None:
             raise ValueError("HMM helper must be set before calling DetailedHMM.from_bgc_variant")
         return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
