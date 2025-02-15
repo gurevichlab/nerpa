@@ -17,11 +17,25 @@ from src.antismash_parsing.location_features import (
 )
 from src.data_types import NRP_Monomer
 from src.monomer_names_helper import enum_representer
+from src.matching.match_type import Match_BGC_Variant_Info
 import yaml
 
 class HMM(NamedTuple):
+    bgc_info: Match_BGC_Variant_Info
     adj_list: List[List[Tuple[int, float]]]  # u -> [(v, log_prob(u -> v))]
     emission_log_probs: List[List[float]]  # u -> [log_prob(u -> emission)]
+    module_start_states: List[int]
+    module_match_states: List[int]
+
+    # TODO: fix the discrepancy in naming: adj_list vs transitions, emission_log_probs vs emissions
+    def to_json(self):
+        return {
+            'bgc_info': self.bgc_info._asdict(),
+            'transitions': self.adj_list,
+            'emissions': self.emission_log_probs,
+            'module_start_states': self.module_start_states,
+            'module_match_states': self.module_match_states
+        }
 
 
 class DetailedHMMStateType(Enum):

@@ -36,9 +36,11 @@ from src.matching.hmm_to_alignment import hmm_path_to_alignment
 from src.matching.alignment_type import Alignment
 from src.matching.hmm_anchors_heuristic import heuristic_opt_path
 from src.matching.hmm_scoring_helper import HMMHelper
+from src.matching.match_type import Match_BGC_Variant_Info
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
+from io import StringIO
 from functools import cache
 
 
@@ -57,6 +59,7 @@ class DetailedHMM:
 
     @classmethod
     def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
+        #print('from_bgc_variant', bgc_variant.genome_id)
         if cls.hmm_helper is None:
             raise ValueError("HMM helper must be set before calling DetailedHMM.from_bgc_variant")
         return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
@@ -74,8 +77,21 @@ class DetailedHMM:
                                for mon in sorted(state.emissions,
                                                  key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
+
+        module_start_states = [self._module_idx_to_state_idx[module_idx]
+                               for module_idx in range(len(self.bgc_variant.modules))]
+
+        def get_match_state(start_state: int) -> int:
+            return next(state_idx for state_idx in self.adj_list[start_state]
+                        if self.states[state_idx].state_type == DetailedHMMStateType.MATCH)
+
+        module_match_states = [get_match_state(module_start_state)
+                               for module_start_state in module_start_states]
         self._hmm = HMM(adj_list=adj_list,
-                        emission_log_probs=emission_log_probs)
+                        emission_log_probs=emission_log_probs,
+                        module_start_states=module_start_states,
+                        module_match_states=module_match_states,
+                        bgc_info=Match_BGC_Variant_Info.from_bgc_variant(self.bgc_variant))
         return self._hmm
 
     def get_opt_path_with_emissions(self,
@@ -112,7 +128,6 @@ class DetailedHMM:
         #self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
         #print('opt_path', opt_path)
         return self.path_to_alignment(opt_path, emitted_monomers)
-
 
     def draw(self,
              filename: Path,

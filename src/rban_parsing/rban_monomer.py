@@ -7,6 +7,7 @@ from src.monomer_names_helper import (
     NorineMonomerName
 )
 #from monomer_features_types import MonomerFeature, MonomerFeatures
+rBAN_idx = int
 
 class rBAN_Monomer(NamedTuple):
     residue: MonomerResidue
@@ -14,7 +15,7 @@ class rBAN_Monomer(NamedTuple):
     chirality: Chirality
     is_pks_hybrid: bool
     rban_name: NorineMonomerName
-    rban_idx: int
+    rban_idx: rBAN_idx
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> rBAN_Monomer:
