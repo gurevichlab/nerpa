@@ -8,3 +8,4 @@ matching_config: configs/matching_config.yaml
 cpp_matcher_exec: build/hmm_nrp_matcher
 monomers_config: configs/monomers_config.yaml
 output_config: configs/output_config.yaml
+default_results_root_dirname: nerpa_results

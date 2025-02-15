@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List, Literal, Optional
 from dataclasses import dataclass
 from pathlib import Path
@@ -110,9 +111,12 @@ class MatchingConfig:
 
     def __init__(self,
                  cfg_dict: dict,
-                 args):
+                 args: Optional[CommandLineArgs]):
         for k, v in cfg_dict.items():
             setattr(self, k, v)
+        if args is None:
+            return
+
         if args.max_num_matches_per_bgc is not None:
             self.max_num_matches_per_bgc = args.max_num_matches_per_bgc
         if args.max_num_matches_per_nrp is not None:
@@ -124,7 +128,6 @@ class MatchingConfig:
 @dataclass
 class OutputConfig:
     main_out_dir: Path
-    default_results_root_dirname: Path
     symlink_to_latest: Path
     configs_output: Path
     antismash_out_dir: Path
@@ -143,8 +146,8 @@ class OutputConfig:
     def __init__(self,
                  output_cfg_dict: dict,
                  nerpa_dir: Path,
-                 args):
-        main_out_dir = args.output_dir.resolve()
+                 main_out_dir: Path,
+                 args: Optional[CommandLineArgs]):
         for k, v in output_cfg_dict.items():
             if k not in ('rban_output_config',
                          'draw_molecules',
@@ -154,8 +157,11 @@ class OutputConfig:
                                                      main_out_dir)
         self.cpp_io_config = CppIOConfig(output_cfg_dict['cpp_io_config'],
                                          main_out_dir)
-        if args.dont_draw_molecules is not None:
+        if args is not None and args.dont_draw_molecules is not None:
             self.draw_molecules = not args.dont_draw_molecules
+        else:
+            self.draw_molecules = True
+
         self.main_out_dir = main_out_dir
         self.logo = nerpa_dir / Path(output_cfg_dict['logo'])
         self.symlink_to_latest = nerpa_dir / Path(output_cfg_dict['symlink_to_latest'])
@@ -178,11 +184,21 @@ class Config:
     output_config: OutputConfig
 
 
-def load_config(args: CommandLineArgs) -> Config:
+def get_default_output_dir(nerpa_dir: Path,
+                           cfg: dict) -> Path:
+    while (out_dir := nerpa_dir / Path(cfg['default_results_root_dirname']) /
+              Path(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))).exists():
+        time.sleep(1)
+    return out_dir
+
+
+
+def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     nerpa_dir = Path(__file__).parent.parent.resolve()
-    main_out_dir = args.output_dir.resolve()
     configs_dir = nerpa_dir / Path('configs')
     cfg = yaml.safe_load((configs_dir / 'config.yaml').open('r'))
+    main_out_dir = args.output_dir.resolve() \
+        if args is not None else get_default_output_dir(nerpa_dir, cfg)
 
     antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
     antismash_processing_cfg = dacite.from_dict(antiSMASH_Processing_Config, antismash_processing_cfg_dict)
@@ -197,7 +213,7 @@ def load_config(args: CommandLineArgs) -> Config:
     rban_processing_cfg = dacite.from_dict(rBAN_Processing_Config, rban_processing_cfg_dict)
 
     output_cfg_dict = yaml.safe_load((nerpa_dir / cfg['output_config']).open('r'))
-    output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, args)
+    output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, main_out_dir, args)
 
     matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
     matching_cfg = MatchingConfig(matching_cfg_dict, args)
