@@ -94,7 +94,10 @@ Next, create a conda environment by running:
 conda create -f environment.yml
 conda activate nerpa-env
 ```
-
+Finally, build C++ code by running:
+```
+bash install.sh
+```
 ### Verifying your installation
 
 We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere;
