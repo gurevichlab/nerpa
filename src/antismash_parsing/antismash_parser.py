@@ -18,7 +18,7 @@ from src.antismash_parsing.antismash_parser_types import (
     SVM_Prediction,
     STRAND
 )
-from src.config import antiSMASH_Parsing_Config
+from src.config import antiSMASH_Processing_Config
 from src.monomer_names_helper import antiSMASH_MonomerName
 from parse import parse
 from collections import defaultdict
@@ -128,16 +128,16 @@ def extract_gene_coords(contig_data: dict) -> Dict[GeneId, Coords]:
 
 
 def extract_modules(gene_data: dict, a_domains: List[A_Domain],
-                    config: antiSMASH_Parsing_Config) -> List[Module]:
+                    config: antiSMASH_Processing_Config) -> List[Module]:
     modules = []
     a_domains_iter = iter(a_domains)
     for module_data in gene_data['modules']:
         module = Module()
         for domain_data in module_data['components']:
             domain_type_str = domain_data['domain']['hit_id']
-            if domain_type_str not in config.ANTISMASH_DOMAINS_NAMES:
+            if domain_type_str not in config.ANTISMASH_DOMAINS_NAMES_MAPPING:
                 continue
-            domain_type = DomainType[config.ANTISMASH_DOMAINS_NAMES[domain_type_str]]
+            domain_type = DomainType[config.ANTISMASH_DOMAINS_NAMES_MAPPING[domain_type_str]]
             if domain_type == DomainType.A:
                 a_domain = next(a_domains_iter)
                 if a_domain is None:  # TODO: entangled code, refactor
@@ -152,7 +152,7 @@ def extract_modules(gene_data: dict, a_domains: List[A_Domain],
 
 
 def check_orphan_c_domains(gene_data: dict,
-                           config: antiSMASH_Parsing_Config) -> Tuple[bool, bool]:  # (orphan_c_at_start, orphan_c_at_end)
+                           config: antiSMASH_Processing_Config) -> Tuple[bool, bool]:  # (orphan_c_at_start, orphan_c_at_end)
     modules_start = min((domain['domain']['query_start']
                         for module in gene_data['modules']
                         for domain in module['components']),
@@ -165,13 +165,13 @@ def check_orphan_c_domains(gene_data: dict,
 
     fst_c_domain_start = min((domain['query_start']
                              for domain in gene_data['domain_hmms']
-                             if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES and
-                             DomainType[config.ANTISMASH_DOMAINS_NAMES[domain['hit_id']]].in_c_domain_group()),
+                             if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES_MAPPING and
+                             DomainType[config.ANTISMASH_DOMAINS_NAMES_MAPPING[domain['hit_id']]].in_c_domain_group()),
                             default=None)
     last_c_domain_end = max((domain['query_end']
                             for domain in gene_data['domain_hmms']
-                            if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES and
-                            DomainType[config.ANTISMASH_DOMAINS_NAMES[domain['hit_id']]].in_c_domain_group()),
+                            if domain['hit_id'] in config.ANTISMASH_DOMAINS_NAMES_MAPPING and
+                            DomainType[config.ANTISMASH_DOMAINS_NAMES_MAPPING[domain['hit_id']]].in_c_domain_group()),
                             default=None)
 
     orphan_c_start = fst_c_domain_start is not None and (
@@ -183,7 +183,7 @@ def check_orphan_c_domains(gene_data: dict,
 
 def extract_genes(contig_data: dict,
                   a_domains_per_gene: Dict[GeneId, List[A_Domain]],
-                  config: antiSMASH_Parsing_Config) -> List[Gene]:
+                  config: antiSMASH_Processing_Config) -> List[Gene]:
     gene_coords = extract_gene_coords(contig_data)
 
     genes = []
@@ -223,7 +223,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
 
 def parse_antismash_json(antismash_json: antiSMASH_record,
-                         config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
+                         config: antiSMASH_Processing_Config) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
     for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):

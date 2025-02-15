@@ -1,172 +1,231 @@
-from typing import Dict, List, Literal
+import time
+from typing import Dict, List, Literal, Optional
 from dataclasses import dataclass
 from pathlib import Path
 from src.pipeline.command_line_args_helper import CommandLineArgs
-from src.monomer_names_helper import NorineMonomerName, antiSMASH_MonomerName, MonomerResidue
 import yaml
 import dacite
+from datetime import datetime
 
 
 @dataclass
-class rBAN_Config:
-    rban_dir: Path
-    rban_jar: Path
-    rban_out_dir: Path
-
-    default_monomers_file: Path
-    default_input_file: Path
-    default_output_file_name: str  # this is how rBAN is invoked for some reason
-
-    putative_hybrids_input_file: Path
-    putative_hybrids_output_file_name: str
-
-    def __init__(self,
-                 rban_cfg_dict: dict,
-                 rban_jar: Path,
-                 main_out_dir: Path):
-        self.rban_dir = rban_jar.parent
-        self.rban_jar = rban_jar
-        self.rban_out_dir = main_out_dir
-        self.default_monomers_file = main_out_dir / Path(rban_cfg_dict['default_monomers_file'])
-        self.default_input_file = main_out_dir / Path(rban_cfg_dict['default_input_file'])
-        self.default_output_file_name = rban_cfg_dict['default_output_file_name']
-        self.putative_hybrids_input_file = main_out_dir / Path(rban_cfg_dict['putative_hybrids_input_file'])
-        self.putative_hybrids_output_file_name = rban_cfg_dict['putative_hybrids_output_file_name']
-
-
-@dataclass
-class rBAN_Processing_Config:
-    SUPPORTED_RESIDUES: List[NorineMonomerName]
-    MIN_RECOGNIZED_NODES: int
-    CUT_LIPIDS: bool
-    PNP_BONDS: List[str]
-
-    def __init__(self,
-                 rban_processing_cfg_dict: dict):
-        for k, v in rban_processing_cfg_dict.items():
-            setattr(self, k, v)
-
-
-@dataclass
-class antiSMASH_Parsing_Config:
-    ANTISMASH_DOMAINS_NAMES: Dict[str, str]
+class antiSMASH_Processing_Config:
+    ANTISMASH_DOMAINS_NAMES_MAPPING: Dict[str, str]
     MAX_DISTANCE_BETWEEN_GENES: int
     MAX_VARIANTS_PER_BGC: int
     MAX_PERMUTATIONS_PER_BGC: int
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
-    SCORING_TABLE_COLUMNS: List[str]
-    SCORING_TABLE_INDEX: str
-    SVM_SUBSTRATES: List[MonomerResidue]
-    SVM_NOT_SUPPORTED_SCORE: float
-    SVM_NO_PREDICTION_SCORE: float
-    KNOWN_AA10_CODES: Dict[MonomerResidue, List[str]] = None
-    KNOWN_AA34_CODES: Dict[MonomerResidue, List[str]] = None
-
-
-    def __init__(self,
-                 antismash_parsing_cfg_dict: dict,
-                 aa_codes: dict):
-        for k, v in antismash_parsing_cfg_dict.items():
-            setattr(self, k, v)
-        self.KNOWN_AA10_CODES = aa_codes['aa10']
-        self.KNOWN_AA34_CODES = aa_codes['aa34']
-
-
-@dataclass
-class ConfigPaths:
-    main_out_dir: Path
-    antismash_out_dir: Path
-    aa_codes: Path
-    specificity_prediction_model: Path
-    nerpa_monomers: Path  # TODO: rename
-    nerpa_monomers_info: Path
-    rban_dir: Path
-    configs_input: Path
-    configs_output: Path
-    scoring_config: Path
-    report: Path
-    html_report: Path
-    matches_details: Path
-    bgc_variants_dir: Path
-    nrp_variants_dir: Path
-    nrp_images_dir: Path
-    rban_graphs: Path
-    default_results_root_dirname: str
-    default_results_dirname_prefix: str
-    hmm_edge_weights_params: Path
-
-    def __init__(self,
-                 paths_cfg_dict: dict,
-                 nerpa_dir: Path,
-                 main_out_dir: Path,
-                 configs_dir: Path = None):
-        self.main_out_dir = main_out_dir
-        self.antismash_out_dir = main_out_dir / Path(paths_cfg_dict['antismash_out_dir'])
-        self.aa_codes = nerpa_dir / Path(paths_cfg_dict['aa_codes'])
-        self.specificity_prediction_model = nerpa_dir / Path(paths_cfg_dict['specificity_prediction_model'])
-        self.nerpa_monomers = nerpa_dir / Path(paths_cfg_dict['nerpa_monomers'])
-        self.nerpa_monomers_info = nerpa_dir / Path(paths_cfg_dict['nerpa_monomers_info'])
-        self.rban_dir = nerpa_dir / Path(paths_cfg_dict['rban_dir'])
-        self.configs_input = configs_dir if configs_dir else nerpa_dir / Path(paths_cfg_dict['configs_input'])
-        self.configs_output = main_out_dir / Path('configs_output')
-        self.scoring_config = nerpa_dir / Path(paths_cfg_dict['scoring_config'])
-        self.report = main_out_dir / Path(paths_cfg_dict['report'])
-        self.html_report = main_out_dir / Path(paths_cfg_dict['html_report'])
-        self.logo = nerpa_dir / Path(paths_cfg_dict['logo'])
-        self.matches_details = main_out_dir / Path(paths_cfg_dict['matches_details'])
-        self.bgc_variants_dir = main_out_dir / Path(paths_cfg_dict['bgc_variants_dir'])
-        self.nrp_variants_dir = main_out_dir / Path(paths_cfg_dict['nrp_variants_dir'])
-        self.nrp_images_dir = main_out_dir / Path(paths_cfg_dict['nrp_images_dir'])
-        self.rban_graphs = main_out_dir / Path(paths_cfg_dict['rban_graphs'])
-        self.default_results_root_dirname = paths_cfg_dict['default_results_root_dirname']
-        self.default_results_dirname_prefix = paths_cfg_dict['default_results_dirname_prefix']
-        self.hmm_scoring_config = nerpa_dir / Path(paths_cfg_dict['hmm_scoring_config'])
 
 
 @dataclass
 class SpecificityPredictionConfig:
-    calibration: bool
-    apply_step_function: bool
-    calibration_step_function_steps: List[float]
-    normalize_scores: bool
+    specificity_prediction_model: Path
+    a_domains_signatures: Path
+    KNOWN_AA10_CODES: Dict[str, List[str]]
+    KNOWN_AA34_CODES: Dict[str, List[str]]
+    SVM_SUBSTRATES: List[str]
+    SVM_NOT_SUPPORTED_SCORE: float
+    SVM_NO_PREDICTION_SCORE: float
+    SCORING_TABLE_INDEX: str
+    SCORING_TABLE_COLUMNS: List[str]
     apriori_residue_prob: Dict[str, float]
-    pseudo_counts: bool
+    calibration_step_function_steps: List[float]
     pseudo_count_fraction: float
-    compute_evidence: bool
 
+    def __init__(self,
+                 nerpa_dir: Path,
+                 cfg_dict: dict):
+        for k, v in cfg_dict.items():
+            setattr(self, k, v)
+        self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
+        self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
+        aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
+        self.KNOWN_AA10_CODES = aa_codes_dict['aa10']
+        self.KNOWN_AA34_CODES = aa_codes_dict['aa34']
+
+
+@dataclass
+class rBAN_Config:
+    rban_jar: Path
+    nerpa_monomers: Path
+
+    def __init__(self,
+                 rban_cfg_dict: dict,
+                 nerpa_dir: Path):
+        self.rban_jar = nerpa_dir / Path(rban_cfg_dict['rban_jar'])
+        self.nerpa_monomers = nerpa_dir / Path(rban_cfg_dict['nerpa_monomers'])
+
+
+@dataclass
+class rBAN_Output_Config:
+    default_monomers_file: Path
+    default_input_file: Path
+    default_output_file_name: str  # I have name instead of file due to rBAN quirks
+    putative_hybrids_input_file: Path
+    putative_hybrids_output_file_name: str
+    rban_output_dir: Path
+
+    def __init__(self,
+                 rban_output_cfg_dict: dict,
+                 main_out_dir: Path):
+        for k, v in rban_output_cfg_dict.items():
+            if not k.endswith('name'):
+                setattr(self, k, main_out_dir / Path(v))
+        self.default_output_file_name = rban_output_cfg_dict['default_output_file_name']
+        self.putative_hybrids_output_file_name = rban_output_cfg_dict['putative_hybrids_output_file_name']
+
+
+@dataclass
+class rBAN_Processing_Config:
+    MIN_RECOGNIZED_NODES: int
+    PNP_BONDS: List[str]
+
+
+@dataclass
+class HMM_Scoring_Config:
+    edge_weight_parameters: Dict[str, Dict[Optional[str], float]]
+    emission_parameters: Dict[str, Dict[str, float]]
+
+
+@dataclass
+class CppIOConfig:
+    hmms_json: Path
+    nrp_linearizations_json: Path
+    cpp_output_json: Path
+
+    def __init__(self,
+                 cpp_cfg_dict: dict,
+                 main_out_dir: Path):
+            for k, v in cpp_cfg_dict.items():
+                setattr(self, k, main_out_dir / Path(v))
+
+    def to_dict(self):
+        return {k: str(v) for k, v in self.__dict__.items()}
+
+
+@dataclass
+class MatchingConfig:
+    max_num_matches_per_bgc: int
+    max_num_matches_per_nrp: int  # 0 means no limit
+    max_num_matches: int
+
+    def __init__(self,
+                 cfg_dict: dict,
+                 args: Optional[CommandLineArgs]):
+        for k, v in cfg_dict.items():
+            setattr(self, k, v)
+        if args is None:
+            return
+
+        if args.max_num_matches_per_bgc is not None:
+            self.max_num_matches_per_bgc = args.max_num_matches_per_bgc
+        if args.max_num_matches_per_nrp is not None:
+            self.max_num_matches_per_nrp = args.max_num_matches_per_nrp
+        if args.max_num_matches is not None:
+            self.max_num_matches = args.max_num_matches
+
+
+@dataclass
+class OutputConfig:
+    main_out_dir: Path
+    symlink_to_latest: Path
+    configs_output: Path
+    antismash_out_dir: Path
+    bgc_variants_dir: Path
+    nrp_variants_dir: Path
+    nrp_images_dir: Path
+    rban_graphs: Path
+    draw_molecules: bool
+    matches_details: Path
+    report: Path
+    html_report: Path
+    logo: Path  # seems a bit out of place here
+    rban_output_config: rBAN_Output_Config
+    cpp_io_config: CppIOConfig
+
+    def __init__(self,
+                 output_cfg_dict: dict,
+                 nerpa_dir: Path,
+                 main_out_dir: Path,
+                 args: Optional[CommandLineArgs]):
+        for k, v in output_cfg_dict.items():
+            if k not in ('rban_output_config',
+                         'draw_molecules',
+                         'cpp_io_config'):
+                setattr(self, k, main_out_dir / Path(v))
+        self.rban_output_config = rBAN_Output_Config(output_cfg_dict['rban_output_config'],
+                                                     main_out_dir)
+        self.cpp_io_config = CppIOConfig(output_cfg_dict['cpp_io_config'],
+                                         main_out_dir)
+        if args is not None and args.dont_draw_molecules is not None:
+            self.draw_molecules = not args.dont_draw_molecules
+        else:
+            self.draw_molecules = True
+
+        self.main_out_dir = main_out_dir
+        self.logo = nerpa_dir / Path(output_cfg_dict['logo'])
+        self.symlink_to_latest = nerpa_dir / Path(output_cfg_dict['symlink_to_latest'])
+        if self.symlink_to_latest == self.main_out_dir:
+            raise ValueError(f'Invalid output directory: the path {self.symlink_to_latest} is reserved')
 
 
 @dataclass
 class Config:
-    paths: ConfigPaths
-    antismash_parsing_config: antiSMASH_Parsing_Config
+    nerpa_dir: Path
+    configs_dir: Path
+    monomers_config: Path
+    antismash_processing_config: antiSMASH_Processing_Config
     specificity_prediction_config: SpecificityPredictionConfig
     rban_config: rBAN_Config
     rban_processing_config: rBAN_Processing_Config
+    hmm_scoring_config: Path
+    matching_config: MatchingConfig
+    cpp_matcher_exec: Path
+    output_config: OutputConfig
+
+
+def get_default_output_dir(nerpa_dir: Path,
+                           cfg: dict) -> Path:
+    while (out_dir := nerpa_dir / Path(cfg['default_results_root_dirname']) /
+              Path(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))).exists():
+        time.sleep(1)
+    return out_dir
 
 
 
-def load_config(args: CommandLineArgs) -> Config:
+def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     nerpa_dir = Path(__file__).parent.parent.resolve()
-    main_out_dir = args.output_dir.resolve()
-    cfg = yaml.safe_load((nerpa_dir / Path('configs/config.yaml')).open('r'))
+    configs_dir = nerpa_dir / Path('configs')
+    cfg = yaml.safe_load((configs_dir / 'config.yaml').open('r'))
+    main_out_dir = args.output_dir.resolve() \
+        if args is not None else get_default_output_dir(nerpa_dir, cfg)
 
-    paths_config = ConfigPaths(paths_cfg_dict=cfg['paths'],
-                               nerpa_dir=nerpa_dir,
-                               main_out_dir=main_out_dir,
-                               configs_dir=args.configs_dir)
-    rban_config = rBAN_Config(rban_cfg_dict=cfg['rban_config'],
-                              rban_jar=paths_config.rban_dir / Path('rBAN-1.0.jar'),
-                              main_out_dir=main_out_dir)
+    antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
+    antismash_processing_cfg = dacite.from_dict(antiSMASH_Processing_Config, antismash_processing_cfg_dict)
 
-    rban_processing_config = rBAN_Processing_Config(cfg['rban_processing_config'])
+    specificity_prediction_cfg_dict = yaml.safe_load((nerpa_dir / cfg['specificity_prediction_config']).open('r'))
+    specificity_prediction_cfg = SpecificityPredictionConfig(nerpa_dir, specificity_prediction_cfg_dict)
 
-    antismash_parsing_config = antiSMASH_Parsing_Config(cfg['antismash_parsing_config'],
-                                                        yaml.safe_load(paths_config.aa_codes.open('r')))
-    specificity_prediction_config = dacite.from_dict(SpecificityPredictionConfig,
-                                                     cfg['specificity_prediction_config'])
-    return Config(paths=paths_config,
-                  antismash_parsing_config=antismash_parsing_config,
-                  rban_config=rban_config,
-                  rban_processing_config=rban_processing_config,
-                  specificity_prediction_config=specificity_prediction_config)
+    rban_cfg_dict = yaml.safe_load((nerpa_dir / cfg['rban_config']).open('r'))
+    rban_cfg = rBAN_Config(rban_cfg_dict, nerpa_dir)
+
+    rban_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['rban_processing_config']).open('r'))
+    rban_processing_cfg = dacite.from_dict(rBAN_Processing_Config, rban_processing_cfg_dict)
+
+    output_cfg_dict = yaml.safe_load((nerpa_dir / cfg['output_config']).open('r'))
+    output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, main_out_dir, args)
+
+    matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
+    matching_cfg = MatchingConfig(matching_cfg_dict, args)
+
+    return Config(antismash_processing_config=antismash_processing_cfg,
+                  configs_dir=configs_dir,
+                  nerpa_dir=nerpa_dir,
+                  specificity_prediction_config=specificity_prediction_cfg,
+                  rban_config=rban_cfg,
+                  rban_processing_config=rban_processing_cfg,
+                  hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
+                  output_config=output_cfg,
+                  monomers_config=nerpa_dir / cfg['monomers_config'],
+                  matching_config=matching_cfg,
+                  cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec'])

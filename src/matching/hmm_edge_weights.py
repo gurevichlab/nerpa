@@ -1,9 +1,9 @@
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+    from src.matching.detailed_hmm import DetailedHMM
 
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.antismash_parsing.location_features import (
     ModuleLocFeature,
     GeneLocFeature,

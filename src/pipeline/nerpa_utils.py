@@ -4,49 +4,35 @@ import shutil
 import datetime
 import shlex
 import subprocess
-from src.config import Config
+from src.config import OutputConfig
+from src.pipeline.logger import NerpaLogger
+from pathlib import Path
 
 
-def set_up_output_dir(output_dirpath, config: Config, crash_if_exists, log):
-    make_latest_symlink = False
+def set_up_output_dir(output_cfg: OutputConfig,
+                      crash_if_exists: bool,
+                      log: NerpaLogger,
+                      make_sym_link_to_latest: bool = True):
+    if output_cfg.main_out_dir.exists():
+        if crash_if_exists:
+            log.error(f"output directory ({output_cfg.main_out_dir}) already exists! "
+                      f"Rerun with --force-existing-outdir if you still want to use it as the output dir "
+                      f"OR specify another (nonexistent) directory. Exiting now..", to_stderr=True)
+            exit(1)
+        if output_cfg.main_out_dir.is_dir():  # TODO: check whether we want to completely remove it always
+            shutil.rmtree(output_cfg.main_out_dir)
+        else:
+            output_cfg.main_out_dir.unlink()
 
-    if not output_dirpath:  # 'output dir was not specified with -o option'
-        output_dirpath = os.path.join(os.path.abspath(
-            config.paths.default_results_root_dirname),
-            config.paths.default_results_dirname_prefix +
-            datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
-        make_latest_symlink = True
-
-        # in case of starting two jobs in the same second
-        if os.path.isdir(output_dirpath):
-            i = 2
-            base_dirpath = output_dirpath
-            while os.path.isdir(output_dirpath):
-                output_dirpath = str(base_dirpath) + '__' + str(i)
-                i += 1
-
-    if os.path.isdir(output_dirpath) and crash_if_exists:
-        log.error(f"output directory ({output_dirpath}) already exists! "
-                  f"Rerun with --force-existing-outdir if you still want to use it as the output dir "
-                  f"OR specify another (nonexistent) directory. Exiting now..", to_stderr=True)
-    else:
-        if os.path.isdir(output_dirpath):  # TODO: check whether we want to completely remove it always
-            shutil.rmtree(output_dirpath)
-        os.makedirs(output_dirpath)
+    output_cfg.main_out_dir.mkdir(parents=True)
 
     # 'latest' symlink
-    if make_latest_symlink:
-        prev_dirpath = os.getcwd()
-        os.chdir(config.paths.default_results_root_dirname)
+    if make_sym_link_to_latest:
+        if output_cfg.symlink_to_latest.is_symlink():
+            output_cfg.symlink_to_latest.unlink(missing_ok=True)
+        output_cfg.symlink_to_latest.symlink_to(output_cfg.main_out_dir, target_is_directory=True)
 
-        latest_symlink = 'latest'
-        if os.path.islink(latest_symlink):
-            os.remove(latest_symlink)
-        os.symlink(os.path.basename(output_dirpath), latest_symlink)
-
-        os.chdir(prev_dirpath)
-
-    return os.path.abspath(output_dirpath)
+    return output_cfg.main_out_dir
 
 
 def sys_call(cmd, log, indent='  ', cwd=None, verbose=True):
@@ -126,7 +112,7 @@ def get_path_to_program(program, dirpath=None, min_version=None):
         p = subprocess.Popen([fpath, '--version'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = p.communicate()
 
-        version_pattern = re.compile('(?P<major_version>\d+)\.(?P<minor_version>\d+)')
+        version_pattern = re.compile(r'(?P<major_version>\d+)\.(?P<minor_version>\d+)')
         searchstring = stdout.decode('utf8').strip()
 
         # ad hoc workaround to AS 5.2.0 printing FutureWarning to stdout
