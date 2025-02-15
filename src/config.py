@@ -186,8 +186,8 @@ class Config:
 
 def get_default_output_dir(nerpa_dir: Path,
                            cfg: dict) -> Path:
-    while (out_dir := nerpa_dir / Path(cfg['default_results_root_dirname']) /
-              Path(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))).exists():
+    while (out_dir := (nerpa_dir / Path(cfg['default_results_root_dirname']) /
+              Path(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))).exists():
         time.sleep(1)
     return out_dir
 
