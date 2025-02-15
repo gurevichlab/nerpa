@@ -1,6 +1,7 @@
 from pathlib import Path
 import argparse
 from argparse import Namespace as CommandLineArgs
+from src.config import Config
 from io import StringIO
 import csv
 
@@ -54,7 +55,7 @@ def add_advanced_arguments(parser: argparse.ArgumentParser):
                                       help="run in the debug mode (keep intermediate files)")
 
 
-def add_config_arguments(parser: argparse.ArgumentParser):
+def add_config_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
     configs_group = parser.add_argument_group('Nerpa config',
                                               'Nerpa running configuration')
     configs_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,
@@ -64,11 +65,17 @@ def add_config_arguments(parser: argparse.ArgumentParser):
     configs_group.add_argument("--threads", default=1, type=int,
                                help="number of threads for running Nerpa", action="store")
     configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int,
-                               help="maximum number of matches to report per BGC", action="store")
+                               help="maximum number of matches to report per BGC. "
+                                    f"By default {default_cfg.matching_config.max_num_matches_per_bgc}",
+                               action="store")
     configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int,
-                               help="maximum number of matches to report per NRP", action="store")
+                               help="maximum number of matches to report per NRP"
+                                    f"By default {default_cfg.matching_config.max_num_matches_per_nrp}",
+                               action="store")
     configs_group.add_argument("--max-num-matches", default=None, type=int,
-                               help="maximum number of matches to report in total", action="store")
+                               help="maximum number of matches to report in total"
+                                    f"By default {default_cfg.matching_config.max_num_matches}",
+                               action="store")
     #configs_group.add_argument("--heuristic-discard", default=False,
     #                           help="immediately discard bad matches based on heuristics", action="store_true")
     configs_group.add_argument("--dont-draw-molecules", action="store_true", default=False,
@@ -80,21 +87,26 @@ def add_external_tools_args(parser: argparse.ArgumentParser):
                         help='path to antismash source directory')
 
 
-def build_cmdline_args_parser() -> argparse.ArgumentParser:
+def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
     add_genomic_arguments(parser)
     add_struct_arguments(parser)
     add_external_tools_args(parser)
     add_advanced_arguments(parser)
-    add_config_arguments(parser)
+    add_config_arguments(parser, default_cfg)
 
-    parser.add_argument("--output_dir", "-o", required=True,
-                        help="output directory", type=Path)
+    default_out_dir = default_cfg.output_config.main_out_dir.parent
+    # q: default_out_dir has format '.../results_%Y-%m-%d_%H-%M-%S', but we want '.../results'
+    default_out_dir_wo_time = default_out_dir.parent / default_out_dir.name.split('_')[0]
+    parser.add_argument("--output_dir", "-o",
+                        help="output directory."
+                             f"If not provided, results will be saved in {default_out_dir_wo_time}" "_{CURRENT_TIME}",
+                        type=Path)
     return parser
 
 
-def get_command_line_args() -> CommandLineArgs:
-    parser = build_cmdline_args_parser()
+def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
+    parser = build_cmdline_args_parser(default_cfg)
     parsed_args = parser.parse_args()
     try:
         validate_arguments(parsed_args)

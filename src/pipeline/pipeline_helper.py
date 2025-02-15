@@ -54,8 +54,9 @@ class PipelineHelper:
     def __init__(self, log: NerpaLogger):
         self.log = log
 
+        default_cfg = load_config()
         try:
-            self.args = get_command_line_args()
+            self.args = get_command_line_args(default_cfg)
         except ValidationError as e:
             self.log.error(str(e), to_stderr=True)
             raise e

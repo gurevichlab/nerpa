@@ -1,4 +1,3 @@
-default_results_root_dirname: nerpa_results
 symlink_to_latest: nerpa_results/latest
 configs_output: configs
 
