@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from src.matching.genes_fragments_intervals import get_genes_intervals, get_fragments_intervals
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
+    DetailedHMMStateType
 )
 from itertools import pairwise
 from src.matching.alignment_type import Alignment
@@ -14,6 +15,9 @@ from src.matching.alignment_step_type import (
     AlignmentStep_BGC_Module_Info,
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
+from pathlib import Path
+from itertools import count
+
 
 # "long" edges are those that involve multiple modules
 LONG_EDGE_TYPES = {
@@ -54,6 +58,14 @@ def get_long_edges_ranges(hmm: DetailedHMM, path: List[int]) -> Dict[Tuple[int, 
 def hmm_path_to_alignment(hmm: DetailedHMM,
                           path: List[int],
                           nrp_monomers: List[rBAN_Monomer]) -> Alignment:
+    #free_idx = next(i for i in count()
+    #                if not Path(f'{hmm.bgc_variant.genome_id}_path_{i}.png').exists())
+    # hmm.draw(Path(f'{hmm.bgc_variant.genome_id}_path_{free_idx}.png'), path)  # for debugging
+    #hmm.draw(Path(f'hmm_path.png'), path)  # for debugging
+    #print('bgc: ', hmm.bgc_variant.genome_id)
+    #print('path: ', path)
+    #print('nrp monomers: ', [mon.residue for mon in nrp_monomers])
+
     long_edges_ranges = get_long_edges_ranges(hmm, path)
     alignment = []
     mon_idx = 0
@@ -104,10 +116,13 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                 mon_idx += 1
             # skips
             case DetailedHMMEdgeType.SKIP_MODULE:
-                try:
-                    bgc_module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[edge_from]]
-                except:
-                    pass
+                next_module_state_idx = next(next_vertex
+                                             for next_vertex in hmm.adj_list[edge_from]
+                                             if hmm.states[next_vertex].state_type in (DetailedHMMStateType.MODULE_START,
+                                                                                       DetailedHMMStateType.FINAL))
+                module_idx = hmm.state_idx_to_module_idx[next_module_state_idx] - 1 \
+                    if next_module_state_idx != edge_to else len(hmm.bgc_variant.modules) - 1
+                bgc_module = hmm.bgc_variant.modules[module_idx]
 
         score = transition_score + emission_score
         bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module) \

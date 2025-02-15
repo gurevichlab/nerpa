@@ -6,6 +6,7 @@ from typing import (
 
 import yaml
 
+from src.generic.functional import timing_decorator
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
     get_command_line_args,
@@ -27,6 +28,7 @@ from src.matching.match_type import Match, Match_NRP_Variant_Info
 from src.matching.matcher import get_matches
 from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
+from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
 from src.matching.hmm_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
 import src.write_results as report
@@ -35,6 +37,8 @@ import shutil
 import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
+from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
+from pathlib import Path
 
 
 
@@ -45,12 +49,14 @@ class PipelineHelper:
     monomer_names_helper: MonomerNamesHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
+    pipeline_helper_cpp: PipelineHelperCpp
 
     def __init__(self, log: NerpaLogger):
         self.log = log
 
+        default_cfg = load_config()
         try:
-            self.args = get_command_line_args()
+            self.args = get_command_line_args(default_cfg)
         except ValidationError as e:
             self.log.error(str(e), to_stderr=True)
             raise e
@@ -77,12 +83,15 @@ class PipelineHelper:
         self.monomer_names_helper = monomer_names_helper
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
+        self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, monomer_names_helper)
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
         DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
+    @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
         return self.pipeline_helper_antismash.get_bgc_variants()
 
+    @timing_decorator
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
         if self.pipeline_helper_rban.preprocessed_nrp_variants():
             rban_records = []
@@ -92,22 +101,27 @@ class PipelineHelper:
             nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
         return nrp_variants, rban_records
 
+    @timing_decorator
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
         self.log.info("\n======= Constructing HMMs")
         return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
 
-    def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) -> Dict[Match_NRP_Variant_Info, NRP_Linearizations]:
+    @timing_decorator
+    def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) \
+            -> List[NRP_Linearizations]:
         self.log.info("\n======= Generating NRP linearizations")
         return get_all_nrp_linearizations(nrp_variants)
 
+    @timing_decorator
     def get_matches(self,
                     hmms: List[DetailedHMM],
-                    nrp_linearizations: Dict[str, NRP_Linearizations]) -> List[Match]:
+                    nrp_linearizations: List[NRP_Linearizations],
+                    nrp_variants: List[NRP_Variant]) -> List[Match]:
+        #for i, hmm in enumerate(hmms):
+        #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
-        return get_matches(hmms, nrp_linearizations,
-                           matching_cfg=self.config.matching_config,
-                           num_threads=self.args.threads,
-                           log=self.log)
+        hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
+        return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
 
     def write_results(self,
                       matches: List[Match],

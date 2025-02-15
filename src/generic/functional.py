@@ -1,5 +1,7 @@
 from typing import List, Callable
 from itertools import chain
+import functools
+import time
 
 
 def list_monad_compose(*functions: Callable) -> Callable[[List], List]:
@@ -48,3 +50,21 @@ def make_optional(f: Callable) -> Callable:
         # Call the wrapped function
         return f(*args, **kwargs)
     return optional_f
+
+
+def timing_decorator(func):
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        start_time = time.time()  # Start timing
+        result = func(self, *args, **kwargs)  # Execute the function
+        elapsed_time = time.time() - start_time  # Calculate elapsed time
+
+        # Use self.log.info if available; otherwise, fallback to print
+        if hasattr(self, 'log') and hasattr(self.log, 'info'):
+            self.log.info(f"Elapsed time: {elapsed_time:.4f} seconds")
+        else:
+            print(f"Elapsed time: {elapsed_time:.4f} seconds")
+
+        return result
+
+    return wrapper
