@@ -16,8 +16,8 @@ from src.matching.hmm_config import (
     MethylationMatch,
     HMMScoringConfig
 )
-from src.matching.matching_types_alignment_step import MatchDetailedScore
-from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
+from src.matching.alignment_step_type import MatchDetailedScore
+from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE, PKS
 from src.matching.hmm_edge_weights import get_edge_weights
 from dataclasses import dataclass
 
@@ -31,7 +31,7 @@ class HMMHelper:
                             bgc_module: BGC_Module,
                             nrp_monomer: NRP_Monomer,
                             pks_domains_in_bgc: bool) -> LogProb:
-        if nrp_monomer.residue in self.monomer_names_helper.pks_names:
+        if nrp_monomer.residue == PKS:
             return -math.inf  # PKS residues are never matched to BGC modules
 
         # if there are no PKS domains in the BGC, PKS hybrids are treated as unknown residues
@@ -61,7 +61,10 @@ class HMMHelper:
                              bgc_module: BGC_Module,
                              nrp_monomer: NRP_Monomer,
                              pks_domains_in_bgc: bool = False) -> MatchDetailedScore:
-        residue_score = self.match_residue_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
+        try:
+            residue_score = self.match_residue_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
+        except:
+            pass
         modifications_score = self.match_methylation_score(bgc_module, nrp_monomer)
         chirality_score = self.match_chirality_score(bgc_module, nrp_monomer)
 

@@ -12,7 +12,7 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     STRAND
 )
-from src.config import antiSMASH_Parsing_Config
+from src.config import antiSMASH_Processing_Config
 from src.generic.combinatorics import generate_permutations, split_sequence_blocks
 from functools import partial
 from itertools import chain, islice, pairwise, product, groupby
@@ -23,7 +23,7 @@ Fragmented_BGC_Cluster = List[BGC_Cluster]
 
 
 def split_by_dist(bgc_cluster: BGC_Cluster,
-                  config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:
+                  config: antiSMASH_Processing_Config) -> List[BGC_Cluster]:
     dummy_gene = Gene(GeneId(''), Coords(start=-1, end=-1, strand=STRAND.FORWARD), [])  # dummy gene to start the pairwise
     gene_groups = list(split_before(pairwise([dummy_gene] + bgc_cluster.genes),
                                     lambda p: p[1].coords.start - p[0].coords.end > config.MAX_DISTANCE_BETWEEN_GENES))
@@ -35,7 +35,7 @@ def split_by_dist(bgc_cluster: BGC_Cluster,
 
 
 def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
-                                    config: antiSMASH_Parsing_Config) -> List[BGC_Cluster]:  # config is not used but added for consistency
+                                    config: antiSMASH_Processing_Config) -> List[BGC_Cluster]:  # config is not used but added for consistency
     gene_groups = split_at(bgc_cluster.genes,
                            lambda gene: DomainType.C_STARTER in gene.modules[0].domains_sequence and
                                         DomainType.TE_TD in gene.modules[-1].domains_sequence,
@@ -103,7 +103,7 @@ def reverse_if_all_neg(genes: List[Gene]) -> List[Gene]:
         return genes[:]
 
 
-def get_genes_rearrangements(genes_: Iterable[Gene], config: antiSMASH_Parsing_Config) -> List[List[Gene]]:
+def get_genes_rearrangements(genes_: Iterable[Gene], config: antiSMASH_Processing_Config) -> List[List[Gene]]:
     genes = list(genes_)
     if genes_sequence_consistent(genes):
         return [genes]
@@ -172,7 +172,7 @@ def get_block_fragments_rearrangements(block: List[BGC_Fragment]) -> Iterable[Li
         return [block, block[::-1]]
 
 
-def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config) -> Iterable[Fragmented_BGC_Cluster]:
+def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Processing_Config) -> Iterable[Fragmented_BGC_Cluster]:
     def get_rearranged_fragments(genes_fragments: List[List[Gene]]) -> Iterable[Tuple[List[Gene]]]:
         return islice(product(*(get_genes_rearrangements(genes_fragment, config=config)
                                 for genes_fragment in genes_fragments)),
@@ -209,7 +209,7 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster, config: antiSMASH_Parsing_Config)
 
 
 def split_and_reorder(bgc_: BGC_Cluster,
-                      config: antiSMASH_Parsing_Config,
+                      config: antiSMASH_Processing_Config,
                       log: NerpaLogger) -> List[Fragmented_BGC_Cluster]:
     result = list(islice((fragmented_bgc
                           for bgc in [bgc_]  # split_by_dist(bgc_, config=config)

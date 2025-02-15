@@ -33,23 +33,25 @@ class PipelineHelper_rBAN:
         self.set_rban_helper()
 
     def preprocessed_nrp_variants(self) -> bool:
-        return self.args.structures is not None
+        return self.args.nrp_variants is not None
 
     def load_nrp_variants(self) -> List[NRP_Variant]:
         self.log.info('Loading preprocessed NRP variants')
         nrp_variants = []
         for file_with_nrp_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                             self.args.structures.iterdir()):
+                                             self.args.nrp_variants.iterdir()):
             nrp_variants.extend(NRP_Variant.from_yaml_dict(yaml_record)
                                 for yaml_record in yaml.safe_load(file_with_nrp_variants.read_text()))
         return nrp_variants
 
     def set_rban_helper(self):
         custom_monomers = list(chain(*(json.load(path_to_monomers.open('r'))
-                                       for path_to_monomers in (self.config.paths.nerpa_monomers,
+                                       for path_to_monomers in (self.config.rban_config.nerpa_monomers,
                                                                 self.args.rban_monomers)
                                        if path_to_monomers is not None)))
-        self.rban_helper = rBAN_Helper(self.config.rban_config, custom_monomers)
+        self.rban_helper = rBAN_Helper(self.config.rban_config,
+                                       self.config.output_config.rban_output_config,
+                                       custom_monomers)
 
     def get_input_for_rban(self) -> List[dict]:
         def default_id(i: int) -> str:
@@ -101,7 +103,7 @@ class PipelineHelper_rBAN:
     def get_nrp_variants(self,
                          parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
-        self.log.info(f'results will be in {self.config.paths.main_out_dir / Path("NRP_Variants")}')
+        self.log.info(f'results will be in {self.config.output_config.main_out_dir / Path("NRP_Variants")}')
         nrp_variants = retrieve_nrp_variants(parsed_rban_records,
                                              self.monomer_names_helper,
                                              self.config.rban_processing_config,

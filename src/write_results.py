@@ -7,18 +7,14 @@ from typing import (
     Optional,
     Union
 )
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
+from src.config import OutputConfig
 from src.data_types import BGC_Variant, NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
 from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
-
 from src.pipeline.logger import NerpaLogger
-
-from src.config import ConfigPaths
-
-
 from pathlib import Path
 from io import StringIO
 import csv
@@ -26,6 +22,7 @@ import yaml
 import json
 from itertools import groupby
 from copy import deepcopy
+
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -74,27 +71,30 @@ def write_matches_per_id(matches: List[T],
 
 
 def write_nrp_variants(nrp_variants: List[NRP_Variant],
-                       config_paths: ConfigPaths,
+                       matches: List[Match],
+                       output_cfg: OutputConfig,
                        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
-                       draw: bool = False,
                        log: Optional[NerpaLogger] = None):
+    matched_nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
-                   config_paths.main_out_dir / Path('rban_graphs.yaml'))
-        if draw:
+                   output_cfg.main_out_dir / Path('rban_graphs.yaml'))
+        if output_cfg.draw_molecules:
             for rban_record in rban_records:
+                if rban_record.compound_id not in matched_nrp_ids:
+                    continue
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   output_file=config_paths.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
+                                   output_file=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
                 try:
-                    draw_molecule(monomer_graph, config_paths.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
+                    draw_molecule(monomer_graph, output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
 
-    config_paths.nrp_variants_dir.mkdir()
+    output_cfg.nrp_variants_dir.mkdir()
     for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
-        write_yaml(list(nrp_id_variants), config_paths.nrp_variants_dir / f'{nrp_id}.yaml')
+        write_yaml(list(nrp_id_variants), output_cfg.nrp_variants_dir / f'{nrp_id}.yaml')
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
@@ -119,30 +119,29 @@ def write_matches_details(matches: List[Match],
 
 
 def write_results(matches: List[Match],
-                  config_paths: ConfigPaths,
+                  output_cfg: OutputConfig,
                   bgc_variants: Union[List[BGC_Variant], None] = None,
                   nrp_variants: Union[List[NRP_Variant], None] = None,
                   rban_records: Union[List[Parsed_rBAN_Record], None] = None,
                   matches_details: bool = True,
-                  draw_molecules: bool = True,
                   html_report: bool = True,
                   debug_output: bool = False,
                   log: Optional[NerpaLogger] = None):
-    config_paths.report.write_text(build_report(matches))
+    output_cfg.report.write_text(build_report(matches))
 
     if bgc_variants is not None:
-        config_paths.bgc_variants_dir.mkdir()
-        write_bgc_variants(bgc_variants, config_paths.bgc_variants_dir)
+        output_cfg.bgc_variants_dir.mkdir()
+        write_bgc_variants(bgc_variants, output_cfg.bgc_variants_dir)
     if nrp_variants is not None:
         write_nrp_variants(nrp_variants,
                            rban_records=rban_records,
-                           config_paths=config_paths,
-                           draw=draw_molecules,
+                           matches=matches,
+                           output_cfg=output_cfg,
                            log=log)
 
     if matches_details:
-        write_matches_details(matches, config_paths.matches_details)
+        write_matches_details(matches, output_cfg.matches_details)
 
     if html_report:
-        create_html_report(config_paths, matches, debug_output)
+        create_html_report(output_cfg, matches, debug_output)
 

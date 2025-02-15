@@ -53,13 +53,13 @@ class PipelineHelper_antiSMASH:
             self.antismash_exec = get_path_to_program('antismash', min_version='5.0')
 
     def preprocessed_bgc_variants(self) -> bool:
-        return self.args.predictions is not None
+        return self.args.bgc_variants is not None
 
     def load_bgc_variants(self) -> List[BGC_Variant]:
         self.log.info('Loading preprocessed BGC variants')
         bgc_variants = []
         for file_with_bgc_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                             self.args.predictions.iterdir()):
+                                             self.args.bgc_variants.iterdir()):
             bgc_variants.extend(BGC_Variant.from_yaml_dict(yaml_record)
                                 for yaml_record in yaml.safe_load(file_with_bgc_variants.read_text()))
 
@@ -68,15 +68,15 @@ class PipelineHelper_antiSMASH:
     # TODO: watch out for name collisions
     def create_symlinks_to_antismash_results(self, antismash_dirs: Iterable[Path]):
         for antismash_dir in antismash_dirs:
-            if antismash_dir.parent == self.config.paths.antismash_out_dir:
+            if antismash_dir.parent == self.config.output_config.antismash_out_dir:
                 continue
-            symlink = self.config.paths.antismash_out_dir / antismash_dir.name
+            symlink = self.config.output_config.antismash_out_dir / antismash_dir.name
             if not symlink.exists():  # in case of a name collision keep only the first path (TODO: handle properly)
                 symlink.symlink_to(antismash_dir.resolve())
 
     # TODO: refactor: this function is doing too much
     def get_antismash_results(self) -> Iterable[antiSMASH_record]:
-        self.config.paths.antismash_out_dir.mkdir(exist_ok=True)
+        self.config.output_config.antismash_out_dir.mkdir(exist_ok=True)
         antismash_results: List[Path] = []
         if self.args.antismash is not None:
             antismash_results.extend(self.args.antismash)
@@ -87,7 +87,7 @@ class PipelineHelper_antiSMASH:
             try:
                 new_results = self.run_antismash(self.args.seqs,
                                                  self.args.threads,
-                                                 self.config.paths.antismash_out_dir,
+                                                 self.config.output_config.antismash_out_dir,
                                                  self.log)
             except Exception as e:
                 self.log.error(f'Error while running antismash on {self.args.seqs}, aborting')
@@ -96,7 +96,7 @@ class PipelineHelper_antiSMASH:
 
         if self.args.antismash_job_ids is not None:
             antismash_results.extend(download_antismash_results(job_id,
-                                                                self.config.paths.antismash_out_dir,
+                                                                self.config.output_config.antismash_out_dir,
                                                                 self.log)
                                      for job_id in self.args.antismash_job_ids)
         antismash_jsons = [antismash_json_file
@@ -136,25 +136,25 @@ class PipelineHelper_antiSMASH:
                    '--minimal', '--skip-zip-file', '--enable-nrps-pks',
                    '--cpus', str(threads),
                    str(dna_sequences)]
-        sys_call(command, log, cwd=self.config.paths.main_out_dir)
+        sys_call(command, log, cwd=self.config.output_config.main_out_dir)
         return output_dir
 
     def extract_bgc_variants_from_antismash(self,
                                             antismash_json: antiSMASH_record) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
-                                              self.config.antismash_parsing_config)
-        specificity_prediction_model = ModelWrapper(self.config.paths.specificity_prediction_model)
+                                              self.config.antismash_processing_config)
+        specificity_prediction_model = ModelWrapper(self.config.specificity_prediction_config.specificity_prediction_model)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
                                                                    specificity_prediction_model,
                                                                    self.monomer_names_helper,
-                                                                   self.config.antismash_parsing_config,
+                                                                   self.config.antismash_processing_config,
+                                                                   self.config.specificity_prediction_config,
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 
-        if self.config.specificity_prediction_config.calibration:
-            (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir(exist_ok=True)
-            write_bgc_variants(bgc_variants, self.config.paths.main_out_dir / 'BGC_variants_before_calibration')  # for training
-            bgc_variants = calibrated_bgc_variants(bgc_variants, self.config.specificity_prediction_config)
+        # (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir(exist_ok=True)
+        # write_bgc_variants(bgc_variants, self.config.paths.main_out_dir / 'BGC_variants_before_calibration')  # for training
+        bgc_variants = calibrated_bgc_variants(bgc_variants, self.config.specificity_prediction_config)
 
         return bgc_variants
 

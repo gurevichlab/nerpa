@@ -11,14 +11,14 @@ from src.antismash_parsing.location_features import (
     module_features_to_fragment_features
 )
 from src.data_types import BGC_Variant, GeneId
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, HMM
-from src.matching.auxilary import get_genes_intervals, get_fragments_intervals
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType, DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, HMM
+from src.matching.genes_fragments_intervals import get_genes_intervals, get_fragments_intervals
 from collections import defaultdict
 from functools import partial
 from collections import OrderedDict
 from src.matching.hmm_edge_weights import get_edge_weights
 from src.matching.hmm_scoring_helper import HMMHelper
-
+import networkx as nx
 
 def make_edge(edge_type: DetailedHMMEdgeType,
               log_prob: float,
@@ -108,7 +108,6 @@ def add_modules(states: List[DetailedHMMState],
         # add edges
         start_idx, match_idx, insert_idx = 3 * i + 1, 3 * i + 2, 3 * i + 3
         next_module_idx = 3 * i + 4 if i + 1 < len(bgc_variant.modules) else final_state_idx
-        prev_module_idx = 3 * i - 2 if i - 1 >= 0 else initial_state_idx
         adj_list[start_idx][match_idx] = _make_edge(edge_type=DetailedHMMEdgeType.MATCH,
                                                     log_prob=0,  # TODO: fill in
                                                     fst_module_idx=i)
@@ -129,30 +128,44 @@ def add_modules(states: List[DetailedHMMState],
         adj_list[insert_idx][next_module_idx] = _make_edge(edge_type=DetailedHMMEdgeType.END_INSERTING,
                                                            log_prob=0,  # TODO: fill in
                                                            fst_module_idx=None)
-        if module.iterative_module:
-            adj_list[next_module_idx][start_idx] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_MODULE,
-                                                              log_prob=0,  # TODO: fill in
-                                                              fst_module_idx=None)
-        if module.iterative_gene and gene_intervals[module.gene_id][1] == i:  # if the last module of the gene
-            fst_module_in_gene_idx = gene_intervals[module.gene_id][0]
-            edge_end = module_idx_to_start_state_idx[fst_module_in_gene_idx]
-            adj_list[next_module_idx][edge_end] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_GENE,
-                                                             log_prob=0,  # TODO: fill in
-                                                             fst_module_idx=None)
     return module_idx_to_start_state_idx
+
+
+def add_modules_and_genes_iterations(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
+                                     bgc_variant: BGC_Variant,
+                                     gene_intervals: Dict[GeneId, Tuple[int, int]],
+                                     module_idx_to_state_idx: Dict[int, int],
+                                     final_state_idx: int) -> None:
+    _make_edge = partial(make_edge, bgc_variant=bgc_variant)
+
+    for module_idx, module in enumerate(bgc_variant.modules):
+        start_idx = module_idx_to_state_idx[module_idx]
+        next_module_start_idx = module_idx_to_state_idx[module_idx + 1] \
+            if module_idx + 1 < len(bgc_variant.modules) else final_state_idx
+        if module.iterative_module:
+            adj_list[next_module_start_idx][start_idx] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_MODULE,
+                                                                    log_prob=0,  # TODO: fill in
+                                                                    fst_module_idx=None)
+        if module.iterative_gene and gene_intervals[module.gene_id][1] == module_idx:  # if the last module of the gene
+            fst_module_in_gene_idx = gene_intervals[module.gene_id][0]
+            edge_end = module_idx_to_state_idx[fst_module_in_gene_idx]
+            adj_list[next_module_start_idx][edge_end] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_GENE,
+                                                                   log_prob=0,  # TODO: fill in
+                                                                   fst_module_idx=None)
 
 
 def add_skip_gene_and_fragments_middle(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                                        bgc_variant: BGC_Variant,
                                        gene_intervals: Dict[GeneId, Tuple[int, int]],
                                        fragment_intervals: Dict[int, Tuple[int, int]],
-                                       module_idx_to_start_state_idx: Dict[int, int]) -> None:
+                                       module_idx_to_start_state_idx: Dict[int, int],
+                                       final_state_idx: int) -> None:
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
 
     # SKIP GENES AND FRAGMENTS IN THE MIDDLE
     for i, module in enumerate(bgc_variant.modules[1:], start=1):  # skipping the first gene/fragment is handled separately
         module_start_state_idx = module_idx_to_start_state_idx[i]
-        next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, -1)
+        next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, final_state_idx)
         next_fragment_start_state_idx = module_idx_to_start_state_idx.get(fragment_intervals[module.fragment_idx][1] + 1, None)
         if module.gene_id != bgc_variant.modules[i - 1].gene_id:  # module is the first in the gene
             adj_list[module_start_state_idx][next_gene_start_state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
@@ -317,6 +330,53 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
                                                          fst_module_idx=None)
 
 
+def topsort_states(states: List[DetailedHMMState],
+                   adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
+                   module_idx_to_state_idx: Dict[int, int],
+                   state_idx_to_module_idx: Dict[int, Optional[int]]) -> None:
+    """Sort states topologically using networkx."""
+
+    # Create a directed graph from the adjacency list
+    G = nx.DiGraph()
+    for state, neighbors in adj_list.items():
+        for neighbor in neighbors:
+            if state != neighbor:
+                G.add_edge(state, neighbor)
+
+    # q: find cycle in G
+    try:
+        cycle = nx.find_cycle(G)
+        raise ValueError(f"Cycle detected in the HMM state graph: {cycle}")
+    except nx.NetworkXNoCycle:
+        pass
+
+    sorted_states = list(nx.topological_sort(G))
+
+    # Create a new mapping for state indices based on topological order
+    new_state_mapping = {old_idx: new_idx for new_idx, old_idx in enumerate(sorted_states)}
+    states[:] = [states[old_idx] for old_idx in sorted_states]
+
+    # Preserve the current state-to-module mapping before clearing
+    old_state_idx_to_module_idx = state_idx_to_module_idx.copy()
+
+    # Clear and update module index mappings
+    state_idx_to_module_idx.clear()
+    module_idx_to_state_idx.clear()
+
+    for new_idx, old_idx in enumerate(sorted_states):
+        if old_idx in old_state_idx_to_module_idx:
+            module_idx_to_state_idx[old_state_idx_to_module_idx[old_idx]] = new_idx
+            state_idx_to_module_idx[new_idx] = old_state_idx_to_module_idx[old_idx]
+
+    # Rebuild adjacency list with new state indices
+    new_adj_list = defaultdict(dict)
+    for old_idx, neighbors in adj_list.items():
+        new_idx = new_state_mapping[old_idx]
+        for neighbor, edge in neighbors.items():
+            new_adj_list[new_idx][new_state_mapping[neighbor]] = edge
+
+    adj_list.clear()
+    adj_list.update(new_adj_list)
 
 
 def bgc_variant_to_detailed_hmm(cls,
@@ -343,12 +403,6 @@ def bgc_variant_to_detailed_hmm(cls,
                                                                        log_prob=0,  # TODO: fill in
                                                                        fst_module_idx=0)
 
-    # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
-    add_skip_gene_and_fragments_middle(adj_list,
-                                       bgc_variant,
-                                       gene_intervals,
-                                       fragment_intervals,
-                                       module_idx_to_state_idx)
 
     # SKIP AT THE BEGINNING
     add_skip_at_the_beginning(states,
@@ -376,6 +430,26 @@ def bgc_variant_to_detailed_hmm(cls,
         if -1 in neighbors:
             neighbors[final_state_idx] = neighbors[-1]
             del neighbors[-1]
+
+    # Enumerate states in topological order
+    topsort_states(states,
+                   adj_list,
+                   module_idx_to_state_idx,
+                   state_idx_to_module_idx)
+
+    # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
+    add_skip_gene_and_fragments_middle(adj_list,
+                                       bgc_variant,
+                                       gene_intervals,
+                                       fragment_intervals,
+                                       module_idx_to_state_idx,
+                                       final_state_idx)
+
+    add_modules_and_genes_iterations(adj_list,
+                                     bgc_variant,
+                                     gene_intervals,
+                                     module_idx_to_state_idx,
+                                     final_state_idx)
 
     hmm = cls(states=states,
               adj_list=adj_list,

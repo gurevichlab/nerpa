@@ -1,11 +1,11 @@
-from src.matching.matching_types_alignment_step import (
+from src.matching.alignment_step_type import (
     AlignmentStep,
-    AlignmentStep_BGC_Module_Info,
+    AlignmentStep_BGC_Module_Info
 )
 from src.data_types import NRP_Monomer_Modification
-from src.matching.matching_types_alignment import Alignment
-from src.matching.matching_types_match import Match
-from src.matching.matcher_viterbi_types import DetailedHMMEdgeType
+from src.matching.alignment_type import Alignment
+from src.matching.match_type import Match
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from typing import Iterable, List, Optional, Tuple
 from itertools import permutations
@@ -31,9 +31,9 @@ def filter_out_unknown(modifications: Iterable[NRP_Monomer_Modification]) -> Lis
 
 def nrp_monomers_coincide(monomer_test: rBAN_Monomer,
                           monomer_approved: rBAN_Monomer) -> bool:
-    return all([monomer_test.chirality == monomer_approved.chirality,
-                (monomer_test.rban_name == monomer_approved.rban_name) or
-                (monomer_test.rban_name[0] == monomer_approved.rban_name[0] == 'X')])
+    return (monomer_test.rban_name == monomer_approved.rban_name and
+            monomer_test.chirality == monomer_approved.chirality) or \
+        (monomer_test.rban_name[0] == monomer_approved.rban_name[0] == 'X')
 
 
 def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep,

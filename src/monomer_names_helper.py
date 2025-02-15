@@ -20,6 +20,7 @@ NorineMonomerName = NewType('NorineMonomerName', str)
 MonomerResidue = NewType('MonomerResidue', str)
 UNKNOWN_RESIDUE = MonomerResidue('unknown')
 PKS = MonomerResidue('PKS')
+MonCode = NewType('MonCode', int)
 
 def enum_representer(dumper, e: Enum):
     return dumper.represent_scalar(f'!{e.__class__.__name__}', e.name)
@@ -52,8 +53,9 @@ class NRP_Monomer:
 @dataclass
 class MonomerNamesHelper:
     names_table: pd.DataFrame
-    mon_to_int: Dict[NRP_Monomer, int] = None
-    int_to_mon: Dict[int, NRP_Monomer] = None
+    supported_residues: List[MonomerResidue]
+    mon_to_int: Dict[NRP_Monomer, MonCode] = None
+    int_to_mon: Dict[MonCode, NRP_Monomer] = None
     pks_names: List[NorineMonomerName] = None  # placeholder for PKS names
 
     def __post_init__(self):
@@ -62,8 +64,7 @@ class MonomerNamesHelper:
 
         self.int_to_mon = {}
         self.mon_to_int = {}
-        mon_residues = sorted(list(self.names_table['core'].unique()))
-        for mon_res_int, mon_res in enumerate(mon_residues):
+        for mon_res_int, mon_res in enumerate(self.supported_residues):
             for meth_int, methylated in enumerate([False, True]):
                 for chir_int, chirality in enumerate([Chirality.L, Chirality.D, Chirality.UNKNOWN]):
                     for is_pks_hybrid_int, is_pks_hybrid in enumerate([False, True]):
@@ -72,31 +73,8 @@ class MonomerNamesHelper:
                                           chirality=chirality,
                                           is_pks_hybrid=is_pks_hybrid)
                         mon_int = mon_res_int * 12 + meth_int * 6 + chir_int * 2 + is_pks_hybrid_int
-                        self.mon_to_int[mon] = mon_int
-                        self.int_to_mon[mon_int] = mon
-
-
-    def my_parser(self, name: str) -> NRP_Monomer:  # stub before monomer table is finished
-        *mods, res = name.split('-')
-        if len(mods) == 0:
-            modifications = ()
-        else:
-            if any(mod in ['Me', 'CMe', 'NMe', 'OMe'] for mod in mods):
-                modifications = (NRP_Monomer_Modification.METHYLATION,)
-            else:
-                modifications = (NRP_Monomer_Modification.UNKNOWN,)
-
-        if res == 'aThr/Thr':
-            res = 'Thr'
-        if res == 'Ile/aIle':
-            res = 'Ile'
-        if res in self.pks_names:
-            residue = PKS
-        elif res not in self.names_table['core'].values:
-            res = UNKNOWN_RESIDUE
-        return NRP_Monomer(residue=MonomerResidue(res),
-                           methylated=NRP_Monomer_Modification.METHYLATION in modifications,
-                           chirality=Chirality.UNKNOWN)
+                        self.mon_to_int[mon] = MonCode(mon_int)
+                        self.int_to_mon[MonCode(mon_int)] = mon
 
 
     @classmethod
@@ -124,21 +102,23 @@ class MonomerNamesHelper:
         UNKNOWN_MONOMER = NRP_Monomer(residue=UNKNOWN_RESIDUE,
                                       methylated=False,  # TODO: should we have a separate UNKNOWN_METYLATION?,
                                       chirality=Chirality.UNKNOWN)
+        PKS_MONOMER = NRP_Monomer(residue=PKS,
+                                  methylated=False,  # TODO: should we have a separate UNKNOWN_METYLATION?,
+                                  chirality=Chirality.UNKNOWN)
         if name_format == 'norine' and name.startswith('X'):
             return UNKNOWN_MONOMER
+        if name_format == 'norine' and name in self.pks_names:
+            return PKS_MONOMER
+
         column_name = 'as_short' if name_format == 'antismash' else 'norine_rban_code'
 
         try:
             row = self.names_table[self.names_table[column_name] == name].iloc[0]
+            residue = MonomerResidue(row['core']) if row['core'] in self.supported_residues else UNKNOWN_RESIDUE
         except IndexError:
             return UNKNOWN_MONOMER  # TODO: raise ValueError when the table is ready
             # raise ValueError(f'Name {name} not found in the names table')
 
-        return NRP_Monomer(residue=MonomerResidue(row['core']),
+        return NRP_Monomer(residue=residue,
                            methylated=NRP_Monomer_Modification.METHYLATION in self.parsed_modifications(row['modifications']),
                            chirality=Chirality.UNKNOWN)
-
-
-# that's for testing purposes. Remove it on the final version
-monomer_names_csv = Path('/home/ilianolhin/git/nerpa2/configs/monomer_names_table.tsv')
-monomer_names_helper = MonomerNamesHelper(pd.read_csv(monomer_names_csv, sep='\t'))
