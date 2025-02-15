@@ -97,10 +97,9 @@ def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
 
     default_out_dir = default_cfg.output_config.main_out_dir.parent
     # q: default_out_dir has format '.../results_%Y-%m-%d_%H-%M-%S', but we want '.../results'
-    default_out_dir_wo_time = default_out_dir.parent / default_out_dir.name.split('_')[0]
     parser.add_argument("--output_dir", "-o",
                         help="output directory. "
-                             f"If not provided, results will be saved in {default_out_dir_wo_time}" "_{CURRENT_TIME}",
+                             f"If not provided, results will be saved in {default_out_dir}/" "{CURRENT_TIME}",
                         type=Path)
     return parser
 
