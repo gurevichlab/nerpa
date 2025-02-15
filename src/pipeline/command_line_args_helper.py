@@ -69,11 +69,11 @@ def add_config_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
                                     f"By default {default_cfg.matching_config.max_num_matches_per_bgc}",
                                action="store")
     configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int,
-                               help="maximum number of matches to report per NRP"
+                               help="maximum number of matches to report per NRP. "
                                     f"By default {default_cfg.matching_config.max_num_matches_per_nrp}",
                                action="store")
     configs_group.add_argument("--max-num-matches", default=None, type=int,
-                               help="maximum number of matches to report in total"
+                               help="maximum number of matches to report in total. "
                                     f"By default {default_cfg.matching_config.max_num_matches}",
                                action="store")
     #configs_group.add_argument("--heuristic-discard", default=False,
@@ -99,7 +99,7 @@ def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
     # q: default_out_dir has format '.../results_%Y-%m-%d_%H-%M-%S', but we want '.../results'
     default_out_dir_wo_time = default_out_dir.parent / default_out_dir.name.split('_')[0]
     parser.add_argument("--output_dir", "-o",
-                        help="output directory."
+                        help="output directory. "
                              f"If not provided, results will be saved in {default_out_dir_wo_time}" "_{CURRENT_TIME}",
                         type=Path)
     return parser
