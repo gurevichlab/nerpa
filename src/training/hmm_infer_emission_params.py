@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from src.training.step_function import create_bins, fit_step_function_to_bins, plot_step_function
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer
 from src.data_types import LogProb, ModuleLocFeature, ModuleLocFeatures
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
 from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
@@ -16,6 +16,22 @@ from src.training.norine_stats import NorineStats
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from math import log
+
+class BGC_Module_Info(NamedTuple):
+    genome_id: str
+    gene_id: str
+    a_domain_idx: int
+    aa34: str
+    residue_score: Dict[MonomerResidue, LogProb]
+
+
+def _get_score_correctness(emissions: List[Tuple[BGC_Module, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
+    score_correcntess = []
+    for bgc_module, nrp_monomer in emissions:
+        for predicted_residue, score in bgc_module.residue_score.items():
+            score_correcntess.append((score, predicted_residue == nrp_monomer.residue))
+            # TODO: check that PKS-hybrids are handled correctly
+    return score_correcntess
 
 
 def get_score_correctness(emissions: List[Tuple[BGC_Module, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
