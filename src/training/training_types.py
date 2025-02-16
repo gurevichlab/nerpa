@@ -1,5 +1,5 @@
 from typing import NamedTuple, Optional
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
 from src.data_types import BGC_Variant, NRP_Variant
 
 

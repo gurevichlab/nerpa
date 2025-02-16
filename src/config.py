@@ -1,11 +1,11 @@
 import time
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal, Optional, TYPE_CHECKING
 from dataclasses import dataclass
 from pathlib import Path
-from src.pipeline.command_line_args_helper import CommandLineArgs
 import yaml
 import dacite
 from datetime import datetime
+from argparse import Namespace as CommandLineArgs
 
 
 @dataclass

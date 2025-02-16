@@ -1,8 +1,8 @@
 from typing import List
-from src.matching.matching_types_alignment import Alignment
+from src.matching.alignment_type import Alignment
 from src.data_types import GeneId
-from src.monomer_names_helper import monomer_names_helper
-from src.matching.matching_types_match import Match
+from src.monomer_names_helper import MonomerNamesHelper
+from src.matching.match_type import Match
 from src.data_types import GeneId, BGC_Variant
 from src.generic.combinatorics import is_subsequence, filter_unique
 from itertools import pairwise
@@ -23,7 +23,8 @@ def fix_gene_names_in_alignment(alignment: Alignment):
             if step.bgc_module is not None:
                 step.bgc_module = step.bgc_module._replace(gene_id=GeneId(step.bgc_module.gene_id.split('_')[1]))
 
-def fix_residue_names_in_alignment(alignment: Alignment):
+def fix_residue_names_in_alignment(alignment: Alignment,
+                                   monomer_names_helper: MonomerNamesHelper):
     for step in alignment:
         if step.nrp_monomer is not None:
             parsed_monomer = monomer_names_helper.parsed_name(step.nrp_monomer.rban_name, name_format='norine')
@@ -54,16 +55,19 @@ def fix_old_style_multiple_alignments(match: Match) -> Match:
     return match
 
 
-def fix_alignment(alignment: Alignment) -> Alignment:
+def fix_alignment(alignment: Alignment,
+                  monomer_names_helper: MonomerNamesHelper) -> Alignment:
     fix_indexing_in_alignment(alignment)
     fix_gene_names_in_alignment(alignment)
-    fix_residue_names_in_alignment(alignment)
+    fix_residue_names_in_alignment(alignment,
+                                   monomer_names_helper)
     return alignment
 
 
-def fix_match(match: Match) -> Match:
+def fix_match(match: Match,
+              monomer_names_helper: MonomerNamesHelper) -> Match:
     for alignment in match.alignments:
-        fix_alignment(alignment)
+        fix_alignment(alignment, monomer_names_helper)
     fix_old_style_multiple_alignments(match)
     return match
 

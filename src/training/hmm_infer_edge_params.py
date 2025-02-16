@@ -6,7 +6,7 @@ from typing import (
     Union
 )
 from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
-from src.matching.matcher_viterbi_types import (
+from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType
 )
 from src.training.statistical_inference import *

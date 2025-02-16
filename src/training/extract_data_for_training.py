@@ -5,8 +5,7 @@ from typing import (
     Optional,
     Union
 )
-from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
-from src.matching.matcher_viterbi_types import (
+from src.matching.hmm_auxiliary_types import (
     HMM,
     DetailedHMMStateType,
     DetailedHMMState,
@@ -15,10 +14,8 @@ from src.matching.matcher_viterbi_types import (
     GenomicContext,
     EdgeKey
 )
-from src.matching.matching_types_alignment import show_alignment
 from src.monomer_names_helper import NRP_Monomer
-from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
-from src.write_results import write_yaml
+from src.matching.detailed_hmm import DetailedHMM
 from src.data_types import BGC_Module
 from src.training.training_types import MatchWithBGCNRP
 from src.training.filter_edge_data import SingleFeatureContext, get_filtered_edge_data
@@ -75,8 +72,16 @@ def get_turns_info(detailed_hmm: DetailedHMM,
             other_edges_info.append((edge_info.edge_type, edge_info.genomic_context))
 
         if detailed_hmm.states[u].state_type == DetailedHMMStateType.MATCH:
-            start_state_idx = u - 1
-            bgc_module = detailed_hmm.bgc_variant.modules[detailed_hmm.state_idx_to_module_idx[start_state_idx]]
+            try:
+                next_module_start_state_idx = next(w
+                                                   for w in detailed_hmm.adj_list[u]
+                                                   if detailed_hmm.states[w].state_type == DetailedHMMStateType.MODULE_START)
+                next_module_idx = detailed_hmm.state_idx_to_module_idx[next_module_start_state_idx]
+                module_idx = next_module_idx - 1
+            except StopIteration:  # last module
+                module_idx = len(detailed_hmm.bgc_variant.modules) - 1
+
+            bgc_module = detailed_hmm.bgc_variant.modules[module_idx]
             module_with_emission = (bgc_module, emission)
         else:
             module_with_emission = None

@@ -41,8 +41,7 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
     # Construct the command
     command = [
         "python3", str(nerpa_script),
-        #"--antismash", str(antismash_inputs),
-        "--bgc-variants", "/home/ilianolhin/git/nerpa2/input_all/",
+        "--antismash", str(antismash_inputs),
         "--rban-json", str(rban_inputs),
         "--output_dir", str(output_dir),
         "--force-existing-outdir",

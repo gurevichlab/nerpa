@@ -152,8 +152,8 @@ class PipelineHelper_antiSMASH:
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 
-        # (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir(exist_ok=True)
-        # write_bgc_variants(bgc_variants, self.config.paths.main_out_dir / 'BGC_variants_before_calibration')  # for training
+        (self.config.output_config.main_out_dir / 'BGC_variants_before_calibration').mkdir(exist_ok=True)
+        write_bgc_variants(bgc_variants, self.config.output_config.main_out_dir / 'BGC_variants_before_calibration')  # for training
         bgc_variants = calibrated_bgc_variants(bgc_variants, self.config.specificity_prediction_config)
 
         return bgc_variants

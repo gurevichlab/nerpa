@@ -6,26 +6,10 @@ from typing import (
     Union
 )
 from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
-from src.matching.matcher_viterbi_types import (
-    HMM,
-    DetailedHMMStateType,
-    DetailedHMMState,
+from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
-    DetailedHMMEdge,
     GenomicContext,
-    EdgeKey
 )
-from src.matching.matching_types_alignment import show_alignment
-from src.monomer_names_helper import NRP_Monomer
-from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
-from src.write_results import write_yaml
-from src.data_types import BGC_Module
-from src.training.training_types import MatchWithBGCNRP
-from itertools import pairwise
-from dataclasses import dataclass
-from pathlib import Path
-from collections import defaultdict
-import yaml
 
 
 def filter_context(genomic_context: GenomicContext) -> GenomicContext:

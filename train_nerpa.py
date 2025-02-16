@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 from pathlib import Path
 import yaml
-from src.matching.matching_types_match import Match
+from src.matching.match_type import Match
 from src.testing.check_matches import find_wrong_matches
 from src.data_types import BGC_Variant
 from src.training.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
@@ -12,7 +12,7 @@ from src.training.hmm_infer_edge_params import infer_edge_params
 from src.training.norine_stats import load_norine_stats
 from src.training.write_results import write_params
 from src.monomer_names_helper import MonomerNamesHelper
-from src.matching.matcher_viterbi_detailed_hmm import DetailedHMM
+from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.hmm_config import load_hmm_scoring_config
 from collections import defaultdict
@@ -69,8 +69,12 @@ def load_bgc_variants_for_matches(matches: List[Match],
     return nrp_id_to_bgc_variant
 
 def load_monomer_names_helper(nerpa_dir: Path) -> MonomerNamesHelper:
-    monomer_names_csv = nerpa_dir / 'configs/monomer_names_table.tsv'
-    return MonomerNamesHelper(pd.read_csv(monomer_names_csv, delimiter='\t'))
+    nerpa_config = yaml.safe_load((nerpa_dir / 'configs/config.yaml').open())
+    monomers_cfg = yaml.safe_load((nerpa_dir / nerpa_config['monomers_config']).open('r'))
+    monomers_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
+    return MonomerNamesHelper(pd.read_csv(monomers_table_tsv, sep='\t'),
+                              monomers_cfg['supported_residues'],
+                              monomers_cfg['pks_names'])
 
 
 # TODO: load paths from config instead of hardcoding them
@@ -90,7 +94,7 @@ def main():
     bgc_variants = load_all_bgc_variants(approved_matches, nerpa_results_dir)
 
     print('Fixing matches')
-    approved_matches = [fix_match(match) for match in approved_matches]
+    approved_matches = [fix_match(match, monomer_names_helper) for match in approved_matches]
 
     # As variants ids may differ, load bgc variants based on compatibility, not by id
     bgc_variants_approved_matches = load_bgc_variants_for_matches(approved_matches,

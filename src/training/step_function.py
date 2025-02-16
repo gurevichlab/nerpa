@@ -93,6 +93,34 @@ def plot_step_function(score_correctness_bins: List[Tuple[int, int]],
     return out_file
 
 
+def plot_step_function_stacked(score_correctness_bins: List[Tuple[int, int]],
+                               step_function: List[float],
+                               out_file: Optional[Path] = None,
+                               show: bool = False) -> Optional[Path]:
+    assert len(score_correctness_bins) == len(step_function)
+
+    bin_size = 1 / len(score_correctness_bins)
+    bin_centers = [i * bin_size + bin_size / 2 for i in range(len(score_correctness_bins))]
+
+    num_false = [num_false for num_false, num_true in score_correctness_bins]
+    num_true = [num_true for num_false, num_true in score_correctness_bins]
+
+    plt.bar(bin_centers, num_false, align='center', width=bin_size, color='orange', label='Incorrect')
+    plt.bar(bin_centers, num_true, align='center', width=bin_size, bottom=num_false, color='blue', label='Correct')
+
+    plt.plot(bin_centers, step_function, color='red', label='Step Function')
+
+    plt.legend()
+
+    if show:
+        plt.show()
+    if out_file is not None:
+        plt.savefig(out_file)
+
+    plt.close()
+    return out_file
+
+
 def fit_step_function(score_correctness: List[Tuple[LogProb, bool]],
                       num_bins: int,
                       step_range: int) -> List[float]:
