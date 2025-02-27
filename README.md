@@ -32,18 +32,18 @@ The simplified Nerpa pipeline is depicted in the figure below.
 ![Nerpa pipeline](docs/img/pipeline.png "Nerpa 2 pipeline")
 
 Nerpa takes as input an NRP structure database and genome sequences.
-The pipeline goes as follows:
+The pipeline goes as follows:  
 1. Construct tentative NRP synthetase assembly lines 
 along with respective sequences of genome-predicted residues
-(using [antiSMASH](https://academic.oup.com/nar/article/51/W1/W46/7151336)).
+(using [antiSMASH](https://academic.oup.com/nar/article/51/W1/W46/7151336)).  
 2. Construct representations of the database structures as monomer graphs
-(using [rBAN](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-019-0335-x)).
+(using [rBAN](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-019-0335-x)).  
 3. Build HMMs for genome-predicted NRP synthetase assembly lines
 as described in [the Nerpa 2 paper](https://doi.org/10.1101/2024.11.19.624380).
-4. Extract NRP linearizations from the monomer graphs.
+4. Extract NRP linearizations from the monomer graphs.  
 5. Score the NRP linearizations against the HMMs all-vs-all manner 
-(using the [Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm)).
-6. Create an interactive report with the best matches and detailed alignments.
+(using the [Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm)).  
+6. Create an interactive report with the best matches and detailed alignments.  
 
  
 <a name="sec_about_data"></a>
@@ -55,7 +55,7 @@ For **genome sequences**:
 or antiSMASH job IDs (in this case, Nerpa will download it automatically).
 * *Also accepted*: raw genome sequences in the **FASTA and GenBank** formats; 
 in this case, Nerpa will predict NRP BGCs in them with antiSMASH 
-(should be installed separately and present in `PATH` or provided to Nerpa via `--antismash-installation-path`).
+(should be installed separately and present in `PATH` or provided to Nerpa via `--antismash-installation-dir`).
 
 For **NRP structures**:
 
@@ -89,17 +89,20 @@ If you are not familiar with conda/bioconda, please consult with [their document
 ## Installation from source code
 
 First, clone the repository and change directory to its root:
-```
+
+```commandline
 git clone --single-branch --branch nerpa_2.0 https://github.com/gurevichlab/nerpa.git
 cd nerpa
 ```
 Next, create a conda environment by running:
-```
+
+```commandline
 conda create -f environment.yml
 conda activate nerpa-env
 ```
 Finally, build C++ code by running:
-```
+
+```commandline
 bash install.sh
 ```
 ### Verifying your installation
@@ -205,11 +208,11 @@ If you want to get all matches, set it to 0;
 however, we don't recommend doing that 
 because it drastically increases the output size;
 - `--threads` the number of threads for running Nerpa; the default value is 1;
-- `--dont-draw-molecules` disable drawing NRP compounds (they will not appear in the graphical report).
+- `--skip-molecule-drawing` disable drawing NRP compounds (they will not appear in the graphical report).
 Note that Nerpa draws only molecules that appear in top matches, so the number of molecules drawn 
 is limited by the `--max-num-matches` option.
 Enabling this option significantly speeds up the run and reduces the output size.
-- `--force-existing-outdir`  don't crash if the output directory already exists. 
+- `--force-output-dir`  don't crash if the output directory already exists. 
 Note: files in the output directory will be overwritten in this case!
 
 

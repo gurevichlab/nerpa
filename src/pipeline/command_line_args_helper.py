@@ -66,9 +66,10 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
     configs_group.add_argument("--process-hybrids", dest="process_hybrids", action="store_true", default=False,
                                help="process NRP-PK hybrid monomers (requires the use of rBAN)")
 
-    configs_group.add_argument("--antismash-installation-path", dest="antismash_path", type=Path,
+    configs_group.add_argument("--antismash-installation-dir", dest="antismash_path", type=Path,
                                default=None, metavar='DIR',
-                               help="path to the antiSMASH installation directory containing 'run_antismash.py'")
+                               help="path to the antiSMASH installation directory, i.e., the one containing the "
+                                    "'run_antismash.py' script")
 
     configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int, metavar='INT',
                                help="maximum number of matches to report per BGC; set 0 for unlimited "
