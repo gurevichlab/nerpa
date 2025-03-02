@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from pathlib import Path
 import yaml
 from src.matching.match_type import Match
@@ -15,7 +15,10 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.hmm_config import load_hmm_scoring_config
+from src.training.paras import substitute_predictions_with_paras
 from collections import defaultdict
+from src.data_types import BGC_Variant, NRP_Monomer, BGC_Module, Match_BGC_Variant_Info
+from src.training.extract_data_for_training import DataForTraining
 import pandas as pd
 from itertools import islice
 import subprocess
@@ -76,6 +79,23 @@ def load_monomer_names_helper(nerpa_dir: Path) -> MonomerNamesHelper:
                               monomers_cfg['supported_residues'],
                               monomers_cfg['pks_names'])
 
+def dump_emissions_training_data(data_for_training: DataForTraining, output_dir: Path):
+    def emission_dict(emission_info: Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]) -> dict:
+        bgc_info, bgc_module, nrp_monomer = emission_info
+        return {'genome': bgc_info.genome_id,
+                'gene': bgc_module.gene_id,
+                'a_domain': bgc_module.a_domain_idx,
+                'true_residue': nrp_monomer.residue,
+                'predictions': {residue: float(score)
+                                for residue, score in bgc_module.residue_score.items()},
+                'aa34': bgc_module.aa34_code}
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with open(output_dir / 'match_emissions.yaml', 'w') as match_emissions_file:
+        yaml.dump([emission_dict(emission_info)
+                   for emission_info in data_for_training.match_emissions],
+                  match_emissions_file)
+
 
 # TODO: load paths from config instead of hardcoding them
 def main():
@@ -114,6 +134,8 @@ def main():
     ]
 
     data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training)
+    dump_emissions_training_data(data_for_training, nerpa_dir / 'training_results')
+    substitute_predictions_with_paras(data_for_training)
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')
     edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
     emission_params = infer_emission_params(data_for_training.match_emissions,

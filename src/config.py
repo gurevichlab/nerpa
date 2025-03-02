@@ -1,11 +1,20 @@
 import time
-from typing import Dict, List, Literal, Optional, TYPE_CHECKING
+from typing import (
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    TYPE_CHECKING
+)
 from dataclasses import dataclass
 from pathlib import Path
 import yaml
 import dacite
 from datetime import datetime
 from argparse import Namespace as CommandLineArgs
+import pandas as pd
+from collections import defaultdict
 
 
 @dataclass
@@ -15,6 +24,18 @@ class antiSMASH_Processing_Config:
     MAX_VARIANTS_PER_BGC: int
     MAX_PERMUTATIONS_PER_BGC: int
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
+
+
+def get_aa_codes(aa_codes_tsv: Path) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
+    aa_codes_tsv = pd.read_csv(aa_codes_tsv, sep='\t')
+    aa10_codes = defaultdict(list)
+    aa34_codes = defaultdict(list)
+    for _, row in aa_codes_tsv.iterrows():
+        aa_names = row['predictions_loose'].split('|')
+        for aa_name in aa_names:
+            aa10_codes[aa_name].append(row['aa10'])
+            aa34_codes[aa_name].append(row['aa34'])
+    return aa10_codes, aa34_codes
 
 
 @dataclass
@@ -39,9 +60,9 @@ class SpecificityPredictionConfig:
             setattr(self, k, v)
         self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
-        aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
-        self.KNOWN_AA10_CODES = aa_codes_dict['aa10']
-        self.KNOWN_AA34_CODES = aa_codes_dict['aa34']
+        # aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
+
+        self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures)
 
 
 @dataclass

@@ -59,15 +59,27 @@ def get_residue_scores(a_domain: A_Domain,
         return 1.0 - hamming_distance(aa_code1, aa_code2) / len(aa_code1)
 
     scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
+
+    condensed_aa_codes = {residue: ([], []) for residue in monomer_names_helper.supported_residues}
     for aa_name, aa10_codes in config.KNOWN_AA10_CODES.items():
+        if aa_name == 'oxoDec':
+            pass
         aa34_codes = config.KNOWN_AA34_CODES[aa_name]
-        aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
-                              for known_aa_code in known_aa_codes)
-                          for aa_code, known_aa_codes in [(a_domain.aa10, aa10_codes),
-                                                          (a_domain.aa34, aa34_codes)]]
-        svm_scores = [svm_score(aa_name, a_domain.svm[level])
+        residue = monomer_names_helper.parsed_name(aa_name, 'antismash').residue
+        condensed_aa_codes[residue][0].extend(aa10_codes)
+        condensed_aa_codes[residue][1].extend(aa34_codes)
+
+    for residue, (aa10_codes, aa34_codes) in condensed_aa_codes.items():
+        try:
+            aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
+                                  for known_aa_code in known_aa_codes)
+                              for aa_code, known_aa_codes in [(a_domain.aa10, aa10_codes),
+                                                              (a_domain.aa34, aa34_codes)]]
+        except:
+            pass
+        svm_scores = [svm_score(residue, a_domain.svm[level])
                       for level in SVM_LEVEL]
-        scoring_table.loc[aa_name] = aa_code_scores + svm_scores
+        scoring_table.loc[residue] = aa_code_scores + svm_scores
 
     result = residue_scoring_model(scoring_table)
     return result

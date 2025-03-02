@@ -19,6 +19,7 @@ from src.matching.detailed_hmm import DetailedHMM
 from src.data_types import BGC_Module
 from src.training.training_types import MatchWithBGCNRP
 from src.training.filter_edge_data import SingleFeatureContext, get_filtered_edge_data
+from src.matching.match_type import Match_BGC_Variant_Info
 from itertools import pairwise
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,7 +30,7 @@ import yaml
 @dataclass
 class DataForTraining:
     edge_choices_cnts: Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureContext, ...], Tuple[int, int]]]
-    match_emissions:  List[Tuple[BGC_Module, NRP_Monomer]]  # (module, monomer)
+    match_emissions:  List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]]  # (module, monomer)
     #insert_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
     #insert_at_start_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
 
@@ -38,7 +39,7 @@ class PathTurnInfo:
     chosen_edge_key: EdgeKey
     chosen_edge_info: Tuple[DetailedHMMEdgeType, GenomicContext]
     other_edges_info: List[Tuple[DetailedHMMEdgeType, GenomicContext]]
-    bgc_module_with_emission: Optional[Tuple[BGC_Module, NRP_Monomer]] = None
+    bgc_module_with_emission: Optional[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]] = None
 
 
 def get_turns_info(detailed_hmm: DetailedHMM,
@@ -52,6 +53,10 @@ def get_turns_info(detailed_hmm: DetailedHMM,
     #path = [state_idx for state_idx, _ in path_with_emissions]
     #detailed_hmm.draw(Path(f"{detailed_hmm.bgc_variant.genome_id}.png"),
     #                  highlight_path=path)
+    bgc_info = Match_BGC_Variant_Info(detailed_hmm.bgc_variant.genome_id,
+                                      detailed_hmm.bgc_variant.contig_idx,
+                                      detailed_hmm.bgc_variant.bgc_idx,
+                                      detailed_hmm.bgc_variant.variant_idx)
     num_insertions = 0
     turns_info = []
     for (u, emission), (v, _) in pairwise(path_with_emissions):
@@ -82,7 +87,7 @@ def get_turns_info(detailed_hmm: DetailedHMM,
                 module_idx = len(detailed_hmm.bgc_variant.modules) - 1
 
             bgc_module = detailed_hmm.bgc_variant.modules[module_idx]
-            module_with_emission = (bgc_module, emission)
+            module_with_emission = (bgc_info, bgc_module, emission)
         else:
             module_with_emission = None
 
