@@ -84,7 +84,7 @@ def plot_step_function(score_correctness_bins: List[Tuple[int, int]],
     bin_fractions = [0 if not num_true else num_true / (num_true + num_false)
                      for num_false, num_true in score_correctness_bins]
     plt.bar(bin_centers, bin_fractions, align='center', width=bin_size)
-    plt.plot(bin_centers, step_function, color='red')
+    #plt.plot(bin_centers, step_function, color='red')
     if show:
         plt.show()
     if out_file is not None:
@@ -105,10 +105,13 @@ def plot_step_function_stacked(score_correctness_bins: List[Tuple[int, int]],
     num_false = [num_false for num_false, num_true in score_correctness_bins]
     num_true = [num_true for num_false, num_true in score_correctness_bins]
 
-    plt.bar(bin_centers, num_false, align='center', width=bin_size, color='orange', label='Incorrect')
-    plt.bar(bin_centers, num_true, align='center', width=bin_size, bottom=num_false, color='blue', label='Correct')
+    plt.bar(bin_centers, num_true, align='center', width=bin_size, color='blue', label='Correct')
+    plt.bar(bin_centers, num_false, align='center', width=bin_size, bottom=num_true, color='orange', label='Incorrect')
 
-    plt.plot(bin_centers, step_function, color='red', label='Step Function')
+    # q: set log scale
+    #plt.yscale('log')
+    #plt.ylim(bottom=1e-10)
+   # plt.plot(bin_centers, step_function, color='red', label='Step Function')
 
     plt.legend()
 
@@ -127,7 +130,10 @@ def fit_step_function(score_correctness: List[Tuple[LogProb, bool]],
     score_correctness_bins = create_bins(score_correctness, num_bins)
     step_function = fit_step_function_to_bins(score_correctness_bins, step_range)
     print('Plotting...')
-    plot_step_function(score_correctness_bins, step_function)
+    plot_step_function(score_correctness_bins, step_function,
+                       out_file=Path('step_function.png'))
+    plot_step_function_stacked(score_correctness_bins, step_function,
+                               out_file=Path('step_function_stacked.png'))
     return step_function
 
 

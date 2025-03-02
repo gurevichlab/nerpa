@@ -1,9 +1,14 @@
 from typing import Dict, List, NamedTuple, Tuple, Optional
 from collections import Counter, defaultdict
-from src.training.step_function import create_bins, fit_step_function_to_bins, plot_step_function
+from src.training.step_function import (
+    create_bins,
+    fit_step_function_to_bins,
+    plot_step_function,
+    plot_step_function_stacked
+)
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer
 from src.data_types import LogProb, ModuleLocFeature, ModuleLocFeatures
-from src.matching.match_type import Match
+from src.matching.match_type import Match_BGC_Variant_Info
 from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
@@ -24,8 +29,27 @@ class BGC_Module_Info(NamedTuple):
     aa34: str
     residue_score: Dict[MonomerResidue, LogProb]
 
+    def to_dict(self) -> dict:
+        return {'genome_id': self.genome_id,
+                'gene_id': self.gene_id,
+                'a_domain_idx': self.a_domain_idx,
+                'aa34': self.aa34,
+                'residue_score': {residue: score
+                                  for residue, score in self.residue_score.items()}
+                }
 
-def _get_score_correctness(emissions: List[Tuple[BGC_Module, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
+    @classmethod
+    def from_dict(cls, data: dict) -> 'BGC_Module_Info':
+        return cls(genome_id=data['genome_id'],
+                   gene_id=data['gene_id'],
+                   a_domain_idx=data['a_domain_idx'],
+                   aa34=data['aa34'],
+                   residue_score={MonomerResidue(residue): score
+                                  for residue, score in data['residue_score'].items()})
+
+
+
+def _get_score_correctness(emissions: List[Tuple[BGC_Module_Info, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
     score_correcntess = []
     for bgc_module, nrp_monomer in emissions:
         for predicted_residue, score in bgc_module.residue_score.items():
@@ -34,23 +58,28 @@ def _get_score_correctness(emissions: List[Tuple[BGC_Module, NRP_Monomer]]) -> L
     return score_correcntess
 
 
-def get_score_correctness(emissions: List[Tuple[BGC_Module, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
-    score_correcntess = []
-    for bgc_module, nrp_monomer in emissions:
-        for predicted_residue, score in bgc_module.residue_score.items():
-            score_correcntess.append((score, predicted_residue == nrp_monomer.residue))
-            # TODO: check that PKS-hybrids are handled correctly
-    return score_correcntess
+def get_score_correctness(emissions: List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
+    emissions_ = [(BGC_Module_Info(genome_id=bgc_info.genome_id,
+                                   gene_id=bgc_module.gene_id,
+                                   a_domain_idx=bgc_module.a_domain_idx,
+                                   aa34=bgc_module.aa34_code,
+                                   residue_score=bgc_module.residue_score),
+                   nrp_monomer)
+                  for bgc_info, bgc_module, nrp_monomer in emissions]
+    return _get_score_correctness(emissions_)
 
 
-def fit_step_function(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
+def fit_step_function(emissions: List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]],
                       num_bins: int,
                       step_range: int,
                       output_dir: Path) -> List[float]:
     score_correctness = get_score_correctness(emissions)
     score_correctness_bins = create_bins(score_correctness, num_bins)
     step_function = fit_step_function_to_bins(score_correctness_bins, step_range)
-    plot_step_function(score_correctness_bins, step_function, output_dir)
+    plot_step_function(score_correctness_bins, step_function,
+                       out_file=output_dir / Path('step_function.png'))
+    plot_step_function_stacked(score_correctness_bins, step_function,
+                               out_file=output_dir / Path('step_function_stacked.png'))
     return step_function
 
 
@@ -101,16 +130,18 @@ def get_modifications_scores(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
             for nrp in (True, False)}
 
 
-def infer_emission_params(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
+def infer_emission_params(emissions: List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]],
                           norine_stats: NorineStats,
                           output_dir: Path) -> Tuple[List[float], Dict[str, float]]:
     results = {}
     print('Building step function...')
-    results['step_function'] = fit_step_function(emissions, 100, 1000,
+    results['step_function'] = fit_step_function(emissions, 20, 1000,
                                                  output_dir)  # TODO: put in config
     print('Calculating modifications frequencies...')
     default_freqs = {'METHYLATION': norine_stats.methylated / norine_stats.total_monomers,
                      'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
-    results['modifications_scores'] = get_modifications_scores(emissions, default_freqs)
+
+    emissions_ = [(bgc_module, nrp_monomer) for bgc_info, bgc_module, nrp_monomer in emissions]
+    results['modifications_scores'] = get_modifications_scores(emissions_, default_freqs)
 
     return results['step_function'], results['modifications_scores']

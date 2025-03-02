@@ -31,10 +31,11 @@ class ModelWrapper(object):
         scores = pd.Series(0, index=scoring_table.index, dtype=float)
         
         # Filter rows with no match in the lookup table
-        mask_predict = (1 - scoring_table[self.lookup_col]).abs() > self.lookup_threshold
+        # WITH LOOKUP: mask_predict = (1 - scoring_table[self.lookup_col]).abs() > self.lookup_threshold
 
         # Get predictions from the model keeping only the pos class prediction
-        scores.loc[mask_predict] = self.model.predict_log_proba(scoring_table.loc[mask_predict])[:,1]
+        # WITH LOOKUP: scores.loc[mask_predict] = self.model.predict_log_proba(scoring_table.loc[mask_predict])[:,1]
+        scores[:] = self.model.predict_log_proba(scoring_table)[:,1]
 
         # Convert to ResidueScores=Dict[str, float] and return
         return scores.to_dict()
