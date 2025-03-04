@@ -1,9 +1,22 @@
-from typing import Generator, Iterable, List, Tuple, TypeVar
-from itertools import combinations, chain, combinations_with_replacement
+from typing import (
+    Callable,
+    Generator,
+    Iterable,
+    List,
+    Tuple,
+    TypeVar
+)
+from itertools import (
+    combinations,
+    chain,
+    combinations_with_replacement,
+    groupby
+)
 from collections import Counter
 
 
 T = TypeVar('T')
+U = TypeVar('U')
 
 
 def permutations_no_consecutive(n: int) -> Iterable[List[int]]:
@@ -141,3 +154,9 @@ def filter_unique(xs: Iterable[T]) -> Iterable[T]:
         if x not in seen:
             seen.add(x)
             yield x
+
+
+def sort_groupby(items: Iterable[T],
+                 key: Callable[[T], U],
+                 reverse: bool=False) -> Iterable[Tuple[U, Iterable[T]]]:
+    return groupby(sorted(items, key=key, reverse=reverse), key=key)

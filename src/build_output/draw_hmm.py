@@ -92,7 +92,7 @@ def draw_hmm(hmm: DetailedHMM,
     path_edges = list(pairwise(highlight_path)) \
         if highlight_path is not None else []
     # Add actual edges between nodes
-    for from_idx, edges_dict in hmm.adj_list.items():
+    for from_idx, edges_dict in hmm.transitions.items():
         for to_idx, edge in edges_dict.items():
             edge_args = {
                 'tail_name': str(from_idx),

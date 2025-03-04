@@ -15,24 +15,27 @@ from src.antismash_parsing.location_features import (
     GeneLocFeatures,
     BGC_Fragment_Loc_Features
 )
-from src.data_types import NRP_Monomer
-from src.monomer_names_helper import enum_representer
+from src.data_types import NRP_Monomer, LogProb
+from src.monomer_names_helper import enum_representer, MonCode
 from src.matching.match_type import Match_BGC_Variant_Info
 import yaml
 
+
+StateIdx = int
+
 class HMM(NamedTuple):
     bgc_info: Match_BGC_Variant_Info
-    adj_list: List[List[Tuple[int, float]]]  # u -> [(v, log_prob(u -> v))]
-    emission_log_probs: List[List[float]]  # u -> [log_prob(u -> emission)]
-    module_start_states: List[int]
-    module_match_states: List[int]
+    transitions: List[List[Tuple[StateIdx, LogProb]]]  # u -> [(v, log_prob(u -> v))]
+    emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
+    module_start_states: List[StateIdx]
+    module_match_states: List[StateIdx]
 
     # TODO: fix the discrepancy in naming: adj_list vs transitions, emission_log_probs vs emissions
     def to_json(self):
         return {
             'bgc_info': self.bgc_info._asdict(),
-            'transitions': self.adj_list,
-            'emissions': self.emission_log_probs,
+            'transitions': self.transitions,
+            'emissions': self.emissions,
             'module_start_states': self.module_start_states,
             'module_match_states': self.module_match_states
         }
@@ -55,11 +58,16 @@ class DetailedHMMStateType(Enum):
 
     FINAL = auto()
 
+    def is_emitting(self) -> bool:
+        return self in {DetailedHMMStateType.MATCH,
+                        DetailedHMMStateType.INSERT,
+                        DetailedHMMStateType.INSERT_AT_START}
+
 
 @dataclass
 class DetailedHMMState:
     state_type: DetailedHMMStateType
-    emissions: Dict[NRP_Monomer, float]
+    emissions: Dict[NRP_Monomer, LogProb]
 
 
 # TODO: I don't like these "CONTINUE" states,
@@ -98,7 +106,7 @@ EdgeKey = tuple
 
 class DetailedHMMEdge(NamedTuple):
     edge_type: DetailedHMMEdgeType
-    log_prob: float
+    weight: LogProb
     # edges have different weights, depending on the type and the context
     genomic_context: Optional[GenomicContext]
     # edge_key is used in parameter estimation to not count the same edge multiple times when it's used for different NRP compounds and the same BCG
