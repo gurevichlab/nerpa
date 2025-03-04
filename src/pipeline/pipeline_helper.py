@@ -89,7 +89,9 @@ class PipelineHelper:
 
     @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
-        return self.pipeline_helper_antismash.get_bgc_variants()
+        external_specificity_predictions = get_paras_results(self.args.paras_input) \
+            if self.args.paras_input is not None else None
+        return self.pipeline_helper_antismash.get_bgc_variants(external_specificity_predictions)
 
     @timing_decorator
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
