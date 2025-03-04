@@ -120,8 +120,15 @@ class PipelineHelper:
         #for i, hmm in enumerate(hmms):
         #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
-        hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
-        return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+        if self.args.fast_matching:
+            hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
+            return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+        else:
+            return get_matches(hmms,
+                               nrp_linearizations,
+                               self.config.matching_config,
+                               self.args.threads,
+                               self.log)
 
     def write_results(self,
                       matches: List[Match],

@@ -89,3 +89,8 @@ def get_nrp_linearizations(nrp_variant: NRP_Variant) -> NRP_Linearizations:
 
 def get_all_nrp_linearizations(nrp_variants: List[NRP_Variant]) -> List[NRP_Linearizations]:
     return [get_nrp_linearizations(nrp_variant) for nrp_variant in nrp_variants]
+
+
+def num_linearizations(nrp_linearizations: NRP_Linearizations) -> int:
+    return len(nrp_linearizations.non_iterative) + sum(len(group_linearizations)
+                                                       for group_linearizations in nrp_linearizations.iterative)

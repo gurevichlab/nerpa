@@ -38,7 +38,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                            for step in match_steps]
 
     module_match_state_idxs = [next(edge_to
-                                    for edge_to in hmm.adj_list[hmm._module_idx_to_state_idx[module_idx]]
+                                    for edge_to in hmm.transitions[hmm._module_idx_to_state_idx[module_idx]]
                                     if hmm.states[edge_to].state_type == DetailedHMMStateType.MATCH)
                                for module_idx in range(len(hmm.bgc_variant.modules))]
 
@@ -84,12 +84,12 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
         sub_hmm = deepcopy(hmm)
         for state_idx, state in enumerate(sub_hmm.states):
             if state.state_type == DetailedHMMStateType.MATCH and state_idx != start:
-                sub_hmm.adj_list[state_idx] = {}  # by design there shouldn't be any matches in between so I make match states "deadends"
+                sub_hmm.transitions[state_idx] = {}  # by design there shouldn't be any matches in between so I make match states "deadends"
             # essentially, there's only one path between start and finish.
             # However, I need to make sure that the path skips the whole fragments or genes instead of individual modules
             # and chooses SKIP_FRAGMENT_AT_START/END instead of just SKIP_FRAGMENT when possible
             # that's why I assign these edge weights. Yes, dirty hacks :sweat_smile:
-            for edge_to, edge_info in sub_hmm.adj_list[state_idx].items():
+            for edge_to, edge_info in sub_hmm.transitions[state_idx].items():
                 match edge_info.edge_type:
                     case DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START | DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END:
                         log_prob = 0
@@ -101,7 +101,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                         log_prob = -3
                     case _:
                         log_prob = 0
-                sub_hmm.adj_list[state_idx][edge_to] = sub_hmm.adj_list[state_idx][edge_to]._replace(log_prob=log_prob)
+                sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(log_prob=log_prob)
         # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
         path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
 

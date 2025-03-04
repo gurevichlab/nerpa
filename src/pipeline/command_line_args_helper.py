@@ -85,10 +85,14 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                action="store")
     #configs_group.add_argument("--heuristic-discard", default=False,
     #                           help="immediately discard bad matches based on heuristics", action="store_true")
-    configs_group.add_argument("--skip-molecule-drawing", dest="dont_draw_molecules",
+    configs_group.add_argument("--skip-molecule-drawing",
                                action="store_true", default=False,
                                help="do not draw NRP molecules and monomer graphs "
-                                    "(faster but they will be missing in the HTML report)")
+                                    "(faster and saves space but they will be missing in the HTML report)")
+
+    configs_group.add_argument("--fast-matching",
+                               action="store_true", default=False,
+                               help="use C++ executable to perform matching (requires compilation)")
 
     # configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
     #                            help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")

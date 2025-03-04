@@ -108,6 +108,7 @@ class MatchingConfig:
     max_num_matches_per_bgc: int
     max_num_matches_per_nrp: int  # 0 means no limit
     max_num_matches: int
+    checkpoints_heuristic: bool
 
     def __init__(self,
                  cfg_dict: dict,
@@ -123,6 +124,8 @@ class MatchingConfig:
             self.max_num_matches_per_nrp = args.max_num_matches_per_nrp
         if args.max_num_matches is not None:
             self.max_num_matches = args.max_num_matches
+        if args.fast_matching is not None:
+            self.checkpoints_heuristic = args.fast_matching
 
 
 @dataclass
@@ -157,8 +160,8 @@ class OutputConfig:
                                                      main_out_dir)
         self.cpp_io_config = CppIOConfig(output_cfg_dict['cpp_io_config'],
                                          main_out_dir)
-        if args is not None and args.dont_draw_molecules is not None:
-            self.draw_molecules = not args.dont_draw_molecules
+        if args is not None and args.skip_molecule_drawing is not None:
+            self.draw_molecules = not args.skip_molecule_drawing
         else:
             self.draw_molecules = True
 
