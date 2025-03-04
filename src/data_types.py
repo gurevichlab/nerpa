@@ -27,6 +27,8 @@ import yaml
 Logger = Any  # some magical logger used throughout the pipeline
 
 SMILES = str
+AA34 = str  # 34-letter code
+AA10 = str  # 10-letter Stachelhaus code
 LogProb = float
 ResidueScores = Dict[MonomerResidue, LogProb]
 
