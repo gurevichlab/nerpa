@@ -5,6 +5,9 @@ from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper
 import pandas as pd
 from math import log
 from Bio import SeqIO
+import json
+
+from src.pipeline.logger import NerpaLogger
 
 PARAS_RESIDUE = str
 
@@ -25,6 +28,16 @@ def paras_residue_to_nerpa_residue(residue: PARAS_RESIDUE,
                         for row in monomer_names_helper.names_table
                         if paras_name_core in row['long'])
         return monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
+
+
+def extract_paras_results_json(paras_results_json: Path) -> Dict[AA34, Dict[PARAS_RESIDUE, Prob]]:
+    predictions_per_aa34 = {}
+    for domain_predictions in json.load(paras_results_json.open()):
+        aa34 = domain_predictions['extended_signature']
+        predictions_per_aa34[aa34] = {prediction['substrate_name']: prediction['probability']
+                                      for prediction in domain_predictions['predictions']}
+
+    return predictions_per_aa34
 
 
 def extract_paras_results(paras_predictions: Path,
@@ -66,16 +79,30 @@ def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE
 
 
 def get_paras_results_all(paras_results: Path,
-                          monomer_names_helper: MonomerNamesHelper) -> Dict[AA34, Dict[MonomerResidue, LogProb]]:
+                          monomer_names_helper: MonomerNamesHelper,
+                          log: NerpaLogger) -> Dict[AA34, Dict[MonomerResidue, LogProb]]:
+    log.info("Extracting PARAS results...")
     combined_results = {}
 
     for folder in paras_results.rglob("*"):
         if folder.is_dir():
+            for results_json in filter(lambda f: f.ext == ".json", folder.iterdir()):
+                try:
+                    paras_results = extract_paras_results_json(results_json)
+                except:
+                    log.error(f"Error extracting PARAS results from {results_json}")
+                    continue
+                combined_results.update(paras_results)
+
             fasta_file = folder / "run_extended_signatures.fasta"
             results_file = folder / "run_paras_results.txt"
 
             if fasta_file.exists() and results_file.exists():
-                paras_results = extract_paras_results(results_file, fasta_file)
+                try:
+                    paras_results = extract_paras_results(results_file, fasta_file)
+                except:
+                    log.error(f"Error extracting PARAS results from {results_file} and {fasta_file}")
+                    continue
                 combined_results.update(paras_results)
 
     parsed_results = {}
@@ -83,4 +110,3 @@ def get_paras_results_all(paras_results: Path,
         parsed_results[aa34] = paras_predictions_to_nerpa_predictions(paras_predictions, monomer_names_helper)
 
     return parsed_results
-

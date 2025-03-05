@@ -1,3 +1,6 @@
+ENABLE_DICTIONARY_LOOKUP: True  # use dictionary lookup for known aa34 codes
+ENABLE_CALIBRATION: True  # should be set to True unless for debugging
+
 specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
 a_domains_signatures: data/signatures.tsv
 aa_codes: configs/aa_codes.yaml
@@ -10,7 +13,7 @@ SCORING_TABLE_INDEX: substrate
 SCORING_TABLE_COLUMNS: [substrate, aa10_score, aa34_score, svm_single_amino_score,
     svm_small_cluster_score, svm_large_cluster_score, svm_physiochemical_class_score]
 
-apriori_residue_prob:
+APRIORI_RESIDUE_PROB:
     {unknown: 0.21505657093124456, Trp: 0.014969538729329853,
     Asn: 0.02114882506527415, Asp: 0.03080939947780679, Thr: 0.028807658833768495,
     Gly: 0.03524804177545692, Orn: 0.018711923411662314, Ala: 0.07476066144473455,
@@ -26,7 +29,8 @@ apriori_residue_prob:
     Bza: 0.0013054830287206266, Lac: 0.0039164490861618795, oxoDec: 0.00017406440382941688,
     Dpr: 0.003394255874673629, bLys: 0.0005221932114882506, dHpg: 0.004090513489991297,
     Iva: 0.003394255874673629}
-calibration_step_function_steps:
+
+CALIBRATION_STEP_FUNCTION_STEPS_NERPA:
     [0.001, 0.002, 0.002, 0.002, 0.007, 0.007, 0.012,
     0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012,
     0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.012, 0.032,
@@ -36,4 +40,7 @@ calibration_step_function_steps:
     0.273, 0.273, 0.273, 0.273, 0.333, 0.333, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
     0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.703, 0.703, 0.703, 0.703,
     0.703, 0.703, 0.703, 0.703, 0.703]
-pseudo_count_fraction: 0.1
+
+CALIBRATION_STEP_FUNCTION_STEPS_PARAS: [1.0]
+
+PSEUDO_COUNT_FRACTION: 0.1

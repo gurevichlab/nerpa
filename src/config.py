@@ -28,9 +28,13 @@ class SpecificityPredictionConfig:
     SVM_NO_PREDICTION_SCORE: float
     SCORING_TABLE_INDEX: str
     SCORING_TABLE_COLUMNS: List[str]
-    apriori_residue_prob: Dict[str, float]
-    calibration_step_function_steps: List[float]
-    pseudo_count_fraction: float
+    APRIORI_RESIDUE_PROB: Dict[str, float]
+    CALIBRATION_STEP_FUNCTION_STEPS_NERPA: List[float]
+    CALIBRATION_STEP_FUNCTION_STEPS_PARAS: List[float]
+    PSEUDO_COUNT_FRACTION: float
+
+    ENABLE_DICTIONARY_LOOKUP: bool  # if True, use the dictionary lookup for known aa34 codes
+    ENABLE_CALIBRATION: bool
 
     def __init__(self,
                  nerpa_dir: Path,
@@ -60,19 +64,16 @@ class rBAN_Config:
 class rBAN_Output_Config:
     default_monomers_file: Path
     default_input_file: Path
-    default_output_file_name: str  # I have name instead of file due to rBAN quirks
+    default_output_file: Path
     putative_hybrids_input_file: Path
-    putative_hybrids_output_file_name: str
+    putative_hybrids_output_file: Path
     rban_output_dir: Path
 
     def __init__(self,
                  rban_output_cfg_dict: dict,
                  main_out_dir: Path):
         for k, v in rban_output_cfg_dict.items():
-            if not k.endswith('name'):
-                setattr(self, k, main_out_dir / Path(v))
-        self.default_output_file_name = rban_output_cfg_dict['default_output_file_name']
-        self.putative_hybrids_output_file_name = rban_output_cfg_dict['putative_hybrids_output_file_name']
+            setattr(self, k, main_out_dir / Path(v))
 
 
 @dataclass
