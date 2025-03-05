@@ -36,11 +36,10 @@ import src.write_results as report
 import shutil
 import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
+from src.pipeline.paras_helper import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
 from pathlib import Path
-
-
 
 class PipelineHelper:
     config: Config
@@ -89,7 +88,11 @@ class PipelineHelper:
 
     @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
-        return self.pipeline_helper_antismash.get_bgc_variants()
+        external_specificity_predictions = get_paras_results_all(self.args.paras_input,
+                                                                 self.monomer_names_helper,
+                                                                 self.log) \
+            if self.args.paras_input is not None else None
+        return self.pipeline_helper_antismash.get_bgc_variants(external_specificity_predictions)
 
     @timing_decorator
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
@@ -120,8 +123,15 @@ class PipelineHelper:
         #for i, hmm in enumerate(hmms):
         #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
-        hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
-        return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+        if self.args.fast_matching:
+            hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
+            return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+        else:
+            return get_matches(hmms,
+                               nrp_linearizations,
+                               self.config.matching_config,
+                               self.args.threads,
+                               self.log)
 
     def write_results(self,
                       matches: List[Match],

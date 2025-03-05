@@ -6,101 +6,106 @@ from io import StringIO
 import csv
 
 def add_genomic_arguments(parser: argparse.ArgumentParser):
-    genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms (i.e. BGC predictions)')
-    genomic_group.add_argument("--antismash_outpaths_file", dest="antismash_outpaths_file",
-                               help="file with list of paths to antiSMASH output directories", type=Path)
+    genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms or BGC predictions')
     genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append', type=Path,
-                               help="single antiSMASH output directory or directory with many antiSMASH outputs")
-    genomic_group.add_argument("--antismash-job-ids", dest="antismash_job_ids", nargs='*',
-                               help="job IDs for antiSMASH results to download", type=str)
-    genomic_group.add_argument("--sequences", dest="seqs",
-                               help="GenBank/EMBL/FASTA file containing DNA sequences", type=Path)
+                               metavar='DIR',
+                               help="single antiSMASH output directory or directory with many antiSMASH outputs inside")
+    genomic_group.add_argument("--antismash-paths-file", dest="antismash_outpaths_file", metavar='FILE',
+                               help="file with list of paths to antiSMASH output directories", type=Path)
+    genomic_group.add_argument("--antismash-job-ids", dest="antismash_job_ids", nargs='*', metavar='STR',
+                               help="space-separated job IDs to download from the antiSMASH webserver", type=str)
+    genomic_group.add_argument("--genome", dest="seqs", action='append', metavar='FILE',
+                               help="genome sequence in the GenBank/EMBL/FASTA format", type=Path)
 
 
 def add_struct_arguments(parser: argparse.ArgumentParser):
     struct_group = parser.add_argument_group('Chemical input', 'Structures of NRP molecules')
     struct_input_group = struct_group.add_mutually_exclusive_group()
-    struct_input_group.add_argument("--rban-json", dest="rban_output",
-                                    help="json file with rBAN-preprocessed NRP structures", type=Path)
-    struct_input_group.add_argument("--smiles", dest="smiles", nargs='*',
-                                    help="string (or several strings) with structures in the SMILES format", type=str)
-    struct_input_group.add_argument("--smiles-tsv", dest="smiles_tsv",
-                                    help="multi-column file containing structures in the SMILES format", type=Path)
-    struct_group.add_argument("--col-smiles", dest="col_smiles",
-                              help="column name in smiles-tsv for structures in the SMILES format [default: 'SMILES']",
+    struct_input_group.add_argument("--smiles", dest="smiles", nargs='*', metavar='STR',
+                                    help="space-separated structures in the SMILES format", type=str)
+    struct_input_group.add_argument("--smiles-tsv", dest="smiles_tsv", metavar='FILE',
+                                    help="multi-column file with structures in the SMILES format and metadata", type=Path)
+    struct_group.add_argument("--col-smiles", dest="col_smiles", metavar='STR',
+                              help="column name in smiles-tsv for structures in the SMILES format [default: '%(default)s']",
                               type=str, default='SMILES')
-    struct_group.add_argument("--col-id", dest="col_id",
-                              help="column name in smiles-tsv for structure identifier (if not provided, row index will be used)",
+    struct_group.add_argument("--col-id", dest="col_id", metavar='STR',
+                              help="column name in smiles-tsv for structure identifier [if not provided, row index will be used]",
                               type=str)
-    struct_group.add_argument("--sep", dest="sep",
-                              help="column separator in smiles-tsv", type=str, default='\t')
-
+    struct_group.add_argument("--sep", dest="sep", metavar='CHAR',
+                              help="column separator in smiles-tsv [default: '\\t']", type=str, default='\t')
+    struct_input_group.add_argument("--rban-json", dest="rban_output", metavar='FILE',
+                                    help="rBAN-preprocessed NRP structures in the JSON file", type=Path)
 
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
-                                                     'Preprocessed BGC predictions and NRP structures '
+                                                     'Preprocessed data '
                                                      'in custom Nerpa-compliant formats')
-    advanced_input_group.add_argument("--bgc-variants", "-b", dest="bgc_variants",
-                                      help="Folder with predicted BGC variants (yaml files)", type=Path)
-    advanced_input_group.add_argument("--nrp-variants", "-s", dest="nrp_variants",
-                                      help="Folder with predicted NRP variants (yaml files)", type=Path)
-    advanced_input_group.add_argument("--configs_dir", help="custom directory with adjusted Nerpa configs", action="store",
-                                      type=Path)
-    advanced_input_group.add_argument("--force-existing-outdir", dest="output_dir_reuse", action="store_true",
-                                      default=False,
-                                      help="don't crash if the output dir already exists")
-    #configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
-    #                           help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
-    advanced_input_group.add_argument("--debug", action="store_true", default=False,
-                                      help="run in the debug mode (keep intermediate files)")
+    advanced_input_group.add_argument("--bgc-variants", dest="bgc_variants", metavar='DIR',
+                                      help="directory with predicted BGC variants (yaml files)", type=Path)
+    advanced_input_group.add_argument("--nrp-variants", dest="nrp_variants", metavar='DIR',
+                                      help="directory with predicted NRP variants (yaml files)", type=Path)
+    advanced_input_group.add_argument("--configs-dir", help="custom directory with Nerpa configs",
+                                      metavar='DIR', action="store", type=Path)
+    advanced_input_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,
+                                      metavar='FILE', help='file with custom monomers in rBAN compatible format')
 
 
-def add_config_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
-    configs_group = parser.add_argument_group('Nerpa config',
+def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
+    configs_group = parser.add_argument_group('Nerpa pipeline',
                                               'Nerpa running configuration')
-    configs_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,
-                        help='file with custom monomers in rBAN compatible format')
+
+    configs_group.add_argument("--output-dir", "-o", type=Path, metavar='DIR',
+                               help="output directory "
+                                    f"[default: {default_cfg.output_config.main_out_dir.parent}/" "{CURRENT_TIME}]")
+    configs_group.add_argument("--force-output-dir", dest="output_dir_reuse", action="store_true",
+                               help="do not crash if the output directory already exists and rewrite its content")
+
+    configs_group.add_argument("--threads", "-t", default=1, type=int, metavar='INT',
+                               help="number of threads for running Nerpa [default: %(default)s]", action="store")
+
     configs_group.add_argument("--process-hybrids", dest="process_hybrids", action="store_true", default=False,
-                        help="process NRP-PK hybrid monomers (requires use of rBAN)")
-    configs_group.add_argument("--threads", default=1, type=int,
-                               help="number of threads for running Nerpa", action="store")
-    configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int,
-                               help="maximum number of matches to report per BGC. "
-                                    f"By default {default_cfg.matching_config.max_num_matches_per_bgc}",
+                               help="process NRP-PK hybrid monomers (requires the use of rBAN)")
+
+    configs_group.add_argument("--antismash-installation-dir", dest="antismash_path", type=Path,
+                               default=None, metavar='DIR',
+                               help="path to the antiSMASH installation directory, i.e., the one containing the "
+                                    "'run_antismash.py' script")
+
+    configs_group.add_argument("--max-num-matches-per-bgc", default=None, type=int, metavar='INT',
+                               help="maximum number of matches to report per BGC; set 0 for unlimited "
+                                    f"[default: {default_cfg.matching_config.max_num_matches_per_bgc}]",
                                action="store")
-    configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int,
-                               help="maximum number of matches to report per NRP. "
-                                    f"By default {default_cfg.matching_config.max_num_matches_per_nrp}",
+    configs_group.add_argument("--max-num-matches-per-nrp", default=None, type=int, metavar='INT',
+                               help="maximum number of matches to report per NRP; set 0 for unlimited "
+                                    f"[default: {default_cfg.matching_config.max_num_matches_per_nrp}]",
                                action="store")
-    configs_group.add_argument("--max-num-matches", default=None, type=int,
-                               help="maximum number of matches to report in total. "
-                                    f"By default {default_cfg.matching_config.max_num_matches}",
+    configs_group.add_argument("--max-num-matches", default=None, type=int, metavar='INT',
+                               help="maximum number of matches to report in total; set 0 for unlimited "
+                                    f"[default: {default_cfg.matching_config.max_num_matches}]",
                                action="store")
     #configs_group.add_argument("--heuristic-discard", default=False,
     #                           help="immediately discard bad matches based on heuristics", action="store_true")
-    configs_group.add_argument("--dont-draw-molecules", action="store_true", default=False,
-                               help="do not draw NRP molecule and monomer graps (they will not appear in the report)")
+    configs_group.add_argument("--skip-molecule-drawing",
+                               action="store_true", default=False,
+                               help="do not draw NRP molecules and monomer graphs "
+                                    "(faster and saves space but they will be missing in the HTML report)")
 
+    configs_group.add_argument("--fast-matching",
+                               action="store_true", default=False,
+                               help="use C++ executable to perform matching (requires compilation)")
 
-def add_external_tools_args(parser: argparse.ArgumentParser):
-    parser.add_argument('--antismash-path', dest='antismash_path', type=Path, default=None,
-                        help='path to antismash source directory')
+    # configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
+    #                            help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
+    configs_group.add_argument("--debug", action="store_true", default=False,
+                               help="run in the debug mode and keep all intermediate files")
 
 
 def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
     add_genomic_arguments(parser)
     add_struct_arguments(parser)
-    add_external_tools_args(parser)
     add_advanced_arguments(parser)
-    add_config_arguments(parser, default_cfg)
-
-    default_out_dir = default_cfg.output_config.main_out_dir.parent
-    # q: default_out_dir has format '.../results_%Y-%m-%d_%H-%M-%S', but we want '.../results'
-    parser.add_argument("--output_dir", "-o",
-                        help="output directory. "
-                             f"If not provided, results will be saved in {default_out_dir}/" "{CURRENT_TIME}",
-                        type=Path)
+    add_pipeline_arguments(parser, default_cfg)
     return parser
 
 
@@ -139,23 +144,20 @@ def validate_arguments(args):  # TODO: I think it all could be done with built-i
     if not any([args.bgc_variants,
                 args.antismash,
                 args.antismash_outpaths_file,
+                args.antismash_job_ids,
                 args.seqs]):
-        raise ValidationError(f'one of the arguments --predictions --antismash/-a --antismash_output_list '
-                              f'--sequences is required')
-    if args.bgc_variants and (args.antismash or args.antismash_outpaths_file or args.seqs):
+        raise ValidationError(f'at least one genome/BGC input is required')
+    if args.bgc_variants and (args.antismash or args.antismash_outpaths_file or args.antismash_job_ids or args.seqs):
         # TODO: what's wrong with having both?
-        raise ValidationError(f'argument --predictions: not allowed with argument --antismash/-a '
-                              f'or --antismash_output_list or --sequences')
+        raise ValidationError(f'argument --bgc-variants is not compatible with other genome/BGC input options')
     if not any([args.nrp_variants,
                 args.smiles,
                 args.smiles_tsv,
                 args.rban_output]):
-        raise ValidationError(f'one of the arguments --rban-json --smiles-tsv --smiles --structures/-s'
-                              f'is required')
+        raise ValidationError(f'at least one NRP structure input is required')
     if args.nrp_variants and (args.smiles or args.smiles_tsv or args.rban_output):
         # TODO: what's wrong with having both?
-        raise ValidationError('argument --structures/-s: not allowed with argument --rban-json or --smiles '
-                              'or --smiles-tsv')
+        raise ValidationError('argument --nrp-variants is not compatible with other NRP input options')
     if args.smiles_tsv:
         try:
             with open(args.smiles_tsv, newline='') as f_in:

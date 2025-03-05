@@ -1,82 +1,78 @@
-from typing import List, Tuple, NamedTuple
+from typing import List, Tuple, Optional
 from src.data_types import LogProb
-from src.matching.hmm_auxiliary_types import HMM
+from src.matching.hmm_auxiliary_types import HMM, StateIdx
+from src.monomer_names_helper import MonCode
 from src.data_types import LogProb
+import numpy as np
 from math import log
 
 
-def get_opt_path_with_emissions(hmm: HMM,
-                                initial_state: int,
-                                final_state: int,
-                                observed_sequence: List[int]) -> Tuple[LogProb, List[Tuple[int, int]]]:
-    n = len(observed_sequence)  # length of the sequence
-    m = len(hmm.adj_list)  # number of states
+# checkpoint: (state, symbol_count) means that
+# at state `state` the symbol observed_sequence[symbol_count] was emitted
+def get_opt_path_with_score(hmm: HMM,
+                            observed_sequence: List[MonCode],
+                            checkpoints: Optional[List[Tuple[StateIdx, int]]] = None) -> Tuple[LogProb, List[StateIdx]]:
+    seq_len = len(observed_sequence)
+    num_states = len(hmm.transitions)
 
-    q = [(initial_state, 0, 0)]  # (state, num symbols, log probability)
-    dp = [[float('-inf')] * (n + 1)
-          for _ in range(m)]  # dp[u][i] = max log probability for a path of ending in state u with i symbols processed
-    prev = [[-1] * (n + 1) for _ in range(m)]  # prev[u][i] = previous state of state u if i symbols have been processed
+    if checkpoints is None:
+        checkpoints = [(0, 0), (num_states - 1, seq_len)]
 
-    while q:
-        u, i, log_prob = q.pop(0)
-        if i == n and hmm.emission_log_probs[u]:  # if u should emit a symbol but we have processed all symbols
-            continue
-        for v, edge_log_prob in hmm.adj_list[u]:
-            if hmm.emission_log_probs[u]:  # if u emits a symbol
-                new_log_prob = log_prob + edge_log_prob + hmm.emission_log_probs[u][observed_sequence[i]]
-                num_symbols = i + 1
-            else:
-                new_log_prob = log_prob + edge_log_prob
-                num_symbols = i
-            if new_log_prob > dp[v][num_symbols]:
-                dp[v][num_symbols] = new_log_prob
-                prev[v][num_symbols] = u
-                q.append((v, num_symbols, new_log_prob))
+    # Initialize DP table for log probabilities
+    dp = np.full((num_states, seq_len + 1), -np.inf)
+    prev = np.full((num_states, seq_len + 1), -1, dtype=int)
 
-    # Reconstruct the most likely path
-    # final_state = max([i for i in range(m) if emission_matrix[i][observed_sequence[n-1]] > 0],
-    #                  key=lambda k: dp[k][n-1] + log(emission_matrix[k][observed_sequence[n-1]]))
-    ext_path = [(final_state, n)]
-    emitted_symbols = [(final_state, None)]
-    u, k = final_state, n
-    while u != initial_state:
-        prev_state = prev[u][k]
-        assert prev_state != -1, 'prev_state not defined!!!'
-        symbol_was_emitted = bool(hmm.emission_log_probs[prev_state])
-        emitted_symbol = observed_sequence[k - 1] if symbol_was_emitted else None
-        u, k = prev_state, k - int(symbol_was_emitted)
-        ext_path.append((u, k))
-        emitted_symbols.append((u, emitted_symbol))
+    # Start from the first checkpoint
+    first_state, first_symbols = checkpoints[0]
+    dp[first_state][first_symbols] = 0.0
 
-    path = [state for state, symbol in reversed(emitted_symbols)]
-    assert path[0] == initial_state and path[-1] == final_state, 'the path endpoints are wrong!!!'
-    return dp[final_state][n], list(reversed(emitted_symbols))
+    # Forward pass: Process all checkpoints
+    for chk_idx in range(len(checkpoints) - 1):
+        cur_state, cur_sym_count = checkpoints[chk_idx]
+        next_state, next_sym_count = checkpoints[chk_idx + 1]
 
+        for sym_count in range(cur_sym_count, next_sym_count + 1):
+            for state in range(cur_state, next_state):
+                if sym_count == next_sym_count and hmm.emissions[state]:
+                    continue
 
-def get_hmm_score(hmm: HMM,
-                  observed_sequence: List[int]) -> LogProb:
-    n = len(observed_sequence)  # length of the sequence
-    m = len(hmm.adj_list)  # number of states
+                log_prob = dp[state][sym_count]
+                if log_prob == -np.inf:
+                    continue
 
-    initial_state = 0
-    final_state = m - 1
-    q = [(initial_state, 0, 0)]  # (state, num symbols, log probability)
-    dp = [[float('-inf')] * (n + 1)
-          for _ in range(m)]  # dp[u][i] = max log probability for a path of ending in state u with i symbols processed
+                for edge_to, edge_log_prob in hmm.transitions[state]:
+                    new_sym_count = sym_count
+                    new_log_prob = log_prob + edge_log_prob
 
-    while q:
-        u, i, log_prob = q.pop(0)
-        if i == n and hmm.emission_log_probs[u]:  # if u should emit a symbol but we have processed all symbols
-            continue
-        for v, edge_log_prob in hmm.adj_list[u]:
-            if hmm.emission_log_probs[u]:  # if u emits a symbol
-                new_log_prob = log_prob + edge_log_prob + hmm.emission_log_probs[u][observed_sequence[i]]
-                num_symbols = i + 1
-            else:
-                new_log_prob = log_prob + edge_log_prob
-                num_symbols = i
-            if new_log_prob > dp[v][num_symbols]:
-                dp[v][num_symbols] = new_log_prob
-                q.append((v, num_symbols, new_log_prob))
+                    if hmm.emissions[state]:  # If emitting, add emission probability
+                        new_log_prob += hmm.emissions[state][observed_sequence[sym_count]]
+                        new_sym_count += 1
 
-    return dp[final_state][n]
+                    if new_log_prob > dp[edge_to][new_sym_count]:
+                        dp[edge_to][new_sym_count] = new_log_prob
+                        prev[edge_to][new_sym_count] = state
+
+    # Extract best final probability
+    final_state, final_symbols = checkpoints[-1]
+    best_score = dp[final_state][final_symbols]
+
+    # Backtrace to reconstruct the optimal path
+    path = [final_state]
+    state = final_state
+    symbols = final_symbols
+
+    while state != first_state:
+        prev_state = prev[state][symbols]
+        if prev_state == -1:
+            raise RuntimeError("Backtrace failed: No valid path found!")
+
+        if hmm.emissions[prev_state]:  # If emitting, move symbol index
+            symbols -= 1
+
+        state = prev_state
+        path.append(state)
+
+    path.reverse()
+
+    return float(best_score), path
+

@@ -16,8 +16,8 @@ def set_up_output_dir(output_cfg: OutputConfig,
     if output_cfg.main_out_dir.exists():
         if crash_if_exists:
             log.error(f"output directory ({output_cfg.main_out_dir}) already exists! "
-                      f"Rerun with --force-existing-outdir if you still want to use it as the output dir "
-                      f"OR specify another (nonexistent) directory. Exiting now..", to_stderr=True)
+                      f"Rerun with --force-output-dir if you still want to use it as the output dir "
+                      f"OR specify another directory. Exiting now..", to_stderr=True)
             exit(1)
         if output_cfg.main_out_dir.is_dir():  # TODO: check whether we want to completely remove it always
             shutil.rmtree(output_cfg.main_out_dir)
