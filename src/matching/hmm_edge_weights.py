@@ -59,7 +59,7 @@ def get_edge_weights(hmm,  # type: DetailedHMM
     # determine edge weights for non-dependent edge types
     edge_weights = {}
     for u in range(len(hmm.states)):
-        for v, edge_info in hmm.adj_list[u].items():
+        for v, edge_info in hmm.transitions[u].items():
             if edge_info.edge_type in dependent_edge_types:
                 continue
 
@@ -85,16 +85,16 @@ def get_edge_weights(hmm,  # type: DetailedHMM
 
     # determine edge weights for dependent edge types
     for u in range(len(hmm.states)):
-        for v, edge_info in hmm.adj_list[u].items():
+        for v, edge_info in hmm.transitions[u].items():
             if edge_info.edge_type not in dependent_edge_types:
                 continue
 
             sum_other_edges = sum(edge_weights[(u, w)]
-                                  for w in hmm.adj_list[u]
+                                  for w in hmm.transitions[u]
                                   if w != v)
             edge_weights[(u, v)] = 1 - sum_other_edges
 
     for u in range(len(hmm.states)):
-        for v, edge_info in hmm.adj_list[u].items():
+        for v, edge_info in hmm.transitions[u].items():
             edge_weights[(u, v)] = log(edge_weights[(u, v)])
     return edge_weights

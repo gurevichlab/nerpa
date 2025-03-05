@@ -35,7 +35,7 @@ def get_long_edges_ranges(hmm: DetailedHMM, path: List[int]) -> Dict[Tuple[int, 
     edges_ranges = {}
     fst_module_idx, last_module_idx = -1, -1
     for edge_from, edge_to in pairwise(path):
-        edge = hmm.adj_list[edge_from][edge_to]
+        edge = hmm.transitions[edge_from][edge_to]
         if edge_from in hmm.state_idx_to_module_idx:
             last_module_idx = hmm.state_idx_to_module_idx[edge_from] - 1
         if edge.edge_type not in LONG_EDGE_TYPES:
@@ -70,7 +70,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
     alignment = []
     mon_idx = 0
     for i, (edge_from, edge_to) in enumerate(pairwise(path)):
-        edge = hmm.adj_list[edge_from][edge_to]
+        edge = hmm.transitions[edge_from][edge_to]
 
         # these edge types are handled separately because they involve multiple modules
         # and hence yield multiple alignment steps
@@ -79,7 +79,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
             alignment.extend(AlignmentStep(
                 bgc_module=AlignmentStep_BGC_Module_Info.from_bgc_module(hmm.bgc_variant.modules[module_idx]),
                 nrp_monomer=None,
-                score=edge.log_prob,
+                score=edge.weight,
                 match_detailed_score=None,
                 step_type=edge.edge_type)
                              for module_idx in range(fst_module_idx, last_module_idx + 1))
@@ -88,7 +88,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
         bgc_module = None
         nrp_monomer = None
         match_detailed_score = None
-        transition_score = edge.log_prob
+        transition_score = edge.weight
         emission_score = 0
 
         match edge.edge_type:
@@ -117,7 +117,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
             # skips
             case DetailedHMMEdgeType.SKIP_MODULE:
                 next_module_state_idx = next(next_vertex
-                                             for next_vertex in hmm.adj_list[edge_from]
+                                             for next_vertex in hmm.transitions[edge_from]
                                              if hmm.states[next_vertex].state_type in (DetailedHMMStateType.MODULE_START,
                                                                                        DetailedHMMStateType.FINAL))
                 module_idx = hmm.state_idx_to_module_idx[next_module_state_idx] - 1 \

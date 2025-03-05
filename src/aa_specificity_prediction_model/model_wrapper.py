@@ -3,7 +3,10 @@ import pandas as pd
 from pathlib import Path
 import joblib
 
-from src.monomer_names_helper import antiSMASH_MonomerName
+from src.monomer_names_helper import (
+    MonomerNamesHelper,
+    MonomerResidue
+)
 
 
 class ModelWrapper(object):
@@ -27,7 +30,10 @@ class ModelWrapper(object):
         self.lookup_col = lookup_score
         self.lookup_threshold = lookup_threshold
 
-    def __call__(self, scoring_table: pd.DataFrame) -> Dict[antiSMASH_MonomerName, float]:
+    def __call__(self,
+                 scoring_table: pd.DataFrame,
+                 monomer_names_helper: MonomerNamesHelper,
+                 dictionary_lookup: bool = True) -> Dict[MonomerResidue, float]:
         scores = pd.Series(0, index=scoring_table.index, dtype=float)
         
         # Filter rows with no match in the lookup table
@@ -37,6 +43,15 @@ class ModelWrapper(object):
         # WITH LOOKUP: scores.loc[mask_predict] = self.model.predict_log_proba(scoring_table.loc[mask_predict])[:,1]
         scores[:] = self.model.predict_log_proba(scoring_table)[:,1]
 
-        # Convert to ResidueScores=Dict[str, float] and return
-        return scores.to_dict()
+        # Convert to ResidueScores=Dict[str, float]
+        scores_dict = scores.to_dict()
+
+        # Condense predictions to the set of supported residues
+        # I take the max score for each residue, as predictions are independent
+        scores = {res: float('-inf') for res in monomer_names_helper.supported_residues}
+        for monomer_name, score in scores_dict.items():
+            monomer_res = monomer_names_helper.parsed_name(monomer_name, name_format='antismash').residue
+            scores[monomer_res] = max(scores[monomer_res], score)
+
+        return scores
 

@@ -3,6 +3,7 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Optional,
     Union
 )
 from src.pipeline.command_line_args_helper import CommandLineArgs
@@ -11,13 +12,14 @@ from src.pipeline.download_antismash_results import download_antismash_results
 from src.config import Config, SpecificityPredictionConfig
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
-from src.data_types import BGC_Variant
+from src.data_types import AA34, BGC_Variant, LogProb
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper import MonomerNamesHelper, MonomerResidue
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.antismash_parser_types import antiSMASH_record
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
+from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.write_results import write_bgc_variants
 from pathlib import Path
 import json
@@ -25,16 +27,6 @@ import yaml
 from dataclasses import dataclass
 from itertools import chain
 from copy import deepcopy
-
-
-def calibrated_bgc_variants(_bgc_variants: List[BGC_Variant],
-                            specificity_prediction_config: SpecificityPredictionConfig) -> List[BGC_Variant]:
-    bgc_variants = deepcopy(_bgc_variants)
-    for bgc_variant in bgc_variants:
-        for module in bgc_variant.modules:
-            module.residue_score = calibrate_scores(module.residue_score,
-                                                    specificity_prediction_config)
-    return bgc_variants
 
 
 @dataclass
@@ -84,15 +76,16 @@ class PipelineHelper_antiSMASH:
             antismash_results.extend(map(Path, self.args.antismash_outpaths_file.read_text().strip().splitlines()))
 
         if self.args.seqs:
-            try:
-                new_results = self.run_antismash(self.args.seqs,
-                                                 self.args.threads,
-                                                 self.config.output_config.antismash_out_dir,
-                                                 self.log)
-            except Exception as e:
-                self.log.error(f'Error while running antismash on {self.args.seqs}, aborting')
-                raise e
-            antismash_results.append(new_results)
+            for seq in self.args.seqs:
+                try:
+                    new_results = self.run_antismash(seq,
+                                                     self.args.threads,
+                                                     self.config.output_config.antismash_out_dir,
+                                                     self.log)
+                except Exception as e:
+                    self.log.error(f'Error while running antismash on {seq}, aborting')
+                    raise e
+                antismash_results.append(new_results)
 
         if self.args.antismash_job_ids is not None:
             antismash_results.extend(download_antismash_results(job_id,
@@ -108,8 +101,11 @@ class PipelineHelper_antiSMASH:
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
 
-    def get_bgc_variants(self) -> List[BGC_Variant]:
+    def get_bgc_variants(self,
+                         external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]]) \
+            -> List[BGC_Variant]:
         if self.preprocessed_bgc_variants():
+            self.log.info('Loading preprocessed BGC variants. All other inputs will be ignored')
             return self.load_bgc_variants()
 
         antismash_results = self.get_antismash_results()
@@ -119,7 +115,8 @@ class PipelineHelper_antiSMASH:
         bgc_variants = []
         for antismash_record in antismash_results:
             try:
-                bgc_variants.extend(self.extract_bgc_variants_from_antismash(antismash_record))
+                bgc_variants.extend(self.extract_bgc_variants_from_antismash(antismash_record,
+                                                                             external_specificity_predictions))
             except Exception as e:
                 self.log.info(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
                 raise e  # TODO: remove
@@ -140,11 +137,14 @@ class PipelineHelper_antiSMASH:
         return output_dir
 
     def extract_bgc_variants_from_antismash(self,
-                                            antismash_json: antiSMASH_record) -> List[BGC_Variant]:
+                                            antismash_json: antiSMASH_record,
+                                            external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]]) \
+            -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
                                               self.config.antismash_processing_config)
         specificity_prediction_model = ModelWrapper(self.config.specificity_prediction_config.specificity_prediction_model)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
+                                                                   external_specificity_predictions,
                                                                    specificity_prediction_model,
                                                                    self.monomer_names_helper,
                                                                    self.config.antismash_processing_config,
@@ -152,9 +152,6 @@ class PipelineHelper_antiSMASH:
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 
-        (self.config.output_config.main_out_dir / 'BGC_variants_before_calibration').mkdir(exist_ok=True)
-        write_bgc_variants(bgc_variants, self.config.output_config.main_out_dir / 'BGC_variants_before_calibration')  # for training
-        bgc_variants = calibrated_bgc_variants(bgc_variants, self.config.specificity_prediction_config)
 
         return bgc_variants
 
