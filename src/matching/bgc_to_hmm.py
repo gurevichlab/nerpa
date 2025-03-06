@@ -380,7 +380,8 @@ def topsort_states(states: List[DetailedHMMState],
 
 
 def bgc_variant_to_detailed_hmm(cls,
-                                bgc_variant: BGC_Variant):
+                                bgc_variant: BGC_Variant,
+                                hmm_helper: HMMHelper):
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
     gene_intervals = get_genes_intervals(bgc_variant.modules)
     fragment_intervals = get_fragments_intervals(bgc_variant.modules)
@@ -394,7 +395,7 @@ def bgc_variant_to_detailed_hmm(cls,
     module_idx_to_state_idx = add_modules(states,
                                           adj_list,
                                           bgc_variant,
-                                          cls.hmm_helper,
+                                          hmm_helper,
                                           gene_intervals,
                                           start_state_idx,
                                           final_state_idx)  # module_idx -> module_start_state_idx
@@ -408,7 +409,7 @@ def bgc_variant_to_detailed_hmm(cls,
     add_skip_at_the_beginning(states,
                               adj_list,
                               bgc_variant,
-                              cls.hmm_helper,
+                              hmm_helper,
                               module_idx_to_state_idx,
                               gene_intervals,
                               fragment_intervals)
@@ -462,10 +463,11 @@ def bgc_variant_to_detailed_hmm(cls,
               _module_idx_to_state_idx=module_idx_to_state_idx,
               _module_idx_to_match_state_idx=match_states,
               start_state_idx=start_state_idx,
-              final_state_idx=final_state_idx)
+              final_state_idx=final_state_idx,
+              hmm_helper=hmm_helper)
 
     # set edge weights
-    edge_weights = cls.hmm_helper.get_edge_weights(hmm)
+    edge_weights = hmm_helper.get_edge_weights(hmm)
     for u, v in edge_weights:
        hmm.transitions[u][v] = hmm.transitions[u][v]._replace(weight=edge_weights[(u, v)])
 

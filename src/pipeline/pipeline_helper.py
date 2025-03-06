@@ -46,6 +46,7 @@ class PipelineHelper:
     args: CommandLineArgs
     log: NerpaLogger
     monomer_names_helper: MonomerNamesHelper
+    hmm_helper: HMMHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     pipeline_helper_cpp: PipelineHelperCpp
@@ -86,7 +87,7 @@ class PipelineHelper:
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
         self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, monomer_names_helper)
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
-        DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
+        self.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
@@ -109,7 +110,8 @@ class PipelineHelper:
     @timing_decorator
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
         self.log.info("\n======= Constructing HMMs")
-        return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
+        return [DetailedHMM.from_bgc_variant(bgc_variant, self.hmm_helper)
+                for bgc_variant in bgc_variants]
 
     @timing_decorator
     def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) \
