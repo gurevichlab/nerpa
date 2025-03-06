@@ -15,6 +15,11 @@ from datetime import datetime
 from argparse import Namespace as CommandLineArgs
 import pandas as pd
 from collections import defaultdict
+from src.monomer_names_helper import (
+    antiSMASH_MonomerName,
+    AA10,
+    AA34
+)
 
 
 @dataclass
@@ -26,15 +31,18 @@ class antiSMASH_Processing_Config:
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
 
 
-def get_aa_codes(aa_codes_tsv: Path) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
+def get_aa_codes(aa_codes_tsv: Path) \
+        -> Tuple[
+            Dict[antiSMASH_MonomerName, List[AA10]],
+            Dict[antiSMASH_MonomerName, List[AA34]] ]:
     aa_codes_tsv = pd.read_csv(aa_codes_tsv, sep='\t')
     aa10_codes = defaultdict(list)
     aa34_codes = defaultdict(list)
     for _, row in aa_codes_tsv.iterrows():
         aa_names = row['predictions_loose'].split('|')
         for aa_name in aa_names:
-            aa10_codes[aa_name].append(row['aa10'])
-            aa34_codes[aa_name].append(row['aa34'])
+            aa10_codes[aa_name].append(AA10(row['aa10']))
+            aa34_codes[aa_name].append(AA34(row['aa34']))
     return aa10_codes, aa34_codes
 
 
@@ -42,8 +50,8 @@ def get_aa_codes(aa_codes_tsv: Path) -> Tuple[Dict[str, List[str]], Dict[str, Li
 class SpecificityPredictionConfig:
     specificity_prediction_model: Path
     a_domains_signatures: Path
-    KNOWN_AA10_CODES: Dict[str, List[str]]
-    KNOWN_AA34_CODES: Dict[str, List[str]]
+    KNOWN_AA10_CODES: Dict[antiSMASH_MonomerName, List[AA10]]
+    KNOWN_AA34_CODES: Dict[antiSMASH_MonomerName, List[AA34]]
     SVM_SUBSTRATES: List[str]
     SVM_NOT_SUPPORTED_SCORE: float
     SVM_NO_PREDICTION_SCORE: float
@@ -59,14 +67,18 @@ class SpecificityPredictionConfig:
 
     def __init__(self,
                  nerpa_dir: Path,
-                 cfg_dict: dict):
+                 cfg_dict: dict,
+                 args: Optional[CommandLineArgs] = None):
         for k, v in cfg_dict.items():
             setattr(self, k, v)
         self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
-        # aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
-
         self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures)
+
+        if args is not None and args.disable_dictionary_lookup is not None:
+            self.ENABLE_DICTIONARY_LOOKUP = not args.disable_dictionary_lookup
+        if args is not None and args.disable_calibration is not None:
+            self.ENABLE_CALIBRATION = not args.disable_calibration
 
 
 @dataclass
@@ -85,16 +97,20 @@ class rBAN_Config:
 class rBAN_Output_Config:
     default_monomers_file: Path
     default_input_file: Path
-    default_output_file: Path
+    default_output_file_name: str
     putative_hybrids_input_file: Path
-    putative_hybrids_output_file: Path
+    putative_hybrids_output_file_name: str
     rban_output_dir: Path
 
     def __init__(self,
                  rban_output_cfg_dict: dict,
                  main_out_dir: Path):
         for k, v in rban_output_cfg_dict.items():
-            setattr(self, k, main_out_dir / Path(v))
+            if not k.endswith('_name'):
+                setattr(self, k, main_out_dir / Path(v))
+
+        self.default_output_file_name = rban_output_cfg_dict['default_output_file_name']
+        self.putative_hybrids_output_file_name = rban_output_cfg_dict['putative_hybrids_output_file_name']
 
 
 @dataclass

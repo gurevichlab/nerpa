@@ -1,14 +1,14 @@
 monomer_names_table: data/monomer_names_table.tsv
 pks_names: []
-supported_residues: ['Arg', 'Glu', 'Val', 'Pen', 'Pro',
-                     'Tyr', 'Asp', 'Phe', 'Dab', 'dHpg',
-                     'Ser', 'Gly', 'Lys', 'Bmt', 'oxoDec',
-                     'Aad', 'Leu', 'Hty', 'Hpg', 'Pip',
-                     'Asn', 'Dpr', 'Trp', 'Cys', 'Bza',
-                     'unknown', 'His', 'Orn', 'Hiv', 'Lac',
-                     'Hse', 'Gln', 'Kyn', 'aIle']
-# nerpa_supported_residues: ['Aad', 'Abu', 'Ala', 'Arg', 'Asn', 'Asp', 'Bmt', 'Bza', 'Cys', 'Dab',
- #'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hiv', 'Hpg', 'Hse', 'Hty', 'Ile',
- #'Iva', 'Kyn', 'Lac', 'Leu', 'Lys', 'Orn', 'Pen', 'Phe', 'Pip', 'Pro',
- #'Ser', 'Thr', 'Trp', 'Tyr', 'Val', 'aIle', 'aThr', 'bAla', 'bLys',
- #'dHpg', 'oxoDec', 'unknown']
+supported_residues: ['Aad', 'Abu', 'Ala', 'Arg', 'Asn', 'Asp', 'Bmt', 'Bza', 'Cys', 'Dab',
+'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hiv', 'Hpg', 'Hse', 'Hty', 'Ile',
+'Iva', 'Kyn', 'Lac', 'Leu', 'Lys', 'Orn', 'Pen', 'Phe', 'Pip', 'Pro',
+'Ser', 'Thr', 'Trp', 'Tyr', 'Val', 'aIle', 'aThr', 'bAla', 'bLys',
+'dHpg', 'oxoDec', 'unknown']
+  #paras_supported_residues: ['Arg', 'Glu', 'Val', 'Pen', 'Pro',
+  #           'Tyr', 'Asp', 'Phe', 'Dab', 'dHpg',
+  #           'Ser', 'Gly', 'Lys', 'Bmt', 'oxoDec',
+  #           'Aad', 'Leu', 'Hty', 'Hpg', 'Pip',
+  #           'Asn', 'Dpr', 'Trp', 'Cys', 'Bza',
+  #           'unknown', 'His', 'Orn', 'Hiv', 'Lac',
+  #           'Hse', 'Gln', 'Kyn', 'aIle']

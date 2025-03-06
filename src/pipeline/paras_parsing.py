@@ -1,7 +1,9 @@
 from typing import Dict, Optional
 from pathlib import Path
+from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.data_types import AA34, LogProb, Prob
 from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper
+from src.generic.functional import timing_decorator
 import pandas as pd
 from math import log
 from Bio import SeqIO
@@ -24,9 +26,9 @@ def paras_residue_to_nerpa_residue(residue: PARAS_RESIDUE,
                     return paras_name.split('-')[-1]
 
         paras_name_core = get_paras_name_core(residue)
-        as_short = next(row['short']
-                        for row in monomer_names_helper.names_table
-                        if paras_name_core in row['long'])
+        as_short = next(substrate.short
+                        for substrate in KNOWN_SUBSTRATES
+                        if paras_name_core in substrate.long)
         return monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
 
 
@@ -44,7 +46,7 @@ def extract_paras_results(paras_predictions: Path,
                           extended_signatures: Path) -> Dict[AA34, Dict[PARAS_RESIDUE, Prob]]:
     # Step 1: Extract sequence ID to extended signature mapping using BioPython
     seq_id_to_signature = {
-        record.id: str(record.seq)
+        record.id: AA34(str(record.seq))
         for record in SeqIO.parse(extended_signatures, "fasta")
     }
 
@@ -78,15 +80,21 @@ def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE
     return nerpa_predictions
 
 
+@timing_decorator
 def get_paras_results_all(paras_results: Path,
                           monomer_names_helper: MonomerNamesHelper,
                           log: NerpaLogger) -> Dict[AA34, Dict[MonomerResidue, LogProb]]:
     log.info("Extracting PARAS results...")
+
+    if not paras_results.exists() or not paras_results.is_dir():
+        log.error(f"Path {paras_results} does not exist or is not a directory.")
+        return {}
+
     combined_results = {}
 
     for folder in paras_results.rglob("*"):
         if folder.is_dir():
-            for results_json in filter(lambda f: f.ext == ".json", folder.iterdir()):
+            for results_json in filter(lambda f: f.suffix == ".json", folder.iterdir()):
                 try:
                     paras_results = extract_paras_results_json(results_json)
                 except:
