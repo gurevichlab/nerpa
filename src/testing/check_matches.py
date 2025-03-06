@@ -8,7 +8,6 @@ from src.matching.match_type import Match
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from typing import Iterable, List, Optional, Tuple
-from itertools import permutations
 
 
 def bgc_modules_coincide(module_test: AlignmentStep_BGC_Module_Info,
@@ -112,4 +111,3 @@ def find_wrong_matches(matches: List[Match], approved_matches: List[Match]) -> I
         print('Testing ', nrp_id)
         if not matches_coincide(test_match, approved_match):
             yield test_match, approved_match
-

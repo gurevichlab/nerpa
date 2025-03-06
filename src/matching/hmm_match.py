@@ -14,7 +14,7 @@ class HMM_Match:
     score: LogProb
     bgc_variant_info: Match_BGC_Variant_Info
     nrp_id: str
-    nrp_linearizations: List[rBAN_idx]
+    nrp_linearizations: List[List[rBAN_idx]]
     optimal_paths: List[List[int]]
 
     @classmethod

@@ -20,7 +20,7 @@ rban_output_config:
     rban_output_dir: ''
     default_monomers_file: rban_monomers_db.json
     default_input_file: rban.input.json
-    default_output_file_name: rban.output.json
+    default_output_file_name: rban.output.json  # I know it's weird to have name instead of path, but that's rBAN quirks and I don't wanna mess with it
     putative_hybrids_input_file: hybrid_monomers_input.json
     putative_hybrids_output_file_name: hybrid_monomers_output.json
 

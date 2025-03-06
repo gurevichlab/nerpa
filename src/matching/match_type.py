@@ -17,8 +17,6 @@ from collections import defaultdict
 from itertools import takewhile
 
 
-
-
 @dataclass
 class Match:
     bgc_variant_info: Match_BGC_Variant_Info

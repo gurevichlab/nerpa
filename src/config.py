@@ -15,6 +15,11 @@ from datetime import datetime
 from argparse import Namespace as CommandLineArgs
 import pandas as pd
 from collections import defaultdict
+from src.monomer_names_helper import (
+    antiSMASH_MonomerName,
+    AA10,
+    AA34
+)
 
 
 @dataclass
@@ -26,15 +31,18 @@ class antiSMASH_Processing_Config:
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
 
 
-def get_aa_codes(aa_codes_tsv: Path) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
+def get_aa_codes(aa_codes_tsv: Path) \
+        -> Tuple[
+            Dict[antiSMASH_MonomerName, List[AA10]],
+            Dict[antiSMASH_MonomerName, List[AA34]] ]:
     aa_codes_tsv = pd.read_csv(aa_codes_tsv, sep='\t')
     aa10_codes = defaultdict(list)
     aa34_codes = defaultdict(list)
     for _, row in aa_codes_tsv.iterrows():
         aa_names = row['predictions_loose'].split('|')
         for aa_name in aa_names:
-            aa10_codes[aa_name].append(row['aa10'])
-            aa34_codes[aa_name].append(row['aa34'])
+            aa10_codes[aa_name].append(AA10(row['aa10']))
+            aa34_codes[aa_name].append(AA34(row['aa34']))
     return aa10_codes, aa34_codes
 
 
@@ -42,27 +50,35 @@ def get_aa_codes(aa_codes_tsv: Path) -> Tuple[Dict[str, List[str]], Dict[str, Li
 class SpecificityPredictionConfig:
     specificity_prediction_model: Path
     a_domains_signatures: Path
-    KNOWN_AA10_CODES: Dict[str, List[str]]
-    KNOWN_AA34_CODES: Dict[str, List[str]]
+    KNOWN_AA10_CODES: Dict[antiSMASH_MonomerName, List[AA10]]
+    KNOWN_AA34_CODES: Dict[antiSMASH_MonomerName, List[AA34]]
     SVM_SUBSTRATES: List[str]
     SVM_NOT_SUPPORTED_SCORE: float
     SVM_NO_PREDICTION_SCORE: float
     SCORING_TABLE_INDEX: str
     SCORING_TABLE_COLUMNS: List[str]
-    apriori_residue_prob: Dict[str, float]
-    calibration_step_function_steps: List[float]
-    pseudo_count_fraction: float
+    APRIORI_RESIDUE_PROB: Dict[str, float]
+    CALIBRATION_STEP_FUNCTION_STEPS_NERPA: List[float]
+    CALIBRATION_STEP_FUNCTION_STEPS_PARAS: List[float]
+    PSEUDO_COUNT_FRACTION: float
+
+    ENABLE_DICTIONARY_LOOKUP: bool  # if True, use the dictionary lookup for known aa34 codes
+    ENABLE_CALIBRATION: bool
 
     def __init__(self,
                  nerpa_dir: Path,
-                 cfg_dict: dict):
+                 cfg_dict: dict,
+                 args: Optional[CommandLineArgs] = None):
         for k, v in cfg_dict.items():
             setattr(self, k, v)
         self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
-        # aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
-
         self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures)
+
+        if args is not None and args.disable_dictionary_lookup is not None:
+            self.ENABLE_DICTIONARY_LOOKUP = not args.disable_dictionary_lookup
+        if args is not None and args.disable_calibration is not None:
+            self.ENABLE_CALIBRATION = not args.disable_calibration
 
 
 @dataclass
@@ -81,7 +97,7 @@ class rBAN_Config:
 class rBAN_Output_Config:
     default_monomers_file: Path
     default_input_file: Path
-    default_output_file_name: str  # I have name instead of file due to rBAN quirks
+    default_output_file_name: str
     putative_hybrids_input_file: Path
     putative_hybrids_output_file_name: str
     rban_output_dir: Path
@@ -90,8 +106,9 @@ class rBAN_Output_Config:
                  rban_output_cfg_dict: dict,
                  main_out_dir: Path):
         for k, v in rban_output_cfg_dict.items():
-            if not k.endswith('name'):
+            if not k.endswith('_name'):
                 setattr(self, k, main_out_dir / Path(v))
+
         self.default_output_file_name = rban_output_cfg_dict['default_output_file_name']
         self.putative_hybrids_output_file_name = rban_output_cfg_dict['putative_hybrids_output_file_name']
 
@@ -129,6 +146,7 @@ class MatchingConfig:
     max_num_matches_per_bgc: int
     max_num_matches_per_nrp: int  # 0 means no limit
     max_num_matches: int
+    checkpoints_heuristic: bool
 
     def __init__(self,
                  cfg_dict: dict,
@@ -144,6 +162,8 @@ class MatchingConfig:
             self.max_num_matches_per_nrp = args.max_num_matches_per_nrp
         if args.max_num_matches is not None:
             self.max_num_matches = args.max_num_matches
+        if args.fast_matching is not None:
+            self.checkpoints_heuristic = args.fast_matching
 
 
 @dataclass
@@ -178,8 +198,8 @@ class OutputConfig:
                                                      main_out_dir)
         self.cpp_io_config = CppIOConfig(output_cfg_dict['cpp_io_config'],
                                          main_out_dir)
-        if args is not None and args.dont_draw_molecules is not None:
-            self.draw_molecules = not args.dont_draw_molecules
+        if args is not None and args.skip_molecule_drawing is not None:
+            self.draw_molecules = not args.skip_molecule_drawing
         else:
             self.draw_molecules = True
 
@@ -219,7 +239,7 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     configs_dir = nerpa_dir / Path('configs')
     cfg = yaml.safe_load((configs_dir / 'config.yaml').open('r'))
     main_out_dir = args.output_dir.resolve() \
-        if args is not None else get_default_output_dir(nerpa_dir, cfg)
+        if args is not None and args.output_dir is not None else get_default_output_dir(nerpa_dir, cfg)
 
     antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
     antismash_processing_cfg = dacite.from_dict(antiSMASH_Processing_Config, antismash_processing_cfg_dict)

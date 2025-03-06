@@ -10,6 +10,7 @@ from typing import (
 from src.matching.match_type import Match
 from src.config import OutputConfig
 from src.data_types import BGC_Variant, NRP_Variant
+from src.generic.combinatorics import sort_groupby
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
@@ -19,18 +20,6 @@ from pathlib import Path
 from io import StringIO
 import csv
 import yaml
-import json
-from itertools import groupby
-from copy import deepcopy
-
-
-T = TypeVar('T')
-U = TypeVar('U')
-
-def sort_groupby(items: Iterable[T],
-                 key: Callable[[T], U],
-                 reverse: bool=False) -> Iterable[Tuple[U, Iterable[T]]]:
-    return groupby(sorted(items, key=key, reverse=reverse), key=key)
 
 
 def write_yaml(data, out_file: Path):
@@ -63,9 +52,9 @@ def build_report(matches: List[Match]) -> str:
     return result.getvalue()
 
 
-def write_matches_per_id(matches: List[T],
+def write_matches_per_id(matches: List[Match],
                          output_dir: Path,
-                         get_id: Callable[[T], str]):
+                         get_id: Callable[[Match], str]):
     for id_, id_matches in sort_groupby(matches, get_id):  # python sort is stable so groups will be sorted by score
         (output_dir / Path(id_)).write_text('\n\n'.join(map(str, id_matches)))
 

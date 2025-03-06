@@ -26,7 +26,7 @@ def make_edge(edge_type: DetailedHMMEdgeType,
               fst_module_idx: Optional[int] = None) -> DetailedHMMEdge:
     if fst_module_idx is None:
         return DetailedHMMEdge(edge_type=edge_type,
-                               log_prob=log_prob,
+                               weight=log_prob,
                                genomic_context=None,
                                edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx))
 
@@ -40,7 +40,7 @@ def make_edge(edge_type: DetailedHMMEdgeType,
         gene_context = module_features_to_gene_features(bgc_variant.modules[fst_module_idx].module_loc,
                                                         bgc_variant.modules[lst_module_idx].module_loc)
         return DetailedHMMEdge(edge_type=edge_type,
-                               log_prob=log_prob,
+                               weight=log_prob,
                                genomic_context=gene_context,
                                edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx,
                                          fst_module.gene_id))
@@ -57,13 +57,13 @@ def make_edge(edge_type: DetailedHMMEdgeType,
         genes_ids = list(OrderedDict.fromkeys(bgc_variant.modules[i].gene_id
                                               for i in range(fst_module_idx, lst_module_idx + 1)))
         return DetailedHMMEdge(edge_type=edge_type,
-                               log_prob=log_prob,
+                               weight=log_prob,
                                genomic_context=fragment_context,
                                edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx,
                                          *genes_ids))
     module_context = bgc_variant.modules[fst_module_idx].module_loc
     return DetailedHMMEdge(edge_type=edge_type,
-                           log_prob=log_prob,
+                           weight=log_prob,
                            genomic_context=module_context,
                            edge_key=(bgc_variant.genome_id, bgc_variant.bgc_idx,
                                      fst_module.gene_id, fst_module.a_domain_idx))
@@ -380,7 +380,8 @@ def topsort_states(states: List[DetailedHMMState],
 
 
 def bgc_variant_to_detailed_hmm(cls,
-                                bgc_variant: BGC_Variant):
+                                bgc_variant: BGC_Variant,
+                                hmm_helper: HMMHelper):
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
     gene_intervals = get_genes_intervals(bgc_variant.modules)
     fragment_intervals = get_fragments_intervals(bgc_variant.modules)
@@ -394,7 +395,7 @@ def bgc_variant_to_detailed_hmm(cls,
     module_idx_to_state_idx = add_modules(states,
                                           adj_list,
                                           bgc_variant,
-                                          cls.hmm_helper,
+                                          hmm_helper,
                                           gene_intervals,
                                           start_state_idx,
                                           final_state_idx)  # module_idx -> module_start_state_idx
@@ -408,7 +409,7 @@ def bgc_variant_to_detailed_hmm(cls,
     add_skip_at_the_beginning(states,
                               adj_list,
                               bgc_variant,
-                              cls.hmm_helper,
+                              hmm_helper,
                               module_idx_to_state_idx,
                               gene_intervals,
                               fragment_intervals)
@@ -451,17 +452,23 @@ def bgc_variant_to_detailed_hmm(cls,
                                      module_idx_to_state_idx,
                                      final_state_idx)
 
+    # Calculate module_idx -> module_match_state_idx
+    match_states = [state_idx for state_idx, state in enumerate(states)
+                    if state.state_type == DetailedHMMStateType.MATCH]
+
     hmm = cls(states=states,
-              adj_list=adj_list,
+              transitions=adj_list,
               bgc_variant=bgc_variant,
               state_idx_to_module_idx=state_idx_to_module_idx,
               _module_idx_to_state_idx=module_idx_to_state_idx,
+              _module_idx_to_match_state_idx=match_states,
               start_state_idx=start_state_idx,
-              final_state_idx=final_state_idx)
+              final_state_idx=final_state_idx,
+              hmm_helper=hmm_helper)
 
     # set edge weights
-    edge_weights = cls.hmm_helper.get_edge_weights(hmm)
+    edge_weights = hmm_helper.get_edge_weights(hmm)
     for u, v in edge_weights:
-       hmm.adj_list[u][v] = hmm.adj_list[u][v]._replace(log_prob=edge_weights[(u, v)])
+       hmm.transitions[u][v] = hmm.transitions[u][v]._replace(weight=edge_weights[(u, v)])
 
     return hmm

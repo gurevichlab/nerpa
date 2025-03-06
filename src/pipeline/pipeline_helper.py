@@ -36,17 +36,17 @@ import src.write_results as report
 import shutil
 import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
+from src.pipeline.paras_parsing import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
 from pathlib import Path
-
-
 
 class PipelineHelper:
     config: Config
     args: CommandLineArgs
     log: NerpaLogger
     monomer_names_helper: MonomerNamesHelper
+    hmm_helper: HMMHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     pipeline_helper_cpp: PipelineHelperCpp
@@ -77,19 +77,25 @@ class PipelineHelper:
 
         monomers_cfg = yaml.safe_load(self.config.monomers_config.open('r'))
         monomers_table_tsv = self.config.nerpa_dir / monomers_cfg['monomer_names_table']
-        monomer_names_helper = MonomerNamesHelper(pd.read_csv(monomers_table_tsv, sep='\t'),
-                                                  monomers_cfg['supported_residues'],
-                                                  monomers_cfg['pks_names'])
+        monomer_names_helper = MonomerNamesHelper(names_table=pd.read_csv(monomers_table_tsv, sep='\t'),
+                                                  supported_residues=monomers_cfg['supported_residues'],
+                                                  pks_names=monomers_cfg['pks_names'],
+                                                  _known_aa10_codes_as=self.config.specificity_prediction_config.KNOWN_AA10_CODES,
+                                                  _known_aa34_codes_as=self.config.specificity_prediction_config.KNOWN_AA34_CODES)
         self.monomer_names_helper = monomer_names_helper
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
         self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, monomer_names_helper)
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
-        DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
+        self.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
-        return self.pipeline_helper_antismash.get_bgc_variants()
+        external_specificity_predictions = get_paras_results_all(self.args.paras_results,
+                                                                 self.monomer_names_helper,
+                                                                 self.log) \
+            if self.args.paras_results is not None else None
+        return self.pipeline_helper_antismash.get_bgc_variants(external_specificity_predictions)
 
     @timing_decorator
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
@@ -104,7 +110,8 @@ class PipelineHelper:
     @timing_decorator
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
         self.log.info("\n======= Constructing HMMs")
-        return [DetailedHMM.from_bgc_variant(bgc_variant) for bgc_variant in bgc_variants]
+        return [DetailedHMM.from_bgc_variant(bgc_variant, self.hmm_helper)
+                for bgc_variant in bgc_variants]
 
     @timing_decorator
     def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) \
@@ -120,8 +127,15 @@ class PipelineHelper:
         #for i, hmm in enumerate(hmms):
         #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
-        hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
-        return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+        if self.args.fast_matching:
+            hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
+            return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+        else:
+            return get_matches(hmms,
+                               nrp_linearizations,
+                               self.config.matching_config,
+                               self.args.threads,
+                               self.log)
 
     def write_results(self,
                       matches: List[Match],

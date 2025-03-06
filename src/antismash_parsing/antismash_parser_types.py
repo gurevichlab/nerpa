@@ -8,7 +8,11 @@ from typing import (
 )
 from dataclasses import dataclass
 from enum import Enum, auto
-from src.monomer_names_helper import antiSMASH_MonomerName
+from src.monomer_names_helper import (
+    antiSMASH_MonomerName,
+    AA10,
+    AA34
+)
 
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
@@ -32,8 +36,8 @@ SVM_Predictions = Dict[SVM_LEVEL, SVM_Prediction]
 
 @dataclass
 class A_Domain:
-    aa10: str
-    aa34: str
+    aa10: AA10
+    aa34: AA34
     svm: SVM_Predictions
 
 
