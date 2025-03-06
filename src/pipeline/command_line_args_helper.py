@@ -60,6 +60,9 @@ def add_advanced_arguments(parser: argparse.ArgumentParser):
                                       default=False,
                                       help="don't crash if the output dir already exists")
 
+def add_anchors_heuristic_argument(parser: argparse.ArgumentParser):
+    parser.add_argument('--use-anchors-heuristic', action='store_true',
+                      help='Use anchors heuristic to speed up HMM alignment', default=False)
 
 def add_config_arguments(parser: argparse.ArgumentParser):
     configs_group = parser.add_argument_group('Nerpa config',
@@ -82,6 +85,9 @@ def add_config_arguments(parser: argparse.ArgumentParser):
                                help="draw NRP molecule and monomer graps in PNG")
     configs_group.add_argument("--debug", action="store_true", default=False,
                         help="run in the debug mode (keep intermediate files)")
+
+    # Add the anchors heuristic argument here
+    add_anchors_heuristic_argument(parser)
 
 
 def add_external_tools_args(parser: argparse.ArgumentParser):

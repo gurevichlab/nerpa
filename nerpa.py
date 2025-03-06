@@ -54,21 +54,31 @@ def compute_compound_info_table(rban_records: List[Parsed_rBAN_Record],
 def main(log: NerpaLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(log)
 
-    bgc_variants = pipeline_helper.pipeline_helper_antismash.get_bgc_variants()
-    hmms = pipeline_helper.construct_hmms(bgc_variants)
-    #for hmm in hmms:
-    #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
+    # Get the anchors heuristic flag directly from the parsed arguments
+    use_anchors = pipeline_helper.args.use_anchors_heuristic
 
+    # Log whether we're using the anchors heuristic
+    log.info(f"Using anchors heuristic: {use_anchors}")
+
+    # Get BGC variants and construct HMMs
+    bgc_variants = pipeline_helper.get_bgc_variants()
+    hmms = pipeline_helper.construct_hmms(bgc_variants)
+
+    # Get NRP variants and linearizations
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()
-    # compute_compound_similarity(rban_records)
-    # compute_compound_info_table(rban_records, pipeline_helper.monomer_names_helper)
-    # exit(0)
     nrp_linearizations = pipeline_helper.get_nrp_linearizations(nrp_variants)
 
     if pipeline_helper.args.only_preprocessing:
         matches = []
     else:
-        matches = pipeline_helper.get_matches(hmms, nrp_linearizations)
+        # Pass the anchors heuristic flag to get_matches
+        matches = pipeline_helper.get_matches(
+            hmms,
+            nrp_linearizations,
+            use_anchors_heuristic=use_anchors
+        )
+
+    # Write the results
     pipeline_helper.write_results(matches, bgc_variants, nrp_variants, rban_records)
 
 

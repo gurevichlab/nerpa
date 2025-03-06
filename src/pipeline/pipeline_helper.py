@@ -92,10 +92,13 @@ class PipelineHelper:
 
     def get_matches(self,
                     hmms: List[DetailedHMM],
-                    nrp_linearizations: Dict[str, NRP_Linearizations]) -> List[Match]:
+                    nrp_linearizations: Dict[str, NRP_Linearizations],
+                    use_anchors_heuristic: bool = False) -> List[Match]:
         self.log.info("\n======= Nerpa matching")
+        self.log.info(f"Using anchors heuristic: {use_anchors_heuristic}")
         return get_matches(hmms, nrp_linearizations,
                            max_num_matches_per_bgc_variant=self.args.num_matches,
+                           use_anchors_heuristic=use_anchors_heuristic,  # Pass it to the underlying function
                            num_threads=self.args.threads,
                            log=self.log)
 
