@@ -13,6 +13,7 @@ from src.matching.match_type import Match, Match_BGC_Variant_Info, Match_NRP_Var
 from src.matching.alignment_type import Alignment, alignment_score, combined_alignments_score
 from src.matching.viterbi_algorithm import get_opt_path_with_score
 from src.matching.hmm_checkpoints_heuristic import get_checkpoints
+from src.pipeline.logger import NerpaLogger
 from src.rban_parsing.get_linearizations import NRP_Linearizations, Linearization, num_linearizations
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.generic.combinatorics import split_sequence_subseqs
@@ -177,16 +178,19 @@ def get_matches(hmms: List[DetailedHMM],
                 nrp_linearizations: List[NRP_Linearizations],
                 matching_cfg: MatchingConfig,
                 num_threads: int = 1,
-                log=None) -> List[Match]:
+                log: Optional[NerpaLogger] = None) -> List[Match]:
     if log is not None:
         total_linearizations = sum(num_linearizations(nrp_linearization)
                                    for nrp_linearization in nrp_linearizations)
         log.info(f'Matching {len(hmms)} BGC variants against {total_linearizations} NRP linearizations')
 
-    matches_light = chain(*Parallel(n_jobs=num_threads)(delayed(get_matches_for_hmm)(hmm, nrp_linearizations,
-                                                                                     matching_cfg,
-                                                                                     log)
-                                                        for hmm in hmms))
+    matches_light = chain(*Parallel(n_jobs=num_threads,  backend="loky")(
+        delayed(
+            get_matches_for_hmm)(hmm, nrp_linearizations,
+                                 matching_cfg,
+                                 log=None)
+        for hmm in hmms))
+    log.info('Matches obtained. Filtering and sorting...')
     matches_light_filtered = filter_and_sort_matches(list(matches_light), matching_cfg)
 
     bgc_variant_to_hmm = {Match_BGC_Variant_Info.from_bgc_variant(detailed_hmm.bgc_variant): detailed_hmm

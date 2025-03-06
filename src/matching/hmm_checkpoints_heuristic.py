@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 from src.data_types import NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
+from itertools import chain
 
 
 def nrp_monomer_matches_prediction(nrp_monomer: rBAN_Monomer,
@@ -21,7 +22,16 @@ def nrp_monomer_matches_prediction(nrp_monomer: rBAN_Monomer,
     return nrp_monomer.residue == predicted_residues[0]
 
 
-def get_checkpoints(hmm, # type: DetailedHMM, # can't import DetailedHMM here because of circular imports
+def get_checkpoints(hmm: 'DetailedHMM',
                     nrp_monomers: List[rBAN_Monomer]) -> List[Tuple[StateIdx, int]]:
+    bgc_modules_predictions = [hmm.hmm_helper.get_emissions(module, hmm.bgc_variant.has_pks_domains())
+                               for module in hmm.bgc_variant.modules]
 
-    return [(hmm.start_state_idx, 0), (hmm.finish_state_idx, len(nrp_monomers))]
+    # ... (find matching module-monomer pairs here) ...
+    matched_pairs = []  # a placeholder
+
+    inner_checkpoints = [(hmm._module_idx_to_match_state_idx[module_idx], monomer_idx)
+                         for module_idx, monomer_idx in matched_pairs]
+    return list(chain([(hmm.start_state_idx, 0)],
+                      inner_checkpoints,
+                      [(hmm.final_state_idx, len(nrp_monomers))]))

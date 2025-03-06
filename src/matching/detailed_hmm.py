@@ -13,7 +13,7 @@ from enum import Enum, auto
 from src.antismash_parsing.location_features import (
     ModuleLocFeature,
     GeneLocFeature,
-    BGC_Fragment_Loc_Feature
+    BGC_Fragment_Loc_Feature,
 )
 from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant, GeneId, LogProb
 from src.matching.hmm_auxiliary_types import (
@@ -22,7 +22,8 @@ from src.matching.hmm_auxiliary_types import (
     DetailedHMMState,
     DetailedHMMEdge,
     HMM,
-    StateIdx
+    StateIdx,
+    GenomicContext
 )
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.build_output.draw_hmm import draw_hmm
@@ -53,15 +54,17 @@ class DetailedHMM:
     _module_idx_to_state_idx: List[StateIdx]  # points to MODULE_START state for each module. Used for building hmm from alignment
     _module_idx_to_match_state_idx: List[StateIdx]  # points to MATCH state for each module. Used for checkpoints heuristic
 
-    hmm_helper: ClassVar[Optional[HMMHelper]] = None
+    hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
     _hmm: HMM = None
 
     @classmethod
-    def from_bgc_variant(cls, bgc_variant: BGC_Variant) -> DetailedHMM:
+    def from_bgc_variant(cls,
+                         bgc_variant: BGC_Variant,
+                         hmm_helper: HMMHelper) -> DetailedHMM:
         #print('from_bgc_variant', bgc_variant.genome_id)
-        if cls.hmm_helper is None:
-            raise ValueError("HMM helper must be set before calling DetailedHMM.from_bgc_variant")
-        return bgc_variant_to_detailed_hmm(DetailedHMM, bgc_variant)
+        return bgc_variant_to_detailed_hmm(DetailedHMM,
+                                           bgc_variant,
+                                           hmm_helper)
 
     def to_hmm(self) -> HMM:
         if self._hmm is not None:
@@ -77,19 +80,10 @@ class DetailedHMM:
                                                  key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
 
-        module_start_states = [self._module_idx_to_state_idx[module_idx]
-                               for module_idx in range(len(self.bgc_variant.modules))]
-
-        def get_match_state(start_state: int) -> int:
-            return next(state_idx for state_idx in self.transitions[start_state]
-                        if self.states[state_idx].state_type == DetailedHMMStateType.MATCH)
-
-        module_match_states = [get_match_state(module_start_state)
-                               for module_start_state in module_start_states]
         self._hmm = HMM(transitions=adj_list,
                         emissions=emission_log_probs,
-                        module_start_states=module_start_states,
-                        module_match_states=module_match_states,
+                        module_start_states=self._module_idx_to_state_idx,
+                        module_match_states=self._module_idx_to_match_state_idx,
                         bgc_info=Match_BGC_Variant_Info.from_bgc_variant(self.bgc_variant))
         return self._hmm
 
@@ -119,21 +113,6 @@ class DetailedHMM:
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:
         return alignment_to_hmm_path(self, alignment)
 
-    def get_alignment(self, emitted_monomers: List[rBAN_Monomer],
-                      heuristic_matching: bool = True) -> Alignment:
-        if heuristic_matching:
-            bgc_predictions = [self.hmm_helper.get_emissions(module, self.bgc_variant.has_pks_domains())
-                               for module in self.bgc_variant.modules]
-            opt_path = heuristic_opt_path(self, bgc_predictions, emitted_monomers)
-        else:
-            opt_path, _ = self.get_opt_path_with_emissions(self.start_state_idx,
-                                                           self.final_state_idx,
-                                                           emitted_monomers)
-            opt_path = [state for state, _ in opt_path]
-        #self.draw(Path(f'{self.bgc_variant.genome_id}.png'), opt_path)  # for debugging
-        #print('opt_path', opt_path)
-        return self.path_to_alignment(opt_path, emitted_monomers)
-
     def draw(self,
              filename: Path,
              highlight_path: Optional[List[int]] = None) -> Digraph:
@@ -143,10 +122,9 @@ class DetailedHMM:
 # captures all context relevant for parameter training
 class EdgeFingerprint(NamedTuple):
     edge_type: DetailedHMMEdgeType
-    bgc_module_context: Optional[ModuleLocFeature] = None
-    bgc_gene_context: Optional[GeneLocFeature] = None
-    bgc_fragment_context: Optional[BGC_Fragment_Loc_Feature] = None
+    edge_context: Optional[GenomicContext] = None
 
+'''
 def edge_fingerprint(hmm: DetailedHMM,
                      path: List[Tuple[int, NRP_Monomer]],
                      edge_idx: int) -> EdgeFingerprint:
@@ -176,5 +154,5 @@ def edge_fingerprint(hmm: DetailedHMM,
         ):
             return EdgeFingerprint(edge_type=edge.edge_type,
                                    bgc_fragment_context=hmm.bgc_variant.fragments[hmm.state_idx_to_module_idx[u]].loc)
-
+'''
 

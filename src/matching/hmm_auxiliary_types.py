@@ -5,6 +5,7 @@ from typing import (
     NamedTuple,
     Dict,
     Optional,
+    TYPE_CHECKING,
     Union
 )
 from dataclasses import dataclass
@@ -17,14 +18,15 @@ from src.antismash_parsing.location_features import (
 )
 from src.data_types import NRP_Monomer, LogProb
 from src.monomer_names_helper import enum_representer, MonCode
-from src.matching.match_type import Match_BGC_Variant_Info
+if TYPE_CHECKING:
+    from src.matching.match_type import Match_BGC_Variant_Info
 import yaml
 
 
 StateIdx = int
 
 class HMM(NamedTuple):
-    bgc_info: Match_BGC_Variant_Info
+    bgc_info: "Match_BGC_Variant_Info"
     transitions: List[List[Tuple[StateIdx, LogProb]]]  # u -> [(v, log_prob(u -> v))]
     emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
     module_start_states: List[StateIdx]

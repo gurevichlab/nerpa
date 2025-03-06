@@ -103,7 +103,7 @@ def main():
     monomer_names_helper = load_monomer_names_helper(nerpa_dir)
     hmm_config_file = nerpa_dir / 'configs/hmm_scoring_config.yaml'
     hmm_scoring_config = load_hmm_scoring_config(hmm_config_file)
-    DetailedHMM.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
+    hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     nerpa_results_dir = nerpa_dir / 'test_results/nerpa_results'
 
@@ -133,7 +133,8 @@ def main():
         if match.nrp_variant_info.nrp_id in bgc_variants_approved_matches
     ]
 
-    data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training)
+    data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training,
+                                                  hmm_helper)
     dump_emissions_training_data(data_for_training, nerpa_dir / 'training_results')
     substitute_predictions_with_paras(data_for_training)
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')

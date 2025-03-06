@@ -14,6 +14,7 @@ from src.matching.hmm_auxiliary_types import (
     GenomicContext,
     EdgeKey
 )
+from src.matching.hmm_scoring_helper import HMMHelper
 from src.monomer_names_helper import NRP_Monomer
 from src.matching.detailed_hmm import DetailedHMM
 from src.data_types import BGC_Module
@@ -99,11 +100,12 @@ def get_turns_info(detailed_hmm: DetailedHMM,
     return turns_info
 
 
-def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP]) -> DataForTraining:
+def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
+                              hmm_helper: HMMHelper) -> DataForTraining:
     turns_info = []
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
         print(f"Processing match {match.nrp_variant_info.nrp_id}")
-        detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant)
+        detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant, hmm_helper)
         # detailed_hmm.draw(Path(f"bgc.png"))
         for i, alignment in enumerate(match.alignments):
             #with open(f"alignment.txt", "w") as f:
