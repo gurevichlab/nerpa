@@ -46,16 +46,16 @@ import pandas as pd
 # TODO: figure out how to write it as "lambda args: args['a_domain'].aa34"
 @cached_by_key(key=lambda *args, **kwargs: args[0].aa34)
 def get_residue_scores(a_domain: A_Domain,
+                       external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                        residue_scoring_model: ModelWrapper,
                        monomer_names_helper: MonomerNamesHelper,
-                       external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                        config: SpecificityPredictionConfig,
                        log: NerpaLogger) -> Dict[MonomerResidue, LogProb]:
     if external_specificity_predictions is not None:
         if a_domain.aa34 in external_specificity_predictions:
             return calibrate_scores(external_specificity_predictions[a_domain.aa34],
-                                         config,
-                                         model='paras')
+                                    config,
+                                    model='paras')
         else:
             log.info(f'WARNING: No external specificity predictions for AA34 {a_domain.aa34}. '
                      f'Using Nerpa model.')
@@ -74,13 +74,14 @@ def get_residue_scores(a_domain: A_Domain,
         return 1.0 - hamming_distance(aa_code1, aa_code2) / len(aa_code1)
 
     scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
-    for aa_name, aa10_codes in config.KNOWN_AA10_CODES.items():
-        aa34_codes = config.KNOWN_AA34_CODES[aa_name]
+    for aa_name, aa10_codes in monomer_names_helper.known_aa10_codes.items():
+        aa34_codes = monomer_names_helper.known_aa34_codes[aa_name]
+
         aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
                               for known_aa_code in known_aa_codes)
                           for aa_code, known_aa_codes in [(a_domain.aa10, aa10_codes),
                                                           (a_domain.aa34, aa34_codes)]]
-        svm_scores = [svm_score(MonomerResidue(aa_name), a_domain.svm[level])
+        svm_scores = [svm_score(aa_name, a_domain.svm[level])
                       for level in SVM_LEVEL]
         scoring_table.loc[aa_name] = aa_code_scores + svm_scores
 
@@ -93,9 +94,9 @@ def get_residue_scores(a_domain: A_Domain,
 def build_gene_assembly_line(gene: Gene,
                              gene_loc_features: GeneLocFeatures,
                              fragment_idx: int,
+                             external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                              residue_scoring_model: ModelWrapper,
                              monomer_names_helper: MonomerNamesHelper,
-                             external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                              config: SpecificityPredictionConfig,
                              log: NerpaLogger) -> List[BGC_Module]:
     iterative_modules_idxs = get_iterative_modules_idxs(gene)
@@ -109,9 +110,9 @@ def build_gene_assembly_line(gene: Gene,
         a_domain_idx += 1
 
         residue_scores = get_residue_scores(module.a_domain,
+                                            external_specificity_predictions,
                                             residue_scoring_model,
                                             monomer_names_helper,
-                                            external_specificity_predictions,
                                             config,
                                             log)
 
@@ -132,36 +133,36 @@ def build_gene_assembly_line(gene: Gene,
 def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
                                      fragment_features: BGC_Fragment_Loc_Features,
                                      fragment_idx: int,
+                                     external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                                      residue_scoring_model: ModelWrapper,
                                      monomer_names_helper: MonomerNamesHelper,
-                                     external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                                      config: SpecificityPredictionConfig,
                                      log: NerpaLogger) -> List[BGC_Module]:
 
     return list(chain.from_iterable(build_gene_assembly_line(gene,
                                                              get_gene_loc_features(gene_idx, bgc_genes, fragment_features),
                                                              fragment_idx,
+                                                             external_specificity_predictions,
                                                              residue_scoring_model,
                                                              monomer_names_helper,
-                                                             external_specificity_predictions,
                                                              config,
                                                              log)
                                     for gene_idx, gene in enumerate(bgc_genes)))
 
 
 def build_bgc_assembly_line(raw_fragmented_bgc: List[BGC_Cluster],
+                            external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                             residue_scoring_model: ModelWrapper,
                             monomer_names_helper: MonomerNamesHelper,
-                            external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                             config: SpecificityPredictionConfig,
                             log: NerpaLogger) -> List[BGC_Module]:
 
     return list(chain(*(build_bgc_fragment_assembly_line(bgc_fragment.genes,
                                                          fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
                                                          fragment_idx=fgmnt_idx,
+                                                         external_specificity_predictions=external_specificity_predictions,
                                                          residue_scoring_model=residue_scoring_model,
                                                          monomer_names_helper=monomer_names_helper,
-                                                         external_specificity_predictions=external_specificity_predictions,
                                                          config=config,
                                                          log=log)
                         for fgmnt_idx, bgc_fragment in enumerate(raw_fragmented_bgc))))
@@ -197,8 +198,8 @@ def build_bgc_variants(bgc: BGC_Cluster,
                         modules=assembly_line)
             for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)
             if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,
+                                                         external_specificity_predictions,
                                                          residue_scoring_model,
                                                          monomer_names_helper,
-                                                         external_specificity_predictions,
                                                          specificity_prediction_cfg,
                                                          log))]

@@ -19,10 +19,13 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND
 )
 from src.config import antiSMASH_Processing_Config
-from src.monomer_names_helper import antiSMASH_MonomerName
+from src.monomer_names_helper import (
+    antiSMASH_MonomerName,
+    AA10,
+    AA34
+)
 from parse import parse
 from collections import defaultdict
-from itertools import pairwise
 from src.antismash_parsing.determine_modifications import ends_with_pcp_pcp, get_iterative_genes_orphan_c
 
 
@@ -50,8 +53,8 @@ def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
                                         substrates=[antiSMASH_MonomerName(substrate['short'])
                                                     for substrate in substrates])
 
-    return A_Domain(aa10=svm_dict['aa10'],
-                    aa34=svm_dict['aa34'],
+    return A_Domain(aa10=AA10(svm_dict['aa10']),
+                    aa34=AA34(svm_dict['aa34']),
                     svm=svm)
 
 

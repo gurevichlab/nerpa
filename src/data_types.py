@@ -18,7 +18,7 @@ from src.monomer_names_helper import (
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.antismash_parsing.location_features import ModuleLocFeatures, ModuleLocFeature
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.monomer_names_helper import enum_representer
+from src.monomer_names_helper import enum_representer, AA10, AA34
 from enum import auto, Enum
 from dataclasses import asdict, dataclass
 from itertools import chain, permutations, product
@@ -27,8 +27,6 @@ import yaml
 Logger = Any  # some magical logger used throughout the pipeline
 
 SMILES = str
-AA34 = str  # 34-letter code
-AA10 = str  # 10-letter Stachelhaus code
 Prob = float
 LogProb = float
 ResidueScores = Dict[MonomerResidue, LogProb]
