@@ -7,16 +7,16 @@ from typing import (
 )
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
-from src.data_types import NRP_Monomer
+from src.data_types import BGC_Module, NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from itertools import chain
 
 
-def nrp_monomer_matches_prediction(nrp_monomer: rBAN_Monomer,
-                                   predicted_emissions: Dict[NRP_Monomer, float]) -> bool:
+def bgc_module_matches_nrp_monomer(bgc_module_emissions: Dict[NRP_Monomer, float],
+                                   nrp_monomer: NRP_Monomer) -> bool:
     predicted_residues = []
-    for monomer, score in sorted(predicted_emissions.items(), key=lambda x: x[1], reverse=True):
+    for monomer, score in sorted(bgc_module_emissions.items(), key=lambda x: x[1], reverse=True):
         if monomer.residue not in predicted_residues:
             predicted_residues.append(monomer.residue)
 
@@ -35,9 +35,9 @@ def get_checkpoints(hmm: 'DetailedHMM',
                                for module in hmm.bgc_variant.modules]
 
     def are_equal(module_idx: int,
-                    monomer_idx: int) -> bool:
-        return nrp_monomer_matches_prediction(nrp_monomers[monomer_idx],
-                                              bgc_modules_predictions[module_idx])
+                  monomer_idx: int) -> bool:
+        return bgc_module_matches_nrp_monomer(bgc_modules_predictions[module_idx],
+                                              nrp_monomers[monomer_idx].to_base_mon())
 
     matched_pairs = _get_checkpoints(len(hmm.bgc_variant.modules),
                                      len(nrp_monomers),
