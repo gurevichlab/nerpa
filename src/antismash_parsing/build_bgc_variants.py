@@ -74,8 +74,8 @@ def get_residue_scores(a_domain: A_Domain,
         return 1.0 - hamming_distance(aa_code1, aa_code2) / len(aa_code1)
 
     scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
-    for aa_name, aa10_codes in monomer_names_helper.known_aa10_codes.items():
-        aa34_codes = monomer_names_helper.known_aa34_codes[aa_name]
+    for aa_name, aa10_codes in config.KNOWN_AA10_CODES.items():
+        aa34_codes = config.KNOWN_AA34_CODES[aa_name]
 
         aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
                               for known_aa_code in known_aa_codes)

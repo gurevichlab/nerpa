@@ -135,8 +135,10 @@ def main():
 
     data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training,
                                                   hmm_helper)
+
+    # intermediate results for debug
     dump_emissions_training_data(data_for_training, nerpa_dir / 'training_results')
-    substitute_predictions_with_paras(data_for_training)
+
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')
     edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
     emission_params = infer_emission_params(data_for_training.match_emissions,
