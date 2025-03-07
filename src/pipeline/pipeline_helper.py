@@ -13,7 +13,11 @@ from src.pipeline.command_line_args_helper import (
     ValidationError
 )
 from src.pipeline.logger import NerpaLogger
-from src.config import Config, load_config
+from src.config import (
+    Config,
+    load_config,
+    load_monomer_names_helper
+)
 from src.data_types import (
     BGC_Variant,
     NRP_Variant
@@ -75,19 +79,14 @@ class PipelineHelper:
 
         shutil.copytree(self.config.configs_dir, self.config.output_config.configs_output, copy_function=shutil.copy)
 
-        monomers_cfg = yaml.safe_load(self.config.monomers_config.open('r'))
-        monomers_table_tsv = self.config.nerpa_dir / monomers_cfg['monomer_names_table']
-        monomer_names_helper = MonomerNamesHelper(names_table=pd.read_csv(monomers_table_tsv, sep='\t'),
-                                                  supported_residues=monomers_cfg['supported_residues'],
-                                                  pks_names=monomers_cfg['pks_names'],
-                                                  _known_aa10_codes_as=self.config.specificity_prediction_config.KNOWN_AA10_CODES,
-                                                  _known_aa34_codes_as=self.config.specificity_prediction_config.KNOWN_AA34_CODES)
-        self.monomer_names_helper = monomer_names_helper
-        self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, monomer_names_helper)
-        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, monomer_names_helper, self.log)
-        self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, monomer_names_helper)
+        self.monomer_names_helper = load_monomer_names_helper(self.config.monomers_config,
+                                                              self.config.nerpa_dir)
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
-        self.hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
+        self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
+
+        self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
+        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, self.monomer_names_helper, self.log)
+        self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
 
     @timing_decorator
     def get_bgc_variants(self) -> List[BGC_Variant]:
