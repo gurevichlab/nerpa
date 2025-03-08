@@ -11,31 +11,33 @@ from typing import (
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.antismash_parsing.location_features import (
-    ModuleLocFeatures,
-    GeneLocFeatures,
-    BGC_Fragment_Loc_Features
+from src.antismash_parsing.genomic_context import (
+    ModuleGenomicContext,
+    GeneGenomicContext,
+    FragmentGenomicContext
 )
-from src.data_types import NRP_Monomer, LogProb
+from src.data_types import (
+    BGC_Variant_ID,
+    GeneId,
+    NRP_Monomer,
+    LogProb,
+)
 from src.monomer_names_helper import enum_representer, MonCode
-if TYPE_CHECKING:
-    from src.matching.match_type import Match_BGC_Variant_Info
 import yaml
 
 
 StateIdx = int
 
 class HMM(NamedTuple):
-    bgc_info: "Match_BGC_Variant_Info"
+    bgc_info: BGC_Variant_ID
     transitions: List[List[Tuple[StateIdx, LogProb]]]  # u -> [(v, log_prob(u -> v))]
     emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
     module_start_states: List[StateIdx]
     module_match_states: List[StateIdx]
 
-    # TODO: fix the discrepancy in naming: adj_list vs transitions, emission_log_probs vs emissions
     def to_json(self):
         return {
-            'bgc_info': self.bgc_info._asdict(),
+            'bgc_info': self.bgc_info.to_dict(),
             'transitions': self.transitions,
             'emissions': self.emissions,
             'module_start_states': self.module_start_states,
@@ -103,8 +105,27 @@ class DetailedHMMEdgeType(Enum):
 
 yaml.add_representer(DetailedHMMEdgeType, enum_representer)
 
-GenomicContext = Union[ModuleLocFeatures, GeneLocFeatures, BGC_Fragment_Loc_Features]
-EdgeKey = tuple
+GenomicContext = Union[ModuleGenomicContext, GeneGenomicContext, FragmentGenomicContext]
+
+
+class BGC_Info(NamedTuple):
+    genome_id: str
+    contig_idx: int
+    bgc_idx: int
+
+
+class ModuleLevelEdgeKey(NamedTuple):
+    gene_id: GeneId
+    a_domain_idx: int
+    edge_type: DetailedHMMEdgeType
+
+class GeneLevelEdgeKey(NamedTuple):
+    gene_id: GeneId
+
+class FragmentLevelEdgeKey(NamedTuple):
+    genes: Tuple[GeneId, ...]
+
+EdgeKey = Union[ModuleLevelEdgeKey, GeneLevelEdgeKey, FragmentLevelEdgeKey]
 
 class DetailedHMMEdge(NamedTuple):
     edge_type: DetailedHMMEdgeType

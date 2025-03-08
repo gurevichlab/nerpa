@@ -5,11 +5,18 @@ from typing import (
     Optional,
     Tuple, NamedTuple
 )
-from src.data_types import BGC_Variant, NRP_Variant, NRP_Fragment, LogProb
+from src.data_types import (
+    BGC_ID,
+    BGC_Variant,
+    BGC_Variant_ID,
+    NRP_Variant,
+    NRP_Fragment,
+    LogProb
+)
 from src.config import MatchingConfig
 from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_auxiliary_types import HMM
-from src.matching.match_type import Match, Match_BGC_Variant_Info, Match_NRP_Variant_Info
+from src.matching.match_type import Match, NRP_Variant_ID
 from src.matching.alignment_type import Alignment, alignment_score, combined_alignments_score
 from src.matching.viterbi_algorithm import get_opt_path_with_score
 from src.matching.hmm_checkpoints_heuristic import get_checkpoints
@@ -25,7 +32,7 @@ from joblib import delayed, Parallel
 
 class MatchLight(NamedTuple):
     nrp_id: str
-    bgc_variant_info: Match_BGC_Variant_Info
+    bgc_variant_id: BGC_Variant_ID
     linearizations: List[Linearization]
     score: LogProb
 
@@ -76,9 +83,10 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                         matching_cfg: MatchingConfig,
                         log=None) -> List[MatchLight]:
     if log is not None:
-        log.info(f'Processing BGC {detailed_hmm.bgc_variant.genome_id} variant {detailed_hmm.bgc_variant.variant_idx}')
+        log.info(f'Processing BGC {detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id} '
+                 f'variant {detailed_hmm.bgc_variant.bgc_variant_id.variant_idx}')
 
-    bgc_variant_info = Match_BGC_Variant_Info.from_bgc_variant(detailed_hmm.bgc_variant)
+    bgc_variant_id = detailed_hmm.bgc_variant.bgc_variant_id
     max_num_matches_per_bgc_variant = matching_cfg.max_num_matches_per_bgc \
         if matching_cfg.max_num_matches_per_bgc != 0 else None
 
@@ -90,7 +98,7 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                                                                 detailed_hmm,
                                                                 checkpoints_heuristic=matching_cfg.checkpoints_heuristic)
         matches.append(MatchLight(nrp_linearizations.nrp_id,
-                                  bgc_variant_info,
+                                  bgc_variant_id,
                                   linearizations,
                                   score))
 
@@ -102,21 +110,15 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
 
 def filter_and_sort_matches(matches: List[MatchLight],
                             config: MatchingConfig) -> List[MatchLight]:
-    BGC_Info = tuple
     NRP_ID = str
 
-    def get_bgc_info(bgc_variant_info: Match_BGC_Variant_Info) -> BGC_Info:
-        return (bgc_variant_info.genome_id,
-                bgc_variant_info.contig_idx,
-                bgc_variant_info.bgc_idx)
-
     # Step 0: Keep only the top match per (BGC, NRP) pair
-    matches_map: Dict[Tuple[BGC_Info, NRP_ID], List[MatchLight]] = defaultdict(list)
+    matches_map: Dict[Tuple[BGC_ID, NRP_ID], List[MatchLight]] = defaultdict(list)
 
     for match in matches:
         nrp_id = match.nrp_id
-        bgc_info = get_bgc_info(match.bgc_variant_info)
-        matches_map[(bgc_info, nrp_id)].append(match)
+        bgc_id = match.bgc_variant_id.bgc_id
+        matches_map[(bgc_id, nrp_id)].append(match)
 
     # Collect the best matches
     unique_matches = [max(matches_for_bgc_nrp, key=lambda x: x.score)
@@ -126,14 +128,14 @@ def filter_and_sort_matches(matches: List[MatchLight],
     sorted_matches = sorted(unique_matches, key=lambda x: x.score, reverse=True)
 
     # Step 2: Filter by BGC
-    bgc_counts: Dict[BGC_Info, int] = Counter()
+    bgc_counts: Dict[BGC_ID, int] = Counter()
     bgc_filtered = []
 
     for match in sorted_matches:
-        bgc_info = get_bgc_info(match.bgc_variant_info)
-        if bgc_counts[bgc_info] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0:
+        bgc_id = match.bgc_variant_id.bgc_id
+        if bgc_counts[bgc_id] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0:
             bgc_filtered.append(match)
-            bgc_counts[bgc_info] += 1
+            bgc_counts[bgc_id] += 1
 
     # Step 3: Filter by NRP_ID
     nrp_counts: Dict[NRP_ID, int] = Counter()
@@ -167,11 +169,11 @@ def to_full_match(match_light: MatchLight,
         alignment = detailed_hmm.path_to_alignment(opt_path, linearization)
         alignments.append(alignment)
 
-    return Match(bgc_variant_info=match_light.bgc_variant_info,
-                 nrp_variant_info=Match_NRP_Variant_Info(nrp_id=match_light.nrp_id,
-                                                         variant_idx=0),
+    return Match(bgc_variant_id=match_light.bgc_variant_id,
+                 nrp_variant_id=NRP_Variant_ID(nrp_id=match_light.nrp_id,
+                                               variant_idx=0),
                  alignments=alignments,
-                 normalized_score=match_light.score)
+                 score=match_light.score)
 
 
 def get_matches(hmms: List[DetailedHMM],
@@ -193,11 +195,11 @@ def get_matches(hmms: List[DetailedHMM],
     log.info('Matches obtained. Filtering and sorting...')
     matches_light_filtered = filter_and_sort_matches(list(matches_light), matching_cfg)
 
-    bgc_variant_to_hmm = {Match_BGC_Variant_Info.from_bgc_variant(detailed_hmm.bgc_variant): detailed_hmm
+    bgc_variant_to_hmm = {detailed_hmm.bgc_variant.bgc_variant_id: detailed_hmm
                           for detailed_hmm in hmms}
     monomer_names_helper = hmms[0].hmm_helper.monomer_names_helper
     return [to_full_match(match_light,
-                          bgc_variant_to_hmm[match_light.bgc_variant_info],
+                          bgc_variant_to_hmm[match_light.bgc_variant_id],
                           monomer_names_helper,
                           matching_cfg.checkpoints_heuristic)
             for match_light in matches_light_filtered]

@@ -4,10 +4,10 @@ if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
 
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
-from src.antismash_parsing.location_features import (
-    ModuleLocFeature,
-    GeneLocFeature,
-    BGC_Fragment_Loc_Feature,
+from src.antismash_parsing.genomic_context import (
+    ModuleGenomicContextFeature,
+    GeneGenomicContextFeature,
+    FragmentGenomicContextFeature,
 )
 from src.matching.hmm_config import EdgeWeightsParams
 from math import log
@@ -27,33 +27,33 @@ def get_edge_weights(hmm,  # type: DetailedHMM
 
     # TODO: introduce other features, e.g. single module in gene
     genomic_location_features = {
-        ModuleLocFeature.START_OF_BGC,
-        ModuleLocFeature.END_OF_BGC,
-        ModuleLocFeature.START_OF_FRAGMENT,
-        ModuleLocFeature.END_OF_FRAGMENT,
-        ModuleLocFeature.START_OF_GENE,
-        ModuleLocFeature.END_OF_GENE,
+        ModuleGenomicContextFeature.START_OF_BGC,
+        ModuleGenomicContextFeature.END_OF_BGC,
+        ModuleGenomicContextFeature.START_OF_FRAGMENT,
+        ModuleGenomicContextFeature.END_OF_FRAGMENT,
+        ModuleGenomicContextFeature.START_OF_GENE,
+        ModuleGenomicContextFeature.END_OF_GENE,
 
-        GeneLocFeature.START_OF_BGC,
-        GeneLocFeature.END_OF_BGC,
-        GeneLocFeature.START_OF_FRAGMENT,
-        GeneLocFeature.END_OF_FRAGMENT,
+        GeneGenomicContextFeature.START_OF_BGC,
+        GeneGenomicContextFeature.END_OF_BGC,
+        GeneGenomicContextFeature.START_OF_FRAGMENT,
+        GeneGenomicContextFeature.END_OF_FRAGMENT,
 
-        BGC_Fragment_Loc_Feature.START_OF_BGC,
-        BGC_Fragment_Loc_Feature.END_OF_BGC
+        FragmentGenomicContextFeature.START_OF_BGC,
+        FragmentGenomicContextFeature.END_OF_BGC
     }
 
     pks_context_features = {
-        ModuleLocFeature.PKS_UPSTREAM_PREV_GENE,
-        ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE,
-        ModuleLocFeature.PKS_UPSTREAM_SAME_GENE,
-        ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE,
+        ModuleGenomicContextFeature.PKS_UPSTREAM_PREV_GENE,
+        ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE,
+        ModuleGenomicContextFeature.PKS_UPSTREAM_SAME_GENE,
+        ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE,
 
-        GeneLocFeature.PKS_UPSTREAM,
-        GeneLocFeature.PKS_DOWNSTREAM,
+        GeneGenomicContextFeature.PKS_UPSTREAM,
+        GeneGenomicContextFeature.PKS_DOWNSTREAM,
 
-        BGC_Fragment_Loc_Feature.PKS_UPSTREAM,
-        BGC_Fragment_Loc_Feature.PKS_DOWNSTREAM
+        FragmentGenomicContextFeature.PKS_UPSTREAM,
+        FragmentGenomicContextFeature.PKS_DOWNSTREAM
     }
 
     # determine edge weights for non-dependent edge types

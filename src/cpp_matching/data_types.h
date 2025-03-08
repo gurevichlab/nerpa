@@ -16,13 +16,16 @@ using NRP_ID     = std::string;
 
 // ========== Data Structures ==========
 
-using BGC_Info   = std::tuple<std::string, int, int, int>;  // (genome_id, contig_idx, bgc_idx, variant_idx)
-// Define accessors
-constexpr auto& genome_id(BGC_Info& t) { return std::get<0>(t); }
-constexpr auto& genome_id(const BGC_Info& t) { return std::get<0>(t); }
-constexpr auto& contig_idx(BGC_Info& t) { return std::get<1>(t); }
-constexpr auto& bgc_idx(BGC_Info& t) { return std::get<2>(t); }
-constexpr auto& variant_idx(BGC_Info& t) { return std::get<3>(t); }
+using BGC_ID = std::tuple<std::string, int, int>;  // (genome_id, contig_idx, bgc_idx)
+// q: write accessors for BGC_ID
+constexpr const auto& genome_id(const BGC_ID & t) { return std::get<0>(t); }
+constexpr const auto& contig_idx(const BGC_ID & t) { return std::get<1>(t); }
+constexpr const auto& bgc_idx(const BGC_ID & t) { return std::get<2>(t); }
+
+using BGC_Variant_ID  = std::tuple<BGC_ID, int>;  // (bgc_id, variant_idx)
+// q: write accessors for BGC_Variant_ID
+constexpr const auto& bgc_id(const BGC_Variant_ID & t) { return std::get<0>(t); }
+constexpr const auto& variant_idx(const BGC_Variant_ID & t) { return std::get<1>(t); }
 
 // For each linearization, store sequences of monomers (first) and rBAN indices (second).
 using NRP_Linearization = std::pair<std::vector<MonCode>, std::vector<rBAN_idx>>;
@@ -56,7 +59,7 @@ struct MatchingConfig {
 
 struct MatchInfo {
     LogProb score;
-    BGC_Info bgc_info;
+    BGC_Variant_ID bgc_variant_id;
     NRP_ID nrp_id;
     std::vector<NRP_Linearization> linearizations;
     std::vector<std::vector<StateIdx>> optimal_paths;  // one path per linearization
@@ -64,7 +67,7 @@ struct MatchInfo {
 
 struct MatchInfoLight {
     LogProb score;
-    BGC_Info bgc_info;
+    BGC_Variant_ID bgc_variant_id;
     NRP_ID nrp_id;
     std::vector<const NRP_Linearization*> linearizations;
 };

@@ -5,7 +5,7 @@ from typing import (
     Optional,
     Union
 )
-from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     GenomicContext,
@@ -16,38 +16,38 @@ def filter_context(genomic_context: GenomicContext) -> GenomicContext:
     # if ModuleLocFeature.START_OF_BGC is present, then MODULE_LOC_FEATURE.START_OF_FRAGMENT is automatically present
     # I want to keep only ModuleLocFeature.START_OF_BGC.
     # The same for other pairs of features
-    if ModuleLocFeature.START_OF_FRAGMENT in genomic_context:
-        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleLocFeature.START_OF_GENE)
-    if ModuleLocFeature.END_OF_FRAGMENT in genomic_context:
-        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleLocFeature.END_OF_GENE)
-    if ModuleLocFeature.START_OF_BGC in genomic_context:
-        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleLocFeature.START_OF_FRAGMENT)
-    if ModuleLocFeature.END_OF_BGC in genomic_context:
-        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleLocFeature.END_OF_FRAGMENT)
+    if ModuleGenomicContextFeature.START_OF_FRAGMENT in genomic_context:
+        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleGenomicContextFeature.START_OF_GENE)
+    if ModuleGenomicContextFeature.END_OF_FRAGMENT in genomic_context:
+        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleGenomicContextFeature.END_OF_GENE)
+    if ModuleGenomicContextFeature.START_OF_BGC in genomic_context:
+        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleGenomicContextFeature.START_OF_FRAGMENT)
+    if ModuleGenomicContextFeature.END_OF_BGC in genomic_context:
+        genomic_context = tuple(loc for loc in genomic_context if loc != ModuleGenomicContextFeature.END_OF_FRAGMENT)
     return genomic_context
 
 
 # parameters are estimated for single features only
 # for multiple features, parameters are computed based on the single features
-SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
+SingleFeatureContext = Union[ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature, None]
 
 
 EDGE_TYPE_DEPENDENCIES = {
     # Insertion edge dependencies
     DetailedHMMEdgeType.START_INSERTING_AT_START: {
-        ModuleLocFeature.START_OF_BGC,
-        ModuleLocFeature.START_OF_FRAGMENT,
-        ModuleLocFeature.START_OF_GENE,
-        ModuleLocFeature.PKS_UPSTREAM_PREV_GENE,
-        ModuleLocFeature.PKS_UPSTREAM_SAME_GENE
+        ModuleGenomicContextFeature.START_OF_BGC,
+        ModuleGenomicContextFeature.START_OF_FRAGMENT,
+        ModuleGenomicContextFeature.START_OF_GENE,
+        ModuleGenomicContextFeature.PKS_UPSTREAM_PREV_GENE,
+        ModuleGenomicContextFeature.PKS_UPSTREAM_SAME_GENE
     },
     DetailedHMMEdgeType.INSERT_AT_START: set(),
     DetailedHMMEdgeType.START_INSERTING: {
-        ModuleLocFeature.END_OF_BGC,
-        ModuleLocFeature.END_OF_FRAGMENT,
-        ModuleLocFeature.END_OF_GENE,
-        ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE,
-        ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE
+        ModuleGenomicContextFeature.END_OF_BGC,
+        ModuleGenomicContextFeature.END_OF_FRAGMENT,
+        ModuleGenomicContextFeature.END_OF_GENE,
+        ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE,
+        ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE
     },
     DetailedHMMEdgeType.INSERT: set(),
     DetailedHMMEdgeType.END_INSERTING: set(),

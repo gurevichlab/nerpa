@@ -5,13 +5,13 @@ from typing import (
     Optional,
     Union
 )
-from src.antismash_parsing.location_features import ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType
 )
 from src.training.statistical_inference import *
 
-SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
+SingleFeatureContext = Union[ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature, None]
 
 
 def infer_edge_params(data: Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureContext, ...], Tuple[int, int]]]):
@@ -29,55 +29,55 @@ def infer_edge_params(data: Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureCo
     base_prob = estimated_probabilities[None]  # to keep things concise
 
     # Context 1: ['START_OF_BGC']
-    failures, successes = data_ins_st[(ModuleLocFeature.START_OF_BGC,)]
-    estimated_probabilities[ModuleLocFeature.START_OF_BGC] = (
+    failures, successes = data_ins_st[(ModuleGenomicContextFeature.START_OF_BGC,)]
+    estimated_probabilities[ModuleGenomicContextFeature.START_OF_BGC] = (
         (successes + 1) / (failures + successes + 2) - base_prob
     )
 
     # Context 2: ['START_OF_FRAGMENT']
-    failures, successes = data_ins_st[(ModuleLocFeature.START_OF_BGC,)]
+    failures, successes = data_ins_st[(ModuleGenomicContextFeature.START_OF_BGC,)]
     total = 10  # prior pseudocounts / skepticism level
     alpha = total * (successes / (failures + successes))
     beta = total - alpha
 
-    if (ModuleLocFeature.START_OF_FRAGMENT,) in data_ins_st:
-        failures, successes = data_ins_st[(ModuleLocFeature.START_OF_FRAGMENT,)]
+    if (ModuleGenomicContextFeature.START_OF_FRAGMENT,) in data_ins_st:
+        failures, successes = data_ins_st[(ModuleGenomicContextFeature.START_OF_FRAGMENT,)]
         alpha += successes
         beta += failures
 
-        estimated_probabilities[ModuleLocFeature.START_OF_FRAGMENT] = (
+        estimated_probabilities[ModuleGenomicContextFeature.START_OF_FRAGMENT] = (
             alpha / (alpha + beta)
         ) - base_prob
     else:
-        estimated_probabilities[ModuleLocFeature.START_OF_FRAGMENT] = default_probability
+        estimated_probabilities[ModuleGenomicContextFeature.START_OF_FRAGMENT] = default_probability
 
     # Context 3: [ModuleLocFeature.PKS_UPSTREAM_PREV_GENE]
     prior = UNIFORM
 
-    failures, successes = data_ins_st[(ModuleLocFeature.START_OF_BGC, ModuleLocFeature.PKS_UPSTREAM_PREV_GENE)]
-    a = (1 - base_prob) * (1 - estimated_probabilities[ModuleLocFeature.START_OF_BGC])
+    failures, successes = data_ins_st[(ModuleGenomicContextFeature.START_OF_BGC, ModuleGenomicContextFeature.PKS_UPSTREAM_PREV_GENE)]
+    a = (1 - base_prob) * (1 - estimated_probabilities[ModuleGenomicContextFeature.START_OF_BGC])
     b = 1 - a
     f = (a, b)
     post = bayesian_inference(prior, f, failures, successes)
 
-    failures, successes = data_ins_st[(ModuleLocFeature.START_OF_FRAGMENT, ModuleLocFeature.PKS_UPSTREAM_PREV_GENE)]
-    a = (1 - base_prob) * (1 - estimated_probabilities[ModuleLocFeature.START_OF_FRAGMENT])
+    failures, successes = data_ins_st[(ModuleGenomicContextFeature.START_OF_FRAGMENT, ModuleGenomicContextFeature.PKS_UPSTREAM_PREV_GENE)]
+    a = (1 - base_prob) * (1 - estimated_probabilities[ModuleGenomicContextFeature.START_OF_FRAGMENT])
     b = 1 - a
     f = (a, b)
     post = bayesian_inference(post, f, failures, successes)
 
-    estimated_probabilities[ModuleLocFeature.PKS_UPSTREAM_PREV_GENE] = expectation(post)
+    estimated_probabilities[ModuleGenomicContextFeature.PKS_UPSTREAM_PREV_GENE] = expectation(post)
 
     # Context 4: [ModuleLocFeature.PKS_UPSTREAM_SAME_GENE]
     prior = UNIFORM
 
-    failures, successes = data_ins_st[(ModuleLocFeature.START_OF_BGC, ModuleLocFeature.PKS_UPSTREAM_SAME_GENE)]
-    a = (1 - base_prob) * (1 - estimated_probabilities[ModuleLocFeature.START_OF_BGC])
+    failures, successes = data_ins_st[(ModuleGenomicContextFeature.START_OF_BGC, ModuleGenomicContextFeature.PKS_UPSTREAM_SAME_GENE)]
+    a = (1 - base_prob) * (1 - estimated_probabilities[ModuleGenomicContextFeature.START_OF_BGC])
     b = 1 - a
     f = (a, b)
     post = bayesian_inference(prior, f, failures, successes)
 
-    estimated_probabilities[ModuleLocFeature.PKS_UPSTREAM_SAME_GENE] = expectation(post)
+    estimated_probabilities[ModuleGenomicContextFeature.PKS_UPSTREAM_SAME_GENE] = expectation(post)
 
     params[DetailedHMMEdgeType.START_INSERTING_AT_START] = estimated_probabilities
 
@@ -88,54 +88,54 @@ def infer_edge_params(data: Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureCo
     estimated_probabilities[None] = default_probability
     base_prob = estimated_probabilities[None]
 
-    failures, successes = data_ins[(ModuleLocFeature.END_OF_BGC,)]
-    estimated_probabilities[ModuleLocFeature.END_OF_BGC] = (
+    failures, successes = data_ins[(ModuleGenomicContextFeature.END_OF_BGC,)]
+    estimated_probabilities[ModuleGenomicContextFeature.END_OF_BGC] = (
         (successes + 1) / (failures + successes + 2) - base_prob
     )
 
-    failures, successes = data_ins[(ModuleLocFeature.END_OF_FRAGMENT,)]
-    estimated_probabilities[ModuleLocFeature.END_OF_FRAGMENT] = (
+    failures, successes = data_ins[(ModuleGenomicContextFeature.END_OF_FRAGMENT,)]
+    estimated_probabilities[ModuleGenomicContextFeature.END_OF_FRAGMENT] = (
         (successes + 1) / (failures + successes + 2) - base_prob
     )
 
-    failures, successes = data_ins[(ModuleLocFeature.END_OF_GENE,)]
-    estimated_probabilities[ModuleLocFeature.END_OF_GENE] = (
+    failures, successes = data_ins[(ModuleGenomicContextFeature.END_OF_GENE,)]
+    estimated_probabilities[ModuleGenomicContextFeature.END_OF_GENE] = (
         (successes + 1) / (failures + successes + 2) - base_prob
     )
 
     prior = UNIFORM
     for loc_feature in [
-        ModuleLocFeature.END_OF_BGC,
-        ModuleLocFeature.END_OF_FRAGMENT,
-        ModuleLocFeature.END_OF_GENE,
+        ModuleGenomicContextFeature.END_OF_BGC,
+        ModuleGenomicContextFeature.END_OF_FRAGMENT,
+        ModuleGenomicContextFeature.END_OF_GENE,
     ]:
-        if (loc_feature, ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE) not in data_ins:
+        if (loc_feature, ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE) not in data_ins:
             continue
-        failures, successes = data_ins[(loc_feature, ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE)]
+        failures, successes = data_ins[(loc_feature, ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE)]
         a = (1 - base_prob) * (1 - estimated_probabilities[loc_feature])
         b = 1 - a
         f = (a, b)
         post = bayesian_inference(prior, f, failures, successes)
         prior = post
 
-    estimated_probabilities[ModuleLocFeature.PKS_DOWNSTREAM_NEXT_GENE] = expectation(post)
+    estimated_probabilities[ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE] = expectation(post)
 
     prior = UNIFORM
     for loc_feature in [
-        ModuleLocFeature.END_OF_BGC,
-        ModuleLocFeature.END_OF_FRAGMENT,
-        ModuleLocFeature.END_OF_GENE,
+        ModuleGenomicContextFeature.END_OF_BGC,
+        ModuleGenomicContextFeature.END_OF_FRAGMENT,
+        ModuleGenomicContextFeature.END_OF_GENE,
     ]:
-        if (loc_feature, ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE) not in data_ins:
+        if (loc_feature, ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE) not in data_ins:
             continue
-        failures, successes = data_ins[(loc_feature, ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE)]
+        failures, successes = data_ins[(loc_feature, ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE)]
         a = (1 - base_prob) * (1 - estimated_probabilities[loc_feature])
         b = 1 - a
         f = (a, b)
         post = bayesian_inference(prior, f, failures, successes)
         prior = post
 
-    estimated_probabilities[ModuleLocFeature.PKS_DOWNSTREAM_SAME_GENE] = expectation(post)
+    estimated_probabilities[ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE] = expectation(post)
 
     params[DetailedHMMEdgeType.START_INSERTING] = estimated_probabilities
 

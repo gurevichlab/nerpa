@@ -1,4 +1,5 @@
 #include "write_matches.h"
+#include "data_types.h"
 #include <fstream>
 #include <stdexcept>
 #include "parsing/json.hpp"
@@ -19,18 +20,21 @@ void write_matches_to_json(const std::vector<MatchInfo>& matches,
         std::transform(match.optimal_paths.begin(), match.optimal_paths.end(), std::back_inserter(optimal_paths_json),
                        [](const auto& path) { return json(path); });
 
+
         return json{
                 {"score", match.score},
-                {"bgc_variant_info", {
-                                  {"genome_id", std::get<0>(match.bgc_info)},
-                                  {"contig_idx", std::get<1>(match.bgc_info)},
-                                  {"bgc_idx", std::get<2>(match.bgc_info)},
-                                  {"variant_idx", std::get<3>(match.bgc_info)}
+                {"bgc_variant_id", {
+                                  {"bgc_id", {
+                                                     {"genome_id", genome_id(bgc_id(match.bgc_variant_id))},
+                                                     {"contig_idx", contig_idx(bgc_id(match.bgc_variant_id))},
+                                                     {"bgc_idx", bgc_idx(bgc_id(match.bgc_variant_id))}
+                                             }},
+                                  {"variant_idx", variant_idx(match.bgc_variant_id)}
                           }},
                 {"nrp_id", match.nrp_id},
                 {"nrp_linearizations", linearizations_json},
                 {"optimal_paths", optimal_paths_json}
-        };
+        }; // <-- Removed the extra semicolon here
     });
 
     std::ofstream ofs(output_path);
