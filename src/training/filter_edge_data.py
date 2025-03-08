@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import (
     Dict,
     List,
@@ -10,12 +11,17 @@ from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     GenomicContext,
 )
+from src.training.training_types import EdgeInfo, ChoicesCnts
 
 
-def filter_context(genomic_context: GenomicContext) -> GenomicContext:
+# TODO: create GenomicContext already filtered?
+def remove_redundancy(genomic_context: Optional[GenomicContext]) -> Optional[GenomicContext]:
     # if ModuleLocFeature.START_OF_BGC is present, then MODULE_LOC_FEATURE.START_OF_FRAGMENT is automatically present
     # I want to keep only ModuleLocFeature.START_OF_BGC.
     # The same for other pairs of features
+    if genomic_context is None:
+        return None
+
     if ModuleGenomicContextFeature.START_OF_FRAGMENT in genomic_context:
         genomic_context = tuple(loc for loc in genomic_context if loc != ModuleGenomicContextFeature.START_OF_GENE)
     if ModuleGenomicContextFeature.END_OF_FRAGMENT in genomic_context:
@@ -27,11 +33,7 @@ def filter_context(genomic_context: GenomicContext) -> GenomicContext:
     return genomic_context
 
 
-# parameters are estimated for single features only
-# for multiple features, parameters are computed based on the single features
-SingleFeatureContext = Union[ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature, None]
-
-
+# which genomic context features are relevant for the edge probability for each edge type
 EDGE_TYPE_DEPENDENCIES = {
     # Insertion edge dependencies
     DetailedHMMEdgeType.START_INSERTING_AT_START: {
@@ -68,22 +70,25 @@ EDGE_TYPE_DEPENDENCIES = {
     DetailedHMMEdgeType.ITERATE_GENE: set()
 }
 
-def get_filtered_edge_data(edge_choices: List[Tuple[DetailedHMMEdgeType, GenomicContext, bool]]) \
-        -> Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureContext, ...], Tuple[int, int]]]:
-    filtered_data = {}
-    for edge_type, context, chosen in edge_choices:
+
+# leave only relevant genomic context features for each edge type
+def get_filtered_edge_choices(edge_choices: List[Tuple[EdgeInfo, bool]]) \
+        -> List[Tuple[EdgeInfo, bool]]:
+    filtered_edge_choices: List[Tuple[EdgeInfo, bool]] = []
+    for (edge_type, genomic_context), chosen in edge_choices:
+        # weights of edges of these types are automatically computed based on other edges,
+        # so they are not relevant
         if edge_type not in EDGE_TYPE_DEPENDENCIES:
             continue
-        if context is None:
-            context = ()
-        context = filter_context(context)
-        context = tuple(feature for feature in context if feature in EDGE_TYPE_DEPENDENCIES[edge_type])
-        if edge_type not in filtered_data:
-            filtered_data[edge_type] = {}
-        if context not in filtered_data[edge_type]:
-            filtered_data[edge_type][context] = (0, 0)
-        filtered_data[edge_type][context] = (filtered_data[edge_type][context][0] + 1 - int(chosen),
-                                             filtered_data[edge_type][context][1] + int(chosen))
+
+        genomic_context = remove_redundancy(genomic_context)
+        if genomic_context is not None:
+            genomic_context = tuple(feature
+                                    for feature in genomic_context
+                                    if feature in EDGE_TYPE_DEPENDENCIES[edge_type])
+
+        new_edge_info = EdgeInfo(edge_type=edge_type, genomic_context=genomic_context)
+        filtered_edge_choices.append((new_edge_info, chosen))
 
     # write_yaml(filtered_data, Path('filtered_data.yaml'))
-    return filtered_data
+    return filtered_edge_choices

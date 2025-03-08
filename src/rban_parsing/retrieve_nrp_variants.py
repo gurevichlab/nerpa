@@ -12,6 +12,7 @@ import networkx as nx
 from src.data_types import (
     NRP_Fragment,
     NRP_Variant,
+    NRP_Variant_ID
 )
 from src.monomer_names_helper import (
     MonomerNamesHelper,
@@ -117,8 +118,8 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
                                  for fragment in all_fragments
                                  if len(fragment.monomers) == 1 and fragment.monomers[0].residue == UNKNOWN_RESIDUE]
 
-    return NRP_Variant(variant_idx=0,
-                       nrp_id=rban_record.compound_id,
+    return NRP_Variant(nrp_variant_id=NRP_Variant_ID(variant_idx=0,
+                                                     nrp_id=rban_record.compound_id),
                        fragments=proper_fragments,
                        isolated_unknown_monomers=isolated_unknown_monomers)
 

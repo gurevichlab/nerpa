@@ -6,7 +6,7 @@ from typing import (
     Dict,
     Optional,
     TYPE_CHECKING,
-    Union
+    Union, NewType
 )
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -17,6 +17,7 @@ from src.antismash_parsing.genomic_context import (
     FragmentGenomicContext
 )
 from src.data_types import (
+    BGC_ID,
     BGC_Variant_ID,
     GeneId,
     NRP_Monomer,
@@ -108,30 +109,19 @@ yaml.add_representer(DetailedHMMEdgeType, enum_representer)
 GenomicContext = Union[ModuleGenomicContext, GeneGenomicContext, FragmentGenomicContext]
 
 
-class BGC_Info(NamedTuple):
-    genome_id: str
-    contig_idx: int
-    bgc_idx: int
+ModuleLevelEdgeKey = NewType('ModuleLevelEdgeKey', Tuple[GeneId, int])
+GeneLevelEdgeKey = NewType('GeneLevelEdgeKey', GeneId)
+FragmentLevelEdgeKey = NewType('FragmentLevelEdgeKey', Tuple[GeneId, ...])
 
-
-class ModuleLevelEdgeKey(NamedTuple):
-    gene_id: GeneId
-    a_domain_idx: int
-    edge_type: DetailedHMMEdgeType
-
-class GeneLevelEdgeKey(NamedTuple):
-    gene_id: GeneId
-
-class FragmentLevelEdgeKey(NamedTuple):
-    genes: Tuple[GeneId, ...]
-
-EdgeKey = Union[ModuleLevelEdgeKey, GeneLevelEdgeKey, FragmentLevelEdgeKey]
+# edge_key can be None for auxiliary edges that are not related to any BGC modules
+EdgeKey = Union[ModuleLevelEdgeKey, GeneLevelEdgeKey, FragmentLevelEdgeKey, None]
 
 class DetailedHMMEdge(NamedTuple):
     edge_type: DetailedHMMEdgeType
     weight: LogProb
     # edges have different weights, depending on the type and the context
     genomic_context: Optional[GenomicContext]
-    # edge_key is used in parameter estimation to not count the same edge multiple times when it's used for different NRP compounds and the same BCG
-    edge_key: Optional[tuple]
+    # edge_key is used in parameter estimation to not count the same edge multiple times
+    # when it's used for different NRP compounds and the same BGC (but maybe different variants)
+    edge_key: EdgeKey
 

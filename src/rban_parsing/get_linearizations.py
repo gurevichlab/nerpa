@@ -84,7 +84,7 @@ def iterative_fragments_linearizations(nrp_fragments: List[NRP_Fragment]) -> Lis
 def get_nrp_linearizations(nrp_variant: NRP_Variant) -> NRP_Linearizations:
     non_iterative = non_iterative_linearizations(nrp_variant.fragments)
     iterative = iterative_fragments_linearizations(nrp_variant.fragments)
-    return NRP_Linearizations(nrp_variant.nrp_id, non_iterative, iterative)
+    return NRP_Linearizations(nrp_variant.nrp_variant_id.nrp_id, non_iterative, iterative)
 
 
 def get_all_nrp_linearizations(nrp_variants: List[NRP_Variant]) -> List[NRP_Linearizations]:
