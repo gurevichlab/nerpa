@@ -11,7 +11,7 @@ from src.matching.match_type import Match
 def _create_match_dicts(matches: List[Match], debug_output: bool) -> List[Dict]:
     # TODO: make this function less hard-coded, maybe do all stuff in AlignmentStep.to_dict()? See alignment_step_type.py
     def _postprocess_alignments_for_html(match_dict: Dict) -> Dict:
-        for i, alignment in enumerate(match_dict['Alignments']):
+        for i, alignment in enumerate(match_dict['alignments']):
             cleaned_alignment = []
             for alignment_step in alignment:
                 # omitting auxiliary HMM transitions unless explicilty asked to show everything (--debug)
@@ -23,7 +23,7 @@ def _create_match_dicts(matches: List[Match], debug_output: bool) -> List[Dict]:
                 alignment_step['NRP_modifications'] = 'MT' if alignment_step['NRP_methylated'] == 'True' else '---'  # possible values are 'True', 'False', '---'
                 cleaned_alignment.append(alignment_step)
             # Update the original alignment in the match_dict
-            match_dict['Alignments'][i] = cleaned_alignment
+            match_dict['alignments'][i] = cleaned_alignment
 
         return match_dict
 

@@ -45,8 +45,8 @@ def build_report(matches: List[Match]) -> str:
     csv_writer.writerows({'Score': match.score,
                           'NRP_ID': match.nrp_variant_id.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
-                          'Genome_ID': match.bgc_variant_id.genome_id,
-                          'BGC_ID': match.bgc_variant_id.bgc_idx,
+                          'Genome_ID': match.bgc_variant_id.bgc_id.genome_id,
+                          'BGC_ID': match.bgc_variant_id.bgc_id.bgc_idx,
                           'BGC_Variant_Idx': match.bgc_variant_id.variant_idx}
                          for match in matches)
     return result.getvalue()
@@ -82,14 +82,15 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
 
     output_cfg.nrp_variants_dir.mkdir()
-    for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_id):
+    for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_variant_id.nrp_id):
         write_yaml(list(nrp_id_variants), output_cfg.nrp_variants_dir / f'{nrp_id}.yaml')
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
                        output_dir: Path):
-    for (genome_id, bgc_id), bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: (bgc_variant.genome_id, bgc_variant.bgc_idx)):
-        write_yaml(list(bgc_id_variants), output_dir / f'{genome_id}_{bgc_id}.yaml')
+    for bgc_id, bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: bgc_variant.bgc_variant_id.bgc_id):
+        bgc_id_str = f'{bgc_id.genome_id}_{bgc_id.contig_idx}_{bgc_id.bgc_idx}'
+        write_yaml(list(bgc_id_variants), output_dir / f'{bgc_id_str}.yaml')
 
 
 def write_matches_details(matches: List[Match],
@@ -100,7 +101,7 @@ def write_matches_details(matches: List[Match],
 
     (matches_details_output_dir / Path('per_BGC')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant_id.genome_id}_{match.bgc_variant_id.get_antismash_id()}')
+                         get_id=lambda match: f'{match.bgc_variant_id.bgc_id.genome_id}_{match.bgc_variant_id.get_antismash_id()}')
 
     (matches_details_output_dir / Path('per_NRP')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_NRP'),
@@ -109,9 +110,9 @@ def write_matches_details(matches: List[Match],
 
 def write_results(matches: List[Match],
                   output_cfg: OutputConfig,
-                  bgc_variants: Union[List[BGC_Variant], None] = None,
-                  nrp_variants: Union[List[NRP_Variant], None] = None,
-                  rban_records: Union[List[Parsed_rBAN_Record], None] = None,
+                  bgc_variants: Optional[List[BGC_Variant]] = None,
+                  nrp_variants: Optional[List[NRP_Variant]] = None,
+                  rban_records: Optional[List[Parsed_rBAN_Record]] = None,
                   matches_details: bool = True,
                   html_report: bool = True,
                   debug_output: bool = False,
