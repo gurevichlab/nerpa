@@ -1,6 +1,7 @@
 from typing import (
     Dict,
     List,
+    NamedTuple,
     Tuple,
     Optional,
     Union
@@ -27,11 +28,21 @@ from pathlib import Path
 from collections import defaultdict
 import yaml
 
+class ChoicesCnts(NamedTuple):
+    NOT_CHOSEN: int
+    CHOSEN: int
+
+
+class MatchEmissionInfo(NamedTuple):
+    bgc_variant: Match_BGC_Variant_Info
+    bgc_module: BGC_Module
+    nrp_monomer: NRP_Monomer
+
 
 @dataclass
 class DataForTraining:
-    edge_choices_cnts: Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureContext, ...], Tuple[int, int]]]
-    match_emissions:  List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]]  # (module, monomer)
+    edge_choices_cnts: Dict[DetailedHMMEdgeType, Dict[Tuple[SingleFeatureContext, ...], ChoicesCnts]]
+    match_emissions:  List[MatchEmissionInfo]  # (module, monomer)
     #insert_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
     #insert_at_start_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
 
@@ -40,7 +51,7 @@ class PathTurnInfo:
     chosen_edge_key: EdgeKey
     chosen_edge_info: Tuple[DetailedHMMEdgeType, GenomicContext]
     other_edges_info: List[Tuple[DetailedHMMEdgeType, GenomicContext]]
-    bgc_module_with_emission: Optional[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]] = None
+    emission_info: Optional[MatchEmissionInfo] = None
 
 
 def get_turns_info(detailed_hmm: DetailedHMM,
@@ -61,7 +72,7 @@ def get_turns_info(detailed_hmm: DetailedHMM,
     num_insertions = 0
     turns_info = []
     for (u, emission), (v, _) in pairwise(path_with_emissions):
-        edge = detailed_hmm.adj_list[u][v]
+        edge = detailed_hmm.transitions[u][v]
         if edge.edge_type == DetailedHMMEdgeType.INSERT:
             chosen_edge_key = edge.edge_key + (num_insertions,)
             num_insertions += 1
@@ -72,7 +83,7 @@ def get_turns_info(detailed_hmm: DetailedHMM,
         chosen_edge_info = (edge.edge_type, edge.genomic_context)
 
         other_edges_info = []
-        for w, edge_info in detailed_hmm.adj_list[u].items():
+        for w, edge_info in detailed_hmm.transitions[u].items():
             if w == v:
                 continue
             other_edges_info.append((edge_info.edge_type, edge_info.genomic_context))
@@ -80,7 +91,7 @@ def get_turns_info(detailed_hmm: DetailedHMM,
         if detailed_hmm.states[u].state_type == DetailedHMMStateType.MATCH:
             try:
                 next_module_start_state_idx = next(w
-                                                   for w in detailed_hmm.adj_list[u]
+                                                   for w in detailed_hmm.transitions[u]
                                                    if detailed_hmm.states[w].state_type == DetailedHMMStateType.MODULE_START)
                 next_module_idx = detailed_hmm.state_idx_to_module_idx[next_module_start_state_idx]
                 module_idx = next_module_idx - 1
@@ -104,7 +115,7 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
                               hmm_helper: HMMHelper) -> DataForTraining:
     turns_info = []
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
-        print(f"Processing match {match.nrp_variant_info.nrp_id}")
+        print(f"Processing match {match.nrp_variant_id.nrp_id}")
         detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant, hmm_helper)
         # detailed_hmm.draw(Path(f"bgc.png"))
         for i, alignment in enumerate(match.alignments):
@@ -126,8 +137,8 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
         edge_choices.append((turn_info.chosen_edge_info[0],
                              turn_info.chosen_edge_info[1],
                              True))
-        if turn_info.bgc_module_with_emission is not None:
-            match_emissions.append(turn_info.bgc_module_with_emission)
+        if turn_info.emission_info is not None:
+            match_emissions.append(turn_info.emission_info)
 
         for edge_info in turn_info.other_edges_info:
             edge_choices.append((edge_info[0], edge_info[1], False))

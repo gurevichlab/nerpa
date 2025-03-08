@@ -8,7 +8,7 @@ from src.data_types import NRP_Variant, NRP_Fragment
 from src.monomer_names_helper import MonomerNamesHelper, MonCode
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rBAN_idx
 from src.generic.combinatorics import split_sequence_subseqs
-from src.matching.match_type import Match_NRP_Variant_Info
+from src.matching.match_type import NRP_Variant_ID
 from itertools import chain, permutations, product
 from io import StringIO
 

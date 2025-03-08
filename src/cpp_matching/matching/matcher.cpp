@@ -72,7 +72,7 @@ get_best_linearizations_for_nrp(
 
 vector<MatchInfoLight>
 get_best_matches_for_bgc_variant(const HMM& hmm,
-                                 const BGC_Info& bgc_info,
+                                 const BGC_Variant_ID & bgc_info,
                                  const vector<pair<NRP_Linearizations, NRP_ID>>& all_nrp_linearizations,
                                  const int max_num_matches_per_bgc)
 {
@@ -100,17 +100,16 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
 {
     {
         // Step 0: For each NRP, keep only the top variant per BGC
-        unordered_map<NRP_ID, unordered_map<BGC_Info, MatchInfoLight>> unique_matches_map;
+        unordered_map<NRP_ID, unordered_map<BGC_ID, MatchInfoLight>> unique_matches_map;
         for (const auto& match : matches) {
             // Normalize the BGC key by setting its variant_idx to 0.
-            BGC_Info normalizedBGC = match.bgc_info;
-            variant_idx(normalizedBGC) = 0;
+            BGC_ID _bgc_id = bgc_id(match.bgc_variant_id);
 
-            // Insert or update the best match for this (nrp_id, normalizedBGC) pair.
+            // Insert or update the best match for this (nrp_id, bgc_id) pair.
             auto& bgc_map = unique_matches_map[match.nrp_id];
-            auto it = bgc_map.find(normalizedBGC);
-            if (it == bgc_map.end() || match.score > it->second.score) {
-                bgc_map[normalizedBGC] = match;
+            auto it = bgc_map.find(_bgc_id);
+            if (it == bgc_map.end() or match.score > it->second.score) {
+                bgc_map[_bgc_id] = match;
             }
         }
 
@@ -131,14 +130,13 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
 
         // Step 2: Filter by BGC. For each BGC (ignoring variant_idx), only keep up to max_num_matches_per_bgc.
         // Define BGC_key as a tuple of (genome_id, contig_idx, bgc_idx).
-        unordered_map<BGC_Info, int> bgcCounts;
+        unordered_map<BGC_ID, int> bgcCounts;
         vector<MatchInfoLight> bgcFiltered;
         for (const auto& match : sortedMatches) {
-            auto bgcKey = match.bgc_info;
-            variant_idx(bgcKey) = 0;  // Ignore variant_idx
-            if (bgcCounts[bgcKey] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0) {
+            BGC_ID _bgc_id = bgc_id(match.bgc_variant_id);
+            if (bgcCounts[_bgc_id] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0) {
                 bgcFiltered.push_back(match);
-                bgcCounts[bgcKey]++;
+                bgcCounts[_bgc_id]++;
             }
         }
 
@@ -166,7 +164,7 @@ MatchInfo get_full_match_info(const MatchInfoLight& match_light,
 {
     MatchInfo fullMatch;
     fullMatch.score = 0;
-    fullMatch.bgc_info = match_light.bgc_info;
+    fullMatch.bgc_variant_id = match_light.bgc_variant_id;
     fullMatch.nrp_id = match_light.nrp_id;
 
     // For each linearization in the light match, compute its optimal path.
@@ -184,7 +182,7 @@ MatchInfo get_full_match_info(const MatchInfoLight& match_light,
     return fullMatch;
 }
 
-vector<MatchInfo> get_matches(const unordered_map<BGC_Info, HMM>& hmms,
+vector<MatchInfo> get_matches(const unordered_map<BGC_Variant_ID , HMM>& hmms,
                               const vector<pair<NRP_Linearizations, NRP_ID>>& nrp_linearizations,
                               const MatchingConfig& config,
                               int num_threads)
@@ -193,7 +191,7 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Info, HMM>& hmms,
     omp_set_num_threads(num_threads);
 
     // Convert the unordered_map into a vector for easy index-based iteration.
-    vector<pair<BGC_Info, HMM>> bgc_hmm_pairs(hmms.begin(), hmms.end());
+    vector<pair<BGC_Variant_ID , HMM>> bgc_hmm_pairs(hmms.begin(), hmms.end());
 
     // This vector will accumulate MatchInfoLight objects from each BGC variant.
     vector<MatchInfoLight> matches_light;
@@ -226,7 +224,7 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Info, HMM>& hmms,
     // Reconstruct the full match info for each filtered match.
     vector<MatchInfo> matches;
     for (const auto& match_light : matches_light_filtered) {
-        matches.push_back(get_full_match_info(match_light, hmms.at(match_light.bgc_info)));
+        matches.push_back(get_full_match_info(match_light, hmms.at(match_light.bgc_variant_id)));
     }
     return matches;
 }

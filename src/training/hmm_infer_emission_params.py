@@ -7,7 +7,7 @@ from src.training.step_function import (
     plot_step_function_stacked
 )
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer
-from src.data_types import LogProb, ModuleLocFeature, ModuleLocFeatures
+from src.data_types import LogProb, ModuleGenomicContextFeature, ModuleGenomicContext
 from src.matching.match_type import Match_BGC_Variant_Info
 from src.data_types import (
     BGC_Module,

@@ -1,13 +1,14 @@
 from typing import (
     Dict,
     List,
+    NamedTuple,
     NewType,
     Optional,
     Tuple,
     TypeVar
 )
 import re
-from src.antismash_parsing.location_features import ModuleLocFeature
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 
 T = TypeVar('T')
 
@@ -15,7 +16,7 @@ def get_score(scores: Dict[Tuple[T, ...], float], features: Tuple[T, ...]) -> fl
     if features in scores:
         return scores[features]
     features_set = set(features)
-    if ModuleLocFeature.END_OF_BGC in features_set:
+    if ModuleGenomicContextFeature.END_OF_BGC in features_set:
         pass
     result = max(scores[x]
                  for x in scores

@@ -22,6 +22,8 @@ from src.antismash_parsing.determine_modifications import (
 )
 from src.data_types import (
     AA34,
+    BGC_ID,
+    BGC_Variant_ID,
     BGC_Variant,
     BGC_Module,
     LogProb
@@ -32,9 +34,9 @@ from src.config import antiSMASH_Processing_Config, SpecificityPredictionConfig
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
 from src.generic.functional import cached_by_key
-from src.antismash_parsing.location_features import (
-    BGC_Fragment_Loc_Features,
-    GeneLocFeatures,
+from src.antismash_parsing.genomic_context import (
+    FragmentGenomicContext,
+    GeneGenomicContext,
     get_bgc_fragment_loc_features,
     get_gene_loc_features,
     get_module_loc_features,
@@ -92,7 +94,7 @@ def get_residue_scores(a_domain: A_Domain,
 
 
 def build_gene_assembly_line(gene: Gene,
-                             gene_loc_features: GeneLocFeatures,
+                             gene_loc_features: GeneGenomicContext,
                              fragment_idx: int,
                              external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                              residue_scoring_model: ModelWrapper,
@@ -118,7 +120,7 @@ def build_gene_assembly_line(gene: Gene,
 
         built_modules.append(BGC_Module(gene_id=gene.gene_id,
                                         fragment_idx=fragment_idx,
-                                        module_loc=get_module_loc_features(module_idx, gene, gene_loc_features),
+                                        genomic_context=get_module_loc_features(module_idx, gene, gene_loc_features),
                                         a_domain_idx=a_domain_idx,
                                         residue_score=residue_scores,
                                         modifications=modules_modifications[module_idx],
@@ -131,7 +133,7 @@ def build_gene_assembly_line(gene: Gene,
 
 
 def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
-                                     fragment_features: BGC_Fragment_Loc_Features,
+                                     fragment_features: FragmentGenomicContext,
                                      fragment_idx: int,
                                      external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                                      residue_scoring_model: ModelWrapper,
@@ -191,10 +193,12 @@ def build_bgc_variants(bgc: BGC_Cluster,
         log.info(f'WARNING: BGC {bgc.bgc_idx} has no genes with A-domains. Skipping.')
         return []
     raw_fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
-    return [BGC_Variant(genome_id=bgc.genome_id,
-                        contig_idx=bgc.contig_idx,
-                        bgc_idx=bgc.bgc_idx,
-                        variant_idx=idx,
+
+    bgc_id = BGC_ID(genome_id=bgc.genome_id,
+                    contig_idx=bgc.contig_idx,
+                    bgc_idx=bgc.bgc_idx)
+
+    return [BGC_Variant(bgc_variant_id=BGC_Variant_ID(bgc_id=bgc_id, variant_idx=idx),
                         modules=assembly_line)
             for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)
             if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,

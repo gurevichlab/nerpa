@@ -10,12 +10,19 @@ from typing import (
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.antismash_parsing.location_features import (
-    ModuleLocFeature,
-    GeneLocFeature,
-    BGC_Fragment_Loc_Feature,
+from src.antismash_parsing.genomic_context import (
+    ModuleGenomicContextFeature,
+    GeneGenomicContextFeature,
+    FragmentGenomicContextFeature,
 )
-from src.data_types import NRP_Monomer, BGC_Module, BGC_Variant, GeneId, LogProb
+from src.data_types import (
+    BGC_Module,
+    BGC_Variant,
+    BGC_Variant_ID,
+    GeneId,
+    LogProb,
+    NRP_Monomer,
+)
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType,
@@ -35,7 +42,7 @@ from src.matching.hmm_to_alignment import hmm_path_to_alignment
 from src.matching.alignment_type import Alignment
 from src.matching.hmm_checkpoints_heuristic import get_checkpoints
 from src.matching.hmm_scoring_helper import HMMHelper
-from src.matching.match_type import Match_BGC_Variant_Info
+from src.matching.match_type import BGC_Variant_ID
 from itertools import pairwise
 from graphviz import Digraph
 from pathlib import Path
@@ -84,7 +91,7 @@ class DetailedHMM:
                         emissions=emission_log_probs,
                         module_start_states=self._module_idx_to_state_idx,
                         module_match_states=self._module_idx_to_match_state_idx,
-                        bgc_info=Match_BGC_Variant_Info.from_bgc_variant(self.bgc_variant))
+                        bgc_info=self.bgc_variant.bgc_variant_id)
         return self._hmm
 
     def get_opt_path_with_emissions(self,

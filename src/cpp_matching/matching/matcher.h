@@ -13,7 +13,7 @@
  * @param num_threads Number of threads to use for parallelization.
  * @return A vector of MatchInfo with full HMM path reconstructions.
  */
-std::vector<MatchInfo> get_matches(const std::unordered_map<BGC_Info, HMM>& hmms,
+std::vector<MatchInfo> get_matches(const std::unordered_map<BGC_Variant_ID, HMM>& hmms,
                                    const std::vector<std::pair<NRP_Linearizations, NRP_ID>>& nrp_linearizations,
                                    const MatchingConfig& config,
                                    int num_threads);

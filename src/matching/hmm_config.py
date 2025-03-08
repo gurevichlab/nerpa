@@ -10,10 +10,10 @@ from src.data_types import (
     LogProb,
     MonomerResidue,
 )
-from src.antismash_parsing.location_features import (
-    BGC_Fragment_Loc_Feature,
-    GeneLocFeature,
-    ModuleLocFeature,
+from src.antismash_parsing.genomic_context import (
+    FragmentGenomicContextFeature,
+    GeneGenomicContextFeature,
+    ModuleGenomicContextFeature,
 )
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 
@@ -32,7 +32,7 @@ class MethylationMatch(NamedTuple):
     nrp_meth: bool
 
 
-SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
+SingleFeatureContext = Union[ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature, None]
 EdgeWeightsParams = Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]
 
 
@@ -65,12 +65,12 @@ def load_edge_weight_params(cfg: dict) -> EdgeWeightsParams:
             if context_str == 'None':
                 parsed_data[DetailedHMMEdgeType[edge_type]][None] = prob
                 continue
-            if context_str in ModuleLocFeature.__members__:
-                context = ModuleLocFeature[context_str]
-            elif context_str in GeneLocFeature.__members__:
-                context = GeneLocFeature[context_str]
-            elif context_str in BGC_Fragment_Loc_Feature.__members__:
-                context = BGC_Fragment_Loc_Feature[context_str]
+            if context_str in ModuleGenomicContextFeature.__members__:
+                context = ModuleGenomicContextFeature[context_str]
+            elif context_str in GeneGenomicContextFeature.__members__:
+                context = GeneGenomicContextFeature[context_str]
+            elif context_str in FragmentGenomicContextFeature.__members__:
+                context = FragmentGenomicContextFeature[context_str]
             else:
                 raise ValueError(f'Unknown context: {context_str}')
             parsed_data[DetailedHMMEdgeType[edge_type]][context] = prob

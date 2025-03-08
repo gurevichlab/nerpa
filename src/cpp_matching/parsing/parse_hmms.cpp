@@ -4,11 +4,11 @@
 #include "json.hpp" // https://github.com/nlohmann/json
 #include <iostream>
 
-std::unordered_map<BGC_Info, HMM>
+std::unordered_map<BGC_Variant_ID , HMM>
 parse_hmms_from_json(const std::string& hmm_json_path)
 {
     using json = nlohmann::json;
-    std::unordered_map<BGC_Info, HMM> hmms_map;
+    std::unordered_map<BGC_Variant_ID, HMM> hmms_map;
 
     std::ifstream ifs(hmm_json_path);
     if (!ifs.is_open()) {
@@ -24,11 +24,12 @@ parse_hmms_from_json(const std::string& hmm_json_path)
     for (auto& entry : j) {
         // Parse BGC_Info
 
-        auto genome_id   = entry["bgc_info"]["genome_id"].get<std::string>();
-        int contig_idx   = entry["bgc_info"]["contig_idx"].get<int>();
-        int bgc_idx      = entry["bgc_info"]["bgc_idx"].get<int>();
-        int variant_idx  = entry["bgc_info"]["variant_idx"].get<int>();
-        BGC_Info bgc_info = std::make_tuple(genome_id, contig_idx, bgc_idx, variant_idx);
+        auto genome_id   = entry["bgc_variant_id"]["bgc_id"]["genome_id"].get<std::string>();
+        int contig_idx   = entry["bgc_variant_id"]["bgc_id"]["contig_idx"].get<int>();
+        int bgc_idx      = entry["bgc_variant_id"]["bgc_id"]["bgc_idx"].get<int>();
+        int variant_idx  = entry["bgc_variant_id"]["variant_idx"].get<int>();
+        BGC_ID bgc_id = std::make_tuple(genome_id, contig_idx, bgc_idx);
+        BGC_Variant_ID bgc_variant_id = std::make_tuple(bgc_id, variant_idx);
 
         // Parse HMM
         HMM hmm;
@@ -60,7 +61,7 @@ parse_hmms_from_json(const std::string& hmm_json_path)
         }
 
         // Insert into map
-        hmms_map[bgc_info] = std::move(hmm);
+        hmms_map[bgc_variant_id] = std::move(hmm);
     }
 
     return hmms_map;

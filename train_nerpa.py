@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 from src.matching.match_type import Match
 from src.testing.check_matches import find_wrong_matches
+from src.config import load_monomer_names_helper
 from src.data_types import BGC_Variant
 from src.training.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
 from src.training.training_types import MatchWithBGCNRP
@@ -33,7 +34,7 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
 
 def load_all_bgc_variants(matches: List[Match],
                           nerpa_results_dir: Path) -> Dict[str, List[BGC_Variant]]:  # bgc_id -> bgc_variants
-    nrp_ids = {match.nrp_variant_info.nrp_id for match in matches}
+    nrp_ids = {match.nrp_variant_id.nrp_id for match in matches}
     bgc_variants = defaultdict(list)
     yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants_before_calibration').iterdir()
                   if f.name.endswith('.yaml')]
@@ -50,9 +51,9 @@ def load_bgc_variants_for_matches(matches: List[Match],
                                   check_by_bgc_variant_id: bool = True) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
     nrp_id_to_bgc_variant = {}
     for match in matches:
-        nrp_id = match.nrp_variant_info.nrp_id
+        nrp_id = match.nrp_variant_id.nrp_id
         bgc_id = nrp_id.split('.')[0]
-        bgc_variant_idx = match.bgc_variant_info.variant_idx
+        bgc_variant_idx = match.bgc_variant_id.variant_idx
         try:
             if check_by_bgc_variant_id:
                 bgc_variant = next(bgc_variant
@@ -70,14 +71,6 @@ def load_bgc_variants_for_matches(matches: List[Match],
             raise
         nrp_id_to_bgc_variant[nrp_id] = bgc_variant
     return nrp_id_to_bgc_variant
-
-def load_monomer_names_helper(nerpa_dir: Path) -> MonomerNamesHelper:
-    nerpa_config = yaml.safe_load((nerpa_dir / 'configs/config.yaml').open())
-    monomers_cfg = yaml.safe_load((nerpa_dir / nerpa_config['monomers_config']).open('r'))
-    monomers_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
-    return MonomerNamesHelper(pd.read_csv(monomers_table_tsv, sep='\t'),
-                              monomers_cfg['supported_residues'],
-                              monomers_cfg['pks_names'])
 
 def dump_emissions_training_data(data_for_training: DataForTraining, output_dir: Path):
     def emission_dict(emission_info: Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]) -> dict:
@@ -100,7 +93,8 @@ def dump_emissions_training_data(data_for_training: DataForTraining, output_dir:
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
-    monomer_names_helper = load_monomer_names_helper(nerpa_dir)
+    monomer_names_cfg = nerpa_dir / 'configs/monomers_config.yaml'
+    monomer_names_helper = load_monomer_names_helper(monomer_names_cfg, nerpa_dir)
     hmm_config_file = nerpa_dir / 'configs/hmm_scoring_config.yaml'
     hmm_scoring_config = load_hmm_scoring_config(hmm_config_file)
     hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
@@ -127,10 +121,10 @@ def main():
     # note: alignments are taken from "old" approved matches while bgc predictions are taken from current matches
     matches_with_bgcs_nrps_for_training = [
         MatchWithBGCNRP(match,
-                        bgc_variants_approved_matches[match.nrp_variant_info.nrp_id],
+                        bgc_variants_approved_matches[match.nrp_variant_id.nrp_id],
                         None)
         for match in approved_matches
-        if match.nrp_variant_info.nrp_id in bgc_variants_approved_matches
+        if match.nrp_variant_id.nrp_id in bgc_variants_approved_matches
     ]
 
     data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training,
