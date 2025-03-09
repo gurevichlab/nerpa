@@ -28,3 +28,5 @@ cpp_io_config:
     hmms_json: hmms.json
     nrp_linearizations_json: nrp_linearizations.json
     cpp_output_json: cpp_matching_output.json
+
+bgc_variants_no_calibration_dir: BGC_variants_no_calibration  # for debugging purposes
