@@ -3,6 +3,8 @@ import yaml
 from typing import List, Optional
 from src.matching.match_type import Match
 from src.testing.check_matches import find_wrong_matches
+import argparse
+from argparse import Namespace as CommandlineArgs
 from itertools import islice
 import subprocess
 
@@ -61,29 +63,45 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
         raise
 
 
+def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
+    parser = argparse.ArgumentParser(description="Runs Nerpa on NRPs and BGCs "
+                                                 "from approved matches and checks the results.")
+    parser.add_argument("--approved-matches", type=Path,
+                        default=nerpa_dir / 'test_data/approved_matches/approved_matches.txt')
+    parser.add_argument("--rban-records", type=Path,
+                        default=nerpa_dir / 'test_data/approved_matches/rban_records/merged.json')
+    parser.add_argument("--antismash-jsons", type=Path,
+                        default=nerpa_dir / 'test_data/approved_matches/antismash_jsons')
+    parser.add_argument("--output-dir", type=Path,
+                        default=nerpa_dir / 'test_results')
+
+    return parser.parse_args()
+
+
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
+    args = load_command_line_args(nerpa_dir)
 
     print('Loading approved matches')
-    approved_matches = load_matches_from_txt(nerpa_dir / 'test_data/approved_matches/approved_matches.txt')
+    approved_matches = load_matches_from_txt(args.approved_matches)
 
     print('Running Nerpa')
     run_nerpa(nerpa_dir,
-              antismash_inputs=nerpa_dir / 'test_data/approved_matches/antismash_jsons',
-              rban_inputs=nerpa_dir / 'test_data/approved_matches/rban_records/merged.json',
-              output_dir=nerpa_dir / 'test_results/nerpa_results')
+              antismash_inputs=args.antismash_jsons,
+              rban_inputs=args.rban_records,
+              output_dir=args.output_dir / 'nerpa_results')
     print('Nerpa finished')
 
     print('Loading Nerpa results')
-    matches = load_matches(nerpa_dir / 'test_results/nerpa_results')
+    matches = load_matches(args.output_dir / 'nerpa_results')
 
     print('Checking matches')
     check_results = list(find_wrong_matches(matches, approved_matches))
 
     if check_results:
         print(f'{len(check_results)}/{len(approved_matches)} matches are incorrect')
-        wrong_matches_txt = nerpa_dir / 'test_results/wrong_matches.txt'
+        wrong_matches_txt = args.output_dir / 'wrong_matches.txt'
         with open(wrong_matches_txt, 'w') as f:
             for nerpa_match, correct_match in check_results:
                 f.write(f'Nerpa match (wrong):\n{nerpa_match}\n\nCorrect match:\n{correct_match}\n\n')

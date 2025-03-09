@@ -17,6 +17,8 @@ from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.hmm_config import load_hmm_scoring_config
 from collections import defaultdict
+import argparse
+from argparse import Namespace as CommandlineArgs
 from src.data_types import (
     BGC_Variant,
     NRP_Monomer,
@@ -90,22 +92,34 @@ def dump_emissions_training_data(data_for_training: DataForTraining, output_dir:
                   match_emissions_file)
 
 
+def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
+    parser = argparse.ArgumentParser(description="Estimates Nerpa parameters "
+                                                 "based on Nerpa results on approved matches")
+    parser.add_argument("--approved-matches", type=Path,
+                        default=nerpa_dir / 'test_data/approved_matches/approved_matches.txt')
+    parser.add_argument("--nerpa-results", type=Path,
+                        default=nerpa_dir / 'test_results/nerpa_results')
+    parser.add_argument("--output-dir", type=Path,
+                        default=nerpa_dir / 'training_results')
+
+    return parser.parse_args()
+
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
+    args = load_command_line_args(nerpa_dir)
+
     monomer_names_cfg = nerpa_dir / 'configs/monomers_config.yaml'
     monomer_names_helper = load_monomer_names_helper(monomer_names_cfg, nerpa_dir)
     hmm_config_file = nerpa_dir / 'configs/hmm_scoring_config.yaml'
     hmm_scoring_config = load_hmm_scoring_config(hmm_config_file)
     hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
-    nerpa_results_dir = nerpa_dir / 'test_results/nerpa_results'
-
     print('Loading approved matches')
-    approved_matches = load_matches_from_txt(nerpa_dir / 'test_data/approved_matches/approved_matches.txt')
+    approved_matches = load_matches_from_txt(args.approved_matches)
 
     print('Loading BGC variants')
-    bgc_variants = load_all_bgc_variants(approved_matches, nerpa_results_dir)
+    bgc_variants = load_all_bgc_variants(approved_matches, args.nerpa_results)
 
     print('Fixing matches')
     approved_matches = [fix_match(match, monomer_names_helper) for match in approved_matches]
@@ -131,7 +145,7 @@ def main():
                                                   hmm_helper)
 
     # intermediate results for debug
-    dump_emissions_training_data(data_for_training, nerpa_dir / 'training_results')
+    dump_emissions_training_data(data_for_training, args.output_dir)
 
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')
     # edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
@@ -139,11 +153,11 @@ def main():
 
     emission_params = infer_emission_params(data_for_training.match_emissions,
                                             norine_stats,
-                                            nerpa_dir / 'training_results')
+                                            args.output_dir)  # for plotting step function
     write_params(edge_params=edge_params,
                  emission_params=emission_params,
                  data_for_training=data_for_training,
-                 output_dir=nerpa_dir / 'training_results')
+                 output_dir=args.output_dir)
 
 
 if __name__ == "__main__":
