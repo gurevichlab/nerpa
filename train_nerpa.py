@@ -9,7 +9,6 @@ from src.training.fix_match import fix_match, fix_bgc_variant, bgc_variant_match
 from src.training.training_types import MatchWithBGCNRP, MatchEmissionInfo
 from src.training.extract_data_for_training import extract_data_for_training
 from src.training.hmm_infer_emission_params import infer_emission_params
-from src.training.hmm_infer_edge_params import infer_edge_params
 from src.training.norine_stats import load_norine_stats
 from src.training.write_results import write_params
 from src.monomer_names_helper import MonomerNamesHelper
@@ -36,8 +35,7 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
     return [Match.from_str(matches_str)
             for matches_str in matches_strs]
 
-def load_all_bgc_variants(matches: List[Match],
-                          nerpa_results_dir: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
+def load_all_bgc_variants(nerpa_results_dir: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
     bgc_variants = defaultdict(list)
     yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants_no_calibration').iterdir()
                   if f.name.endswith('.yaml')]
@@ -119,7 +117,7 @@ def main():
     approved_matches = load_matches_from_txt(args.approved_matches)
 
     print('Loading BGC variants')
-    bgc_variants = load_all_bgc_variants(approved_matches, args.nerpa_results)
+    bgc_variants = load_all_bgc_variants(args.nerpa_results)
 
     print('Fixing matches')
     approved_matches = [fix_match(match, monomer_names_helper) for match in approved_matches]

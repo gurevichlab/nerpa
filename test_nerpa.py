@@ -45,10 +45,12 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
         "python3", str(nerpa_script),
         "--antismash", str(antismash_inputs),
         "--rban-json", str(rban_inputs),
+        "--paras-results", str(nerpa_dir / "paras/antismash7.1_nrps"),
         "--output-dir", str(output_dir),
         "--force-output-dir",
         "--max-num-matches", "0",
         "--max-num-matches-per-bgc", "10",
+        "--debug",
         "--skip-molecule-drawing",
         "--threads", "10",
     ]
@@ -57,7 +59,7 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
     print('Executing command:', ' '.join(command))
     try:
         result = subprocess.run(command, check=True)
-        print(f"Nerpa run completed successfully. Output:\n{result.stdout}")
+        print(f"Nerpa run completed successfully")
     except subprocess.CalledProcessError as e:
         print(f"Error running Nerpa:\n{e.stderr}")
         raise
@@ -97,13 +99,14 @@ def main():
     matches = load_matches(args.output_dir / 'nerpa_results')
 
     print('Checking matches')
-    check_results = list(find_wrong_matches(matches, approved_matches))
+    missing_cnt, wrong_matches = find_wrong_matches(matches, approved_matches)
+    print(f'{missing_cnt} matches are missing')
 
-    if check_results:
-        print(f'{len(check_results)}/{len(approved_matches)} matches are incorrect')
+    if wrong_matches:
+        print(f'{len(wrong_matches)}/{len(approved_matches) - missing_cnt} matches are incorrect')
         wrong_matches_txt = args.output_dir / 'wrong_matches.txt'
         with open(wrong_matches_txt, 'w') as f:
-            for nerpa_match, correct_match in check_results:
+            for nerpa_match, correct_match in wrong_matches:
                 f.write(f'Nerpa match (wrong):\n{nerpa_match}\n\nCorrect match:\n{correct_match}\n\n')
     else:
         print('All matches are correct')
