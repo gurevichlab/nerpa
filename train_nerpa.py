@@ -6,7 +6,7 @@ from src.testing.check_matches import find_wrong_matches
 from src.config import load_monomer_names_helper
 from src.data_types import BGC_Variant
 from src.training.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
-from src.training.training_types import MatchWithBGCNRP
+from src.training.training_types import MatchWithBGCNRP, MatchEmissionInfo
 from src.training.extract_data_for_training import extract_data_for_training
 from src.training.hmm_infer_emission_params import infer_emission_params
 from src.training.hmm_infer_edge_params import infer_edge_params
@@ -16,13 +16,15 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.hmm_config import load_hmm_scoring_config
-from src.training.paras import substitute_predictions_with_paras
 from collections import defaultdict
-from src.data_types import BGC_Variant, NRP_Monomer, BGC_Module, Match_BGC_Variant_Info
+from src.data_types import (
+    BGC_Variant,
+    NRP_Monomer,
+    BGC_Module,
+    BGC_Variant_ID,
+    BGC_ID
+)
 from src.training.extract_data_for_training import DataForTraining
-import pandas as pd
-from itertools import islice
-import subprocess
 
 
 def load_matches_from_txt(matches_txt: Path) -> List[Match]:
@@ -33,38 +35,36 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
             for matches_str in matches_strs]
 
 def load_all_bgc_variants(matches: List[Match],
-                          nerpa_results_dir: Path) -> Dict[str, List[BGC_Variant]]:  # bgc_id -> bgc_variants
-    nrp_ids = {match.nrp_variant_id.nrp_id for match in matches}
+                          nerpa_results_dir: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
     bgc_variants = defaultdict(list)
-    yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants_before_calibration').iterdir()
+    yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants').iterdir()
                   if f.name.endswith('.yaml')]
     for yaml_file in yaml_files:
         yaml_variants = [BGC_Variant.from_yaml_dict(bgc_variant_dict)
                          for bgc_variant_dict in yaml.safe_load(yaml_file.read_text())]
-        bgc_id = yaml_variants[0].genome_id
+        bgc_id = yaml_variants[0].bgc_variant_id.bgc_id
         bgc_variants[bgc_id].extend(yaml_variants)
     return bgc_variants
 
 
 def load_bgc_variants_for_matches(matches: List[Match],
-                                  bgc_variants: Dict[str, List[BGC_Variant]],
+                                  bgc_variants: Dict[BGC_ID, List[BGC_Variant]],
                                   check_by_bgc_variant_id: bool = True) -> Dict[str, BGC_Variant]:  # nrp_id -> bgc_variant
     nrp_id_to_bgc_variant = {}
     for match in matches:
         nrp_id = match.nrp_variant_id.nrp_id
-        bgc_id = nrp_id.split('.')[0]
-        bgc_variant_idx = match.bgc_variant_id.variant_idx
+        bgc_id, bgc_variant_idx = match.bgc_variant_id
         try:
             if check_by_bgc_variant_id:
                 bgc_variant = next(bgc_variant
                                    for bgc_variant in bgc_variants[bgc_id]
-                                   if bgc_variant.variant_idx == bgc_variant_idx)
+                                   if bgc_variant.bgc_variant_id.variant_idx == bgc_variant_idx)
             else:
                 bgc_variant = next(bgc_variant
                                    for bgc_variant in bgc_variants[bgc_id]
                                    if bgc_variant_match_compatible(bgc_variant, match))
         except StopIteration:
-            print(f'No compatible BGC variant for {nrp_id}')
+            print(f'Cannot find appropriate BGC variant for {nrp_id}')
             with open('warning.txt', 'w') as f:
                 f.write(f'WARNING! No compatible BGC variant for {nrp_id}\n')
                 f.write(f'Match:\n {match}\n')
@@ -73,9 +73,9 @@ def load_bgc_variants_for_matches(matches: List[Match],
     return nrp_id_to_bgc_variant
 
 def dump_emissions_training_data(data_for_training: DataForTraining, output_dir: Path):
-    def emission_dict(emission_info: Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]) -> dict:
-        bgc_info, bgc_module, nrp_monomer = emission_info
-        return {'genome': bgc_info.genome_id,
+    def emission_dict(emission_info: MatchEmissionInfo) -> dict:
+        bgc_id, bgc_module, nrp_monomer = emission_info
+        return {'genome': bgc_id.genome_id,
                 'gene': bgc_module.gene_id,
                 'a_domain': bgc_module.a_domain_idx,
                 'true_residue': nrp_monomer.residue,
@@ -134,11 +134,16 @@ def main():
     dump_emissions_training_data(data_for_training, nerpa_dir / 'training_results')
 
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')
-    edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
+    # edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
+    edge_params = None  # placeholder
+
     emission_params = infer_emission_params(data_for_training.match_emissions,
                                             norine_stats,
                                             nerpa_dir / 'training_results')
-    write_params(edge_params, emission_params, nerpa_dir / 'training_results')
+    write_params(edge_params=edge_params,
+                 emission_params=emission_params,
+                 data_for_training=data_for_training,
+                 output_dir=nerpa_dir / 'training_results')
 
 
 if __name__ == "__main__":
