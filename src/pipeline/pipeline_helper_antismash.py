@@ -152,6 +152,21 @@ class PipelineHelper_antiSMASH:
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 
+        if self.args.debug:
+            debug_specificity_prediction_cfg = deepcopy(self.config.specificity_prediction_config)
+            debug_specificity_prediction_cfg.ENABLE_CALIBRATION = False
+
+            bgc_variants_no_cal = list(chain.from_iterable(build_bgc_variants(bgc,
+                                                                       external_specificity_predictions,
+                                                                       specificity_prediction_model,
+                                                                       self.monomer_names_helper,
+                                                                       self.config.antismash_processing_config,
+                                                                       debug_specificity_prediction_cfg,
+                                                                       self.log)
+                                                    for bgc in antismash_bgcs))
+            write_bgc_variants(bgc_variants_no_cal,
+                               self.config.output_config.bgc_variants_no_calibration_dir)
+
 
         return bgc_variants
 

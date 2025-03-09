@@ -191,6 +191,8 @@ class OutputConfig:
     rban_output_config: rBAN_Output_Config
     cpp_io_config: CppIOConfig
 
+    bgc_variants_no_calibration_dir: Path  # for debugging
+
     def __init__(self,
                  output_cfg_dict: dict,
                  nerpa_dir: Path,

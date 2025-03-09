@@ -39,7 +39,7 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
 def load_all_bgc_variants(matches: List[Match],
                           nerpa_results_dir: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
     bgc_variants = defaultdict(list)
-    yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants').iterdir()
+    yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants_no_calibration').iterdir()
                   if f.name.endswith('.yaml')]
     for yaml_file in yaml_files:
         yaml_variants = [BGC_Variant.from_yaml_dict(bgc_variant_dict)
