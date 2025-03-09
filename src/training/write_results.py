@@ -10,7 +10,7 @@ def write_params(edge_params,
                  output_dir):
     output_dir.mkdir(exist_ok=True, parents=True)
     write_yaml(data_for_training, output_dir / 'data_for_training.yaml')
-    
+
     if edge_params is not None:
         write_yaml(edge_params, output_dir / 'edge_params.yaml')
     if emission_params is not None:
