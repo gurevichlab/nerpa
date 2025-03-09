@@ -8,68 +8,30 @@ from src.training.step_function import (
 )
 from src.monomer_names_helper import MonomerResidue, NRP_Monomer
 from src.data_types import LogProb, ModuleGenomicContextFeature, ModuleGenomicContext
-from src.matching.match_type import Match_BGC_Variant_Info
 from src.data_types import (
     BGC_Module,
     BGC_Module_Modification,
     NRP_Monomer_Modification,
     Chirality
 )
-from src.training.training_types import MatchWithBGCNRP
+from src.training.training_types import MatchWithBGCNRP, MatchEmissionInfo
 from src.training.norine_stats import NorineStats
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from math import log
 
-class BGC_Module_Info(NamedTuple):
-    genome_id: str
-    gene_id: str
-    a_domain_idx: int
-    aa34: str
-    residue_score: Dict[MonomerResidue, LogProb]
-
-    def to_dict(self) -> dict:
-        return {'genome_id': self.genome_id,
-                'gene_id': self.gene_id,
-                'a_domain_idx': self.a_domain_idx,
-                'aa34': self.aa34,
-                'residue_score': {residue: score
-                                  for residue, score in self.residue_score.items()}
-                }
-
-    @classmethod
-    def from_dict(cls, data: dict) -> 'BGC_Module_Info':
-        return cls(genome_id=data['genome_id'],
-                   gene_id=data['gene_id'],
-                   a_domain_idx=data['a_domain_idx'],
-                   aa34=data['aa34'],
-                   residue_score={MonomerResidue(residue): score
-                                  for residue, score in data['residue_score'].items()})
 
 
-
-def _get_score_correctness(emissions: List[Tuple[BGC_Module_Info, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
+def get_score_correctness(emissions: List[MatchEmissionInfo]) -> List[Tuple[LogProb, bool]]:
     score_correcntess = []
-    for bgc_module, nrp_monomer in emissions:
+    for bgc_id, bgc_module, nrp_monomer in emissions:
         for predicted_residue, score in bgc_module.residue_score.items():
             score_correcntess.append((score, predicted_residue == nrp_monomer.residue))
             # TODO: check that PKS-hybrids are handled correctly
     return score_correcntess
 
-
-def get_score_correctness(emissions: List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]]) -> List[Tuple[LogProb, bool]]:
-    emissions_ = [(BGC_Module_Info(genome_id=bgc_info.genome_id,
-                                   gene_id=bgc_module.gene_id,
-                                   a_domain_idx=bgc_module.a_domain_idx,
-                                   aa34=bgc_module.aa34_code,
-                                   residue_score=bgc_module.residue_score),
-                   nrp_monomer)
-                  for bgc_info, bgc_module, nrp_monomer in emissions]
-    return _get_score_correctness(emissions_)
-
-
-def fit_step_function(emissions: List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]],
+def fit_step_function(emissions: List[MatchEmissionInfo],
                       num_bins: int,
                       step_range: int,
                       output_dir: Path) -> List[float]:
@@ -130,7 +92,7 @@ def get_modifications_scores(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
             for nrp in (True, False)}
 
 
-def infer_emission_params(emissions: List[Tuple[Match_BGC_Variant_Info, BGC_Module, NRP_Monomer]],
+def infer_emission_params(emissions: List[MatchEmissionInfo],
                           norine_stats: NorineStats,
                           output_dir: Path) -> Tuple[List[float], Dict[str, float]]:
     results = {}

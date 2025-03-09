@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import (
     Dict,
     List,
@@ -5,6 +6,7 @@ from typing import (
     Optional
 )
 
+from src.antismash_parsing.antismash_parser_types import GeneId
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     GenomicContext,
@@ -15,9 +17,12 @@ from src.data_types import (
     BGC_Module,
     BGC_Variant,
     NRP_Monomer,
-    NRP_Variant
+    NRP_Variant, BGC_ID
 )
 from dataclasses import dataclass
+
+from src.monomer_names_helper import MonomerResidue
+from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 
 class MatchWithBGCNRP(NamedTuple):
@@ -32,8 +37,23 @@ class ChoicesCnts(NamedTuple):
 
 
 class MatchEmissionInfo(NamedTuple):
+    bgc_id: BGC_ID
     bgc_module: BGC_Module
-    nrp_monomer: NRP_Monomer
+    nrp_monomer: rBAN_Monomer
+
+
+class MatchEmissionKey(NamedTuple):
+    bgc_id: BGC_ID
+    gene_id: GeneId
+    a_domain_idx: int
+    resisue: MonomerResidue
+
+    @classmethod
+    def from_match_emission_info(cls, match_emission_info: MatchEmissionInfo) -> MatchEmissionKey:
+        return cls(bgc_id=match_emission_info.bgc_id,
+                   gene_id=match_emission_info.bgc_module.gene_id,
+                   a_domain_idx=match_emission_info.bgc_module.a_domain_idx,
+                   resisue=match_emission_info.nrp_monomer.residue)
 
 
 @dataclass
@@ -60,4 +80,3 @@ class PathTurnInfo:
     chosen_edge_key: ExtendedEdgeKey
     chosen_edge_info: EdgeInfo
     other_edges_info: List[EdgeInfo]
-    emission_info: Optional[MatchEmissionInfo] = None
