@@ -7,7 +7,7 @@ from src.matching.alignment_type import Alignment
 from src.matching.match_type import Match
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple, NamedTuple
 
 
 def bgc_modules_coincide(module_test: AlignmentStep_BGC_Module_Info,
@@ -97,17 +97,31 @@ def matches_coincide(match1: Match,
     return alignments_coincide(joined_alignments1, joined_alignments2)
 
 
-def find_wrong_matches(matches: List[Match], approved_matches: List[Match]) -> Iterable[Tuple[Match, Match]]:
+class MatchPair(NamedTuple):
+    test_match: Match
+    approved_match: Match
+
+class CheckResults(NamedTuple):
+    missing_cnt: int
+    wrong_matches: List[MatchPair]
+
+
+def find_wrong_matches(matches: List[Match], approved_matches: List[Match]) -> CheckResults:
+    missing_cnt = 0
+    wrong_matches = []
     for approved_match in approved_matches:
         nrp_id = approved_match.nrp_variant_id.nrp_id
         bgc_id = nrp_id.split('.')[0]
         try:
             test_match = next(match for match in matches
                               if match.nrp_variant_id.nrp_id == nrp_id
-                              and match.bgc_variant_id.genome_id == bgc_id)
+                              and match.bgc_variant_id.bgc_id.genome_id == bgc_id)
         except StopIteration:
             print(f'WARNING: match for {nrp_id} is missing')
+            missing_cnt += 1
             continue
         print('Testing ', nrp_id)
         if not matches_coincide(test_match, approved_match):
-            yield test_match, approved_match
+            wrong_matches.append(MatchPair(test_match, approved_match))
+
+    return CheckResults(missing_cnt, wrong_matches)

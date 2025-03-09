@@ -96,7 +96,7 @@ class Match:
         bgc_variant_id = BGC_Variant_ID(bgc_id=BGC_ID(genome_id=data['Genome'],
                                                       contig_idx=data['Contig_idx'],
                                                       bgc_idx=data['BGC_idx']),
-                                         variant_idx=int(data['BGC_variant_idx']))
+                                        variant_idx=data['BGC_variant_idx'])
         nrp_variant_id = NRP_Variant_ID(nrp_id=data['NRP'],
                                         variant_idx=data['NRP_variant_idx'])
 

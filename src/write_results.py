@@ -31,6 +31,7 @@ def write_yaml(data, out_file: Path):
     # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml
     yaml.Dumper.ignore_aliases = lambda *args: True
 
+    out_file.parent.mkdir(parents=True, exist_ok=True)
     with open(out_file, 'w') as out:
         yaml.dump(data, out,
                   default_flow_style=None, sort_keys=False)
@@ -90,7 +91,8 @@ def write_bgc_variants(bgc_variants: List[BGC_Variant],
                        output_dir: Path):
     for bgc_id, bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: bgc_variant.bgc_variant_id.bgc_id):
         bgc_id_str = f'{bgc_id.genome_id}_{bgc_id.contig_idx}_{bgc_id.bgc_idx}'
-        write_yaml(list(bgc_id_variants), output_dir / f'{bgc_id_str}.yaml')
+        write_yaml([bgc_variant.to_dict() for bgc_variant in bgc_id_variants],
+                   output_dir / f'{bgc_id_str}.yaml')
 
 
 def write_matches_details(matches: List[Match],
