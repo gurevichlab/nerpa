@@ -37,7 +37,7 @@ def get_opt_path_with_score(hmm: HMM,
                     continue
 
                 log_prob = dp[state][sym_count]
-                if log_prob == -np.inf:
+                if (state, sym_count) != checkpoints[chk_idx] and prev[state][sym_count] == -1:
                     continue
 
                 for edge_to, edge_log_prob in hmm.transitions[state]:
@@ -48,7 +48,7 @@ def get_opt_path_with_score(hmm: HMM,
                         new_log_prob += hmm.emissions[state][observed_sequence[sym_count]]
                         new_sym_count += 1
 
-                    if new_log_prob > dp[edge_to][new_sym_count]:
+                    if new_log_prob > dp[edge_to][new_sym_count] or prev[edge_to][new_sym_count] == -1:
                         dp[edge_to][new_sym_count] = new_log_prob
                         prev[edge_to][new_sym_count] = state
 

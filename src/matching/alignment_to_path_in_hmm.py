@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
 from typing import List, Tuple, Optional
-from src.matching.alignment_type import Alignment
+from src.matching.alignment_type import Alignment, show_alignment
 from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.generic.graphs import shortest_path_through
 import networkx as nx
@@ -26,7 +26,9 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     Also, I assign weight 0 to auxiliary edges so that only edges corresponding to the alignment are relevant.
     '''
     # I can't use step.step_type here, because of backwards compatibility issues
-    print(hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id)
+    #print(f'Reconstructing hmm path for {hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}')
+    #print(f'Alignment: \n{show_alignment(alignment)}')
+    #hmm.draw(Path(f'hmm_{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'))
     match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
                                   if step.bgc_module is not None and step.nrp_monomer is not None]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
@@ -79,6 +81,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     path_with_emissions = []
     cnt = 0
     for (start, finish), emitted_monomers in zip(paths_endpoints, monomers_subseqs):
+        #print(start, finish, emitted_monomers)
         # build path between consequent matches
         cnt += 1
         sub_hmm = deepcopy(hmm)
