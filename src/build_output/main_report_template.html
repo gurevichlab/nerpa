@@ -395,12 +395,14 @@
             if (data && Array.isArray(data)) {
                 data.forEach(item => {
                     const row = document.createElement('tr');
+                    const bgc_id = item.bgc_variant_id.bgc_id
+                    const nrp_id = item.nrp_variant_id.nrp_id
                     row.innerHTML = `
                         <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
-                        <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
-                        <td><a href="#" class="nrp-link" data-nrp="${item.NRP}">${item.NRP}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="">${item.Genome}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${item.Genome}" data-bgc="r${item.Contig_idx}c${item.BGC_idx}">Region ${item.Contig_idx}.${item.BGC_idx}</a></td>
+                        <td class="score">${parseFloat(item.score).toFixed(2)}</td>
+                        <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="">${bgc_id.genome_id}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
                     `;
                     tableBody.appendChild(row);
                 });
@@ -461,12 +463,14 @@
                 const matchTableBody = document.querySelector('#matchTable tbody');
                 matchTableBody.innerHTML = '';
                 const matchRow = document.createElement('tr');
+                const bgc_id = item.bgc_variant_id.bgc_id
+                const nrp_id = item.nrp_variant_id.nrp_id
                 matchRow.innerHTML = `
                     <td class="match-id">${item.Match_ID}</td>
-                    <td class="score">${parseFloat(item.Score).toFixed(2)}</td>
-                    <td>${item.NRP}</td>
-                    <td>${item.Genome}</td>
-                    <td>Region ${item.Contig_idx}.${item.BGC_idx}</td>
+                    <td class="score">${parseFloat(item.score).toFixed(2)}</td>
+                    <td>${nrp_id}</td>
+                    <td>${bgc_id.genome_id}</td>
+                    <td>Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</td>
                 `;
                 matchTableBody.appendChild(matchRow);
                 // Match alignment info
@@ -474,7 +478,7 @@
                 alignmentTableBody.innerHTML = '';
 
                 // Iterate over each alignment array in the "Alignments" field
-                const alignments = item.Alignments;
+                const alignments = item.alignments;
                 alignments.forEach(rows => {
                     rows.forEach(row => {
                         // Create a new table row
@@ -500,8 +504,8 @@
                 hideBtn.style.display = 'block';
 
                 // showing corresponding Genome and NRP viewers
-                toggleGenomeViewer(false, item.Genome, `r${item.Contig_idx}c${item.BGC_idx}`)
-                toggleNrpViewer(false, item.NRP)
+                toggleGenomeViewer(false, bgc_id.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`)
+                toggleNrpViewer(false, nrp_id)
             }
         }
 
