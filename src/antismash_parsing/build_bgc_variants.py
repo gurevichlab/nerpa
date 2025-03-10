@@ -47,7 +47,7 @@ import pandas as pd
 
 
 # TODO: figure out how to write it as "lambda args: args['a_domain'].aa34"
-#@cached_by_key(key=lambda *args, **kwargs: args[0].aa34)
+@cached_by_key(key=lambda *args, **kwargs: args[0].aa34)
 def get_residue_scores(a_domain: A_Domain,
                        external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                        residue_scoring_model: ModelWrapper,
