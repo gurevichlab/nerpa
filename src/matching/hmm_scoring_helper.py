@@ -61,10 +61,7 @@ class HMMHelper:
                              bgc_module: BGC_Module,
                              nrp_monomer: NRP_Monomer,
                              pks_domains_in_bgc: bool = False) -> MatchDetailedScore:
-        try:
-            residue_score = self.match_residue_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
-        except:
-            pass
+        residue_score = self.match_residue_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
         modifications_score = self.match_methylation_score(bgc_module, nrp_monomer)
         chirality_score = self.match_chirality_score(bgc_module, nrp_monomer)
 

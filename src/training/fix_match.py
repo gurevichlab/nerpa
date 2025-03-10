@@ -7,6 +7,7 @@ from src.data_types import GeneId, BGC_Variant
 from src.generic.combinatorics import is_subsequence, filter_unique
 from itertools import pairwise
 
+
 def fix_indexing_in_alignment(alignment: Alignment):
     if min(step.bgc_module.a_domain_idx
            for step in alignment
@@ -15,6 +16,7 @@ def fix_indexing_in_alignment(alignment: Alignment):
             if step.bgc_module is not None:
                 step.bgc_module = step.bgc_module._replace(a_domain_idx=step.bgc_module.a_domain_idx - 1)
 
+
 def fix_gene_names_in_alignment(alignment: Alignment):
     if all(step.bgc_module.gene_id.startswith('ctg')
            for step in alignment
@@ -22,6 +24,7 @@ def fix_gene_names_in_alignment(alignment: Alignment):
         for step in alignment:
             if step.bgc_module is not None:
                 step.bgc_module = step.bgc_module._replace(gene_id=GeneId(step.bgc_module.gene_id.split('_')[1]))
+
 
 def fix_residue_names_in_alignment(alignment: Alignment,
                                    monomer_names_helper: MonomerNamesHelper):

@@ -23,27 +23,32 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
             for matches_str in matches_strs]
 
 
-def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output_dir: Path):
+def run_nerpa(nerpa_dir: Path,
+              antismash_jsons: Path,
+              antismash_paths: Path,
+              rban_inputs: Path,
+              output_dir: Path):
     """
     Run the Nerpa tool with the specified parameters.
 
     Parameters:
         nerpa_dir (Path): Path to the directory containing nerpa.py.
-        antismash_inputs (Path): Path to the antiSMASH input directory.
+        antismash_jsons (Path): Path to the antiSMASH input directory.
         rban_inputs (Path): Path to the rBAN input JSON file.
         output_dir (Path): Path to the output directory.
     """
     # Ensure paths are resolved and exist
     nerpa_script = nerpa_dir / "nerpa.py"
     assert nerpa_script.is_file(), f"Nerpa script not found at: {nerpa_script}"
-    assert antismash_inputs.is_dir(), f"antiSMASH inputs directory not found: {antismash_inputs}"
+    assert antismash_jsons.is_dir(), f"antiSMASH inputs directory not found: {antismash_jsons}"
     assert rban_inputs.is_file(), f"rBAN inputs JSON not found: {rban_inputs}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Construct the command
     command = [
         "python3", str(nerpa_script),
-        "--antismash", str(antismash_inputs),
+        #"--antismash", str(antismash_jsons),
+        "--antismash-paths-file", str(antismash_paths),
         "--rban-json", str(rban_inputs),
         "--paras-results", str(nerpa_dir / "paras/antismash7.1_nrps"),
         "--output-dir", str(output_dir),
@@ -51,7 +56,7 @@ def run_nerpa(nerpa_dir: Path, antismash_inputs: Path, rban_inputs: Path, output
         "--max-num-matches", "0",
         "--max-num-matches-per-bgc", "10",
         "--debug",
-        "--skip-molecule-drawing",
+        #"--skip-molecule-drawing",
         "--threads", "10",
     ]
 
@@ -74,6 +79,8 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
                         default=nerpa_dir / 'test_data/approved_matches/rban_records/merged.json')
     parser.add_argument("--antismash-jsons", type=Path,
                         default=nerpa_dir / 'test_data/approved_matches/antismash_jsons')
+    parser.add_argument("--antismash-paths", type=Path,
+                        default=nerpa_dir / 'test_data/approved_matches/paths_to_as_uniq.txt')
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'test_results')
 
@@ -90,7 +97,8 @@ def main():
 
     print('Running Nerpa')
     run_nerpa(nerpa_dir,
-              antismash_inputs=args.antismash_jsons,
+              antismash_jsons=args.antismash_jsons,
+              antismash_paths=args.antismash_paths,
               rban_inputs=args.rban_records,
               output_dir=args.output_dir / 'nerpa_results')
     print('Nerpa finished')

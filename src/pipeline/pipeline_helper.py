@@ -88,7 +88,7 @@ class PipelineHelper:
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, self.monomer_names_helper, self.log)
         self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
 
-    @timing_decorator
+    @timing_decorator('Getting BGC variants')
     def get_bgc_variants(self) -> List[BGC_Variant]:
         external_specificity_predictions = get_paras_results_all(self.args.paras_results,
                                                                  self.monomer_names_helper,
@@ -96,7 +96,7 @@ class PipelineHelper:
             if self.args.paras_results is not None else None
         return self.pipeline_helper_antismash.get_bgc_variants(external_specificity_predictions)
 
-    @timing_decorator
+    @timing_decorator('Getting NRP variants')
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
         if self.pipeline_helper_rban.preprocessed_nrp_variants():
             rban_records = []
@@ -106,19 +106,19 @@ class PipelineHelper:
             nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
         return nrp_variants, rban_records
 
-    @timing_decorator
+    @timing_decorator('Constructing HMMs')
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
         self.log.info("\n======= Constructing HMMs")
         return [DetailedHMM.from_bgc_variant(bgc_variant, self.hmm_helper)
                 for bgc_variant in bgc_variants]
 
-    @timing_decorator
+    @timing_decorator('Generating linearizations')
     def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) \
             -> List[NRP_Linearizations]:
         self.log.info("\n======= Generating NRP linearizations")
         return get_all_nrp_linearizations(nrp_variants)
 
-    @timing_decorator
+    @timing_decorator('Matching')
     def get_matches(self,
                     hmms: List[DetailedHMM],
                     nrp_linearizations: List[NRP_Linearizations],
@@ -136,23 +136,26 @@ class PipelineHelper:
                                self.args.threads,
                                self.log)
 
+    @timing_decorator('Writing results')
     def write_results(self,
                       matches: List[Match],
                       bgc_variants: List[BGC_Variant],
                       nrp_variants: List[NRP_Variant],
                       rban_records: List[Parsed_rBAN_Record],
                       matches_details: bool = True):
-        self.log.info("RESULTS:")
-        self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
-        self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)
-        self.log.info("Detailed reports are saved to " + str(self.config.output_config.matches_details), indent=1)
+        self.log.info("\n======= Writing results")
         report.write_results(matches, self.config.output_config,
                              bgc_variants, nrp_variants,
                              rban_records,
                              matches_details,
                              log=self.log)
+        self.log.info("RESULTS:")
+        self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
+        self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)
+        self.log.info("Detailed reports are saved to " + str(self.config.output_config.matches_details), indent=1)
         # q: create symlink to results in self.config.default_results_root_dirname
 
-        self.log.finish()  # TODO: create a separate method for this and "cleaning up"
+    def finish(self):
+        self.log.finish()
 
 
