@@ -68,6 +68,7 @@ def extract_paras_results(paras_predictions: Path,
 
 def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE, Prob],
                                            monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, LogProb]:
+    #print(paras_predictions)
     nerpa_predictions = {res: 0.0 for res in monomer_names_helper.supported_residues}
 
     for paras_residue, prob in paras_predictions.items():
@@ -75,6 +76,9 @@ def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE
         nerpa_predictions[nerpa_res] += prob
 
     for res in nerpa_predictions:
+        if nerpa_predictions[res] > 1:
+            print(f"Invalid probability: {nerpa_predictions[res]}")
+            nerpa_predictions[res] = 1.0
         nerpa_predictions[res] = log(nerpa_predictions[res]) if nerpa_predictions[res] > 0 else float('-inf')
 
     return nerpa_predictions

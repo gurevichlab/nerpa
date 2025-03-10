@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import (
     Any,
     Callable,
@@ -46,19 +47,21 @@ import pandas as pd
 
 
 # TODO: figure out how to write it as "lambda args: args['a_domain'].aa34"
-@cached_by_key(key=lambda *args, **kwargs: args[0].aa34)
+#@cached_by_key(key=lambda *args, **kwargs: args[0].aa34)
 def get_residue_scores(a_domain: A_Domain,
                        external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                        residue_scoring_model: ModelWrapper,
                        monomer_names_helper: MonomerNamesHelper,
                        config: SpecificityPredictionConfig,
                        log: NerpaLogger) -> Dict[MonomerResidue, LogProb]:
-    if external_specificity_predictions is not None\
-            and not config.ENABLE_CALIBRATION:  # TODO: remove
+    if external_specificity_predictions is not None:
         if a_domain.aa34 in external_specificity_predictions:
-            return calibrate_scores(external_specificity_predictions[a_domain.aa34],
-                                    config,
-                                    model='paras')
+            predictions = deepcopy(external_specificity_predictions[a_domain.aa34])
+            if config.ENABLE_CALIBRATION:
+                predictions = calibrate_scores(predictions,
+                                               config,
+                                               model='paras')
+            return predictions
         else:
             log.info(f'WARNING: No external specificity predictions for AA34 {a_domain.aa34}. '
                      f'Using Nerpa model.')
@@ -91,7 +94,10 @@ def get_residue_scores(a_domain: A_Domain,
     predictions = residue_scoring_model(scoring_table,
                                         dictionary_lookup=config.ENABLE_DICTIONARY_LOOKUP,
                                         monomer_names_helper=monomer_names_helper)
-    return calibrate_scores(predictions, config, model='nerpa')
+    if config.ENABLE_CALIBRATION:
+        predictions = calibrate_scores(predictions, config, model='nerpa')
+
+    return predictions
 
 
 def build_gene_assembly_line(gene: Gene,

@@ -64,7 +64,8 @@ def fit_step_function_to_bins(bins: List[Tuple[int, int]],  # TODO: pseudocounts
 def create_bins(score_correctness_log: List[Tuple[LogProb, bool]],
                 num_bins: int) -> List[
     Tuple[int, int]]:  # (num_false, num_true) for each bin [i/numbins, (i+1)/numbins)
-    score_correctness = [(math.e ** score, correctness) for score, correctness in score_correctness_log]
+    score_correctness = [(math.e ** score, correctness)
+                         for score, correctness in score_correctness_log]
     bins: List[List[bool]] = [[] for _ in range(num_bins)]
     bin_size = 1 / num_bins
     for score, correctness in score_correctness:
