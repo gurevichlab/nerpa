@@ -53,7 +53,8 @@ def get_residue_scores(a_domain: A_Domain,
                        monomer_names_helper: MonomerNamesHelper,
                        config: SpecificityPredictionConfig,
                        log: NerpaLogger) -> Dict[MonomerResidue, LogProb]:
-    if external_specificity_predictions is not None:
+    if external_specificity_predictions is not None\
+            and not config.ENABLE_CALIBRATION:  # TODO: remove
         if a_domain.aa34 in external_specificity_predictions:
             return calibrate_scores(external_specificity_predictions[a_domain.aa34],
                                     config,
