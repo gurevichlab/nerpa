@@ -25,14 +25,10 @@ from math import log, e
 
 def get_score_correctness(emissions: List[MatchEmissionInfo]) -> List[Tuple[LogProb, bool]]:
     score_correctness = []
-    with open('weird_predictions.txt', 'w') as f:
-        for bgc_id, bgc_module, nrp_monomer in emissions:
-            for predicted_residue, score in bgc_module.residue_score.items():
-                score_correctness.append((score, predicted_residue == nrp_monomer.residue))
-                if e ** score > 0.95 and predicted_residue != nrp_monomer.residue:
-                    f.write(f'{bgc_id.genome_id} {bgc_module.gene_id} {bgc_module.a_domain_idx}: '
-                          f'predicted: {predicted_residue}; true: {nrp_monomer.residue}\n')
-                # TODO: check that PKS-hybrids are handled correctly
+    for bgc_id, bgc_module, nrp_monomer in emissions:
+        for predicted_residue, score in bgc_module.residue_score.items():
+            score_correctness.append((score, predicted_residue == nrp_monomer.residue))
+            # TODO: check that PKS-hybrids are handled correctly
     return score_correctness
 
 def fit_step_function(emissions: List[MatchEmissionInfo],
