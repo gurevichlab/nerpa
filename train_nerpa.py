@@ -53,14 +53,17 @@ def load_bgc_variants_for_matches(matches: List[Match],
     nrp_id_to_bgc_variant = {}
     for match in matches:
         nrp_id = match.nrp_variant_id.nrp_id
-        bgc_id, bgc_variant_idx = match.bgc_variant_id
+        match_bgc_id, bgc_variant_idx = match.bgc_variant_id
+        genome_id = nrp_id.split('.')[0]
         try:
             if check_by_bgc_variant_id:
                 bgc_variant = next(bgc_variant
-                                   for bgc_variant in bgc_variants[bgc_id]
+                                   for bgc_variant in bgc_variants[match_bgc_id]
                                    if bgc_variant.bgc_variant_id.variant_idx == bgc_variant_idx)
             else:
                 bgc_variant = next(bgc_variant
+                                   for bgc_id in filter(lambda bgc_id: bgc_id.genome_id == genome_id,
+                                                        bgc_variants)
                                    for bgc_variant in bgc_variants[bgc_id]
                                    if bgc_variant_match_compatible(bgc_variant, match))
         except StopIteration:

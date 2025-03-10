@@ -91,6 +91,7 @@ def write_bgc_variants(bgc_variants: List[BGC_Variant],
                        output_dir: Path):
     for bgc_id, bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: bgc_variant.bgc_variant_id.bgc_id):
         bgc_id_str = f'{bgc_id.genome_id}_{bgc_id.contig_idx}_{bgc_id.bgc_idx}'
+        bgc_id_variants = list(bgc_id_variants)
         write_yaml([bgc_variant.to_dict() for bgc_variant in bgc_id_variants],
                    output_dir / f'{bgc_id_str}.yaml')
 

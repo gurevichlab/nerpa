@@ -26,7 +26,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     Also, I assign weight 0 to auxiliary edges so that only edges corresponding to the alignment are relevant.
     '''
     # I can't use step.step_type here, because of backwards compatibility issues
-    print(hmm.bgc_variant.genome_id)
+    print(hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id)
     match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
                                   if step.bgc_module is not None and step.nrp_monomer is not None]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
@@ -101,7 +101,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                         log_prob = -3
                     case _:
                         log_prob = 0
-                sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(log_prob=log_prob)
+                sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(weight=log_prob)
         # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
         path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
 
