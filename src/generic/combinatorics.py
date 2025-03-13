@@ -160,3 +160,45 @@ def sort_groupby(items: Iterable[T],
                  key: Callable[[T], U],
                  reverse: bool=False) -> Iterable[Tuple[U, Iterable[T]]]:
     return groupby(sorted(items, key=key, reverse=reverse), key=key)
+
+
+def longest_increasing_subsequence(pairs: list[tuple[int, int]]) -> list[int]:
+    if not pairs:
+        return []
+
+    indexed_pairs = sorted(enumerate(pairs), key=lambda x: (x[1][0], x[1][1]))
+    original_indices = [idx for idx, _ in indexed_pairs]
+
+    n = len(pairs)
+    dp = [1] * n
+    prev = [-1] * n
+
+    used_i = set()
+    used_j = set()
+
+    for i in range(n):
+        curr_idx, (curr_i, curr_j) = indexed_pairs[i]
+
+        if curr_i in used_i or curr_j in used_j:
+            continue
+
+        for j in range(i):
+            prev_idx, (prev_i, prev_j) = indexed_pairs[j]
+
+            if prev_j < curr_j and dp[j] + 1 > dp[i] and prev_i not in used_i and prev_j not in used_j:
+                dp[i] = dp[j] + 1
+                prev[i] = j
+
+        if dp[i] > 1 or prev[i] == -1:
+            used_i.add(curr_i)
+            used_j.add(curr_j)
+
+    lis_indices = []
+    max_length = max(dp)
+    max_idx = dp.index(max_length)
+
+    while max_idx != -1:
+        lis_indices.append(original_indices[max_idx])
+        max_idx = prev[max_idx]
+
+    return lis_indices[::-1]

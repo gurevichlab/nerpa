@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 from src.data_types import BGC_Module, NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
+from src.generic.combinatorics import longest_increasing_subsequence
 from itertools import chain
-from bisect import bisect_left
 
 
 def bgc_module_matches_nrp_monomer(bgc_module_emissions: Dict[NRP_Monomer, float],
@@ -34,58 +34,21 @@ def _get_checkpoints(len_bgc_modules: int,
             if are_equal(i, j) and are_equal(i + 1, j + 1):
                 all_matches.append((i, j))
 
-    retained_matches = minimize_crossings_binary(all_matches)
+    retained_matches = max_not_intersecting_edges(all_matches)
 
     return retained_matches
 
 
-def minimize_crossings_binary(alignment: list[tuple[int, int]]) -> list[tuple[int, int]]:
-    lis_indices = longest_increasing_subsequence_binary(alignment)
+def max_not_intersecting_edges(edges: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    '''
+    finds the maximum subset of not intersecting edges in a bipartile graph,
+    edges (i1, j1), (i2, j2) are called not intersecting if i2 > i1 and j2 > j1 or vice versa
+    '''
+    lis_indices = longest_increasing_subsequence(edges)
 
-    retained = [alignment[i] for i in lis_indices]
+    retained = [edges[i] for i in lis_indices]
 
     return retained
-
-
-def longest_increasing_subsequence_binary(pairs: list[tuple[int, int]]) -> list[int]:
-    if not pairs:
-        return []
-
-    indexed_pairs = sorted(enumerate(pairs), key=lambda x: (x[1][0], x[1][1]))
-
-    pairs_sorted = [pair for _, pair in indexed_pairs]
-    original_indices = [idx for idx, _ in indexed_pairs]
-
-    lis = []
-    predecessors = [-1] * len(pairs_sorted)
-
-    used_i = set()
-    used_j = set()
-
-    for current_index, (i, j) in enumerate(pairs_sorted):
-        if i in used_i or j in used_j:
-            continue
-
-        pos = bisect_left([pairs_sorted[lis[k]][1] for k in range(len(lis))], j) if lis else 0
-
-        if pos < len(lis):
-            lis[pos] = current_index
-        else:
-            lis.append(current_index)
-
-        if pos > 0:
-            predecessors[current_index] = lis[pos - 1]
-
-        used_i.add(i)
-        used_j.add(j)
-
-    lis_result = []
-    last_index = lis[-1] if lis else -1
-    while last_index != -1:
-        lis_result.append(original_indices[last_index])
-        last_index = predecessors[last_index]
-
-    return lis_result[::-1]
 
 
 def get_checkpoints(hmm: 'DetailedHMM',
