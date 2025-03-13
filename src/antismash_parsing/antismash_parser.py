@@ -193,18 +193,14 @@ def extract_genes(contig_data: dict,
     orphan_c_domains_per_gene: Dict[GeneId, Tuple[bool, bool]] = {}  # gene_id -> (orphan_c_at_start, orphan_c_at_end)
     for gene_id, gene_data in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
         modules = extract_modules(gene_data, a_domains_per_gene[gene_id], config)
-        orphan_c_domains_per_gene[gene_id] = check_orphan_c_domains(gene_data, config)
+        orphan_c_at_start, orphan_c_at_end = check_orphan_c_domains(gene_data, config)
         genes.append(Gene(gene_id=gene_id,
                           coords=gene_coords[gene_id],
-                          modules=modules))
+                          modules=modules,
+                          orphan_c_at_start=orphan_c_at_start,
+                          orphan_c_at_end=orphan_c_at_end))
 
     genes.sort(key=lambda gene: gene.coords.start)
-
-    iterative_genes_orphan_c = get_iterative_genes_orphan_c(genes, orphan_c_domains_per_gene)
-    iterative_genes_pcp = {gene.gene_id for gene in genes if ends_with_pcp_pcp(gene)}
-
-    for gene in genes:
-        gene.is_iterative = gene.gene_id in iterative_genes_orphan_c or gene.gene_id in iterative_genes_pcp
 
     return list(filter(lambda gene: gene.modules, genes))
 
