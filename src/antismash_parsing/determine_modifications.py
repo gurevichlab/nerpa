@@ -1,4 +1,4 @@
-from itertools import pairwise
+from itertools import pairwise, chain
 from typing import (
     Dict,
     List,
@@ -11,7 +11,9 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     Gene,
     GeneId,
-    STRAND
+    STRAND,
+    BGC_Cluster,
+    BGC_Module_ID
 )
 from src.data_types import BGC_Module_Modification
 
@@ -21,8 +23,6 @@ def is_a_domain(domain_type: DomainType) -> bool:  # TODO: rename
 
 
 def ends_with_pcp_pcp(gene: Gene) -> bool:
-    if gene.is_iterative:
-        return True
     joined_domains = [domain_type for module in gene.modules
                       for domain_type in module.domains_sequence]
     last_a_index = next((i for i in reversed(range(len(joined_domains)))
@@ -34,25 +34,41 @@ def ends_with_pcp_pcp(gene: Gene) -> bool:
                for domain1_type, domain2_type in pairwise(joined_domains[last_a_index:]))
 
 
-def get_iterative_genes_orphan_c(genes: List[Gene],  # should be sorted
-                                 orphan_c_domains_per_gene: Dict[GeneId, Tuple[bool, bool]]) -> Set[GeneId]:
+def get_iterative_genes_orphan_c(genes: List[Gene]) -> Set[GeneId]:
+    genes_are_sorted = all(gene1.coords.start < gene2.coords.start
+                           for gene1, gene2 in pairwise(genes))
+    assert genes_are_sorted, "genes should be sorted by coordinates"
+
     iterative_genes_ids = set()
     for gene1, gene2 in pairwise(genes):
         if gene1.coords.strand != gene2.coords.strand:
             continue
         if gene1.coords.strand == gene2.coords.strand == STRAND.REVERSE:
             gene1, gene2 = gene2, gene1
-        if orphan_c_domains_per_gene[gene2.gene_id][0]:
+        if gene2.orphan_c_at_start:
             iterative_genes_ids.add(gene1.gene_id)
-        if orphan_c_domains_per_gene[gene1.gene_id][1]:
+        if gene1.orphan_c_at_end:
             #and (not gene2.modules or any(domain.in_c_domain_group()
             #                              for domain in gene2.modules[0].domains_sequence)):
             iterative_genes_ids.add(gene1.gene_id)
-    if orphan_c_domains_per_gene[genes[-1].gene_id][1]:
+    if genes[-1].orphan_c_at_end:
         iterative_genes_ids.add(genes[-1].gene_id)
-    if genes[0].coords.strand == STRAND.REVERSE and orphan_c_domains_per_gene[genes[0].gene_id][1]:
+    if genes[0].coords.strand == STRAND.REVERSE and genes[0].orphan_c_at_end:
         iterative_genes_ids.add(genes[0].gene_id)
     return iterative_genes_ids
+
+
+def get_iterative_genes(bgc_fragments: List[BGC_Cluster]) -> Set[GeneId]:
+    genes = [gene
+             for bgc_fragment in bgc_fragments
+             for gene in bgc_fragment.genes]
+    genes.sort(key=lambda gene: (gene.coords.start, gene.coords.strand))
+
+    iterative_genes_orphan_c = get_iterative_genes_orphan_c(genes)
+    iterative_genes_pcp = {gene.gene_id for gene in genes if ends_with_pcp_pcp(gene)}
+
+    return iterative_genes_orphan_c | iterative_genes_pcp
+
 
 
 def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType]) -> bool:
@@ -67,34 +83,53 @@ def has_pcp_condensation_pcp_subsequence(interior_domains_types: List[DomainType
 
 
 # TODO: quite messy with these indexes
-def get_iterative_modules_idxs(gene: Gene) -> List[int]:
+def get_iterative_modules_ids_gene(gene: Gene) -> Set[BGC_Module_ID]:
     joined_domains = [(domain_type, module_idx) for module_idx, module in enumerate(gene.modules)
                       for domain_type in module.domains_sequence]
 
-    modules_idxs = []
+    modules_idxs = set()
     split_domains = list(split_at(joined_domains, lambda p: is_a_domain(p[0]),
                                   keep_separator=True))[1:]  # skip the first (possibly empty) group before the first A domain
     for a_domain_group, interior_domains in grouper(split_domains, 2, fillvalue=[]):
         interior_domains_types = [domain_type for domain_type, module_idx in interior_domains]
         if has_pcp_condensation_pcp_subsequence(interior_domains_types):
-            modules_idxs.append(a_domain_group[0][1])
-    return modules_idxs
+            modules_idxs.add(a_domain_group[0][1])
+    return {BGC_Module_ID(gene.gene_id, module_idx)
+            for module_idx in modules_idxs}
 
 
-def get_modules_modifications(gene: Gene) -> Dict[int, Tuple[BGC_Module_Modification, ...]]:
-    mods_by_module_idx = {}
-    for module_idx, module in enumerate(gene.modules):
-        next_module_domains = gene.modules[module_idx + 1].domains_sequence \
-            if module_idx < len(gene.modules) - 1 else []
+def get_iterative_modules_ids(bgc_fragments: List[BGC_Cluster]) -> Set[BGC_Module_ID]:
+    genes = [gene
+             for bgc_fragment in bgc_fragments
+             for gene in bgc_fragment.genes]
+
+    return {bgc_module_id
+            for gene in genes
+            for bgc_module_id in get_iterative_modules_ids_gene(gene)}
+
+
+def get_modules_modifications(bgc_fragments: List[BGC_Cluster]) -> Dict[BGC_Module_ID, Tuple[BGC_Module_Modification, ...]]:
+    modules_with_ids = [(BGC_Module_ID(gene.gene_id, module_idx), module)
+                        for bgc_fragment in bgc_fragments
+                        for gene in bgc_fragment.genes
+                        for module_idx, module in enumerate(gene.modules)]
+
+    mods_by_module_id = {}
+    for i in range(len(modules_with_ids)):
+        module_id, module = modules_with_ids[i]
+        module_domains = module.domains_sequence
+        next_module_domains = modules_with_ids[i + 1][1].domains_sequence \
+            if i < len(modules_with_ids) - 1 else None
+
         mods = []
-        if DomainType.MT in module.domains_sequence:
+        if DomainType.MT in module_domains:
             mods.append(BGC_Module_Modification.METHYLATION)
-        if any([DomainType.E in module.domains_sequence,
-                DomainType.C_DCL in next_module_domains,
-                DomainType.C_DUAL in next_module_domains]):
+        if DomainType.E in module_domains or \
+            (next_module_domains is not None and any([DomainType.C_DCL in next_module_domains,
+                                                      DomainType.C_DUAL in next_module_domains])):
             mods.append(BGC_Module_Modification.EPIMERIZATION)
 
-        mods_by_module_idx[module_idx] = tuple(mods)
+        mods_by_module_id[module_id] = tuple(mods)
 
-    return mods_by_module_idx
+    return mods_by_module_id
 

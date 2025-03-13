@@ -95,8 +95,8 @@ def find_pks_downstream(gene: Gene, module_idx: int) -> bool:
     return DomainType.PKS in takewhile(lambda domain: domain != domain.A, domains_downstream)
 
 
-def get_bgc_fragment_loc_features(fragment_idx: int,
-                                  fragments: List[BGC_Cluster]) -> FragmentGenomicContext:
+def get_bgc_fragment_genomic_context(fragment_idx: int,
+                                     fragments: List[BGC_Cluster]) -> FragmentGenomicContext:
     pairs = [
         (FragmentGenomicContextFeature.START_OF_BGC, fragment_idx == 0),
         (FragmentGenomicContextFeature.END_OF_BGC, fragment_idx == len(fragments) - 1),
@@ -108,9 +108,9 @@ def get_bgc_fragment_loc_features(fragment_idx: int,
     return tuple(compress(*zip(*pairs)))
 
 
-def get_gene_loc_features(gene_idx: int,
-                          fragment: List[Gene],
-                          fragment_features: FragmentGenomicContext) -> GeneGenomicContext:
+def get_gene_genomic_context(gene_idx: int,
+                             fragment: List[Gene],
+                             fragment_features: FragmentGenomicContext) -> GeneGenomicContext:
     fst_gene_with_a_domains = not any(DomainType.A in module.domains_sequence
                                       for gene in fragment[:gene_idx]
                                       for module in gene.modules)
@@ -132,9 +132,9 @@ def get_gene_loc_features(gene_idx: int,
     return tuple(compress(*zip(*pairs)))
 
 
-def get_module_loc_features(module_idx: int,
-                            gene: Gene,
-                            gene_features: GeneGenomicContext) -> ModuleGenomicContext:
+def get_module_genomic_context(module_idx: int,
+                               gene: Gene,
+                               gene_features: GeneGenomicContext) -> ModuleGenomicContext:
     fst_module_with_a_domain = not any(DomainType.A in module.domains_sequence
                                        for module in gene.modules[:module_idx])
     last_module_with_a_domain = not any(DomainType.A in module.domains_sequence
