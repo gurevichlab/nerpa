@@ -15,11 +15,12 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     Gene,
     SVM_LEVEL,
-    SVM_Prediction
+    SVM_Prediction, BGC_Module_ID
 )
 from src.antismash_parsing.determine_modifications import (
-    get_iterative_modules_idxs,
-    get_modules_modifications
+    get_modules_modifications,
+    get_iterative_genes,
+    get_iterative_modules_ids
 )
 from src.data_types import (
     AA34,
@@ -28,7 +29,7 @@ from src.data_types import (
     BGC_Variant,
     BGC_Module,
     LogProb
-)
+     )
 from src.monomer_names_helper import MonomerNamesHelper, MonomerResidue
 from src.pipeline.logger import NerpaLogger
 from src.config import antiSMASH_Processing_Config, SpecificityPredictionConfig
@@ -38,9 +39,9 @@ from src.generic.functional import cached_by_key
 from src.antismash_parsing.genomic_context import (
     FragmentGenomicContext,
     GeneGenomicContext,
-    get_bgc_fragment_loc_features,
-    get_gene_loc_features,
-    get_module_loc_features,
+    get_bgc_fragment_genomic_context,
+    get_gene_genomic_context,
+    get_module_genomic_context,
 )
 from itertools import chain
 import pandas as pd
@@ -100,91 +101,52 @@ def get_residue_scores(a_domain: A_Domain,
     return predictions
 
 
-def build_gene_assembly_line(gene: Gene,
-                             gene_loc_features: GeneGenomicContext,
-                             fragment_idx: int,
-                             external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
-                             residue_scoring_model: ModelWrapper,
-                             monomer_names_helper: MonomerNamesHelper,
-                             config: SpecificityPredictionConfig,
-                             log: NerpaLogger) -> List[BGC_Module]:
-    iterative_modules_idxs = get_iterative_modules_idxs(gene)
-    modules_modifications = get_modules_modifications(gene)
-
-    built_modules = []
-    a_domain_idx = -1  # indexes start from 0
-    for module_idx, module in enumerate(gene.modules):
-        if module.a_domain is None:
-            continue
-        a_domain_idx += 1
-
-        residue_scores = get_residue_scores(module.a_domain,
-                                            external_specificity_predictions,
-                                            residue_scoring_model,
-                                            monomer_names_helper,
-                                            config,
-                                            log)
-
-        built_modules.append(BGC_Module(gene_id=gene.gene_id,
-                                        fragment_idx=fragment_idx,
-                                        genomic_context=get_module_loc_features(module_idx, gene, gene_loc_features),
-                                        a_domain_idx=a_domain_idx,
-                                        residue_score=residue_scores,
-                                        modifications=modules_modifications[module_idx],
-                                        iterative_module=module_idx in iterative_modules_idxs,
-                                        iterative_gene=gene.is_iterative,
-                                        aa10_code=module.a_domain.aa10,
-                                        aa34_code=module.a_domain.aa34))
-
-    return built_modules
-
-
-def build_bgc_fragment_assembly_line(bgc_genes: List[Gene],
-                                     fragment_features: FragmentGenomicContext,
-                                     fragment_idx: int,
-                                     external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
-                                     residue_scoring_model: ModelWrapper,
-                                     monomer_names_helper: MonomerNamesHelper,
-                                     config: SpecificityPredictionConfig,
-                                     log: NerpaLogger) -> List[BGC_Module]:
-
-    return list(chain.from_iterable(build_gene_assembly_line(gene,
-                                                             get_gene_loc_features(gene_idx, bgc_genes, fragment_features),
-                                                             fragment_idx,
-                                                             external_specificity_predictions,
-                                                             residue_scoring_model,
-                                                             monomer_names_helper,
-                                                             config,
-                                                             log)
-                                    for gene_idx, gene in enumerate(bgc_genes)))
-
-
-def build_bgc_assembly_line(raw_fragmented_bgc: List[BGC_Cluster],
+def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
                             external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
                             residue_scoring_model: ModelWrapper,
                             monomer_names_helper: MonomerNamesHelper,
                             config: SpecificityPredictionConfig,
                             log: NerpaLogger) -> List[BGC_Module]:
+    def _get_residue_scores(a_domain: A_Domain) -> Dict[MonomerResidue, LogProb]:
+        return get_residue_scores(a_domain,
+                                  external_specificity_predictions,
+                                  residue_scoring_model,
+                                  monomer_names_helper,
+                                  config,
+                                  log)
 
-    return list(chain(*(build_bgc_fragment_assembly_line(bgc_fragment.genes,
-                                                         fragment_features=get_bgc_fragment_loc_features(fgmnt_idx, raw_fragmented_bgc),
-                                                         fragment_idx=fgmnt_idx,
-                                                         external_specificity_predictions=external_specificity_predictions,
-                                                         residue_scoring_model=residue_scoring_model,
-                                                         monomer_names_helper=monomer_names_helper,
-                                                         config=config,
-                                                         log=log)
-                        for fgmnt_idx, bgc_fragment in enumerate(raw_fragmented_bgc))))
+    iterative_genes = get_iterative_genes(bgc_fragments)
+    iterative_modules_ids = get_iterative_modules_ids(bgc_fragments)
+    module_mods = get_modules_modifications(bgc_fragments)
 
+    modules = []
+    for bgc_fragment_idx, bgc_fragment in enumerate(bgc_fragments):
+        fragment_context = get_bgc_fragment_genomic_context(bgc_fragment_idx, bgc_fragments)
+        for gene_idx, gene in enumerate(bgc_fragment.genes):
+            gene_context = get_gene_genomic_context(gene_idx,
+                                                    bgc_fragment.genes,
+                                                    fragment_context)
 
-# TODO: sometimes a module is split between genes (see BGC0002484). Maybe it's better to merge such modules?
-def remove_genes_with_no_a_domains(bgc: BGC_Cluster) -> BGC_Cluster:
-    def has_a_domains(gene: Gene) -> bool:
-        return any(module.a_domain is not None for module in gene.modules)
-    return BGC_Cluster(genome_id=bgc.genome_id,
-                       contig_idx=bgc.contig_idx,
-                       bgc_idx=bgc.bgc_idx,
-                       genes=[gene for gene in bgc.genes if has_a_domains(gene)])
+            a_domain_idx = 0  # not the same as module_idx because modules with no a_domain are skipped
+            for module_idx, module in enumerate(gene.modules):
+                if module.a_domain is None:
+                    continue
+                a_domain_idx += 1
+                module_id = BGC_Module_ID(gene.gene_id, module_idx)
+                module_genomic_context = get_module_genomic_context(module_idx, gene, gene_context)
+
+                modules.append(BGC_Module(gene_id=gene.gene_id,
+                                          fragment_idx=bgc_fragment_idx,
+                                          a_domain_idx=a_domain_idx,
+                                          genomic_context=module_genomic_context,
+                                          modifications=module_mods[module_id],
+                                          iterative_module=a_domain_idx in iterative_modules_ids,
+                                          iterative_gene=gene.gene_id in iterative_genes,
+                                          aa10_code=module.a_domain.aa10,
+                                          aa34_code=module.a_domain.aa34,
+                                          residue_score=_get_residue_scores(module.a_domain)))
+
+    return modules
 
 
 def build_bgc_variants(bgc: BGC_Cluster,
