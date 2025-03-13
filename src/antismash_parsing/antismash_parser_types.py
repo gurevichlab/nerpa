@@ -66,6 +66,11 @@ class DomainType(Enum):
         return self in {DomainType.C, DomainType.C_STARTER, DomainType.C_LCL, DomainType.C_DCL, DomainType.C_DUAL}
 
 
+class BGC_Module_ID(NamedTuple):
+    gene_id: GeneId
+    module_idx: int
+
+
 @dataclass
 class Module:
     a_domain: A_Domain = None
@@ -91,7 +96,8 @@ class Gene:
     gene_id: GeneId
     coords: Coords
     modules: List[Module]  # modules are in the order of appearance in the gene
-    is_iterative: bool = False
+    orphan_c_at_start: bool = False
+    orphan_c_at_end: bool = False
 
 
 @dataclass
