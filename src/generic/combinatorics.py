@@ -163,19 +163,6 @@ def sort_groupby(items: Iterable[T],
     return groupby(sorted(items, key=key, reverse=reverse), key=key)
 
 
-'''
-def longest_increasing_subsequence(seqs: List[T]) -> list[int]:
-    # returns list of indexes
-    d: Dict[int, T] = {}
-    # 
-edges: List[Tuple[int, int]] = [(4, 2), (1, 4), (1, 1), (1, 2), (2, 1), (3, 4)] 
-1. Sort edges first by increasing first item and then by decreasing second item: [(1, 4), (1, 2), (1, 1), (2, 1), (3, 4), (4, 2)]
-2. Make the list of 2nd elements: snd_elements = [4, 2, 1, 1, 4, 2]
-3. Extract LIS from snd_elements lis <- [2, 4]  # indexes [1, 4]
-4. Take pairs with corresponding indexes
-'''
-
-
 def sort_pairs_by_priority(seqs: List[T]) -> Tuple[List[T], Dict[int, int]]:
     '''
     sorts pairs by the first element in ascending order and the second element in descending order
