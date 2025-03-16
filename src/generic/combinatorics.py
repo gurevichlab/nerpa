@@ -4,6 +4,7 @@ from typing import (
     Iterable,
     List,
     Tuple,
+    Dict,
     TypeVar
 )
 from itertools import (
@@ -163,8 +164,6 @@ def sort_groupby(items: Iterable[T],
 
 
 '''
-T = TypeVar('T')
-
 def longest_increasing_subsequence(seqs: List[T]) -> list[int]:
     # returns list of indexes
     d: Dict[int, T] = {}
@@ -175,43 +174,51 @@ edges: List[Tuple[int, int]] = [(4, 2), (1, 4), (1, 1), (1, 2), (2, 1), (3, 4)]
 3. Extract LIS from snd_elements lis <- [2, 4]  # indexes [1, 4]
 4. Take pairs with corresponding indexes
 '''
-def longest_increasing_subsequence(pairs: list[tuple[int, int]]) -> list[int]:
-    if not pairs:
+
+
+def sort_pairs_by_priority(seqs: List[T]) -> Tuple[List[T], Dict[int, int]]:
+    '''
+    sorts pairs by the first element in ascending order and the second element in descending order
+    returns sorted pairs and a mapping between indices to reconstruct the original order
+    '''
+    indexed_pairs = list(enumerate(seqs))
+    sorted_pairs = sorted(indexed_pairs, key=lambda x: (x[1][0], -x[1][1]))
+
+    sorted_seqs = [pair for _, pair in sorted_pairs]
+    index_map = {i: orig_idx for i, (orig_idx, _) in enumerate(sorted_pairs)}
+
+    return sorted_seqs, index_map
+
+
+def longest_increasing_subsequence_without_collisions(seqs: List[T]) -> List[int]:
+    '''
+    finds LIS with additional requirement that elements (i1, j1), (i2, j2) can not be in the LIS if i1=i2 or j1=j2
+    '''
+    if not seqs:
         return []
 
-    indexed_pairs = sorted(enumerate(pairs), key=lambda x: (x[1][0], x[1][1]))
-    original_indices = [idx for idx, _ in indexed_pairs]
+    sorted_seqs, index_map = sort_pairs_by_priority(seqs)
+    snd_elements = [seq[1] for seq in sorted_seqs]
 
-    n = len(pairs)
+    n = len(snd_elements)
     dp = [1] * n
     prev = [-1] * n
 
-    used_i = set()
-    used_j = set()
-
     for i in range(n):
-        curr_idx, (curr_i, curr_j) = indexed_pairs[i]
-
-        if curr_i in used_i or curr_j in used_j:
-            continue
-
         for j in range(i):
-            prev_idx, (prev_i, prev_j) = indexed_pairs[j]
-
-            if prev_j < curr_j and dp[j] + 1 > dp[i] and prev_i not in used_i and prev_j not in used_j:
+            if snd_elements[j] < snd_elements[i] and dp[j] + 1 > dp[i]:
                 dp[i] = dp[j] + 1
                 prev[i] = j
 
-        if dp[i] > 1 or prev[i] == -1:
-            used_i.add(curr_i)
-            used_j.add(curr_j)
-
-    lis_indices = []
     max_length = max(dp)
     max_idx = dp.index(max_length)
 
+    lis_sorted_indices = []
     while max_idx != -1:
-        lis_indices.append(original_indices[max_idx])
+        lis_sorted_indices.append(max_idx)
         max_idx = prev[max_idx]
+    lis_sorted_indices = lis_sorted_indices[::-1]  # Reverse to get the correct order in sorted list
 
-    return lis_indices[::-1]
+    result = [index_map[idx] for idx in lis_sorted_indices] # Reconstruct the original indices
+
+    return result

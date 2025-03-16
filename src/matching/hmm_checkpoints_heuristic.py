@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 from src.data_types import BGC_Module, NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.generic.combinatorics import longest_increasing_subsequence
+from src.generic.combinatorics import longest_increasing_subsequence_without_collisions
 from itertools import chain
 
 
@@ -44,7 +44,7 @@ def max_not_intersecting_edges(edges: list[tuple[int, int]]) -> list[tuple[int, 
     finds the maximum subset of not intersecting edges in a bipartile graph,
     edges (i1, j1), (i2, j2) are called not intersecting if i2 > i1 and j2 > j1 or vice versa
     '''
-    lis_indices = longest_increasing_subsequence(edges)
+    lis_indices = longest_increasing_subsequence_without_collisions(edges)
 
     retained = [edges[i] for i in lis_indices]
 
