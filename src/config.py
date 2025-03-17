@@ -38,10 +38,10 @@ def get_aa_codes(aa_codes_tsv: Path,
         -> Tuple[
             Dict[MonomerResidue, List[AA10]],
             Dict[MonomerResidue, List[AA34]] ]:
-    aa_codes_tsv = pd.read_csv(aa_codes_tsv, sep='\t')
+    aa_codes = pd.read_csv(aa_codes_tsv, sep='\t')
     aa10_codes = defaultdict(list)
     aa34_codes = defaultdict(list)
-    for _, row in aa_codes_tsv.iterrows():
+    for _, row in aa_codes.iterrows():
         as_names: List[antiSMASH_MonomerName] = row['predictions_loose'].split('|')
         residues = {monomer_names_helper.parsed_name(as_name, 'antismash').residue
                     for as_name in as_names}
@@ -53,7 +53,8 @@ def get_aa_codes(aa_codes_tsv: Path,
 
 @dataclass
 class SpecificityPredictionConfig:
-    specificity_prediction_model: Path
+    nerpa_specificity_prediction_model: Path
+    paras_model: Optional[Path]
     a_domains_signatures: Path
     KNOWN_AA10_CODES: Dict[MonomerResidue, List[AA10]]
     KNOWN_AA34_CODES: Dict[MonomerResidue, List[AA34]]
@@ -77,7 +78,8 @@ class SpecificityPredictionConfig:
                  args: Optional[CommandLineArgs] = None):
         for k, v in cfg_dict.items():
             setattr(self, k, v)
-        self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
+        self.nerpa_specificity_prediction_model = nerpa_dir / Path(cfg_dict['nerpa_specificity_prediction_model'])
+        self.paras_model = nerpa_dir / Path(cfg_dict['paras_model'])
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
         self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures,
                                                                     monomer_names_helper)

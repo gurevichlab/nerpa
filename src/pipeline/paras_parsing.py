@@ -2,7 +2,7 @@ from typing import Dict, Optional
 from pathlib import Path
 from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.data_types import AA34, LogProb, Prob
-from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper
+from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper, UNKNOWN_RESIDUE
 from src.generic.functional import timing_decorator
 import pandas as pd
 from math import log
@@ -29,7 +29,10 @@ def paras_residue_to_nerpa_residue(residue: PARAS_RESIDUE,
         as_short = next(substrate.short
                         for substrate in KNOWN_SUBSTRATES
                         if paras_name_core in substrate.long)
-        return monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
+        result = monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
+        if result == UNKNOWN_RESIDUE:
+            print(f"Unknown residue: {residue}")
+        return result
 
 
 def extract_paras_results_json(paras_results_json: Path) -> Dict[AA34, Dict[PARAS_RESIDUE, Prob]]:

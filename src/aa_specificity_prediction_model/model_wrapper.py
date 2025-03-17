@@ -1,8 +1,10 @@
+from math import e
 from typing import Dict
 import pandas as pd
 from pathlib import Path
 import joblib
 
+from src.data_types import Prob
 from src.monomer_names_helper import (
     MonomerNamesHelper,
     MonomerResidue
@@ -32,8 +34,7 @@ class ModelWrapper(object):
 
     def __call__(self,
                  scoring_table: pd.DataFrame,
-                 monomer_names_helper: MonomerNamesHelper,
-                 dictionary_lookup: bool = True) -> Dict[MonomerResidue, float]:
+                 monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
         scores = pd.Series(0, index=scoring_table.index, dtype=float)
         
         # Filter rows with no match in the lookup table
@@ -48,10 +49,10 @@ class ModelWrapper(object):
 
         # Condense predictions to the set of supported residues
         # I take the max score for each residue, as predictions are independent
-        scores = {res: float('-inf') for res in monomer_names_helper.supported_residues}
-        for monomer_name, score in scores_dict.items():
+        scores = {res: 0.0 for res in monomer_names_helper.supported_residues}
+        for monomer_name, log_prob in scores_dict.items():
             monomer_res = monomer_names_helper.parsed_name(monomer_name, name_format='antismash').residue
-            scores[monomer_res] = max(scores[monomer_res], score)
+            scores[monomer_res] = max(scores[monomer_res], e ** log_prob)
 
         return scores
 

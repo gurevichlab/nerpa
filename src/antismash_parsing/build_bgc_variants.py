@@ -1,4 +1,5 @@
 from copy import deepcopy
+from math import log
 from typing import (
     Any,
     Callable,
@@ -8,6 +9,7 @@ from typing import (
     Optional
 )
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
+from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
@@ -44,76 +46,20 @@ from src.antismash_parsing.genomic_context import (
     get_module_genomic_context,
 )
 from itertools import chain
-import pandas as pd
 
 
-# TODO: figure out how to write it as "lambda args: args['a_domain'].aa34"
-@cached_by_key(key=lambda *args, **kwargs: args[0].aa34)
 def get_residue_scores(a_domain: A_Domain,
-                       external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
-                       residue_scoring_model: ModelWrapper,
-                       monomer_names_helper: MonomerNamesHelper,
-                       config: SpecificityPredictionConfig,
-                       log: NerpaLogger) -> Dict[MonomerResidue, LogProb]:
-    if external_specificity_predictions is not None:
-        if a_domain.aa34 in external_specificity_predictions:
-            predictions = deepcopy(external_specificity_predictions[a_domain.aa34])
-            if config.ENABLE_CALIBRATION:
-                predictions = calibrate_scores(predictions,
-                                               config,
-                                               model='paras')
-            return predictions
-        else:
-            log.info(f'WARNING: No external specificity predictions for AA34 {a_domain.aa34}. '
-                     f'Using Nerpa model.')
-
-    def svm_score(aa_name: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
-        svm_prediction_substrates = {monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
-                                     for monomer_name in svm_level_prediction.substrates}
-        if aa_name not in config.SVM_SUBSTRATES:
-            return config.SVM_NOT_SUPPORTED_SCORE
-        if aa_name in svm_prediction_substrates:
-            return svm_level_prediction.score
-        else:
-            return config.SVM_NO_PREDICTION_SCORE
-
-    def similarity_score(aa_code1: str, aa_code2: str) -> float:
-        return 1.0 - hamming_distance(aa_code1, aa_code2) / len(aa_code1)
-
-    scoring_table = pd.DataFrame([], columns=config.SCORING_TABLE_COLUMNS).set_index(config.SCORING_TABLE_INDEX)
-    for aa_name, aa10_codes in config.KNOWN_AA10_CODES.items():
-        aa34_codes = config.KNOWN_AA34_CODES[aa_name]
-
-        aa_code_scores = [max(similarity_score(aa_code, known_aa_code)
-                              for known_aa_code in known_aa_codes)
-                          for aa_code, known_aa_codes in [(a_domain.aa10, aa10_codes),
-                                                          (a_domain.aa34, aa34_codes)]]
-        svm_scores = [svm_score(aa_name, a_domain.svm[level])
-                      for level in SVM_LEVEL]
-        scoring_table.loc[aa_name] = aa_code_scores + svm_scores
-
-    predictions = residue_scoring_model(scoring_table,
-                                        dictionary_lookup=config.ENABLE_DICTIONARY_LOOKUP,
-                                        monomer_names_helper=monomer_names_helper)
-    if config.ENABLE_CALIBRATION:
-        predictions = calibrate_scores(predictions, config, model='nerpa')
-
-    return predictions
+                       specificity_prediction_helper: SpecificityPredictionHelper) -> Dict[MonomerResidue, LogProb]:
+    apriori_prob = specificity_prediction_helper.config.APRIORI_RESIDUE_PROB
+    predictions = specificity_prediction_helper.predict(a_domain)
+    return {res: ((log(prob) - log(apriori_prob[res]))
+                  if prob > 0.0 else -float('inf'))
+            for res, prob in predictions.items()}
 
 
 def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
-                            external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
-                            residue_scoring_model: ModelWrapper,
-                            monomer_names_helper: MonomerNamesHelper,
-                            config: SpecificityPredictionConfig,
-                            log: NerpaLogger) -> List[BGC_Module]:
-    def _get_residue_scores(a_domain: A_Domain) -> Dict[MonomerResidue, LogProb]:
-        return get_residue_scores(a_domain,
-                                  external_specificity_predictions,
-                                  residue_scoring_model,
-                                  monomer_names_helper,
-                                  config,
-                                  log)
+                            specificity_prediction_helper: SpecificityPredictionHelper)\
+        -> List[BGC_Module]:
 
     iterative_genes = get_iterative_genes(bgc_fragments)
     iterative_modules_ids = get_iterative_modules_ids(bgc_fragments)
@@ -135,6 +81,7 @@ def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
                 module_id = BGC_Module_ID(gene.gene_id, module_idx)
                 module_genomic_context = get_module_genomic_context(module_idx, gene, gene_context)
 
+                residue_scores = get_residue_scores(module.a_domain, specificity_prediction_helper)
                 modules.append(BGC_Module(gene_id=gene.gene_id,
                                           fragment_idx=bgc_fragment_idx,
                                           a_domain_idx=a_domain_idx,
@@ -144,17 +91,14 @@ def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
                                           iterative_gene=gene.gene_id in iterative_genes,
                                           aa10_code=module.a_domain.aa10,
                                           aa34_code=module.a_domain.aa34,
-                                          residue_score=_get_residue_scores(module.a_domain)))
+                                          residue_score=residue_scores))
 
     return modules
 
 
 def build_bgc_variants(bgc: BGC_Cluster,
-                       external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]],
-                       residue_scoring_model: ModelWrapper,
-                       monomer_names_helper: MonomerNamesHelper,
+                       specificity_prediction_helper: SpecificityPredictionHelper,
                        antismash_cfg: antiSMASH_Processing_Config,
-                       specificity_prediction_cfg: SpecificityPredictionConfig,
                        log: NerpaLogger) -> List[BGC_Variant]:
     if not any(module.a_domain is not None
                for gene in bgc.genes
@@ -171,8 +115,4 @@ def build_bgc_variants(bgc: BGC_Cluster,
                         modules=assembly_line)
             for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)
             if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,
-                                                         external_specificity_predictions,
-                                                         residue_scoring_model,
-                                                         monomer_names_helper,
-                                                         specificity_prediction_cfg,
-                                                         log))]
+                                                         specificity_prediction_helper))]

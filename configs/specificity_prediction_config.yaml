@@ -1,7 +1,8 @@
 ENABLE_DICTIONARY_LOOKUP: True  # use dictionary lookup for known aa34 codes
 ENABLE_CALIBRATION: True  # should be set to True unless for debugging
 
-specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
+nerpa_specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
+paras_model: external_tools/paras/model.paras
 a_domains_signatures: data/signatures.tsv
 
 SVM_SUBSTRATES: [dHpg, Asn, Iva, Ile, Glu, Cys, Abu, Gly, Gln, Val, Ser, Arg, Asp,
