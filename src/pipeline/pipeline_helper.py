@@ -6,6 +6,7 @@ from typing import (
 
 import yaml
 
+from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.generic.functional import timing_decorator
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
@@ -84,17 +85,25 @@ class PipelineHelper:
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
-        self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
-        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args, self.monomer_names_helper, self.log)
-        self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
-
-    @timing_decorator('Getting BGC variants')
-    def get_bgc_variants(self) -> List[BGC_Variant]:
         external_specificity_predictions = get_paras_results_all(self.args.paras_results,
                                                                  self.monomer_names_helper,
                                                                  self.log) \
             if self.args.paras_results is not None else None
-        return self.pipeline_helper_antismash.get_bgc_variants(external_specificity_predictions)
+        specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
+                                                                    self.monomer_names_helper,
+                                                                    self.log,
+                                                                    external_specificity_predictions)
+
+        self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
+        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args,
+                                                                  self.monomer_names_helper,
+                                                                  specificity_prediction_helper,
+                                                                  self.log)
+        self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
+
+    @timing_decorator('Getting BGC variants')
+    def get_bgc_variants(self) -> List[BGC_Variant]:
+        return self.pipeline_helper_antismash.get_bgc_variants()
 
     @timing_decorator('Getting NRP variants')
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
@@ -153,7 +162,6 @@ class PipelineHelper:
         self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
         self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)
         self.log.info("Detailed reports are saved to " + str(self.config.output_config.matches_details), indent=1)
-        # q: create symlink to results in self.config.default_results_root_dirname
 
     def finish(self):
         self.log.finish()

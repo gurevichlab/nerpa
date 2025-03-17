@@ -13,6 +13,8 @@ import pandas as pd
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
+
+from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.generic.functional import cached_by_key
 import yaml
 
@@ -131,3 +133,26 @@ class MonomerNamesHelper:
                                                        methylated=NRP_Monomer_Modification.METHYLATION in self.parsed_modifications(row['modifications']),
                                                        chirality=Chirality.UNKNOWN)
         return self._cache[(name, name_format)]
+
+
+PARAS_RESIDUE = str
+
+def paras_residue_to_nerpa_residue(residue: PARAS_RESIDUE,
+                                   monomer_names_helper: MonomerNamesHelper) -> MonomerResidue:
+    def get_paras_name_core(paras_name: PARAS_RESIDUE) -> str:
+        match paras_name:
+            case '3-(2-nitrocyclopropylalanine)':
+                return 'alanine'
+            case '3S-methylaspartic acid branched':
+                return '3S-methylaspartic acid'
+            case _:
+                return paras_name.split('-')[-1]
+
+    paras_name_core = get_paras_name_core(residue)
+    as_short = next(substrate.short
+                    for substrate in KNOWN_SUBSTRATES
+                    if paras_name_core in substrate.long)
+    result = monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
+    if result == UNKNOWN_RESIDUE:
+        print(f"Unknown residue: {residue}")
+    return result

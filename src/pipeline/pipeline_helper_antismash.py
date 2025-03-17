@@ -6,6 +6,8 @@ from typing import (
     Optional,
     Union
 )
+
+from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
 from src.pipeline.download_antismash_results import download_antismash_results
@@ -34,6 +36,7 @@ class PipelineHelper_antiSMASH:
     config: Config
     args: CommandLineArgs
     monomer_names_helper: MonomerNamesHelper
+    specificity_prediction_helper: SpecificityPredictionHelper
     log: NerpaLogger
     antismash_exec: Union[Path, None] = None
 
@@ -49,7 +52,7 @@ class PipelineHelper_antiSMASH:
 
     def load_bgc_variants(self) -> List[BGC_Variant]:
         self.log.info('Loading preprocessed BGC variants')
-        bgc_variants = []
+        bgc_variants: List[BGC_Variant] = []
         for file_with_bgc_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
                                              self.args.bgc_variants.iterdir()):
             bgc_variants.extend(BGC_Variant.from_yaml_dict(yaml_record)
@@ -101,9 +104,7 @@ class PipelineHelper_antiSMASH:
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
 
-    def get_bgc_variants(self,
-                         external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]]) \
-            -> List[BGC_Variant]:
+    def get_bgc_variants(self) -> List[BGC_Variant]:
         if self.preprocessed_bgc_variants():
             self.log.info('Loading preprocessed BGC variants. All other inputs will be ignored')
             return self.load_bgc_variants()
@@ -115,8 +116,7 @@ class PipelineHelper_antiSMASH:
         bgc_variants = []
         for antismash_record in antismash_results:
             try:
-                bgc_variants.extend(self.extract_bgc_variants_from_antismash(antismash_record,
-                                                                             external_specificity_predictions))
+                bgc_variants.extend(self.extract_bgc_variants_from_antismash(antismash_record))
             except Exception as e:
                 self.log.info(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
                 raise e  # TODO: remove
@@ -137,32 +137,30 @@ class PipelineHelper_antiSMASH:
         return output_dir
 
     def extract_bgc_variants_from_antismash(self,
-                                            antismash_json: antiSMASH_record,
-                                            external_specificity_predictions: Optional[Dict[AA34, Dict[MonomerResidue, LogProb]]]) \
-            -> List[BGC_Variant]:
+                                            antismash_json: antiSMASH_record) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
                                               self.config.antismash_processing_config)
-        specificity_prediction_model = ModelWrapper(self.config.specificity_prediction_config.specificity_prediction_model)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
-                                                                   external_specificity_predictions,
-                                                                   specificity_prediction_model,
-                                                                   self.monomer_names_helper,
+                                                                   self.specificity_prediction_helper,
                                                                    self.config.antismash_processing_config,
-                                                                   self.config.specificity_prediction_config,
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 
         if self.args.debug:
             debug_specificity_prediction_cfg = deepcopy(self.config.specificity_prediction_config)
             debug_specificity_prediction_cfg.ENABLE_CALIBRATION = False
+            debug_specificity_prediction_cfg.ENABLE_DICTIONARY_LOOKUP = False
+
+            debug_specificity_prediction_cfg.APRIORI_RESIDUE_PROB = \
+                {res: 1.0 for res in self.monomer_names_helper.supported_residues}  # this effectively forces computing logprobs instead of log-odds
+            debug_spec_helper = SpecificityPredictionHelper(debug_specificity_prediction_cfg,
+                                                            self.monomer_names_helper,
+                                                            self.log)
 
             bgc_variants_no_cal = list(chain.from_iterable(build_bgc_variants(bgc,
-                                                                       external_specificity_predictions,
-                                                                       specificity_prediction_model,
-                                                                       self.monomer_names_helper,
-                                                                       self.config.antismash_processing_config,
-                                                                       debug_specificity_prediction_cfg,
-                                                                       self.log)
+                                                                              debug_spec_helper,
+                                                                              self.config.antismash_processing_config,
+                                                                              self.log)
                                                     for bgc in antismash_bgcs))
             write_bgc_variants(bgc_variants_no_cal,
                                self.config.output_config.bgc_variants_no_calibration_dir)

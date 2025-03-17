@@ -5,6 +5,8 @@ from typing import Dict, List, Sequence, Any
 from pathlib import Path
 import joblib
 import numpy as np
+from src.data_types import AA34, Prob
+from src.pipeline.paras_parsing import PARAS_RESIDUE
 
 
 class ParasFeaturizer(object):
@@ -72,7 +74,7 @@ class ParasWrapper(object):
         self.model = joblib.load(model_dump)
         self.featurizer = ParasFeaturizer()
 
-    def predict_as_json(self, signatures: List[str], sort=False) -> List[Dict[str, Any]]:
+    def predict_as_json(self, signatures: List[AA34], sort=False) -> List[Dict[str, Any]]:
         """_summary_
 
         Parameters
@@ -103,3 +105,6 @@ class ParasWrapper(object):
                                          key=lambda x: float(x['probability']), reverse=True)
             results.append({'domain_extended_signature': signature, 'predictions': cur_predictions})
         return results
+
+    def predict(self, signature: AA34) -> Dict[PARAS_RESIDUE, Prob]:
+        return self.predict_as_json([signature])[0]['predictions']

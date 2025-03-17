@@ -97,7 +97,7 @@ cd nerpa
 Next, create a conda environment by running:
 
 ```commandline
-conda create -f environment.yml
+conda env create -f environment.yml
 conda activate nerpa-env
 ```
 Finally, build C++ code by running:
