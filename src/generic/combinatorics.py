@@ -4,6 +4,7 @@ from typing import (
     Iterable,
     List,
     Tuple,
+    Dict,
     TypeVar
 )
 from itertools import (
@@ -160,3 +161,51 @@ def sort_groupby(items: Iterable[T],
                  key: Callable[[T], U],
                  reverse: bool=False) -> Iterable[Tuple[U, Iterable[T]]]:
     return groupby(sorted(items, key=key, reverse=reverse), key=key)
+
+
+def max_non_intersecting_edges(edges: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+    '''
+    1. sorts pairs by the first element in ascending order and the second element in descending order
+    2. extracts the second elements
+    3. calls longest_increasing_subsequence on the second elements to find LIS
+    4. returns pairs that LIS contains
+    '''
+    if not edges:
+        return []
+
+    sorted_edges = sorted(edges, key=lambda x: (x[0], -x[1]))
+
+    second_components = [edge[1] for edge in sorted_edges]
+
+    lis_indices = longest_increasing_subsequence(second_components)
+
+    return [sorted_edges[i] for i in lis_indices]
+
+
+def longest_increasing_subsequence(arr: List[T]) -> List[T]:
+    '''
+    finds longest increasing subsequence in array
+    '''
+    if not arr:
+        return []
+
+    n = len(arr)
+
+    dp = [1] * n
+    prev = [-1] * n
+
+    for i in range(n):
+        for j in range(i):
+            if arr[j] < arr[i] and dp[j] + 1 > dp[i]:
+                dp[i] = dp[j] + 1
+                prev[i] = j
+
+    max_length = max(dp)
+    max_length_index = dp.index(max_length)
+
+    result = []
+    while max_length_index != -1:
+        result.append(max_length_index)
+        max_length_index = prev[max_length_index]
+
+    return result[::-1]

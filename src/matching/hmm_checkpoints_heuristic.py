@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 from src.data_types import BGC_Module, NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
+from src.generic.combinatorics import max_non_intersecting_edges
 from itertools import chain
 
 
@@ -26,7 +27,16 @@ def bgc_module_matches_nrp_monomer(bgc_module_emissions: Dict[NRP_Monomer, float
 def _get_checkpoints(len_bgc_modules: int,
                      len_nrp_monomers: int,
                      are_equal: Callable[[int, int], bool]) -> List[Tuple[int, int]]:  # (i, j) means i-th module corresponds to j-th monomer
-    return []
+    all_matches = []
+
+    for i in range(len_bgc_modules - 1):
+        for j in range(len_nrp_monomers - 1):
+            if are_equal(i, j) and are_equal(i + 1, j + 1):
+                all_matches.append((i, j))
+
+    retained_matches = max_non_intersecting_edges(all_matches)
+
+    return retained_matches
 
 
 def get_checkpoints(hmm: 'DetailedHMM',
