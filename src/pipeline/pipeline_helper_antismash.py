@@ -11,9 +11,7 @@ from src.aa_specificity_prediction_model.specificity_prediction_helper import Sp
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
 from src.pipeline.download_antismash_results import download_antismash_results
-from src.config import Config, SpecificityPredictionConfig
-from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
-from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
+from src.config import Config
 from src.data_types import AA34, BGC_Variant, LogProb
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program

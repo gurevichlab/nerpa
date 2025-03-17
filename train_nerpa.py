@@ -117,13 +117,11 @@ def main():
     hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     print('Loading approved matches')
-    approved_matches = load_matches_from_txt(args.approved_matches)
+    approved_matches = [fix_match(match, monomer_names_helper)
+                        for match in load_matches_from_txt(args.approved_matches)]
 
     print('Loading BGC variants')
     bgc_variants = load_all_bgc_variants(args.nerpa_results)
-
-    print('Fixing matches')
-    approved_matches = [fix_match(match, monomer_names_helper) for match in approved_matches]
 
     # As variants ids may differ, load bgc variants based on compatibility, not by id
     bgc_variants_approved_matches = load_bgc_variants_for_matches(approved_matches,

@@ -107,4 +107,5 @@ class ParasWrapper(object):
         return results
 
     def predict(self, signature: AA34) -> Dict[PARAS_RESIDUE, Prob]:
-        return self.predict_as_json([signature])[0]['predictions']
+        return {single_pred['substrate_name']: float(single_pred['probability'])
+                for single_pred in self.predict_as_json([signature])[0]['predictions']}
