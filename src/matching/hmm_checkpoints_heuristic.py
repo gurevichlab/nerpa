@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 from src.data_types import BGC_Module, NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.generic.combinatorics import longest_increasing_subsequence_without_collisions
+from src.generic.combinatorics import max_non_intersecting_edges
 from itertools import chain
 
 
@@ -34,21 +34,9 @@ def _get_checkpoints(len_bgc_modules: int,
             if are_equal(i, j) and are_equal(i + 1, j + 1):
                 all_matches.append((i, j))
 
-    retained_matches = max_not_intersecting_edges(all_matches)
+    retained_matches = max_non_intersecting_edges(all_matches)
 
     return retained_matches
-
-
-def max_not_intersecting_edges(edges: list[tuple[int, int]]) -> list[tuple[int, int]]:
-    '''
-    finds the maximum subset of not intersecting edges in a bipartile graph,
-    edges (i1, j1), (i2, j2) are called not intersecting if i2 > i1 and j2 > j1 or vice versa
-    '''
-    lis_indices = longest_increasing_subsequence_without_collisions(edges)
-
-    retained = [edges[i] for i in lis_indices]
-
-    return retained
 
 
 def get_checkpoints(hmm: 'DetailedHMM',

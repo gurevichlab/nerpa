@@ -163,49 +163,49 @@ def sort_groupby(items: Iterable[T],
     return groupby(sorted(items, key=key, reverse=reverse), key=key)
 
 
-def sort_pairs_by_priority(seqs: List[T]) -> Tuple[List[T], Dict[int, int]]:
+def max_non_intersecting_edges(edges: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     '''
-    sorts pairs by the first element in ascending order and the second element in descending order
-    returns sorted pairs and a mapping between indices to reconstruct the original order
+    1. sorts pairs by the first element in ascending order and the second element in descending order
+    2. extracts the second elements
+    3. calls longest_increasing_subsequence on the second elements to find LIS
+    4. returns pairs that LIS contains
     '''
-    indexed_pairs = list(enumerate(seqs))
-    sorted_pairs = sorted(indexed_pairs, key=lambda x: (x[1][0], -x[1][1]))
-
-    sorted_seqs = [pair for _, pair in sorted_pairs]
-    index_map = {i: orig_idx for i, (orig_idx, _) in enumerate(sorted_pairs)}
-
-    return sorted_seqs, index_map
-
-
-def longest_increasing_subsequence_without_collisions(seqs: List[T]) -> List[int]:
-    '''
-    finds LIS with additional requirement that elements (i1, j1), (i2, j2) can not be in the LIS if i1=i2 or j1=j2
-    '''
-    if not seqs:
+    if not edges:
         return []
 
-    sorted_seqs, index_map = sort_pairs_by_priority(seqs)
-    snd_elements = [seq[1] for seq in sorted_seqs]
+    sorted_edges = sorted(edges, key=lambda x: (x[0], -x[1]))
 
-    n = len(snd_elements)
+    second_components = [edge[1] for edge in sorted_edges]
+
+    lis_indices = longest_increasing_subsequence(second_components)
+
+    return [sorted_edges[i] for i in lis_indices]
+
+
+def longest_increasing_subsequence(arr: List[T]) -> List[T]:
+    '''
+    finds longest increasing subsequence in array
+    '''
+    if not arr:
+        return []
+
+    n = len(arr)
+
     dp = [1] * n
     prev = [-1] * n
 
     for i in range(n):
         for j in range(i):
-            if snd_elements[j] < snd_elements[i] and dp[j] + 1 > dp[i]:
+            if arr[j] < arr[i] and dp[j] + 1 > dp[i]:
                 dp[i] = dp[j] + 1
                 prev[i] = j
 
     max_length = max(dp)
-    max_idx = dp.index(max_length)
+    max_length_index = dp.index(max_length)
 
-    lis_sorted_indices = []
-    while max_idx != -1:
-        lis_sorted_indices.append(max_idx)
-        max_idx = prev[max_idx]
-    lis_sorted_indices = lis_sorted_indices[::-1]  # Reverse to get the correct order in sorted list
+    result = []
+    while max_length_index != -1:
+        result.append(max_length_index)
+        max_length_index = prev[max_length_index]
 
-    result = [index_map[idx] for idx in lis_sorted_indices] # Reconstruct the original indices
-
-    return result
+    return result[::-1]
