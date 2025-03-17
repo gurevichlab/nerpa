@@ -137,22 +137,16 @@ class MonomerNamesHelper:
 
 PARAS_RESIDUE = str
 
-def paras_residue_to_nerpa_residue(residue: PARAS_RESIDUE,
+def paras_residue_to_nerpa_residue(paras_name: PARAS_RESIDUE,
                                    monomer_names_helper: MonomerNamesHelper) -> MonomerResidue:
-    def get_paras_name_core(paras_name: PARAS_RESIDUE) -> str:
-        match paras_name:
-            case '3-(2-nitrocyclopropylalanine)':
-                return 'alanine'
-            case '3S-methylaspartic acid branched':
-                return '3S-methylaspartic acid'
-            case _:
-                return paras_name.split('-')[-1]
+    paras_name_core = paras_name.split('-')[-1]
+    try:
+        as_short = next(substrate.short
+                        for substrate in KNOWN_SUBSTRATES
+                        if paras_name_core in substrate.long)
+        result = monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
+    except StopIteration:
+        print(f"WARNING: paras name {paras_name} not recognized")
+        result = UNKNOWN_RESIDUE
 
-    paras_name_core = get_paras_name_core(residue)
-    as_short = next(substrate.short
-                    for substrate in KNOWN_SUBSTRATES
-                    if paras_name_core in substrate.long)
-    result = monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
-    if result == UNKNOWN_RESIDUE:
-        print(f"Unknown residue: {residue}")
     return result

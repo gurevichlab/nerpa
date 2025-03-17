@@ -5,7 +5,6 @@ from typing import Literal, Dict, List, Callable, Optional
 import pandas as pd
 
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
-from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
 from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.antismash_parsing.antismash_parser_types import A_Domain, SVM_Prediction, SVM_LEVEL
 from src.config import SpecificityPredictionConfig

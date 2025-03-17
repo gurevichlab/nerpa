@@ -10,7 +10,6 @@ from typing import (
 )
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
-from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
     BGC_Cluster,
@@ -73,7 +72,7 @@ def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
                                                     bgc_fragment.genes,
                                                     fragment_context)
 
-            a_domain_idx = 0  # not the same as module_idx because modules with no a_domain are skipped
+            a_domain_idx = -1  # not the same as module_idx because modules with no a_domain are skipped
             for module_idx, module in enumerate(gene.modules):
                 if module.a_domain is None:
                     continue
