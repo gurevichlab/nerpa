@@ -22,7 +22,7 @@ def show_alignment(alignment: Alignment) -> str:
             or alignment_step.nrp_monomer is not None]
 
     t = PrettyTable(rows[0].keys(), align='l', border=False)
-    t.add_rows(row.values() for row in rows)
+    t.add_rows([row.values() for row in rows])
     return str(t)
 
 

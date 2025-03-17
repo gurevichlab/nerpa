@@ -6,6 +6,7 @@ channels:
     - defaults
 dependencies:
     - python>=3.10
+    - biopython
     - pip
     - scikit-learn=1.2.0
     - pandas>=1.5
