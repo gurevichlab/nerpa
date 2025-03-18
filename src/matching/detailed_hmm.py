@@ -115,6 +115,7 @@ class DetailedHMM:
     def path_to_alignment(self,
                           path: List[int],
                           nrp_monomers: List[rBAN_Monomer]) -> Alignment:
+        self.draw(Path(f'{self.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'), path)
         return hmm_path_to_alignment(self, path, nrp_monomers)
 
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:

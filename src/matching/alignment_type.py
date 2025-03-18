@@ -15,11 +15,14 @@ def combined_alignments_score(alignments: List[Alignment]) -> LogProb:
     return sum(alignment_score(alignment) for alignment in alignments)
 
 
-def show_alignment(alignment: Alignment) -> str:
+def show_alignment(alignment: Alignment,
+                   skip_auxiliary_steps: bool = True) -> str:
+    skip_auxiliary_steps = False
     rows = [alignment_step.to_dict()
             for alignment_step in alignment
-            if alignment_step.bgc_module is not None
-            or alignment_step.nrp_monomer is not None]
+            if any([alignment_step.bgc_module is not None,
+                    alignment_step.nrp_monomer is not None,
+                    not skip_auxiliary_steps])]
 
     t = PrettyTable(rows[0].keys(), align='l', border=False)
     t.add_rows([row.values() for row in rows])
