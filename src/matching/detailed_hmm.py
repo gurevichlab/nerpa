@@ -91,7 +91,7 @@ class DetailedHMM:
                         emissions=emission_log_probs,
                         module_start_states=self._module_idx_to_state_idx,
                         module_match_states=self._module_idx_to_match_state_idx,
-                        bgc_info=self.bgc_variant.bgc_variant_id)
+                        bgc_variant_id=self.bgc_variant.bgc_variant_id)
         return self._hmm
 
     def get_opt_path_with_emissions(self,
@@ -115,7 +115,6 @@ class DetailedHMM:
     def path_to_alignment(self,
                           path: List[int],
                           nrp_monomers: List[rBAN_Monomer]) -> Alignment:
-        self.draw(Path(f'{self.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'), path)
         return hmm_path_to_alignment(self, path, nrp_monomers)
 
     def alignment_to_path_with_emisions(self, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:

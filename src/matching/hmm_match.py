@@ -20,7 +20,7 @@ class HMM_Match:
     @classmethod
     def from_json(cls, json_data: dict) -> HMM_Match:
         return cls(score=json_data['score'],
-                   bgc_variant_id=BGC_Variant_ID.from_dict(**json_data['bgc_variant_id']),
+                   bgc_variant_id=BGC_Variant_ID.from_dict(json_data['bgc_variant_id']),
                    nrp_id=json_data['nrp_id'],
                    nrp_linearizations=json_data['nrp_linearizations'],
                    optimal_paths=json_data['optimal_paths'])

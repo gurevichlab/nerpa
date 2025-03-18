@@ -58,6 +58,7 @@ def run_nerpa(nerpa_dir: Path,
         "--debug",
         "--skip-molecule-drawing",
         "--threads", "10",
+        "--fast-matching"
     ]
 
     # Execute the command and capture output
