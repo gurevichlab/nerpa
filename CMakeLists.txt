@@ -7,7 +7,7 @@ project(HMM_NRP_Matcher)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-find_package(OpenMP REQUIRED)
+find_package(OpenMP)
 
 # Add the executable
 add_executable(hmm_nrp_matcher
@@ -21,4 +21,11 @@ add_executable(hmm_nrp_matcher
 
 # Include directories for header files
 target_include_directories(hmm_nrp_matcher PRIVATE src/cpp_matching)
-target_link_libraries(hmm_nrp_matcher PUBLIC OpenMP::OpenMP_CXX)
+
+if (OPENMP_FOUND)
+    target_link_libraries(hmm_nrp_matcher PUBLIC OpenMP::OpenMP_CXX)
+else ()
+    if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+        message(FATAL_ERROR "Nerpa in the fast mode (C++-based) requires OpenMP to be available")
+    endif()
+endif()
