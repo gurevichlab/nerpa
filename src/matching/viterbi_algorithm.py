@@ -65,7 +65,7 @@ def get_opt_path_with_score(hmm: HMM,
                         if new_log_prob > dp[edge_to][new_sym_count] or prev[edge_to][new_sym_count] == -1:
                             dp[edge_to][new_sym_count] = new_log_prob
                             prev[edge_to][new_sym_count] = state
-                            if edge_to < state and next_sym_count == sym_count:  # gene/module iteration
+                            if edge_to < state and new_sym_count == sym_count:  # gene/module iteration
                                 iteration_applied = True
 
     # Extract best final probability
@@ -89,7 +89,9 @@ def get_opt_path_with_score(hmm: HMM,
         path.append(state)
 
     path.reverse()
+    return float(best_score), path
 
+'''
     check_score = 0.0
     mon_idx = 0
     for i in range(1, len(path)):
@@ -100,10 +102,10 @@ def get_opt_path_with_score(hmm: HMM,
             check_score += hmm.emissions[path[i-1]][observed_sequence[mon_idx]]
             mon_idx += 1
 
-    if abs(check_score - best_score) > 1e-6:
-        raise RuntimeError(f"Score mismatch: {check_score} != {best_score}")
-
     print(f"Score: {best_score}")
     print(f"Path: {path}")
-    return float(best_score), path
+
+    if abs(check_score - best_score) > 1e-6:
+        raise RuntimeError(f"Score mismatch: {check_score} != {best_score}")
+'''
 

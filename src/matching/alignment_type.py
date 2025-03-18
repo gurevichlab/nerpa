@@ -17,7 +17,7 @@ def combined_alignments_score(alignments: List[Alignment]) -> LogProb:
 
 def show_alignment(alignment: Alignment,
                    skip_auxiliary_steps: bool = True) -> str:
-    skip_auxiliary_steps = False
+    #skip_auxiliary_steps = False
     rows = [alignment_step.to_dict()
             for alignment_step in alignment
             if any([alignment_step.bgc_module is not None,
