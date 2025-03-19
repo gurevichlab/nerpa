@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
 import sys
+
+from src.monomer_names_helper import MonomerResidue
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logger import NerpaLogger
+from src.rban_parsing.get_linearizations import NRP_Linearizations
 from src.write_results import write_bgc_variants
 from pathlib import Path
 

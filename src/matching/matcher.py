@@ -60,7 +60,7 @@ def get_best_linearizations_for_nrp(hmm: HMM,
     best_iterative_score = float('-inf')
     best_iterative_linearizations = []
     for groups_linearizations in nrp_linearizations.iterative:
-        split_score = 0
+        split_score = 0.0
         split_linearizations = []
         for group_linearizations in groups_linearizations:
             group_score, group_linearization = max(((linearization_score(linearization), linearization)

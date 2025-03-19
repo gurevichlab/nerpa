@@ -91,7 +91,7 @@ class DetailedHMM:
                         emissions=emission_log_probs,
                         module_start_states=self._module_idx_to_state_idx,
                         module_match_states=self._module_idx_to_match_state_idx,
-                        bgc_info=self.bgc_variant.bgc_variant_id)
+                        bgc_variant_id=self.bgc_variant.bgc_variant_id)
         return self._hmm
 
     def get_opt_path_with_emissions(self,
