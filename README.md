@@ -4,8 +4,9 @@
    1.1 [Nerpa pipeline](#sec_about_pipeline)</br>
    1.2 [Supported data types](#sec_about_data)</br>
 2. [Installation](#sec_install)</br>
-    2.1. [Installation via conda](#sec_install_conda)</br>
-    2.2. [Installation from source code](#sec_install_source)</br>
+    2.1. [Prerequisites](#sec_install_prereq)</br>
+    2.2. [Installation from tarball](#sec_install_source)</br>
+    2.3. [Verifying your installation](#sec_install_verify)</br>
 3. [Running Nerpa](#sec_run)</br>
     3.1. [Quick start](#sec_run_quick)</br>
     3.2. [Command-line options](#sec_run_options)</br>
@@ -22,8 +23,8 @@ Nerpa is currently developed and maintained by [Gurevich Lab](https://helmholtz-
 at the [Helmholtz Institute for Pharmaceutical Research Saarland (HIPS)](https://helmholtz-hips.de/en/) 
 and the [Center for Bioinformatics Saar (CBI)](https://zbi-www.bioinf.uni-sb.de/en/).
 
-This manual will help you to install and run the tool. Nerpa version 2.0.0 was released on (**FILL IN RELEASE DATE**). 
-The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see (**FILL IN LICENSE**)
+This manual will help you to install and run the tool. Nerpa version 2.0.0 was released on 19.03.2025. 
+The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt).
 
 <a name="sec_about_pipeline"></a>
 ## Nerpa pipeline
@@ -70,42 +71,43 @@ e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). A
 
 <a name="sec_install"></a>
 # Installation
-You can install Nerpa using one of the two available options described below. 
-In either case, the Nerpa package includes rBAN but lacks antiSMASH. 
-So, if you plan to use Nerpa with raw genome sequences (FASTA or GenBank) rather than 
-antiSMASH-processed files, 
-you need also to [install antiSMASH on your computer](https://docs.antismash.secondarymetabolites.org/install/).
+<a name="sec_install_prereq"></a>
+## Prerequisites
 
-<a name="sec_install_conda"></a>
-## Installation via conda
+* **(Required)** Nerpa relies on **Java** (to run the embedded rBAN), **Python v3.10 or higher**, and a number of **Python dependencies specified in the [environment.yml](environment.yml)** file.  
+  We highly recommend installing [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to easily set up all dependencies, as demonstrated below.
 
-```commandline
-conda install bioconda::nerpa==2.0.0
-```
+* **(Optional)** If you plan to use Nerpa with raw genome sequences (FASTA or GenBank) rather than antiSMASH-processed files, 
+you will also need to [install antiSMASH locally](https://docs.antismash.secondarymetabolites.org/install/).  
+Alternatively, you can use the [antiSMASH web server](https://antismash.secondarymetabolites.org/).
 
-If you are not familiar with conda/bioconda, please consult with [their documentation](https://bioconda.github.io/user/install.html). 
+* **(Optional)** Nerpa is quite fast by default, but we provide an even faster C++ implementation. 
+To use it, you will need a **[C++20 compiler](https://isocpp.org/get-started)** and **[CMake v3.10](https://cmake.org/)** or higher.  
 
 <a name="sec_install_source"></a>
-## Installation from source code
+## Installation from tarball
 
-First, clone the repository and change directory to its root:
+First, download and unpack the release tarball:
 
 ```commandline
-git clone --single-branch --branch nerpa_2.0 https://github.com/gurevichlab/nerpa.git
-cd nerpa
+wget https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.0.0/nerpa-2.0.0.tar.gz
+tar -xzf nerpa-2.0.0.tar.gz
+cd nerpa-2.0.0
 ```
-Next, create a conda environment by running:
+Next, install all required dependencies. We recommend creating and activating a Conda environment:  
 
 ```commandline
 conda env create -f environment.yml
 conda activate nerpa-env
 ```
-Finally, build C++ code by running:
+Finally, if you want to use the fast C++ version (optional), compile it by running:
 
 ```commandline
 bash install.sh
 ```
-### Verifying your installation
+
+<a name="sec_install_verify"></a>
+## Verifying your installation
 
 We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere;
 otherwise, you would need to specify path from the current directory to `./nerpa.py`.
@@ -231,8 +233,8 @@ They can be reused for another run via the `--nrp-variants` option.
 <a name="sec_cite"></a>
 ## Citation
 
-If you use Nerpa in your research, please cite our papers.
-Nerpa v.2 is described in [Olkhovskii et al, bioRxiv 2024](https://doi.org/10.1101/2024.11.19.624380). 
+If you use Nerpa in your research, please cite our papers:  
+Nerpa v.2 is described in [Olkhovskii et al, bioRxiv 2024](https://doi.org/10.1101/2024.11.19.624380).  
 Nerpa v.1 is published in [Kunyavskaya, Tagirdzhanov et al., Metabolites 2021](https://doi.org/10.3390/metabo11100693).
 
 <a name="sec_feedback"></a>
