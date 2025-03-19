@@ -146,95 +146,99 @@ For details on the output directory contents and their interpretation refer to t
 
 To see the full list of available options, type
 
-	nerpa.py -h
+```commandline
+nerpa.py -h
+```
 	
 All options are divided into four categories. The most important options in each category are listed below.
 
-### General options
-- `--process-hybrids`  
-process NRP-polyketide hybrid monomers (requires using rBAN).
-- `--antismash-path <ANTISMASH_PATH>`
-path to antiSMASH installation directory (should contain `run_antismash.py`);
-this option is required if genome sequences are provided in the FASTA or GenBank format 
-and antiSMASH is not in `PATH`.  
-- `--threads <THREADS>`   number of threads for running Nerpa.
-- `--output_dir <OUTPUT_DIR>, -o <OUTPUT_DIR>` path to output dir. 
- 
-
 ### Genomic input (genome sequences or BGCs)
 
-The most convenient way to get antiSMASH predictions of BGC in your genomic data with antiSMASH is to upload your 
-FASTA or GBK file to their [webserver](https://antismash.secondarymetabolites.org/). 
-When the server job is completed, you may download archive with results ('Download -> Download all results'), unpack it and 
-provide the path to the unpacked directory or just the main JSON file from it to Nerpa via option `-a`. 
+The most convenient way to obtain antiSMASH predictions of BGCs in your genomic data is to upload your  
+FASTA or GenBank file to their [web server](https://antismash.secondarymetabolites.org/).  
+Once the server job is completed, download the results (`Download -> Download all results`), unpack the archive,  
+and provide the path to the unpacked directory using the `-a` option.
 
-You can also use [the command-line version](https://docs.antismash.secondarymetabolites.org/install/) of antiSMASH.
-Nerpa was tested with outputs from antiSMASH version 7 (7.0.0 and 7.1.0).
+Alternatively, you can provide Nerpa with the server job ID (e.g., `bacteria-2a9bb79e-e804-42c9-bb62-516cac47eca2`)  
+via the `--antismash-job-ids` option, and Nerpa will download everything automatically.  
+For multiple jobs, specify them as a space-separated list of IDs.
 
-Note that you may specify an unlimited number of antiSMASH output files by using `-a` multiple times or by specifying a root directory with many inputs inside.
-You may also write paths to all antiSMASH outputs in a single file and provide it via option `--antismash-paths-file`.
+You can also use the [command-line version of antiSMASH](https://docs.antismash.secondarymetabolites.org/install/).  
+Nerpa has been tested with outputs from antiSMASH version 7 (7.0.0 and 7.1.0).  
+If antiSMASH is installed on your system, you can provide raw genome sequences in FASTA or GenBank format via the `--genome` option,  
+and Nerpa will run antiSMASH automatically.  
+To enable this, antiSMASH should be available in your system’s `PATH` variable, or the path to its installation directory should be specified via the `--antismash-installation-path` option.
 
-Alternatively, you can provide raw genome sequences in the FASTA or GenBank format. 
-In this case, you need to have antiSMASH installed on your computer and 
-or specify its path via `--antismash-installation-path` option or have it in your system's `PATH` variable.
+Note that you can specify an unlimited number of antiSMASH output files by either:  
 
-Finally, you can reuse preprocessed antiSMASH outputs from the Nerpa output for another run with the `--bgc-variants` option.
-The preprocessed outputs can be found in the `BGC_variants` directory in the output directory.
-This can be useful if you want to use the same antiSMASH output for multiple runs.
+- Using the `-a` option multiple times.  
+- Specifying a root directory containing many inputs.  
+- Writing paths to all antiSMASH outputs in a single text file and providing it via the `--antismash-paths-file` option.  
 
 ### Chemical input (compounds)
 
-NRP molecules should be specified in the [SMILES format](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system).
-One option is to provide them as a space-separated list of SMILES strings via option `--smiles`.
-Another way is to write all structures in a multi-column file and specify it via `--smiles-tsv`. 
-Default column separator (`\t`), names of the SMILES column (`SMILES`) and the column with molecule IDs 
-(*row index*) could be adjusted via option `--sep`, `--col-smiles`, and `--col-id`, respectively.
+NRP molecules should be specified in the [SMILES format](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system).  
+You can provide them in one of the following ways:
 
-Nerpa is provided with a set of NRP databases in the SMILES format: 
-compounds from 
-[MIBiG 4.0](https://mibig.secondarymetabolites.org/) and
-[Norine](https://bioinfo.cristal.univ-lille.fr/norine/index.jsp),
-available [here](./data/mibig_norine.tsv),
-and our own database of putative NRP structures, pNRPdb, available [here](./data/pnrpdb2rc1_summary.tsv).
+- As a space-separated list of SMILES strings using the `--smiles` option.
+- In a multi-column file specified via the `--smiles-tsv` option.
 
-Alternatively, you can reuse preprocessed compounds from the Nerpa output for another run with
-`--nrp_variants` option. 
-Using this option can save substantial time when you want to use the same database for multiple runs.
-The preprocessed outputs can be found in the `NRP_variants` directory in the Nerpa output directory.
+In the latter case, the default column separator (`\t`), names of the SMILES column (`SMILES`) and the column with molecule IDs 
+(*row index*) could be adjusted using the `--sep`, `--col-smiles`, and `--col-id` options, respectively.
 
-### Processing options
+The Nerpa release package comes with a set of NRP databases in the SMILES format:  
 
-- `--process-hybrids`  process NRP-polyketide hybrid monomers (requires using rBAN);
-- `--max-num-matches-per-bgc`  the maximum number of top matches per BGC to report; the default value is 10. 
- If you want to get all matches, set it to 0; 
-however, we don't recommend doing that 
-because it drastically increases the size of the output.
-- `--max-num-matches-per-nrp`  the maximum number of top matches per NRP to report. 
-  By default, the value is unlimited.
-- `--max-num-matches`  the maximum number of top matches to report; the default value is 100.
-If you want to get all matches, set it to 0; 
-however, we don't recommend doing that 
-because it drastically increases the output size;
-- `--threads` the number of threads for running Nerpa; the default value is 1;
-- `--skip-molecule-drawing` disable drawing NRP compounds (they will not appear in the graphical report).
-Note that Nerpa draws only molecules that appear in top matches, so the number of molecules drawn 
-is limited by the `--max-num-matches` option.
-Enabling this option significantly speeds up the run and reduces the output size.
-- `--force-output-dir`  don't crash if the output directory already exists. 
-Note: files in the output directory will be overwritten in this case!
+- Compounds from [MIBiG 4.0](https://mibig.secondarymetabolites.org/) and [Norine](https://bioinfo.cristal.univ-lille.fr/norine/index.jsp), available in [data/mibig_norine.tsv](data/mibig_norine.tsv).  
+- Our own database of putative NRP structures, pNRPdb, available in [data/pnrpdb2rc1_summary.tsv](data/pnrpdb2rc1_summary.tsv).  
+
+### Advanced Input
+
+You can reuse preprocessed BGCs and/or chemical structures from a previous Nerpa run.  
+This is useful, for example, if you want to screen the same BGCs against different NRPs, or vice versa.
+
+The preprocessed files are stored in the Nerpa output directory in:  
+
+- `BGC_variants/` (for BGCs).  
+- `NRP_variants/` (for NRPs).  
+
+To reuse them, provide the corresponding paths via the `--bgc-variants` and `--nrp-variants` options.
+
+### Pipeline Options
+
+- `--output_dir <DIR>, -o <DIR>`  
+  Path to the output directory.  
+  If the directory already exists, Nerpa will exit with an error unless `--force-output-dir` is specified.  
+  If not set, Nerpa will create the directory `nerpa_results/{CURRENT_TIME}` and symlink it to `nerpa_results/latest`.
+
+- `--process-hybrids`  
+  Process NRP-polyketide hybrid monomers (requires rBAN to be used). Recommended.
+
+- `--threads`  
+  Number of threads for running Nerpa. Default: `1`.
+
+- `--skip-molecule-drawing`  
+  Disable drawing of NRP compounds (they will not appear in the HTML report). Enabling this option speeds up the run and reduces output size.
+
+- `--fast-matching`  
+  Enable the fast C++-based matching (requires pre-compilation; see the [Installation](#sec_install) section).
 
 
 <a name="sec_run_results"></a>
-## Output files
+## Output Files
 
-The key files and directories inside the Nerpa output directory (`--output-dir`) are:  
+The key files and directories inside the Nerpa output directory (`--output-dir`) are:
 
-* `report.html` interactive HTML report showing the best Nerpa matches, along with the corresponding annotated BGCs and NRPs.
-* `report.tsv` matched NRP-BGC pairs with scores.
-* `BGC_variants` directory with preprocessed antiSMASH outputs. 
-They can be reused for another run via the `--bgc-variants` option.
-* `NRP_variants` directory with preprocessed compounds.
-They can be reused for another run via the `--nrp-variants` option.
+- `report.html`  
+  An interactive HTML report showing the best Nerpa matches, along with the corresponding annotated BGCs and NRPs.
+
+- `report.tsv`  
+  A tab-separated file containing matched NRP-BGC pairs with their corresponding scores.
+
+- `BGC_variants/`  
+  Directory containing preprocessed antiSMASH outputs. These can be reused for another run via the `--bgc-variants` option.
+
+- `NRP_variants/`  
+  Directory containing preprocessed compounds.  These can be reused for another run via the `--nrp-variants` option.
 
 <a name="sec_cite"></a>
 ## Citation
@@ -252,5 +256,5 @@ Your comments, bug reports, and suggestions are **very welcomed**.
 They will help us to improve Nerpa further.
 In particular, we would love to hear your thought on desired features of the future Nerpa web service.
 
-If you have any troubles running Nerpa, please attach `nerpa.log` from the directory `<output_dir>`.
+If you have any troubles running Nerpa, please attach `nerpa.log` from the output directory.
 
