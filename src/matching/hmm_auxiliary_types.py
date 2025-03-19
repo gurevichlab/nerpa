@@ -30,7 +30,7 @@ import yaml
 StateIdx = int
 
 class HMM(NamedTuple):
-    bgc_info: BGC_Variant_ID
+    bgc_variant_id: BGC_Variant_ID
     transitions: List[List[Tuple[StateIdx, LogProb]]]  # u -> [(v, log_prob(u -> v))]
     emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
     module_start_states: List[StateIdx]
@@ -38,7 +38,7 @@ class HMM(NamedTuple):
 
     def to_json(self):
         return {
-            'bgc_info': self.bgc_info.to_dict(),
+            'bgc_variant_id': self.bgc_variant_id.to_dict(),
             'transitions': self.transitions,
             'emissions': self.emissions,
             'module_start_states': self.module_start_states,
