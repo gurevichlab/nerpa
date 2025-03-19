@@ -115,12 +115,13 @@ All running examples below assume that Nerpa is in `PATH`.
 
 To test your installation, first, try to get the list of the Nerpa command-line options:  
 
-    nerpa.py -h
+```commandline
+nerpa.py -h
+```
 
 Then, try any example from the [Quick start](#sec_run_quick) section and ensure the log contains no error messages.
 
 If you have any problems, please do not hesitate to [contact us](#sec_feedback).
-
 
 <a name="sec_run"></a>
 # Running Nerpa
@@ -128,10 +129,14 @@ If you have any problems, please do not hesitate to [contact us](#sec_feedback).
 <a name="sec_run_quick"></a>
 ## Quick start
 
-**Download** the test data from [here](./test_data.zip) and unpack it to the Nerpa root directory.
-Run the following command from the Nerpa root directory:
+Sample test data with three antiSMASH-processed BGCs and three NRP structures in the SMILES format is included in the release tarball.  
+Alternatively, you can download it from [here](https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.0.0/test_data.tar.gz) and unpack it in your current working directory.
 
-	nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv -o test_output
+To run Nerpa on the test data, execute:
+
+```commandline
+nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv -o test_output
+```
 
 For details on the output directory content and its interpretation refer to the [corresponding section](#sec_run_results).
 
