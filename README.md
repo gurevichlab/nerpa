@@ -1,10 +1,8 @@
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ablab/nerpa)](https://github.com/ablab/nerpa/releases/)
-[![BioConda](https://anaconda.org/bioconda/nerpa/badges/installer/conda.svg)](https://anaconda.org/bioconda/nerpa)
 [![License](https://img.shields.io/badge/licence-GPLv3-blue)](https://www.gnu.org/licenses/old-licenses/gpl-3.0)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 
-# Nerpa 1.0.0 Manual
+# Nerpa 1.1 Manual
 
 1. [About Nerpa](#sec_about) </br>
    1.1 [Nerpa pipeline](#sec_about_pipeline)</br>
@@ -25,9 +23,17 @@
 <a name="sec_about"></a>
 # About Nerpa
 
-Nerpa is a tool for linking biosynthetic gene clusters (BGCs) to known nonribosomal peptides (NRPs). The paper revealing details of the Nerpa algorithm and demonstrating the practical application of the tool is freely available [here](https://www.mdpi.com/2218-1989/11/10/693). The software is developed in the Center for Algorithmic Biotechnology, St. Petersburg State University; the project page is [here](http://cab.spbu.ru/software/nerpa).
+Nerpa is a tool for linking biosynthetic gene clusters (BGCs) to known nonribosomal peptides (NRPs). The paper revealing details of the Nerpa algorithm and demonstrating the practical application of the tool is freely available [here](https://www.mdpi.com/2218-1989/11/10/693). 
+Nerpa is currently developed and maintained by [Gurevich Lab](https://helmholtz-hips.de/en/hmsb) 
+at the [Helmholtz Institute for Pharmaceutical Research Saarland (HIPS)](https://helmholtz-hips.de/en/) 
+and the [Center for Bioinformatics Saar (CBI)](https://zbi-www.bioinf.uni-sb.de/en/).
 
-This manual will help you to install and run Nerpa. Nerpa version 1.0.0 was released on September 13, 2021. The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt) for details.
+This manual will help you to install and run Nerpa. 
+Nerpa version 1.1.0 was mainly completed in 2023-2024 but was officially released (for legacy reasons) on 19.03.2025. 
+The key difference to the previous release (v.1.0.0) is the support for antiSMASH v.7.
+This version is deprecated already, please use the [latest version](https://github.com/gurevichlab/nerpa/releases/) instead.
+
+The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt) for details.
 
 <a name="sec_about_pipeline"></a>
 ## Nerpa pipeline
@@ -56,16 +62,7 @@ For **NRP structures**:
 
 <a name="sec_install"></a>
 # Installation
-You can install Nerpa using one of the two available options described below. In either case, the Nerpa package includes rBAN but lacks antiSMASH. So, if you plan to use Nerpa with raw genome sequences (FASTA or GenBank) rather than antiSMASH-processed files (JSON), you need also to [install antiSMASH on your computer](https://docs.antismash.secondarymetabolites.org/install/).
-
-<a name="sec_install_conda"></a>
-## Installation via conda
-This is the easiest and the most recommended way since conda will automatically manage all dependencies. To install Nerpa, just type  
-```
-conda install -c bioconda nerpa
-```
-
-If you are not familiar with conda/bioconda, please consult with [their documentation](https://bioconda.github.io/user/install.html). 
+The Nerpa package includes rBAN but lacks antiSMASH. So, if you plan to use Nerpa with raw genome sequences (FASTA or GenBank) rather than antiSMASH-processed files (JSON), you need also to [install antiSMASH on your computer](https://docs.antismash.secondarymetabolites.org/install/).
 
 <a name="sec_install_source"></a>
 ## Installation from source code
@@ -86,14 +83,9 @@ For **running** Nerpa you would also **need**:
 ### Compilation
 First, get the source code of the release  
 
-	wget https://github.com/ablab/nerpa/releases/download/v1.0.0/nerpa-1.0.0.tar.gz
-	tar xzf nerpa-1.0.0.tar.gz
-	cd nerpa-1.0.0
-
-**or** try the cutting-edge development code from GitHub
-
-    git clone https://github.com/ablab/nerpa.git
-    cd nerpa
+	wget https://github.com/gurevichlab/nerpa/releases/download/nerpa_1.0.0/nerpa-1.0.0.tar.gz
+	tar xzf nerpa-1.1.0.tar.gz
+	cd nerpa-1.1.0
 
 Next, build Nerpa in `./bin` inside the current directory by typing
 
@@ -133,9 +125,9 @@ If you have any problems, please don't hesitate to [contact us](#sec_feedback).
 <a name="sec_run_quick"></a>
 ## Quick start
 
-**Download** [test data](https://github.com/ablab/nerpa/releases/download/v1.0.0/test_data.tar.gz) provided with the release (also available in the GitHub repository in `test_data`):  
+**Download** [test data](https://github.com/gurevichlab/nerpa/releases/download/v1.0.0/test_data.tar.gz) provided with the 1.0.0 release:  
 
-    wget https://github.com/ablab/nerpa/releases/download/v1.0.0/test_data.tar.gz
+    wget https://github.com/gurevichlab/nerpa/releases/download/v1.0.0/test_data.tar.gz
     tar xzf test_data.tar.gz
 
 **Example 1**: three reference genomes downloaded from [NCBI RefSeq](https://www.ncbi.nlm.nih.gov/refseq/) and pre-processed with antiSMASH v.3 against three NRP structures pre-processed with Nerpa (custom monomer graph format)  
@@ -322,8 +314,9 @@ If you use Nerpa in your research, please cite [Kunyavskaya, Tagirdzhanov et al.
 
 <a name="sec_feedback"></a>
 ## Feedback and bug reports
-You can leave your comments and bug reports at [our GitHub repository tracker](https://github.com/ablab/nerpa/issues) (*recommended way*) or sent it via e-mail: [aleksey.gurevich@spbu.ru](mailto:aleksey.gurevich@spbu.ru)
+You can leave your comments and bug reports at [https://github.com/gurevichlab/nerpa/issues](https://github.com/gurevichlab/nerpa/issues) (*recommended way*) 
+or sent it via e-mail to [alexey.gurevich@helmholtz-hips.de](alexey.gurevich@helmholtz-hips.de).
 
-Your comments, bug reports, and suggestions are **very welcomed**. They will help us to improve Nerpa further. In particular, we would love to hear your thought on desired features of the future Nerpa web service (will be available from <http://cab.cc.spbu.ru/> soon).
+Your comments, bug reports, and suggestions are **very welcomed**. They will help us to improve Nerpa further.
 
-If you have any troubles running Nerpa, please attach `nerpa.log` from the directory `<output_dir>`.
+If you have any troubles running Nerpa, please attach `nerpa.log` from the output directory.
