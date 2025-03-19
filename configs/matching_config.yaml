@@ -1,0 +1,4 @@
+max_num_matches_per_bgc: 10
+max_num_matches_per_nrp: 0  # 0 means no limit
+max_num_matches: 100
+checkpoints_heuristic: False

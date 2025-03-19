@@ -1,19 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 
+# Exit immediately if a command fails
 set -e
 
-if [ "x$PREFIX" = "x" ]; then
-  PREFIX=`pwd`
+# Remove the build directory if it exists
+if [ -d "./build" ]; then
+    echo "Removing existing build directory..."
+    rm -rf ./build
 fi
 
-BUILD_DIR=build
-BASEDIR=`pwd`/`dirname $0`
+# Create and enter the build directory
+mkdir build && cd build
 
-rm -rf "$BASEDIR/$BUILD_DIR"
-mkdir -p "$BASEDIR/$BUILD_DIR"
-set -e
-cd "$BASEDIR/$BUILD_DIR"
-cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$PREFIX" $* "$BASEDIR"
-make -j 8
-make install
-cd $PREFIX
+# Run CMake and Make
+echo "Running CMake..."
+cmake ..
+
+echo "Building project..."
+make
+
+echo "Build completed successfully!"
