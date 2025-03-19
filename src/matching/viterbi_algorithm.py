@@ -30,10 +30,10 @@ def get_opt_path_with_score(hmm: HMM,
 
     # Forward pass: Process all checkpoints
     for chk_idx in range(len(checkpoints) - 1):
-        cur_state, cur_sym_count = checkpoints[chk_idx]
-        next_state, next_sym_count = checkpoints[chk_idx + 1]
+        cur_chkpnt_state, cur_chkpnt_sym_count = checkpoints[chk_idx]
+        next_chkpnt_state, next_chkpnt_sym_count = checkpoints[chk_idx + 1]
 
-        for sym_count in range(cur_sym_count, next_sym_count + 1):
+        for sym_count in range(cur_chkpnt_sym_count, next_chkpnt_sym_count + 1):
             '''
             If we ignore gene/module iteration edges, states are sorted topologically.
             After an iteration edge, however, the state index is less than the previous one.
@@ -46,8 +46,8 @@ def get_opt_path_with_score(hmm: HMM,
                 if _dp_run == 1 and not iteration_applied:
                     break
 
-                for state in range(cur_state, next_state):
-                    if sym_count == next_sym_count and hmm.emissions[state]:
+                for state in range(cur_chkpnt_state, next_chkpnt_state):
+                    if sym_count == next_chkpnt_sym_count and hmm.emissions[state]:
                         continue
 
                     log_prob = dp[state][sym_count]
