@@ -12,8 +12,6 @@ from math import log
 def get_opt_path_with_score(hmm: HMM,
                             observed_sequence: List[MonCode],
                             checkpoints: Optional[List[Tuple[StateIdx, int]]] = None) -> Tuple[LogProb, List[StateIdx]]:
-    assert checkpoints is None
-
     seq_len = len(observed_sequence)
     num_states = len(hmm.transitions)
 
