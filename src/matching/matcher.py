@@ -30,6 +30,7 @@ from collections import defaultdict, Counter
 from itertools import chain, islice
 from joblib import delayed, Parallel
 
+
 def join_hmm_matches(hmm_matches: List[HMM_Match]) -> HMM_Match:
     score = sum(hmm_match.score for hmm_match in hmm_matches)
     bgc_variant_id = hmm_matches[0].bgc_variant_id
@@ -63,7 +64,7 @@ def get_best_match_for_nrp(hmm: HMM,
         return HMM_Match(score=score,
                          bgc_variant_id=detailed_hmm.bgc_variant.bgc_variant_id,
                          nrp_id=nrp_linearizations.nrp_id,
-                         nrp_linearizations=[mon_codes],
+                         nrp_linearizations=[[mon.rban_idx for mon in linearization]],
                          optimal_paths=[opt_path])
 
 
