@@ -7,6 +7,9 @@ from typing import (
     Optional,
     Union
 )
+
+from src.matching.detailed_hmm import DetailedHMM
+from src.matching.hmm_match import HMM_Match
 from src.matching.match_type import Match
 from src.config import OutputConfig
 from src.data_types import BGC_Variant, NRP_Variant
@@ -35,6 +38,19 @@ def write_yaml(data, out_file: Path):
     with open(out_file, 'w') as out:
         yaml.dump(data, out,
                   default_flow_style=None, sort_keys=False)
+
+
+def draw_hmms_with_optimal_paths(hmms: List[DetailedHMM],
+                                 hmm_matches: List[HMM_Match],
+                                 main_out_dir: Path):
+    bgc_variant_to_hmm = {detailed_hmm.bgc_variant.bgc_variant_id: detailed_hmm
+                          for detailed_hmm in hmms}
+    for hmm_match in hmm_matches:
+        detailed_hmm = bgc_variant_to_hmm[hmm_match.bgc_variant_id]
+        for i, opt_path in enumerate(hmm_match.optimal_paths):
+            fname = f'{hmm_match.bgc_variant_id.bgc_id}_{hmm_match.nrp_id}_al{i}.png'
+            detailed_hmm.draw(main_out_dir / 'HMMs_with_paths' / fname,
+                              opt_path)
 
 
 def build_report(matches: List[Match]) -> str:

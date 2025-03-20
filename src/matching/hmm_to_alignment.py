@@ -21,8 +21,11 @@ from itertools import count
 
 # "long" edges are those that involve multiple modules
 LONG_EDGE_TYPES = {
+    DetailedHMMEdgeType.START_SKIP_MODULES_AT_START,  # these are not really long but they are handled similarly TODO: maybe refactor
     DetailedHMMEdgeType.SKIP_GENE,
+    DetailedHMMEdgeType.START_SKIP_GENES_AT_START,
     DetailedHMMEdgeType.SKIP_FRAGMENT,
+    DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START,
     DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
     DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END,
 }

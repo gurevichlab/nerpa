@@ -116,7 +116,6 @@ def draw_hmm(hmm: DetailedHMM,
     # Optionally save the graph
     if output_path:
         if output_path.name.endswith('.png'):
-            graph.render(output_path.name.rsplit('.', 1)[0], cleanup=True)
-        else:
-            graph.render(output_path.name, cleanup=True)
+            fname = str(output_path).rsplit('.', 1)[0]
+            graph.render(fname, cleanup=True)
     return graph

@@ -1,3 +1,25 @@
+Genome: BGC0001448
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001448.0
+NRP_variant: 0
+Score: 14.581508178850752
+Alignment:
+ Gene  A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ mlcA  0             Dab                   ---                ---          ---            ---             ---        ---       START_SKIP_FRAGMENTS_AT_START  -1.792  ---           ---               ---             DIWQSTADDK  HMKAFDISLWQAQISVTGEVNAYGATEVSDDTMH 
+ mlcK  0             oxoDec                ---                Asp          D              True            bMe-Asp    5         MATCH                          0.891   3.114         -1.684            -0.173          DLTKMGVVNK  YRASFDLTVTGSKGMLGGEYNVYGATEATVNSVE 
+ ---   ---           ---                   ---                unknown      L              False           L-Dbu/Dbu  1         START_INSERTING                -4.605  ---           ---               ---             ---         ---                                
+ mlcK  1             oxoDec                EPIMERIZATION      Val          D              False           Val        7         MATCH                          3.921   2.277         0.081             1.573           DAYWWGGTFK  LHRSFDAATYEVWLWTGGDVDGYGPTETTTFATC 
+ mlcL  0             Lys                   ---                Lys          L              False           Lys        8         MATCH                          4.33    4.235         0.081             0.034           DTDDMGYVDK  LEHAFDTSWDGWDVMLGGEYNYYGPTETTVDALA 
+ mlcL  1             oxoDec                ---                Asp          L              False           OH-Asp     11        MATCH                          3.219   3.114         0.081             0.034           DLTKVGAVNK  YRASFDLTVTASKVVIGGEINAYGPTEATVNCAE 
+ mlcL  2             oxoDec                ---                Asp          L              False           Asp        4         MATCH                          3.219   3.114         0.081             0.034           DLTKVGAVNK  YRASFDLTVTASKVVIGGEINAYGPTEATVNCAE 
+ mlcL  3             oxoDec                ---                Gly          UNKNOWN        False           Gly        3         MATCH                          3.051   2.98          0.081             0               DILQLGLVWK  FSMTFDIAVLELQALVGGETNLYGPTETTVWSGA 
+ mlcL  4             oxoDec                EPIMERIZATION      Asp          L              True            bMe-Asp    10        MATCH                          -0.294  3.114         -1.684            -1.714          DLTKMGVVNK  YRASFDLTVTGSKGMLGGEFNVYGATEATVNSVE 
+ mlcM  0             oxoDec                ---                Val          L              False           Val        9         MATCH                          2.372   2.277         0.081             0.034           DAFWLGGTFK  IGIAFDATTFEGWLLAGGDINGYGPTETTTFAAT 
+ mlcM  1             oxoDec                ---                Pro          L              True            4Me-Pro    2         MATCH                          0.698   2.359         -1.684            0.034           DVQYVGHAIK  LWHTFDVSVQESYAVQGGEHNHYGPSETHAITGY 
+
+
 Genome: BGC0001421
 Contig_idx: 1
 BGC_idx: 1

@@ -16,6 +16,7 @@ from src.data_types import (
 from src.config import MatchingConfig
 from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_auxiliary_types import HMM
+from src.matching.hmm_match import HMM_Match
 from src.matching.match_type import Match, NRP_Variant_ID
 from src.matching.alignment_type import Alignment, alignment_score, combined_alignments_score
 from src.matching.viterbi_algorithm import get_opt_path_with_score
@@ -29,59 +30,72 @@ from collections import defaultdict, Counter
 from itertools import chain, islice
 from joblib import delayed, Parallel
 
+def join_hmm_matches(hmm_matches: List[HMM_Match]) -> HMM_Match:
+    score = sum(hmm_match.score for hmm_match in hmm_matches)
+    bgc_variant_id = hmm_matches[0].bgc_variant_id
+    nrp_id = hmm_matches[0].nrp_id
 
-class MatchLight(NamedTuple):
-    nrp_id: str
-    bgc_variant_id: BGC_Variant_ID
-    linearizations: List[Linearization]
-    score: LogProb
+    nrp_linearizations = [linearization
+                          for hmm_match in hmm_matches
+                          for linearization in hmm_match.nrp_linearizations]
+    optimal_paths = [opt_path
+                     for hmm_match in hmm_matches
+                     for opt_path in hmm_match.optimal_paths]
+    return HMM_Match(score=score,
+                     bgc_variant_id=bgc_variant_id,
+                     nrp_id=nrp_id,
+                     nrp_linearizations=nrp_linearizations,
+                     optimal_paths=optimal_paths)
 
 
-def get_best_linearizations_for_nrp(hmm: HMM,
-                                    nrp_linearizations: NRP_Linearizations,
-                                    monomer_names_helper: MonomerNamesHelper,
-                                    detailed_hmm: DetailedHMM,
-                                    checkpoints_heuristic: bool = False) \
-    -> Tuple[float, List[Linearization]]:
+def get_best_match_for_nrp(hmm: HMM,
+                           nrp_linearizations: NRP_Linearizations,
+                           monomer_names_helper: MonomerNamesHelper,
+                           detailed_hmm: DetailedHMM,
+                           checkpoints_heuristic: bool = False) -> HMM_Match:
 
-    def linearization_score(linearization: List[rBAN_Monomer]) -> LogProb:
+    def match_for_linearization(linearization: List[rBAN_Monomer]) -> HMM_Match:
         checkpoints = get_checkpoints(detailed_hmm, linearization) \
             if checkpoints_heuristic else None
         mon_codes = [monomer_names_helper.mon_to_int[mon.to_base_mon()]
                      for mon in linearization]
         score, opt_path = get_opt_path_with_score(hmm, mon_codes, checkpoints)
-        return score
+        return HMM_Match(score=score,
+                         bgc_variant_id=detailed_hmm.bgc_variant.bgc_variant_id,
+                         nrp_id=nrp_linearizations.nrp_id,
+                         nrp_linearizations=[mon_codes],
+                         optimal_paths=[opt_path])
 
-    best_non_iterative_score, best_non_iterative_linearization = \
-        max(((linearization_score(non_iterative_linearization), non_iterative_linearization)
-            for non_iterative_linearization in nrp_linearizations.non_iterative),
-            key=lambda x: x[0])
+
+    best_noniterative_match = max((match_for_linearization(non_iterative_linearization)
+                                   for non_iterative_linearization in nrp_linearizations.non_iterative),
+                                  key=lambda match: match.score)
 
     best_iterative_score = float('-inf')
-    best_iterative_linearizations = []
+    best_iterative_match = []
     for groups_linearizations in nrp_linearizations.iterative:
         split_score = 0.0
-        split_linearizations = []
+        split_matches = []
         for group_linearizations in groups_linearizations:
-            group_score, group_linearization = max(((linearization_score(linearization), linearization)
-                                                   for linearization in group_linearizations),
-                                                    key=lambda x: x[0])
-            split_linearizations.append(group_linearization)
-            split_score += group_score
+            group_match= max((match_for_linearization(linearization)
+                              for linearization in group_linearizations),
+                             key=lambda match: match.score)
+            split_matches.append(group_match)
+            split_score += group_match.score
         if split_score > best_iterative_score:
             best_iterative_score = split_score
-            best_iterative_linearizations = split_linearizations
+            best_iterative_match = join_hmm_matches(split_matches)
 
-    if best_non_iterative_score > best_iterative_score:
-        return best_non_iterative_score, [best_non_iterative_linearization]
+    if best_iterative_score > best_noniterative_match.score:
+        return best_iterative_match
     else:
-        return best_iterative_score, best_iterative_linearizations
+        return best_noniterative_match
 
 
 def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                         nrp_linearizations_all: List[NRP_Linearizations],
                         matching_cfg: MatchingConfig,
-                        log=None) -> List[MatchLight]:
+                        log=None) -> List[HMM_Match]:
     if log is not None:
         log.info(f'Processing BGC {detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id} '
                  f'variant {detailed_hmm.bgc_variant.bgc_variant_id.variant_idx}')
@@ -91,29 +105,25 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
         if matching_cfg.max_num_matches_per_bgc != 0 else None
 
     hmm = detailed_hmm.to_hmm()
-    matches: List[MatchLight] = []
-    for nrp_linearizations in nrp_linearizations_all:
-        score, linearizations = get_best_linearizations_for_nrp(hmm, nrp_linearizations,
-                                                                detailed_hmm.hmm_helper.monomer_names_helper,
-                                                                detailed_hmm,
-                                                                checkpoints_heuristic=matching_cfg.checkpoints_heuristic)
-        matches.append(MatchLight(nrp_linearizations.nrp_id,
-                                  bgc_variant_id,
-                                  linearizations,
-                                  score))
+    matches: List[HMM_Match] = [get_best_match_for_nrp(hmm, nrp_linearizations,
+                                                       detailed_hmm.hmm_helper.monomer_names_helper,
+                                                       detailed_hmm,
+                                                       checkpoints_heuristic=matching_cfg.checkpoints_heuristic)
+                                for nrp_linearizations in nrp_linearizations_all]
+
 
     return list(islice(sorted(matches,
-                              key=lambda x: x.score,
+                              key=lambda match: match.score,
                               reverse=True),
                        max_num_matches_per_bgc_variant))
 
 
-def filter_and_sort_matches(matches: List[MatchLight],
-                            config: MatchingConfig) -> List[MatchLight]:
+def filter_and_sort_matches(matches: List[HMM_Match],
+                            config: MatchingConfig) -> List[HMM_Match]:
     NRP_ID = str
 
     # Step 0: Keep only the top match per (BGC, NRP) pair
-    matches_map: Dict[Tuple[BGC_ID, NRP_ID], List[MatchLight]] = defaultdict(list)
+    matches_map: Dict[Tuple[BGC_ID, NRP_ID], List[HMM_Match]] = defaultdict(list)
 
     for match in matches:
         nrp_id = match.nrp_id
@@ -153,34 +163,11 @@ def filter_and_sort_matches(matches: List[MatchLight],
     return nrp_filtered
 
 
-def to_full_match(match_light: MatchLight,
-                  detailed_hmm: DetailedHMM,
-                  monomer_names_helper: MonomerNamesHelper,
-                  checkpoints_heuristic: bool = False) -> Match:
-    alignments = []
-    for linearization in match_light.linearizations:
-        mon_codes = [monomer_names_helper.mon_to_int[mon.to_base_mon()]
-                     for mon in linearization]
-        checkpoints = get_checkpoints(detailed_hmm, linearization) \
-            if checkpoints_heuristic else None
-        score, opt_path = get_opt_path_with_score(detailed_hmm.to_hmm(),
-                                                  mon_codes,
-                                                  checkpoints)
-        alignment = detailed_hmm.path_to_alignment(opt_path, linearization)
-        alignments.append(alignment)
-
-    return Match(bgc_variant_id=match_light.bgc_variant_id,
-                 nrp_variant_id=NRP_Variant_ID(nrp_id=match_light.nrp_id,
-                                               variant_idx=0),
-                 alignments=alignments,
-                 score=match_light.score)
-
-
-def get_matches(hmms: List[DetailedHMM],
-                nrp_linearizations: List[NRP_Linearizations],
-                matching_cfg: MatchingConfig,
-                num_threads: int = 1,
-                log: Optional[NerpaLogger] = None) -> List[Match]:
+def get_hmm_matches(hmms: List[DetailedHMM],
+                    nrp_linearizations: List[NRP_Linearizations],
+                    matching_cfg: MatchingConfig,
+                    num_threads: int = 1,
+                    log: Optional[NerpaLogger] = None) -> List[HMM_Match]:
     if log is not None:
         total_linearizations = sum(num_linearizations(nrp_linearization)
                                    for nrp_linearization in nrp_linearizations)
@@ -193,13 +180,4 @@ def get_matches(hmms: List[DetailedHMM],
                                  log=None)
         for hmm in hmms))
     log.info('Matches obtained. Filtering and sorting...')
-    matches_light_filtered = filter_and_sort_matches(list(matches_light), matching_cfg)
-
-    bgc_variant_to_hmm = {detailed_hmm.bgc_variant.bgc_variant_id: detailed_hmm
-                          for detailed_hmm in hmms}
-    monomer_names_helper = hmms[0].hmm_helper.monomer_names_helper
-    return [to_full_match(match_light,
-                          bgc_variant_to_hmm[match_light.bgc_variant_id],
-                          monomer_names_helper,
-                          matching_cfg.checkpoints_heuristic)
-            for match_light in matches_light_filtered]
+    return filter_and_sort_matches(list(matches_light), matching_cfg)

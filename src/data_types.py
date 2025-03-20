@@ -81,6 +81,9 @@ class BGC_ID(NamedTuple):
     contig_idx: int
     bgc_idx: int
 
+    def __str__(self):
+        return f'{self.genome_id}_{self.contig_idx}_{self.bgc_idx}'
+
 
 class BGC_Variant_ID(NamedTuple):
     bgc_id: BGC_ID
