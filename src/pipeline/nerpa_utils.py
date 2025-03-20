@@ -28,6 +28,7 @@ def set_up_output_dir(output_cfg: OutputConfig,
 
     # 'latest' symlink
     if make_sym_link_to_latest:
+        output_cfg.symlink_to_latest.parent.mkdir(parents=True, exist_ok=True)
         if output_cfg.symlink_to_latest.is_symlink():
             output_cfg.symlink_to_latest.unlink(missing_ok=True)
         output_cfg.symlink_to_latest.symlink_to(output_cfg.main_out_dir, target_is_directory=True)
