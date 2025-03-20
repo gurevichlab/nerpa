@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List
 from dataclasses import dataclass
 from src.data_types import LogProb, BGC_Variant_ID
+from src.matching.hmm_auxiliary_types import StateIdx
 from src.matching.match_type import NRP_Variant_ID, Match
 from src.rban_parsing.get_linearizations import LinearizationLight
 from src.matching.detailed_hmm import DetailedHMM
@@ -15,7 +16,7 @@ class HMM_Match:
     bgc_variant_id: BGC_Variant_ID
     nrp_id: str
     nrp_linearizations: List[List[rBAN_idx]]
-    optimal_paths: List[List[int]]
+    optimal_paths: List[List[StateIdx]]
 
     @classmethod
     def from_json(cls, json_data: dict) -> HMM_Match:
