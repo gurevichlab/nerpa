@@ -30,13 +30,13 @@ from src.rban_parsing.rban_parser import (
 from src.monomer_names_helper import MonomerNamesHelper
 
 from src.matching.match_type import Match, NRP_Variant_ID
-from src.matching.matcher import get_matches
+from src.matching.matcher import get_hmm_matches
 from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
 from src.matching.hmm_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
-import src.write_results as report
+import src.write_results as write_results
 
 import shutil
 import pandas as pd
@@ -128,22 +128,32 @@ class PipelineHelper:
         return get_all_nrp_linearizations(nrp_variants)
 
     @timing_decorator('Matching')
-    def get_matches(self,
-                    hmms: List[DetailedHMM],
-                    nrp_linearizations: List[NRP_Linearizations],
-                    nrp_variants: List[NRP_Variant]) -> List[Match]:
+    def get_hmm_matches(self,
+                        hmms: List[DetailedHMM],
+                        nrp_linearizations: List[NRP_Linearizations]) -> List[HMM_Match]:
         #for i, hmm in enumerate(hmms):
         #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
         if self.args.fast_matching:
-            hmm_matches = self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
-            return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
+            return self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
         else:
-            return get_matches(hmms,
-                               nrp_linearizations,
-                               self.config.matching_config,
-                               self.args.threads,
-                               self.log)
+            return get_hmm_matches(hmms,
+                                   nrp_linearizations,
+                                   self.config.matching_config,
+                                   self.args.threads,
+                                   self.log)
+
+    def get_matches(self,
+                    hmms: List[DetailedHMM],
+                    nrp_linearizations: List[NRP_Linearizations],
+                    nrp_variants: List[NRP_Variant]) -> List[Match]:
+        self.log.info("\n======= Reconstructing alignments matches")
+        hmm_matches = self.get_hmm_matches(hmms, nrp_linearizations)
+        if self.args.debug:
+            self.log.info("======== Drawing HMMS with optimal paths")
+            write_results.draw_hmms_with_optimal_paths(hmms, hmm_matches,
+                                                       self.config.output_config.main_out_dir)
+        return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
 
     @timing_decorator('Writing results')
     def write_results(self,
@@ -153,11 +163,11 @@ class PipelineHelper:
                       rban_records: List[Parsed_rBAN_Record],
                       matches_details: bool = True):
         self.log.info("\n======= Writing results")
-        report.write_results(matches, self.config.output_config,
-                             bgc_variants, nrp_variants,
-                             rban_records,
-                             matches_details,
-                             log=self.log)
+        write_results.write_results(matches, self.config.output_config,
+                                    bgc_variants, nrp_variants,
+                                    rban_records,
+                                    matches_details,
+                                    log=self.log)
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
         self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)
