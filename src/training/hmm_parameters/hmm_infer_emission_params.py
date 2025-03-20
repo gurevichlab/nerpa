@@ -1,26 +1,22 @@
-from typing import Dict, List, NamedTuple, Tuple, Optional
-from collections import Counter, defaultdict
-from src.training.step_function import (
+from typing import Dict, List, Tuple
+from collections import Counter
+from src.training.hmm_parameters.step_function import (
     create_bins,
     fit_step_function_to_bins,
     plot_step_function,
     plot_step_function_stacked
 )
-from src.monomer_names_helper import MonomerResidue, NRP_Monomer
-from src.data_types import LogProb, ModuleGenomicContextFeature, ModuleGenomicContext
+from src.monomer_names_helper import NRP_Monomer
+from src.data_types import LogProb
 from src.data_types import (
     BGC_Module,
-    BGC_Module_Modification,
-    NRP_Monomer_Modification,
-    Chirality
+    BGC_Module_Modification
 )
-from src.training.training_types import MatchWithBGCNRP, MatchEmissionInfo
-from src.training.norine_stats import NorineStats
+from src.training.hmm_parameters.training_types import MatchEmissionInfo
+from src.training.hmm_parameters.norine_stats import NorineStats
 
-from dataclasses import asdict, dataclass
 from pathlib import Path
-from math import log, e
-
+from math import log
 
 
 def get_score_correctness(emissions: List[MatchEmissionInfo]) -> List[Tuple[LogProb, bool]]:

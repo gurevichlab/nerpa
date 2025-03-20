@@ -1,17 +1,14 @@
-from collections import defaultdict
 from typing import (
-    Dict,
     List,
     Tuple,
-    Optional,
-    Union
+    Optional
 )
-from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     GenomicContext,
 )
-from src.training.training_types import EdgeInfo, ChoicesCnts
+from src.training.hmm_parameters.training_types import EdgeInfo
 
 
 # TODO: create GenomicContext already filtered?

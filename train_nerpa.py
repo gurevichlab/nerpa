@@ -1,18 +1,14 @@
-from typing import List, Optional, Dict, Tuple
+from typing import List, Dict
 from pathlib import Path
 import yaml
 from src.matching.match_type import Match
-from src.testing.check_matches import find_wrong_matches
 from src.config import load_monomer_names_helper
-from src.data_types import BGC_Variant
-from src.training.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
-from src.training.training_types import MatchWithBGCNRP, MatchEmissionInfo
-from src.training.extract_data_for_training import extract_data_for_training
-from src.training.hmm_infer_emission_params import infer_emission_params
-from src.training.norine_stats import load_norine_stats
-from src.training.write_results import write_params
-from src.monomer_names_helper import MonomerNamesHelper
-from src.matching.detailed_hmm import DetailedHMM
+from src.training.hmm_parameters.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
+from src.training.hmm_parameters.training_types import MatchWithBGCNRP, MatchEmissionInfo
+from src.training.hmm_parameters.extract_data_for_training import extract_data_for_training
+from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission_params
+from src.training.hmm_parameters.norine_stats import load_norine_stats
+from src.training.hmm_parameters.write_results import write_params
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.hmm_config import load_hmm_scoring_config
 from collections import defaultdict
@@ -20,12 +16,9 @@ import argparse
 from argparse import Namespace as CommandlineArgs
 from src.data_types import (
     BGC_Variant,
-    NRP_Monomer,
-    BGC_Module,
-    BGC_Variant_ID,
     BGC_ID
 )
-from src.training.extract_data_for_training import DataForTraining
+from src.training.hmm_parameters.extract_data_for_training import DataForTraining
 
 
 def load_matches_from_txt(matches_txt: Path) -> List[Match]:

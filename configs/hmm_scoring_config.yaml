@@ -10,7 +10,7 @@ edge_weight_parameters:
   SKIP_FRAGMENT:
     None: 0.034482758620689655
   SKIP_FRAGMENT_AT_END:
-    None: 0.9655172413793104
+    None: 0.1
   SKIP_GENE:
     None: 0.01
   SKIP_MODULE:
