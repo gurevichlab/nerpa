@@ -1,11 +1,9 @@
 from typing import (
     Dict,
     List,
-    NamedTuple,
     Set,
     Tuple,
-    Optional,
-    Union
+    Optional
 )
 from src.data_types import BGC_ID
 from src.matching.hmm_auxiliary_types import (
@@ -15,11 +13,9 @@ from src.matching.hmm_auxiliary_types import (
     StateIdx,
 )
 from src.matching.hmm_scoring_helper import HMMHelper
-from src.monomer_names_helper import NRP_Monomer
 from src.matching.detailed_hmm import DetailedHMM
-from src.data_types import BGC_Module
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.training.training_types import (
+from src.training.hmm_parameters.training_types import (
     MatchWithBGCNRP,
     DataForTraining,
     MatchEmissionInfo,
@@ -27,12 +23,9 @@ from src.training.training_types import (
     EdgeInfo,
     PathTurnInfo, ChoicesCnts, MatchEmissionKey,
 )
-from src.training.filter_edge_data import get_filtered_edge_choices
+from src.training.hmm_parameters.filter_edge_data import get_filtered_edge_choices
 from itertools import pairwise
-from dataclasses import dataclass
-from pathlib import Path
 from collections import defaultdict
-import yaml
 
 PathWithEmissions = List[Tuple[StateIdx, Optional[rBAN_Monomer]]]
 

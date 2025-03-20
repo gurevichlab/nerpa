@@ -1,7 +1,5 @@
-from src.training.training_types import DataForTraining
+from src.training.hmm_parameters.training_types import DataForTraining
 from src.write_results import write_yaml
-from pathlib import Path
-import yaml
 
 
 def write_params(edge_params,
