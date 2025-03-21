@@ -51,6 +51,13 @@ def make_optional(f: Callable) -> Callable:
         return f(*args, **kwargs)
     return optional_f
 
+def none_when_crash(f: Callable) -> Callable:
+    def safe_f(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            return None
+    return safe_f
 
 def timing_decorator(task_name: Optional[str] = None):
     """Decorator that measures execution time and logs it."""

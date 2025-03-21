@@ -43,6 +43,7 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
 
     matches = []
     for hmm_match in hmm_matches:
+        #print('Reconstructing alignments for', hmm_match.bgc_variant_id, hmm_match.nrp_id)
         hmm = hmm_by_bgc_info[hmm_match.bgc_variant_id]
         alignments = []
         for nrp_linearization, optimal_path in zip(hmm_match.nrp_linearizations, hmm_match.optimal_paths):

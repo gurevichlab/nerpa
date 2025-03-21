@@ -5,6 +5,7 @@ from typing import (
     Union,
     NamedTuple,
     NewType,
+    Optional,
 )
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -17,6 +18,33 @@ from src.monomer_names_helper import (
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
 GeneId = NewType('GeneId', str)
+
+class STRAND(Enum):
+    FORWARD = auto()
+    REVERSE = auto()
+
+
+class Coords(NamedTuple):
+    start: int
+    end: int
+    strand: STRAND
+
+    # TODO: I am not sure if this is correct
+    @classmethod
+    def from_hmm_hit(cls, query_start: int, query_end: int) -> Coords:
+        if query_start < query_end:
+            return cls(query_start, query_end, STRAND.FORWARD)
+        else:
+            return cls(query_end, query_start, STRAND.REVERSE)
+
+    def is_in(self, other: Coords) -> bool:
+        return self.start >= other.start and self.end <= other.end
+
+    def left_from(self, other: Coords) -> bool:
+        return self.end < other.start
+
+    def right_from(self, other: Coords) -> bool:
+        return self.start > other.end
 
 
 class SVM_LEVEL(Enum):
@@ -73,22 +101,13 @@ class BGC_Module_ID(NamedTuple):
 
 @dataclass
 class Module:
-    a_domain: A_Domain = None
+    a_domain: Optional[A_Domain] = None
     domains_sequence: List[DomainType] = None
+    orphan_a_domain: bool = False
 
     def __post_init__(self):
         if self.domains_sequence is None:
             self.domains_sequence = []
-
-class STRAND(Enum):
-    FORWARD = auto()
-    REVERSE = auto()
-    
-
-class Coords(NamedTuple):
-    start: int
-    end: int
-    strand: STRAND
 
 
 @dataclass

@@ -47,10 +47,18 @@ def get_long_edges_ranges(hmm: DetailedHMM, path: List[int]) -> Dict[Tuple[int, 
         fst_module_idx = last_module_idx + 1
         gene_id = hmm.bgc_variant.modules[fst_module_idx].gene_id
         fragment_idx = hmm.bgc_variant.modules[fst_module_idx].fragment_idx
-        if edge.edge_type == DetailedHMMEdgeType.SKIP_GENE:
-            last_module_idx = genes_intervals[gene_id][1]
-        else:
-            last_module_idx = fragments_intervals[fragment_idx][1]
+        match edge.edge_type:
+            case DetailedHMMEdgeType.START_SKIP_MODULES_AT_START:
+                last_module_idx = fst_module_idx
+            case (DetailedHMMEdgeType.SKIP_GENE | DetailedHMMEdgeType.START_SKIP_GENES_AT_START):
+                last_module_idx = genes_intervals[gene_id][1]
+            case (DetailedHMMEdgeType.SKIP_FRAGMENT
+                  | DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START
+                  | DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START
+                  | DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END):
+                last_module_idx = fragments_intervals[fragment_idx][1]
+            case _:
+                raise ValueError(f'Unexpected long edge type: {edge.edge_type}')
 
         edges_ranges[(edge_from, edge_to)] = (fst_module_idx, last_module_idx)
 
@@ -65,7 +73,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
     #                if not Path(f'{hmm.bgc_variant.genome_id}_path_{i}.png').exists())
     # hmm.draw(Path(f'{hmm.bgc_variant.genome_id}_path_{free_idx}.png'), path)  # for debugging
     #hmm.draw(Path(f'hmm_path.png'), path)  # for debugging
-    #print('bgc: ', hmm.bgc_variant.genome_id)
+    #print('bgc: ', hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id)
     #print('path: ', path)
     #print('nrp monomers: ', [mon.residue for mon in nrp_monomers])
 

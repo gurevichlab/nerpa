@@ -149,9 +149,10 @@ class PipelineHelper:
                     nrp_variants: List[NRP_Variant]) -> List[Match]:
         hmm_matches = self.get_hmm_matches(hmms, nrp_linearizations)
         if self.args.debug:
-            self.log.info("======== Drawing HMMS with optimal paths")
-            write_results.draw_hmms_with_optimal_paths(hmms, hmm_matches,
-                                                       self.config.output_config.main_out_dir)
+            pass
+            #self.log.info("======== Drawing HMMs with optimal paths")
+            #write_results.draw_hmms_with_optimal_paths(hmms, hmm_matches,
+            #                                           self.config.output_config.main_out_dir)
         self.log.info("\n======= Reconstructing alignments matches")
         return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
 

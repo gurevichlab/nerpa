@@ -1,6 +1,8 @@
+from __future__ import annotations
 from typing import (
     List,
     Dict,
+    NamedTuple,
     Tuple,
     Optional,
     Set
@@ -29,57 +31,63 @@ from collections import defaultdict
 from src.antismash_parsing.determine_modifications import ends_with_pcp_pcp, get_iterative_genes_orphan_c
 
 
-class A_Domain_Id:
+class A_Domain_Id(NamedTuple):
     gene_id: GeneId
     idx: int
 
-    def __init__(self, a_domain_id: str):
+    @classmethod
+    def from_antismash_id(cls, a_domain_id: str) -> A_Domain_Id:
         parsed_id = parse('nrpspksdomains_{gene_id}_AMP-binding.{idx:d}', a_domain_id)
-        self.gene_id = parsed_id['gene_id']
-        self.idx = parsed_id['idx']
+        return cls(gene_id=parsed_id['gene_id'], idx=parsed_id['idx'])
 
 
 # tested on antismash v7
-def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
-    svm_dict = a_domain_data['nrpys']
+def extract_a_domain_specificity_info(a_domain_data: dict) -> Optional[A_Domain]:
+    try:
+        svm_dict = a_domain_data['nrpys']
 
-    svm = {}
-    for svm_level, svm_level_str in [(SVM_LEVEL.PHYSIOCHEMICAL_CLASS, 'physiochemical_class'),
-                                     (SVM_LEVEL.LARGE_CLUSTER, 'large_cluster'),
-                                     (SVM_LEVEL.SMALL_CLUSTER, 'small_cluster'),
-                                     (SVM_LEVEL.SINGLE_AMINO, 'single_amino')]:
-        substrates = svm_dict[svm_level_str]['substrates']
-        svm[svm_level] = SVM_Prediction(score=svm_dict[svm_level_str]['score'],
-                                        substrates=[antiSMASH_MonomerName(substrate['short'])
-                                                    for substrate in substrates])
+        svm = {}
+        for svm_level, svm_level_str in [(SVM_LEVEL.PHYSIOCHEMICAL_CLASS, 'physiochemical_class'),
+                                         (SVM_LEVEL.LARGE_CLUSTER, 'large_cluster'),
+                                         (SVM_LEVEL.SMALL_CLUSTER, 'small_cluster'),
+                                         (SVM_LEVEL.SINGLE_AMINO, 'single_amino')]:
+            substrates = svm_dict[svm_level_str]['substrates']
+            svm[svm_level] = SVM_Prediction(score=svm_dict[svm_level_str]['score'],
+                                            substrates=[antiSMASH_MonomerName(substrate['short'])
+                                                        for substrate in substrates])
 
-    return A_Domain(aa10=AA10(svm_dict['aa10']),
-                    aa34=AA34(svm_dict['aa34']),
-                    svm=svm)
+        return A_Domain(aa10=AA10(svm_dict['aa10']),
+                        aa34=AA34(svm_dict['aa34']),
+                        svm=svm)
+    except KeyError as e:
+        raise e
+        return None
 
 
-def extract_a_domains_info(contig_data: dict) -> Dict[GeneId, List[A_Domain]]:
+def extract_a_domains_info(contig_data: dict) -> Dict[A_Domain_Id, Optional[A_Domain]]:
     if "antismash.modules.nrps_pks" not in contig_data["modules"]:
-        return defaultdict(list)
-
-    def extract_a_domain_info(domain_id: str, antismash_prediction: dict) -> Tuple[A_Domain_Id, Optional[A_Domain]]:
-        parsed_id = A_Domain_Id(domain_id)
-        try:
-            a_domain = extract_a_domain_specificity_info(antismash_prediction)
-        except KeyError:
-            # TODO: log warning
-            a_domain = None
-        return parsed_id, a_domain
+        return {}
 
     domain_predictions = contig_data['modules']['antismash.modules.nrps_pks']['domain_predictions']
-    a_domains_with_ids = [extract_a_domain_info(domain_id, prediction)
-                          for domain_id, prediction in domain_predictions.items()
-                          if 'AMP-binding' in domain_id]
-    a_domains_per_gene = defaultdict(list)
-    for a_domain_id, a_domain in sorted(a_domains_with_ids,
-                                        key=lambda a_domain_with_id: a_domain_with_id[0].idx):
-        a_domains_per_gene[a_domain_id.gene_id].append(a_domain)
-    return a_domains_per_gene
+    return {
+        A_Domain_Id.from_antismash_id(as_domain_id): extract_a_domain_specificity_info(antismash_prediction)
+        for as_domain_id, antismash_prediction in domain_predictions.items()
+        if 'AMP-binding' in as_domain_id
+    }
+
+
+def extract_a_domains_coords(contig_data: dict) -> Dict[A_Domain_Id, Coords]:
+    a_domains_coords: Dict[A_Domain_Id, Coords] = {}
+    for gene_id, gene_hmm_hits in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
+        gene_a_domains_coords = sorted([Coords.from_hmm_hit(query_start=domain_hmm['query_start'],
+                                                            query_end=domain_hmm['query_end'])
+                                        for domain_hmm in gene_hmm_hits['domain_hmms']
+                                        if domain_hmm['hit_id'] == 'AMP-binding'],
+                                       key=lambda x: x.start)
+        a_domains_coords.update({A_Domain_Id(gene_id=gene_id, idx=idx): coords
+                                 for idx, coords in enumerate(gene_a_domains_coords, start=1)})  # antiSMASH A-domain indices start from 1
+
+    return a_domains_coords
 
 
 def parse_cds_coordinates(location: str) -> Coords:
@@ -130,26 +138,47 @@ def extract_gene_coords(contig_data: dict) -> Dict[GeneId, Coords]:
     return gene_coords
 
 
-def extract_modules(gene_data: dict, a_domains: List[A_Domain],
+def extract_modules(gene_id: str,  # only for error messages
+                    gene_data: dict,
+                    a_domains_with_coords: List[Tuple[A_Domain, Coords]],
                     config: antiSMASH_Processing_Config) -> List[Module]:
-    modules = []
-    a_domains_iter = iter(a_domains)
-    for module_data in gene_data['modules']:
-        module = Module()
-        for domain_data in module_data['components']:
-            domain_type_str = domain_data['domain']['hit_id']
-            if domain_type_str not in config.ANTISMASH_DOMAINS_NAMES_MAPPING:
-                continue
-            domain_type = DomainType[config.ANTISMASH_DOMAINS_NAMES_MAPPING[domain_type_str]]
-            if domain_type == DomainType.A:
-                a_domain = next(a_domains_iter)
-                if a_domain is None:  # TODO: entangled code, refactor
-                    continue
-                module.a_domain = a_domain
-            module.domains_sequence.append(domain_type)
+    def get_domain_sequence(module: dict) -> List[DomainType]:
+        return [DomainType[config.ANTISMASH_DOMAINS_NAMES_MAPPING[domain['domain']['hit_id']]]
+                for domain in module['components']
+                if (domain_name := domain['domain']['hit_id']) in config.ANTISMASH_DOMAINS_NAMES_MAPPING]
 
-        if module.domains_sequence:
-            modules.append(module)
+    modules = []
+    modules_iter = iter(gene_data['modules'])
+    a_domains_iter = iter(a_domains_with_coords)
+    module, a_domain_with_coords = (next(modules_iter, None), next(a_domains_iter, None))
+    while (module is not None) and (a_domain_with_coords is not None):
+        a_domain, a_domain_coords = a_domain_with_coords
+
+        if a_domain_coords.end < module['components'][0]['domain']['query_start']:  # orphan A-domain (not inside any module)
+            modules.append(Module(a_domain=a_domain,
+                                  domains_sequence=[DomainType.A],
+                                  orphan_a_domain=True))
+            a_domain_with_coords = next(a_domains_iter, None)
+        elif a_domain_coords.start > module['components'][-1]['domain']['query_end']:  # module without A-domain
+            modules.append(Module(a_domain=None,
+                                  domains_sequence=get_domain_sequence(module)))
+            module = next(modules_iter, None)
+        else:  # A-domain inside the module
+            modules.append(Module(a_domain=a_domain,
+                                  domains_sequence=get_domain_sequence(module)))
+            a_domain_with_coords = next(a_domains_iter, None)
+            module = next(modules_iter, None)
+
+    while module is not None:
+        modules.append(Module(a_domain=None,
+                              domains_sequence=get_domain_sequence(module)))
+        module = next(modules_iter, None)
+    while a_domain_with_coords is not None:
+        a_domain, a_domain_coords = a_domain_with_coords
+        modules.append(Module(a_domain=a_domain,
+                              domains_sequence=[DomainType.A],
+                              orphan_a_domain=True))
+        a_domain_with_coords = next(a_domains_iter, None)
 
     return modules
 
@@ -184,15 +213,28 @@ def check_orphan_c_domains(gene_data: dict,
     return orphan_c_start, orphan_c_end
 
 
+def get_a_domains_with_coords_per_gene(a_domains_info: Dict[A_Domain_Id, A_Domain],
+                                       a_domains_coords: Dict[A_Domain_Id, Coords]) -> Dict[GeneId, List[Tuple[A_Domain, Coords]]]:
+    a_domains_with_coords_per_gene = defaultdict(list)
+    for a_domain_id, a_domain in sorted(a_domains_info.items(),
+                                        key=lambda p: p[0].idx):  # sort by A-domain index so that they are added to the list in the order of appearance in the gene
+        a_domains_with_coords_per_gene[a_domain_id.gene_id].append((a_domain, a_domains_coords[a_domain_id]))
+
+    return a_domains_with_coords_per_gene
+
+
 def extract_genes(contig_data: dict,
-                  a_domains_per_gene: Dict[GeneId, List[A_Domain]],
+                  a_domains_info: Dict[A_Domain_Id, A_Domain],
+                  a_domains_coords: Dict[A_Domain_Id, Coords],
                   config: antiSMASH_Processing_Config) -> List[Gene]:
     gene_coords = extract_gene_coords(contig_data)
 
+    a_domains_with_coords_per_gene = get_a_domains_with_coords_per_gene(a_domains_info, a_domains_coords)
+
     genes = []
-    orphan_c_domains_per_gene: Dict[GeneId, Tuple[bool, bool]] = {}  # gene_id -> (orphan_c_at_start, orphan_c_at_end)
-    for gene_id, gene_data in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
-        modules = extract_modules(gene_data, a_domains_per_gene[gene_id], config)
+    gene_data_dict = contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results']
+    for gene_id, gene_data in gene_data_dict.items():
+        modules = extract_modules(gene_id, gene_data, a_domains_with_coords_per_gene[gene_id], config)
         orphan_c_at_start, orphan_c_at_end = check_orphan_c_domains(gene_data, config)
         genes.append(Gene(gene_id=gene_id,
                           coords=gene_coords[gene_id],
@@ -226,11 +268,17 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
     bgcs = []
     genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
     for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
-        a_domains_per_gene = extract_a_domains_info(contig_data)
-        if not any(a_domains for a_domains in a_domains_per_gene.values()):  # no A-domains found in the contig
-            continue
+        try:
+            a_domains_info = extract_a_domains_info(contig_data)
+            a_domains_coords = extract_a_domains_coords(contig_data)
+            assert a_domains_info.keys() == a_domains_coords.keys()
+            if not any(a_domain is not None for a_domain in a_domains_info.values()):  # no A-domains found in the contig
+                continue
 
-        genes = extract_genes(contig_data, a_domains_per_gene, config)
-        bgcs.extend(extract_bgc_clusters(genome_id, ctg_idx, contig_data, genes))
+            genes = extract_genes(contig_data, a_domains_info, a_domains_coords, config)
+            bgcs.extend(extract_bgc_clusters(genome_id, ctg_idx, contig_data, genes))
+        except Exception as e:
+            print(f'Error parsing contig {ctg_idx} of genome {genome_id}')
+            raise e
 
     return bgcs
