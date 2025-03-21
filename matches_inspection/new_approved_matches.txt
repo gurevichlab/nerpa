@@ -1,3 +1,22 @@
+Genome: BGC0002044
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002044.0
+NRP_variant: 0
+Score: 20.62908633681521
+Alignment:
+ Gene         A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score  ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ DPH57_09150  0             oxoDec                EPIMERIZATION      Pro          L              False           Pro        7         MATCH           0.716  2.359         0.081             -1.714          DVQYIAHVVK  LWQAFDVAFQESYLITAGEHNHYGPTESHVVTAH 
+ DPH57_09150  1             oxoDec                EPIMERIZATION      Ser          D              False           Ser        6         MATCH           3.547  1.903         0.081             1.573           DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEHNLYGPTEAAVDVTA 
+ DPH57_09150  2             oxoDec                ---                Pro          D              False           Pro        3         MATCH           2.257  2.359         0.081             -0.173          DVQFVAHVVK  LWQAFDVAFQESFLVTAGEHNHYGPTESHVVTAH 
+ DPH57_09150  3             Arg                   ---                Arg          D              False           Arg        2         MATCH           3.98   4.083         0.081             -0.173          DVENVGAINK  QALCFDVSVEEGNLVIGGDANAYGPTETTINATV 
+ DPH57_09150  4             oxoDec                EPIMERIZATION      Asp          D              False           OH-Asp     1         MATCH           4.758  3.114         0.081             1.573           DMKELGMVDK  FGLSFDMAVKAGECLLGGEFNMYGPTECSVDAAC 
+ DPH57_09145  0             oxoDec                EPIMERIZATION      Ser          L              False           Ser        5         MATCH           0.261  1.903         0.081             -1.714          DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEHNLYGPTEAAVDVTA 
+ DPH57_09140  0             oxoDec                ---                Pro          L              False           3OH-Pro    4         MATCH           2.453  2.359         0.081             0.034           DVQYIAHVVK  LWQAFDVAFQESYLITAGEHNHYGPTESHVVTAH 
+ DPH57_09140  1             oxoDec                ---                Asp          D              False           OH-Asp     8         MATCH           3.012  3.114         0.081             -0.173          DMKELGMVDK  FGLSFDMAVKAGECLLGGEFNMYGPTECSVDATC 
+
+
 Genome: BGC0001842
 Contig_idx: 1
 BGC_idx: 1

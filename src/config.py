@@ -31,6 +31,15 @@ class antiSMASH_Processing_Config:
     MAX_VARIANTS_PER_BGC: int
     MAX_PERMUTATIONS_PER_BGC: int
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
+    DEBUG_MODE: bool
+
+    def __init__(self,
+                 cfg_dict: dict,
+                 args: Optional[CommandLineArgs]):
+        for k, v in cfg_dict.items():
+            setattr(self, k, v)
+        if args is not None:
+            self.DEBUG_MODE = args.debug
 
 
 def get_aa_codes(aa_codes_tsv: Path,
@@ -263,7 +272,8 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
                                                      nerpa_dir)
 
     antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
-    antismash_processing_cfg = dacite.from_dict(antiSMASH_Processing_Config, antismash_processing_cfg_dict)
+    antismash_processing_cfg = antiSMASH_Processing_Config(antismash_processing_cfg_dict,
+                                                           args)
 
     specificity_prediction_cfg_dict = yaml.safe_load((nerpa_dir / cfg['specificity_prediction_config']).open('r'))
     specificity_prediction_cfg = SpecificityPredictionConfig(nerpa_dir,
