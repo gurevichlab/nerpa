@@ -100,9 +100,15 @@ class MonomerNamesHelper:
         mods_list = eval(mods_str)
         return () if mods_list == [''] else tuple(map(parse_mod, mods_list))
 
-    def parsed_name(self, name: str, name_format: Literal['antismash', 'norine']) -> NRP_Monomer:
+    def parsed_name(self, name: str,
+                    name_format: Literal['antismash', 'norine', 'paras']) -> NRP_Monomer:
         if (name, name_format) in self._cache:
             return self._cache[(name, name_format)]
+
+        if name_format == 'paras':
+            return NRP_Monomer(residue=paras_residue_to_nerpa_residue(name, self),
+                               methylated=False,
+                               chirality=Chirality.UNKNOWN)
 
         if name == 'Ile/aIle':
             name = 'Ile'  # temporary fix for the table

@@ -80,12 +80,8 @@ class SpecificityPredictionHelper:
         if a_domain.aa34 in self._cache and not _no_cache:
             return self._cache[a_domain.aa34]
 
-        if self.config.ENABLE_DICTIONARY_LOOKUP and a_domain.aa34 in self.KNOWN_SPECIFICITIES:
-            raw_predictions = {res: (1.0 if res in self.KNOWN_SPECIFICITIES[a_domain.aa34] else 0.0)
-                               for res in self.monomer_names_helper.supported_residues}
-            calibration_function = self._calibration_step_function_paras \
-                if self.DEFAULT_MODEL == 'paras' else self._calibration_step_function_nerpa
-        elif a_domain.aa34 in self.external_predictions:
+        # get raw (not calibrated) predictions
+        if a_domain.aa34 in self.external_predictions:
             raw_predictions = self.external_predictions[a_domain.aa34]
             calibration_function = self._calibration_step_function_paras
         else:
@@ -99,6 +95,12 @@ class SpecificityPredictionHelper:
                 raw_predictions = self._predict_nerpa(a_domain)
                 calibration_function = self._calibration_step_function_nerpa
 
+        # assign probability 1 for known specificities
+        if self.config.ENABLE_DICTIONARY_LOOKUP and a_domain.aa34 in self.KNOWN_SPECIFICITIES:
+            for res in self.KNOWN_SPECIFICITIES[a_domain.aa34]:
+                raw_predictions[res] = 1.0
+
+        # calibrate scores to better represent the probability of residue incorporation
         if self.config.ENABLE_CALIBRATION and not _no_calibration:
             predictions = self.calibrate_scores(raw_predictions, calibration_function)
         else:
