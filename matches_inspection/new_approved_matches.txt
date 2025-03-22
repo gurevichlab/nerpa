@@ -1,3 +1,248 @@
+Genome: BGC0002123
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002123.0
+NRP_variant: 0
+Score: 17.059032688530888
+Alignment:
+ Gene         A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ KGB56_24770  0             oxoDec                ---                Tyr          L              False           NFo-Tyr    7         MATCH                          3.002   3.252         0.081             0.034           DASTVAAVCK  LEQAFDASISEVTLVVAGEINAYGPTENTVCASL 
+ KGB56_24770  1             oxoDec                EPIMERIZATION      Abu          UNKNOWN        False           dhAbu      4         MATCH                          -0.649  -0.72         0.081             0               DFWSVGMVHK  LTCHFDFSVWEGSQVFGGEVNMYGITETTVHVTY 
+ KGB56_24770  2             oxoDec                ---                Ala          L              False           Ala        3         MATCH                          2.338   2.234         0.081             0.034           DIVQLGLVYK  LWFTFDISVVEAQFLCGGEQNLYGPTEASVYCTR 
+ KGB56_24765  0             Arg                   ---                Arg          L              False           Arg        6         MATCH                          4.177   4.083         0.081             0.034           DVADVGAIDK  VAWAFDVFTADRDFVCGSDIHAYGLTETAIDCLA 
+ KGB56_24765  1             oxoDec                ---                Pro          L              False           Pro        2         MATCH                          2.464   2.359         0.081             0.034           DVQHIAQVVK  LWQAFDVAFQECHLITAGEYNQYGPTETHVVTQH 
+ KGB56_24765  2             Cys                   ---                Cys          UNKNOWN        False           dhCys      1         MATCH                          5.159   5.087         0.081             0               DLYNMSLIWK  TDISFDLSVYDGNSMLSGDLSLGGATEASIWSIC 
+ KGB56_24760  0             oxoDec                ---                Gln          L              False           Gln        5         MATCH                          2.971   2.866         0.081             0.034           DAWQFGLVDK  LWSTFDAAIWEWQFFCGGGHNLYGPTECTVDSTW 
+ KGB56_24755  0             oxoDec                ---                ---          ---            ---             ---        ---       SKIP_FRAGMENT_AT_END  -1.792  ---           ---               ---             DAFFLGITFK  LQPSFDALSFDVFMLIGGEHNIYGPTECATFALS 
+ KGB56_24755  1             oxoDec                ---                ---          ---            ---             ---        ---       SKIP_FRAGMENT_AT_END  -1.792  ---           ---               ---             DVQYVAHVVK  LWQSFDVSFQESYMVTAGEHNHYGPTETHVVCVH 
+
+
+
+Genome: BGC0002109
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002109.4
+NRP_variant: 0
+Score: 23.24320964371737
+Alignment:
+ Gene        A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---	     ---	   ---                   ---                unknown      UNKNOWN        False           X0         4         START_INSERTING           0.712   0.631         0.081             0               VALFVGAAGK  SGKVHVAALLELFTVSGGEWPAFGMTETCAGSVY 
+ QDJ74273.1  0             oxoDec                EPIMERIZATION      Thr          D              False           aThr/Thr   3         MATCH           4.47    3.181         0.081             1.573           DFWNVGMVHK  LSTHFDFSVWEGNQVFGGEVNMYGITETTVHVSH 
+ QDJ74273.1  1             Asn                   EPIMERIZATION      Asn          D              False           Asn        6         MATCH           5.133   3.489         0.081             1.573           DLTKVGEVGK  YWASFDLTVTAGKVVVGGEVNEYGPTEAAVGCVV 
+ QDJ74273.1  2             oxoDec                ---                Val          D              False           Val        2         MATCH           -1.865  -1.763        0.081             -0.173          DAYFWGVTFK  LDSSFDASTYEVFMWTGGDVDVYGPTETTTFATS 
+ QDJ74273.1  3             oxoDec                METHYLATION        Phe          L              False           Phe        1         MATCH           1.131   3.187         -2.08             0.034           DAWTVAAVCK  LAQAFDAAFWEMTLVVAGEINAYGPTETTVCATM 
+ QDJ74274.1  0             oxoDec                ---                Val          D              False           Val        10        MATCH           2.175   2.277         0.081             -0.173          DAYWWGGTFK  LDSSFDASTYEVWMWTGGDVDGYGPTETTTFATS 
+ QDJ74275.1  0             oxoDec                ---                Gly          UNKNOWN        False           Gly        9         MATCH           3.041   2.98          0.081             0               DILQLGVVWK  FGMTFDIAGLELQALVGGELNVYGPTETTVWSSA 
+ QDJ74275.1  1             oxoDec                ---                Gly          UNKNOWN        False           Gly        8         MATCH           3.051   2.98          0.081             0               DILQLGVVWK  FGMTFDIAGLELQALVGGELNVYGPTETTVWSSA 
+ QDJ74275.1  2             oxoDec                EPIMERIZATION      Val          D              False           Val        7         MATCH           3.921   2.277         0.081             1.573           DAYWWGGTFK  LDRSFDASTYEVWLWTGGDVDGYGPTETTTFASH 
+ QDJ74275.1  3             oxoDec                ---                Leu          L              False           Leu        5         MATCH           2.05    1.946         0.081             0.034           DALLVGAVVK  FGQAFDAAVLEALIVVGGDINAYGPTETTVVATV 
+
+
+Genome: BGC0002109
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002109.0
+NRP_variant: 0
+Score: 23.24320964371737
+Alignment:
+ Gene        A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---	     ---	   ---                   ---                unknown      UNKNOWN        False           X0         5         START_INSERTING           0.712   0.631         0.081             0               VALFVGAAGK  SGKVHVAALLELFTVSGGEWPAFGMTETCAGSVY 
+ QDJ74273.1  0             oxoDec                EPIMERIZATION      Thr          D              False           aThr/Thr   8         MATCH           4.47    3.181         0.081             1.573           DFWNVGMVHK  LSTHFDFSVWEGNQVFGGEVNMYGITETTVHVSH 
+ QDJ74273.1  1             Asn                   EPIMERIZATION      Asn          D              False           Asn        12        MATCH           5.133   3.489         0.081             1.573           DLTKVGEVGK  YWASFDLTVTAGKVVVGGEVNEYGPTEAAVGCVV 
+ QDJ74273.1  2             oxoDec                ---                Val          D              False           Val        10        MATCH           -1.865  -1.763        0.081             -0.173          DAYFWGVTFK  LDSSFDASTYEVFMWTGGDVDVYGPTETTTFATS 
+ QDJ74273.1  3             oxoDec                METHYLATION        Phe          L              False           Phe        9         MATCH           1.131   3.187         -2.08             0.034           DAWTVAAVCK  LAQAFDAAFWEMTLVVAGEINAYGPTETTVCATM 
+ QDJ74274.1  0             oxoDec                ---                Val          D              False           Val        3         MATCH           2.175   2.277         0.081             -0.173          DAYWWGGTFK  LDSSFDASTYEVWMWTGGDVDGYGPTETTTFATS 
+ QDJ74275.1  0             oxoDec                ---                Gly          UNKNOWN        False           Gly        2         MATCH           3.041   2.98          0.081             0               DILQLGVVWK  FGMTFDIAGLELQALVGGELNVYGPTETTVWSSA 
+ QDJ74275.1  1             oxoDec                ---                Gly          UNKNOWN        False           Gly        1         MATCH           3.051   2.98          0.081             0               DILQLGVVWK  FGMTFDIAGLELQALVGGELNVYGPTETTVWSSA 
+ QDJ74275.1  2             oxoDec                EPIMERIZATION      Val          D              False           Val        7         MATCH           3.921   2.277         0.081             1.573           DAYWWGGTFK  LDRSFDASTYEVWLWTGGDVDGYGPTETTTFASH 
+ QDJ74275.1  3             oxoDec                ---                Leu          L              False           Leu        6         MATCH           2.05    1.946         0.081             0.034           DALLVGAVVK  FGQAFDAAVLEALIVVGGDINAYGPTETTVVATV 
+
+
+
+Genome: BGC0002092
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002092.4
+NRP_variant: 0
+Score: 29.065839349711045
+Alignment:
+ Gene  A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score  ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ steA  0             oxoDec                EPIMERIZATION      Leu          D              False           Leu        4         MATCH           3.034  1.39          0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTEATVVATS 
+ steA  1             oxoDec                EPIMERIZATION      Glu          D              False           Glu        8         MATCH           0.576  -1.068        0.081             1.573           DSWKLGVVDK  MWGAFDSSVWEWKFLNGGGHNVYGPTETTVDSSA 
+ steB  0             oxoDec                EPIMERIZATION      Thr          D              False           aThr/Thr   2         MATCH           4.815  3.181         0.081             1.573           DFWNIGMVHK  LSTHFDFSVWEANQIFGGEVNMYGITETTVHVTY 
+ steB  1             oxoDec                EPIMERIZATION      Leu          D              False           Leu        1         MATCH           2.433  0.789         0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ steB  2             oxoDec                EPIMERIZATION      Leu          D              False           Leu        12        MATCH           2.433  0.789         0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ steB  3             oxoDec                EPIMERIZATION      Ser          D              False           Ser        11        MATCH           3.547  1.903         0.081             1.573           DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEHNLYGPTEAAVDVTA 
+ steC  0             oxoDec                ---                Leu          L              False           Leu        10        MATCH           0.883  0.789         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ steC  1             oxoDec                EPIMERIZATION      Gln          D              False           Gln        7         MATCH           4.51   2.866         0.081             1.573           DAWQFGVVDK  LWSTFDASVWEWQFFCGGGHNVYGPTEATVDSTV 
+ steC  2             oxoDec                ---                Leu          L              False           Leu        6         MATCH           0.893  0.789         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ steC  3             oxoDec                ---                Ile          L              False           Ile/aIle   9         MATCH           2.725  2.621         0.081             0.034           DAMFLGCTYK  LNNSFDASTMDGFVLCGGEVHCYGPTETTTYATT 
+ steC  4             Glu                   ---                Glu          L              False           Glu        3         MATCH           3.602  3.497         0.081             0.034           DGWKFGVVDK  LWGAFDGSVWEWKFFCGGGHNVYGPTEATVDSTA 
+
+
+
+
+Genome: BGC0002071
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002071.3
+NRP_variant: 0
+Score: 17.321358201185685
+Alignment:
+ Gene           A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score  ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ CWE01_RS05095  0             oxoDec                EPIMERIZATION      Leu          L              False           Leu        8         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTESTVVATS 
+ CWE01_RS05095  1             oxoDec                EPIMERIZATION      Leu          L              False           Leu        5         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTETTVVATS 
+ CWE01_RS05095  2             oxoDec                EPIMERIZATION      Gln          D              False           Gln        2         MATCH           4.51   2.866         0.081             1.573           DAWQVGVVDK  LWTTFDASVWEWQFVCGGGHNVYGPTETTVDCSA 
+ CWE01_RS05100  0             oxoDec                ---                Leu          L              False           Leu        1         MATCH           0.883  0.789         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  1             oxoDec                EPIMERIZATION      Ser          D              False           Ser        3         MATCH           4.463  2.819         0.081             1.573           DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEFNLYGPTEAAVDVTA 
+ CWE01_RS05100  2             oxoDec                ---                Ile          L              False           Ile/aIle   4         MATCH           2.725  2.621         0.081             0.034           DAMFLGVTFK  LNNSFDASTMEGFLLSGGEINVYGPTETTTFATS 
+ CWE01_RS05100  3             oxoDec                EPIMERIZATION      Leu          D              False           Leu        6         MATCH           2.433  0.789         0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  4             oxoDec                ---                Leu          L              False           Leu        7         MATCH           2.05   1.946         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTETTVVASS 
+
+
+
+Genome: BGC0002071
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002071.2
+NRP_variant: 0
+Score: 16.419497818245095
+Alignment:
+ Gene           A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score  ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ CWE01_RS05095  0             oxoDec                EPIMERIZATION      Leu          L              False           Leu        3         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTESTVVATS 
+ CWE01_RS05095  1             oxoDec                EPIMERIZATION      Leu          L              False           Leu        5         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTETTVVATS 
+ CWE01_RS05095  2             oxoDec                EPIMERIZATION      Gln          D              False           Gln        2         MATCH           4.51   2.866         0.081             1.573           DAWQVGVVDK  LWTTFDASVWEWQFVCGGGHNVYGPTETTVDCSA 
+ CWE01_RS05100  0             oxoDec                ---                Leu          L              False           Leu        1         MATCH           0.883  0.789         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  1             oxoDec                EPIMERIZATION      Ser          D              False           Ser        7         MATCH           4.463  2.819         0.081             1.573           DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEFNLYGPTEAAVDVTA 
+ CWE01_RS05100  2             oxoDec                ---                Val          L              False           Val        6         MATCH           1.824  1.719         0.081             0.034           DAMFLGVTFK  LNNSFDASTMEGFLLSGGEINVYGPTETTTFATS 
+ CWE01_RS05100  3             oxoDec                EPIMERIZATION      Leu          D              False           Leu        8         MATCH           2.433  0.789         0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  4             oxoDec                ---                Leu          L              False           Leu        9         MATCH           2.05   1.946         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTETTVVASS 
+
+
+Genome: BGC0002071
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002071.1
+NRP_variant: 0
+Score: 17.321358201185685
+Alignment:
+ Gene           A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score  ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ CWE01_RS05095  0             oxoDec                EPIMERIZATION      Leu          L              False           Leu        5         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTESTVVATS 
+ CWE01_RS05095  1             oxoDec                EPIMERIZATION      Leu          L              False           Leu        9         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTETTVVATS 
+ CWE01_RS05095  2             oxoDec                EPIMERIZATION      Gln          D              False           Gln        4         MATCH           4.51   2.866         0.081             1.573           DAWQVGVVDK  LWTTFDASVWEWQFVCGGGHNVYGPTETTVDCSA 
+ CWE01_RS05100  0             oxoDec                ---                Leu          L              False           Leu        3         MATCH           0.883  0.789         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  1             oxoDec                EPIMERIZATION      Ser          D              False           Ser        2         MATCH           4.463  2.819         0.081             1.573           DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEFNLYGPTEAAVDVTA 
+ CWE01_RS05100  2             oxoDec                ---                Ile          L              False           Ile/aIle   1         MATCH           2.725  2.621         0.081             0.034           DAMFLGVTFK  LNNSFDASTMEGFLLSGGEINVYGPTETTTFATS 
+ CWE01_RS05100  3             oxoDec                EPIMERIZATION      Leu          D              False           Leu        7         MATCH           2.433  0.789         0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  4             oxoDec                ---                Leu          L              False           Leu        8         MATCH           2.05   1.946         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTETTVVASS 
+
+
+Genome: BGC0002071
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002071.0
+NRP_variant: 0
+Score: 16.419497818245095
+Alignment:
+ Gene           A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score  ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ CWE01_RS05095  0             oxoDec                EPIMERIZATION      Leu          L              False           Leu        7         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTESTVVATS 
+ CWE01_RS05095  1             oxoDec                EPIMERIZATION      Leu          L              False           Leu        6         MATCH           0.303  1.946         0.081             -1.714          DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTETTVVATS 
+ CWE01_RS05095  2             oxoDec                EPIMERIZATION      Gln          D              False           Gln        5         MATCH           4.51   2.866         0.081             1.573           DAWQVGVVDK  LWTTFDASVWEWQFVCGGGHNVYGPTETTVDCSA 
+ CWE01_RS05100  0             oxoDec                ---                Leu          L              False           Leu        2         MATCH           0.883  0.789         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  1             oxoDec                EPIMERIZATION      Ser          D              False           Ser        1         MATCH           4.463  2.819         0.081             1.573           DVWHMSLVDK  RWMTFDVSVWEWHFMCSGEFNLYGPTEAAVDVTA 
+ CWE01_RS05100  2             oxoDec                ---                Val          L              False           Val        8         MATCH           1.824  1.719         0.081             0.034           DAMFLGVTFK  LNNSFDASTMEGFLLSGGEINVYGPTETTTFATS 
+ CWE01_RS05100  3             oxoDec                EPIMERIZATION      Leu          D              False           Leu        4         MATCH           2.433  0.789         0.081             1.573           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ CWE01_RS05100  4             oxoDec                ---                Leu          L              False           Leu        3         MATCH           2.05   1.946         0.081             0.034           DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDVNNYGPTETTVVASS 
+
+
+Genome: BGC0002061
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002061.1
+NRP_variant: 0
+Score: 18.282084748909323
+Alignment:
+ Gene          A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ NPUN_RS10970  0             oxoDec                ---                Ile          L              False           NAc-Ile    9         MATCH           3.288   3.184         0.081             0.034           DAFFLGVTFK  LNTAFDAATFEGFLLFGGELHVYGPTENTTFSSW 
+ NPUN_RS10970  1             oxoDec                ---                Ser          L              False           Ser        1         MATCH           2.924   2.819         0.081             0.034           DVWHISLIDK  RWMTFDVSVWEWHFICSGEHNLYGPTEAAIDVTY 
+ NPUN_RS10970  2             oxoDec                ---                Pro          L              True            4Me-Pro    8         MATCH           0.698   2.359         -1.684            0.034           DVQFIAHLAK  LWHAFDVSFQETFLITAGEHNHYGPSESHLATSF 
+ NPUN_RS10970  3             oxoDec                ---                Leu          L              False           Leu        4         MATCH           2.05    1.946         0.081             0.034           DAWFLGNVVK  LWHAFDAAVWEPFLLTGGDVNNYGPTENTVVTTS 
+ NPUN_RS40615  0             oxoDec                ---                Leu          L              False           NAc-Leu    3         MATCH           2.04    1.946         0.081             0.034           DAWFVGNVVK  LWHAFDAAVWEPFLVTGGDVNNYGPTENTVVTTS 
+ NPUN_RS40615  1             oxoDec                EPIMERIZATION      Gly          UNKNOWN        False           Gly        7         MATCH           3.051   2.98          0.081             0               DILQLGLIWK  FSMTFDIAALELQALCGGEWNLYGPTETTIWSSI 
+ NPUN_RS40615  2             Asn                   ---                Asn          L              False           Asn        6         MATCH           3.593   3.489         0.081             0.034           DATKVGEVGK  YWASFDATITSLKIVLGGEINEYGPTEAVVGCCV 
+ NPUN_RS40620  0             oxoDec                ---                Tyr          L              False           Tyr        5         MATCH           2.784   2.689         0.081             0.034           DASTIAAVCK  LAQAFDASISEMTLIVAGEFNAYGPTEASVCATI 
+ NPUN_RS40620  1             oxoDec                ---                Pro          L              False           Pro        2         MATCH           -1.623  -1.728        0.081             0.034           DVQFIAHVIK  LWQAFDVSFQESFVITAGEHNHYGPSESHVIITF 
+
+
+Genome: BGC0002061
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002061.0
+NRP_variant: 0
+Score: 18.282084748909323
+Alignment:
+ Gene          A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ NPUN_RS10970  0             oxoDec                ---                Ile          L              False           Ile/aIle   8         MATCH           3.288   3.184         0.081             0.034           DAFFLGVTFK  LNTAFDAATFEGFLLFGGELHVYGPTENTTFSSW 
+ NPUN_RS10970  1             oxoDec                ---                Ser          L              False           Ser        6         MATCH           2.924   2.819         0.081             0.034           DVWHISLIDK  RWMTFDVSVWEWHFICSGEHNLYGPTEAAIDVTY 
+ NPUN_RS10970  2             oxoDec                ---                Pro          L              True            4Me-Pro    10        MATCH           0.698   2.359         -1.684            0.034           DVQFIAHLAK  LWHAFDVSFQETFLITAGEHNHYGPSESHLATSF 
+ NPUN_RS10970  3             oxoDec                ---                Leu          L              False           Leu        5         MATCH           2.05    1.946         0.081             0.034           DAWFLGNVVK  LWHAFDAAVWEPFLLTGGDVNNYGPTENTVVTTS 
+ NPUN_RS40615  0             oxoDec                ---                Leu          L              False           NAc-Leu    4         MATCH           2.04    1.946         0.081             0.034           DAWFVGNVVK  LWHAFDAAVWEPFLVTGGDVNNYGPTENTVVTTS 
+ NPUN_RS40615  1             oxoDec                EPIMERIZATION      Gly          UNKNOWN        False           Gly        2         MATCH           3.051   2.98          0.081             0               DILQLGLIWK  FSMTFDIAALELQALCGGEWNLYGPTETTIWSSI 
+ NPUN_RS40615  2             Asn                   ---                Asn          L              False           Asn        1         MATCH           3.593   3.489         0.081             0.034           DATKVGEVGK  YWASFDATITSLKIVLGGEINEYGPTEAVVGCCV 
+ NPUN_RS40620  0             oxoDec                ---                Tyr          L              False           Tyr        3         MATCH           2.784   2.689         0.081             0.034           DASTIAAVCK  LAQAFDASISEMTLIVAGEFNAYGPTEASVCATI 
+ NPUN_RS40620  1             oxoDec                ---                Pro          L              False           Pro        7         MATCH           -1.623  -1.728        0.081             0.034           DVQFIAHVIK  LWQAFDVSFQESFVITAGEHNHYGPSESHVIITF 
+
+
+Genome: BGC0002048
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002048.0
+NRP_variant: 0
+Score: 11.987511994903407
+Alignment:
+ Gene        A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ RBRH_03864  0             oxoDec                ---                unknown      UNKNOWN        False           X0         7         MATCH           -2.008  -2.089        0.081             0               DLFYLALVCK  FWAAFDLSIFDVYSLFAGEYNLYGPTETNVCTAY 
+ RBRH_03867  0             oxoDec                ---                Val          L              False           Val        3         MATCH           2.027   2.277         0.081             0.034           DAFWIGGTFK  LNNAFDASTFEAWLIVGGDINGYGPTESTTFATI 
+ RBRH_03867  1             oxoDec                ---                Pro          L              False           Pro        2         MATCH           2.347   2.242         0.081             0.034           DIWYISLLGK  LALTFDISIWEGYFICSGEHNLYGPTENALGTTF 
+ RBRH_03867  2             oxoDec                ---                Val          L              False           Val        1         MATCH           0.267   0.163         0.081             0.034           DAF------K  LNNAFDASTFEA---------------------H 
+ RBRH_04313  0             oxoDec                EPIMERIZATION      Val          D              False           Val        4         MATCH           3.911   2.277         0.081             1.573           DAFWIGGTFK  LNNAFDASTFEAWLIVGGDINGYGPTESTTFATI 
+ RBRH_04313  1             Bmt                   ---                Thr          L              False           aThr/Thr   6         MATCH           2.722   2.618         0.081             0.034           DFWNIGMVHK  LATHFDFSVWEGNQIFGGEINMYGITEVTVHVTY 
+ RBRH_03984  0             oxoDec                EPIMERIZATION      Ser          D              False           Ser        5         MATCH           4.453   2.819         0.081             1.573           DVWHVSLIDK  RWMTFDVSVWEWHFVCSGEYNLYGPTEAAIDVTA 
+ RBRH_03984  1             oxoDec                ---                Tyr          L              False           Tyr        8         MATCH           3.357   3.252         0.081             0.034           DASTIAAVCK  LAQAFDASASEMTLILAGEFNAYGPTETTVCATA 
+ RBRH_03984  2             oxoDec                ---                ---          ---            ---             ---        ---       SKIP_MODULE     -4.605  ---           ---               ---             DASTIAAVCK  LAQAFDASASEMTLILAGEFNAYGPTEATVCATV 
+
+
+Genome: BGC0002048
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002048.1
+NRP_variant: 0
+Score: 20.548969171493983
+Alignment:
+ Gene        A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ RBRH_03864  0             oxoDec                ---                unknown      UNKNOWN        False           X0         9         MATCH           -2.008  -2.089        0.081             0               DLFYLALVCK  FWAAFDLSIFDVYSLFAGEYNLYGPTETNVCTAY 
+ RBRH_03867  0             oxoDec                ---                Val          L              False           Val        2         MATCH           2.027   2.277         0.081             0.034           DAFWIGGTFK  LNNAFDASTFEAWLIVGGDINGYGPTESTTFATI 
+ RBRH_03867  1             oxoDec                ---                Pro          L              False           Pro        1         MATCH           2.464   2.359         0.081             0.034           DIWYISLLGK  LALTFDISIWEGYFICSGEHNLYGPTENALGTTF 
+ RBRH_03867  2             oxoDec                ---                Val          L              False           Val        3         MATCH           0.267   0.163         0.081             0.034           DAF------K  LNNAFDASTFEA---------------------H 
+ RBRH_04313  0             oxoDec                EPIMERIZATION      Val          D              False           Val        7         MATCH           3.911   2.277         0.081             1.573           DAFWIGGTFK  LNNAFDASTFEAWLIVGGDINGYGPTESTTFATI 
+ RBRH_04313  1             oxoDec                ---                Thr          L              False           aThr/Thr   6         MATCH           3.285   3.181         0.081             0.034           DFWNIGMVHK  LATHFDFSVWEGNQIFGGEINMYGITEVTVHVTY 
+ RBRH_03984  0             oxoDec                EPIMERIZATION      Ser          D              False           Ser        8         MATCH           4.453   2.819         0.081             1.573           DVWHVSLIDK  RWMTFDVSVWEWHFVCSGEYNLYGPTEAAIDVTA 
+ RBRH_03984  1             oxoDec                ---                Tyr          L              False           Tyr        5         MATCH           3.357   3.252         0.081             0.034           DASTIAAVCK  LAQAFDASASEMTLILAGEFNAYGPTETTVCATA 
+ RBRH_03984  2             oxoDec                ---                Tyr          L              False           Tyr        4         MATCH           3.357   3.252         0.081             0.034           DASTIAAVCK  LAQAFDASASEMTLILAGEFNAYGPTEATVCATV 
+
+
 Genome: BGC0002044
 Contig_idx: 1
 BGC_idx: 1
