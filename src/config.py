@@ -187,7 +187,7 @@ class MatchingConfig:
 @dataclass
 class OutputConfig:
     main_out_dir: Path
-    symlink_to_latest: Path
+    symlink_to_latest: Optional[Path]
     configs_output: Path
     antismash_out_dir: Path
     bgc_variants_dir: Path
@@ -225,7 +225,9 @@ class OutputConfig:
 
         self.main_out_dir = main_out_dir
         self.logo = nerpa_dir / Path(output_cfg_dict['logo'])
-        self.symlink_to_latest = nerpa_dir / Path(output_cfg_dict['symlink_to_latest'])
+        self.symlink_to_latest = main_out_dir.parent / Path(output_cfg_dict['symlink_to_latest']) \
+            if args is None or args.output_dir is None \
+            else None  # no symlink if output directory is specified
         if self.symlink_to_latest == self.main_out_dir:
             raise ValueError(f'Invalid output directory: the path {self.symlink_to_latest} is reserved')
 
@@ -245,9 +247,8 @@ class Config:
     output_config: OutputConfig
 
 
-def get_default_output_dir(nerpa_dir: Path,
-                           cfg: dict) -> Path:
-    while (out_dir := (nerpa_dir / Path(cfg['default_results_root_dirname']) /
+def get_default_output_dir(cfg: dict) -> Path:
+    while (out_dir := (Path.cwd() / Path(cfg['default_results_root_dirname']) /
               Path(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))).exists():
         time.sleep(1)
     return out_dir
@@ -267,7 +268,8 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     configs_dir = nerpa_dir / Path('configs')
     cfg = yaml.safe_load((configs_dir / 'config.yaml').open('r'))
     main_out_dir = args.output_dir.resolve() \
-        if args is not None and args.output_dir is not None else get_default_output_dir(nerpa_dir, cfg)
+        if args is not None and args.output_dir is not None \
+        else get_default_output_dir(cfg)
     monomer_names_helper = load_monomer_names_helper(nerpa_dir / cfg['monomers_config'],
                                                      nerpa_dir)
 

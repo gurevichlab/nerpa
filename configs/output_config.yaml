@@ -1,4 +1,4 @@
-symlink_to_latest: nerpa_results/latest
+symlink_to_latest: latest
 configs_output: configs
 
 antismash_out_dir: antismash_output

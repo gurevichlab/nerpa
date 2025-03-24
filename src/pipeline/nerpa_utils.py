@@ -11,11 +11,10 @@ from pathlib import Path
 
 def set_up_output_dir(output_cfg: OutputConfig,
                       crash_if_exists: bool,
-                      log: NerpaLogger,
-                      make_sym_link_to_latest: bool = True):
+                      log: NerpaLogger):
     if output_cfg.main_out_dir.exists():
         if crash_if_exists:
-            log.error(f"output directory ({output_cfg.main_out_dir}) already exists! "
+            log.error(f"Output directory ({output_cfg.main_out_dir}) already exists! "
                       f"Rerun with --force-output-dir if you still want to use it as the output dir "
                       f"OR specify another directory. Exiting now..", to_stderr=True)
             exit(1)
@@ -27,7 +26,7 @@ def set_up_output_dir(output_cfg: OutputConfig,
     output_cfg.main_out_dir.mkdir(parents=True)
 
     # 'latest' symlink
-    if make_sym_link_to_latest:
+    if output_cfg.symlink_to_latest is not None:
         output_cfg.symlink_to_latest.parent.mkdir(parents=True, exist_ok=True)
         if output_cfg.symlink_to_latest.is_symlink():
             output_cfg.symlink_to_latest.unlink(missing_ok=True)
