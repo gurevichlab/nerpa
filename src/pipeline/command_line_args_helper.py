@@ -65,7 +65,8 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
 
     configs_group.add_argument("--output-dir", "-o", type=Path, metavar='DIR',
                                help="output directory "
-                                    f"[default: {default_cfg.output_config.main_out_dir.parent}/" "{CURRENT_TIME}]")
+                                    "[default: {CWD}/"
+                                    f"{default_cfg.output_config.main_out_dir.parent.name}/" "{CURRENT_TIME}]")
     configs_group.add_argument("--force-output-dir", dest="output_dir_reuse", action="store_true",
                                help="do not crash if the output directory already exists and rewrite its content")
 
