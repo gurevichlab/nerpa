@@ -137,7 +137,8 @@ class PipelineHelper_antiSMASH:
     def extract_bgc_variants_from_antismash(self,
                                             antismash_json: antiSMASH_record) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
-                                              self.config.antismash_processing_config)
+                                              self.config.antismash_processing_config,
+                                              self.log)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
                                                                    self.specificity_prediction_helper,
                                                                    self.config.antismash_processing_config,

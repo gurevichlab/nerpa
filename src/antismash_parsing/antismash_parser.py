@@ -29,6 +29,7 @@ from src.monomer_names_helper import (
 from parse import parse
 from collections import defaultdict
 from src.antismash_parsing.determine_modifications import ends_with_pcp_pcp, get_iterative_genes_orphan_c
+from src.pipeline.logger import NerpaLogger
 
 
 class A_Domain_Id(NamedTuple):
@@ -42,38 +43,46 @@ class A_Domain_Id(NamedTuple):
 
 
 # tested on antismash v7
-def extract_a_domain_specificity_info(a_domain_data: dict) -> Optional[A_Domain]:
-    try:
-        svm_dict = a_domain_data['nrpys']
+def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
+    svm_dict = a_domain_data['nrpys']
 
-        svm = {}
-        for svm_level, svm_level_str in [(SVM_LEVEL.PHYSIOCHEMICAL_CLASS, 'physiochemical_class'),
-                                         (SVM_LEVEL.LARGE_CLUSTER, 'large_cluster'),
-                                         (SVM_LEVEL.SMALL_CLUSTER, 'small_cluster'),
-                                         (SVM_LEVEL.SINGLE_AMINO, 'single_amino')]:
-            substrates = svm_dict[svm_level_str]['substrates']
-            svm[svm_level] = SVM_Prediction(score=svm_dict[svm_level_str]['score'],
-                                            substrates=[antiSMASH_MonomerName(substrate['short'])
-                                                        for substrate in substrates])
+    svm = {}
+    for svm_level, svm_level_str in [(SVM_LEVEL.PHYSIOCHEMICAL_CLASS, 'physiochemical_class'),
+                                     (SVM_LEVEL.LARGE_CLUSTER, 'large_cluster'),
+                                     (SVM_LEVEL.SMALL_CLUSTER, 'small_cluster'),
+                                     (SVM_LEVEL.SINGLE_AMINO, 'single_amino')]:
+        substrates = svm_dict[svm_level_str]['substrates']
+        svm[svm_level] = SVM_Prediction(score=svm_dict[svm_level_str]['score'],
+                                        substrates=[antiSMASH_MonomerName(substrate['short'])
+                                                    for substrate in substrates])
 
-        return A_Domain(aa10=AA10(svm_dict['aa10']),
-                        aa34=AA34(svm_dict['aa34']),
-                        svm=svm)
-    except KeyError as e:
-        raise e
-        return None
+    return A_Domain(aa10=AA10(svm_dict['aa10']),
+                    aa34=AA34(svm_dict['aa34']),
+                    svm=svm)
 
 
-def extract_a_domains_info(contig_data: dict) -> Dict[A_Domain_Id, Optional[A_Domain]]:
+def extract_a_domains_info(contig_data: dict,
+                           config: antiSMASH_Processing_Config,
+                           log: NerpaLogger) -> Dict[A_Domain_Id, A_Domain]:
     if "antismash.modules.nrps_pks" not in contig_data["modules"]:
         return {}
 
     domain_predictions = contig_data['modules']['antismash.modules.nrps_pks']['domain_predictions']
-    return {
-        A_Domain_Id.from_antismash_id(as_domain_id): extract_a_domain_specificity_info(antismash_prediction)
-        for as_domain_id, antismash_prediction in domain_predictions.items()
-        if 'AMP-binding' in as_domain_id
-    }
+    a_domain_per_id = {}
+    for as_domain_id, antismash_prediction in domain_predictions.items():
+        if 'AMP-binding' in as_domain_id:
+            try:
+                parsed_id = A_Domain_Id.from_antismash_id(as_domain_id)
+                specificity_info = extract_a_domain_specificity_info(antismash_prediction)
+            except Exception as e:
+                if config.DEBUG_MODE:
+                    log.error(f'Error parsing A-domain {as_domain_id}')
+                else:
+                    log.warning(f'Error parsing A-domain {as_domain_id}')
+            else:
+                a_domain_per_id[parsed_id] = specificity_info
+
+    return a_domain_per_id
 
 
 def extract_a_domains_coords(contig_data: dict) -> Dict[A_Domain_Id, Coords]:
@@ -264,12 +273,13 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
 
 def parse_antismash_json(antismash_json: antiSMASH_record,
-                         config: antiSMASH_Processing_Config) -> List[BGC_Cluster]:
+                         config: antiSMASH_Processing_Config,
+                         log: NerpaLogger) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
     for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
         try:
-            a_domains_info = extract_a_domains_info(contig_data)
+            a_domains_info = extract_a_domains_info(contig_data, config, log)
             a_domains_coords = extract_a_domains_coords(contig_data)
             assert a_domains_info.keys() == a_domains_coords.keys()
             if not any(a_domain is not None for a_domain in a_domains_info.values()):  # no A-domains found in the contig
@@ -278,7 +288,9 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
             genes = extract_genes(contig_data, a_domains_info, a_domains_coords, config)
             bgcs.extend(extract_bgc_clusters(genome_id, ctg_idx, contig_data, genes))
         except Exception as e:
-            print(f'Error parsing contig {ctg_idx} of genome {genome_id}')
-            raise e
+            if config.DEBUG_MODE:
+                log.error(f'Error parsing contig {ctg_idx} of genome {genome_id}')
+            else:
+                log.warning(f'Error parsing contig {ctg_idx} of genome {genome_id}')
 
     return bgcs
