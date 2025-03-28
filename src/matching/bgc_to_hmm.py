@@ -86,8 +86,10 @@ def add_modules(states: List[DetailedHMMState],
                 final_state_idx: int = -1) -> Dict[int, int]:  # module_idx -> module_start_state_idx
     _gene_len = partial(gene_len, genes_intervals=gene_intervals)
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
-    _get_emissions = partial(hmm_helper.get_emissions, pks_domains_in_bgc=bgc_variant.has_pks_domains())
-    _get_insert_emissions = partial(hmm_helper.get_insert_emissions, pks_domains_in_bgc=bgc_variant.has_pks_domains())
+    _get_emissions = partial(hmm_helper.get_emissions,
+                             pks_domains_in_bgc=bgc_variant.has_pks_domains())
+    _get_insert_emissions = partial(hmm_helper.get_insert_emissions,
+                                    pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
     module_idx_to_start_state_idx = {i: 3 * i + 1 for i in range(len(bgc_variant.modules))}
 
@@ -186,8 +188,11 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                               initial_state: int = 0) -> None:
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
     _gene_len = partial(gene_len, genes_intervals=genes_intervals)
-    _num_genes_in_fragment = partial(num_genes_in_fragment, fragment_intervals=fragment_intervals, bgc_variant=bgc_variant)
-    _get_insert_at_start_emissions = partial(hmm_helper.get_insert_at_start_emissions, pks_domains_in_bgc=bgc_variant.has_pks_domains())
+    _num_genes_in_fragment = partial(num_genes_in_fragment,
+                                     fragment_intervals=fragment_intervals,
+                                     bgc_variant=bgc_variant)
+    _get_insert_at_start_emissions = partial(hmm_helper.get_insert_at_start_emissions,
+                                             pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
     # 1. Add inserts before modules
     module_idx_to_insert_state_idx = {}
