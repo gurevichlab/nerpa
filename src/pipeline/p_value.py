@@ -1,5 +1,5 @@
 from typing import List, Tuple, NamedTuple, NewType
-from math import exp
+import math
 import numpy as np
 
 StateIdx = NewType('StateIdx', int)
@@ -45,9 +45,9 @@ def to_prob(disc_prob: DiscreteProb) -> LogProb:
 # TODO: apply for the list of all possible thresholds
 def compute_p_value(hmm: HMM, threshold_score: LogProb) -> Prob:
     """
-    computes p-value of given HMM with respect to the given threshold score
-    as a sum of probabilities of all paths that have a score greater than the threshold
-    multiplied by its quantity
+    Computes p-value of given HMM with respect to the given threshold score,
+    that is a probability of finding a path with a score not lesser than the threshold score.
+    The path corresponding to the threshold score is not counted.
     """
     disc_threshold_prob = to_discrete_prob(threshold_score)
 
@@ -87,12 +87,15 @@ def compute_p_value(hmm: HMM, threshold_score: LogProb) -> Prob:
 
                     dp[next_state][disc_new_path_prob] += number_of_paths
 
-    p_value = 1
+    p_value = 0
     for disc_prob in range(disc_threshold_prob, MAX_DISCRETE_PROB + 1):
         number_of_paths = dp[final_state, disc_prob]
         if number_of_paths > 0:
             # Yield p-value in range [0, 1]
             actual_prob = math.exp(to_prob(disc_prob))
-            p_value -= actual_prob * number_of_paths
+            p_value += actual_prob * number_of_paths
+
+    p_value -= math.exp(threshold_score) # to not count the contribution of the found path itself
+    p_value = max(p_value, 0) # to prevent possible miscalculation caused by discretization
 
     return p_value
