@@ -1,11 +1,11 @@
-from typing import List, Tuple, NamedTuple
-from collections import defaultdict
+from typing import List, Tuple, NamedTuple, NewType
 import numpy as np
 import math
 
-StateIdx = int
-LogProb = float
-DiscreteProb = int
+StateIdx = NewType('StateIdx', int)
+LogProb = NewType('LogProb', float | float('-inf'))
+DiscreteProb = NewType('DiscreteProb', int)
+Prob = NewType('Prob', float) # actual probability value in range [0, 1]
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
 MAX_DISCRETE_PROB = DiscreteProb(1000)
@@ -26,8 +26,8 @@ def to_discrete_prob(prob: LogProb) -> DiscreteProb:
         return MIN_DISCRETE_PROB
     else:
         # Map [LOG_PROB_MIN_VALUE, LOG_PROB_MAX_VALUE] to [MIN_DISCRETE_PROB, MAX_DISCRETE_PROB]
-        disc_prob = round((prob - LOG_PROB_MIN_VALUE) /
-                             (0 - LOG_PROB_MIN_VALUE) * (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB) + MIN_DISCRETE_PROB)
+        disc_prob = round(MIN_DISCRETE_PROB + (prob - LOG_PROB_MIN_VALUE) /
+                            (LOG_PROB_MAX_VALUE - LOG_PROB_MIN_VALUE) * (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB))
 
         return DiscreteProb(disc_prob)
 
@@ -38,12 +38,12 @@ def to_prob(disc_prob: DiscreteProb) -> LogProb:
     else:
         # Map [MIN_DISCRETE_PROB, MAX_DISCRETE_PROB] to [LOG_PROB_MIN_VALUE, LOG_PROB_MAX_VALUE]
         prob = (LOG_PROB_MIN_VALUE + (disc_prob - MIN_DISCRETE_PROB) /
-                       (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB) * (0 - LOG_PROB_MIN_VALUE))
+                       (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB) * (LOG_PROB_MAX_VALUE - LOG_PROB_MIN_VALUE))
         return LogProb(prob)
 
 
 # TODO: apply for the list of all possible thresholds
-def compute_p_value(hmm: HMM, threshold_score: LogProb) -> float:
+def compute_p_value(hmm: HMM, threshold_score: LogProb) -> Prob:
     """
     computes p-value of given HMM with respect to the given threshold score
     as a sum of probabilities of all paths that have a score greater than the threshold
@@ -56,7 +56,7 @@ def compute_p_value(hmm: HMM, threshold_score: LogProb) -> float:
     final_state = num_states - 1
 
     # dp[state, discrete_prob] = number of paths
-    dp = np.zeros((num_states, MAX_DISCRETE_PROB + 1), dtype=int)
+    dp = np.zeros((num_states, MAX_DISCRETE_PROB + 1), dtype=DiscreteProb)
 
     dp[initial_state][MAX_DISCRETE_PROB] = 1
 
