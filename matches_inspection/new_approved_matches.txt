@@ -1,3 +1,89 @@
+Genome: BGC0001402
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001402.2
+NRP_variant: 0
+Score: 2.9624866402594767
+Alignment:
+ Gene            A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ PISL3812_02619  0             Aad                   EPIMERIZATION      Ser          L              False           Ser        4         MATCH           1.194   2.836         0.081             -1.714          DVGQESTITK  FSLSFDVSLGNLQMELSGEMNTYSPAECTITTVG 
+ PISL3812_02619  1             Aad                   EPIMERIZATION      Pro          L              False           Pro        3         MATCH           0.773   2.415         0.081             -1.714          DIHDVSAICK  THHAFDIAVHNMDIVLSGEINAYGPAECQICTIQ 
+ PISL3812_02619  2             Aad                   EPIMERIZATION      unknown      L              False           Abu        2         MATCH           -0.807  0.835         0.081             -1.714          DAWFYGAPLK  AAQSFDANIWHLFLYLGGEWGAYGPTETTPLCIF 
+ PISL3812_02619  3             Aad                   EPIMERIZATION      Ser          L              False           Ser        1         MATCH           1.133   2.775         0.081             -1.714          DVNEISVIEK  AHQAFDVSWNMKELILSGEMPVGAIGEIIIEGPI 
+ PISL3812_02619  4             Aad                   ---                unknown      L              False           bPhe       5         MATCH           0.973   0.868         0.081             0.034           DAFQITVILK  AHHSFDACIFNYQLILTGEFNVYGPTECTILCSI 
+
+
+Genome: BGC0001402
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001402.1
+NRP_variant: 0
+Score: 0.6219375063134045
+Alignment:
+ Gene            A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ PISL3812_02619  0             Aad                   EPIMERIZATION      Ser          L              False           Ser        5         MATCH           1.194   2.836         0.081             -1.714          DVGQESTITK  FSLSFDVSLGNLQMELSGEMNTYSPAECTITTVG 
+ PISL3812_02619  1             Aad                   EPIMERIZATION      Pro          L              False           Cl2-Pro    4         MATCH           0.773   2.415         0.081             -1.714          DIHDVSAICK  THHAFDIAVHNMDIVLSGEINAYGPAECQICTIQ 
+ PISL3812_02619  2             Aad                   EPIMERIZATION      Thr          L              False           aThr/Thr   3         MATCH           -3.148  -1.505        0.081             -1.714          DAWFYGAPLK  AAQSFDANIWHLFLYLGGEWGAYGPTETTPLCIF 
+ PISL3812_02619  3             Aad                   EPIMERIZATION      Ser          L              False           Ser        2         MATCH           1.133   2.775         0.081             -1.714          DVNEISVIEK  AHQAFDVSWNMKELILSGEMPVGAIGEIIIEGPI 
+ PISL3812_02619  4             Aad                   ---                unknown      L              False           bPhe       1         MATCH           0.973   0.868         0.081             0.034           DAFQITVILK  AHHSFDACIFNYQLILTGEFNVYGPTECTILCSI 
+
+
+Genome: BGC0001402
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001402.0
+NRP_variant: 0
+Score: 2.9624866402594767
+Alignment:
+ Gene            A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ PISL3812_02619  0             Aad                   EPIMERIZATION      Ser          L              False           Ser        3         MATCH           1.194   2.836         0.081             -1.714          DVGQESTITK  FSLSFDVSLGNLQMELSGEMNTYSPAECTITTVG 
+ PISL3812_02619  1             Aad                   EPIMERIZATION      Pro          L              False           Cl2-Pro    5         MATCH           0.773   2.415         0.081             -1.714          DIHDVSAICK  THHAFDIAVHNMDIVLSGEINAYGPAECQICTIQ 
+ PISL3812_02619  2             Aad                   EPIMERIZATION      unknown      L              False           Abu        2         MATCH           -0.807  0.835         0.081             -1.714          DAWFYGAPLK  AAQSFDANIWHLFLYLGGEWGAYGPTETTPLCIF 
+ PISL3812_02619  3             Aad                   EPIMERIZATION      Ser          L              False           Ser        1         MATCH           1.133   2.775         0.081             -1.714          DVNEISVIEK  AHQAFDVSWNMKELILSGEMPVGAIGEIIIEGPI 
+ PISL3812_02619  4             Aad                   ---                unknown      L              False           bPhe       4         MATCH           0.973   0.868         0.081             0.034           DAFQITVILK  AHHSFDACIFNYQLILTGEFNVYGPTECTILCSI 
+
+
+Genome: BGC0001346
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001346.2
+NRP_variant: 0
+Score: 10.165070170167871
+Alignment:
+ Gene  A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ banA  0             Ile                   EPIMERIZATION      Leu          UNKNOWN        False           Leu        7         MATCH           0.883   0.812         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banA  1             Asp                   EPIMERIZATION      Asp          UNKNOWN        False           Asp        9         MATCH           2.668   2.597         0.081             0               DSWKLGVVDK  MWGAFDSSVWEWKFLNGGGHNVYGPTETTVDSTG 
+ banB  0             Thr                   EPIMERIZATION      Thr          UNKNOWN        False           aThr/Thr   5         MATCH           2.086   2.025         0.081             0               DFWNIGMVHK  LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTY 
+ banB  1             Ile                   EPIMERIZATION      Ile          UNKNOWN        False           Ile/aIle   2         MATCH           2.099   2.028         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banB  2             Ile                   EPIMERIZATION      Leu          UNKNOWN        False           Leu        1         MATCH           0.883   0.812         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banB  3             Aad                   EPIMERIZATION      Gln          UNKNOWN        False           Gln        6         MATCH           2.993   2.922         0.081             0               DAWQFGVVDK  LWSTFDASVWEWQFFCGGGHNVYGPTEATVDSTV 
+ banC  0             Ile                   ---                Leu          UNKNOWN        False           Leu        4         MATCH           0.873   0.812         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banC  1             Ile                   ---                Leu          UNKNOWN        False           Leu        3         MATCH           -1.966  -2.037        0.081             0               DAMFLGCTYK  LDCSFDASTMDGFVLCGGEVHCYGPTETTTYATT 
+
+
+Genome: BGC0001346
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001346.1
+NRP_variant: 0
+Score: 10.165070170167871
+Alignment:
+ Gene  A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ banA  0             Ile                   EPIMERIZATION      Leu          UNKNOWN        False           Leu        4         MATCH           0.883   0.812         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banA  1             Asp                   EPIMERIZATION      Asp          UNKNOWN        False           Asp        7         MATCH           2.668   2.597         0.081             0               DSWKLGVVDK  MWGAFDSSVWEWKFLNGGGHNVYGPTETTVDSTG 
+ banB  0             Thr                   EPIMERIZATION      Thr          UNKNOWN        False           aThr/Thr   6         MATCH           2.086   2.025         0.081             0               DFWNIGMVHK  LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTY 
+ banB  1             Ile                   EPIMERIZATION      Ile          UNKNOWN        False           Ile/aIle   2         MATCH           2.099   2.028         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banB  2             Ile                   EPIMERIZATION      Leu          UNKNOWN        False           Leu        1         MATCH           0.883   0.812         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banB  3             Aad                   EPIMERIZATION      Gln          UNKNOWN        False           Gln        3         MATCH           2.993   2.922         0.081             0               DAWQFGVVDK  LWSTFDASVWEWQFFCGGGHNVYGPTEATVDSTV 
+ banC  0             Ile                   ---                Leu          UNKNOWN        False           Leu        9         MATCH           0.873   0.812         0.081             0               DAWFLGNVVK  LWHAFDAMAWEPFLLIGGDINNYGPTEATVVATS 
+ banC  1             Ile                   ---                Leu          UNKNOWN        False           Leu        8         MATCH           -1.966  -2.037        0.081             0               DAMFLGCTYK  LDCSFDASTMDGFVLCGGEVHCYGPTETTTYATT 
+
+
 Genome: BGC0001346
 Contig_idx: 1
 BGC_idx: 1
