@@ -1,6 +1,6 @@
 from typing import List, Tuple, NamedTuple, NewType
+from math import exp
 import numpy as np
-import math
 
 StateIdx = NewType('StateIdx', int)
 LogProb = NewType('LogProb', float | float('-inf'))
@@ -55,7 +55,8 @@ def compute_p_value(hmm: HMM, threshold_score: LogProb) -> Prob:
     initial_state = 0
     final_state = num_states - 1
 
-    # dp[state, discrete_prob] = number of paths
+    # dp[state, discrete_prob] = number of paths ending at the state 'state' and
+    # having discretized probability 'discrete_prob'
     dp = np.zeros((num_states, MAX_DISCRETE_PROB + 1), dtype=DiscreteProb)
 
     dp[initial_state][MAX_DISCRETE_PROB] = 1
