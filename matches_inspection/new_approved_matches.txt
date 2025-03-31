@@ -1,3 +1,25 @@
+Genome: BGC0001716
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0001716.0
+NRP_variant: 0
+Score: 5.0056407489242565
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step   Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ XNC2_2373  0             Lys                   EPIMERIZATION      Lys          L              False           Lys        9         MATCH            2.61    4.252         0.081             -1.714          DIESIGTVTK  FHISFDISVEEGSLILGGEINTYGPTETTVTASA 
+ XNC2_2373  1             Dab                   ---                Gly          L              False           Gly        2         MATCH            -1.981  -2.086        0.081             0.034           DVWQMIGDDK  HAEASDVSVWQAQTMIIAEMNGYGPSEASDDITY 
+ XNC2_2373  1             Dab                   ---                Gly          L              False           Gly        1         MATCH            -1.981  -2.086        0.081             0.034           DVWQMIGDDK  HAEASDVSVWQAQTMIIAEMNGYGPSEASDDITY 
+ XNC2_2372  0             Aad                   ---                Gly          UNKNOWN        False           Gly        11        MATCH            2.45    3.035         0.081             0               DILQIGMVWK  FSMTFDIAVLELQAISGGEWNMYGPTETTVWSTI 
+ XNC2_2372  1             Orn                   EPIMERIZATION      Orn          D              False           Orn        10        MATCH            5.31    3.666         0.081             1.573           DMENSGAVNK  LGLAFDMSIEEGNLSVGGEVNAYGPTEYTVNTCI 
+ XNC2_2372  2             Aad                   ---                Pro          L              False           Pro        4         MATCH            2.52    2.415         0.081             0.034           DMENVSHVVK  LGISFDMSFEDMNLVSSAEVNHYGPAETHVVTSK 
+ XNC2_2371  0             His                   ---                His          L              False           His        3         MATCH            5.475   5.37          0.081             0.034           DSPVIAEVWK  SARSFDSSVPAWVLICAGEANEYGPTETTVWSSL 
+ XNC2_2370  0             Lys                   ---                Gly          L              False           Gly        6         MATCH            -1.801  -1.895        0.081             0.034           DIESIGTVLK  FAASFDISVEEVSLIVGGEMNTYGPTETTVLASH 
+ XNC2_2370  1             Arg                   EPIMERIZATION      unknown      UNKNOWN        False           X1         5         MATCH            -2.027  -2.098        0.081             0               DIGDLGIIDK  RGWAVDIFLGDKDFLVGSEFNIYGQTESVIDASY 
+ XNC2_2370  2             Lys                   ---                Gly          L              False           Gly        8         MATCH            -1.79   -1.895        0.081             0.034           DIESIGTIVK  YAIAFDIFIEELSVIVGGEFNTYGPTETTIVATA 
+ ---        ---           ---                   ---                unknown      UNKNOWN        False           Put        7         START_INSERTING  -2.561  ---           ---               ---             ---         ---                                
+
+
 Genome: BGC0001402
 Contig_idx: 1
 BGC_idx: 1
