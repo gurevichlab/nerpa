@@ -1,3 +1,115 @@
+Genome: BGC0002413
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002413.0
+NRP_variant: 0
+Score: 2.5758350461266173
+Alignment:
+Fragment_#0
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    5	  MATCH                          6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
+ DJ58_4257  0             Orn                   EPIMERIZATION      Lys          L            False             Lys        2       MATCH  -1.792  ---           ---               ---             DSEDMGFIDK  LAHAFDSSWEPWDIMIGGEVNFYGPSEYTIDTLG 
+ DJ58_4257  1             Aad                   ---                Ser          L            False             Ser        1       MATCH  -1.792  ---           ---               ---             DVWHFSLVDK  RWMTFDVSVWEWHFFCSGEHNLYGPTEAAVDVTY 
+Fragment_#1
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    4	  MATCH                          6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
+ DJ58_4257  0             Orn                   EPIMERIZATION      Lys          L            False             Lys        3       MATCH  -1.792  ---           ---               ---             DSEDMGFIDK  LAHAFDSSWEPWDIMIGGEVNFYGPSEYTIDTLG 
+ DJ58_4257  1             Aad                   ---                Ser          L            False             Ser        6       MATCH  -1.792  ---           ---               ---             DVWHFSLVDK  RWMTFDVSVWEWHFFCSGEHNLYGPTEAAVDVTY 
+Fragment_#2
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    9	  MATCH                          6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
+ DJ58_4257  0             Orn                   EPIMERIZATION      Lys          L            False             Lys        8       MATCH  -1.792  ---           ---               ---             DSEDMGFIDK  LAHAFDSSWEPWDIMIGGEVNFYGPSEYTIDTLG 
+ DJ58_4257  1             Aad                   ---                Ser          L            False             Ser        7       MATCH  -1.792  ---           ---               ---             DVWHFSLVDK  RWMTFDVSVWEWHFFCSGEHNLYGPTEAAVDVTY 
+
+
+Genome: BGC0002408
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002408.0
+NRP_variant: 0
+Score: 9.020853456775912
+Alignment:
+ Gene         A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ GN109_07690  0             Arg                   ---                Orn          UNKNOWN        False           Fo-OH-Orn  2         MATCH           1.938   1.867         0.081             0               DVETLGGISK  HALAFDVSIEAATLLFGGEVNGYGPTEAVISPML 
+ GN109_07690  1             Asp                   EPIMERIZATION      Asp          UNKNOWN        False           OH-Asp     1         MATCH           3.24    3.169         0.081             0               DLTKIGHVGK  YGMSADLGHTTGKIITGGEINHYGPTEATVGALT 
+ GN109_07690  2             Aad                   ---                Ser          UNKNOWN        False           Ser        5         MATCH           2.946   2.875         0.081             0               DVWHVSLIDK  RWMTFDVSVWEWHFVASGEYNLYGPTEAAIDVSH 
+ GN109_07695  0             Orn                   ---                Orn          UNKNOWN        False           Fo-OH-Orn  4         MATCH           3.133   3.061         0.081             0               DGEYTGGITK  HAIQFDGAHEGSYVTVGGEVNGYGPTETVITPML 
+ GN109_07695  0             Orn                   ---                unknown      UNKNOWN        False           Put        3         MATCH           -1.084  -1.155        0.081             0               DGEYTGGITK  HAIQFDGAHEGSYVTVGGEVNGYGPTETVITPML 
+
+
+Genome: BGC0002370
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002370.2
+NRP_variant: 0
+Score: 12.717913214922053
+Alignment:
+ Gene             A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ AGRA3207_002710  0             Aad                   ---                ---      ---              ---           ---        ---         SKIP_FRAGMENT                          0.814   1.257         0.081             -0.173          DFWNIGMVHK  LACHFDFSVWEGNQIFGGEVNMYGITETTVHATF 
+ AGRA3207_002708  0             Aad                   EPIMERIZATION      unknown      D              False           Abu        4         MATCH                          0.814   1.257         0.081             -0.173          DFWNIGMVHK  LACHFDFSVWEGNQIFGGEVNMYGITETTVHATF 
+ AGRA3207_002708  0             Aad                   EPIMERIZATION      unknown      UNKNOWN        False           X1         3         MATCH                          0.547   0.882         0.081             0               DALFLSAVVK  RAFSFDASILDLFALSSGEFNAYGPTEATVVVSV 
+ AGRA3207_002708  1             Aad                   METHYLATION        Gly          UNKNOWN        True            NMe-Gly    6         MATCH                          4.631   3.035         2.243             0               DILQLGLIWK  LGMTFDIAALELQALCGGEWNLYGPTETTIWSSC 
+ AGRA3207_002707  0             Aad                   ---                Ala          D              False           Ala        5         MATCH                          1.601   1.713         0.081             -0.173          DLWNIGEVWK  LAPHFDLSVWEGNQILGGEYNEYGPAEAAVWTTH 
+ AGRA3207_002707  1             Cys                   ---                Cys          UNKNOWN        False           dhCys      2         MATCH                          5.213   5.142         0.081             0               DLYNLSLIWK  TDISFDLSVYDGNTLLSGDVSLGGATEASIWSIL 
+ AGRA3207_002707  2             Trp                   ---                unknown      L              False           X0         1         MATCH                          -1.988  -2.093        0.081             0.034           DGWALAVVTK  LSQAHDGSVWETALLAAGEFNVYGPCEATVTTTV 
+ AGRA3207_002706  0             Aad                   ---                unknown      UNKNOWN        False           X2         8         MATCH                          0.918   0.857         0.081             0               DAWGLWNVLK  LNHSCDASVWETGLLLWGETDNYGLGEVTVLTTS 
+ AGRA3207_002706  1             Aad                   ---                Gly          UNKNOWN        False           Gly        7         MATCH                          3.106   3.035         0.081             0               DILQVGVIWK  CGMTFDISVLELQAVVGGEWNVYGPTEATIWSTA 
+ AGRA3207_002700  0             Thr                   ---                ---          ---            ---             ---        ---       START_SKIP_FRAGMENTS_AT_START  -1.792  ---           ---               ---             DFWNVGMIHK  LATHFDFSVWEGNQVLGGEVNMFGITETTIHVTA 
+
+
+Genome: BGC0002259
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002259.1
+NRP_variant: 0
+Score: -0.7277336284326377
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ CCM_01284  0             Bza                   ---                ---          ---            ---             ---        ---       START_SKIP_FRAGMENTS_AT_START  -1.792  ---           ---               ---             SHGYVGAIVK  NQMVFSHSYGIGYLVTGAALHAWGLTETCIVVTF 
+ CCM_01285  0             Phe                   EPIMERIZATION      Phe          L              False           Phe        2         MATCH                          1.145   3.142         0.081             -1.714          DAYLMIGIIK  SHSSFDAAIYEFLLMLIGEWNGYGPSECSIISSC 
+ CCM_01285  1             Aad                   EPIMERIZATION      Ala          L              False           Ala        1         MATCH                          0.123   1.765         0.081             -1.714          DLGIVGGMIK  SAQVFDLSIGDGIMVLGGEFNGYGPSECSMITTC 
+ CCM_01285  2             Aad                   EPIMERIZATION      Ile          D              False           Ile/aIle   3         MATCH                          0.341   -1.303        0.081             1.573           DMHMLGVIIK  ASHAFDMSLHDTMLLVGGEWHVYGPVECSIISTA 
+
+
+Genome: BGC0002259
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002259.0
+NRP_variant: 0
+Score: 2.4851016781282205
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ CCM_01284  0             Bza                   ---                ---          ---            ---             ---        ---       START_SKIP_FRAGMENTS_AT_START  -1.792  ---           ---               ---             SHGYVGAIVK  NQMVFSHSYGIGYLVTGAALHAWGLTETCIVVTF 
+ CCM_01285  0             Phe                   EPIMERIZATION      Phe          L              False           Phe        4         MATCH                          1.145   3.142         0.081             -1.714          DAYLMIGIIK  SHSSFDAAIYEFLLMLIGEWNGYGPSECSIISSC 
+ CCM_01285  1             Aad                   EPIMERIZATION      Ala          L              False           Ala        2         MATCH                          0.123   1.765         0.081             -1.714          DLGIVGGMIK  SAQVFDLSIGDGIMVLGGEFNGYGPSECSMITTC 
+ CCM_01285  2             Aad                   EPIMERIZATION      Leu          D              False           Leu        1         MATCH                          3.554   1.91          0.081             1.573           DMHMLGVIIK  ASHAFDMSLHDTMLLVGGEWHVYGPVECSIISTA 
+
+
+Genome: BGC0002172
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002172.2
+NRP_variant: 0
+Score: 12.55499687049399
+Alignment:
+ Gene        A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ FGSG_10990  0             Aad                   ---                Gly          UNKNOWN        False           Gly        7	     MATCH  -1.792  ---           ---               ---             DVTFMGVLWK  GDLVFDVSVTEAFLMLGGEINVYGSTESGLWDTA 
+ FGSG_13878  0             Bza                   EPIMERIZATION      ---          ---        ---		---        ---         SKIP_MODULE                          -0.295  -0.011        0.081             0               RASCIAAGYK  STNASRASISDFCLILAGEINAYAPTAALGYACC 
+ FGSG_13878  1             Aad                   EPIMERIZATION      Ala          L              False           Ala        6         MATCH                          0.108   1.75          0.081             -1.714          DVGFVGGIYK  SAHSFDVSLGETFMVCGGELHGYGPTEACIYAVS 
+ FGSG_13878  2             Ile                   EPIMERIZATION      unknown      UNKNOWN        False           X0         5         MATCH                          0.698   0.627         0.081             0               DAGFIGAVFK  GEHAFDATIGETFLICGGEIQAYGPTETCVFASI 
+ FGSG_13878  3             Aad                   EPIMERIZATION      Ser          D              False           Ser        4         MATCH                          4.444   2.8           0.081             1.573           DLGFAAAICK  VHFAFDLSVGEMFLALAGEVIAYGPAETTICCNA 
+ FGSG_13878  4             Aad                   EPIMERIZATION      Val          D              False           Val        3         MATCH                          3.843   2.199         0.081             1.573           DALFAGGALK  GAHSFDASILETFLALGGAVNGYGPTECCALSTH 
+ FGSG_13878  5             Aad                   EPIMERIZATION      Ser          D              False           Ser        2         MATCH                          4.444   2.8           0.081             1.573           DVGFVGGIWK  ATHAFDVSIGEYFLVLGGEISGYGPAETTIWCNA 
+ FGSG_13878  6             Aad                   EPIMERIZATION      Leu          D              False           Leu        1         MATCH                          3.376   1.732         0.081             1.573           --TLAGAVMK  ITSA----ATETLLALGGELHAYGPTECCVMCAY 
+ FGSG_13878  7             Aad                   ---                unknown      UNKNOWN        False           Leuol      8         MATCH                          -2.015  -2.086        0.081             0               DAIIIGAVMK  SAQAFDATMIETILIQGGEGNAYGPSECSVMASC 
+
+
 Genome: BGC0001716
 Contig_idx: 1
 BGC_idx: 1
@@ -19,53 +131,6 @@ Alignment:
  XNC2_2370  2             Lys                   ---                Gly          L              False           Gly        8         MATCH            -1.79   -1.895        0.081             0.034           DIESIGTIVK  YAIAFDIFIEELSVIVGGEFNTYGPTETTIVATA 
  ---        ---           ---                   ---                unknown      UNKNOWN        False           Put        7         START_INSERTING  -2.561  ---           ---               ---             ---         ---                                
 
-
-Genome: BGC0001402
-Contig_idx: 1
-BGC_idx: 1
-BGC_variant: 0
-NRP: BGC0001402.2
-NRP_variant: 0
-Score: 2.9624866402594767
-Alignment:
- Gene            A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- PISL3812_02619  0             Aad                   EPIMERIZATION      Ser          L              False           Ser        4         MATCH           1.194   2.836         0.081             -1.714          DVGQESTITK  FSLSFDVSLGNLQMELSGEMNTYSPAECTITTVG 
- PISL3812_02619  1             Aad                   EPIMERIZATION      Pro          L              False           Pro        3         MATCH           0.773   2.415         0.081             -1.714          DIHDVSAICK  THHAFDIAVHNMDIVLSGEINAYGPAECQICTIQ 
- PISL3812_02619  2             Aad                   EPIMERIZATION      unknown      L              False           Abu        2         MATCH           -0.807  0.835         0.081             -1.714          DAWFYGAPLK  AAQSFDANIWHLFLYLGGEWGAYGPTETTPLCIF 
- PISL3812_02619  3             Aad                   EPIMERIZATION      Ser          L              False           Ser        1         MATCH           1.133   2.775         0.081             -1.714          DVNEISVIEK  AHQAFDVSWNMKELILSGEMPVGAIGEIIIEGPI 
- PISL3812_02619  4             Aad                   ---                unknown      L              False           bPhe       5         MATCH           0.973   0.868         0.081             0.034           DAFQITVILK  AHHSFDACIFNYQLILTGEFNVYGPTECTILCSI 
-
-
-Genome: BGC0001402
-Contig_idx: 1
-BGC_idx: 1
-BGC_variant: 0
-NRP: BGC0001402.1
-NRP_variant: 0
-Score: 0.6219375063134045
-Alignment:
- Gene            A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- PISL3812_02619  0             Aad                   EPIMERIZATION      Ser          L              False           Ser        5         MATCH           1.194   2.836         0.081             -1.714          DVGQESTITK  FSLSFDVSLGNLQMELSGEMNTYSPAECTITTVG 
- PISL3812_02619  1             Aad                   EPIMERIZATION      Pro          L              False           Cl2-Pro    4         MATCH           0.773   2.415         0.081             -1.714          DIHDVSAICK  THHAFDIAVHNMDIVLSGEINAYGPAECQICTIQ 
- PISL3812_02619  2             Aad                   EPIMERIZATION      Thr          L              False           aThr/Thr   3         MATCH           -3.148  -1.505        0.081             -1.714          DAWFYGAPLK  AAQSFDANIWHLFLYLGGEWGAYGPTETTPLCIF 
- PISL3812_02619  3             Aad                   EPIMERIZATION      Ser          L              False           Ser        2         MATCH           1.133   2.775         0.081             -1.714          DVNEISVIEK  AHQAFDVSWNMKELILSGEMPVGAIGEIIIEGPI 
- PISL3812_02619  4             Aad                   ---                unknown      L              False           bPhe       1         MATCH           0.973   0.868         0.081             0.034           DAFQITVILK  AHHSFDACIFNYQLILTGEFNVYGPTECTILCSI 
-
-
-Genome: BGC0001402
-Contig_idx: 1
-BGC_idx: 1
-BGC_variant: 0
-NRP: BGC0001402.0
-NRP_variant: 0
-Score: 2.9624866402594767
-Alignment:
- Gene            A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- PISL3812_02619  0             Aad                   EPIMERIZATION      Ser          L              False           Ser        3         MATCH           1.194   2.836         0.081             -1.714          DVGQESTITK  FSLSFDVSLGNLQMELSGEMNTYSPAECTITTVG 
- PISL3812_02619  1             Aad                   EPIMERIZATION      Pro          L              False           Cl2-Pro    5         MATCH           0.773   2.415         0.081             -1.714          DIHDVSAICK  THHAFDIAVHNMDIVLSGEINAYGPAECQICTIQ 
- PISL3812_02619  2             Aad                   EPIMERIZATION      unknown      L              False           Abu        2         MATCH           -0.807  0.835         0.081             -1.714          DAWFYGAPLK  AAQSFDANIWHLFLYLGGEWGAYGPTETTPLCIF 
- PISL3812_02619  3             Aad                   EPIMERIZATION      Ser          L              False           Ser        1         MATCH           1.133   2.775         0.081             -1.714          DVNEISVIEK  AHQAFDVSWNMKELILSGEMPVGAIGEIIIEGPI 
- PISL3812_02619  4             Aad                   ---                unknown      L              False           bPhe       4         MATCH           0.973   0.868         0.081             0.034           DAFQITVILK  AHHSFDACIFNYQLILTGEFNVYGPTECTILCSI 
 
 
 Genome: BGC0001346
