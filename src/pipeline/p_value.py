@@ -1,6 +1,6 @@
 from typing import List, Tuple, NamedTuple, NewType
-import math
 import numpy as np
+from numpy.typing import NDArray
 
 StateIdx = NewType('StateIdx', int)
 LogProb = NewType('LogProb', float | float('-inf'))
@@ -22,28 +22,30 @@ class HMM(NamedTuple):
 
 
 class PValueEstimator:
-    def __init__(self, hmm: HMM):
-        self.hmm = hmm
-        self.p_values = compute_hmm_p_values(hmm)
+    _p_values: NDArray[np.float64]
 
-    def __call__(self, threshold_score: LogProb) -> Prob:
-        disc_threshold_score = to_discrete_prob(threshold_score)
-        p_value = self.p_values[disc_threshold_score]
+    def __init__(self, hmm: HMM):
+        self._p_values = compute_hmm_p_values(hmm)
+
+    def __call__(self, path_log_prob: LogProb) -> Prob:
+        disc_threshold_score = to_discrete_prob(path_log_prob)
+        p_value = self._p_values[disc_threshold_score]
         return p_value
 
 
-def to_discrete_prob(prob: LogProb) -> DiscreteProb:
-    if prob < LOG_PROB_MIN_VALUE:
+
+def to_discrete_prob(log_prob: LogProb) -> DiscreteProb:
+    if log_prob < LOG_PROB_MIN_VALUE:
         return MIN_DISCRETE_PROB
     else:
         # Map [LOG_PROB_MIN_VALUE, LOG_PROB_MAX_VALUE] to [MIN_DISCRETE_PROB, MAX_DISCRETE_PROB]
-        disc_prob = round(MIN_DISCRETE_PROB + (prob - LOG_PROB_MIN_VALUE) /
+        disc_prob = round(MIN_DISCRETE_PROB + (log_prob - LOG_PROB_MIN_VALUE) /
                             (LOG_PROB_MAX_VALUE - LOG_PROB_MIN_VALUE) * (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB))
 
         return DiscreteProb(disc_prob)
 
 
-def to_prob(disc_prob: DiscreteProb) -> LogProb:
+def to_log_prob(disc_prob: DiscreteProb) -> LogProb:
     if disc_prob == MIN_DISCRETE_PROB:
         return float('-inf')
     else:
@@ -53,7 +55,13 @@ def to_prob(disc_prob: DiscreteProb) -> LogProb:
         return LogProb(log_prob)
 
 
-def compute_hmm_p_values(hmm: HMM) -> np.ndarray:
+def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
+    """
+    Returns an array p_values of length (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1).
+    For each k, the element p_values[k] is the probability of finding a path with
+    the score to_log_prob(k) or higher in the HMM. One path with exactly that score
+    is not counted in the probability.
+    """
     num_states = len(hmm.transitions)
     initial_state = 0
     final_state = num_states - 1
@@ -73,7 +81,7 @@ def compute_hmm_p_values(hmm: HMM) -> np.ndarray:
                 continue
 
             number_of_paths = dp[state, disc_prob]
-            path_prob = to_prob(DiscreteProb(disc_prob))
+            path_prob = to_log_prob(DiscreteProb(disc_prob))
 
             # Process each outgoing transition
             for next_state, transition_prob in hmm.transitions[state]:
@@ -90,20 +98,22 @@ def compute_hmm_p_values(hmm: HMM) -> np.ndarray:
 
                     dp[next_state][disc_new_path_prob] += number_of_paths
 
-    p_values = np.zeros((MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1), dtype=float)
+    p_values = np.zeros((MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1), dtype=np.float64)
 
-    for k in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
-        p_value = 0.0
-        for disc_prob in range(k, MAX_DISCRETE_PROB + 1):
-            actual_prob = math.exp(to_prob(DiscreteProb(disc_prob)))
-            p_value += actual_prob * dp[final_state, disc_prob]
+    p_values[MAX_DISCRETE_PROB] = (np.exp(to_log_prob(DiscreteProb(MAX_DISCRETE_PROB)))
+                                   * dp[final_state, MAX_DISCRETE_PROB])
 
-        # Not count the contribution of the found path itself
-        p_value -= math.exp(to_prob(DiscreteProb(k)))
+    # Iterate over probabilities from highest to lowest
+    for disc_prob in range(MAX_DISCRETE_PROB - 1, MIN_DISCRETE_PROB - 1, -1):
+        actual_prob = np.exp(to_log_prob(DiscreteProb(disc_prob)))
+        p_values[disc_prob] = p_values[disc_prob + 1] + actual_prob * dp[final_state, disc_prob]
 
-        # Prevent possible miscalculation caused by discretization
-        p_value = min(max(p_value, 0.0), 1.0)
+    # Not count the contribution of the found path itself
+    indices = np.arange(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1)
+    contributions = np.array([np.exp(to_log_prob(DiscreteProb(k + MIN_DISCRETE_PROB))) for k in indices])
+    p_values -= contributions
 
-        p_values[k] = Prob(p_value)
+    # Prevent possible miscalculation caused by discretization
+    p_values = np.clip(p_values, 0.0, 1.0)
 
     return p_values
