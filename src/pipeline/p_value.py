@@ -33,7 +33,6 @@ class PValueEstimator:
         return p_value
 
 
-
 def to_discrete_prob(log_prob: LogProb) -> DiscreteProb:
     if log_prob < LOG_PROB_MIN_VALUE:
         return MIN_DISCRETE_PROB
@@ -47,7 +46,7 @@ def to_discrete_prob(log_prob: LogProb) -> DiscreteProb:
 
 def to_log_prob(disc_prob: DiscreteProb) -> LogProb:
     if disc_prob == MIN_DISCRETE_PROB:
-        return float('-inf')
+        return LogProb(float('-inf'))
     else:
         # Map [MIN_DISCRETE_PROB, MAX_DISCRETE_PROB] to [LOG_PROB_MIN_VALUE, LOG_PROB_MAX_VALUE]
         log_prob = (LOG_PROB_MIN_VALUE + (disc_prob - MIN_DISCRETE_PROB) /
@@ -70,10 +69,10 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
     # having discretized probability 'discrete_prob'
     dp = np.zeros((num_states, MAX_DISCRETE_PROB + 1), dtype=int)
 
-    dp[initial_state][MAX_DISCRETE_PROB] = 1
+    dp[initial_state, MAX_DISCRETE_PROB] = 1
 
     # Iterate over probabilities first, from highest to lowest
-    for disc_prob in range(MAX_DISCRETE_PROB, MIN_DISCRETE_PROB - 1, -1):
+    for disc_prob in map(DiscreteProb, range(MAX_DISCRETE_PROB, MIN_DISCRETE_PROB - 1, -1)):
         # Then iterate over states
         for state in range(num_states):
             # Skip if no paths with this probability for this state
@@ -81,7 +80,7 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
                 continue
 
             number_of_paths = dp[state, disc_prob]
-            path_prob = to_log_prob(DiscreteProb(disc_prob))
+            path_prob = to_log_prob(disc_prob)
 
             # Process each outgoing transition
             for next_state, transition_prob in hmm.transitions[state]:
@@ -98,19 +97,19 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
 
                     dp[next_state][disc_new_path_prob] += number_of_paths
 
+    def to_prob(disc_prob: DiscreteProb) -> np.float64:
+        return np.exp(to_log_prob(DiscreteProb(disc_prob)))
+
     p_values = np.zeros((MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1), dtype=np.float64)
 
-    p_values[MAX_DISCRETE_PROB] = (np.exp(to_log_prob(DiscreteProb(MAX_DISCRETE_PROB)))
-                                   * dp[final_state, MAX_DISCRETE_PROB])
+    p_values[MAX_DISCRETE_PROB] = to_prob(MAX_DISCRETE_PROB) * dp[final_state, MAX_DISCRETE_PROB]
 
     # Iterate over probabilities from highest to lowest
-    for disc_prob in range(MAX_DISCRETE_PROB - 1, MIN_DISCRETE_PROB - 1, -1):
-        actual_prob = np.exp(to_log_prob(DiscreteProb(disc_prob)))
-        p_values[disc_prob] = p_values[disc_prob + 1] + actual_prob * dp[final_state, disc_prob]
+    for disc_prob in map(DiscreteProb, range(MAX_DISCRETE_PROB - 1, MIN_DISCRETE_PROB - 1, -1)):
+        p_values[disc_prob] = p_values[disc_prob + 1] + to_prob(disc_prob) * dp[final_state, disc_prob]
 
     # Not count the contribution of the found path itself
-    indices = np.arange(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1)
-    contributions = np.array([np.exp(to_log_prob(DiscreteProb(k + MIN_DISCRETE_PROB))) for k in indices])
+    contributions = np.array([to_prob(k) for k in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1)])
     p_values -= contributions
 
     # Prevent possible miscalculation caused by discretization
