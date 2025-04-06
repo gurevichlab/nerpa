@@ -15,6 +15,10 @@ from datetime import datetime
 from argparse import Namespace as CommandLineArgs
 import pandas as pd
 from collections import defaultdict
+
+from scipy.signal import residue
+
+from src.data_types import Prob
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     MonomerResidue,
@@ -60,11 +64,33 @@ def get_aa_codes(aa_codes_tsv: Path,
     return aa10_codes, aa34_codes
 
 
+def get_residue_frequencies(norine_monomers_info: Path,
+                            monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
+     norine_monomers = yaml.safe_load(open(norine_monomers_info))
+     residue_frequencies: Dict[MonomerResidue, Prob] = defaultdict(float)
+     for mon_name, frequency in norine_monomers['monomer_frequencies'].items():
+         residue = monomer_names_helper.parsed_name(mon_name, 'antismash').residue
+         residue_frequencies[residue] += frequency
+
+     # assign minimal frequencies to residues not present in the table and normalize
+     min_freq = min(residue_frequencies.values())
+     for residue in monomer_names_helper.supported_residues:
+         if residue not in residue_frequencies:
+             residue_frequencies[residue] = min_freq
+
+     total = sum(residue_frequencies.values())
+     for residue in residue_frequencies:
+         residue_frequencies[residue] /= total
+
+     return residue_frequencies
+
+
 @dataclass
 class SpecificityPredictionConfig:
     nerpa_specificity_prediction_model: Path
     paras_model: Optional[Path]
     a_domains_signatures: Path
+    norine_monomers_info: Path
     KNOWN_AA10_CODES: Dict[MonomerResidue, List[AA10]]
     KNOWN_AA34_CODES: Dict[MonomerResidue, List[AA34]]
     SVM_SUBSTRATES: List[str]
@@ -72,9 +98,9 @@ class SpecificityPredictionConfig:
     SVM_NO_PREDICTION_SCORE: float
     SCORING_TABLE_INDEX: str
     SCORING_TABLE_COLUMNS: List[str]
-    APRIORI_RESIDUE_PROB: Dict[str, float]
-    CALIBRATION_STEP_FUNCTION_STEPS_NERPA: List[float]
-    CALIBRATION_STEP_FUNCTION_STEPS_PARAS: List[float]
+    APRIORI_RESIDUE_PROB: Dict[MonomerResidue, Prob]
+    CALIBRATION_STEP_FUNCTION_STEPS_NERPA: List[Prob]
+    CALIBRATION_STEP_FUNCTION_STEPS_PARAS: List[Prob]
     PSEUDO_COUNT_FRACTION: float
 
     ENABLE_DICTIONARY_LOOKUP: bool  # if True, use the dictionary lookup for known aa34 codes
@@ -92,6 +118,9 @@ class SpecificityPredictionConfig:
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
         self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures,
                                                                     monomer_names_helper)
+        self.norine_monomers_info = nerpa_dir / Path(cfg_dict['norine_monomers_info'])
+        self.APRIORI_RESIDUE_PROB = get_residue_frequencies(self.norine_monomers_info,
+                                                            monomer_names_helper)
 
         if args is not None and args.disable_dictionary_lookup is not None:
             self.ENABLE_DICTIONARY_LOOKUP = not args.disable_dictionary_lookup

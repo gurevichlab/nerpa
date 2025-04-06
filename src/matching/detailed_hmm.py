@@ -102,7 +102,9 @@ class DetailedHMM:
                          for mon in emitted_monomers]
         score, path = get_opt_path_with_score(hmm=self.to_hmm(),
                                               observed_sequence=monomer_codes,
-                                              checkpoints=[(start_state, 0), (finish_state, len(emitted_monomers))])
+                                              start_state=start_state,
+                                              finish_state=finish_state)
+
         emitted_monomers_iter = iter(emitted_monomers)
         path_with_emissions = []
         for state_idx in path:

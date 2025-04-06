@@ -14,6 +14,7 @@ def main(log: NerpaLogger):  # log is passed as an argument to make it easier to
     pipeline_helper = PipelineHelper(log)
 
     bgc_variants = pipeline_helper.get_bgc_variants()
+    #bgc_variants[2].modules[1].residue_score['unknown'] = 5.0
     hmms = pipeline_helper.construct_hmms(bgc_variants)
 
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()

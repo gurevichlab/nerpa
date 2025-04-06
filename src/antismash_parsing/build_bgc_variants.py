@@ -16,7 +16,7 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     Gene,
     SVM_LEVEL,
-    SVM_Prediction, BGC_Module_ID
+    SVM_Prediction, BGC_Module_ID, Fragmented_BGC_Cluster
 )
 from src.antismash_parsing.determine_modifications import (
     get_modules_modifications,
@@ -37,13 +37,7 @@ from src.config import antiSMASH_Processing_Config, SpecificityPredictionConfig
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
 from src.generic.string import hamming_distance
 from src.generic.functional import cached_by_key
-from src.antismash_parsing.genomic_context import (
-    FragmentGenomicContext,
-    GeneGenomicContext,
-    get_bgc_fragment_genomic_context,
-    get_gene_genomic_context,
-    get_module_genomic_context,
-)
+from src.antismash_parsing.genomic_context import get_modules_genomic_context
 from itertools import chain
 
 
@@ -56,21 +50,19 @@ def get_residue_scores(a_domain: A_Domain,
             for res, prob in predictions.items()}
 
 
-def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
+def build_bgc_assembly_line(fragmented_bgc: Fragmented_BGC_Cluster,
                             specificity_prediction_helper: SpecificityPredictionHelper)\
         -> List[BGC_Module]:
 
-    iterative_genes = get_iterative_genes(bgc_fragments)
-    iterative_modules_ids = get_iterative_modules_ids(bgc_fragments)
-    module_mods = get_modules_modifications(bgc_fragments)
+    genes = list(chain(*fragmented_bgc.fragments))
+    iterative_genes = get_iterative_genes(genes)
+    iterative_modules_ids = get_iterative_modules_ids(genes)
+    module_mods = get_modules_modifications(genes)
+    module_id_to_genomic_context = get_modules_genomic_context(genes)
 
     modules = []
-    for bgc_fragment_idx, bgc_fragment in enumerate(bgc_fragments):
-        fragment_context = get_bgc_fragment_genomic_context(bgc_fragment_idx, bgc_fragments)
-        for gene_idx, gene in enumerate(bgc_fragment.genes):
-            gene_context = get_gene_genomic_context(gene_idx,
-                                                    bgc_fragment.genes,
-                                                    fragment_context)
+    for bgc_fragment_idx, bgc_fragment_genes in enumerate(fragmented_bgc.fragments):
+        for gene_idx, gene in enumerate(bgc_fragment_genes):
 
             a_domain_idx = -1  # not the same as module_idx because modules with no a_domain are skipped
             for module_idx, module in enumerate(gene.modules):
@@ -78,7 +70,7 @@ def build_bgc_assembly_line(bgc_fragments: List[BGC_Cluster],
                     continue
                 a_domain_idx += 1
                 module_id = BGC_Module_ID(gene.gene_id, module_idx)
-                module_genomic_context = get_module_genomic_context(module_idx, gene, gene_context)
+                module_genomic_context = module_id_to_genomic_context[module_id]
 
                 residue_scores = get_residue_scores(module.a_domain, specificity_prediction_helper)
                 modules.append(BGC_Module(gene_id=gene.gene_id,
@@ -102,16 +94,12 @@ def build_bgc_variants(bgc: BGC_Cluster,
     if not any(module.a_domain is not None
                for gene in bgc.genes
                for module in gene.modules):
-        log.info(f'WARNING: BGC {bgc.bgc_idx} has no genes with A-domains. Skipping.')
+        log.info(f'WARNING: BGC {bgc.bgc_id} has no genes with A-domains. Skipping.')
         return []
-    raw_fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
+    fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
 
-    bgc_id = BGC_ID(genome_id=bgc.genome_id,
-                    contig_idx=bgc.contig_idx,
-                    bgc_idx=bgc.bgc_idx)
-
-    return [BGC_Variant(bgc_variant_id=BGC_Variant_ID(bgc_id=bgc_id, variant_idx=idx),
+    return [BGC_Variant(bgc_variant_id=BGC_Variant_ID(bgc_id=bgc.bgc_id, variant_idx=idx),
                         modules=assembly_line)
-            for idx, raw_fragmented_bgc in enumerate(raw_fragmented_bgcs)
-            if (assembly_line := build_bgc_assembly_line(raw_fragmented_bgc,
+            for idx, fragmented_bgc in enumerate(fragmented_bgcs)
+            if (assembly_line := build_bgc_assembly_line(fragmented_bgc,
                                                          specificity_prediction_helper))]

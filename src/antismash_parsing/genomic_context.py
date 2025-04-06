@@ -4,7 +4,7 @@ from typing import (
     NewType,
     Optional,
     Tuple,
-    Union
+    Union, Dict
 )
 from enum import Enum, auto
 from itertools import (
@@ -15,26 +15,69 @@ from itertools import (
 from src.antismash_parsing.antismash_parser_types import (
     BGC_Cluster,
     DomainType,
-    Gene
+    Gene, GeneId, BGC_Module_ID
 )
 from src.monomer_names_helper import enum_representer
 import yaml
 
 class ModuleGenomicContextFeature(Enum):
-    START_OF_BGC = auto()
-    END_OF_BGC = auto()
-    START_OF_FRAGMENT = auto()
-    END_OF_FRAGMENT = auto()
     START_OF_GENE = auto()
     END_OF_GENE = auto()
-    PKS_UPSTREAM_PREV_GENE = auto()
-    PKS_UPSTREAM_SAME_GENE = auto()
-    PKS_DOWNSTREAM_NEXT_GENE = auto()
-    PKS_DOWNSTREAM_SAME_GENE = auto()
+    PKS_UPSTREAM = auto()
+    PKS_DOWNSTREAM = auto()
+    ONLY_A_DOMAIN = auto()  # the module has only A domain, no other domains
 
 yaml.add_representer(ModuleGenomicContextFeature, enum_representer)
 
+ModuleGenomicContext = Tuple[ModuleGenomicContextFeature, ...]
 
+
+def get_modules_genomic_context(genes: List[Gene]) -> Dict[BGC_Module_ID, ModuleGenomicContext]:
+    module_id_to_genomic_context = {}
+    for gene_idx, gene in enumerate(genes):
+        for module_idx, module in enumerate(gene.modules):
+            if module.a_domain is None:
+                continue
+
+            fst_module_with_a_domain = not any(DomainType.A in module.domains_sequence
+                                               for module in gene.modules[:module_idx])
+            last_module_with_a_domain = not any(DomainType.A in module.domains_sequence
+                                                for module in gene.modules[module_idx + 1:])
+
+            if gene_idx > 0:
+                upstream_modules = genes[gene_idx - 1].modules
+                pks_upstream = (
+                        any(DomainType.PKS in m.domains_sequence for m in upstream_modules)
+                        and not any(DomainType.A in m.domains_sequence for m in upstream_modules)
+                )
+            else:
+                pks_upstream = False
+
+            downstream_modules_same_gene = takewhile(lambda module: module.a_domain is not None,
+                                                    gene.modules[module_idx + 1:])
+            if gene_idx < len(genes) - 1:
+                downstream_modules_next_gene = takewhile(lambda module: module.a_domain is not None,
+                                                        genes[gene_idx + 1].modules)
+            else:
+                downstream_modules_next_gene = []
+            pks_downstream = any(DomainType.PKS in m.domains_sequence
+                                 for m in chain(downstream_modules_same_gene,
+                                                downstream_modules_next_gene))
+
+            module_id_to_genomic_context[BGC_Module_ID(gene.gene_id, module_idx)] = \
+                tuple(feature
+                      for feature, is_present in [
+                            (ModuleGenomicContextFeature.START_OF_GENE, fst_module_with_a_domain),
+                            (ModuleGenomicContextFeature.END_OF_GENE, last_module_with_a_domain),
+                            (ModuleGenomicContextFeature.PKS_UPSTREAM, pks_upstream),
+                            (ModuleGenomicContextFeature.PKS_DOWNSTREAM, pks_downstream),
+                            (ModuleGenomicContextFeature.ONLY_A_DOMAIN, module.domains_sequence == [DomainType.A])
+                        ] if is_present)
+
+    return module_id_to_genomic_context
+
+
+'''
 class GeneGenomicContextFeature(Enum):
     START_OF_BGC = auto()
     END_OF_BGC = auto()
@@ -53,7 +96,6 @@ class FragmentGenomicContextFeature(Enum):
 
 yaml.add_representer(FragmentGenomicContextFeature, enum_representer)
 
-ModuleGenomicContext = Tuple[ModuleGenomicContextFeature, ...]
 GeneGenomicContext = Tuple[GeneGenomicContextFeature, ...]
 FragmentGenomicContext = Tuple[FragmentGenomicContextFeature, ...]
 
@@ -157,6 +199,9 @@ def get_module_genomic_context(module_idx: int,
         (ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE,
          GeneGenomicContextFeature.PKS_DOWNSTREAM in gene_features and last_module_with_a_domain),
         (ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE,
-         find_pks_downstream(gene, module_idx))
+         find_pks_downstream(gene, module_idx)),
+        (ModuleGenomicContextFeature.ONLY_A_DOMAIN,
+         gene.modules[module_idx] == [DomainType.A])
     ]
     return tuple(compress(*zip(*pairs)))
+'''
