@@ -101,11 +101,11 @@ class AlignmentStep:
                                  for mod in data['Modifying_domains'].split(',')] \
                 if data['Modifying_domains'] != AlignmentStep.NA else []
             bgc_module = AlignmentStep_BGC_Module_Info(gene_id=data['Gene'],
-                                                            a_domain_idx=int(data['A-domain_idx']),
-                                                            top_scoring_residues=data['Top_scoring_residues'].split(','),
-                                                            modifying_domains=modifying_domains,
-                                                            aa10_code=data.get('aa10_code', AlignmentStep.NA),
-                                                            aa34_code=data.get('aa34_code', AlignmentStep.NA))
+                                                       a_domain_idx=int(data['A-domain_idx']),
+                                                       top_scoring_residues=data['Top_scoring_residues'].split(','),
+                                                       modifying_domains=modifying_domains,
+                                                       aa10_code=data.get('aa10_code', AlignmentStep.NA),
+                                                       aa34_code=data.get('aa34_code', AlignmentStep.NA))
 
         # get nrp monomer info
         if data['NRP_residue'] == AlignmentStep.NA:
@@ -132,9 +132,12 @@ class AlignmentStep:
         step_type = DetailedHMMEdgeType[data['Alignment_step']] \
             if data['Alignment_step'] in DetailedHMMEdgeType.__members__ else None  # for backward compatibility
         if step_type == DetailedHMMEdgeType.MATCH:
-            match_detailed_score = MatchDetailedScore(residue_score=float(data['ResidueScore']),
-                                                      methylation_score=float(data['MethylationScore']),
-                                                      chirality_score=float(data['ChiralityScore']))
+            try:
+                match_detailed_score = MatchDetailedScore(residue_score=float(data['ResidueScore']),
+                                                          methylation_score=float(data['MethylationScore']),
+                                                          chirality_score=float(data['ChiralityScore']))
+            except:
+                match_detailed_score = None  # for backward compatibility
         else:
             match_detailed_score = None
 

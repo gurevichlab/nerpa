@@ -1,6 +1,6 @@
-epimerized: 2030
+d_chirality: 2030
 methylated: 1081
-residue_frequencies:
+monomer_frequencies:
   Aad: 0.0002610966057441253
   Abu: 0.013228894691035683
   Acc: 8.703220191470844e-05
@@ -67,5 +67,5 @@ residue_frequencies:
   cohOhi: 8.703220191470844e-05
   dHpg: 0.004525674499564839
   oxoDec: 0.00017406440382941688
-  unknown: 0.09730200174064405
+  X: 0.09730200174064405  # unknown
 total_monomers: 11490

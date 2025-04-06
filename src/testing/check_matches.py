@@ -35,27 +35,32 @@ def nrp_monomers_coincide(monomer_test: rBAN_Monomer,
         (monomer_test.rban_name[0] == monomer_approved.rban_name[0] == 'X')
 
 
-def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep,
-                   indexes_offset: int = 0) -> bool:
+def steps_coincide(step_test: AlignmentStep,
+                   step_approved: AlignmentStep,
+                   indexes_offset: int = 0,
+                   print_feedback: bool = False) -> bool:
     result = True
     if step_test.step_type != step_approved.step_type:
-        print('Wrong step type')
+        if print_feedback:
+            print('Wrong step type')
         result = False
 
     # compare BGC module info
     if step_test.bgc_module is not None and \
             not bgc_modules_coincide(step_test.bgc_module, step_approved.bgc_module,
                                      indexes_offset):
-        print('BGC modules are different')
+        if print_feedback:
+            print('BGC modules are different')
         result = False
 
     # compare NRP monomer info
     if step_test.nrp_monomer is not None and \
             not nrp_monomers_coincide(step_test.nrp_monomer, step_approved.nrp_monomer):
-        print('NRP monomers are different')
+        if print_feedback:
+            print('NRP monomers are different')
         result = False
 
-    if not result:
+    if not result and print_feedback:
         print('Test step:')
         print(step_test)
         print('Approved step:')
@@ -68,7 +73,8 @@ def steps_coincide(step_test: AlignmentStep, step_approved: AlignmentStep,
 # because the other steps can differ for different versions of Nerpa
 def alignments_coincide(alignment1: Alignment,
                         alignment2: Alignment,
-                        indexes_offset: int = 0) -> bool:
+                        indexes_offset: int = 0,
+                        print_feedback: bool = False) -> bool:
     min_idx1 = min([step.bgc_module.a_domain_idx
                     for step in alignment1
                     if step.bgc_module is not None])
@@ -79,9 +85,10 @@ def alignments_coincide(alignment1: Alignment,
     match_steps1 = [step for step in alignment1 if step.step_type == DetailedHMMEdgeType.MATCH]
     match_steps2 = [step for step in alignment2 if step.step_type == DetailedHMMEdgeType.MATCH]
     if len(match_steps1) != len(match_steps2):
-        print('Different number of MATCH steps')
+        if print_feedback:
+            print('Different number of MATCH steps')
         return False
-    return all(steps_coincide(step1, step2, indexes_offset)
+    return all(steps_coincide(step1, step2, indexes_offset, print_feedback)
                for step1, step2 in zip(match_steps1,
                                        match_steps2))
 
@@ -120,7 +127,7 @@ def find_wrong_matches(matches: List[Match], approved_matches: List[Match]) -> C
             print(f'WARNING: match for {nrp_id} is missing')
             missing_cnt += 1
             continue
-        print('Testing ', nrp_id)
+        #print('Testing ', nrp_id)
         if not matches_coincide(test_match, approved_match):
             wrong_matches.append(MatchPair(test_match, approved_match))
 

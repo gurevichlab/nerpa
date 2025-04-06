@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]
+
     '''
     Given an alignment, return the path through the HMM that corresponds to it.
     The path is a sequence of state indices in the HMM.
@@ -106,7 +107,11 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                         log_prob = 0
                 sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(weight=log_prob)
         # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
-        path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
+        try:
+            path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
+        except:
+            print(f'start: {start}, finish: {finish}, emitted_monomers: {emitted_monomers}')
+            raise
 
     return path_with_emissions
 

@@ -58,10 +58,8 @@ def get_iterative_genes_orphan_c(genes: List[Gene]) -> Set[GeneId]:
     return iterative_genes_ids
 
 
-def get_iterative_genes(bgc_fragments: List[BGC_Cluster]) -> Set[GeneId]:
-    genes = [gene
-             for bgc_fragment in bgc_fragments
-             for gene in bgc_fragment.genes]
+def get_iterative_genes(_genes: List[Gene]) -> Set[GeneId]:
+    genes = _genes[:]  # make a copy to avoid modifying the original list
     genes.sort(key=lambda gene: (gene.coords.start, gene.coords.strand))
 
     iterative_genes_orphan_c = get_iterative_genes_orphan_c(genes)
@@ -98,20 +96,15 @@ def get_iterative_modules_ids_gene(gene: Gene) -> Set[BGC_Module_ID]:
             for module_idx in modules_idxs}
 
 
-def get_iterative_modules_ids(bgc_fragments: List[BGC_Cluster]) -> Set[BGC_Module_ID]:
-    genes = [gene
-             for bgc_fragment in bgc_fragments
-             for gene in bgc_fragment.genes]
-
+def get_iterative_modules_ids(genes: List[Gene]) -> Set[BGC_Module_ID]:
     return {bgc_module_id
             for gene in genes
             for bgc_module_id in get_iterative_modules_ids_gene(gene)}
 
 
-def get_modules_modifications(bgc_fragments: List[BGC_Cluster]) -> Dict[BGC_Module_ID, Tuple[BGC_Module_Modification, ...]]:
+def get_modules_modifications(genes: List[Gene]) -> Dict[BGC_Module_ID, Tuple[BGC_Module_Modification, ...]]:
     modules_with_ids = [(BGC_Module_ID(gene.gene_id, module_idx), module)
-                        for bgc_fragment in bgc_fragments
-                        for gene in bgc_fragment.genes
+                        for gene in genes
                         for module_idx, module in enumerate(gene.modules)]
 
     mods_by_module_id = {}

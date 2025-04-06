@@ -64,7 +64,7 @@ def load_bgc_variants_for_matches(matches: List[Match],
             with open('warning.txt', 'w') as f:
                 f.write(f'WARNING! No compatible BGC variant for {nrp_id}\n')
                 f.write(f'Match:\n {match}\n')
-            raise
+            continue
         nrp_id_to_bgc_variant[nrp_id] = bgc_variant
     return nrp_id_to_bgc_variant
 

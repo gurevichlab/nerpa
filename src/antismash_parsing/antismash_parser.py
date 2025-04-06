@@ -21,6 +21,7 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND
 )
 from src.config import antiSMASH_Processing_Config
+from src.data_types import BGC_ID
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     AA10,
@@ -165,8 +166,7 @@ def extract_modules(gene_id: str,  # only for error messages
 
         if a_domain_coords.end < module['components'][0]['domain']['query_start']:  # orphan A-domain (not inside any module)
             modules.append(Module(a_domain=a_domain,
-                                  domains_sequence=[DomainType.A],
-                                  orphan_a_domain=True))
+                                  domains_sequence=[DomainType.A]))
             a_domain_with_coords = next(a_domains_iter, None)
         elif a_domain_coords.start > module['components'][-1]['domain']['query_end']:  # module without A-domain
             modules.append(Module(a_domain=None,
@@ -185,8 +185,7 @@ def extract_modules(gene_id: str,  # only for error messages
     while a_domain_with_coords is not None:
         a_domain, a_domain_coords = a_domain_with_coords
         modules.append(Module(a_domain=a_domain,
-                              domains_sequence=[DomainType.A],
-                              orphan_a_domain=True))
+                              domains_sequence=[DomainType.A]))
         a_domain_with_coords = next(a_domains_iter, None)
 
     return modules
@@ -265,9 +264,9 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
                          if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
 
             if bgc_genes:
-                bgcs.append(BGC_Cluster(genome_id=genome_id,
-                                        contig_idx=ctg_idx,
-                                        bgc_idx=bgc_idx,
+                bgcs.append(BGC_Cluster(bgc_id=BGC_ID(genome_id=genome_id,
+                                                      contig_idx=ctg_idx,
+                                                      bgc_idx=bgc_idx),
                                         genes=bgc_genes))
     return bgcs
 

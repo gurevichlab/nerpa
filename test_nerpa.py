@@ -47,8 +47,8 @@ def run_nerpa(nerpa_dir: Path,
     # Construct the command
     command = [
         "python3", str(nerpa_script),
-        #"--antismash", str(antismash_jsons),
-        "--antismash-paths-file", str(antismash_paths),
+        "--antismash", str(antismash_jsons),
+        #"--antismash-paths-file", str(antismash_paths),
         "--rban-json", str(rban_inputs),
         #"--paras-results", str(nerpa_dir / "paras/antismash7.1_nrps"),
         "--output-dir", str(output_dir),

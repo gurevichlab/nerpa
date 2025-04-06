@@ -10,7 +10,7 @@ class NorineStats:
     total_monomers: int
     methylated: int
     d_chirality: int
-    residue_frequencies: Dict[MonomerResidue, float]
+    monomer_frequencies: Dict[MonomerResidue, float]
 
 
 def load_norine_stats(norine_stats_file: Path) -> NorineStats:

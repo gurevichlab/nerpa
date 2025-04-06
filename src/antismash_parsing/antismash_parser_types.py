@@ -14,6 +14,7 @@ from src.monomer_names_helper import (
     AA10,
     AA34
 )
+from src.data_types import BGC_ID
 
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
@@ -101,13 +102,8 @@ class BGC_Module_ID(NamedTuple):
 
 @dataclass
 class Module:
-    a_domain: Optional[A_Domain] = None
-    domains_sequence: List[DomainType] = None
-    orphan_a_domain: bool = False
-
-    def __post_init__(self):
-        if self.domains_sequence is None:
-            self.domains_sequence = []
+    a_domain: Optional[A_Domain]
+    domains_sequence: List[DomainType]
 
 
 @dataclass
@@ -121,9 +117,7 @@ class Gene:
 
 @dataclass
 class BGC_Cluster:
-    genome_id: str
-    contig_idx: int
-    bgc_idx: int
+    bgc_id: BGC_ID
     genes: List[Gene]
 
     def has_pks_domains(self) -> bool:
@@ -135,3 +129,10 @@ class BGC_Cluster:
         return any(module.a_domain is not None
                    for gene in self.genes
                    for module in gene.modules)
+
+
+@dataclass
+class Fragmented_BGC_Cluster:
+    bgc_id: BGC_ID
+    fragments: List[List[Gene]]
+

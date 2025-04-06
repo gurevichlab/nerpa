@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Tuple
 from src.matching.alignment_type import Alignment
 from src.data_types import GeneId
 from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.match_type import Match
 from src.data_types import GeneId, BGC_Variant
 from src.generic.combinatorics import is_subsequence, filter_unique
-from itertools import pairwise
+from itertools import pairwise, groupby, chain
 
 
 def fix_indexing_in_alignment(alignment: Alignment):
@@ -75,6 +75,11 @@ def fix_match(match: Match,
     return match
 
 
+def remove_iterations(alignment_modules: List[Tuple[GeneId, int]]) -> List[Tuple[GeneId, int]]:
+    modules_per_gene = groupby(alignment_modules, key=lambda x: x[0])
+    return list(chain(*(sorted(set(modules))
+                        for gene_id, modules in modules_per_gene)))
+
 def bgc_variant_match_compatible(bgc_variant: BGC_Variant,
                                  match: Match) -> bool:
     bgc_modules = [(module.gene_id, module.a_domain_idx)
@@ -85,7 +90,7 @@ def bgc_variant_match_compatible(bgc_variant: BGC_Variant,
                              if step.bgc_module is not None
                              and step.nrp_monomer is not None]
         # remove runs of equal modules from alignment_modules (those are modules/genes iterations)
-        alignment_modules = list(filter_unique(alignment_modules))
+        alignment_modules = remove_iterations(alignment_modules)
 
         if not is_subsequence(alignment_modules, bgc_modules):
             return False

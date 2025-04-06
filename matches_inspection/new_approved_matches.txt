@@ -133,17 +133,17 @@ Score: 2.5758350461266173
 Alignment:
 Fragment_#0
  Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    5	  MATCH                          6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
+ DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    5	  MATCH   6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
  DJ58_4257  0             Orn                   EPIMERIZATION      Lys          L            False             Lys        2       MATCH  -1.792  ---           ---               ---             DSEDMGFIDK  LAHAFDSSWEPWDIMIGGEVNFYGPSEYTIDTLG 
  DJ58_4257  1             Aad                   ---                Ser          L            False             Ser        1       MATCH  -1.792  ---           ---               ---             DVWHFSLVDK  RWMTFDVSVWEWHFFCSGEHNLYGPTEAAVDVTY 
 Fragment_#1
  Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    4	  MATCH                          6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
+ DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    4	  MATCH   6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
  DJ58_4257  0             Orn                   EPIMERIZATION      Lys          L            False             Lys        3       MATCH  -1.792  ---           ---               ---             DSEDMGFIDK  LAHAFDSSWEPWDIMIGGEVNFYGPSEYTIDTLG 
  DJ58_4257  1             Aad                   ---                Ser          L            False             Ser        6       MATCH  -1.792  ---           ---               ---             DVWHFSLVDK  RWMTFDVSVWEWHFFCSGEHNLYGPTEAAVDVTY 
 Fragment_#2
  Gene       A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step                 Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    9	  MATCH                          6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
+ DJ58_4250  0             Bza                   ---                Bza          UNKNOWN      False	       diOH-Bz    9	  MATCH   6.056   6.325         0.081             0               PLPSQGVVNK  SASLYPLSSPGGSLQVGGAQQVLGMAEGLVNYTR 
  DJ58_4257  0             Orn                   EPIMERIZATION      Lys          L            False             Lys        8       MATCH  -1.792  ---           ---               ---             DSEDMGFIDK  LAHAFDSSWEPWDIMIGGEVNFYGPSEYTIDTLG 
  DJ58_4257  1             Aad                   ---                Ser          L            False             Ser        7       MATCH  -1.792  ---           ---               ---             DVWHFSLVDK  RWMTFDVSVWEWHFFCSGEHNLYGPTEAAVDVTY 
 

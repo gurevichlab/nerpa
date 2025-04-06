@@ -3,7 +3,7 @@ from typing import List, Tuple, NamedTuple, Dict, Optional
 
 from src.antismash_parsing.genomic_context import (
     module_features_to_gene_features,
-    module_features_to_fragment_features
+    module_features_to_fragment_features, ModuleGenomicContextFeature
 )
 from src.data_types import BGC_Variant, GeneId
 from src.matching.hmm_auxiliary_types import (
@@ -154,28 +154,21 @@ def add_modules_and_genes_iterations(adj_list: Dict[int, Dict[int, DetailedHMMEd
                                                                    fst_module_idx=None)
 
 
-def add_skip_gene_and_fragments_middle(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
-                                       bgc_variant: BGC_Variant,
-                                       gene_intervals: Dict[GeneId, Tuple[int, int]],
-                                       fragment_intervals: Dict[int, Tuple[int, int]],
-                                       module_idx_to_start_state_idx: Dict[int, int],
-                                       final_state_idx: int) -> None:
+def add_skip_genes(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
+                   bgc_variant: BGC_Variant,
+                   gene_intervals: Dict[GeneId, Tuple[int, int]],
+                   module_idx_to_start_state_idx: Dict[int, int],
+                   final_state_idx: int) -> None:
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
 
     # SKIP GENES AND FRAGMENTS IN THE MIDDLE
-    for i, module in enumerate(bgc_variant.modules[1:], start=1):  # skipping the first gene/fragment is handled separately
+    for i, module in enumerate(bgc_variant.modules):
         module_start_state_idx = module_idx_to_start_state_idx[i]
         next_gene_start_state_idx = module_idx_to_start_state_idx.get(gene_intervals[module.gene_id][1] + 1, final_state_idx)
-        next_fragment_start_state_idx = module_idx_to_start_state_idx.get(fragment_intervals[module.fragment_idx][1] + 1, None)
         if module.gene_id != bgc_variant.modules[i - 1].gene_id:  # module is the first in the gene
             adj_list[module_start_state_idx][next_gene_start_state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
-                                                                                     log_prob=0,  # TODO: fill in
+                                                                                     log_prob=None,
                                                                                      fst_module_idx=i)
-        if (module.fragment_idx != bgc_variant.modules[i - 1].fragment_idx   # module is the first in the fragment
-                and next_fragment_start_state_idx is not None):  # skipping the last fragment is handled separately
-            adj_list[module_start_state_idx][next_fragment_start_state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_FRAGMENT,
-                                                                                         log_prob=0,  # TODO: fill in
-                                                                                         fst_module_idx=i)
 
 
 def add_skip_at_the_beginning(states: List[DetailedHMMState],
@@ -187,126 +180,56 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
                               fragment_intervals: Dict[int, Tuple[int, int]],
                               initial_state: int = 0) -> None:
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
-    _gene_len = partial(gene_len, genes_intervals=genes_intervals)
-    _num_genes_in_fragment = partial(num_genes_in_fragment,
-                                     fragment_intervals=fragment_intervals,
-                                     bgc_variant=bgc_variant)
     _get_insert_at_start_emissions = partial(hmm_helper.get_insert_at_start_emissions,
                                              pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
-    # 1. Add inserts before modules
+    # 1. Add inserts before modules which are at the start of the gene
     module_idx_to_insert_state_idx = {}
     for i, module in enumerate(bgc_variant.modules):
+        if not ModuleGenomicContextFeature.START_OF_GENE in module.genomic_context:
+            continue
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT_AT_START,
                                        emissions=_get_insert_at_start_emissions(module)))
         module_idx_to_insert_state_idx[i] = len(states) - 1
         adj_list[len(states) - 1][module_idx_to_start_state_idx[i]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                                 log_prob=0,  # TODO: fill in
+                                                                                 log_prob=None,  # will be filled in later
                                                                                  fst_module_idx=None)
         adj_list[len(states) - 1][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.INSERT,
-                                                                log_prob=0,  # TODO: fill in
+                                                                log_prob=None,  # will be filled in later
                                                                 fst_module_idx=None)
 
     # 2. No skips at the beginning
     adj_list[initial_state][module_idx_to_insert_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
-                                                                            log_prob=0,  # TODO: fill in
+                                                                            log_prob=None,  # will be filled in later
                                                                             fst_module_idx=0)
     adj_list[initial_state][module_idx_to_start_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                           log_prob=0,  # TODO: fill in
+                                                                           log_prob=None,
                                                                            fst_module_idx=0)
 
     # 3. Skip modules at the beginning
     module_idx_to_module_skip_state_idx = {}
-    for i, module in enumerate(bgc_variant.modules):  # skipping modules[:i+1]
-        if i == len(bgc_variant.modules) - 1 or bgc_variant.modules[i].gene_id != bgc_variant.modules[i + 1].gene_id:
-            continue  # module is the last module of the gene -- skip the gene instead
-
+    for i, module in enumerate(bgc_variant.modules[:fragment_intervals[-1][0]]):  # skipping modules[:i+1]. Modules in the last fragment can't be skipped
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_MODULE_AT_START,
                                        emissions={}))
         module_idx_to_module_skip_state_idx[i] = len(states) - 1
-        adj_list[len(states) - 1][module_idx_to_start_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                                     log_prob=0,  # TODO: fill in
-                                                                                     fst_module_idx=i + 1)
-        adj_list[len(states) - 1][module_idx_to_insert_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
-                                                                                      log_prob=0,  # TODO: fill in
-                                                                                      fst_module_idx=i + 1)
-        if i > 0 and bgc_variant.modules[i].gene_id == bgc_variant.modules[i - 1].gene_id:
+
+        if bgc_variant.modules[i+1].fragment_idx != bgc_variant.modules[i].fragment_idx:  # next module is the first in the fragment
+            adj_list[len(states) - 1][module_idx_to_start_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
+                                                                                         log_prob=None,
+                                                                                         fst_module_idx=i + 1)
+            adj_list[len(states) - 1][module_idx_to_insert_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
+                                                                                          log_prob=None,
+                                                                                          fst_module_idx=i + 1)
+        if i > 0:
             prev_module_skip_state_idx = module_idx_to_module_skip_state_idx[i - 1]
             adj_list[prev_module_skip_state_idx][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
-                                                                               log_prob=0,  # TODO: fill in
+                                                                               log_prob=None,
                                                                                fst_module_idx=i)  # skip the previous module
 
-    if _gene_len(bgc_variant.modules[0].gene_id) > 1:
+    if len(fragment_intervals) > 1:  # at least two fragments
         adj_list[initial_state][module_idx_to_module_skip_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIP_MODULES_AT_START,
-                                                                                     log_prob=0,  # TODO: fill in
+                                                                                     log_prob=None,
                                                                                      fst_module_idx=None)
-
-    # 4. Skip genes at the beginning
-    gene_id_to_gene_skip_state_idx = {}
-    for fst_module_idx, last_module_idx in sorted(genes_intervals.values()):
-        if (last_module_idx == len(bgc_variant.modules) - 1 or
-                bgc_variant.modules[last_module_idx].fragment_idx != bgc_variant.modules[last_module_idx + 1].fragment_idx):
-            continue  # gene is the last in the fragment -- skip the fragment instead
-
-        states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_GENE_AT_START,
-                                        emissions={}))
-        gene_id = bgc_variant.modules[fst_module_idx].gene_id
-        gene_id_to_gene_skip_state_idx[gene_id] = len(states) - 1
-        adj_list[len(states) - 1][module_idx_to_start_state_idx[last_module_idx + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                                                   log_prob=0,  # TODO: fill in
-                                                                                                   fst_module_idx=last_module_idx + 1)
-        adj_list[len(states) - 1][module_idx_to_insert_state_idx[last_module_idx + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
-                                                                                                    log_prob=0,  # TODO: fill in
-                                                                                                    fst_module_idx=last_module_idx + 1)
-        if _gene_len(bgc_variant.modules[last_module_idx + 1].gene_id) > 1:  # if the next gene has one module, skip gene instead
-            adj_list[len(states) - 1][module_idx_to_module_skip_state_idx[last_module_idx + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
-                                                                                                             log_prob=0,  # TODO: fill in
-                                                                                                             fst_module_idx=last_module_idx + 1)
-        if fst_module_idx > 0 and bgc_variant.modules[fst_module_idx].fragment_idx == bgc_variant.modules[fst_module_idx - 1].fragment_idx:
-            prev_gene_id = bgc_variant.modules[fst_module_idx - 1].gene_id
-            prev_gene_skip_state_idx = gene_id_to_gene_skip_state_idx[prev_gene_id]
-            adj_list[prev_gene_skip_state_idx][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
-                                                                             log_prob=0,  # TODO: fill in
-                                                                             fst_module_idx=fst_module_idx)
-
-    if _num_genes_in_fragment(0) > 1:
-        adj_list[initial_state][gene_id_to_gene_skip_state_idx[bgc_variant.modules[0].gene_id]] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIP_GENES_AT_START,
-                                                                                                             log_prob=0,  # TODO: fill in
-                                                                                                             fst_module_idx=0)
-
-    # 5. Skip fragments at the beginning
-    fragment_idx_to_fragment_skip_state_idx = {}
-    for fst_module_idx, last_module_idx in sorted(fragment_intervals.values())[:-1]:  # last fragment can't be skipped
-        states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_FRAGMENT_AT_START,
-                                        emissions={}))
-        fragment_idx = bgc_variant.modules[fst_module_idx].fragment_idx
-        fragment_idx_to_fragment_skip_state_idx[fragment_idx] = len(states) - 1
-        adj_list[len(states) - 1][module_idx_to_start_state_idx[last_module_idx + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                                                    log_prob=0,  # TODO: fill in
-                                                                                                   fst_module_idx=last_module_idx + 1)
-        adj_list[len(states) - 1][module_idx_to_insert_state_idx[last_module_idx + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
-                                                                                                    log_prob=0,  # TODO: fill in
-                                                                                                    fst_module_idx=last_module_idx + 1)
-        next_gene_id = bgc_variant.modules[last_module_idx + 1].gene_id
-        if _num_genes_in_fragment(fragment_idx + 1) > 1:
-            adj_list[len(states) - 1][gene_id_to_gene_skip_state_idx[next_gene_id]] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_GENE,
-                                                                                                 log_prob=0,  # TODO: fill in
-                                                                                                 fst_module_idx=fst_module_idx)
-        if _gene_len(next_gene_id) > 1:
-            adj_list[len(states) - 1][module_idx_to_module_skip_state_idx[last_module_idx + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
-                                                                                                             log_prob=0,  # TODO: fill in
-                                                                                                             fst_module_idx=last_module_idx + 1)
-        if fst_module_idx > 0:
-            prev_fragment_idx = bgc_variant.modules[fst_module_idx - 1].fragment_idx
-            prev_fragment_skip_state_idx = fragment_idx_to_fragment_skip_state_idx[prev_fragment_idx]
-            adj_list[prev_fragment_skip_state_idx][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_FRAGMENT,
-                                                                                 log_prob=0,  # TODO: fill in
-                                                                                 fst_module_idx=fst_module_idx)  # I'm not sure if this is correct but I am lost at this point
-
-    if len(fragment_intervals) > 1:
-        adj_list[initial_state][fragment_idx_to_fragment_skip_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START,
-                                                                                         log_prob=0,  # TODO: fill in
-                                                                                         fst_module_idx=0)
 
 
 def add_skip_at_the_end(states: List[DetailedHMMState],
@@ -315,22 +238,33 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
                         module_idx_to_start_state_idx: Dict[int, int],
                         fragment_intervals: Dict[int, Tuple[int, int]],
                         final_state_idx = -1) -> None:
+    if len(fragment_intervals) == 1:  # bgc_variant has only one fragment
+        return
+
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
+
     # SKIP AT THE END
-    num_fragments = len(fragment_intervals)
-    for fragment_idx in range(1, num_fragments):  # start from 1 because all fragments can't be skipped
-        states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_FRAGMENT_END,
-                                       emissions={}))
-        state_idx = len(states) - 1
-        prev_module_idx = fragment_intervals[fragment_idx][0]
-        prev_module_state_idx = module_idx_to_start_state_idx[prev_module_idx]
-        adj_list[prev_module_state_idx][state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIPPING_AT_END,
-                                                                log_prob=0,  # TODO: fill in
-                                                                fst_module_idx=prev_module_idx)
-        next_state_idx = state_idx + 1  # the next for the last state is naturally the final state, but that looks like a hack, maybe need to redo
-        adj_list[state_idx][next_state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END,
-                                                         log_prob=0,  # TODO: fill in
-                                                         fst_module_idx=None)
+    for module_idx, module in enumerate(bgc_variant.modules[fragment_intervals[1][0]:],
+                                        start=fragment_intervals[1][0]):  # start from 1 because all fragments can't be skipped
+        if module_idx < len(bgc_variant.modules) - 1:  # not the last module
+            states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_AT_END,
+                                           emissions={}))
+            state_idx = len(states) - 1
+        else:
+            state_idx = final_state_idx
+
+        edge = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_END,
+                          log_prob=None,
+                          fst_module_idx=module_idx)
+
+        if module_idx > fragment_intervals[1][0]:  # connect to previous skip module state
+            adj_list[len(states) - 2][state_idx] = edge
+
+        # start skipping if current module is the first in the fragment
+        if bgc_variant.modules[module_idx - 1].fragment_idx != bgc_variant.modules[module_idx].fragment_idx:
+            adj_list[module_idx_to_start_state_idx[module_idx]][state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_END,
+                                                                                        log_prob=None,
+                                                                                        fst_module_idx=module_idx)
 
 
 def topsort_states(states: List[DetailedHMMState],
@@ -392,9 +326,9 @@ def bgc_variant_to_detailed_hmm(cls,
     states = [DetailedHMMState(state_type=DetailedHMMStateType.INITIAL, emissions={})]
     adj_list = defaultdict(dict)
     start_state_idx = 0
-    final_state_idx = -1  # a bit hacky, but it's fine
+    final_state_idx = -1  # at the very end will be replaced with len(states) - 1
 
-    # ADD MODULES' STATES
+    # ADD MODULES' STATES: MODULE_START -> MATCH -> INSERT_MONOMER -> MODULE_START -> ...
     module_idx_to_state_idx = add_modules(states,
                                           adj_list,
                                           bgc_variant,
@@ -404,11 +338,11 @@ def bgc_variant_to_detailed_hmm(cls,
                                           final_state_idx)  # module_idx -> module_start_state_idx
     state_idx_to_module_idx = {v: k for k, v in module_idx_to_state_idx.items()}
     adj_list[start_state_idx][module_idx_to_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                       log_prob=0,  # TODO: fill in
+                                                                       log_prob=None,  # will be set in the end
                                                                        fst_module_idx=0)
 
 
-    # SKIP AT THE BEGINNING
+    # SKIP AT THE BEGINNING: SKIP_MODULE_AT_START -> INSERT_AT_STARTE -> // MODULE_START -> ...
     add_skip_at_the_beginning(states,
                               adj_list,
                               bgc_variant,
@@ -442,13 +376,14 @@ def bgc_variant_to_detailed_hmm(cls,
                    state_idx_to_module_idx)
 
     # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
-    add_skip_gene_and_fragments_middle(adj_list,
-                                       bgc_variant,
-                                       gene_intervals,
-                                       fragment_intervals,
-                                       module_idx_to_state_idx,
-                                       final_state_idx)
+    # do it after topological sorting to enforce the order of modules
+    add_skip_genes(adj_list,
+                   bgc_variant,
+                   gene_intervals,
+                   module_idx_to_state_idx,
+                   final_state_idx)
 
+    # must be done after topological sorting because it creates cycles
     add_modules_and_genes_iterations(adj_list,
                                      bgc_variant,
                                      gene_intervals,

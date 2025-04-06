@@ -5,9 +5,9 @@ pks_names: []
 #'Iva', 'Kyn', 'Lac', 'Leu', 'Lys', 'Orn', 'Pen', 'Phe', 'Pip', 'Pro',
 #'Ser', 'Thr', 'Trp', 'Tyr', 'Val', 'aIle', 'aThr', 'bAla', 'bLys',
 #'dHpg', 'oxoDec', 'unknown']  # nerpa supported residues (42)
-supported_residues: ['Aad', 'Ala', 'Arg', 'Asn', 'Asp',
-                     'Bza', 'Cys', 'Dab', 'Gln', 'Glu',
-                     'Gly', 'His', 'Hpg', 'Ile', 'Leu',
-                     'Lys', 'Orn', 'Phe', 'Pip', 'Pro',
-                     'Ser', 'Thr', 'Trp', 'Tyr', 'Val',
-                     'bAla', 'dHpg', 'unknown']  # paras supported residues (28)
+supported_residues: ['Aad', 'Aib', 'Ala', 'Ant', 'Arg',
+                     'Asn', 'Asp', 'Bza', 'Cys', 'Dab',
+                     'Gln', 'Glu', 'Gly', 'His', 'Hpg',
+                     'Ile', 'Leu', 'Lys', 'Orn', 'Phe',
+                     'Pip', 'Pro', 'Sal', 'Ser', 'Thr',
+                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg','unknown']  # paras supported core residues (30 + unknown)

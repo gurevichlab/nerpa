@@ -119,8 +119,17 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
     hmms_with_paths_with_emissions = []
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
         detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant, hmm_helper)
+        if match.nrp_variant_id.nrp_id in ('BGC0002408.0',
+                                           'BGC0000416.0',
+                                           'BGC0000416.1'):
+            continue
         for i, alignment in enumerate(match.alignments):
-            path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
+            try:
+                path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
+            except Exception as e:
+                print(f'WARNING: alignment {i} for match {match.nrp_variant_id.nrp_id} '
+                      f'could not be converted to path with emissions')
+                raise e
             hmms_with_paths_with_emissions.append((detailed_hmm, path_with_emissions))
 
     return hmms_with_paths_with_emissions
