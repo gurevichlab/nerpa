@@ -1,6 +1,7 @@
 from typing import List, Tuple, Dict, NamedTuple, NewType
 import numpy as np
 from numpy.typing import NDArray
+import bisect
 
 StateIdx = NewType('StateIdx', int)
 LogProb = NewType('LogProb', float)
@@ -148,33 +149,28 @@ def get_all_paths_log_probs(hmm: HMM) -> List[LogProb]:
 
 def compute_naive_p_values(hmm: HMM) -> NDArray[np.float64]:
     path_log_probs = get_all_paths_log_probs(hmm)
-    path_disc_probs = [to_discrete_prob(log_prob) for log_prob in path_log_probs]
+    path_probs = [np.exp(lp) for lp in path_log_probs]
 
-    path_counts = np.zeros(MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1, dtype=int)
-    for disc_prob in path_disc_probs:
-        path_counts[disc_prob - MIN_DISCRETE_PROB] += 1
+    sorted_path_probs = sorted(path_probs)
+    n = len(sorted_path_probs)
 
-    p_values = np.zeros(MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1, dtype=np.float64)
+    # Precompute cumulative sums for fast p-value lookups
+    cum_sums = np.empty(n, dtype=np.float64)
+    if n:
+        cum_sums[-1] = sorted_path_probs[-1]
+        for i in range(n - 2, -1, -1):
+            cum_sums[i] = cum_sums[i + 1] + sorted_path_probs[i]
 
-    def to_prob(disc_prob: int) -> float:
-        return np.exp(to_log_prob(DiscreteProb(disc_prob)))
+    num_thresholds = MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1
+    p_values = np.empty(num_thresholds, dtype=np.float64)
 
-    p_values[MAX_DISCRETE_PROB - MIN_DISCRETE_PROB] = (to_prob(MAX_DISCRETE_PROB)
-                                                       * path_counts[MAX_DISCRETE_PROB - MIN_DISCRETE_PROB])
+    for disc in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
+        threshold_prob = np.exp(to_log_prob(DiscreteProb(disc)))
+        idx = bisect.bisect_right(sorted_path_probs, threshold_prob)
+        p_val = cum_sums[idx] if idx < n else 0.0
+        p_values[disc - MIN_DISCRETE_PROB] = p_val
 
-    # Calculate p-values for the rest of the discrete probabilities
-    for disc_prob in range(MAX_DISCRETE_PROB - 1, MIN_DISCRETE_PROB - 1, -1):
-        p_values[disc_prob - MIN_DISCRETE_PROB] = (p_values[disc_prob + 1 - MIN_DISCRETE_PROB]
-                                                   + to_prob(disc_prob) * path_counts[disc_prob - MIN_DISCRETE_PROB])
-
-    # Subtract the contribution of one path with each discrete probability
-    contributions = np.array([to_prob(DiscreteProb(k))
-                              for k in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1)])
-    p_values -= contributions
-
-    # Prevent possible miscalculation caused by discretization
     p_values = np.clip(p_values, 0.0, 1.0)
-
     return p_values
 
 
