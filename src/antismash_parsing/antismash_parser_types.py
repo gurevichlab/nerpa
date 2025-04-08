@@ -14,7 +14,6 @@ from src.monomer_names_helper import (
     AA10,
     AA34
 )
-from src.data_types import BGC_ID
 
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
@@ -113,6 +112,15 @@ class Gene:
     modules: List[Module]  # modules are in the order of appearance in the gene
     orphan_c_at_start: bool = False
     orphan_c_at_end: bool = False
+
+
+class BGC_ID(NamedTuple):
+    genome_id: str
+    contig_idx: int
+    bgc_idx: int
+
+    def __str__(self):
+        return f'{self.genome_id}_{self.contig_idx}_{self.bgc_idx}'
 
 
 @dataclass

@@ -15,7 +15,7 @@ from src.monomer_names_helper import (
     Chirality,
     NRP_Monomer
 )
-from src.antismash_parsing.antismash_parser_types import GeneId
+from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.monomer_names_helper import enum_representer, AA10, AA34
@@ -76,13 +76,6 @@ BGC_MODULE_DUMMY = BGC_Module(gene_id=GeneId(''), fragment_idx=-1, genomic_conte
 
 BGC_Fragment = List[BGC_Module]
 
-class BGC_ID(NamedTuple):
-    genome_id: str
-    contig_idx: int
-    bgc_idx: int
-
-    def __str__(self):
-        return f'{self.genome_id}_{self.contig_idx}_{self.bgc_idx}'
 
 
 class BGC_Variant_ID(NamedTuple):

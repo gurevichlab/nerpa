@@ -2,7 +2,7 @@ from typing import (
     Dict,
     List,
     NamedTuple,
-    Union
+    Union, Optional
 )
 
 from src.data_types import (
@@ -10,11 +10,7 @@ from src.data_types import (
     LogProb,
     MonomerResidue,
 )
-from src.antismash_parsing.genomic_context import (
-    FragmentGenomicContextFeature,
-    GeneGenomicContextFeature,
-    ModuleGenomicContextFeature,
-)
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 
 from dataclasses import dataclass
@@ -32,7 +28,7 @@ class MethylationMatch(NamedTuple):
     nrp_meth: bool
 
 
-SingleFeatureContext = Union[ModuleGenomicContextFeature, GeneGenomicContextFeature, FragmentGenomicContextFeature, None]
+SingleFeatureContext = Optional[ModuleGenomicContextFeature]
 EdgeWeightsParams = Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]
 
 
@@ -59,21 +55,21 @@ def load_chirality_score(cfg: dict) -> Dict[ChiralityMatch, LogProb]:
 
 def load_edge_weight_params(cfg: dict) -> EdgeWeightsParams:
     parsed_data = {}
-    for edge_type, context_to_probs in cfg['edge_weight_parameters'].items():
-        parsed_data[DetailedHMMEdgeType[edge_type]] = {}
+    for edge_type in DetailedHMMEdgeType:
+        if edge_type.name not in cfg['edge_weight_parameters']:
+            raise KeyError(f'edge_weight_parameters[{edge_type.name}] is missing')
+
+        context_to_probs = cfg['edge_weight_parameters'][edge_type.name]
+        parsed_data[edge_type] = {}
         for context_str, prob in context_to_probs.items():
             if context_str == 'None':
-                parsed_data[DetailedHMMEdgeType[edge_type]][None] = prob
+                parsed_data[edge_type][None] = prob
                 continue
             if context_str in ModuleGenomicContextFeature.__members__:
                 context = ModuleGenomicContextFeature[context_str]
-            elif context_str in GeneGenomicContextFeature.__members__:
-                context = GeneGenomicContextFeature[context_str]
-            elif context_str in FragmentGenomicContextFeature.__members__:
-                context = FragmentGenomicContextFeature[context_str]
             else:
                 raise ValueError(f'Unknown context: {context_str}')
-            parsed_data[DetailedHMMEdgeType[edge_type]][context] = prob
+            parsed_data[edge_type][context] = prob
 
     return parsed_data
 
