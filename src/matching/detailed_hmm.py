@@ -10,11 +10,6 @@ from typing import (
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.antismash_parsing.genomic_context import (
-    ModuleGenomicContextFeature,
-    GeneGenomicContextFeature,
-    FragmentGenomicContextFeature,
-)
 from src.data_types import (
     BGC_Module,
     BGC_Variant,

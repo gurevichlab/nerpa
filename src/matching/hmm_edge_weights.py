@@ -1,87 +1,76 @@
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
+from src.data_types import Prob
+
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
 
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
-from src.antismash_parsing.genomic_context import (
-    ModuleGenomicContextFeature,
-    GeneGenomicContextFeature,
-    FragmentGenomicContextFeature,
-)
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 from src.matching.hmm_config import EdgeWeightsParams
 from math import log
 
 
 def get_edge_weights(hmm,  # type: DetailedHMM
-                     probs: EdgeWeightsParams) \
+                     probs: EdgeWeightsParams,
+                     min_allowed_prob: float = 0) \
         -> Dict[Tuple[int, int], float]:
+    # for brevity
+    ET = DetailedHMMEdgeType
+    MGF = ModuleGenomicContextFeature
+
     # weights of the following edge types are determined based on the other edge types
     # these are the edge types corresponding to "natural" flow
     dependent_edge_types = {
-        DetailedHMMEdgeType.START_MATCHING,
-        DetailedHMMEdgeType.MATCH,
-        DetailedHMMEdgeType.NO_INSERTIONS,
-        DetailedHMMEdgeType.END_INSERTING
+        ET.START_MATCHING,
+        ET.MATCH,
+        ET.NO_INSERTIONS,
+        ET.END_INSERTING
     }
 
-    # TODO: introduce other features, e.g. single module in gene
-    genomic_location_features = {
-        ModuleGenomicContextFeature.START_OF_BGC,
-        ModuleGenomicContextFeature.END_OF_BGC,
-        ModuleGenomicContextFeature.START_OF_FRAGMENT,
-        ModuleGenomicContextFeature.END_OF_FRAGMENT,
-        ModuleGenomicContextFeature.START_OF_GENE,
-        ModuleGenomicContextFeature.END_OF_GENE,
+    # q: assert that for each vertex among all transitions at most one has a dependent edge type
+    # for debug
+    assert all(
+        len([edge for edge in hmm.transitions[u].values()
+             if edge.edge_type in dependent_edge_types]) <= 1
+        for u in range(len(hmm.states))
+    )
 
-        GeneGenomicContextFeature.START_OF_BGC,
-        GeneGenomicContextFeature.END_OF_BGC,
-        GeneGenomicContextFeature.START_OF_FRAGMENT,
-        GeneGenomicContextFeature.END_OF_FRAGMENT,
-
-        FragmentGenomicContextFeature.START_OF_BGC,
-        FragmentGenomicContextFeature.END_OF_BGC
-    }
-
-    pks_context_features = {
-        ModuleGenomicContextFeature.PKS_UPSTREAM_PREV_GENE,
-        ModuleGenomicContextFeature.PKS_DOWNSTREAM_NEXT_GENE,
-        ModuleGenomicContextFeature.PKS_UPSTREAM_SAME_GENE,
-        ModuleGenomicContextFeature.PKS_DOWNSTREAM_SAME_GENE,
-
-        GeneGenomicContextFeature.PKS_UPSTREAM,
-        GeneGenomicContextFeature.PKS_DOWNSTREAM,
-
-        FragmentGenomicContextFeature.PKS_UPSTREAM,
-        FragmentGenomicContextFeature.PKS_DOWNSTREAM
-    }
-
-    # determine edge weights for non-dependent edge types
     edge_weights = {}
     for u in range(len(hmm.states)):
         for v, edge_info in hmm.transitions[u].items():
-            if edge_info.edge_type in dependent_edge_types:
+            edge_type = edge_info.edge_type
+            edge_context = edge_info.genomic_context
+            if edge_type in dependent_edge_types:
                 continue
 
-            if edge_info.genomic_context is None:
-                genomic_loc_prob = 0
-            else:
-                genomic_loc_prob = max((probs[edge_info.edge_type][loc_feature]
-                                    for loc_feature in genomic_location_features
-                                    if loc_feature in edge_info.genomic_context
-                                    and loc_feature in probs[edge_info.edge_type]),
-                                   default=0)
+            edge_weights[(u, v)] = 0.1  # placeholder value
 
-            if edge_info.genomic_context is None:
-                pks_context_prob = 0
-            else:
-                pks_context_prob = max((probs[edge_info.edge_type][loc_feature]
-                                        for loc_feature in pks_context_features
-                                        if loc_feature in edge_info.genomic_context
-                                        and loc_feature in probs[edge_info.edge_type]),
-                                       default=0)
-            base_prob = probs[edge_info.edge_type].get(None, 1e-3)
-            edge_weights[(u, v)] = 1 - (1 - genomic_loc_prob) * (1 - pks_context_prob) * (1 - base_prob)
+    '''
+            def if_has_or_none(feature: MGF) -> Prob:
+                return probs[edge_type][feature] if feature in edge_context \
+                        else probs[edge_type][None]
+
+            match edge_type:
+                case (ET.START_INSERTING_AT_START | ET.INSERT_AT_START):
+                    edge_weights[(u, v)] = if_has_or_none(MGF.PKS_UPSTREAM)
+                case (ET.START_INSERTING | ET.INSERT):
+                    pks_prob = probs[edge_type][MGF.PKS_DOWNSTREAM] \
+                        if MGF.PKS_DOWNSTREAM in edge_context else 0
+                    gene_end_prob = probs[edge_type][MGF.END_OF_GENE] \
+                        if MGF.END_OF_GENE in edge_context else 0
+                    default_prob = probs[edge_type][None]
+                    edge_weights[(u, v)] = 1 - (1 - pks_prob) * (1 - gene_end_prob) * (1 - default_prob)
+                case (ET.START_SKIP_MODULES_AT_START
+                      | ET.SKIP_MODULE_AT_START
+                      | ET.SKIP_MODULE
+                      | ET.SKIP_MODULE_AT_END):
+                    edge_weights[(u, v)] = if_has_or_none(MGF.ONLY_A_DOMAIN)
+
+                case _:
+                        edge_weights[(u, v)] = probs[edge_type][None]
+    '''
+
 
     # determine edge weights for dependent edge types
     for u in range(len(hmm.states)):
