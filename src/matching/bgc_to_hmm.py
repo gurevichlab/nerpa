@@ -158,17 +158,16 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
     _get_insert_at_start_emissions = partial(hmm_helper.get_insert_at_start_emissions,
                                              pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
-    # 1. Add inserts before modules which are at the start of the gene
+    # 1. Add inserts before modules which are at the start of fragments
     module_idx_to_insert_state_idx = {}
-    for i, module in enumerate(bgc_variant.modules):
-        if not ModuleGenomicContextFeature.START_OF_GENE in module.genomic_context:
-            continue
+    for fragment_fst, _ in fragment_intervals.values():
+        module = bgc_variant.modules[fragment_fst]
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.INSERT_AT_START,
                                        emissions=_get_insert_at_start_emissions(module)))
-        module_idx_to_insert_state_idx[i] = len(states) - 1
-        adj_list[len(states) - 1][module_idx_to_start_state_idx[i]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
-                                                                                 log_prob=None,  # will be filled in later
-                                                                                 fst_module_idx=None)
+        module_idx_to_insert_state_idx[fragment_fst] = len(states) - 1
+        adj_list[len(states) - 1][module_idx_to_start_state_idx[fragment_fst]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
+                                                                                            log_prob=None,  # will be filled in later
+                                                                                            fst_module_idx=None)
         adj_list[len(states) - 1][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.INSERT,
                                                                 log_prob=None,  # will be filled in later
                                                                 fst_module_idx=None)
@@ -183,12 +182,13 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
 
     # 3. Skip modules at the beginning
     module_idx_to_module_skip_state_idx = {}
-    for i, module in enumerate(bgc_variant.modules[:fragment_intervals[-1][0]]):  # skipping modules[:i+1]. Modules in the last fragment can't be skipped
+    last_fragment_fst, _ = fragment_intervals[len(fragment_intervals) - 1]
+    for i, module in enumerate(bgc_variant.modules[:last_fragment_fst]):  # skipping modules[:i+1]. Modules in the last fragment can't be skipped
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_MODULE_AT_START,
                                        emissions={}))
         module_idx_to_module_skip_state_idx[i] = len(states) - 1
 
-        if bgc_variant.modules[i+1].fragment_idx != bgc_variant.modules[i].fragment_idx:  # next module is the first in the fragment
+        if bgc_variant.modules[i + 1].fragment_idx != bgc_variant.modules[i].fragment_idx:  # next module is the first in the fragment
             adj_list[len(states) - 1][module_idx_to_start_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
                                                                                          log_prob=None,
                                                                                          fst_module_idx=i + 1)
@@ -220,16 +220,18 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
 
     # SKIP AT THE END
     for module_idx, module in enumerate(bgc_variant.modules[fragment_intervals[1][0]:],
-                                        start=fragment_intervals[1][0]):  # start from 1 because all fragments can't be skipped
+                                        start=fragment_intervals[1][0]):  # start from beginning of snd fragment because all fragments can't be skipped
         if module_idx < len(bgc_variant.modules) - 1:  # not the last module
             states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_MODULE_AT_END,
                                            emissions={}))
             state_idx = len(states) - 1
+            prev_state_idx = len(states) - 2
         else:
             state_idx = final_state_idx
+            prev_state_idx = len(states) - 1
 
         if module_idx > fragment_intervals[1][0]:  # connect to previous skip module state
-            adj_list[len(states) - 2][state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_END,
+            adj_list[prev_state_idx][state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_END,
                                                               log_prob=None,
                                                               fst_module_idx=module_idx)
 
