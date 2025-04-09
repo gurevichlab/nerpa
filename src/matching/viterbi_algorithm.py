@@ -7,8 +7,6 @@ import numpy as np
 from math import log
 
 
-# checkpoint: (state, symbol_count) means that
-# at state `state` the symbol observed_sequence[symbol_count] was emitted
 def get_opt_path_with_score(hmm: HMM,
                             observed_sequence: List[MonCode],
                             start_state: Optional[StateIdx] = None,
@@ -44,7 +42,7 @@ def get_opt_path_with_score(hmm: HMM,
                     continue
 
                 log_prob = dp[state][sym_count]
-                if (state, sym_count) != (start_state, 0) and prev[state][sym_count] == -1:
+                if (state, sym_count) != (start_state, 0) and prev[state][sym_count] == -1:  # unreachable state
                     continue
 
                 for edge_to, edge_log_prob in hmm.transitions[state]:

@@ -26,8 +26,8 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                           path: List[int],
                           nrp_monomers: List[rBAN_Monomer]) -> Alignment:
     #free_idx = next(i for i in count()
-    #                if not Path(f'{hmm.bgc_variant.genome_id}_path_{i}.png').exists())
-    # hmm.draw(Path(f'{hmm.bgc_variant.genome_id}_path_{free_idx}.png'), path)  # for debugging
+    #                if not Path(f'{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}_path_{i}.png').exists())
+    #hmm.draw(Path(f'{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}_path_{free_idx}.png'), path)  # for debugging
     #hmm.draw(Path(f'hmm_path.png'), path)  # for debugging
     #print('bgc: ', hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id)
     #print('path: ', path)

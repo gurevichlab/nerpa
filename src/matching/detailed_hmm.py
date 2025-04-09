@@ -64,9 +64,13 @@ class DetailedHMM:
                          bgc_variant: BGC_Variant,
                          hmm_helper: HMMHelper) -> DetailedHMM:
         #print('from_bgc_variant', bgc_variant.genome_id)
-        return bgc_variant_to_detailed_hmm(DetailedHMM,
-                                           bgc_variant,
-                                           hmm_helper)
+        try:
+            return bgc_variant_to_detailed_hmm(DetailedHMM,
+                                               bgc_variant,
+                                               hmm_helper)
+        except Exception as e:
+            print(f'Failed to create DetailedHMM from BGC variant {bgc_variant.bgc_variant_id}')
+            raise e
 
     def to_hmm(self) -> HMM:
         if self._hmm is not None:
