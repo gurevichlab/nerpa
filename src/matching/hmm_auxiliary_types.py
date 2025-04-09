@@ -52,6 +52,9 @@ class DetailedHMMStateType(Enum):
     MATCH = auto()
     INSERT = auto()
 
+    END_MATCHING = auto()
+    INSERT_AT_END = auto()
+    END_INSERTING_AT_END = auto()
     SKIP_MODULE_AT_END = auto()
 
     FINAL = auto()
@@ -88,7 +91,10 @@ class DetailedHMMEdgeType(Enum):
     SKIP_MODULE = auto()
     SKIP_GENE = auto()
 
-    START_SKIP_MODULES_AT_END = auto()
+    END_MATCHING = auto()
+    SKIP_MODULE_END_MATCHING = auto()
+    START_INSERTING_AT_END = auto()
+    INSERT_AT_END = auto()
     SKIP_MODULE_AT_END = auto()
 
 yaml.add_representer(DetailedHMMEdgeType, enum_representer)

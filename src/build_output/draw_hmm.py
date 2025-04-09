@@ -23,7 +23,9 @@ def draw_hmm(hmm: DetailedHMM,
 
     # Define the layer types and reverse for top-to-bottom ordering
     layer_types = [[ST.SKIP_MODULE_AT_END],
-                   [ST.INSERT],
+                   [ST.END_INSERTING_AT_END],
+                   [ST.INSERT_AT_END],
+                   [ST.INSERT, ST.END_MATCHING],
                    [ST.MATCH],
                    [ST.INITIAL, ST.MODULE_START, ST.FINAL],
                    [ST.INSERT_AT_START],

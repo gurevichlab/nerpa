@@ -70,7 +70,12 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                             step_type=edge.edge_type))
                     module_idx = next_module_idx
 
-            case (ET.START_INSERTING_AT_START | ET.INSERT_AT_START | ET.START_INSERTING | ET.INSERT):
+            case (ET.START_INSERTING_AT_START
+                  | ET.INSERT_AT_START
+                  | ET.START_INSERTING
+                  | ET.INSERT
+                  | ET.START_INSERTING_AT_END
+                  | ET.INSERT_AT_END):
                 alignment.append(AlignmentStep(
                     bgc_module=None,
                     nrp_monomer=nrp_mon,
