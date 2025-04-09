@@ -67,17 +67,6 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                              if alignment[step_idx].nrp_monomer is not None])
 
     # edges which correspond to aligning steps with bgc_info != None or nrp_info != None
-    main_edge_types = (
-        DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
-        DetailedHMMEdgeType.INSERT_AT_START,
-        DetailedHMMEdgeType.MATCH,
-        DetailedHMMEdgeType.INSERT,
-        DetailedHMMEdgeType.SKIP_MODULE,
-        DetailedHMMEdgeType.SKIP_GENE,
-        DetailedHMMEdgeType.SKIP_FRAGMENT,
-        DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END
-    )
-
 
     path_with_emissions = []
     cnt = 0
@@ -95,10 +84,6 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
             # that's why I assign these edge weights. Yes, dirty hacks :sweat_smile:
             for edge_to, edge_info in sub_hmm.transitions[state_idx].items():
                 match edge_info.edge_type:
-                    case DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START | DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END:
-                        log_prob = 0
-                    case DetailedHMMEdgeType.SKIP_FRAGMENT:
-                        log_prob = -1
                     case DetailedHMMEdgeType.SKIP_GENE:
                         log_prob = -2
                     case DetailedHMMEdgeType.SKIP_MODULE:

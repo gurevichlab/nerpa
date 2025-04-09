@@ -75,14 +75,18 @@ def get_turns_info_for_match(detailed_hmm: DetailedHMM,
     #path = [state_idx for state_idx, _ in path_with_emissions]
     #detailed_hmm.draw(Path(f"{detailed_hmm.bgc_variant.genome_id}.png"),
     #                  highlight_path=path)
+    ET = DetailedHMMEdgeType
+
     num_insertions = 0
     turns_info = []
     for (u, emission), (v, _) in pairwise(path_with_emissions):
         edge = detailed_hmm.transitions[u][v]
         num_insertions = num_insertions + 1 \
-            if edge.edge_type == DetailedHMMEdgeType.INSERT else 0
+            if edge.edge_type in (ET.INSERT, ET.INSERT_AT_START) else 0
 
-        chosen_edge_key = ExtendedEdgeKey(edge.edge_key, num_insertions)
+        chosen_edge_key = ExtendedEdgeKey(edge.edge_type,
+                                          edge.edge_key,
+                                          num_insertions)
         chosen_edge_info = EdgeInfo(edge_type=edge.edge_type,
                                     genomic_context=edge.genomic_context)
 

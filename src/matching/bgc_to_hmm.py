@@ -46,12 +46,6 @@ def gene_len(gene_id: GeneId, genes_intervals: Dict[GeneId, Tuple[int, int]]) ->
     return genes_intervals[gene_id][1] - genes_intervals[gene_id][0] + 1
 
 
-def num_genes_in_fragment(fragment_idx: int, fragment_intervals: Dict[int, Tuple[int, int]],
-                          bgc_variant: BGC_Variant) -> int:
-    return len(set(bgc_variant.modules[i].gene_id for i in range(fragment_intervals[fragment_idx][0],
-                                                                 fragment_intervals[fragment_idx][1] + 1)))
-
-
 def add_modules(states: List[DetailedHMMState],
                 adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                 bgc_variant: BGC_Variant,
@@ -59,8 +53,14 @@ def add_modules(states: List[DetailedHMMState],
                 gene_intervals: Dict[GeneId, Tuple[int, int]],
                 initial_state_idx: int = 0,
                 final_state_idx: int = -1) -> Dict[int, int]:  # module_idx -> module_start_state_idx
+    ST = DetailedHMMStateType
+    ET = DetailedHMMEdgeType
+
     _gene_len = partial(gene_len, genes_intervals=gene_intervals)
-    _make_edge = partial(make_edge, bgc_variant=bgc_variant)
+    _make_edge = partial(make_edge,
+                         bgc_variant=bgc_variant,
+                         log_prob=None,
+                         fst_module_idx=None)
     _get_emissions = partial(hmm_helper.get_emissions,
                              pks_domains_in_bgc=bgc_variant.has_pks_domains())
     _get_insert_emissions = partial(hmm_helper.get_insert_emissions,
@@ -72,37 +72,34 @@ def add_modules(states: List[DetailedHMMState],
     for i, module in enumerate(bgc_variant.modules):
         # add states
         states.extend([
-            DetailedHMMState(state_type=DetailedHMMStateType.MODULE_START,
-                             emissions={}),
-            DetailedHMMState(state_type=DetailedHMMStateType.MATCH,
-                             emissions=_get_emissions(module)),
-            DetailedHMMState(state_type=DetailedHMMStateType.INSERT,
-                             emissions=_get_insert_emissions(module)),
+            DetailedHMMState(state_type=ST.MODULE_START, emissions={}),
+            DetailedHMMState(state_type=ST.MATCH, emissions=_get_emissions(module)),
+            DetailedHMMState(state_type=(ST.INSERT if i < len(bgc_variant.modules) - 1
+                                         else ST.INSERT_AT_END),
+                             emissions=_get_insert_emissions(module))
         ])
 
         # add edges
-        start_idx, match_idx, insert_idx = 3 * i + 1, 3 * i + 2, 3 * i + 3
-        next_module_idx = 3 * i + 4 if i + 1 < len(bgc_variant.modules) else final_state_idx
-        adj_list[start_idx][match_idx] = _make_edge(edge_type=DetailedHMMEdgeType.MATCH,
-                                                    log_prob=0,  # TODO: fill in
+        start_idx, match_idx, insert_idx = range(len(states) - 3, len(states))
+        next_module_idx = len(states) if i + 1 < len(bgc_variant.modules) else final_state_idx
+        adj_list[start_idx][match_idx] = _make_edge(edge_type=ET.MATCH,
                                                     fst_module_idx=i)
 
         if _gene_len(module.gene_id) > 1:
-            adj_list[start_idx][next_module_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
-                                                              log_prob=0,  # TODO: fill in
+            adj_list[start_idx][next_module_idx] = _make_edge(edge_type=ET.SKIP_MODULE,
                                                               fst_module_idx=i)
-        adj_list[match_idx][next_module_idx] = _make_edge(edge_type=DetailedHMMEdgeType.NO_INSERTIONS,
-                                                          log_prob=0,  # TODO: fill in
+        adj_list[match_idx][next_module_idx] = _make_edge(edge_type=ET.NO_INSERTIONS,
                                                           fst_module_idx=i)
-        adj_list[match_idx][insert_idx] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING,
-                                                     log_prob=0,  # TODO: fill in
+        adj_list[match_idx][insert_idx] = _make_edge(edge_type=(ET.START_INSERTING
+                                                                if i < len(bgc_variant.modules) - 1
+                                                                else ET.START_INSERTING_AT_END),
                                                      fst_module_idx=i)
-        adj_list[insert_idx][insert_idx] = _make_edge(edge_type=DetailedHMMEdgeType.INSERT,
-                                                      log_prob=0,  # TODO: fill in
+        adj_list[insert_idx][insert_idx] = _make_edge(edge_type=(ET.INSERT
+                                                                 if i < len(bgc_variant.modules) - 1
+                                                                 else ET.INSERT_AT_END),
                                                       fst_module_idx=None)
-        adj_list[insert_idx][next_module_idx] = _make_edge(edge_type=DetailedHMMEdgeType.END_INSERTING,
-                                                           log_prob=0,  # TODO: fill in
-                                                           fst_module_idx=None)
+        adj_list[insert_idx][next_module_idx] = _make_edge(edge_type=ET.END_INSERTING)
+
     return module_idx_to_start_state_idx
 
 
@@ -212,34 +209,71 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
                         bgc_variant: BGC_Variant,
                         module_idx_to_start_state_idx: Dict[int, int],
                         fragment_intervals: Dict[int, Tuple[int, int]],
+                        hmm_helper: HMMHelper,
                         final_state_idx = -1) -> None:
     if len(fragment_intervals) == 1:  # bgc_variant has only one fragment
         return
 
+    ET = DetailedHMMEdgeType
+    ST = DetailedHMMStateType
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
+    _get_insert_emissions = partial(hmm_helper.get_insert_emissions,
+                                    pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
+    prev_skip_state_idx = None
     # SKIP AT THE END
     for module_idx, module in enumerate(bgc_variant.modules[fragment_intervals[1][0]:],
                                         start=fragment_intervals[1][0]):  # start from beginning of snd fragment because all fragments can't be skipped
         if module_idx < len(bgc_variant.modules) - 1:  # not the last module
-            states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_MODULE_AT_END,
+            states.append(DetailedHMMState(state_type=ST.SKIP_MODULE_AT_END,
                                            emissions={}))
-            state_idx = len(states) - 1
-            prev_state_idx = len(states) - 2
+            skip_state_idx = len(states) - 1
         else:
-            state_idx = final_state_idx
-            prev_state_idx = len(states) - 1
+            skip_state_idx = final_state_idx
 
-        if module_idx > fragment_intervals[1][0]:  # connect to previous skip module state
-            adj_list[prev_state_idx][state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_END,
-                                                              log_prob=None,
-                                                              fst_module_idx=module_idx)
+        if prev_skip_state_idx is not None:  # connect to previous skip module state
+            adj_list[prev_skip_state_idx][skip_state_idx] = _make_edge(edge_type=ET.SKIP_MODULE_AT_END,
+                                                                       log_prob=None,
+                                                                       fst_module_idx=module_idx)
 
         # start skipping if current module is the first in the fragment
         if bgc_variant.modules[module_idx - 1].fragment_idx != bgc_variant.modules[module_idx].fragment_idx:
-            adj_list[module_idx_to_start_state_idx[module_idx]][state_idx] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIP_MODULES_AT_END,
-                                                                                        log_prob=None,
-                                                                                        fst_module_idx=module_idx)
+            # note that emissions depend on the previous module: we're inserting *after it*
+            states.extend([DetailedHMMState(state_type=ST.END_MATCHING,
+                                            emissions={}),
+                           DetailedHMMState(state_type=ST.INSERT_AT_END,
+                                            emissions=_get_insert_emissions(bgc_variant.modules[module_idx - 1])),
+                           DetailedHMMState(state_type=ST.END_INSERTING_AT_END,
+                                            emissions={})])
+
+            end_matching_idx, insert_at_end_idx, end_inserting_at_end = range(len(states) - 3, len(states))
+            prev_module_start_idx = module_idx_to_start_state_idx[module_idx - 1]
+            prev_module_match_idx = next(idx for idx in adj_list[prev_module_start_idx]
+                                         if adj_list[prev_module_start_idx][idx].edge_type == ET.MATCH)
+
+            adj_list[prev_module_match_idx][end_matching_idx] = _make_edge(edge_type=ET.END_MATCHING,
+                                                                          log_prob=None,
+                                                                          fst_module_idx=None)
+            if module_idx > 1:  # just filter out an annoying case of a single-module first fragment: it doesn't break anything but skipping the whole BGC is pointless
+                adj_list[prev_module_start_idx][end_matching_idx] = _make_edge(edge_type=ET.SKIP_MODULE_END_MATCHING,
+                                                                               log_prob=None,
+                                                                               fst_module_idx=None)
+            adj_list[end_matching_idx][end_inserting_at_end] = _make_edge(edge_type=ET.NO_INSERTIONS,
+                                                                          log_prob=None,
+                                                                          fst_module_idx=None)
+            adj_list[end_matching_idx][insert_at_end_idx] = _make_edge(edge_type=ET.START_INSERTING_AT_END,
+                                                                       log_prob=None,
+                                                                       fst_module_idx=None)
+            adj_list[insert_at_end_idx][insert_at_end_idx] = _make_edge(edge_type=ET.INSERT_AT_END,
+                                                                        log_prob=None,
+                                                                        fst_module_idx=None)
+            adj_list[insert_at_end_idx][end_inserting_at_end] = _make_edge(edge_type=ET.END_INSERTING,
+                                                                           log_prob=None,
+                                                                           fst_module_idx=None)
+            adj_list[end_inserting_at_end][skip_state_idx] = _make_edge(edge_type=ET.SKIP_MODULE_AT_END,
+                                                                           log_prob=None,
+                                                                           fst_module_idx=module_idx)
+        prev_skip_state_idx = skip_state_idx
 
 
 def topsort_states(states: List[DetailedHMMState],
@@ -331,7 +365,8 @@ def bgc_variant_to_detailed_hmm(cls,
                         adj_list,
                         bgc_variant,
                         module_idx_to_state_idx,
-                        fragment_intervals)
+                        fragment_intervals,
+                        hmm_helper)
 
     # ADD FINAL STATE
     states.append(DetailedHMMState(state_type=DetailedHMMStateType.FINAL, emissions={}))

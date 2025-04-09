@@ -66,6 +66,7 @@ class DataForTraining:
 
 # for the case of several insertions in a row I want to distinguish them
 class ExtendedEdgeKey(NamedTuple):
+    edge_type: DetailedHMMEdgeType
     edge_key: EdgeKey
     num_insertions: int = 0
 
