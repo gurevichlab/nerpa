@@ -124,10 +124,9 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
     for disc_prob in map(DiscreteProb, range(MAX_DISCRETE_PROB - 1, MIN_DISCRETE_PROB - 1, -1)):
         p_values[disc_prob] = p_values[disc_prob + 1] + to_prob(DiscreteProb(disc_prob)) * dp[final_state, disc_prob]
 
-    # Subtract the contribution of one path with each discrete probability
-    contributions = np.array([to_prob(DiscreteProb(k))
-                              for k in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1)])
-    p_values -= contributions
+    for disc_prob in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
+        if dp[final_state, disc_prob] > 0:  # Only subtract if there are actual paths with this probability
+            p_values[disc_prob] -= to_prob(DiscreteProb(disc_prob))
 
     # Prevent possible miscalculation caused by discretization
     p_values = np.clip(p_values, 0.0, 1.0)
@@ -238,8 +237,8 @@ def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, 
         lower_bound_p_value = Prob(max(0.0, min(1.0, lower_bound_p_value)))
         upper_bound_p_value = Prob(max(0.0, min(1.0, upper_bound_p_value)))
 
-        # Check if the optimal p-value is within bounds
-        is_within_bounds = (float(lower_bound_p_value) <= float(optimal_p_value) <= float(upper_bound_p_value))
+        # Reverse the bounds since p-value(threshold) is decreasing function
+        is_within_bounds = (float(upper_bound_p_value) <= float(optimal_p_value) <= float(lower_bound_p_value))
 
         # Store the results
         results.append((disc_prob, threshold_log_prob, optimal_p_value,
