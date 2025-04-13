@@ -1,7 +1,6 @@
 from typing import List, Tuple, Dict, NamedTuple, NewType
 import numpy as np
 from numpy.typing import NDArray
-import bisect
 
 StateIdx = NewType('StateIdx', int)
 LogProb = NewType('LogProb', float)
@@ -32,6 +31,22 @@ class PValueEstimator:
         disc_threshold_score = to_discrete_prob(path_log_prob)
         p_value = self._p_values[disc_threshold_score]
         return Prob(p_value)
+
+
+def discretization_error(hmm: HMM) -> Prob:
+    # Error of discretization of one transition or emission
+    single_error = 0.5 / (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB)
+
+    # Longest path contains less than number of vertices transitions
+    transition_error = single_error * (len(hmm.transitions) - 1)
+
+    # Longest path also contains emissions
+    emission_error = 0.0
+    for emission in hmm.emissions:
+        if emission:
+            emission_error += single_error
+
+    return transition_error + emission_error
 
 
 def to_discrete_prob(log_prob: LogProb) -> DiscreteProb:
@@ -147,57 +162,6 @@ def get_all_paths_log_probs(hmm: HMM) -> List[LogProb]:
     return path_log_probs
 
 
-def compute_naive_p_values(hmm: HMM) -> NDArray[np.float64]:
-    path_log_probs = get_all_paths_log_probs(hmm)
-    path_probs = [np.exp(lp) for lp in path_log_probs]
-
-    sorted_path_probs = sorted(path_probs)
-    n = len(sorted_path_probs)
-
-    # Precompute cumulative sums for fast p-value lookups
-    cum_sums = np.empty(n, dtype=np.float64)
-    if n:
-        cum_sums[-1] = sorted_path_probs[-1]
-        for i in range(n - 2, -1, -1):
-            cum_sums[i] = cum_sums[i + 1] + sorted_path_probs[i]
-
-    num_thresholds = MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1
-    p_values = np.empty(num_thresholds, dtype=np.float64)
-
-    for disc in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
-        threshold_prob = np.exp(to_log_prob(DiscreteProb(disc)))
-        idx = bisect.bisect_right(sorted_path_probs, threshold_prob)
-        p_val = cum_sums[idx] if idx < n else 0.0
-        p_values[disc - MIN_DISCRETE_PROB] = p_val
-
-    p_values = np.clip(p_values, 0.0, 1.0)
-    return p_values
-
-
-def compare_p_values(hmm: HMM) -> Tuple[float, float, Dict[float, int]]:
-    estimator = PValueEstimator(hmm)
-    optimal_p_values = estimator._p_values
-
-    true_p_values = compute_naive_p_values(hmm)
-
-    # Calculate absolute differences
-    absolute_differences = np.abs(optimal_p_values - true_p_values)
-
-    max_absolute_difference = np.max(absolute_differences)
-    mean_absolute_difference = np.mean(absolute_differences)
-
-    # Create a dictionary of differences and their counts
-    diff_dict = {}
-    for diff in absolute_differences:
-        rounded_diff = round(diff, 6)  # Round to 6 decimal places
-        if rounded_diff in diff_dict:
-            diff_dict[rounded_diff] += 1
-        else:
-            diff_dict[rounded_diff] = 1
-
-    return max_absolute_difference, mean_absolute_difference, diff_dict
-
-
 def create_test_hmm() -> HMM:
     transitions = [
         [(StateIdx(1), LogProb(-1.1)), (StateIdx(2), LogProb(-0.7)), (StateIdx(3), LogProb(-1.6))],
@@ -224,24 +188,90 @@ def create_test_hmm() -> HMM:
     return HMM(transitions=transitions, emissions=emissions)
 
 
+def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, Prob, bool]]:
+    # Get the optimal p-values
+    estimator = PValueEstimator(hmm)
+    optimal_p_values = estimator._p_values
+
+    # Calculate the discretization error once
+    error = discretization_error(hmm)
+
+    # Get all paths and their log probabilities
+    path_log_probs = get_all_paths_log_probs(hmm)
+    path_probs = [np.exp(float(lp)) for lp in path_log_probs]
+
+    # Results container
+    results = []
+
+    # Check each discrete probability
+    for disc in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
+        disc_prob = DiscreteProb(disc)
+
+        # Get the optimal p-value (convert from numpy float to Prob)
+        optimal_p_value = Prob(float(optimal_p_values[disc]))
+
+        # Convert discrete probability to log probability
+        threshold_log_prob = to_log_prob(disc_prob)
+
+        # Calculate the lower and upper bounds in log probability space
+        lower_bound_log_prob = LogProb(float(threshold_log_prob) - float(error))
+        upper_bound_log_prob = LogProb(float(threshold_log_prob) + float(error))
+
+        # Convert to actual probabilities
+        lower_threshold_prob = np.exp(float(lower_bound_log_prob))
+        upper_threshold_prob = np.exp(float(upper_bound_log_prob))
+
+        # Calculate p-values for bounds by summing probabilities above threshold
+        lower_bound_p_value = sum(p for p in path_probs if p >= lower_threshold_prob)
+        upper_bound_p_value = sum(p for p in path_probs if p >= upper_threshold_prob)
+
+        # Subtract one path contribution if there's an exact match
+        exact_lower_matches = [p for p in path_probs if abs(p - lower_threshold_prob) < 1e-10]
+        if exact_lower_matches:
+            lower_bound_p_value -= exact_lower_matches[0]
+
+        exact_upper_matches = [p for p in path_probs if abs(p - upper_threshold_prob) < 1e-10]
+        if exact_upper_matches:
+            upper_bound_p_value -= exact_upper_matches[0]
+
+        # Ensure p-values are in valid range and convert to Prob type
+        lower_bound_p_value = Prob(max(0.0, min(1.0, lower_bound_p_value)))
+        upper_bound_p_value = Prob(max(0.0, min(1.0, upper_bound_p_value)))
+
+        # Check if the optimal p-value is within bounds
+        is_within_bounds = (float(lower_bound_p_value) <= float(optimal_p_value) <= float(upper_bound_p_value))
+
+        # Store the results
+        results.append((disc_prob, threshold_log_prob, optimal_p_value,
+                        lower_bound_p_value, upper_bound_p_value, is_within_bounds))
+
+    return results
+
+
 def test_p_value_estimator():
-    test_hmm = create_test_hmm()
+    hmm = create_test_hmm()
 
-    max_abs_diff, mean_abs_diff, diff_dict = compare_p_values(test_hmm)
+    error = discretization_error(hmm)
 
-    print("\nDistribution of absolute differences:")
-    print("Difference | Count")
-    print("-" * 20)
+    comparison_results = compare_p_values(hmm)
 
-    # Sort the differences for clearer output
-    for diff, count in sorted(diff_dict.items()):
-        print(f"{diff:10.6f} | {count}")
-    print("-" * 20)
-    print(f"  Total    | {MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1}")
+    # Print header
+    print(f"Discretization error: {error}")
+    print("\nComparing p-values for each threshold:")
+    print("-" * 80)
+    print(
+        f"{'Disc Prob':<10} {'Log Prob':<15} {'Optimal p-value':<20} {'Lower Bound':<15} {'Upper Bound':<15} {'Within Bounds'}")
+    print("-" * 80)
 
-    print("-" * 20)
-    print(f"Maximum absolute difference: {max_abs_diff:.6f}")
-    print(f"Mean absolute difference: {mean_abs_diff:.6f}")
+    # Print each result
+    for disc_prob, log_prob, optimal_p, lower_bound, upper_bound, is_within in comparison_results:
+        print(
+            f"{disc_prob:<10} {float(log_prob):<15.6f} {float(optimal_p):<20.6e} {float(lower_bound):<15.6e} {float(upper_bound):<15.6e} {'Yes' if is_within else 'No'}")
+
+    # Check if all values are within bounds
+    all_within_bounds = all(result[5] for result in comparison_results)
+
+    return all_within_bounds
 
 
 if __name__ == "__main__":
