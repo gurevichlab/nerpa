@@ -33,9 +33,9 @@ class PValueEstimator:
         return Prob(p_value)
 
 
-def discretization_error(hmm: HMM) -> Prob:
+def discretization_error(hmm: HMM) -> LogProb:
     # Error of discretization of one transition or emission
-    single_error = 0.5 / (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB)
+    single_error = 0.5 * (LOG_PROB_MAX_VALUE - LOG_PROB_MIN_VALUE + 1) / (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1)
 
     # Longest path contains less than number of vertices transitions
     transition_error = single_error * (len(hmm.transitions) - 1)
@@ -216,29 +216,26 @@ def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, 
         lower_bound_log_prob = LogProb(float(threshold_log_prob) - float(error))
         upper_bound_log_prob = LogProb(float(threshold_log_prob) + float(error))
 
-        # Convert to actual probabilities
         lower_threshold_prob = np.exp(float(lower_bound_log_prob))
         upper_threshold_prob = np.exp(float(upper_bound_log_prob))
 
-        # Calculate p-values for bounds by summing probabilities above threshold
-        lower_bound_p_value = sum(p for p in path_probs if p >= lower_threshold_prob)
-        upper_bound_p_value = sum(p for p in path_probs if p >= upper_threshold_prob)
+        # Reverse the bounds since p-value(threshold) is decreasing function
+        upper_bound_p_value = sum(p for p in path_probs if p >= lower_threshold_prob)
+        lower_bound_p_value = sum(p for p in path_probs if p >= upper_threshold_prob)
 
-        # Subtract one path contribution if there's an exact match
-        exact_lower_matches = [p for p in path_probs if abs(p - lower_threshold_prob) < 1e-10]
-        if exact_lower_matches:
-            lower_bound_p_value -= exact_lower_matches[0]
-
-        exact_upper_matches = [p for p in path_probs if abs(p - upper_threshold_prob) < 1e-10]
+        exact_upper_matches = [p for p in path_probs if abs(p - lower_threshold_prob) < 1e-10]
         if exact_upper_matches:
             upper_bound_p_value -= exact_upper_matches[0]
 
-        # Ensure p-values are in valid range and convert to Prob type
-        lower_bound_p_value = Prob(max(0.0, min(1.0, lower_bound_p_value)))
-        upper_bound_p_value = Prob(max(0.0, min(1.0, upper_bound_p_value)))
+        exact_lower_matches = [p for p in path_probs if abs(p - upper_threshold_prob) < 1e-10]
+        if exact_lower_matches:
+            lower_bound_p_value -= exact_lower_matches[0]
 
-        # Reverse the bounds since p-value(threshold) is decreasing function
-        is_within_bounds = (float(upper_bound_p_value) <= float(optimal_p_value) <= float(lower_bound_p_value))
+        # Ensure p-values are in valid range and convert to Prob type
+        upper_bound_p_value = Prob(max(0.0, min(1.0, upper_bound_p_value)))
+        lower_bound_p_value = Prob(max(0.0, min(1.0, lower_bound_p_value)))
+
+        is_within_bounds = (float(upper_bound_p_value) >= float(optimal_p_value) >= float(lower_bound_p_value))
 
         # Store the results
         results.append((disc_prob, threshold_log_prob, optimal_p_value,
