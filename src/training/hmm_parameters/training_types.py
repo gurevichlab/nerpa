@@ -35,6 +35,12 @@ class ChoicesCnts(NamedTuple):
     NOT_CHOSEN: int
     CHOSEN: int
 
+    def to_prob(self, pseudocounts: bool = False) -> float:
+        if pseudocounts:
+            return (self.CHOSEN + 1) / (self.NOT_CHOSEN + self.CHOSEN + 2)
+        else:
+            return self.CHOSEN / (self.NOT_CHOSEN + self.CHOSEN)
+
 
 class MatchEmissionInfo(NamedTuple):
     bgc_id: BGC_ID

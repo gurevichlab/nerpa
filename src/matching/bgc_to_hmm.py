@@ -24,7 +24,7 @@ def make_edge(edge_type: DetailedHMMEdgeType,
     if fst_module_idx is None:
         return DetailedHMMEdge(edge_type=edge_type,
                                weight=log_prob,
-                               genomic_context=None,
+                               genomic_context=(),
                                edge_key=None)
 
     fst_module = bgc_variant.modules[fst_module_idx]
@@ -32,7 +32,7 @@ def make_edge(edge_type: DetailedHMMEdgeType,
     if edge_type == DetailedHMMEdgeType.SKIP_GENE:
         return DetailedHMMEdge(edge_type=edge_type,
                                weight=log_prob,
-                               genomic_context=None,
+                               genomic_context=(),
                                edge_key=GeneLevelEdgeKey(fst_module.gene_id))
 
     module_context = bgc_variant.modules[fst_module_idx].genomic_context
@@ -181,6 +181,7 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
     module_idx_to_module_skip_state_idx = {}
     last_fragment_fst, _ = fragment_intervals[len(fragment_intervals) - 1]
     for i, module in enumerate(bgc_variant.modules[:last_fragment_fst]):  # skipping modules[:i+1]. Modules in the last fragment can't be skipped
+        # if path comes to this state, the i-th module is skipped
         states.append(DetailedHMMState(state_type=DetailedHMMStateType.SKIP_MODULE_AT_START,
                                        emissions={}))
         module_idx_to_module_skip_state_idx[i] = len(states) - 1
@@ -188,20 +189,25 @@ def add_skip_at_the_beginning(states: List[DetailedHMMState],
         if bgc_variant.modules[i + 1].fragment_idx != bgc_variant.modules[i].fragment_idx:  # next module is the first in the fragment
             adj_list[len(states) - 1][module_idx_to_start_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_MATCHING,
                                                                                          log_prob=None,
-                                                                                         fst_module_idx=i + 1)
+                                                                                         fst_module_idx=None)
             adj_list[len(states) - 1][module_idx_to_insert_state_idx[i + 1]] = _make_edge(edge_type=DetailedHMMEdgeType.START_INSERTING_AT_START,
                                                                                           log_prob=None,
                                                                                           fst_module_idx=i + 1)
         if i > 0:
             prev_module_skip_state_idx = module_idx_to_module_skip_state_idx[i - 1]
-            adj_list[prev_module_skip_state_idx][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE,
+            adj_list[prev_module_skip_state_idx][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_START,
                                                                                log_prob=None,
                                                                                fst_module_idx=i)  # skip the previous module
 
     if len(fragment_intervals) > 1:  # at least two fragments
-        adj_list[initial_state][module_idx_to_module_skip_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIP_MODULES_AT_START,
-                                                                                     log_prob=None,
-                                                                                     fst_module_idx=None)
+        states.append(DetailedHMMState(state_type=DetailedHMMStateType.START_SKIP_MODULES_AT_START,
+                                       emissions={}))
+        adj_list[len(states) - 1][module_idx_to_module_skip_state_idx[0]] = _make_edge(edge_type=DetailedHMMEdgeType.SKIP_MODULE_AT_START,
+                                                                                       log_prob=None,
+                                                                                       fst_module_idx=0)
+        adj_list[initial_state][len(states) - 1] = _make_edge(edge_type=DetailedHMMEdgeType.START_SKIP_MODULES_AT_START,
+                                                              log_prob=None,
+                                                              fst_module_idx=None)
 
 
 def add_skip_at_the_end(states: List[DetailedHMMState],
@@ -253,17 +259,18 @@ def add_skip_at_the_end(states: List[DetailedHMMState],
 
             adj_list[prev_module_match_idx][end_matching_idx] = _make_edge(edge_type=ET.END_MATCHING,
                                                                           log_prob=None,
-                                                                          fst_module_idx=None)
+                                                                          fst_module_idx=module_idx - 1)
             if module_idx > 1:  # just filter out an annoying case of a single-module first fragment: it doesn't break anything but skipping the whole BGC is pointless
                 adj_list[prev_module_start_idx][end_matching_idx] = _make_edge(edge_type=ET.SKIP_MODULE_END_MATCHING,
                                                                                log_prob=None,
-                                                                               fst_module_idx=None)
+                                                                               fst_module_idx=module_idx - 1)
+
             adj_list[end_matching_idx][end_inserting_at_end] = _make_edge(edge_type=ET.NO_INSERTIONS,
                                                                           log_prob=None,
                                                                           fst_module_idx=None)
             adj_list[end_matching_idx][insert_at_end_idx] = _make_edge(edge_type=ET.START_INSERTING_AT_END,
                                                                        log_prob=None,
-                                                                       fst_module_idx=None)
+                                                                       fst_module_idx=module_idx - 1)
             adj_list[insert_at_end_idx][insert_at_end_idx] = _make_edge(edge_type=ET.INSERT_AT_END,
                                                                         log_prob=None,
                                                                         fst_module_idx=None)
