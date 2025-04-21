@@ -92,4 +92,4 @@ class HMMHelper:
         return {nrp_monomer: 0 for nrp_monomer in self.monomer_names_helper.mon_to_int}
 
     def get_edge_weights(self, hmm) -> Dict[Tuple[int, int], LogProb]:
-        return get_edge_weights(hmm, self.scoring_config.edge_weight_parameters)
+        return get_edge_weights(hmm, self.scoring_config)

@@ -4,6 +4,7 @@ import yaml
 from src.matching.match_type import Match
 from src.config import load_monomer_names_helper
 from src.training.hmm_parameters.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
+from src.training.hmm_parameters.hmm_infer_edge_params import infer_edge_params
 from src.training.hmm_parameters.training_types import MatchWithBGCNRP, MatchEmissionInfo
 from src.training.hmm_parameters.extract_data_for_training import extract_data_for_training
 from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission_params
@@ -140,8 +141,7 @@ def main():
     dump_emissions_training_data(data_for_training, args.output_dir)
 
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')
-    # edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
-    edge_params = None  # placeholder
+    edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
 
     emission_params = infer_emission_params(data_for_training.match_emissions,
                                             norine_stats,

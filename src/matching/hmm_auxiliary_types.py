@@ -45,6 +45,7 @@ class HMM(NamedTuple):
 class DetailedHMMStateType(Enum):
     INITIAL = auto()
 
+    START_SKIP_MODULES_AT_START = auto()
     SKIP_MODULE_AT_START = auto()
     INSERT_AT_START = auto()
 
@@ -111,7 +112,7 @@ class DetailedHMMEdge(NamedTuple):
     edge_type: DetailedHMMEdgeType
     weight: LogProb
     # edges have different weights, depending on the type and the context
-    genomic_context: Optional[GenomicContext]
+    genomic_context: GenomicContext
     # edge_key is used in parameter estimation to not count the same edge multiple times
     # when it's used for different NRP compounds and the same BGC (but maybe different variants)
     edge_key: EdgeKey

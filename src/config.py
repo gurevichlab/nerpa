@@ -18,7 +18,9 @@ from collections import defaultdict
 
 from scipy.signal import residue
 
-from src.data_types import Prob
+from src.antismash_parsing.genomic_context import ModuleGenomicContext
+from src.data_types import Prob, LogProb
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     MonomerResidue,
@@ -164,12 +166,6 @@ class rBAN_Output_Config:
 class rBAN_Processing_Config:
     MIN_RECOGNIZED_NODES: int
     PNP_BONDS: List[str]
-
-
-@dataclass
-class HMM_Scoring_Config:
-    edge_weight_parameters: Dict[str, Dict[Optional[str], float]]
-    emission_parameters: Dict[str, Dict[str, float]]
 
 
 @dataclass
