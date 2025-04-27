@@ -193,7 +193,8 @@ def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, 
     optimal_p_values = estimator._p_values
 
     # Calculate the discretization error once
-    error = discretization_error(hmm)
+    log_error = discretization_error(hmm)
+    error = np.exp(float(log_error))
 
     # Get all paths and their log probabilities
     path_log_probs = get_all_paths_log_probs(hmm)
@@ -213,8 +214,8 @@ def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, 
         threshold_log_prob = to_log_prob(disc_prob)
 
         # Calculate the lower and upper bounds in log probability space
-        lower_bound_log_prob = LogProb(float(threshold_log_prob) - float(error))
-        upper_bound_log_prob = LogProb(float(threshold_log_prob) + float(error))
+        lower_bound_log_prob = LogProb(float(threshold_log_prob - log_error))
+        upper_bound_log_prob = LogProb(float(threshold_log_prob + log_error))
 
         lower_threshold_prob = np.exp(float(lower_bound_log_prob))
         upper_threshold_prob = np.exp(float(upper_bound_log_prob))
@@ -231,9 +232,15 @@ def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, 
         if exact_lower_matches:
             lower_bound_p_value -= exact_lower_matches[0]
 
-        # Ensure p-values are in valid range and convert to Prob type
-        upper_bound_p_value = Prob(max(0.0, min(1.0, upper_bound_p_value)))
-        lower_bound_p_value = Prob(max(0.0, min(1.0, lower_bound_p_value)))
+        log_prob = to_log_prob(disc_prob)
+        actual_prob = np.exp(float(log_prob))
+
+        upper_error = max(0, error/(actual_prob - error))
+        lower_error = max(0, error/(actual_prob + error))
+
+        # Account the second type of error caused by crossing the threshold by probabilities of paths
+        upper_bound_p_value += upper_error
+        lower_bound_p_value -= lower_error
 
         is_within_bounds = (float(upper_bound_p_value) >= float(optimal_p_value) >= float(lower_bound_p_value))
 
