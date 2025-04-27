@@ -8,7 +8,7 @@ DiscreteProb = NewType('DiscreteProb', int)
 Prob = NewType('Prob', float)  # actual probability value in range [0, 1]
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(1000)
+MAX_DISCRETE_PROB = DiscreteProb(10000)
 MIN_DISCRETE_PROB = DiscreteProb(0)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
