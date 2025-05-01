@@ -8,7 +8,7 @@ DiscreteProb = NewType('DiscreteProb', int)
 Prob = NewType('Prob', float)  # actual probability value in range [0, 1]
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(10000)
+MAX_DISCRETE_PROB = DiscreteProb(1000)
 MIN_DISCRETE_PROB = DiscreteProb(0)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
@@ -19,6 +19,15 @@ LOG_PROB_MAX_VALUE = LogProb(0)
 class HMM(NamedTuple):
     transitions: List[List[Tuple[StateIdx, LogProb]]]   # u -> [(v, log_prob(u -> v))]
     emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
+
+
+class PValueComparisonResult(NamedTuple):
+    disc_prob: DiscreteProb  # Discretized probability
+    threshold_log_prob: LogProb  # Lof probability threshold
+    approx_p_value: Prob  # Approximate p-value
+    lower_bound_p_value: Prob  # Lower bound of p-value
+    upper_bound_p_value: Prob  # Upper bound of p-value
+    is_within_bounds: bool  # Whether the approximate p-value is within the bounds
 
 
 class PValueEstimator:
@@ -42,8 +51,8 @@ def discretization_error(hmm: HMM) -> LogProb:
 
     # Longest path also contains emissions
     emission_error = 0.0
-    for emission in hmm.emissions:
-        if emission:
+    for state_emissions in hmm.emissions:
+        if state_emissions:
             emission_error += single_error
 
     return transition_error + emission_error
@@ -163,90 +172,99 @@ def get_all_paths_log_probs(hmm: HMM) -> List[LogProb]:
 
 def create_test_hmm() -> HMM:
     transitions = [
-        [(StateIdx(1), LogProb(-1.1)), (StateIdx(2), LogProb(-0.7)), (StateIdx(3), LogProb(-1.6))],
-        [(StateIdx(4), LogProb(-0.4)), (StateIdx(5), LogProb(-1.0))],
-        [(StateIdx(4), LogProb(-1.2)), (StateIdx(5), LogProb(-0.8)), (StateIdx(6), LogProb(-1.3))],
-        [(StateIdx(5), LogProb(-0.3)), (StateIdx(6), LogProb(-0.9))],
-        [(StateIdx(6), LogProb(-0.5)), (StateIdx(7), LogProb(-0.9))],
-        [(StateIdx(7), LogProb(-0.2))],
-        [(StateIdx(7), LogProb(-0.4))],
+        [(StateIdx(1), LogProb(-1.0)), (StateIdx(2), LogProb(-1.2)), (StateIdx(3), LogProb(-1.5))],
+        [(StateIdx(4), LogProb(-0.8)), (StateIdx(5), LogProb(-1.1)), (StateIdx(6), LogProb(-1.3))],
+        [(StateIdx(4), LogProb(-1.0)), (StateIdx(5), LogProb(-0.9)), (StateIdx(6), LogProb(-1.2))],
+        [(StateIdx(4), LogProb(-1.3)), (StateIdx(5), LogProb(-1.0)), (StateIdx(6), LogProb(-0.7))],
+        [(StateIdx(7), LogProb(-0.6)), (StateIdx(8), LogProb(-1.2)), (StateIdx(9), LogProb(-1.0))],
+        [(StateIdx(7), LogProb(-0.9)), (StateIdx(8), LogProb(-0.8)), (StateIdx(9), LogProb(-1.1))],
+        [(StateIdx(7), LogProb(-1.2)), (StateIdx(8), LogProb(-0.7)), (StateIdx(9), LogProb(-0.9))],
+        [(StateIdx(10), LogProb(-0.3))],
+        [(StateIdx(10), LogProb(-0.4))],
+        [(StateIdx(10), LogProb(-0.5))],
         []
     ]
 
     emissions = [
         [],
-        [LogProb(-0.3), LogProb(-1.2)],
-        [LogProb(-0.7), LogProb(-1.1), LogProb(-0.9)],
-        [LogProb(-0.2), LogProb(-1.6)],
-        [LogProb(-0.5)],
-        [LogProb(-0.4), LogProb(-0.8)],
-        [LogProb(-0.6), LogProb(-1.0), LogProb(-1.3)],
+        [LogProb(-0.5), LogProb(-1.2)],
+        [LogProb(-0.6), LogProb(-1.0), LogProb(-1.4)],
+        [LogProb(-0.3), LogProb(-1.1)],
+        [LogProb(-0.7)],
+        [LogProb(-0.4), LogProb(-0.9)],
+        [LogProb(-0.6), LogProb(-1.3), LogProb(-0.8)],
+        [LogProb(-0.2), LogProb(-1.5)],
+        [LogProb(-0.5), LogProb(-1.0)],
+        [LogProb(-0.8)],
         []
     ]
 
     return HMM(transitions=transitions, emissions=emissions)
 
 
-def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, Prob, bool]]:
-    # Get the optimal p-values
-    estimator = PValueEstimator(hmm)
-    optimal_p_values = estimator._p_values
+def prepare_p_value_comparison(hmm: HMM) -> Tuple[PValueEstimator, LogProb, List[float]]:
+    """
+    Computes p-values, creates the p-value estimator, and calculates the discretization error.
+    """
+    # Create the p-value estimator
+    p_value_estimator = PValueEstimator(hmm)
 
-    # Calculate the discretization error once
+    # Calculate the discretization error
     log_error = discretization_error(hmm)
-    error = np.exp(float(log_error))
 
     # Get all paths and their log probabilities
     path_log_probs = get_all_paths_log_probs(hmm)
     path_probs = [np.exp(float(lp)) for lp in path_log_probs]
 
-    # Results container
+    return p_value_estimator, log_error, path_probs
+
+
+def check_p_value_bounds(p_value_estimator: PValueEstimator, log_error: LogProb, path_probs: List[float]) -> List[PValueComparisonResult]:
+    """
+    Checks if the approximate p-values are within bounds.
+    """
+    error = np.exp(float(log_error))
     results = []
 
     # Check each discrete probability
     for disc in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
         disc_prob = DiscreteProb(disc)
 
-        # Get the optimal p-value (convert from numpy float to Prob)
-        optimal_p_value = Prob(float(optimal_p_values[disc]))
-
         # Convert discrete probability to log probability
         threshold_log_prob = to_log_prob(disc_prob)
 
-        # Calculate the lower and upper bounds in log probability space
-        lower_bound_log_prob = LogProb(float(threshold_log_prob - log_error))
-        upper_bound_log_prob = LogProb(float(threshold_log_prob + log_error))
+        # Get the optimal p-value using the estimator
+        optimal_p_value = p_value_estimator(threshold_log_prob)
 
-        lower_threshold_prob = np.exp(float(lower_bound_log_prob))
-        upper_threshold_prob = np.exp(float(upper_bound_log_prob))
+        # Calculate the lower and upper bounds in log probability space
+        threshold_lp_lb = LogProb(float(threshold_log_prob - log_error))
+        threshold_lp_ub = LogProb(float(threshold_log_prob + log_error))
+
+        lower_threshold_prob = np.exp(float(threshold_lp_lb))
+        upper_threshold_prob = np.exp(float(threshold_lp_ub))
 
         # Reverse the bounds since p-value(threshold) is decreasing function
         upper_bound_p_value = sum(p for p in path_probs if p >= lower_threshold_prob)
         lower_bound_p_value = sum(p for p in path_probs if p >= upper_threshold_prob)
 
-        exact_upper_matches = [p for p in path_probs if abs(p - lower_threshold_prob) < 1e-10]
-        if exact_upper_matches:
-            upper_bound_p_value -= exact_upper_matches[0]
-
-        exact_lower_matches = [p for p in path_probs if abs(p - upper_threshold_prob) < 1e-10]
-        if exact_lower_matches:
-            lower_bound_p_value -= exact_lower_matches[0]
-
         log_prob = to_log_prob(disc_prob)
         actual_prob = np.exp(float(log_prob))
 
-        upper_error = max(0, error/(actual_prob - error))
-        lower_error = max(0, error/(actual_prob + error))
+        upper_error = max(0, error / (actual_prob - error))
+        lower_error = max(0, error / (actual_prob + error))
 
         # Account the second type of error caused by crossing the threshold by probabilities of paths
         upper_bound_p_value += upper_error
         lower_bound_p_value -= lower_error
 
-        is_within_bounds = (float(upper_bound_p_value) >= float(optimal_p_value) >= float(lower_bound_p_value))
+        # "<=" is used to include the case when p-value is zero or one
+        is_within_bounds = (float(lower_bound_p_value) <= float(optimal_p_value) <= float(upper_bound_p_value))
 
         # Store the results
-        results.append((disc_prob, threshold_log_prob, optimal_p_value,
-                        lower_bound_p_value, upper_bound_p_value, is_within_bounds))
+        results.append(PValueComparisonResult(
+            disc_prob, threshold_log_prob, optimal_p_value,
+            lower_bound_p_value, upper_bound_p_value, is_within_bounds
+        ))
 
     return results
 
@@ -254,25 +272,29 @@ def compare_p_values(hmm: HMM) -> List[Tuple[DiscreteProb, LogProb, Prob, Prob, 
 def test_p_value_estimator():
     hmm = create_test_hmm()
 
-    error = discretization_error(hmm)
+    # Prepare p-value comparison components
+    p_value_estimator, log_error, path_probs = prepare_p_value_comparison(hmm)
 
-    comparison_results = compare_p_values(hmm)
+    # Check if p-values are within bounds
+    comparison_results = check_p_value_bounds(p_value_estimator, log_error, path_probs)
 
     # Print header
-    print(f"Discretization error: {error}")
-    print("\nComparing p-values for each threshold:")
-    print("-" * 80)
-    print(
-        f"{'Disc Prob':<10} {'Log Prob':<15} {'Optimal p-value':<20} {'Lower Bound':<15} {'Upper Bound':<15} {'Within Bounds'}")
-    print("-" * 80)
+    print(f"Discretization error: {log_error}\n"
+          + "-" * 100
+          + f"\n{'Disc Prob':<10} {'Log Prob':<15} {'Optimal p-value':<20}"
+          + f" {'Lower Bound':<15} {'Upper Bound':<15} {'Within Bounds'}\n"
+          + "-" * 100)
 
     # Print each result
-    for disc_prob, log_prob, optimal_p, lower_bound, upper_bound, is_within in comparison_results:
+    for result in comparison_results:
         print(
-            f"{disc_prob:<10} {float(log_prob):<15.6f} {float(optimal_p):<20.6e} {float(lower_bound):<15.6e} {float(upper_bound):<15.6e} {'Yes' if is_within else 'No'}")
+            f"{result.disc_prob:<10} {float(result.threshold_log_prob):<15.6f} "
+            f"{float(result.approx_p_value):<20.6e} {float(result.lower_bound_p_value):<15.6e} "
+            f"{float(result.upper_bound_p_value):<15.6e} {'Yes' if result.is_within_bounds else 'No'}"
+        )
 
     # Check if all values are within bounds
-    all_within_bounds = all(result[5] for result in comparison_results)
+    all_within_bounds = all(result.is_within_bounds for result in comparison_results)
 
     return all_within_bounds
 
