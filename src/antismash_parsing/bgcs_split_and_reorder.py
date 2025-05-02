@@ -150,7 +150,7 @@ def split_genes_into_fragments(genes: List[Gene]) -> List[BGC_Fragment]:
 
 GeneBlock = List[Gene]  # a continuous sequence of genes from the same strand
 def split_gene_block_into_fragments(genes: List[Gene]) -> Iterable[List[BGC_Fragment]]:
-    """returns all ways to split a gene block into fragments"""
+    """returns all the ways to split a gene block into fragments"""
     splits = [split_genes_into_fragments(genes)]
     if len(genes) == 2 or genes[0].coords.strand == STRAND.REVERSE:
         splits.append(split_genes_into_fragments(genes[::-1]))

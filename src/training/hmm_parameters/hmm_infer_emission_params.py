@@ -1,13 +1,16 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, NamedTuple
 from collections import Counter
+
+from src.aa_specificity_prediction_model.specificity_prediction_helper import create_step_function
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 from src.training.hmm_parameters.step_function import (
     create_bins,
     fit_step_function_to_bins,
     plot_step_function,
-    plot_step_function_stacked
+    plot_step_function_stacked,
 )
-from src.monomer_names_helper import NRP_Monomer
-from src.data_types import LogProb
+from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE
+from src.data_types import LogProb, Prob
 from src.data_types import (
     BGC_Module,
     BGC_Module_Modification
@@ -17,6 +20,8 @@ from src.training.hmm_parameters.norine_stats import NorineStats
 
 from pathlib import Path
 from math import log
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 def get_score_correctness(emissions: List[MatchEmissionInfo]) -> List[Tuple[LogProb, bool]]:
@@ -88,18 +93,108 @@ def get_modifications_scores(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
             for nrp in (True, False)}
 
 
+def get_unknown_because_pks_prob(emissions: List[MatchEmissionInfo],
+                                 step_function_steps: List[float]) -> Prob:
+    emissions_with_pks = [emission for emission in emissions
+                          if ModuleGenomicContextFeature.PKS_DOWNSTREAM in emission.bgc_module.genomic_context]
+    calibration_function = create_step_function(step_function_steps)
+    unknown_preds_correctness =[(calibration_function(emission.bgc_module.residue_score[UNKNOWN_RESIDUE]),
+                                 emission.nrp_monomer.residue == UNKNOWN_RESIDUE)
+                                for emission in emissions_with_pks]
+    print(f'Unknown residue predictions correctness: {unknown_preds_correctness}')
+
+    # in our model UNKNOWN_RESIDUE can appear due to two independent reasons:
+    # 1. the unknown residue is attracted by A domain with probability p
+    # 2. the residue modified by PKS domains nearby with probability x
+    # here we estimate x given p-s
+
+    probs = np.array([pred for pred, correct in unknown_preds_correctness])
+    successes = np.array([correct for pred, correct in unknown_preds_correctness], dtype=int)
+
+    # 2. Prior hyper-parameters  (here: uniform Beta(1,1))  ─────────────────────
+    alpha = 1.0  # shape parameter α
+    beta = 1.0  # shape parameter β
+
+    # 3. Log-posterior kernel as a Python function ─────────────────────────────-
+    def logposterior(x, probs, successes, alpha, beta):
+        """
+        Returns log π(x | data) up to a normalising constant.
+        ------------------------------------------------------
+        x : scalar in (0,1)
+        probs : array of p_i values
+        successes: array of e_i (0/1) values
+        alpha, beta : Beta(a,b) prior hyper-parameters
+        """
+        # Likelihood part: product over i of  Bernoulli(q_i)
+        q = probs + (1.0 - probs) * x
+        ll = (successes * np.log(q) + (1.0 - successes) * np.log1p(-q)).sum()
+
+        # Prior part: Beta(a,b)  ∝ x^{a-1} (1-x)^{b-1}
+        lp = (alpha - 1.0) * np.log(x) + (beta - 1.0) * np.log1p(-x)
+
+        return ll + lp
+
+    # 4. Build an x-grid and evaluate the log-posterior everywhere ──────────────
+    #    A 2000-point grid is already plenty for 3–4 decimal places.
+    x_grid = np.linspace(0.0005, 0.9995, 2000)
+    log_post = np.array([logposterior(x, probs, successes, alpha, beta)
+                         for x in x_grid])
+
+    # 5. Convert log-values to normalised weights  w_j  on the grid ─────────────
+    #    • subtract max(log_post)  → prevents numerical underflow
+    #    • exponentiate            → back to probability scale
+    #    • divide by sum           → now ∑ w_j = 1  (proper mass function)
+    weights = np.exp(log_post - log_post.max())
+    weights /= weights.sum()
+
+    # 6. Posterior summaries  (mean & 95 % central credible interval) ──────────
+    mean_x = np.sum(weights * x_grid)
+
+    # cumulative weights for the empirical CDF on the grid
+    cdf = np.cumsum(weights)
+    lo = x_grid[np.searchsorted(cdf, 0.025)]  # lower 2.5 %
+    hi = x_grid[np.searchsorted(cdf, 0.975)]  # upper 97.5 %
+
+    print(f"Posterior mean      = {mean_x:0.4f}")
+    print(f"95 % credible band  = ({lo:0.4f}, {hi:0.4f})")
+
+    # 7. (Nice-to-have)  plot the posterior density  ───────────────────────────
+    plt.figure()
+    # convert the discrete masses to a “density” by dividing by grid spacing
+    plt.plot(x_grid, weights / (x_grid[1] - x_grid[0]))
+    plt.axvline(mean_x, linestyle="--")  # mark the posterior mean
+    plt.xlabel("x")
+    plt.ylabel("posterior density")
+    plt.title("Posterior of x via grid integration")
+    plt.tight_layout()
+    plt.show()
+
+    return mean_x
+
+
+class EmissionParams(NamedTuple):
+    step_function: List[float]
+    modifications_scores: Dict[str, float]
+    unknown_because_pks_prob: Prob
+
+
 def infer_emission_params(emissions: List[MatchEmissionInfo],
                           norine_stats: NorineStats,
-                          output_dir: Path) -> Tuple[List[float], Dict[str, float]]:
-    results = {}
+                          output_dir: Path) -> EmissionParams:
     print('Building step function...')
-    results['step_function'] = fit_step_function(emissions, 20, 1000,
-                                                 output_dir)  # TODO: put in config
+    step_function = fit_step_function(emissions, 20, 1000,
+                                      output_dir)  # TODO: put in config
     print('Calculating modifications frequencies...')
     default_freqs = {'METHYLATION': norine_stats.methylated / norine_stats.total_monomers,
                      'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
 
-    emissions_ = [(bgc_module, nrp_monomer) for bgc_info, bgc_module, nrp_monomer in emissions]
-    results['modifications_scores'] = get_modifications_scores(emissions_, default_freqs)
+    emissions_ = [(bgc_module, nrp_monomer.to_base_mon())
+                  for bgc_info, bgc_module, nrp_monomer in emissions]
+    modifications_scores = get_modifications_scores(emissions_, default_freqs)
 
-    return results['step_function'], results['modifications_scores']
+    print('Calculating PKS probability...')
+    unknown_because_pks_prob = get_unknown_because_pks_prob(emissions, step_function)
+
+    return EmissionParams(step_function=step_function,
+                          modifications_scores=modifications_scores,
+                          unknown_because_pks_prob=unknown_because_pks_prob)
