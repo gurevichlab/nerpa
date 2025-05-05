@@ -8,7 +8,7 @@ DiscreteProb = NewType('DiscreteProb', int)
 Prob = NewType('Prob', float)  # actual probability value in range [0, 1]
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(1000)
+MAX_DISCRETE_PROB = DiscreteProb(10000)
 MIN_DISCRETE_PROB = DiscreteProb(0)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
@@ -223,48 +223,48 @@ def check_p_value_bounds(p_value_estimator: PValueEstimator, log_error: LogProb,
     """
     Checks if the approximate p-values are within bounds.
     """
-    error = np.exp(float(log_error))
+    error = log_error
     results = []
 
     # Check each discrete probability
     for disc in range(MIN_DISCRETE_PROB, MAX_DISCRETE_PROB + 1):
         disc_prob = DiscreteProb(disc)
 
-        # Convert discrete probability to log probability
-        threshold_log_prob = to_log_prob(disc_prob)
+        # Convert discrete threshold to log probability format
+        threshold_lp = to_log_prob(disc_prob)
+        threshold = np.exp(float(threshold_lp))
 
         # Get the optimal p-value using the estimator
-        optimal_p_value = p_value_estimator(threshold_log_prob)
+        approx_p_value = p_value_estimator(threshold_lp)
 
-        # Calculate the lower and upper bounds in log probability space
-        threshold_lp_lb = LogProb(float(threshold_log_prob - log_error))
-        threshold_lp_ub = LogProb(float(threshold_log_prob + log_error))
+        # Account the first type of error caused by discretization of the threshold
+        threshold_lp_lb = LogProb(threshold_lp - log_error)
+        threshold_lp_ub = LogProb(threshold_lp + log_error)
 
-        lower_threshold_prob = np.exp(float(threshold_lp_lb))
-        upper_threshold_prob = np.exp(float(threshold_lp_ub))
+        threshold_lb = np.exp(float(threshold_lp_lb))
+        threshold_ub = np.exp(float(threshold_lp_ub))
 
-        # Reverse the bounds since p-value(threshold) is decreasing function
-        upper_bound_p_value = sum(p for p in path_probs if p >= lower_threshold_prob)
-        lower_bound_p_value = sum(p for p in path_probs if p >= upper_threshold_prob)
-
-        log_prob = to_log_prob(disc_prob)
-        actual_prob = np.exp(float(log_prob))
-
-        upper_error = max(0, error / (actual_prob - error))
-        lower_error = max(0, error / (actual_prob + error))
+        # Calculate the values of p-value bounds as sums of probabilities of paths that are above the thresholds
+        p_value_ub = sum(p for p in path_probs if p >= threshold_lb)
+        p_value_lb = sum(p for p in path_probs if p >= threshold_ub)
 
         # Account the second type of error caused by crossing the threshold by probabilities of paths
-        upper_bound_p_value += upper_error
-        lower_bound_p_value -= lower_error
+        if error > threshold - 1e-5:
+            upper_error = float('inf')
+        else:
+            upper_error = error / (threshold - error)
+        lower_error = error / (threshold + error)
 
-        # "<=" is used to include the case when p-value is zero or one
-        is_within_bounds = (float(lower_bound_p_value) <= float(optimal_p_value) <= float(upper_bound_p_value))
+        p_value_ub += upper_error
+        p_value_lb -= lower_error
+
+        # Check if the approximate p-value is within bounds
+        is_within_bounds = (float(p_value_lb) < float(approx_p_value) < float(p_value_ub))
 
         # Store the results
         results.append(PValueComparisonResult(
-            disc_prob, threshold_log_prob, optimal_p_value,
-            lower_bound_p_value, upper_bound_p_value, is_within_bounds
-        ))
+            disc_prob, threshold_lp, approx_p_value, p_value_lb, p_value_ub, is_within_bounds)
+        )
 
     return results
 
