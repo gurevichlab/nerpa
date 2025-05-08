@@ -60,17 +60,21 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
 
     skip_at_start_runs = edge_choices_cnts[ET.START_SKIP_MODULES_AT_START][()].CHOSEN
     skip_at_start_total = edge_choices_cnts[ET.SKIP_MODULE_AT_START][()].CHOSEN  # ONLY_A_DOMAIN skips not counted
-    avg = skip_at_start_total / skip_at_start_runs
+    avg = skip_at_start_total / skip_at_start_runs if skip_at_start_runs > 0 else 0
     skip_at_start_prob = 1 / (1 + avg)  # geometric distribution
 
     # all occurences of MGF.ONLY_A_DOMAIN *inside* BGC
     only_a_domains_middle = sum(edge_choices_cnts[ET.SKIP_MODULE][(MGF.ONLY_A_DOMAIN,)])  # CHOSEN + NOT_CHOSEN
-
     only_a_domains_start = edge_choices_cnts[ET.SKIP_MODULE_AT_START][(MGF.ONLY_A_DOMAIN,)].CHOSEN
     only_a_domains_end = edge_choices_cnts[ET.SKIP_MODULE_AT_END][(MGF.ONLY_A_DOMAIN,)].CHOSEN
+    if (only_a_domains_middle + only_a_domains_start + only_a_domains_end) > 0:
+        only_a_domain_skip_prob = (only_a_domains_start + only_a_domains_end) / (only_a_domains_middle + only_a_domains_start + only_a_domains_end)
+    else:
+        only_a_domain_skip_prob = 0.5
+
 
     edge_weight[ET.SKIP_MODULE_AT_START] = {(): log(skip_at_start_prob),
-                                            (MGF.ONLY_A_DOMAIN,): log(only_a_domains_start / (only_a_domains_middle + only_a_domains_start))}
+                                            (MGF.ONLY_A_DOMAIN,): log(only_a_domain_skip_prob)}
 
     edge_weight[ET.END_MATCHING] = from_cnts(edge_choices_cnts[ET.END_MATCHING])
     edge_weight[ET.SKIP_MODULE_END_MATCHING] = {
@@ -81,10 +85,10 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
     skip_at_end_runs = (sum(cnts.CHOSEN for cnts in edge_choices_cnts[ET.SKIP_MODULE_END_MATCHING].values())
                         + edge_choices_cnts[ET.END_MATCHING][()].CHOSEN)
     skip_at_end_total = edge_choices_cnts[ET.SKIP_MODULE_AT_END][()].CHOSEN  # ONLY_A_DOMAIN skips not counted
-    avg = skip_at_end_total / skip_at_end_runs
+    avg = skip_at_end_total / skip_at_end_runs if skip_at_end_runs > 0 else 0
     skip_at_end_prob = 1 / (1 + avg)  # geometric distribution
     edge_weight[ET.SKIP_MODULE_AT_END] = {(): log(skip_at_end_prob),
-                                            (MGF.ONLY_A_DOMAIN,): log(only_a_domains_end / (only_a_domains_middle + only_a_domains_end))}
+                                            (MGF.ONLY_A_DOMAIN,): log(only_a_domain_skip_prob)}
 
     edge_weight[ET.SKIP_GENE] = from_cnts(edge_choices_cnts[ET.SKIP_GENE])
 

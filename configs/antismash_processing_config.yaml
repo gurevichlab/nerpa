@@ -13,6 +13,7 @@ ANTISMASH_DOMAINS_NAMES_MAPPING:
   PKS_PP: PKS
 
   PCP: PCP
+  PP-binding: PCP
 
   Condensation: C
   Cglyc: C

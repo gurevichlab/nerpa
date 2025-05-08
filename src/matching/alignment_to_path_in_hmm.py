@@ -69,12 +69,14 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     # edges which correspond to aligning steps with bgc_info != None or nrp_info != None
 
     path_with_emissions = []
-    cnt = 0
     for (start, finish), emitted_monomers in zip(paths_endpoints, monomers_subseqs):
         #print(start, finish, emitted_monomers)
         # build path between consequent matches
-        cnt += 1
         sub_hmm = deepcopy(hmm)
+        for state in sub_hmm.states:
+            for mon in state.emissions:
+                state.emissions[mon] = 0
+
         for state_idx, state in enumerate(sub_hmm.states):
             if state.state_type == DetailedHMMStateType.MATCH and state_idx != start:
                 sub_hmm.transitions[state_idx] = {}  # by design there shouldn't be any matches in between so I make match states "deadends"
@@ -91,7 +93,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                     case _:
                         log_prob = 0
                 sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(weight=log_prob)
-        # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
+        sub_hmm._hmm = None
         try:
             path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
         except:

@@ -9,7 +9,7 @@ BGC0002107#1	BGC0002107.1#0	for investigation	Ilia	some monomers are skipped sup
 BGC0002409#0	BGC0002409.2#0	for investigation	Ilia	presumably fragmented BGC; affine gap scoring, similar residues;	
 BGC0000289#0	BGC0000289.0#0	to be corrected	Ilia->Alexey->Ilia	NEWER: Nerpa can fail due to weird assembly line and large distance between genes. Better leave it for now. NEW: all correct according to the paper. One minor note -- there is another entry for the same match in the table! Annotated as "bad" by Sasha below | OLD: (probably) incorrect assembly line; It looks like dbv17, dbv16 should be matched. Also, maybe X shouldn't have been truncated 	
 BGC0001667#0	BGC0001667.4#0	good	Ilia->Alexey	NEW:  seems ok now, all genes are considered as should E->A->B->C, there are also PKS domains responsible for "Adda" (insertion in the alignment). Note that some modules are quite unspecific (B-1 & C-2 might attract a lot of different things); OLD: looks like correct assembly line is A, B, E, and C is silent. Why is that?	
-BGC0000296#0	BGC0000296.0#0	was corrected	Ilia		
+BGC0000296#0	BGC0000296.0#0	good	Ilia		
 BGC0002123#3	BGC0002123.1#0	to be corrected	Ilia	two TEs in BGC; Alignments for 2123 should be joined, then it would be a decent alignment	
 BGC0002123#0	BGC0002123.1#1	to be corrected	Ilia	two TEs in BGC	
 BGC0002123#3	BGC0002123.9#1	to be corrected	Ilia	two TEs in BGC	
@@ -57,7 +57,7 @@ BGC0002172#0	BGC0002172.2#3	to be corrected	Ilia	mapping of A-domains to modules
 BGC0000985#0	BGC0000985.4#1	for investigation	Ilia	bad alignment; Nerpa completely messed up (incorrect assembly line) but maybe it is possible to make a reasonable alignment manually	
 BGC0000386#0	BGC0000386.3#0	to be corrected	Ilia, Azat	predictions are bad but alignment is reasonable. Should the last monomer be skipped or the last module be iterated? --- Azat: I think it should be rather skipped, i don't see any iterative stuff in the paper	
 BGC0000985#0	BGC0000985.1#0	for investigation	Ilia	nerpa failed to generate correct assembly line	
-BGC0002413#0	BGC0002413.0#0	was corrected	Ilia		
+BGC0002413#0	BGC0002413.0#0	good, nerpa fails	Ilia	nerpa can't generate correct assembly line, needs to be fixed	
 BGC0000320#0	BGC0000320.0#1	bad	Ilia		
 BGC0002414#0	BGC0002414.0#0	for investigation	Ilia	the match seems reasonable but the alignment needs to be corrected	
 BGC0002414#0	BGC0002414.0#0	for investigation	Ilia	same as 2414.0	
@@ -83,7 +83,7 @@ BGC0002572#0	BGC0002572.0#0	good	Azat		https://mibig.secondarymetabolites.org/re
 BGC0002581#0	BGC0002581.5#0	good	Azat, Azat		https://mibig.secondarymetabolites.org/repository/BGC0002581
 BGC0000315#0	BGC0000315.2#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0000315
 BGC0001127#0	BGC0001127.0#0	was corrected	Azat	iterate first module instead of skipping monomer	https://mibig.secondarymetabolites.org/repository/BGC0001127
-BGC0000439#0	BGC0000439.0#0	was corrected	Azat	The first NRP monomer is rightfully removed, but the second is an unrecognized modification of the correct BGC monomer	https://mibig.secondarymetabolites.org/repository/BGC0000439
+BGC0000439#0	BGC0000439.0#0	good	Azat	The first NRP monomer is rightfully removed, but the second is an unrecognized modification of the correct BGC monomer	https://mibig.secondarymetabolites.org/repository/BGC0000439
 BGC0001822#0	BGC0001822.3#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001822
 BGC0002123#3	BGC0002123.2#0	to be corrected	Azat	join alignments for separate fragments	https://mibig.secondarymetabolites.org/repository/BGC0002123
 BGC0000447#0	BGC0000447.1#0	for investigation	Azat	NRP chirality is mostly incorrect, alignment is ok	https://mibig.secondarymetabolites.org/repository/BGC0000447
@@ -91,7 +91,7 @@ BGC0000330#0	BGC0000330.0#0	for investigation	Azat	Alignment would be correct if
 BGC0000438#0	BGC0000438.0#0	for investigation	Azat	Something wrong with the structure (?)	https://mibig.secondarymetabolites.org/repository/BGC0000438
 BGC0001050#0	BGC0001050.0#0	to be corrected	Azat, Ilia	NRP-PK hybrid with a half of monomers unrecognized + an iterative gene. But looks kinda ok; Ilia: ttbA iteration should be applied, the first module should be skipped at the first iteration	https://mibig.secondarymetabolites.org/repository/BGC0001050
 BGC0001620#0	BGC0001620.1#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001620
-BGC0002117#0	BGC0002117.1#0	was corrected	Azat	C_DUAL	https://mibig.secondarymetabolites.org/repository/BGC0002117
+BGC0002117#0	BGC0002117.1#0	good	Azat	C_DUAL	https://mibig.secondarymetabolites.org/repository/BGC0002117
 BGC0002484#2	BGC0002484.0#0	good	Azat, Ilia	The last monomer is an X one and is not trimmed (in some other cases trimming is there); Looks like gene 15580 is present in the assembly line but it can't be included by Nerpa because of A-PCP and TE domains 	https://mibig.secondarymetabolites.org/repository/BGC0002484
 BGC0002409#0	BGC0002409.5#0	for investigation	Azat	Looks good, even though the alignment is not perfect -- probably due to two singular A domains;	https://mibig.secondarymetabolites.org/repository/BGC0002409
 BGC0001130#0	BGC0001130.1#0	was corrected	Azat	C_DCL	https://mibig.secondarymetabolites.org/repository/BGC0001130
@@ -103,7 +103,7 @@ BGC0000354#1	BGC0000354.1#0	good	Azat, Ilia	The BGC clearly suggests non-linear 
 BGC0001448#1	BGC0001448.1#0	for investigation	Azat	Very similar to BGC0000354#1, same issues	https://mibig.secondarymetabolites.org/repository/BGC0001448
 BGC0002503#3	BGC0002503.3#0	for investigation	Azat	Wrong BGC variant	https://mibig.secondarymetabolites.org/repository/BGC0002503
 BGC0002107#1	BGC0002107.0#0	good	Azat, Azat	rather complicated case, where nerpa produced mostly correct alignment, but has misplaced one of the genes if we believe the paper	https://mibig.secondarymetabolites.org/repository/BGC0002107
-BGC0000416#0	BGC0000416.1#0	to be corrected	Azat	last module is likely iterated, indicated by lonely C-domain	https://mibig.secondarymetabolites.org/repository/BGC0000416
+BGC0000416#0	BGC0000416.1#0	good, nerpa can't generate	Azat	gene XNC1_2229 was iterated but there're no signs for it 	https://mibig.secondarymetabolites.org/repository/BGC0000416
 BGC0000424#0	BGC0000424.1#0	good	Azat	Add OH-cOrn to supported monomers	https://mibig.secondarymetabolites.org/repository/BGC0000424
 BGC0002532#1	BGC0002532.0#0	to be corrected	Azat	THe last monomer is trimmed but is in fact a modified tyr	https://mibig.secondarymetabolites.org/repository/BGC0002532
 BGC0002581#0	BGC0002581.1#0	for investigation	Azat	THe first monomer is trimmed but is a modified correct one. BGC variant should be ctg1_QKF54435.2 - ctg1_QKF54436.1 - QKF54438.1	https://mibig.secondarymetabolites.org/repository/BGC0002581
@@ -138,7 +138,7 @@ BGC0000374#0	BGC0000374.6#0	good	Azat-->Alexey	NEW: correctly identified 8 monom
 BGC0001058#0	BGC0001058.0#0	bad	Azat	complicated cluster, alignment doesn't make sense, but seems possible	https://mibig.secondarymetabolites.org/repository/BGC0001058
 BGC0002735#4	BGC0002735.0#0	bad	Azat	see BGC0002735.1#0	https://mibig.secondarymetabolites.org/repository/BGC0002735
 BGC0002569#0	BGC0002569.2#0	to be corrected	Azat	the last monomer Put should probably have been trimmed	https://mibig.secondarymetabolites.org/repository/BGC0002569
-BGC0002408#0	BGC0002408.0#0	to be corrected	Azat	see BGC0002569.2#0 and BGC0000386.1#0	https://mibig.secondarymetabolites.org/repository/BGC0002408
+BGC0002408#0	BGC0002408.0#0	good, nerpa can't generate	Azat	gene GN109_07695 was iterated but there're no signs for it	https://mibig.secondarymetabolites.org/repository/BGC0002408
 BGC0001048#0	BGC0001048.0#0	bad	Azat	similar to BGC0001058.0#0	https://mibig.secondarymetabolites.org/repository/BGC0001048
 BGC0001620#0	BGC0001620.2#0	good	Azat	three unknown specificities, two unrecognized monomers	https://mibig.secondarymetabolites.org/repository/BGC0001620
 BGC0001768#0	BGC0001768.0#0	for investigation	Azat	an interesting case with experimentally confirmed specificities in mibig, all being promiscuous. The alignment looks strange though	https://mibig.secondarymetabolites.org/repository/BGC0001768

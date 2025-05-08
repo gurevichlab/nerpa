@@ -1,6 +1,7 @@
-from typing import List, Dict
+from typing import List, Dict, Optional, Set
 from pathlib import Path
 import yaml
+
 from src.matching.match_type import Match
 from src.config import load_monomer_names_helper
 from src.training.hmm_parameters.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
@@ -29,11 +30,16 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
     return [Match.from_str(matches_str)
             for matches_str in matches_strs]
 
-def load_all_bgc_variants(nerpa_results_dir: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
+def load_all_bgc_variants(nerpa_results_dir: Path,
+                          bgc_ids_to_consider: Optional[Set[str]] = None) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
     bgc_variants = defaultdict(list)
     yaml_files = [f for f in (nerpa_results_dir / 'BGC_variants_no_calibration').iterdir()
                   if f.name.endswith('.yaml')]
     for yaml_file in yaml_files:
+        if (bgc_ids_to_consider is not None) and \
+                (not any(bgc_id in yaml_file.name
+                         for bgc_id in bgc_ids_to_consider)):
+            continue
         yaml_variants = [BGC_Variant.from_yaml_dict(bgc_variant_dict)
                          for bgc_variant_dict in yaml.safe_load(yaml_file.read_text())]
         bgc_id = yaml_variants[0].bgc_variant_id.bgc_id
@@ -115,7 +121,10 @@ def main():
                         for match in load_matches_from_txt(args.approved_matches)]
 
     print('Loading BGC variants')
-    bgc_variants = load_all_bgc_variants(args.nerpa_results)
+    approved_matches_bgc_ids = {match.nrp_variant_id.nrp_id.strip('.')[0]
+                                for match in approved_matches}
+    bgc_variants = load_all_bgc_variants(args.nerpa_results,
+                                         approved_matches_bgc_ids)
 
     # As variants ids may differ, load bgc variants based on compatibility, not by id
     bgc_variants_approved_matches = load_bgc_variants_for_matches(approved_matches,

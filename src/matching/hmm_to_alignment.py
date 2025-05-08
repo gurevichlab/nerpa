@@ -116,7 +116,9 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                 module_idx = gene_start
 
         # auxiliary edges
-            case (ET.START_SKIP_MODULES_AT_START | ET.START_MATCHING | ET.NO_INSERTIONS | ET.END_INSERTING):
+            case (ET.START_SKIP_MODULES_AT_START
+                  | ET.START_MATCHING | ET.END_MATCHING
+                  | ET.NO_INSERTIONS | ET.END_INSERTING):
                 alignment.append(AlignmentStep(bgc_module=None,
                                                nrp_monomer=None,
                                                score=edge.weight,

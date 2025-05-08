@@ -64,8 +64,9 @@ class MatchEmissionKey(NamedTuple):
 
 @dataclass
 class DataForTraining:
-    edge_choices_cnts: Dict[DetailedHMMEdgeType, Dict[Optional[GenomicContext], ChoicesCnts]]
+    edge_choices_cnts: Dict[DetailedHMMEdgeType, Dict[GenomicContext, ChoicesCnts]]
     match_emissions: List[MatchEmissionInfo]  # (module, monomer)
+    chosen_edges_occurrences: Dict[DetailedHMMEdgeType, Dict[GenomicContext, List[BGC_ID]]]
     # insert_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
     # insert_at_start_emissions: List[Tuple[BGC_Module, NRP_Monomer]]
 
@@ -84,6 +85,7 @@ class EdgeInfo(NamedTuple):
 
 @dataclass
 class PathTurnInfo:
+    bgc_id: BGC_ID
     chosen_edge_key: ExtendedEdgeKey
     chosen_edge_info: EdgeInfo
     other_edges_info: List[EdgeInfo]
