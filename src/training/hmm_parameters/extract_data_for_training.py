@@ -76,6 +76,7 @@ def get_turns_info_for_match(detailed_hmm: DetailedHMM,
     #detailed_hmm.draw(Path(f"{detailed_hmm.bgc_variant.genome_id}.png"),
     #                  highlight_path=path)
     ET = DetailedHMMEdgeType
+    bgc_id = detailed_hmm.bgc_variant.bgc_variant_id.bgc_id
 
     num_insertions = 0
     turns_info = []
@@ -97,7 +98,8 @@ def get_turns_info_for_match(detailed_hmm: DetailedHMM,
             other_edges_info.append(EdgeInfo(edge_type=edge_info.edge_type,
                                              genomic_context=edge_info.genomic_context))
 
-        turns_info.append(PathTurnInfo(chosen_edge_key,
+        turns_info.append(PathTurnInfo(bgc_id,
+                                       chosen_edge_key,
                                        chosen_edge_info,
                                        other_edges_info))
 
@@ -139,19 +141,19 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
     return hmms_with_paths_with_emissions
 
 
-def turns_info_to_edge_choices(turns_info: List[PathTurnInfo]) -> List[Tuple[EdgeInfo, bool]]:
+def turns_info_to_edge_choices(turns_info: List[PathTurnInfo]) -> List[Tuple[BGC_ID, EdgeInfo, bool]]:
     edge_choices = []
     for turn_info in turns_info:
-        edge_choices.append((turn_info.chosen_edge_info, True))
-        edge_choices.extend((edge_info, False)
+        edge_choices.append((turn_info.bgc_id, turn_info.chosen_edge_info, True))
+        edge_choices.extend((turn_info.bgc_id, edge_info, False)
                             for edge_info in turn_info.other_edges_info)
     return edge_choices
 
 
-def get_edge_choices_cnts(edge_choices: List[Tuple[EdgeInfo, bool]]) \
+def get_edge_choices_cnts(edge_choices: List[Tuple[BGC_ID, EdgeInfo, bool]]) \
         -> Dict[DetailedHMMEdgeType, Dict[Optional[GenomicContext], ChoicesCnts]]:
     edge_choices_cnts = defaultdict(lambda: defaultdict(lambda: ChoicesCnts(0, 0)))
-    for (edge_type, genomic_context), chosen in edge_choices:
+    for bgc_id, (edge_type, genomic_context), chosen in edge_choices:
         old_cnts = edge_choices_cnts[edge_type][genomic_context]
         edge_choices_cnts[edge_type][genomic_context] = ChoicesCnts(CHOSEN=old_cnts.CHOSEN + int(chosen),
                                                                     NOT_CHOSEN=old_cnts.NOT_CHOSEN + 1 - int(chosen))
@@ -168,5 +170,11 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
     filtered_edge_choices = get_filtered_edge_choices(edge_choices)
     filtered_edge_choices_cnts = get_edge_choices_cnts(filtered_edge_choices)
 
+    chosen_edges_occurrences = defaultdict(lambda: defaultdict(list))
+    for bgc_id, edge_info, chosen in filtered_edge_choices:
+        if chosen:
+            chosen_edges_occurrences[edge_info.edge_type][edge_info.genomic_context].append(bgc_id)
+
     return DataForTraining(edge_choices_cnts=filtered_edge_choices_cnts,
-                           match_emissions=match_emissions)
+                           match_emissions=match_emissions,
+                           chosen_edges_occurrences=chosen_edges_occurrences)

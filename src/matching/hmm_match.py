@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List
 from dataclasses import dataclass
 from src.data_types import LogProb, BGC_Variant_ID
+from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.matching.match_type import NRP_Variant_ID, Match
 from src.rban_parsing.get_linearizations import LinearizationLight
@@ -30,6 +31,7 @@ class HMM_Match:
 def convert_to_detailed_matches(hmms: List[DetailedHMM],
                                 nrp_variants: List[NRP_Variant],
                                 hmm_matches: List[HMM_Match]) -> List[Match]:
+    debug = False
     hmm_by_bgc_info = {
         hmm.bgc_variant.bgc_variant_id: hmm
         for hmm in hmms
@@ -50,6 +52,10 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
             rban_monomers = [rban_idx_to_rban_mon[hmm_match.nrp_id][rban_idx]
                              for rban_idx in nrp_linearization]
             alignments.append(hmm.path_to_alignment(optimal_path, rban_monomers))
+            if debug:
+                path_with_emissions = alignment_to_hmm_path(hmm, alignments[-1])
+                path = [state for state, _ in path_with_emissions]
+                assert path == optimal_path, f'Path mismatch: {path} != {optimal_path}'
 
         matches.append(Match(bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),

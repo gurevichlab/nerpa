@@ -57,7 +57,7 @@ class DetailedHMM:
     _module_idx_to_match_state_idx: List[StateIdx]  # points to MATCH state for each module. Used for checkpoints heuristic
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
-    _hmm: HMM = None
+    _hmm: Optional[HMM] = None
 
     @classmethod
     def from_bgc_variant(cls,

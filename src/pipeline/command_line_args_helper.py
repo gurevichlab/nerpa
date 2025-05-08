@@ -58,6 +58,8 @@ def add_debug(parser: argparse.ArgumentParser):
                                    help='specificity predictions will be used as is, without calibration')
     debug_input_group.add_argument('--disable-dictionary-lookup', action='store_true',
                                    help='do not use dictionary of known A domain specificities')
+    debug_input_group.add_argument('--draw-hmms', action='store_true',
+                                   help='draw HMMs with optimal paths for all matches')
 
 def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
     configs_group = parser.add_argument_group('Nerpa pipeline',

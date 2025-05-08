@@ -167,7 +167,7 @@ def get_unknown_because_pks_prob(emissions: List[MatchEmissionInfo],
     plt.ylabel("posterior density")
     plt.title("Posterior of x via grid integration")
     plt.tight_layout()
-    plt.show()
+    #plt.show()
 
     return mean_x
 

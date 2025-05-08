@@ -11,6 +11,8 @@ def get_opt_path_with_score(hmm: HMM,
                             observed_sequence: List[MonCode],
                             start_state: Optional[StateIdx] = None,
                             finish_state: Optional[StateIdx] = None) -> Tuple[LogProb, List[StateIdx]]:
+    if start_state == 44:
+        pass
     seq_len = len(observed_sequence)
     num_states = len(hmm.transitions)
 
@@ -21,9 +23,9 @@ def get_opt_path_with_score(hmm: HMM,
 
     # Initialize DP table for log probabilities
     dp = np.full((num_states, seq_len + 1), -np.inf)
+    dp[start_state][0] = 0  # initial state of dynamic programming: probability of starting at start_state with 0 symbols emitted
     prev = np.full((num_states, seq_len + 1), -1, dtype=int)
 
-    # Forward pass: Process all checkpoints
     for sym_count in range(len(observed_sequence) + 1):
         '''
         If we ignore gene/module iteration edges, states are sorted topologically.
