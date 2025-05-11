@@ -32,13 +32,13 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
     ##### INSERTS
     edge_weight[ET.START_INSERTING_AT_START] = from_cnts(edge_choices_cnts[ET.START_INSERTING_AT_START])
 
-    print('WARNING: not enough data for INSERT_AT_START,'
+    print('WARNING(ok): not enough data for INSERT_AT_START,'
           ' so I use the same as for INSERT')
     edge_weight[ET.INSERT_AT_START] = from_cnts(edge_choices_cnts[ET.INSERT])
 
     edge_weight[ET.START_INSERTING] = from_cnts(edge_choices_cnts[ET.START_INSERTING])
 
-    print('WARNING: not enough data for influence of PKS_DOWNSTREAM'
+    print('WARNING(ok): not enough data for influence of PKS_DOWNSTREAM'
           ' on START_INSERTING, so I ignore it')
     for gc in edge_weight[ET.START_INSERTING]:
         if MGF.PKS_DOWNSTREAM in gc:
@@ -48,7 +48,7 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
     edge_weight[ET.INSERT] = from_cnts(edge_choices_cnts[ET.INSERT])
     edge_weight[ET.START_INSERTING_AT_END] = from_cnts(edge_choices_cnts[ET.START_INSERTING_AT_END])
 
-    print('WARNING: not enough data for influence of PKS_DOWNSTREAM'
+    print('WARNING(ok): not enough data for influence of PKS_DOWNSTREAM'
           ' on START_INSERTING_AT_END, so I ignore it')
     edge_weight[ET.START_INSERTING_AT_END][(MGF.PKS_DOWNSTREAM,)] = edge_weight[ET.START_INSERTING_AT_END][()]
 
@@ -60,7 +60,11 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
 
     skip_at_start_runs = edge_choices_cnts[ET.START_SKIP_MODULES_AT_START][()].CHOSEN
     skip_at_start_total = edge_choices_cnts[ET.SKIP_MODULE_AT_START][()].CHOSEN  # ONLY_A_DOMAIN skips not counted
-    avg = skip_at_start_total / skip_at_start_runs if skip_at_start_runs > 0 else 0
+    if skip_at_start_runs > 0:
+        avg = skip_at_start_total / skip_at_start_runs
+    else:
+        print('WARNING(should happen only in debug): no data for SKIP_MODULE_AT_START')
+        avg = 0
     skip_at_start_prob = 1 / (1 + avg)  # geometric distribution
 
     # all occurences of MGF.ONLY_A_DOMAIN *inside* BGC
@@ -70,6 +74,7 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
     if (only_a_domains_middle + only_a_domains_start + only_a_domains_end) > 0:
         only_a_domain_skip_prob = (only_a_domains_start + only_a_domains_end) / (only_a_domains_middle + only_a_domains_start + only_a_domains_end)
     else:
+        print('WARNING(should happen only in debug): no data for SKIP_MODULE_AT_START, ONLY_A_DOMAIN')
         only_a_domain_skip_prob = 0.5
 
 
@@ -77,6 +82,10 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
                                             (MGF.ONLY_A_DOMAIN,): log(only_a_domain_skip_prob)}
 
     edge_weight[ET.END_MATCHING] = from_cnts(edge_choices_cnts[ET.END_MATCHING])
+    if () not in edge_weight[ET.END_MATCHING]:
+        print('WARNING(should only happen in debug): no data for END_MATCHING, setting to min allowed value')
+        edge_weight[ET.END_MATCHING][()] = min_allowed_log_prob
+
     edge_weight[ET.SKIP_MODULE_END_MATCHING] = {
         gc: skip_log_prob + edge_weight[ET.END_MATCHING][()]
         for gc, skip_log_prob in edge_weight[ET.SKIP_MODULE].items()
@@ -85,7 +94,11 @@ def infer_edge_params(edge_choices_cnts: Dict[DetailedHMMEdgeType,
     skip_at_end_runs = (sum(cnts.CHOSEN for cnts in edge_choices_cnts[ET.SKIP_MODULE_END_MATCHING].values())
                         + edge_choices_cnts[ET.END_MATCHING][()].CHOSEN)
     skip_at_end_total = edge_choices_cnts[ET.SKIP_MODULE_AT_END][()].CHOSEN  # ONLY_A_DOMAIN skips not counted
-    avg = skip_at_end_total / skip_at_end_runs if skip_at_end_runs > 0 else 0
+    if skip_at_end_runs > 0:
+        avg = skip_at_end_total / skip_at_end_runs
+    else:
+        print('WARNING(should happen only in debug): no data for SKIP_MODULE_AT_END')
+        avg = 0
     skip_at_end_prob = 1 / (1 + avg)  # geometric distribution
     edge_weight[ET.SKIP_MODULE_AT_END] = {(): log(skip_at_end_prob),
                                             (MGF.ONLY_A_DOMAIN,): log(only_a_domain_skip_prob)}

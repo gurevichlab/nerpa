@@ -52,6 +52,7 @@ class DetailedHMMStateType(Enum):
     MODULE_START = auto()
     MATCH = auto()
     INSERT = auto()
+    CHOOSE_IF_ITERATE = auto()
 
     END_MATCHING = auto()
     INSERT_AT_END = auto()
@@ -88,6 +89,7 @@ class DetailedHMMEdgeType(Enum):
 
     ITERATE_MODULE = auto()
     ITERATE_GENE = auto()
+    NO_ITERATION = auto()
 
     SKIP_MODULE = auto()
     SKIP_GENE = auto()

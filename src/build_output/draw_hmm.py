@@ -27,9 +27,9 @@ def draw_hmm(hmm: DetailedHMM,
                    [ST.INSERT_AT_END],
                    [ST.INSERT, ST.END_MATCHING],
                    [ST.MATCH],
-                   [ST.INITIAL, ST.MODULE_START, ST.FINAL],
+                   [ST.INITIAL, ST.MODULE_START, ST.FINAL, ST.CHOOSE_IF_ITERATE],
                    [ST.INSERT_AT_START],
-                   [ST.SKIP_MODULE_AT_START]][::-1]  # Reverse to match top-to-bottom order
+                   [ST.START_SKIP_MODULES_AT_START, ST.SKIP_MODULE_AT_START]][::-1]  # Reverse to match top-to-bottom order
 
     layers = [[] for _ in range(len(layer_types))]
 
@@ -125,5 +125,7 @@ def draw_hmm(hmm: DetailedHMM,
     if output_path:
         if output_path.name.endswith('.png'):
             fname = str(output_path).rsplit('.', 1)[0]
-            graph.render(fname, cleanup=True)
+        else:
+            fname = str(output_path)
+        graph.render(fname, cleanup=True)
     return graph

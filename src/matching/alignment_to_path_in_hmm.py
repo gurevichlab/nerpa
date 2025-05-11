@@ -100,5 +100,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
             print(f'start: {start}, finish: {finish}, emitted_monomers: {emitted_monomers}')
             raise
 
+    #hmm.draw(Path(f'/home/ilianolhin/git/nerpa2/{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'),
+    #         highlight_path=[state for state, emission in path_with_emissions])  # for debugging
     return path_with_emissions
 
