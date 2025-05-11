@@ -66,7 +66,7 @@ def add_modules(states: List[DetailedHMMState],
     _get_insert_emissions = partial(hmm_helper.get_insert_emissions,
                                     pks_domains_in_bgc=bgc_variant.has_pks_domains())
 
-    module_idx_to_start_state_idx = {i: 3 * i + 1 for i in range(len(bgc_variant.modules))}
+    module_idx_to_start_state_idx = {}
 
     # MODULE STATES: MODULE_START -> MATCH -> INSERT_MONOMER -> MODULE_START -> ...
     for i, module in enumerate(bgc_variant.modules):
@@ -79,17 +79,20 @@ def add_modules(states: List[DetailedHMMState],
                              emissions=_get_insert_emissions(module))
         ])
 
-        # add edges
         start_idx, match_idx, insert_idx = range(len(states) - 3, len(states))
+        module_idx_to_start_state_idx[i] = start_idx
+
+        iteration = False
+        iteration_idx = None
+        if module.iterative_module or (module.iterative_gene and gene_intervals[module.gene_id][1] == i):
+            iteration = True
+            states.append(DetailedHMMState(state_type=ST.CHOOSE_IF_ITERATE, emissions={}))
+            iteration_idx = len(states) - 1
+
+        # add edges
         next_module_idx = len(states) if i + 1 < len(bgc_variant.modules) else final_state_idx
         adj_list[start_idx][match_idx] = _make_edge(edge_type=ET.MATCH,
                                                     fst_module_idx=i)
-
-        if _gene_len(module.gene_id) > 1:
-            adj_list[start_idx][next_module_idx] = _make_edge(edge_type=ET.SKIP_MODULE,
-                                                              fst_module_idx=i)
-        adj_list[match_idx][next_module_idx] = _make_edge(edge_type=ET.NO_INSERTIONS,
-                                                          fst_module_idx=i)
         adj_list[match_idx][insert_idx] = _make_edge(edge_type=(ET.START_INSERTING
                                                                 if i < len(bgc_variant.modules) - 1
                                                                 else ET.START_INSERTING_AT_END),
@@ -98,12 +101,28 @@ def add_modules(states: List[DetailedHMMState],
                                                                  if i < len(bgc_variant.modules) - 1
                                                                  else ET.INSERT_AT_END),
                                                       fst_module_idx=None)
-        adj_list[insert_idx][next_module_idx] = _make_edge(edge_type=ET.END_INSERTING)
+
+        #if _gene_len(module.gene_id) > 1:
+        if iteration:
+            adj_list[start_idx][iteration_idx] = _make_edge(edge_type=ET.SKIP_MODULE,
+                                                            fst_module_idx=i)
+            adj_list[match_idx][iteration_idx] = _make_edge(edge_type=ET.NO_INSERTIONS,
+                                                            fst_module_idx=i)
+            adj_list[insert_idx][iteration_idx] = _make_edge(edge_type=ET.END_INSERTING)
+            adj_list[iteration_idx][next_module_idx] = _make_edge(edge_type=ET.NO_ITERATION,
+                                                                  fst_module_idx=i)
+        else:
+            adj_list[start_idx][next_module_idx] = _make_edge(edge_type=ET.SKIP_MODULE,
+                                                              fst_module_idx=i)
+            adj_list[match_idx][next_module_idx] = _make_edge(edge_type=ET.NO_INSERTIONS,
+                                                              fst_module_idx=i)
+            adj_list[insert_idx][next_module_idx] = _make_edge(edge_type=ET.END_INSERTING)
 
     return module_idx_to_start_state_idx
 
 
-def add_modules_and_genes_iterations(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
+def add_modules_and_genes_iterations(states: List[DetailedHMMState],
+                                     adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
                                      bgc_variant: BGC_Variant,
                                      gene_intervals: Dict[GeneId, Tuple[int, int]],
                                      module_idx_to_state_idx: Dict[int, int],
@@ -111,19 +130,22 @@ def add_modules_and_genes_iterations(adj_list: Dict[int, Dict[int, DetailedHMMEd
     _make_edge = partial(make_edge, bgc_variant=bgc_variant)
 
     for module_idx, module in enumerate(bgc_variant.modules):
+        if not module.iterative_module and not (module.iterative_gene and gene_intervals[module.gene_id][1] == module_idx):
+            continue
         start_idx = module_idx_to_state_idx[module_idx]
-        next_module_start_idx = module_idx_to_state_idx[module_idx + 1] \
-            if module_idx + 1 < len(bgc_variant.modules) else final_state_idx
+        iteration_idx = next(state_idx
+                             for state_idx in range(start_idx, len(states))
+                             if states[state_idx].state_type == DetailedHMMStateType.CHOOSE_IF_ITERATE)
         if module.iterative_module:
-            adj_list[next_module_start_idx][start_idx] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_MODULE,
-                                                                    log_prob=0,  # TODO: fill in
+            adj_list[iteration_idx][start_idx] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_MODULE,
+                                                                    log_prob=None,
                                                                     fst_module_idx=None)
         if module.iterative_gene and gene_intervals[module.gene_id][1] == module_idx:  # if the last module of the gene
             fst_module_in_gene_idx = gene_intervals[module.gene_id][0]
             edge_end = module_idx_to_state_idx[fst_module_in_gene_idx]
-            adj_list[next_module_start_idx][edge_end] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_GENE,
-                                                                   log_prob=0,  # TODO: fill in
-                                                                   fst_module_idx=None)
+            adj_list[iteration_idx][edge_end] = _make_edge(edge_type=DetailedHMMEdgeType.ITERATE_GENE,
+                                                           log_prob=None,
+                                                           fst_module_idx=None)
 
 
 def add_skip_genes(adj_list: Dict[int, Dict[int, DetailedHMMEdge]],
@@ -394,14 +416,17 @@ def bgc_variant_to_detailed_hmm(cls,
 
     # ADD SKIP GENE AND FRAGMENTS IN THE MIDDLE
     # do it after topological sorting to enforce the order of modules
+    '''
     add_skip_genes(adj_list,
                    bgc_variant,
                    gene_intervals,
                    module_idx_to_state_idx,
                    final_state_idx)
+    '''
 
     # must be done after topological sorting because it creates cycles
-    add_modules_and_genes_iterations(adj_list,
+    add_modules_and_genes_iterations(states,
+                                     adj_list,
                                      bgc_variant,
                                      gene_intervals,
                                      module_idx_to_state_idx,

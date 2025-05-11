@@ -44,25 +44,20 @@ def get_modules_genomic_context(genes: List[Gene]) -> Dict[BGC_Module_ID, Module
             last_module_with_a_domain = not any(DomainType.A in module.domains_sequence
                                                 for module in gene.modules[module_idx + 1:])
 
-            if gene_idx > 0:
-                upstream_modules = genes[gene_idx - 1].modules
-                pks_upstream = (
-                        any(DomainType.PKS in m.domains_sequence for m in upstream_modules)
-                        and not any(DomainType.A in m.domains_sequence for m in upstream_modules)
-                )
-            else:
-                pks_upstream = False
+            upstream_modules = chain(chain(*(prev_gene.modules for prev_gene in genes[:gene_idx])),
+                                     gene.modules[:module_idx])
+            upstream_domains = chain(*(prev_module.domains_sequence for prev_module in upstream_modules))
+            upstream_domains_before_A = takewhile(lambda domain: domain != DomainType.A,
+                                                  reversed(list(upstream_domains)))
 
-            downstream_modules_same_gene = takewhile(lambda module: module.a_domain is not None,
-                                                    gene.modules[module_idx + 1:])
-            if gene_idx < len(genes) - 1:
-                downstream_modules_next_gene = takewhile(lambda module: module.a_domain is not None,
-                                                        genes[gene_idx + 1].modules)
-            else:
-                downstream_modules_next_gene = []
-            pks_downstream = any(DomainType.PKS in m.domains_sequence
-                                 for m in chain(downstream_modules_same_gene,
-                                                downstream_modules_next_gene))
+            downstream_modules = chain(gene.modules[module_idx + 1:],
+                                       *(gene.modules for gene in genes[gene_idx + 1:]))
+            downstream_domains = chain(*(module.domains_sequence for module in downstream_modules))
+            downstream_domains_before_A = takewhile(lambda domain: domain != DomainType.A,
+                                                    downstream_domains)
+
+            pks_upstream = DomainType.PKS in upstream_domains_before_A
+            pks_downstream = DomainType.PKS in downstream_domains_before_A
 
             features = (feature
                         for feature, is_present in [

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import (
     Dict,
     List,
@@ -121,7 +122,8 @@ def get_turns_info(hmms_with_paths_with_emissions: List[Tuple[DetailedHMM, PathW
 
 
 def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
-                                       hmm_helper: HMMHelper) -> List[Tuple[DetailedHMM, PathWithEmissions]]:
+                                       hmm_helper: HMMHelper,
+                                       dir_for_hmm_figures: Optional[Path] = None) -> List[Tuple[DetailedHMM, PathWithEmissions]]:
     hmms_with_paths_with_emissions = []
     for match, bgc_variant, nrp_variant in matches_with_bgcs_nrps:
         detailed_hmm = DetailedHMM.from_bgc_variant(bgc_variant, hmm_helper)
@@ -132,6 +134,9 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
         for i, alignment in enumerate(match.alignments):
             try:
                 path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
+                if dir_for_hmm_figures is not None:
+                    detailed_hmm.draw(dir_for_hmm_figures / Path(f'{detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}_path_{i}.png'),
+                                      highlight_path=[state for state, _ in path_with_emissions])  # for debugging
             except Exception as e:
                 print(f'WARNING: alignment {i} for match {match.nrp_variant_id.nrp_id} '
                       f'could not be converted to path with emissions')
@@ -161,8 +166,11 @@ def get_edge_choices_cnts(edge_choices: List[Tuple[BGC_ID, EdgeInfo, bool]]) \
 
 
 def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
-                              hmm_helper: HMMHelper) -> DataForTraining:
-    hmms_with_paths_with_emissions = get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps, hmm_helper)
+                              hmm_helper: HMMHelper,
+                              dir_for_hmm_figures: Optional[Path] = None) -> DataForTraining:
+    hmms_with_paths_with_emissions = get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps,
+                                                                        hmm_helper,
+                                                                        dir_for_hmm_figures)
     turns_info = get_turns_info(hmms_with_paths_with_emissions)
     match_emissions = get_emissions(hmms_with_paths_with_emissions)
 

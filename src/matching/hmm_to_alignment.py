@@ -48,7 +48,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
             if mon_idx < len(nrp_monomers) else None
 
         match edge.edge_type:
-            case (ET.SKIP_MODULE_AT_START | ET.SKIP_MODULE | ET.SKIP_MODULE_AT_END):
+            case (ET.SKIP_MODULE_AT_START | ET.SKIP_MODULE | ET.SKIP_MODULE_AT_END | ET.SKIP_MODULE_END_MATCHING):
                 alignment.append(AlignmentStep(
                     bgc_module=bgc_module_info,
                     nrp_monomer=None,
@@ -118,7 +118,8 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
         # auxiliary edges
             case (ET.START_SKIP_MODULES_AT_START
                   | ET.START_MATCHING | ET.END_MATCHING
-                  | ET.NO_INSERTIONS | ET.END_INSERTING):
+                  | ET.NO_INSERTIONS | ET.END_INSERTING
+                  | ET.NO_ITERATION):
                 alignment.append(AlignmentStep(bgc_module=None,
                                                nrp_monomer=None,
                                                score=edge.weight,

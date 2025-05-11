@@ -102,6 +102,7 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
                         default=nerpa_dir / 'test_results/nerpa_results')
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'training_results')
+    parser.add_argument("--draw-hmms", action='store_true')
 
     return parser.parse_args()
 
@@ -144,7 +145,8 @@ def main():
     ]
 
     data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training,
-                                                  hmm_helper)
+                                                  hmm_helper,
+                                                  dir_for_hmm_figures=args.output_dir if args.draw_hmms else None)
 
     # intermediate results for debug
     dump_emissions_training_data(data_for_training, args.output_dir)
