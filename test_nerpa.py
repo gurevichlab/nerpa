@@ -7,6 +7,7 @@ import argparse
 from argparse import Namespace as CommandlineArgs
 from itertools import islice
 import subprocess
+import pandas as pd
 
 def load_matches(nerpa_results_dir: Path) -> List[Match]:
     with open(nerpa_results_dir / 'matches_details/matches.yaml') as matches_file:
@@ -109,16 +110,32 @@ def main():
 
     print('Checking matches')
     missing_cnt, wrong_matches = find_wrong_matches(matches, approved_matches)
-    print(f'{missing_cnt} matches are missing')
+    print(f'{missing_cnt} matches are missing in Nerpa output')
+    print(f'{len(approved_matches) - missing_cnt} matches were tested')
 
-    if wrong_matches:
-        print(f'{len(wrong_matches)}/{len(approved_matches) - missing_cnt} matches are incorrect')
+    matches_table_tsv = nerpa_dir / 'matches_inspection' / 'new_matches_inspection_table.tsv'
+    matches_table = pd.read_csv(matches_table_tsv, sep='\t')
+    matches_table.set_index('NRP variant', inplace=True)
+
+    wrong_matches_should_pass = [(match, correct_match)
+                                 for match, correct_match in wrong_matches
+                                 if matches_table.at[match.nrp_variant_id.nrp_id, 'Expected Nerpa behaviour']
+                                 == 'should pass']
+    wrong_matches_can_fail = [match
+                              for match, correct_match in wrong_matches
+                              if matches_table.at[match.nrp_variant_id.nrp_id, 'Expected Nerpa behaviour']
+                              == 'can fail']
+
+    if wrong_matches_can_fail:
+        print(f'{len(wrong_matches_can_fail)} tests allowed to fail have failed (thats ok)')
+    if wrong_matches_should_pass:
+        print(f'{len(wrong_matches_should_pass)} tests that should pass have failed (thats not ok!)')
         wrong_matches_txt = args.output_dir / 'wrong_matches.txt'
         with open(wrong_matches_txt, 'w') as f:
-            for nerpa_match, correct_match in wrong_matches:
+            for nerpa_match, correct_match in wrong_matches_should_pass:
                 f.write(f'Nerpa match (wrong):\n{nerpa_match}\n\nCorrect match:\n{correct_match}\n\n')
     else:
-        print('All matches are correct')
+        print('All tests that should pass have passed')
 
 
 if __name__ == "__main__":
