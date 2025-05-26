@@ -1,7 +1,7 @@
 #include "../data_types.h"
 #include "matcher.h"
 #include "viterbi_algorithm.h"
-#include <omp.h>
+#include "../openmp_wrapper.h"
 #include <vector>
 #include <limits>
 #include <utility>

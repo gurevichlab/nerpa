@@ -126,7 +126,7 @@ def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
     parser = build_cmdline_args_parser(default_cfg)
     parsed_args = parser.parse_args()
     try:
-        validate_arguments(parsed_args)
+        validate_arguments(parsed_args, default_cfg)
     except ValidationError as e:
         help_message = StringIO()
         parser.print_help(help_message)
@@ -153,7 +153,7 @@ def validate(expr, msg=''):
         raise ValidationError(msg)
 
 
-def validate_arguments(args):  # TODO: I think it all could be done with built-in argparse features
+def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I think it all could be done with built-in argparse features
     if not any([args.bgc_variants,
                 args.antismash,
                 args.antismash_outpaths_file,
@@ -188,5 +188,9 @@ def validate_arguments(args):  # TODO: I think it all could be done with built-i
             raise ValidationError(f'Cannot parse "{args.smiles_tsv}": {e}.')
         except Exception as e:
             raise ValidationError(f'Invalid input file "{args.smiles_tsv}": {e}.')
+
+    if args.fast_matching and not default_cfg.cpp_matcher_exec.exists():
+        raise ValidationError("Fast matching is enabled, but the cpp matcher executable is not found. "
+                              "Please run install.sh in Nerpa root directory to compile the C++ matcher.")
 
 
