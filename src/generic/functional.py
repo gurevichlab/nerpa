@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Optional
 from itertools import chain
 import functools
 import time
@@ -51,20 +51,41 @@ def make_optional(f: Callable) -> Callable:
         return f(*args, **kwargs)
     return optional_f
 
+def none_when_crash(f: Callable) -> Callable:
+    def safe_f(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            return None
+    return safe_f
 
-def timing_decorator(func):
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        start_time = time.time()  # Start timing
-        result = func(self, *args, **kwargs)  # Execute the function
-        elapsed_time = time.time() - start_time  # Calculate elapsed time
+def timing_decorator(task_name: Optional[str] = None):
+    """Decorator that measures execution time and logs it."""
 
-        # Use self.log.info if available; otherwise, fallback to print
-        if hasattr(self, 'log') and hasattr(self.log, 'info'):
-            self.log.info(f"Elapsed time: {elapsed_time:.4f} seconds")
-        else:
-            print(f"Elapsed time: {elapsed_time:.4f} seconds")
+    # Handle both @timing_decorator and @timing_decorator("Some Task")
+    if callable(task_name):  # Case: @timing_decorator used without parentheses
+        func = task_name
+        task_name = None  # No explicit task name was provided
+        return timing_decorator()(func)  # Reapply with proper structure
 
-        return result
+    def _timing_decorator(func: Callable):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            elapsed_time = time.time() - start_time
 
-    return wrapper
+            # Create log message
+            message = f"{task_name} took {elapsed_time:.4f} seconds" if task_name else f"Elapsed time: {elapsed_time:.4f} seconds"
+
+            # Check if the first argument is an instance with `log.info`
+            if args and hasattr(args[0], 'log') and hasattr(args[0].log, 'info'):
+                args[0].log.info(message)
+            else:
+                print(message)
+
+            return result
+
+        return wrapper
+
+    return _timing_decorator

@@ -2,7 +2,7 @@ from typing import (
     Dict,
     List,
     NamedTuple,
-    Union
+    Union, Optional, Set
 )
 
 from src.data_types import (
@@ -10,16 +10,49 @@ from src.data_types import (
     LogProb,
     MonomerResidue,
 )
-from src.antismash_parsing.location_features import (
-    BGC_Fragment_Loc_Feature,
-    GeneLocFeature,
-    ModuleLocFeature,
-)
+from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 
 from dataclasses import dataclass
 from pathlib import Path
 import yaml
+
+
+# TODO: put this in config
+EDGE_TYPE_DEPENDENCIES = {
+    # Insertions
+    DetailedHMMEdgeType.START_INSERTING_AT_START: {
+        ModuleGenomicContextFeature.PKS_UPSTREAM,
+    },
+    DetailedHMMEdgeType.INSERT_AT_START: set(),
+    DetailedHMMEdgeType.START_INSERTING: {
+        ModuleGenomicContextFeature.END_OF_GENE,
+        ModuleGenomicContextFeature.PKS_DOWNSTREAM,
+    },
+    DetailedHMMEdgeType.INSERT: set(),
+    DetailedHMMEdgeType.START_INSERTING_AT_END: {ModuleGenomicContextFeature.PKS_DOWNSTREAM},
+    DetailedHMMEdgeType.INSERT_AT_END: set(),
+
+    # Skips
+    DetailedHMMEdgeType.START_SKIP_MODULES_AT_START: set(),
+    DetailedHMMEdgeType.SKIP_MODULE_AT_START: {ModuleGenomicContextFeature.ONLY_A_DOMAIN},
+    DetailedHMMEdgeType.SKIP_MODULE: {ModuleGenomicContextFeature.ONLY_A_DOMAIN},
+    DetailedHMMEdgeType.SKIP_GENE: set(),
+
+    DetailedHMMEdgeType.END_MATCHING: set(),
+    DetailedHMMEdgeType.SKIP_MODULE_END_MATCHING: set(),
+    DetailedHMMEdgeType.SKIP_MODULE_AT_END: {ModuleGenomicContextFeature.ONLY_A_DOMAIN},
+
+    # Iterations
+    DetailedHMMEdgeType.ITERATE_MODULE: set(),
+    DetailedHMMEdgeType.ITERATE_GENE: set(),
+
+    # Other (not needed for training)
+    #DetailedHMMEdgeType.MATCH: {ModuleGenomicContextFeature.ONLY_A_DOMAIN},
+    #DetailedHMMEdgeType.START_MATCHING: set(),
+    #DetailedHMMEdgeType.NO_INSERTIONS: set(),
+    #DetailedHMMEdgeType.END_INSERTING: set(),
+}
 
 
 class ChiralityMatch(NamedTuple):
@@ -32,15 +65,12 @@ class MethylationMatch(NamedTuple):
     nrp_meth: bool
 
 
-SingleFeatureContext = Union[ModuleLocFeature, GeneLocFeature, BGC_Fragment_Loc_Feature, None]
-EdgeWeightsParams = Dict[DetailedHMMEdgeType, Dict[SingleFeatureContext, float]]
-
-
 @dataclass
 class HMMScoringConfig:
     methylation_score: Dict[MethylationMatch, LogProb]
     chirality_score: Dict[ChiralityMatch, LogProb]
-    edge_weight_parameters: EdgeWeightsParams
+    edge_weight_parameters: Dict[DetailedHMMEdgeType, Dict[ModuleGenomicContext, LogProb]]
+    relevant_genomic_features: Dict[DetailedHMMEdgeType, Set[ModuleGenomicContextFeature]]
 
 
 def load_methylation_score(cfg: dict) -> Dict[MethylationMatch, LogProb]:
@@ -57,23 +87,17 @@ def load_chirality_score(cfg: dict) -> Dict[ChiralityMatch, LogProb]:
             for nrp_chr in Chirality}
 
 
-def load_edge_weight_params(cfg: dict) -> EdgeWeightsParams:
+def load_edge_weight_params(cfg: dict) -> Dict[DetailedHMMEdgeType, Dict[ModuleGenomicContext, LogProb]]:
+    edge_weights_cfg = cfg['edge_weight_parameters']
+    ET = DetailedHMMEdgeType
+    MGF = ModuleGenomicContextFeature
+
     parsed_data = {}
-    for edge_type, context_to_probs in cfg['edge_weight_parameters'].items():
-        parsed_data[DetailedHMMEdgeType[edge_type]] = {}
-        for context_str, prob in context_to_probs.items():
-            if context_str == 'None':
-                parsed_data[DetailedHMMEdgeType[edge_type]][None] = prob
-                continue
-            if context_str in ModuleLocFeature.__members__:
-                context = ModuleLocFeature[context_str]
-            elif context_str in GeneLocFeature.__members__:
-                context = GeneLocFeature[context_str]
-            elif context_str in BGC_Fragment_Loc_Feature.__members__:
-                context = BGC_Fragment_Loc_Feature[context_str]
-            else:
-                raise ValueError(f'Unknown context: {context_str}')
-            parsed_data[DetailedHMMEdgeType[edge_type]][context] = prob
+    for edge_type_name, weight_for_gc in edge_weights_cfg.items():
+        parsed_data[ET[edge_type_name]] = {}
+        for gc_str, weight in weight_for_gc.items():
+            gc = tuple(MGF[feature_str] for feature_str in eval(gc_str))
+            parsed_data[ET[edge_type_name]][gc] = weight
 
     return parsed_data
 
@@ -83,4 +107,5 @@ def load_hmm_scoring_config(path_to_config: Path) -> HMMScoringConfig:
 
     return HMMScoringConfig(methylation_score=load_methylation_score(cfg),
                             chirality_score=load_chirality_score(cfg),
-                            edge_weight_parameters=load_edge_weight_params(cfg))
+                            edge_weight_parameters=load_edge_weight_params(cfg),
+                            relevant_genomic_features=EDGE_TYPE_DEPENDENCIES)

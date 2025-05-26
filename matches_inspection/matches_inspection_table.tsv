@@ -1,0 +1,372 @@
+	NRP variant	Verdict	Assignee	Comment (esp if marked for investigation)	URL
+BGC0001028#0	BGC0001028.0#2	good	Ilia	similar residues; the residue in NRP is similar to the one predicted but received a low score	
+BGC0000339#0	BGC0000339.0#0	for investigation	Ilia	align several fragments	
+BGC0000985#0	BGC0000985.1#0	to be corrected	Ilia	602.2 module and Lac monomer should be skipped instead of matched; dubious recognition of X0 as Val	
+BGC0002484#19	BGC0002484.2#0	good	Ilia, Azat		
+BGC0001462#0	BGC0001462.0#0	for investigation	Ilia	it is not clear how the actual assembly line looks like	
+BGC0002409#0	BGC0002409.3#0	for investigation	Ilia	presumably fragmented BGC; affine gap scoring, similar residues; should the last module be epimerized?	
+BGC0002107#1	BGC0002107.1#0	for investigation	Ilia	some monomers are skipped supposedly because BGC is fragmented; Another example where affine gap scoring would be beneficial	
+BGC0002409#0	BGC0002409.2#0	for investigation	Ilia	presumably fragmented BGC; affine gap scoring, similar residues;	
+BGC0000289#0	BGC0000289.0#0	to be corrected	Ilia->Alexey->Ilia	NEWER: Nerpa can fail due to weird assembly line and large distance between genes. Better leave it for now. NEW: all correct according to the paper. One minor note -- there is another entry for the same match in the table! Annotated as "bad" by Sasha below | OLD: (probably) incorrect assembly line; It looks like dbv17, dbv16 should be matched. Also, maybe X shouldn't have been truncated 	
+BGC0001667#0	BGC0001667.4#0	good	Ilia->Alexey	NEW:  seems ok now, all genes are considered as should E->A->B->C, there are also PKS domains responsible for "Adda" (insertion in the alignment). Note that some modules are quite unspecific (B-1 & C-2 might attract a lot of different things); OLD: looks like correct assembly line is A, B, E, and C is silent. Why is that?	
+BGC0000296#0	BGC0000296.0#0	good	Ilia		
+BGC0002123#3	BGC0002123.1#0	to be corrected	Ilia	two TEs in BGC; Alignments for 2123 should be joined, then it would be a decent alignment	
+BGC0002123#0	BGC0002123.1#1	to be corrected	Ilia	two TEs in BGC	
+BGC0002123#3	BGC0002123.9#1	to be corrected	Ilia	two TEs in BGC	
+BGC0002123#0	BGC0002123.9#0	to be corrected	Ilia	two TEs in BGC	
+BGC0002123#3	BGC0002123.8#1	to be corrected	Ilia	two TEs in BGC	
+BGC0002123#0	BGC0002123.8#0	to be corrected	Ilia	two TEs in BGC	
+BGC0002123#3	BGC0002123.5#0	good	Ilia, Azat	almost correct, but one of the monomers is not matched because we don't support singular a domains	
+BGC0002123#0	BGC0002123.5#1	to be corrected	Ilia	two TEs in BGC	
+BGC0002123#0	BGC0002123.11#0	good	Ilia, Azat	two TEs in BGC	
+BGC0002503#2	BGC0002503.4#1	to be corrected	Ilia	two TEs in BGC	
+BGC0002503#6	BGC0002503.4#0	to be corrected	Ilia	two TEs in BGC	
+BGC0002503#6	BGC0002503.6#0	bad	Ilia, Azat		
+BGC0002503#2	BGC0002503.6#1	to be corrected	Ilia	two TEs in BGC	
+BGC0000313#0	BGC0000313.0#3	good	Ilia		
+BGC0000342#0	BGC0000342.0#3	good	Ilia		
+BGC0001833#0	BGC0001833.0#2	for investigation	Ilia	two C-starter domains in a single gene	
+BGC0000445#0	BGC0000445.0#0	good	Ilia->Alexey	NEW: correctly identified iterative NRP (but I don't see the explicit message about it in the alignment, maybe it should n't be there see you see the gene names used twice). genes tioR & tioS are corrrectly used and tioY & tioZ are correctly skipped. The remainig monomer X0 is linked to tioK, the original publication is not sure about it, there are several small genes involved in this non-standard amino acid synthesis and activation, maybe tioK, maybe tioJ and tioP (that is the idea of the paper authors); OLD:maybe first monomer should be skipped in alignment	
+BGC0000312#0	BGC0000312.0#0	for investigation	Ilia	gene iterated 4 times; Currently Nerpa considers up to 3 gene duplications, so it didn't manage to align all 4 fragments to the BGC	
+BGC0002061#0	BGC0002061.1#3	good	Ilia		
+BGC0002061#0	BGC0002061.0#3	good	Ilia		
+BGC0000393#0	BGC0000393.0#2	good	Ilia	A-OX domain, PKS-PCP module in the middle of a gene; last module was silent for some reason..? But can't check because no free access paper	
+BGC0001028#0	BGC0001028.0#2	good	Ilia		
+BGC0001833#0	BGC0001833.1#3	good	Ilia	two C-starter domains in a single gene	
+BGC0000434#0	BGC0000434.0#0	good	Ilia	trimmed monomer; A monomer could be matched to a module but was trimmed. On the other hand, another monomer in the same compound was trimmed legitimately. We may need to revise our approach for trimming monomers. I would try keeping them but lowering the cost of removing them at the ends during the alignment 	
+BGC0000434#0	BGC0000434.1#0	good	Ilia		
+BGC0000434#0	BGC0000434.2#0	for investigation	Ilia	trimmed monomer	
+BGC0000434#0	BGC0000434.3#0	for investigation	Ilia	trimmed monomer	
+BGC0000434#0	BGC0000434.4#0	to be corrected	Ilia	according to paper, orphan swb12 attracts 1st monomer, not swb11. Also, there should be two fragments in alignment, not 3.	
+BGC0000450#0	BGC0000450.0#0	good	Ilia	maybe gene trsR should be removed from the alignment as it is far away	
+BGC0000339#0	BGC0000339.0#0	good	Ilia		
+BGC0001228#0	BGC0001228.0#0	for investigation	Ilia	trimmed monomer (as in 434)	
+BGC0000368#0	BGC0000368.0#0	to be corrected	Ilia		
+BGC0000359#0	BGC0000359.0#0	to be corrected	Ilia	skipped BGC module; Very interesting example: different parts of the NRP seem to have been assembled by different lines. First 1866 gene is omitted, then 1865. Unnecessay removal of Orn as a sink. 	
+BGC0000359#0	BGC0000359.0#1	for investigation	Ilia	OH-Orn was trimmed for some reason	
+BGC0000359#0	BGC0000359.1	to be corrected	Ilia	Orn is still trimmed	
+BGC0000359#0	BGC0000359.2	for investigation	Ilia	should sink be kept? An interesting case where sink (vertex with no outcoming edges) seems to belong to one of the fragments 	
+BGC0001185#0	BGC0001185.0#0	good	Ilia, Azat		
+BGC0002123#3	BGC0002123.10#1	to be corrected	Ilia	same as other 2123; C_DUAL; incorrect parsing of KGB56_24755 gene	
+BGC0002123#0	BGC0002123.10#0	to be corrected	Ilia	join alignments for separate fragments	
+BGC0002415#0	BGC0002415.1#0	was corrected	Ilia		
+BGC0002415#0	BGC0002415.2#0	was corrected	Ilia		
+BGC0001344#0	BGC0001344.8#3	for investigation	Ilia	the alignment is bad but makes sense; I am not sure if we want to keep it or not	
+BGC0001344#0	BGC0001344.7#3	for investigation	Ilia	same as 1344.8	
+BGC0002172#0	BGC0002172.2#3	to be corrected	Ilia	mapping of A-domains to modules was messed up because of an orphan A-domain. Don't know how to fix it yet	
+BGC0000985#0	BGC0000985.4#1	for investigation	Ilia	bad alignment; Nerpa completely messed up (incorrect assembly line) but maybe it is possible to make a reasonable alignment manually	
+BGC0000386#0	BGC0000386.3#0	to be corrected	Ilia, Azat	predictions are bad but alignment is reasonable. Should the last monomer be skipped or the last module be iterated? --- Azat: I think it should be rather skipped, i don't see any iterative stuff in the paper	
+BGC0000985#0	BGC0000985.1#0	for investigation	Ilia	nerpa failed to generate correct assembly line	
+BGC0002413#0	BGC0002413.0#0	good, nerpa fails	Ilia	nerpa can't generate correct assembly line, needs to be fixed	
+BGC0000320#0	BGC0000320.0#1	bad	Ilia		
+BGC0002414#0	BGC0002414.0#0	for investigation	Ilia	the match seems reasonable but the alignment needs to be corrected	
+BGC0002414#0	BGC0002414.0#0	for investigation	Ilia	same as 2414.0	
+BGC0002432#0	BGC0002432.0#0	to be corrected	Azat	assembly line should be split into multiple fragments	https://mibig.secondarymetabolites.org/repository/BGC0002432
+BGC0000323#0	BGC0000323.1#0	for investigation	Azat	first NRP monomer skipped, but it is missing in the BGC as well	https://mibig.secondarymetabolites.org/repository/BGC0000323
+BGC0001346#0	BGC0001346.1#0	to be corrected	Azat	incorrect C_DUAL handling	https://mibig.secondarymetabolites.org/repository/BGC0001346
+BGC0001628#0	BGC0001628.0#0	good	Azat	first NRP monomer skipped, but it is missing in the BGC as well	https://mibig.secondarymetabolites.org/repository/BGC0001628
+BGC0001955#0	BGC0001955.3#0	for investigation	Azat	BGC_MODULE_SKIP. Ilia: should the first module be skipped or mapped to the monomer?	https://mibig.secondarymetabolites.org/repository/BGC0001955
+BGC0002109#0	BGC0002109.2#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0002109
+BGC0001230#0	BGC0001230.3#0	to be corrected	Azat, Ilia	The match is GOOD, but it looks like the first NRP Monomer should have been matched with ctg1_sln14. Ilia: the true assembly line is weird; I think for Nerpa it would be best to skip gene sln9 and monomers X0, Glu, and match everything else.	https://mibig.secondarymetabolites.org/repository/BGC0001230
+BGC0000464#0	BGC0000464.1#0	to be corrected	Azat	C_DUAL not handled	https://mibig.secondarymetabolites.org/repository/BGC0000464
+BGC0001822#0	BGC0001822.1#0	was corrected	Azat, Ilia	corrected epimerization prediction for vioC_0	https://mibig.secondarymetabolites.org/repository/BGC0001822
+BGC0001230#0	BGC0001230.6#0	to be corrected	Azat, Ilia	The match is GOOD, but it looks like the first NRP Monomer should have been matched with ctg1_sln14; Ilia: the true assembly line is weird; I think for Nerpa it would be best to skip gene sln9 and monomers X0, Glu, and match everything else.	https://mibig.secondarymetabolites.org/repository/BGC0001230
+BGC0002484#19	BGC0002484.2#0	for investigation	Azat	Looks like gene 15580 is present in the assembly line but it can't be included by Nerpa because of A-PCP and TE domains 	https://mibig.secondarymetabolites.org/repository/BGC0002484
+BGC0002484#19	BGC0002484.1#0	good	Ilia		https://mibig.secondarymetabolites.org/repository/BGC0002484
+BGC0002123#3	BGC0002123.0#0	to be corrected	Azat	join alignments for separate fragments	https://mibig.secondarymetabolites.org/repository/BGC0002123
+BGC0000402#0	BGC0000402.2#0	for investigation	Azat		https://mibig.secondarymetabolites.org/repository/BGC0000402
+BGC0001370#0	BGC0001370.1#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001370
+BGC0001045#0	BGC0001045.0#0	for investigation	Azat	ctg1_spiA should have been removed from the BGC variant	https://mibig.secondarymetabolites.org/repository/BGC0001045
+BGC0001393#1	BGC0001393.0#0	bad	Azat	BGC is weird, but a meaningful linearization seems possible	https://mibig.secondarymetabolites.org/repository/BGC0001393
+BGC0000413#0	BGC0000413.0#0	for investigation	Azat	first two NRP monomers should be removed	https://mibig.secondarymetabolites.org/repository/BGC0000413
+BGC0002572#0	BGC0002572.0#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0002572
+BGC0002581#0	BGC0002581.5#0	good	Azat, Azat		https://mibig.secondarymetabolites.org/repository/BGC0002581
+BGC0000315#0	BGC0000315.2#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0000315
+BGC0001127#0	BGC0001127.0#0	was corrected	Azat	iterate first module instead of skipping monomer	https://mibig.secondarymetabolites.org/repository/BGC0001127
+BGC0000439#0	BGC0000439.0#0	good	Azat	The first NRP monomer is rightfully removed, but the second is an unrecognized modification of the correct BGC monomer	https://mibig.secondarymetabolites.org/repository/BGC0000439
+BGC0001822#0	BGC0001822.3#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001822
+BGC0002123#3	BGC0002123.2#0	to be corrected	Azat	join alignments for separate fragments	https://mibig.secondarymetabolites.org/repository/BGC0002123
+BGC0000447#0	BGC0000447.1#0	for investigation	Azat	NRP chirality is mostly incorrect, alignment is ok	https://mibig.secondarymetabolites.org/repository/BGC0000447
+BGC0000330#0	BGC0000330.0#0	for investigation	Azat	Alignment would be correct if we swapped ctg1_H16_B1683 and ctg1_H16_B1685	https://mibig.secondarymetabolites.org/repository/BGC0000330
+BGC0000438#0	BGC0000438.0#0	for investigation	Azat	Something wrong with the structure (?)	https://mibig.secondarymetabolites.org/repository/BGC0000438
+BGC0001050#0	BGC0001050.0#0	to be corrected	Azat, Ilia	NRP-PK hybrid with a half of monomers unrecognized + an iterative gene. But looks kinda ok; Ilia: ttbA iteration should be applied, the first module should be skipped at the first iteration	https://mibig.secondarymetabolites.org/repository/BGC0001050
+BGC0001620#0	BGC0001620.1#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001620
+BGC0002117#0	BGC0002117.1#0	good	Azat	C_DUAL	https://mibig.secondarymetabolites.org/repository/BGC0002117
+BGC0002484#2	BGC0002484.0#0	good	Azat, Ilia	The last monomer is an X one and is not trimmed (in some other cases trimming is there); Looks like gene 15580 is present in the assembly line but it can't be included by Nerpa because of A-PCP and TE domains 	https://mibig.secondarymetabolites.org/repository/BGC0002484
+BGC0002409#0	BGC0002409.5#0	for investigation	Azat	Looks good, even though the alignment is not perfect -- probably due to two singular A domains;	https://mibig.secondarymetabolites.org/repository/BGC0002409
+BGC0001130#0	BGC0001130.1#0	was corrected	Azat	C_DCL	https://mibig.secondarymetabolites.org/repository/BGC0001130
+BGC0001056#0	BGC0001056.3#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001056
+BGC0000964#0	BGC0000964.0#0	for investigation	Azat	looks good, but ctg1_BTH_I2367 should have been removed from the variant	https://mibig.secondarymetabolites.org/repository/BGC0000964
+BGC0001192#4	BGC0001192.0#0	for investigation	Azat	the correct BGC variant would be ctg1_AJM89738.1 - AJM89735.1 - ctg1_AJM89734.1	https://mibig.secondarymetabolites.org/repository/BGC0001192
+BGC0001330#0	BGC0001330.6#0	was corrected	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001330
+BGC0000354#1	BGC0000354.1#0	good	Azat, Ilia	The BGC clearly suggests non-linear assembly. The NRP is a "true branch-cyclic", its linearization is probably wrong. Ilia: I don't see any problems	https://mibig.secondarymetabolites.org/repository/BGC0000354
+BGC0001448#1	BGC0001448.1#0	for investigation	Azat	Very similar to BGC0000354#1, same issues	https://mibig.secondarymetabolites.org/repository/BGC0001448
+BGC0002503#3	BGC0002503.3#0	for investigation	Azat	Wrong BGC variant	https://mibig.secondarymetabolites.org/repository/BGC0002503
+BGC0002107#1	BGC0002107.0#0	good	Azat, Azat	rather complicated case, where nerpa produced mostly correct alignment, but has misplaced one of the genes if we believe the paper	https://mibig.secondarymetabolites.org/repository/BGC0002107
+BGC0000416#0	BGC0000416.1#0	good, nerpa can't generate	Azat	gene XNC1_2229 was iterated but there're no signs for it 	https://mibig.secondarymetabolites.org/repository/BGC0000416
+BGC0000424#0	BGC0000424.1#0	good	Azat	Add OH-cOrn to supported monomers	https://mibig.secondarymetabolites.org/repository/BGC0000424
+BGC0002532#1	BGC0002532.0#0	to be corrected	Azat	THe last monomer is trimmed but is in fact a modified tyr	https://mibig.secondarymetabolites.org/repository/BGC0002532
+BGC0002581#0	BGC0002581.1#0	for investigation	Azat	THe first monomer is trimmed but is a modified correct one. BGC variant should be ctg1_QKF54435.2 - ctg1_QKF54436.1 - QKF54438.1	https://mibig.secondarymetabolites.org/repository/BGC0002581
+BGC0000301#0	BGC0000301.1#0	for investigation	Azat	The NRP is a "true branch-cyclic", its linearization is probably wrong. Somewhat similar to BGC0000354#1	https://mibig.secondarymetabolites.org/repository/BGC0000301
+BGC0001214#0	BGC0001214.4#0	was corrected	Azat	two unrecognized monomers & teh bgc having a singular A domain, but will do	https://mibig.secondarymetabolites.org/repository/BGC0001214
+BGC0001402#0	BGC0001402.1#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001402
+BGC0001479#0	BGC0001479.0#0	for investigation	Azat	The NRP is a "true branch-cyclic", its linearization is probably wrong. Very similar to BGC0000301	https://mibig.secondarymetabolites.org/repository/BGC0001479
+BGC0002370#0	BGC0002370.0#0	good	Azat	unrecognized monomers, unknown A domain	https://mibig.secondarymetabolites.org/repository/BGC0002370
+BGC0000423#0	BGC0000423.0#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0000423
+BGC0001103#0	BGC0001103.0#0	bad	Azat	Assembly line and the structure both look straightforward but don't match at all. AntiSMASH shows "NRPS domain of unknown function", maybe they have smth to do with it	https://mibig.secondarymetabolites.org/repository/BGC0001103
+BGC0002409#0	BGC0002409.2#0	for investigation	Azat	Looks ok, but the alignment is not perfect -- probably due to two singular A domains; should the last module be epimerized?	https://mibig.secondarymetabolites.org/repository/BGC0002409
+BGC0001953#3	BGC0001953.2#0	for investigation	Azat	NRPS-PKS, bgc linearization is incorrect. It should end with puwA. NRP linearization should start with X0 (but the structure is circular so it's ok)	https://mibig.secondarymetabolites.org/repository/BGC0001953
+BGC0000405#0	BGC0000405.3#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0000405
+BGC0001214#0	BGC0001214.2#0	good, ok if nerpa fails	Azat	two unrecognized monomers, looks good. Ilia: Nerpa skips the wrong monomer because match unknown-unknown yields a high score. Not sure how to rectify that	https://mibig.secondarymetabolites.org/repository/BGC0001214
+BGC0000984#0	BGC0000984.1#0	for investigation	Azat	Add OH-cOrn to supported monomers	https://mibig.secondarymetabolites.org/repository/BGC0000984
+BGC0000416#0	BGC0000416.2#0	for investigation	Azat	looks GOOD, but the structure suggests module stuttering which wss missed in preprocessing. Maybe we should alter the rules: the BGC ends with a C domain	https://mibig.secondarymetabolites.org/repository/BGC0000416
+BGC0002293#0	BGC0002293.1#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0002293
+BGC0001035#0	BGC0001035.0#0	to be corrected	Azat	X monomer in the cycle was removed for no reason	https://mibig.secondarymetabolites.org/repository/BGC0001035
+BGC0001016#1	BGC0001016.0#0	for investigation	Azat	NRPS-PKS. Circular structure. The alignment is incorrect, probably because mismatch costs more than two indels. The bgc linearization should be: mcyA - mcyB - mcyC - mcyE	https://mibig.secondarymetabolites.org/repository/BGC0001016
+BGC0002512#0	BGC0002512.0#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0002512
+BGC0002564#0	BGC0002564.1#0	good	Azat->Alexey	New comment: seems fine now, two correct NRP_monomer_skips (for seemingly PKS parts) and two bad matches for rare amino acids with low-confidence predictions (Nva) ; OLD comment: Contains two A domains (top scoring: unknown) for Nva (not in the list of supported monomers). Ilia: both C_STARTER and A-PCP module in the assembly line	https://mibig.secondarymetabolites.org/repository/BGC0002564
+BGC0001822#0	BGC0001822.2#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0001822
+BGC0002370#0	BGC0002370.3#0	good	Azat, Azat		https://mibig.secondarymetabolites.org/repository/BGC0002370
+BGC0002564#0	BGC0002564.7#0	good	Azat, Ilia	both C_STARTER and A-PCP module in the assembly line	https://mibig.secondarymetabolites.org/repository/BGC0002564
+BGC0000429#0	BGC0000429.1#0	good	Azat		https://mibig.secondarymetabolites.org/repository/BGC0000429
+BGC0002735#4	BGC0002735.1#0	bad	Azat	complicated cluster (two of them?), alignment doesn't make sense and i don't see how to make it right	https://mibig.secondarymetabolites.org/repository/BGC0002735
+BGC0000374#0	BGC0000374.2#0	for investigation	Azat	two unrecognized monomers were trimmed and turned into indels. Do we want such behavior? Otherwise GOOD	https://mibig.secondarymetabolites.org/repository/BGC0000374
+BGC0001351#13	BGC0001351.0#0	for investigation	Azat	wrong BGC ordering, cahD should go in the end	https://mibig.secondarymetabolites.org/repository/BGC0001351
+BGC0000386#0	BGC0000386.1#0	to be corrected	Azat	one of the specificities is predicted REALLY poorly; should the last gene be iterated or the last monomer be skipped?	https://mibig.secondarymetabolites.org/repository/BGC0000386
+BGC0001035#0	BGC0001035.1#0	for investigation	Azat	see BGC0000374#0, otherwise GOOD	https://mibig.secondarymetabolites.org/repository/BGC0001035
+BGC0000374#0	BGC0000374.6#0	good	Azat-->Alexey	NEW: correctly identified 8 monomers in the stcutres and matched 7 of them to good genes, the remaiing one is realted to separately standing A domain (and also separately standing in another gene C domain) -- impossible to catch; OLD: see BGC0000374#0, otherwise GOOD	https://mibig.secondarymetabolites.org/repository/BGC0000374
+BGC0001058#0	BGC0001058.0#0	bad	Azat	complicated cluster, alignment doesn't make sense, but seems possible	https://mibig.secondarymetabolites.org/repository/BGC0001058
+BGC0002735#4	BGC0002735.0#0	bad	Azat	see BGC0002735.1#0	https://mibig.secondarymetabolites.org/repository/BGC0002735
+BGC0002569#0	BGC0002569.2#0	to be corrected	Azat	the last monomer Put should probably have been trimmed	https://mibig.secondarymetabolites.org/repository/BGC0002569
+BGC0002408#0	BGC0002408.0#0	good, nerpa can't generate	Azat	gene GN109_07695 was iterated but there're no signs for it	https://mibig.secondarymetabolites.org/repository/BGC0002408
+BGC0001048#0	BGC0001048.0#0	bad	Azat	similar to BGC0001058.0#0	https://mibig.secondarymetabolites.org/repository/BGC0001048
+BGC0001620#0	BGC0001620.2#0	good	Azat	three unknown specificities, two unrecognized monomers	https://mibig.secondarymetabolites.org/repository/BGC0001620
+BGC0001768#0	BGC0001768.0#0	for investigation	Azat	an interesting case with experimentally confirmed specificities in mibig, all being promiscuous. The alignment looks strange though	https://mibig.secondarymetabolites.org/repository/BGC0001768
+BGC0000441#0	BGC0000441.0#0	good	Sasha	ctg1_teiC_3 mismatch (tyr/bht) 1 incorrect chirality	https://mibig.secondarymetabolites.org/repository/BGC0000441/generated/index.html#r1c1
+BGC0000323#0	BGC0000323.0#0	good	Sasha	first NRP monomer skipped, but it is missing in the BGC as well, shouldn't be on the graph; C_DUAL	https://mibig.secondarymetabolites.org/repository/BGC0000323/generated/index.html#r1c1
+BGC0001346#0	BGC0001346.0#0	to be corrected	Sasha	Top_scoring_residue has a wide list of option almost for each A-domain;  ctg1_banC_2 mismatch (ile/leu) NRP chirality is UNKNOWN for all the residues	https://mibig.secondarymetabolites.org/repository/BGC0001346/generated/index.html#r1c1
+BGC0001628#0	BGC0001628.1#0	good	Sasha	first NRP monomer skipped, but it is missing in the BGC as well, shouldn't be on the graph	https://mibig.secondarymetabolites.org/repository/BGC0001628/generated/index.html#r1c1
+BGC0001029#0	BGC0001029.0#0	for investigation	Sasha	last NRP monomer skipped, but it is missing in the BGC as well, shouldn't be on the graph ctg1_npnB_2 chirality is UNKNOWN Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0001029/generated/index.html#r1c1
+BGC0002109#0	BGC0002109.0#0	to be corrected	Sasha, Ilia	ctg1_QDJ74273.1 _3  mismatch (ile/val) Chirality is incorrect or UNKNOWN in several cases Ilia: QDJ74293.1 should be skipped instead of matched	https://mibig.secondarymetabolites.org/repository/BGC0002109/generated/index.html#r1c1
+BGC0001230#0	BGC0001230.7#0	to be corrected	Sasha, Azat	sln14 should match the second residue; the first residue is probably explained by PKS part of sln14	https://mibig.secondarymetabolites.org/repository/BGC0001230/generated/index.html#r1c1
+BGC0002126#0	BGC0002126.0#0	for investigation	Sasha	ctg1_J5226_16945_6 mismatch (tyr/bht) 3 incorrect chiralities	https://mibig.secondarymetabolites.org/repository/BGC0002126/generated/index.html#r1c1
+BGC0002108#0	BGC0002108.0#0	for investigation	Sasha	Why is the monomer graph cyclic? BGC_MODULE_SKIP twice	https://mibig.secondarymetabolites.org/repository/BGC0002108/generated/index.html#r1c1
+BGC0002092#0	BGC0002092.1#0	for investigation	Sasha	Chirality is incorrect for most monomers ctg1_steC_4 mismatch (ile,leu / val)	https://mibig.secondarymetabolites.org/repository/BGC0002092/generated/index.html#r1c1
+BGC0002484#19	BGC0002484.3#0	good	Sasha, Azat		https://mibig.secondarymetabolites.org/repository/BGC0002484/generated/index.html#r1c1
+BGC0001023#0	BGC0001023.0#0	for investigation	Sasha	Match for ctg1_mchC_2 is all amino acids 1 incorrect chirality BGC_MODULE_SKIP	https://mibig.secondarymetabolites.org/repository/BGC0001023/generated/index.html#r1c1
+BGC0000315#0	BGC0000315.1#0	good	Sasha	Chirality is UNKNOWN for 2 monomers	https://mibig.secondarymetabolites.org/repository/BGC0000315/generated/index.html#r1c1
+BGC0000402#0	BGC0000402.0#0	good	Ilia		https://mibig.secondarymetabolites.org/repository/BGC0000402/generated/index.html#r1c1
+BGC0001370#0	BGC0001370.0#0	good	Sasha	1 incorrect chirality (L instead of D) ctg1_cda2PS2_3 NRP_residue is "unknown"	https://mibig.secondarymetabolites.org/repository/BGC0001370/generated/index.html#r1c1
+BGC0000290#0	BGC0000290.0#0	for investigation	Sasha	BGC_MODULE_SKIP 1 incorrect chirality (L instead of D) ctg1_AAM80537.1_3 mismatch (thr/bht)	https://mibig.secondarymetabolites.org/repository/BGC0000290/generated/index.html#r1c1
+BGC0002544#4	BGC0002544.1#0	for investigation	Sasha	First NRP monomer skipped 1 incorrect chirality Seems like there's an incorrect direction of monomers (?) in the graph	https://mibig.secondarymetabolites.org/repository/BGC0002544/generated/index.html#r1c1
+BGC0001806#0	BGC0001806.0#0	for investigation	Sasha	Chirality is UNKNOWN for all of the monomers NRP monomer skipped between modules of ctg1_APU91750.1 ctg1_APU91750.1_1 NRP_residue is "unknown" ctg1_APU91751.1_1 mismatch (gly,ser,thr / abu)	https://mibig.secondarymetabolites.org/repository/BGC0001806/generated/index.html#r1c1
+BGC0002572#0	BGC0002572.1#0	good	Sasha, Ilia	ctg1_JYQ62_16310_2 mismatch (gly,ser,thr / abu) 2 chiralities are UNKNOWN Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0002572/generated/index.html#r1c1
+BGC0002379#0	BGC0002379.0#0	good	Sasha, Ilia	BGC_MODULE_SKIP Chirality is mostly UNKNOWN Several NRP_MONOMER_SKIP; Ilia: maybe genes 34650 and 34640 could be matched to first two monomers but they are so far away that probably it's ok	https://mibig.secondarymetabolites.org/repository/BGC0002379/generated/index.html#r1c1
+BGC0000447#0	BGC0000447.0#0	for investigation	Sasha	Incorrect chirality for half of the monomers ctg1_taaA_1 mismatch (gly,ser,thr / abu) ctg1_taaE_1 mismatch (gly,ser,thr / abu)	https://mibig.secondarymetabolites.org/repository/BGC0000447/generated/index.html#r1c1
+BGC0001428#0	BGC0001428.0#0	for investigation	Sasha	3 incorrect chiralities (one is L instead of D) BGC_MODULE_SKIP	https://mibig.secondarymetabolites.org/repository/BGC0001428/generated/index.html#r1c1
+BGC0000425#0	BGC0000425.0#0	for investigation	Sasha	Most chiralities are incorrect, 2 are UNKNOWN  ctg1_sesA_1 mismatch (gly,ser,thr / abu) ctg1_sesC_1 mismatch (gly,ser,thr / abu)	https://mibig.secondarymetabolites.org/repository/BGC0000425/generated/index.html#r1c1
+BGC0002411#1	BGC0002411.0#0	for investigation	Sasha	Chirality is UNKNOWN for all of the monomers tg1_Riv7116_6169_1 mismatch (cys/ser)	https://mibig.secondarymetabolites.org/repository/BGC0002411/generated/index.html#r1c1
+BGC0001005#0	BGC0001005.2#0	for investigation	Sasha	NRP_MONOMER_SKIP 3 times between ctg1_locB and ctg1_locC 1 chirality is UNKNOWN	https://mibig.secondarymetabolites.org/repository/BGC0001005/generated/index.html#r1c1
+BGC0000459#33	BGC0000459.1#0	good	Sasha, Ilia	First NRP monomer skipped (?) Seems like there's an incorrect direction of monomers (?) in the graph Chirality is incorrect for 1 case + 1 unknown + 1 absent; Ilia: assembly line is weird and I can't verify it because the paper is not open-access	https://mibig.secondarymetabolites.org/repository/BGC0000459/generated/index.html#r1c1
+BGC0002123#2	BGC0002123.6#0	bad	Sasha	Seems like there's an incorrect direction of monomers (?) in the graph first (in fact last three) two NRP monomers skipped (ctg1_KGB56_24770) NRP chirality is UNKNOWN twice	https://mibig.secondarymetabolites.org/repository/BGC0002123/generated/index.html#r1c1
+BGC0002123#5	BGC0002123.7#0	for investigation	Sasha	ctg1_KGB56_24770_2 mismatch (thr/abu) last NRP monomer skipped NRP chirality is UNKNOWN twice	https://mibig.secondarymetabolites.org/repository/BGC0002123/generated/index.html#r1c1
+BGC0001240#0	BGC0001240.0#0	for investigation	Sasha	ctg1_X797_010654_1 unknown residue ctg1_X797_010654_4 mismatch (lys/gly) Chirality is UNKNOWN twice Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0001240/generated/index.html#r1c1
+BGC0002117#0	BGC0002117.3#0	for investigation	Sasha	3 chiralities are incorrect, 2 UNKNOWN ctg1_FRY77_09880_4 mismatch (orn/unknown)	https://mibig.secondarymetabolites.org/repository/BGC0002117/generated/index.html#r1c1
+BGC0002117#0	BGC0002117.0#0	for investigation	Sasha	3 chiralities are incorrect, 2 UNKNOWN ctg1_FRY77_09880_4 mismatch (orn/unknown)	https://mibig.secondarymetabolites.org/repository/BGC0002117/generated/index.html#r1c1
+BGC0002409#0	BGC0002409.3#0	for investigation	Sasha	First two NRP monomers skipped, but absent in BGC as well, shouldn't be on the graph ctg1_IHE48_05565_4 appears twice in the alignment 2 UNKNOWN chiralities	https://mibig.secondarymetabolites.org/repository/BGC0002409/generated/index.html#r1c1
+BGC0002123#3	BGC0002123.3#0	to be corrected	Sasha	ctg1_KGB56_24770_2 mismatch (thr/abu) join alignments for separate fragments ctg1_KGB56_24770_3 mismatch (ala/glu) 3 UNKNOWN chiralities	https://mibig.secondarymetabolites.org/repository/BGC0002123/generated/index.html#r1c1
+BGC0001230#0	BGC0001230.1#0	for investigation	Sasha	first NRP monomer skipped Monomer graph looks strange 3 chiralities are incorrect	https://mibig.secondarymetabolites.org/repository/BGC0001230/generated/index.html#r1c1
+BGC0002581#0	BGC0002581.4#0	to be corrected	Ilia	skip fst monomer and last module	https://mibig.secondarymetabolites.org/repository/BGC0002581/generated/index.html#r1c1
+BGC0000337#1	BGC0000337.0#0	for investigation	Sasha, Ilia	BGC_MODULE_SKIP twice Last NRP monomer skipped but absent in BGC as well, shouldn't be on the graph MAA_10036 gene is not taken into account; Ilia: modules order in antiSMASH is not the same as in the paper. It looks like the first module should be put to the end (according to the paper).	https://mibig.secondarymetabolites.org/repository/BGC0000337/generated/index.html#r1c1
+BGC0001192#4	BGC0001192.1#0	bad	Sasha	 Seems like there's an incorrect direction of monomers (?) in the graph NRP monomer skipped three times between ctg1_AJM89738.1 modules	https://mibig.secondarymetabolites.org/repository/BGC0001192/generated/index.html#r1c1
+BGC0002123#2	BGC0002123.4#0	bad	Sasha	First three NRP monomers skipped (ctg1_KGB56_24770) Monomer graph looks strange 3 UNKNOWN chiralities	https://mibig.secondarymetabolites.org/repository/BGC0002123/generated/index.html#r1c1
+BGC0000354#1	BGC0000354.3#0	good	Sasha, Ilia	Why is the monomer graph cyclic? Seems like there's an incorrect direction of monomers (?) in the graph 2 incorrect chiralities NRP monomer skipped between ctg1_pstB modules	https://mibig.secondarymetabolites.org/repository/BGC0000354/generated/index.html#r1c1
+BGC0001448#1	BGC0001448.0#0	good	Sasha, Azat		https://mibig.secondarymetabolites.org/repository/BGC0001448/generated/index.html#r1c1
+BGC0002360#0	BGC0002360.2#0	for investigation	Sasha	Last three NRP monomers skipped (ctg1_UEF20580.1) 1 chirality is incorrect	https://mibig.secondarymetabolites.org/repository/BGC0002360/generated/index.html#r1c1
+BGC0002107#1	BGC0002107.1#0	for investigation	Sasha	NRP monomer skipped between ctg1_Atu3682 modules Chirality is UNKNOWN for all monomers	https://mibig.secondarymetabolites.org/repository/BGC0002107/generated/index.html#r1c1
+BGC0002503#1	BGC0002503.0#0	for investigation	Sasha	NRP monomers skipped between ctg1_QPB41096.1 and ctg1_QPB41097.1,  and between modules of ctg1_QPB41097.1 ctg1_QPB41098.1 and ctg1_QPB41099.1 are absent ctg1_QPB41096.1_2 mismatch (gly,ser,thr / abu) Many UNKNOWN chiralities	https://mibig.secondarymetabolites.org/repository/BGC0002503/generated/index.html#r1c1
+BGC0000424#0	BGC0000424.2#0	for investigation	Sasha	Chirality is UNKNOWN for all monomers	https://mibig.secondarymetabolites.org/repository/BGC0000424/generated/index.html#r1c1
+BGC0002581#0	BGC0002581.2#0	good	Sasha, Azat		https://mibig.secondarymetabolites.org/repository/BGC0002581/generated/index.html#r1c1
+BGC0002360#0	BGC0002360.1#0	to be corrected	Sasha, Ilia	Ilia: not sure what happened to UEF20583.1. Most probable assembly line seems to be skip the first monomer, then 92, 91, 78, 80	https://mibig.secondarymetabolites.org/repository/BGC0002360/generated/index.html#r1c1
+BGC0000301#0	BGC0000301.0#0	for investigation	Sasha	Why is the monomer graph cyclic? BGC_MODULE_SKIP Last NRP monomers skipped but absent in BGC as well, shouldn't be on the graph	https://mibig.secondarymetabolites.org/repository/BGC0000301/generated/index.html#r1c1
+BGC0001214#0	BGC0001214.5#0	for investigation	Sasha	NRP monomer skipped between ctg1_AJV88376.1 and ctg1_AJV88377.1 ctg1_AJV88375.1_3 mismatch/unpredicted (thr/unknown)	https://mibig.secondarymetabolites.org/repository/BGC0001214/generated/index.html#r1c1
+BGC0001402#0	BGC0001402.4#0	for investigation	Sasha	unknown monomer Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0001402/generated/index.html#r1c1
+BGC0001532#7	BGC0001532.0#0	for investigation	Sasha	NRP_MONOMER_SKIP four times 4 UNKNOWN chiralities ctg1_ATY37591.1_4 mismatch (phe / tyr) ctg1_ATY37592.1_2 mismatch (val/vol)	https://mibig.secondarymetabolites.org/repository/BGC0001532/generated/index.html#r1c1
+BGC0002503#3	BGC0002503.5#0	bad	Sasha	NRP monomers skipped  (all ctg1_QPB41096.1 ). between modules of ctg1_QPB41097.1  and the last one (absent in BGC as well, shouldn't be on the graph) ctg1_QPB41098.1 and ctg1_QPB41099.1 are absent	https://mibig.secondarymetabolites.org/repository/BGC0002503/generated/index.html#r1c1
+BGC0002503#1	BGC0002503.1#0	for investigation	Sasha	NRP monomers skipped between ctg1_QPB41096.1 and ctg1_QPB41097.1, between modules of ctg1_QPB41097.1,  and the last one (absent in BGC as well, shouldn't be on the graph) ctg1_QPB41098.1 and ctg1_QPB41099.1 are absent ctg1_QPB41096.1_2 mismatch (gly,ser,thr / abu)	https://mibig.secondarymetabolites.org/repository/BGC0002503/generated/index.html#r1c1
+BGC0000395#0	BGC0000395.0#0	good	Sasha, Azat	rBAN results are probably incorrect because of post-translational modifications	https://mibig.secondarymetabolites.org/repository/BGC0000395/generated/index.html#r1c1
+BGC0002409#0	BGC0002409.6#0	for investigation	Sasha	NRP monomers between ctg1_IHE48_05565 modules skipped ctg1_IHE48_05565_4 appears twice in the alignment 2 chiralities are incorrect (L instead of D)	https://mibig.secondarymetabolites.org/repository/BGC0002409/generated/index.html#r1c1
+BGC0001953#3	BGC0001953.1#0	for investigation	Sasha	Why is the monomer graph cyclic? First 3 NRP monomers are skipped Seems like there's an incorrect direction of monomers (?) 2 chiralities are UNKNOWN ctg1_puwF_1 mismatch (thr/abu)	https://mibig.secondarymetabolites.org/repository/BGC0001953/generated/index.html#r1c1
+BGC0002544#4	BGC0002544.0#0	for investigation	Sasha	BGC_MODULE_SKIP twice Last NRP monomer skipped but absent in BGC as well, shouldn't be on the graph Seems like there's an incorrect direction of monomers (?)	https://mibig.secondarymetabolites.org/repository/BGC0002544/generated/index.html#r1c1
+BGC0001822#0	BGC0001822.0#0	for investigation	Sasha	All chiralities are UNKNOWN ctg1_vioC_1 mismatch (gly,ser,thr / abu) Monomer graph looks strange	https://mibig.secondarymetabolites.org/repository/BGC0001822/generated/index.html#r1c1
+BGC0001230#0	BGC0001230.2#0	for investigation	Sasha	first NRP monomer skipped Monomer graph looks a bit strange	https://mibig.secondarymetabolites.org/repository/BGC0001230/generated/index.html#r1c1
+BGC0000416#0	BGC0000416.3#0	good, ok if nerpa fails	Sasha->Ilia	According to the paper, the second module was iterated. There're no signs of that in the BGC, so Nerpa can't pick that	https://mibig.secondarymetabolites.org/repository/BGC0000416/generated/index.html#r1c1
+BGC0002437#0	BGC0002437.0#0	for investigation	Sasha	First two and last NRP monomers skipped, but absent in BGC as well, shouldn't be on the graph Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0002437/generated/index.html#r1c1
+BGC0001189#0	BGC0001189.0#0	to be corrected	Sasha	First monomer is skipped, but there's RALTA_B1226 gene with asp monomer	https://mibig.secondarymetabolites.org/repository/BGC0001189/generated/index.html#r1c1
+BGC0001214#0	BGC0001214.1#0	for investigation	Sasha	NRP monomers skipped between ctg1_AJV88376.1 and ctg1_AJV88377.1 ctg1_AJV88375.1_3 mismatch/unpredicted (thr/unknown) ctg1_AJV88375.1_1 mismatch (val/ile) ctg1_AJV88376.1_1 mismatch (val/ile) 2 chiralities are incorrect	https://mibig.secondarymetabolites.org/repository/BGC0001214/generated/index.html#r1c1
+BGC0002564#0	BGC0002564.0#0	good	Sasha		https://mibig.secondarymetabolites.org/repository/BGC0002564/generated/index.html#r1c1
+BGC0002564#0	BGC0002564.4#0	to be corrected	Sasha, Azat	Are DCL domains handled correctly here?	https://mibig.secondarymetabolites.org/repository/BGC0002564/generated/index.html#r1c1
+BGC0002564#0	BGC0002564.6#0	for investigation	Sasha	ctg1_FNZ07_17565_4.  ctg1_FNZ07_17570_1: unrecognized monomers ctg1_FNZ07_17565_5 mismatch (gly/ala) I don't know what to think of monomer graphs for this BGC 2 chiralities are incorrect	https://mibig.secondarymetabolites.org/repository/BGC0002564/generated/index.html#r1c1
+BGC0000386#0	BGC0000386.0#0	for investigation	Sasha	BGC_MODULE_SKIP Match for ctg1_BTH_I2418_1 is all amino acids Last NRP monomer is skipped, but absent in BGC as well, shouldn't be on the graph	https://mibig.secondarymetabolites.org/repository/BGC0000386/generated/index.html#r1c1
+BGC0002370#0	BGC0002370.2#0	good	Sasha, Azat	C-PCP modules could be treated better	https://mibig.secondarymetabolites.org/repository/BGC0002370/generated/index.html#r1c1
+BGC0001351#13	BGC0001351.2#0	bad	Sasha	Last NRP monomer skipped BGC_MODULE_SKIP Monomer mismatches The sequence of monomers on the graph is not clear	https://mibig.secondarymetabolites.org/repository/BGC0001351/generated/index.html#r1c1
+BGC0001716#0	BGC0001716.1#0	for investigation	Sasha	NRP monomer skipped between ctg1_XNC2_2372 modules + the last one (absent in BGC as well,  shouldn't be on the graph) 3 chiralities are UNKNOWN, 1 is incorrect ctg1_XNC2_2373_2  mismatch (dab / gly) ctg1_XNC2_2370_1  mismatch (lys / gly)	https://mibig.secondarymetabolites.org/repository/BGC0001716/generated/index.html#r1c1
+BGC0001351#13	BGC0001351.1#0	bad	Sasha	First NRP monomer skipped, but it is missing in the BGC as well, shouldn't be on the graph Last NRP monomer skipped BGC_MODULE_SKIP ctg1_AMK48225.1_1 mismatch (cys/ser) ctg1_cahC_1 mismatch (orn/piperazic) The sequence of monomers on the graph is not clear	https://mibig.secondarymetabolites.org/repository/BGC0001351/generated/index.html#r1c1
+BGC0000333#0	BGC0000333.0#0	for investigation	Sasha	BGC_MODULE_SKIP three times Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0000333/generated/index.html#r1c1
+BGC0001631#0	BGC0001631.0#0	for investigation	Sasha	unknown residues 1 chirality is incorrect, rest is UNKNOWN	https://mibig.secondarymetabolites.org/repository/BGC0001631/generated/index.html#r1c1
+BGC0000374#0	BGC0000374.0#0	for investigation	Sasha	What's X2 on the monomer graph? BGC_MODULE_SKIP (twice) ctg1_AEH41794.1_2 mismatch (val/ile)	https://mibig.secondarymetabolites.org/repository/BGC0000374/generated/index.html#r1c1
+BGC0001825#0	BGC0001825.0#0	for investigation	Sasha	First monomer is skipped, but absent in BGC as well, shouldn't be in the graph All except one chiralities are UNKNOWN	https://mibig.secondarymetabolites.org/repository/BGC0001825/generated/index.html#r1c1
+BGC0002569#0	BGC0002569.1#0	for investigation	Sasha	All chiralities are UNKNOWN Last NRP monomer is skipped, but absent in BGC as well, shouldn't be in the graph	https://mibig.secondarymetabolites.org/repository/BGC0002569/generated/index.html#r1c1
+BGC0002377#0	BGC0002377.1#0	for investigation	Sasha	One NRP monomer skipped between ctg1_QBA57737.1 modules unknown NRP residue	https://mibig.secondarymetabolites.org/repository/BGC0002377/generated/index.html#r1c1
+BGC0002344#0	BGC0002344.0#0	for investigation	Sasha	2 chiralities are incorrect ctg1_Nocox_13360_3 mismatch (tyr/bht) Very strange monomer graph	https://mibig.secondarymetabolites.org/repository/BGC0002344/generated/index.html#r1c1
+BGC0002433#0	BGC0002433.0#0	for investigation	Sasha	First NRP monomer is skipped; should gene 25650 be skipped or not? 	https://mibig.secondarymetabolites.org/repository/BGC0002433/generated/index.html#r1c1
+BGC0000374#0	BGC0000374.4#0	was corrected	Sasha	What's X2 on the monomer graph? BGC_MODULE_SKIP ctg1_AEH41794.1_2 mismatch (val/ile)	https://mibig.secondarymetabolites.org/repository/BGC0000374/generated/index.html#r1c1
+BGC0001667#0	BGC0001667.0#0	for investigation	Sasha	1 chirality is incorrect; Ilia: looks like correct assembly line is A, B, E, and C is silent. Why is that? unknown NRP residue Why is the monomer graph cyclic?	https://mibig.secondarymetabolites.org/repository/BGC0001667/generated/index.html#r1c1
+BGC0002512#0	BGC0002512.1#0	bad	Sasha	BGC_MODULE_SKIP twice NRP monomers skipped twice  2 incorrect chiralities ctg1_aptA_1 mismatch (val/leu) ctg1_aptA_2 mismatch (lys/trp)	https://mibig.secondarymetabolites.org/repository/BGC0002512/generated/index.html#r1c1
+BGC0000379#0	BGC0000379.0#0	good	Alexey	Good use of the iteration module; skipped orf with single A domain (undefined specificity) and X0 on a dead end in the lolli-pop graph (technically we can match them).Ilia: there's another option -- skip the X0 monomer and match the single A-domain to Asp. Which option is correct?	
+BGC0002521#0	BGC0002521.2#0	good	Alexey	incorrect C_DUAL handling	
+BGC0001346#0	BGC0001346.2#0	to be corrected	Alexey	Big penalty for Leu->Ile, incorrect C_DUAL handling	
+BGC0002548#0	BGC0002548.2#0	to be corrected	Alexey	Big penalty for Val->Ile,Leu; Ilia incorrect C_DUAL handling	
+BGC0001955#0	BGC0001955.2#0	for investigation	Alexey	Skipped X0 in the graph (not peptidic connection) and they strictly penalized for "BGC_MODULE_SKIP". Ilia: should X0 be skipped or matched to the module?	
+BGC0002109#0	BGC0002109.4#0	was corrected	Alexey	NMe predicted on Phe in BGC but not visible in structures, seems legit;  NRP predicted D-Val chirality, in reality it is in L, not sure what went wrong	
+BGC0001133#0	BGC0001133.0#0	good	Alexey	Big penalty for Ala->Ser	
+BGC0002259#0	BGC0002259.1#0	good	Alexey	Big penalty for Ile->Leu	
+BGC0000464#0	BGC0000464.0#0	good	Alexey, Azat	there are actually two bgcs htat are really close to each other, only the first on is matched	
+BGC0000315#0	BGC0000315.4#0	good	Alexey	Huge penalty for X0->Asp  while the structure is very similar (one "O" is missing)	
+BGC0002092#0	BGC0002092.4#0	to be corrected	Alexey	!! ignored all Condensation_Dual in BGC, that is why we got a lot of penalties for not matched chirality;  Also big pen for Glu->Asp 	
+BGC0002484#0	BGC0002484.5#0	good	Alexey, Ilia	Big Penalty for Leu->Leu (sic!), seems like a pad prediction quality, incomplete aa34;   Also, one skipped X0 monomer, not clear how it was generated by BGC; Ilia: gene 15580 can't be included in the assembly line	
+BGC0000315#0	BGC0000315.0#0	good	Alexey	!! Huge penalty for PO-Asn (Unknown) -> Asn	
+BGC0001196#0	BGC0001196.0#0	bad	Alexey	Seems like we matched circular structure incorrectly, only half of BGCs predictions are reliable. Also maybe issues with chirality detection in NRP structure	
+BGC0001018#0	BGC0001018.0#0	good	Alexey	Big penalty Glu->Unknown (in reality Ahp, 3-amion-6-hydroxy-2-piperidone), I think this is ok	
+BGC0000416#0	BGC0000416.0#0	to be corrected	Alexey	Penality for NRP_SKIP, maybe it is iterative but hard to glue from BGC (there is one orphan C on the end of the third orf)	
+BGC0001135#0	BGC0001135.0#0	to be corrected	Alexey	!! ignored all Condensation_Dual in BGC, that is why we got a lot of penalties for not matched chirality	
+BGC0000307#0	BGC0000307.0#0	was corrected	Alexey	Note: fungal example. Huge penalty for unknown -> unknown; updated first monomer methylation	
+BGC0000385#0	BGC0000385.0#0	to be corrected	Alexey	!! ignored all Condensation_Dual in BGC, that is why we got a lot of penalties for not matched chirality; Also: huge penalty for Ph-Ser (unknown) -> Phe 	
+BGC0002572#0	BGC0002572.2#0	good	Alexey	Huge penalty for dhAbu -> Thr;  NRP monomer skipping seems reasonable, BGC has one extra PKS gene (single module), but I doubt it is relevant here	
+BGC0001406#0	BGC0001406.0#0	good	Alexey	Huge penalty X0 -> D-Trp	
+BGC0001462.0	BGC0001462.0	good	Alexey	Huge penalty for NMe -> no MT domain	
+BGC0000402.1	BGC0000402.1	good	Alexey, Azat		
+BGC0001414.0	BGC0001414.0	good	Alexey, Azat	X0 ignored in the structure ==> unnecessary BGC_Module_Skip.  Structures seems quite similar to Thr (BGC prediction)	
+BGC0002293.0	BGC0002293.0	good	Alexey	huge penalty for Ph-Ser (unknown) -> Phe;  X0->unknown	
+BGC0001005.1	BGC0001005.1	bad	Alexey	in reality (according to the BGC0001005 paper), the second gene (locB) is used iteratively. It is hard to get any clues about this from BGC (maybe only pending orphan C on the end of the gene..)	
+BGC0000437.0	BGC0000437.0	for investigation	Alexey	there is a separate gene (Psyr_2611) with the missing Thr attracting domain which was NRP-MONOMER_SKIPPED in the structure Ilia: the assembly line is weird. It seems to be 8, then 11, although TE domain suggests 11, then 8	
+BGC0001312.0	BGC0001312.0	to be corrected	Alexey	For whatever reason, two NRP monomers doesnt have corresponding BGC counterparts and properly skipped by Nerpa. The doi.org/10.1139/w01-017 doesnt help; Incorrect C_DUAL handling	
+BGC0002581#5	BGC0002581.3	good	Alexey	New comment: everything looks good now (one gene with one A domain is not related and correctly skipped; strictly speaking it is related as aux gene synthesizing modified Tyr attracted by another A domain in the main gene but it is impossible to infer this info automatically). OLD COMMENT: It seems that we erroneously skipped one gene (4438.1) with two badly (?) predicted A domains and inserted 3 times NRP_skip_monomer	
+BGC0002048.0	BGC0002048.0	to be corrected	Alexey	Note: marked "for inv" just becaused of C_Dual.  The rest is fine. This is the match with endopyrrole B, hence BGC_Module_skip. Version endopyrrole A has this extra monomer but it is cyclized, so maybe harder to match. 	
+BGC0001667.2	BGC0001667.2	good	Alexey	Seems ok. Note: Dha (dehydroalanine) is related to serine/cysteine; Ilia: looks like correct assembly line is A, B, E, and C is silent. Why is that? Lesha: I checked the paper and wrote a detailed report here: https://docs.google.com/document/d/1LJwdTevDf4weg_uiTifIfzCV3Qq-IirLbbnNEp7e4Yk/edit (everything is working, no silent genes)	
+BGC0001716.0	BGC0001716.0	to be corrected	Alexey	Important: we should have iterative A domain there! C-PCP in the end of the first gene. Also: For some reason, monomer plot in PNG contains many X monomers, while the alignment seems ok, everything is recognised	
+BGC0001019.0	BGC0001019.0	bad	Alexey	Quite complex NRP-PKS hybrid	
+BGC0002344.1	BGC0002344.1	was corrected	Alexey	Ok. Quite a complex chemical structure, and probably rBAN parsing failed to mark the first monomer as D- and Me-.	
+BGC0000429.0	BGC0000429.0	good	Alexey	Okayish	
+	BGC0000314.0	good	Ilia	automatically approved based on score	
+	BGC0000349.0	good	Ilia	automatically approved based on score	
+	BGC0001796.0	good	Ilia	automatically approved based on score	
+	BGC0002259.0	good	Ilia	automatically approved based on score	
+	BGC0000405.1	good	Ilia	automatically approved based on score	
+	BGC0000405.0	good	Ilia	automatically approved based on score	
+	BGC0000433.0	good	Ilia	automatically approved based on score	
+	BGC0000452.0	good	Ilia	automatically approved based on score	
+	BGC0001417.0	good	Ilia	automatically approved based on score	
+	BGC0001424.0	good	Ilia	automatically approved based on score	
+	BGC0001421.0	was corrected	Ilia	automatically approved based on score	
+	BGC0001657.0	good	Ilia	automatically approved based on score	
+	BGC0000346.0	good	Ilia	automatically approved based on score	
+	BGC0001569.0	good	Ilia	automatically approved based on score	
+	BGC0000315.3	good	Ilia	automatically approved based on score	
+	BGC0000306.0	good	Ilia	assembly line contains a gene with A-PCP and TE domains	
+	BGC0001290.1	good	Ilia	automatically approved based on score	
+	BGC0001235.0	good	Ilia	automatically approved based on score	
+	BGC0000383.0	good	Ilia	automatically approved based on score	
+	BGC0001955.0	good	Ilia	automatically approved based on score	
+	BGC0001955.1	good	Ilia	automatically approved based on score	
+	BGC0000334.0	good	Ilia	automatically approved based on score	
+	BGC0001565.0	good	Ilia	automatically approved based on score	
+	BGC0001152.0	good	Ilia	automatically approved based on score	
+	BGC0000426.0	good	Ilia	automatically approved based on score	
+	BGC0001233.0	good	Ilia	automatically approved based on score	
+	BGC0001098.0	for investigation	Ilia	two A-PCP modules in the assembly line	
+	BGC0001090.0	for investigation	Ilia	assembly line should be split into multiple fragments; should the monomer with the long tail be skipped in advance or in alignment?	
+	BGC0001095.0	good	Ilia	automatically approved based on score	
+	BGC0000461.0	good	Ilia	automatically approved based on score	
+	BGC0000310.0	good	Ilia	automatically approved based on score	
+	BGC0000398.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0000399.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0001166.0	for investigation	Ilia	is this weird monomer actually Aeo and shouldn't be trimmed?	
+	BGC0001422.0	good	Ilia	automatically approved based on score	
+	BGC0002327.1	good	Ilia	first monomer maybe shouldn't have been skipped	
+	BGC0002327.0	good	Ilia	first monomer maybe shouldn't have been skipped	
+	BGC0002326.2	good	Ilia	incorrect C_DUAL handling	
+	BGC0002548.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002548.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0002548.3	good	Ilia	incorrect C_DUAL handling	
+	BGC0002521.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0000336.0	good	Ilia	automatically approved based on score	
+	BGC0000315.6	good	Ilia	automatically approved based on score	
+	BGC0002188.0	was corrected	Ilia	automatically approved based on score	
+	BGC0002188.1	good	Ilia	automatically approved based on score	
+	BGC0000400.0	good	Ilia, Azat	all chiralities are incorrect, alignment is still fine	
+	BGC0002071.3	good	Ilia	incorrect C_DUAL handling	
+	BGC0002071.2	good	Ilia	incorrect C_DUAL handling	
+	BGC0002071.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0002071.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0001135.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0001132.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0001131.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002351.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0000399.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002109.5	good	Ilia	automatically approved based on score	
+	BGC0002109.3	good	Ilia	automatically approved based on score	
+	BGC0002109.1	good	Ilia	automatically approved based on score	
+	BGC0001980.0	good	Ilia	C_DUAL	
+	BGC0000455.0	good	Ilia	automatically approved based on score	
+	BGC0000322.0	was corrected	Ilia	automatically approved based on score	
+	BGC0001240.1	good	Ilia	automatically approved based on score	
+	BGC0002286.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002286.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0001128.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002044.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002092.2	good	Ilia	incorrect C_DUAL handling	
+	BGC0002092.3	good	Ilia	incorrect C_DUAL handling	
+	BGC0002092.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0002092.5	good	Ilia	incorrect C_DUAL handling	
+	BGC0001842.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0000305.0	good	Ilia	incorrect C_DUAL handling	
+	BGC0000311.0	good	Ilia	automatically approved based on score	
+	BGC0001459.0	was corrected	Ilia	automatically approved based on score	
+	BGC0001207.0	good	Ilia	C_DUAL	
+	BGC0001402.2	good	Ilia	automatically approved based on score	
+	BGC0001402.0	good	Ilia	automatically approved based on score	
+	BGC0002522.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0002048.1	good	Ilia	incorrect C_DUAL handling	
+	BGC0002424.1	good	Ilia	automatically approved based on score	
+	BGC0002424.0	good	Ilia	automatically approved based on score	
+	BGC0002424.3	good	Ilia	automatically approved based on score	
+	BGC0002424.2	good	Ilia	automatically approved based on score	
+	BGC0002424.5	good	Ilia	automatically approved based on score	
+	BGC0002424.4	good	Ilia	automatically approved based on score	
+	BGC0002424.7	good	Ilia	automatically approved based on score	
+	BGC0002466.0	good	Ilia	automatically approved based on score	
+	BGC0001042.0	good	Ilia	automatically approved based on score	
+	BGC0002329.0	good	Ilia	automatically approved based on score	
+	BGC0001953.1	good	Sasha		
+	BGC0000368.0	to be corrected	Sasha	dhbE is written as ---, but the monomer matches (single A-domain that should be treated as a module)	
+	BGC0002432.0	good	Sasha		
+	BGC0000985.4	to be corrected	Sasha	I don't understand where the Glu, Glu, Lac and Hip monomers came from (NRP_MONOMER_SKIP)  - gene iteration	
+	BGC0002581.1	to be corrected	Sasha	monomer at the end, module at the end should be skipped	
+	BGC0002344.0	bad	Sasha	The MIBiG graph is very strange, I don't know how to make sense of it	
+	BGC0002564.6	good	Sasha	2 unknown (or Nva on the graph) monomers can be replaced with Gram (according to the article)	
+	BGC0001098.0	good	Sasha		
+	BGC0001532.0	good	Sasha		
+	BGC0001230.2	bad	Sasha	The order of monomers is incorrect	
+	BGC0002503.3	good	Sasha		
+	BGC0002503.4	good	Sasha		
+	BGC0000434.3	bad	Sasha	Assembly is unclear	
+	BGC0000402.0	good	Sasha	I don't see the different between these two, both versions seem to be legit	
+	BGC0000402.2	good	Sasha		
+	BGC0001955.3	bad	Sasha	Assembly is unclear	
+	BGC0001833.0	good	Sasha		
+	BGC0002414.0	good	Sasha		
+	BGC0001090.0	good	Sasha		
+	BGC0002360.2	to be corrected	Sasha	X0 is 5-MeO-D-Tyr; where does UEF20583.1 come from?	
+	BGC0001344.8	to be corrected	Sasha	X1 is Valine, X2 is cysteine (might be actually the next row which is NRP_MONOMER_SKIP)	
+	BGC0002123.1	good	Sasha		

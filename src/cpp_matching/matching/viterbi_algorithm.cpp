@@ -26,26 +26,41 @@ LogProb get_hmm_score(const HMM& hmm,
 
         for (int num_symb_processed = checkpnt_num_symb_processed;
              num_symb_processed <= next_checkpnt_num_symb_processed; ++num_symb_processed) {
-            for (StateIdx state_idx = checkpnt_state_idx; state_idx < next_checkpnt_state_idx; ++state_idx) {
-                if (num_symb_processed == next_checkpnt_num_symb_processed and
-                    !hmm.emissions[state_idx].empty()) {
-                    continue;
-                }
 
-                LogProb log_prob = dp[state_idx][num_symb_processed];
-                if (log_prob == -numeric_limits<LogProb>::infinity()) continue; // Skip uninitialized states
+            /* If we ignore gene/module iteration edges, states are sorted topologically.
+            After an iteration edge, however, the state index is less than the previous one.
+            Between any two iterations, a symbol should be emitted (otherwise iteration is useless).
+            So I iterate over all states in the range [cur_state, next_state) and if an iteration edge is applied,
+            I iterate one more time over the same range. This is done at most once. */
 
-                for (const auto& [edge_to, edge_log_prob] : hmm.transitions[state_idx]) {
-                    int new_num_symb_processed = num_symb_processed;
-                    LogProb new_log_prob = log_prob + edge_log_prob;
+            bool iteration_applied = false;
+            for(int _dp_run = 0; _dp_run < 2; _dp_run++) {
+                if (_dp_run == 1 and not iteration_applied) break;
 
-                    if (!hmm.emissions[state_idx].empty()) { // If the state emits a symbol
-                        new_log_prob += hmm.emissions[state_idx][nrp_monomers[num_symb_processed]];
-                        new_num_symb_processed++;
+                for (StateIdx state_idx = checkpnt_state_idx; state_idx < next_checkpnt_state_idx; ++state_idx) {
+                    if (num_symb_processed == next_checkpnt_num_symb_processed and
+                        !hmm.emissions[state_idx].empty()) {
+                        continue;
                     }
 
-                    if (new_log_prob > dp[edge_to][new_num_symb_processed]) {
-                        dp[edge_to][new_num_symb_processed] = new_log_prob;
+                    LogProb log_prob = dp[state_idx][num_symb_processed];
+                    if (log_prob == -numeric_limits<LogProb>::infinity()) continue; // Skip uninitialized states
+
+                    for (const auto &[edge_to, edge_log_prob]: hmm.transitions[state_idx]) {
+                        int new_num_symb_processed = num_symb_processed;
+                        LogProb new_log_prob = log_prob + edge_log_prob;
+
+                        if (!hmm.emissions[state_idx].empty()) { // If the state emits a symbol
+                            new_log_prob += hmm.emissions[state_idx][nrp_monomers[num_symb_processed]];
+                            new_num_symb_processed++;
+                        }
+
+                        if (new_log_prob > dp[edge_to][new_num_symb_processed]) {
+                            dp[edge_to][new_num_symb_processed] = new_log_prob;
+                            if (edge_to < state_idx and new_num_symb_processed == num_symb_processed) {
+                                iteration_applied = true;
+                            }
+                        }
                     }
                 }
             }
@@ -76,26 +91,34 @@ get_opt_hmm_path(const HMM& hmm,
 
     // Iterate through all checkpoints except the last (final state is already covered)
     for (int num_symb_processed = 0; num_symb_processed <= seq_len; ++num_symb_processed) {
-        for (StateIdx state_idx = 0; state_idx < num_states; ++state_idx) {
+        bool iteration_applied = false;  // see get_hmm_score for explanation
+        for (int _dp_run = 0; _dp_run < 2; _dp_run++) {
+            if (_dp_run == 1 and not iteration_applied) break;
 
-            if (num_symb_processed == seq_len and !hmm.emissions[state_idx].empty()) continue;
+            for (StateIdx state_idx = 0; state_idx < num_states; ++state_idx) {
 
-            LogProb log_prob = dp[state_idx][num_symb_processed];
-            if (log_prob == -numeric_limits<LogProb>::infinity()) continue; // Skip uninitialized states
+                if (num_symb_processed == seq_len and !hmm.emissions[state_idx].empty()) continue;
 
-            // Process all outgoing transitions from the state
-            for (const auto &[next_state_idx, edge_log_prob]: hmm.transitions[state_idx]) {
-                int new_num_symbols = num_symb_processed;
-                LogProb new_log_prob = log_prob + edge_log_prob;
-                // If the current state emits a symbol, incorporate its emission probability.
-                if (!hmm.emissions[state_idx].empty()) {
-                    new_log_prob += hmm.emissions[state_idx][nrp_monomers[num_symb_processed]];
-                    new_num_symbols++;
-                }
-                // Update if this new path gives a higher log probability.
-                if (new_log_prob > dp[next_state_idx][new_num_symbols]) {
-                    dp[next_state_idx][new_num_symbols] = new_log_prob;
-                    prev[next_state_idx][new_num_symbols] = state_idx;
+                LogProb log_prob = dp[state_idx][num_symb_processed];
+                if (log_prob == -numeric_limits<LogProb>::infinity()) continue; // Skip uninitialized states
+
+                // Process all outgoing transitions from the state
+                for (const auto &[next_state_idx, edge_log_prob]: hmm.transitions[state_idx]) {
+                    int new_num_symbols = num_symb_processed;
+                    LogProb new_log_prob = log_prob + edge_log_prob;
+                    // If the current state emits a symbol, incorporate its emission probability.
+                    if (!hmm.emissions[state_idx].empty()) {
+                        new_log_prob += hmm.emissions[state_idx][nrp_monomers[num_symb_processed]];
+                        new_num_symbols++;
+                    }
+                    // Update if this new path gives a higher log probability.
+                    if (new_log_prob > dp[next_state_idx][new_num_symbols]) {
+                        dp[next_state_idx][new_num_symbols] = new_log_prob;
+                        prev[next_state_idx][new_num_symbols] = state_idx;
+                        if (next_state_idx < state_idx and new_num_symbols == num_symb_processed) {
+                            iteration_applied = true;
+                        }
+                    }
                 }
             }
         }

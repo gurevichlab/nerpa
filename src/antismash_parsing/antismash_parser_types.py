@@ -5,14 +5,46 @@ from typing import (
     Union,
     NamedTuple,
     NewType,
+    Optional,
 )
 from dataclasses import dataclass
 from enum import Enum, auto
-from src.monomer_names_helper import antiSMASH_MonomerName
+from src.monomer_names_helper import (
+    antiSMASH_MonomerName,
+    AA10,
+    AA34
+)
 
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
 GeneId = NewType('GeneId', str)
+
+class STRAND(Enum):
+    FORWARD = auto()
+    REVERSE = auto()
+
+
+class Coords(NamedTuple):
+    start: int
+    end: int
+    strand: STRAND
+
+    # TODO: I am not sure if this is correct
+    @classmethod
+    def from_hmm_hit(cls, query_start: int, query_end: int) -> Coords:
+        if query_start < query_end:
+            return cls(query_start, query_end, STRAND.FORWARD)
+        else:
+            return cls(query_end, query_start, STRAND.REVERSE)
+
+    def is_in(self, other: Coords) -> bool:
+        return self.start >= other.start and self.end <= other.end
+
+    def left_from(self, other: Coords) -> bool:
+        return self.end < other.start
+
+    def right_from(self, other: Coords) -> bool:
+        return self.start > other.end
 
 
 class SVM_LEVEL(Enum):
@@ -32,8 +64,8 @@ SVM_Predictions = Dict[SVM_LEVEL, SVM_Prediction]
 
 @dataclass
 class A_Domain:
-    aa10: str
-    aa34: str
+    aa10: AA10
+    aa34: AA34
     svm: SVM_Predictions
 
 
@@ -62,24 +94,15 @@ class DomainType(Enum):
         return self in {DomainType.C, DomainType.C_STARTER, DomainType.C_LCL, DomainType.C_DCL, DomainType.C_DUAL}
 
 
+class BGC_Module_ID(NamedTuple):
+    gene_id: GeneId
+    module_idx: int
+
+
 @dataclass
 class Module:
-    a_domain: A_Domain = None
-    domains_sequence: List[DomainType] = None
-
-    def __post_init__(self):
-        if self.domains_sequence is None:
-            self.domains_sequence = []
-
-class STRAND(Enum):
-    FORWARD = auto()
-    REVERSE = auto()
-    
-
-class Coords(NamedTuple):
-    start: int
-    end: int
-    strand: STRAND
+    a_domain: Optional[A_Domain]
+    domains_sequence: List[DomainType]
 
 
 @dataclass
@@ -87,14 +110,22 @@ class Gene:
     gene_id: GeneId
     coords: Coords
     modules: List[Module]  # modules are in the order of appearance in the gene
-    is_iterative: bool = False
+    orphan_c_at_start: bool = False
+    orphan_c_at_end: bool = False
+
+
+class BGC_ID(NamedTuple):
+    genome_id: str
+    contig_idx: int
+    bgc_idx: int
+
+    def __str__(self):
+        return f'{self.genome_id}_{self.contig_idx}_{self.bgc_idx}'
 
 
 @dataclass
 class BGC_Cluster:
-    genome_id: str
-    contig_idx: int
-    bgc_idx: int
+    bgc_id: BGC_ID
     genes: List[Gene]
 
     def has_pks_domains(self) -> bool:
@@ -106,3 +137,10 @@ class BGC_Cluster:
         return any(module.a_domain is not None
                    for gene in self.genes
                    for module in gene.modules)
+
+
+@dataclass
+class Fragmented_BGC_Cluster:
+    bgc_id: BGC_ID
+    fragments: List[List[Gene]]
+

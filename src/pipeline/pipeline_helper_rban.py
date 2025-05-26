@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Dict, List
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
@@ -87,6 +88,7 @@ class PipelineHelper_rBAN:
                 self.log.warning(
                     f'Structure "{rban_record["id"]}": unexpected error while determining stereoisomeric configuration '
                     f'of monomers. Stereoisomeric configuration will be omitted.')
+                chiralities_dict[i] = defaultdict(lambda: Chirality.UNKNOWN)
         return chiralities_dict
 
     def get_rban_results(self) -> List[Parsed_rBAN_Record]:

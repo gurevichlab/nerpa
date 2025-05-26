@@ -58,7 +58,7 @@ class rBAN_Helper:
         command = ['java', '-jar', str(self.config.rban_jar),
                    '-inputFile', str(input_file),
                    '-outputFolder', str(self.output_cfg.rban_output_dir) + '/',
-                   '-outputFileName', str(output_file_name),
+                   '-outputFileName', output_file_name,
                    '-monomersDB', str(self.output_cfg.default_monomers_file)]  # TODO: refactor
 
         nerpa_utils.sys_call(command, log)
@@ -109,7 +109,7 @@ class rBAN_Helper:
         # Add newly recognized monomers to the dictionary
         hybrid_monomers_dict = defaultdict(dict)
         new_monomers_processed = json.load((self.output_cfg.rban_output_dir /
-                                            Path(self.output_cfg.putative_hybrids_output_file_name)).open('r'))
+                                            self.output_cfg.putative_hybrids_output_file_name).open('r'))
         for rban_record in new_monomers_processed:
             struct_id, monomer_id = parse_joined_id(rban_record['id'])
             aa_smi = rban_record["isomericSmiles"]

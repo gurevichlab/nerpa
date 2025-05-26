@@ -23,8 +23,7 @@ from src.rban_parsing.rban_parser import (
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.match_type import Match, Match_NRP_Variant_Info
-from src.matching.matcher import get_matches
+from src.matching.match_type import Match, NRP_Variant_ID
 from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.matching.hmm_config import load_hmm_scoring_config

@@ -6,8 +6,9 @@ from src.data_types import (
     BGC_Variant,
     LogProb,
     NRP_Variant,
-    Match_BGC_Variant_Info,
-    Match_NRP_Variant_Info,
+    BGC_ID,
+    BGC_Variant_ID,
+    NRP_Variant_ID,
     GeneId
 )
 from src.matching.alignment_step_type import AlignmentStep
@@ -19,50 +20,37 @@ from itertools import takewhile
 
 @dataclass
 class Match:
-    bgc_variant_info: Match_BGC_Variant_Info
-    nrp_variant_info: Match_NRP_Variant_Info
-    normalized_score: float
+    bgc_variant_id: BGC_Variant_ID
+    nrp_variant_id: NRP_Variant_ID
+    score: float
     alignments: List[Alignment]  # alignments of each fragment
 
-    def raw_score(self) -> LogProb:
-        return sum(map(alignment_score, self.alignments))
-
     def to_dict(self) -> dict:  # because full Match is too big to write
-        return {'Genome': self.bgc_variant_info.genome_id,
-                'Contig_idx': self.bgc_variant_info.contig_idx,
-                'BGC_idx': self.bgc_variant_info.bgc_idx,
-                'BGC_variant_idx': self.bgc_variant_info.variant_idx,
-                'NRP': self.nrp_variant_info.nrp_id,
-                'NRP_variant_idx': self.nrp_variant_info.variant_idx,
-                'NormalisedScore': self.normalized_score,
-                'Score': self.raw_score(),
-                'Alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
+        return {'bgc_variant_id': self.bgc_variant_id.to_dict(),
+                'nrp_variant_id': self.nrp_variant_id._asdict(),
+                'score': self.score,
+                'alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
                                 for alignment_step in alignment]
                                for alignment in self.alignments]}
 
     @classmethod
     def from_dict(cls, data: dict) -> Match:
-        return cls(bgc_variant_info=Match_BGC_Variant_Info(genome_id=GeneId(data['Genome']),
-                                                           contig_idx=data.get('Contig_idx', 0),
-                                                           bgc_idx=data.get('BGC_idx', 0),
-                                                           variant_idx=data['BGC_variant_idx']),
-                   nrp_variant_info=Match_NRP_Variant_Info(nrp_id=data['NRP'],
-                                                           variant_idx=data['NRP_variant_idx']),
-                   normalized_score=data['NormalisedScore'],
+        return cls(bgc_variant_id=BGC_Variant_ID.from_dict(data['bgc_variant_id']),
+                   nrp_variant_id=NRP_Variant_ID(**data['nrp_variant_id']),
+                   score=data['score'],
                    alignments=[[AlignmentStep.from_dict(alignment_step_data)
                                 for alignment_step_data in alignment_data]
-                               for alignment_data in data['Alignments']])
+                               for alignment_data in data['alignments']])
 
     def __str__(self):
         out = StringIO()
-        out.write('\n'.join([f'Genome: {self.bgc_variant_info.genome_id}',
-                             f'Contig_idx: {self.bgc_variant_info.contig_idx}',
-                             f'BGC_idx: {self.bgc_variant_info.bgc_idx}',
-                             f'BGC_variant: {self.bgc_variant_info.variant_idx}',
-                             f'NRP: {self.nrp_variant_info.nrp_id}',
-                             f'NRP_variant: {self.nrp_variant_info.variant_idx}',
-                             f'NormalisedScore: {self.normalized_score}',
-                             f'Score: {self.raw_score()}',
+        out.write('\n'.join([f'Genome: {self.bgc_variant_id.bgc_id.genome_id}',
+                             f'Contig_idx: {self.bgc_variant_id.bgc_id.contig_idx}',
+                             f'BGC_idx: {self.bgc_variant_id.bgc_id.bgc_idx}',
+                             f'BGC_variant: {self.bgc_variant_id.variant_idx}',
+                             f'NRP: {self.nrp_variant_id.nrp_id}',
+                             f'NRP_variant: {self.nrp_variant_id.variant_idx}',
+                             f'Score: {self.score}',
                              'Alignment:']))
         out.write('\n')
 
@@ -91,7 +79,6 @@ class Match:
             'BGC_variant_idx': int,
             'NRP': str,
             'NRP_variant_idx': int,
-            'NormalisedScore': float,
             'Score': float
         }
         field_lines = takewhile(lambda x: not x.startswith('Alignment:'), lines_iter)
@@ -106,12 +93,12 @@ class Match:
                         print('Assigning None')
                     data[field_name] = None
 
-        bgc_variant_info = Match_BGC_Variant_Info(genome_id=data['Genome'],
-                                                  contig_idx=data['Contig_idx'],
-                                                  bgc_idx=data['BGC_idx'],
-                                                  variant_idx=data['BGC_variant_idx'])
-        nrp_variant_info = Match_NRP_Variant_Info(nrp_id=data['NRP'],
-                                                  variant_idx=data['NRP_variant_idx'])
+        bgc_variant_id = BGC_Variant_ID(bgc_id=BGC_ID(genome_id=data['Genome'],
+                                                      contig_idx=data['Contig_idx'],
+                                                      bgc_idx=data['BGC_idx']),
+                                        variant_idx=data['BGC_variant_idx'])
+        nrp_variant_id = NRP_Variant_ID(nrp_id=data['NRP'],
+                                        variant_idx=data['NRP_variant_idx'])
 
         fst_alignment_line = next(lines_iter)
         if fst_alignment_line.startswith('Fragment'):
@@ -120,7 +107,7 @@ class Match:
             fragments_blocks = [[fst_alignment_line] + list(lines_iter)]
         alignments = [alignment_from_str('\n'.join(fragment_block))
                       for fragment_block in fragments_blocks]
-        return cls(bgc_variant_info=bgc_variant_info,
-                   nrp_variant_info=nrp_variant_info,
+        return cls(bgc_variant_id=bgc_variant_id,
+                   nrp_variant_id=nrp_variant_id,
                    alignments=alignments,
-                   normalized_score=data['NormalisedScore'])
+                   score=data['Score'])

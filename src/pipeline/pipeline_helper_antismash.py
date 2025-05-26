@@ -3,21 +3,23 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Optional,
     Union
 )
+
+from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
 from src.pipeline.download_antismash_results import download_antismash_results
-from src.config import Config, SpecificityPredictionConfig
-from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
-from src.aa_specificity_prediction_model.specificity_predictions_calibration import calibrate_scores
-from src.data_types import BGC_Variant
+from src.config import Config
+from src.data_types import AA34, BGC_Variant, LogProb
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper import MonomerNamesHelper, MonomerResidue
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.antismash_parser_types import antiSMASH_record
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
+from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.write_results import write_bgc_variants
 from pathlib import Path
 import json
@@ -27,21 +29,12 @@ from itertools import chain
 from copy import deepcopy
 
 
-def calibrated_bgc_variants(_bgc_variants: List[BGC_Variant],
-                            specificity_prediction_config: SpecificityPredictionConfig) -> List[BGC_Variant]:
-    bgc_variants = deepcopy(_bgc_variants)
-    for bgc_variant in bgc_variants:
-        for module in bgc_variant.modules:
-            module.residue_score = calibrate_scores(module.residue_score,
-                                                    specificity_prediction_config)
-    return bgc_variants
-
-
 @dataclass
 class PipelineHelper_antiSMASH:
     config: Config
     args: CommandLineArgs
     monomer_names_helper: MonomerNamesHelper
+    specificity_prediction_helper: SpecificityPredictionHelper
     log: NerpaLogger
     antismash_exec: Union[Path, None] = None
 
@@ -57,7 +50,7 @@ class PipelineHelper_antiSMASH:
 
     def load_bgc_variants(self) -> List[BGC_Variant]:
         self.log.info('Loading preprocessed BGC variants')
-        bgc_variants = []
+        bgc_variants: List[BGC_Variant] = []
         for file_with_bgc_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
                                              self.args.bgc_variants.iterdir()):
             bgc_variants.extend(BGC_Variant.from_yaml_dict(yaml_record)
@@ -111,6 +104,7 @@ class PipelineHelper_antiSMASH:
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
         if self.preprocessed_bgc_variants():
+            self.log.info('Loading preprocessed BGC variants. All other inputs will be ignored')
             return self.load_bgc_variants()
 
         antismash_results = self.get_antismash_results()
@@ -143,19 +137,33 @@ class PipelineHelper_antiSMASH:
     def extract_bgc_variants_from_antismash(self,
                                             antismash_json: antiSMASH_record) -> List[BGC_Variant]:
         antismash_bgcs = parse_antismash_json(antismash_json,
-                                              self.config.antismash_processing_config)
-        specificity_prediction_model = ModelWrapper(self.config.specificity_prediction_config.specificity_prediction_model)
+                                              self.config.antismash_processing_config,
+                                              self.log)
         bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
-                                                                   specificity_prediction_model,
-                                                                   self.monomer_names_helper,
+                                                                   self.specificity_prediction_helper,
                                                                    self.config.antismash_processing_config,
-                                                                   self.config.specificity_prediction_config,
                                                                    self.log)
                                                 for bgc in antismash_bgcs))
 
-        # (self.config.paths.main_out_dir / 'BGC_variants_before_calibration').mkdir(exist_ok=True)
-        # write_bgc_variants(bgc_variants, self.config.paths.main_out_dir / 'BGC_variants_before_calibration')  # for training
-        bgc_variants = calibrated_bgc_variants(bgc_variants, self.config.specificity_prediction_config)
+        if self.args.debug:
+            debug_specificity_prediction_cfg = deepcopy(self.config.specificity_prediction_config)
+            debug_specificity_prediction_cfg.ENABLE_CALIBRATION = False
+            debug_specificity_prediction_cfg.ENABLE_DICTIONARY_LOOKUP = False
+
+            debug_specificity_prediction_cfg.APRIORI_RESIDUE_PROB = \
+                {res: 1.0 for res in self.monomer_names_helper.supported_residues}  # this effectively forces computing logprobs instead of log-odds
+            debug_spec_helper = SpecificityPredictionHelper(debug_specificity_prediction_cfg,
+                                                            self.monomer_names_helper,
+                                                            self.log)
+
+            bgc_variants_no_cal = list(chain.from_iterable(build_bgc_variants(bgc,
+                                                                              debug_spec_helper,
+                                                                              self.config.antismash_processing_config,
+                                                                              self.log)
+                                                    for bgc in antismash_bgcs))
+            write_bgc_variants(bgc_variants_no_cal,
+                               self.config.output_config.bgc_variants_no_calibration_dir)
+
 
         return bgc_variants
 

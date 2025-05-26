@@ -6,7 +6,8 @@ from typing import List
 from pathlib import Path
 from typing import Optional
 from graphviz import Digraph
-from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge
+from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMState, DetailedHMMEdge, \
+    DetailedHMMEdgeType
 from itertools import pairwise
 
 
@@ -14,24 +15,27 @@ def draw_hmm(hmm: DetailedHMM,
              output_path: Optional[Path] = None,
              highlight_path: Optional[List[int]] = None,
              edge_labels: bool = False) -> Digraph:
+    ST = DetailedHMMStateType
+    ET = DetailedHMMEdgeType
+
     graph = Digraph(format='png')
     graph.attr(rankdir='BT')  # Bottom-to-top layout to match desired top-to-bottom order
 
     # Define the layer types and reverse for top-to-bottom ordering
-    layer_types = [[DetailedHMMStateType.SKIP_FRAGMENT_END],
-                   [DetailedHMMStateType.INSERT],
-                   [DetailedHMMStateType.MATCH],
-                   [DetailedHMMStateType.INITIAL, DetailedHMMStateType.MODULE_START, DetailedHMMStateType.FINAL],
-                   [DetailedHMMStateType.INSERT_AT_START],
-                   [DetailedHMMStateType.SKIP_MODULE_AT_START],
-                   [DetailedHMMStateType.SKIP_GENE_AT_START],
-                   [DetailedHMMStateType.SKIP_FRAGMENT_AT_START]][::-1]  # Reverse to match top-to-bottom order
+    layer_types = [[ST.SKIP_MODULE_AT_END],
+                   [ST.END_INSERTING_AT_END],
+                   [ST.INSERT_AT_END],
+                   [ST.INSERT, ST.END_MATCHING],
+                   [ST.MATCH],
+                   [ST.INITIAL, ST.MODULE_START, ST.FINAL, ST.CHOOSE_IF_ITERATE],
+                   [ST.INSERT_AT_START],
+                   [ST.START_SKIP_MODULES_AT_START, ST.SKIP_MODULE_AT_START]][::-1]  # Reverse to match top-to-bottom order
 
     layers = [[] for _ in range(len(layer_types))]
 
     def state_idx_to_label(idx: int) -> str:
         state = hmm.states[idx]
-        if state.state_type == DetailedHMMStateType.MODULE_START:
+        if state.state_type == ST.MODULE_START:
             module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[idx]]
             return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
         else:
@@ -39,11 +43,11 @@ def draw_hmm(hmm: DetailedHMM,
 
     def state_idx_to_color(idx: int) -> str:
         match hmm.states[idx].state_type:
-            case DetailedHMMStateType.MODULE_START:
+            case ST.MODULE_START:
                 return "lightblue"
-            case DetailedHMMStateType.INITIAL:
+            case ST.INITIAL:
                 return "grey"
-            case DetailedHMMStateType.FINAL:
+            case ST.FINAL:
                 return "grey"
             case _:
                 return "white"
@@ -104,19 +108,24 @@ def draw_hmm(hmm: DetailedHMM,
             }
             if edge_labels:
                 edge_args['label'] = edge.edge_type.name
-            if str(from_idx) == str(to_idx):  # Self-loop case
-                if hmm.states[from_idx].state_type == DetailedHMMStateType.INSERT:
-                    edge_args['headport'] = "n"  # point upwards
-                    edge_args['tailport'] = "n"
-                else:  # INSERT_AT_START
-                    edge_args['headport'] = "s"  # point downwards
-                    edge_args['tailport'] = "s"
+            if edge.edge_type == ET.INSERT:  # Self-loop case
+                edge_args['headport'] = "n"  # point upwards
+                edge_args['tailport'] = "n"
+            if edge.edge_type == ET.INSERT_AT_START:
+                edge_args['headport'] = "s"  # point downwards
+                edge_args['tailport'] = "s"
+
+            if (hmm.states[from_idx].state_type == ST.SKIP_MODULE_AT_END and
+                    edge.edge_type == ET.SKIP_MODULE_AT_END):
+                edge_args['headport'] = "n"  # point upwards
+                edge_args['tailport'] = "n"
             graph.edge(**edge_args)
 
     # Optionally save the graph
     if output_path:
         if output_path.name.endswith('.png'):
-            graph.render(output_path.name.rsplit('.', 1)[0], cleanup=True)
+            fname = str(output_path).rsplit('.', 1)[0]
         else:
-            graph.render(output_path.name, cleanup=True)
+            fname = str(output_path)
+        graph.render(fname, cleanup=True)
     return graph

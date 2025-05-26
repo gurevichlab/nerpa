@@ -8,7 +8,7 @@ from src.data_types import NRP_Variant, NRP_Fragment
 from src.monomer_names_helper import MonomerNamesHelper, MonCode
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rBAN_idx
 from src.generic.combinatorics import split_sequence_subseqs
-from src.matching.match_type import Match_NRP_Variant_Info
+from src.matching.match_type import NRP_Variant_ID
 from itertools import chain, permutations, product
 from io import StringIO
 
@@ -66,7 +66,7 @@ def non_iterative_linearizations(fragments: List[NRP_Fragment],
 
 # fragments are split into groups which are then linearized (and aligned) separately
 def iterative_fragments_linearizations(nrp_fragments: List[NRP_Fragment]) -> List[List[List[Linearization]]]:
-    if len(nrp_fragments) == 1:
+    if len(nrp_fragments) <= 1:
         return []
     splits_into_groups = split_sequence_subseqs(nrp_fragments) if len(nrp_fragments) == 3 \
         else [[[nrp_fragment] for nrp_fragment in nrp_fragments]]  # TODO: do smth more meaningful for more than 3 fragments
@@ -84,11 +84,12 @@ def iterative_fragments_linearizations(nrp_fragments: List[NRP_Fragment]) -> Lis
 def get_nrp_linearizations(nrp_variant: NRP_Variant) -> NRP_Linearizations:
     non_iterative = non_iterative_linearizations(nrp_variant.fragments)
     iterative = iterative_fragments_linearizations(nrp_variant.fragments)
-    return NRP_Linearizations(nrp_variant.nrp_id, non_iterative, iterative)
+    return NRP_Linearizations(nrp_variant.nrp_variant_id.nrp_id, non_iterative, iterative)
 
 
 def get_all_nrp_linearizations(nrp_variants: List[NRP_Variant]) -> List[NRP_Linearizations]:
-    return [get_nrp_linearizations(nrp_variant) for nrp_variant in nrp_variants]
+    return list(filter(lambda lis: lis.iterative or lis.non_iterative,
+                       (get_nrp_linearizations(nrp_variant) for nrp_variant in nrp_variants)))
 
 
 def num_linearizations(nrp_linearizations: NRP_Linearizations) -> int:

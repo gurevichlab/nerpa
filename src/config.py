@@ -1,11 +1,33 @@
 import time
-from typing import Dict, List, Literal, Optional
+from typing import (
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    TYPE_CHECKING
+)
 from dataclasses import dataclass
 from pathlib import Path
-from src.pipeline.command_line_args_helper import CommandLineArgs
 import yaml
 import dacite
 from datetime import datetime
+from argparse import Namespace as CommandLineArgs
+import pandas as pd
+from collections import defaultdict
+
+from scipy.signal import residue
+
+from src.antismash_parsing.genomic_context import ModuleGenomicContext
+from src.data_types import Prob, LogProb
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
+from src.monomer_names_helper import (
+    antiSMASH_MonomerName,
+    MonomerResidue,
+    MonomerNamesHelper,
+    AA10,
+    AA34
+)
 
 
 @dataclass
@@ -15,33 +37,97 @@ class antiSMASH_Processing_Config:
     MAX_VARIANTS_PER_BGC: int
     MAX_PERMUTATIONS_PER_BGC: int
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
+    DEBUG_MODE: bool
+
+    def __init__(self,
+                 cfg_dict: dict,
+                 args: Optional[CommandLineArgs]):
+        for k, v in cfg_dict.items():
+            setattr(self, k, v)
+        if args is not None:
+            self.DEBUG_MODE = args.debug
+
+
+def get_aa_codes(aa_codes_tsv: Path,
+                 monomer_names_helper: MonomerNamesHelper) \
+        -> Tuple[
+            Dict[MonomerResidue, List[AA10]],
+            Dict[MonomerResidue, List[AA34]] ]:
+    aa_codes = pd.read_csv(aa_codes_tsv, sep='\t')
+    aa10_codes = defaultdict(list)
+    aa34_codes = defaultdict(list)
+    for _, row in aa_codes.iterrows():
+        as_names: List[antiSMASH_MonomerName] = row['predictions_loose'].split('|')
+        residues = {monomer_names_helper.parsed_name(as_name, 'antismash').residue
+                    for as_name in as_names}
+        for residue in residues:
+            aa10_codes[residue].append(AA10(row['aa10']))
+            aa34_codes[residue].append(AA34(row['aa34']))
+    return aa10_codes, aa34_codes
+
+
+def get_residue_frequencies(norine_monomers_info: Path,
+                            monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
+     norine_monomers = yaml.safe_load(open(norine_monomers_info))
+     residue_frequencies: Dict[MonomerResidue, Prob] = defaultdict(float)
+     for mon_name, frequency in norine_monomers['monomer_frequencies'].items():
+         residue = monomer_names_helper.parsed_name(mon_name, 'antismash').residue
+         residue_frequencies[residue] += frequency
+
+     # assign minimal frequencies to residues not present in the table and normalize
+     min_freq = min(residue_frequencies.values())
+     for residue in monomer_names_helper.supported_residues:
+         if residue not in residue_frequencies:
+             residue_frequencies[residue] = min_freq
+
+     total = sum(residue_frequencies.values())
+     for residue in residue_frequencies:
+         residue_frequencies[residue] /= total
+
+     return residue_frequencies
 
 
 @dataclass
 class SpecificityPredictionConfig:
-    specificity_prediction_model: Path
+    nerpa_specificity_prediction_model: Path
+    paras_model: Optional[Path]
     a_domains_signatures: Path
-    KNOWN_AA10_CODES: Dict[str, List[str]]
-    KNOWN_AA34_CODES: Dict[str, List[str]]
+    norine_monomers_info: Path
+    KNOWN_AA10_CODES: Dict[MonomerResidue, List[AA10]]
+    KNOWN_AA34_CODES: Dict[MonomerResidue, List[AA34]]
     SVM_SUBSTRATES: List[str]
     SVM_NOT_SUPPORTED_SCORE: float
     SVM_NO_PREDICTION_SCORE: float
     SCORING_TABLE_INDEX: str
     SCORING_TABLE_COLUMNS: List[str]
-    apriori_residue_prob: Dict[str, float]
-    calibration_step_function_steps: List[float]
-    pseudo_count_fraction: float
+    APRIORI_RESIDUE_PROB: Dict[MonomerResidue, Prob]
+    CALIBRATION_STEP_FUNCTION_STEPS_NERPA: List[Prob]
+    CALIBRATION_STEP_FUNCTION_STEPS_PARAS: List[Prob]
+    PSEUDO_COUNT_FRACTION: float
+
+    ENABLE_DICTIONARY_LOOKUP: bool  # if True, use the dictionary lookup for known aa34 codes
+    ENABLE_CALIBRATION: bool
 
     def __init__(self,
                  nerpa_dir: Path,
-                 cfg_dict: dict):
+                 cfg_dict: dict,
+                 monomer_names_helper: MonomerNamesHelper,
+                 args: Optional[CommandLineArgs] = None):
         for k, v in cfg_dict.items():
             setattr(self, k, v)
-        self.specificity_prediction_model = nerpa_dir / Path(cfg_dict['specificity_prediction_model'])
+        self.nerpa_specificity_prediction_model = nerpa_dir / Path(cfg_dict['nerpa_specificity_prediction_model'])
+        self.paras_model = nerpa_dir / Path(cfg_dict['paras_model'])
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
-        aa_codes_dict = yaml.safe_load((nerpa_dir / Path(cfg_dict['aa_codes'])).open('r'))
-        self.KNOWN_AA10_CODES = aa_codes_dict['aa10']
-        self.KNOWN_AA34_CODES = aa_codes_dict['aa34']
+        self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures,
+                                                                    monomer_names_helper)
+        self.norine_monomers_info = nerpa_dir / Path(cfg_dict['norine_monomers_info'])
+        self.APRIORI_RESIDUE_PROB = get_residue_frequencies(self.norine_monomers_info,
+                                                            monomer_names_helper)
+
+        if args is not None and args.disable_dictionary_lookup is not None:
+            self.ENABLE_DICTIONARY_LOOKUP = not args.disable_dictionary_lookup
+        if args is not None and args.disable_calibration is not None:
+            self.ENABLE_CALIBRATION = not args.disable_calibration
 
 
 @dataclass
@@ -60,7 +146,7 @@ class rBAN_Config:
 class rBAN_Output_Config:
     default_monomers_file: Path
     default_input_file: Path
-    default_output_file_name: str  # I have name instead of file due to rBAN quirks
+    default_output_file_name: str
     putative_hybrids_input_file: Path
     putative_hybrids_output_file_name: str
     rban_output_dir: Path
@@ -69,8 +155,9 @@ class rBAN_Output_Config:
                  rban_output_cfg_dict: dict,
                  main_out_dir: Path):
         for k, v in rban_output_cfg_dict.items():
-            if not k.endswith('name'):
+            if not k.endswith('_name'):
                 setattr(self, k, main_out_dir / Path(v))
+
         self.default_output_file_name = rban_output_cfg_dict['default_output_file_name']
         self.putative_hybrids_output_file_name = rban_output_cfg_dict['putative_hybrids_output_file_name']
 
@@ -79,12 +166,6 @@ class rBAN_Output_Config:
 class rBAN_Processing_Config:
     MIN_RECOGNIZED_NODES: int
     PNP_BONDS: List[str]
-
-
-@dataclass
-class HMM_Scoring_Config:
-    edge_weight_parameters: Dict[str, Dict[Optional[str], float]]
-    emission_parameters: Dict[str, Dict[str, float]]
 
 
 @dataclass
@@ -131,7 +212,7 @@ class MatchingConfig:
 @dataclass
 class OutputConfig:
     main_out_dir: Path
-    symlink_to_latest: Path
+    symlink_to_latest: Optional[Path]
     configs_output: Path
     antismash_out_dir: Path
     bgc_variants_dir: Path
@@ -145,6 +226,8 @@ class OutputConfig:
     logo: Path  # seems a bit out of place here
     rban_output_config: rBAN_Output_Config
     cpp_io_config: CppIOConfig
+
+    bgc_variants_no_calibration_dir: Path  # for debugging
 
     def __init__(self,
                  output_cfg_dict: dict,
@@ -167,7 +250,9 @@ class OutputConfig:
 
         self.main_out_dir = main_out_dir
         self.logo = nerpa_dir / Path(output_cfg_dict['logo'])
-        self.symlink_to_latest = nerpa_dir / Path(output_cfg_dict['symlink_to_latest'])
+        self.symlink_to_latest = main_out_dir.parent / Path(output_cfg_dict['symlink_to_latest']) \
+            if args is None or args.output_dir is None \
+            else None  # no symlink if output directory is specified
         if self.symlink_to_latest == self.main_out_dir:
             raise ValueError(f'Invalid output directory: the path {self.symlink_to_latest} is reserved')
 
@@ -187,13 +272,20 @@ class Config:
     output_config: OutputConfig
 
 
-def get_default_output_dir(nerpa_dir: Path,
-                           cfg: dict) -> Path:
-    while (out_dir := (nerpa_dir / Path(cfg['default_results_root_dirname']) /
+def get_default_output_dir(cfg: dict) -> Path:
+    while (out_dir := (Path.cwd() / Path(cfg['default_results_root_dirname']) /
               Path(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))).exists():
         time.sleep(1)
     return out_dir
 
+
+def load_monomer_names_helper(monomers_cfg_file: Path,
+                              nerpa_dir: Path) -> MonomerNamesHelper:
+    monomers_cfg = yaml.safe_load(monomers_cfg_file.open('r'))
+    monomers_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
+    return MonomerNamesHelper(names_table=pd.read_csv(monomers_table_tsv, sep='\t'),
+                              supported_residues=monomers_cfg['supported_residues'],
+                              pks_names=monomers_cfg['pks_names'])
 
 
 def load_config(args: Optional[CommandLineArgs] = None) -> Config:
@@ -201,13 +293,19 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     configs_dir = nerpa_dir / Path('configs')
     cfg = yaml.safe_load((configs_dir / 'config.yaml').open('r'))
     main_out_dir = args.output_dir.resolve() \
-        if args is not None and args.output_dir is not None else get_default_output_dir(nerpa_dir, cfg)
+        if args is not None and args.output_dir is not None \
+        else get_default_output_dir(cfg)
+    monomer_names_helper = load_monomer_names_helper(nerpa_dir / cfg['monomers_config'],
+                                                     nerpa_dir)
 
     antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
-    antismash_processing_cfg = dacite.from_dict(antiSMASH_Processing_Config, antismash_processing_cfg_dict)
+    antismash_processing_cfg = antiSMASH_Processing_Config(antismash_processing_cfg_dict,
+                                                           args)
 
     specificity_prediction_cfg_dict = yaml.safe_load((nerpa_dir / cfg['specificity_prediction_config']).open('r'))
-    specificity_prediction_cfg = SpecificityPredictionConfig(nerpa_dir, specificity_prediction_cfg_dict)
+    specificity_prediction_cfg = SpecificityPredictionConfig(nerpa_dir,
+                                                             specificity_prediction_cfg_dict,
+                                                             monomer_names_helper)
 
     rban_cfg_dict = yaml.safe_load((nerpa_dir / cfg['rban_config']).open('r'))
     rban_cfg = rBAN_Config(rban_cfg_dict, nerpa_dir)

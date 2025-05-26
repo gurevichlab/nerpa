@@ -16,6 +16,8 @@ def add_genomic_arguments(parser: argparse.ArgumentParser):
                                help="space-separated job IDs to download from the antiSMASH webserver", type=str)
     genomic_group.add_argument("--genome", dest="seqs", action='append', metavar='FILE',
                                help="genome sequence in the GenBank/EMBL/FASTA format", type=Path)
+    genomic_group.add_argument("--paras-results",
+                               help="path to a directory with PARAS results", type=Path)
 
 
 def add_struct_arguments(parser: argparse.ArgumentParser):
@@ -49,6 +51,15 @@ def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,
                                       metavar='FILE', help='file with custom monomers in rBAN compatible format')
 
+def add_debug(parser: argparse.ArgumentParser):
+    debug_input_group = parser.add_argument_group('Debug options',
+                                                     'Tweak Nerpa behavior for debugging purposes ')
+    debug_input_group.add_argument('--disable-calibration', action='store_true',
+                                   help='specificity predictions will be used as is, without calibration')
+    debug_input_group.add_argument('--disable-dictionary-lookup', action='store_true',
+                                   help='do not use dictionary of known A domain specificities')
+    debug_input_group.add_argument('--draw-hmms', action='store_true',
+                                   help='draw HMMs with optimal paths for all matches')
 
 def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
     configs_group = parser.add_argument_group('Nerpa pipeline',
@@ -56,7 +67,8 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
 
     configs_group.add_argument("--output-dir", "-o", type=Path, metavar='DIR',
                                help="output directory "
-                                    f"[default: {default_cfg.output_config.main_out_dir.parent}/" "{CURRENT_TIME}]")
+                                    "[default: {CWD}/"
+                                    f"{default_cfg.output_config.main_out_dir.parent.name}/" "{CURRENT_TIME}]")
     configs_group.add_argument("--force-output-dir", dest="output_dir_reuse", action="store_true",
                                help="do not crash if the output directory already exists and rewrite its content")
 
@@ -106,6 +118,7 @@ def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
     add_struct_arguments(parser)
     add_advanced_arguments(parser)
     add_pipeline_arguments(parser, default_cfg)
+    add_debug(parser)
     return parser
 
 

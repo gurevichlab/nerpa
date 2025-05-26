@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
 from typing import List, Tuple, Optional
-from src.matching.alignment_type import Alignment
+from src.matching.alignment_type import Alignment, show_alignment
 from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.generic.graphs import shortest_path_through
 import networkx as nx
@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]
+
     '''
     Given an alignment, return the path through the HMM that corresponds to it.
     The path is a sequence of state indices in the HMM.
@@ -26,7 +27,9 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     Also, I assign weight 0 to auxiliary edges so that only edges corresponding to the alignment are relevant.
     '''
     # I can't use step.step_type here, because of backwards compatibility issues
-    print(hmm.bgc_variant.genome_id)
+    #print(f'Reconstructing hmm path for {hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}')
+    #print(f'Alignment: \n{show_alignment(alignment)}')
+    #hmm.draw(Path(f'hmm_{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'))
     match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
                                   if step.bgc_module is not None and step.nrp_monomer is not None]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
@@ -64,24 +67,16 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
                              if alignment[step_idx].nrp_monomer is not None])
 
     # edges which correspond to aligning steps with bgc_info != None or nrp_info != None
-    main_edge_types = (
-        DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START,
-        DetailedHMMEdgeType.INSERT_AT_START,
-        DetailedHMMEdgeType.MATCH,
-        DetailedHMMEdgeType.INSERT,
-        DetailedHMMEdgeType.SKIP_MODULE,
-        DetailedHMMEdgeType.SKIP_GENE,
-        DetailedHMMEdgeType.SKIP_FRAGMENT,
-        DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END
-    )
-
 
     path_with_emissions = []
-    cnt = 0
     for (start, finish), emitted_monomers in zip(paths_endpoints, monomers_subseqs):
+        #print(start, finish, emitted_monomers)
         # build path between consequent matches
-        cnt += 1
         sub_hmm = deepcopy(hmm)
+        for state in sub_hmm.states:
+            for mon in state.emissions:
+                state.emissions[mon] = 0
+
         for state_idx, state in enumerate(sub_hmm.states):
             if state.state_type == DetailedHMMStateType.MATCH and state_idx != start:
                 sub_hmm.transitions[state_idx] = {}  # by design there shouldn't be any matches in between so I make match states "deadends"
@@ -91,19 +86,21 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
             # that's why I assign these edge weights. Yes, dirty hacks :sweat_smile:
             for edge_to, edge_info in sub_hmm.transitions[state_idx].items():
                 match edge_info.edge_type:
-                    case DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START | DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END:
-                        log_prob = 0
-                    case DetailedHMMEdgeType.SKIP_FRAGMENT:
-                        log_prob = -1
                     case DetailedHMMEdgeType.SKIP_GENE:
                         log_prob = -2
                     case DetailedHMMEdgeType.SKIP_MODULE:
                         log_prob = -3
                     case _:
                         log_prob = 0
-                sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(log_prob=log_prob)
-        # sub_hmm.draw(Path(f'sub_hmm_{cnt}.png'))
-        path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
+                sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(weight=log_prob)
+        sub_hmm._hmm = None
+        try:
+            path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
+        except:
+            print(f'start: {start}, finish: {finish}, emitted_monomers: {emitted_monomers}')
+            raise
 
+    #hmm.draw(Path(f'/home/ilianolhin/git/nerpa2/{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'),
+    #         highlight_path=[state for state, emission in path_with_emissions])  # for debugging
     return path_with_emissions
 

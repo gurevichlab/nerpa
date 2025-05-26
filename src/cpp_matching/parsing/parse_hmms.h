@@ -9,7 +9,7 @@
  * JSON structure example:
  * [
  *   {
- *     "bgc_info": {
+ *     "bgc_variant_id": {
  *       "genome_id": "genome_ABC",
  *       "contig_idx": 5,
  *       "bgc_idx": 42,
@@ -27,5 +27,5 @@
  * @param hmm_json_path path to the JSON file
  * @return an unordered_map<BGC_Info, HMM> keyed by BGC_Info
  */
-std::unordered_map<BGC_Info, HMM>
+std::unordered_map<BGC_Variant_ID , HMM>
 parse_hmms_from_json(const std::string& hmm_json_path);
