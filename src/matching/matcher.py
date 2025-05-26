@@ -67,7 +67,6 @@ def get_best_match_for_nrp(hmm: HMM,
                          nrp_linearizations=[[mon.rban_idx for mon in linearization]],
                          optimal_paths=[opt_path])
 
-
     best_noniterative_match = max((match_for_linearization(non_iterative_linearization)
                                    for non_iterative_linearization in nrp_linearizations.non_iterative),
                                   key=lambda match: match.score)

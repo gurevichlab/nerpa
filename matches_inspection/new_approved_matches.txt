@@ -1719,18 +1719,18 @@ BGC_idx: 1
 BGC_variant: 0
 NRP: BGC0001127.0
 NRP_variant: 0
-Score: 19.852027624224398
+Score: 21.807314139700843
 Alignment:
- Gene  A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step            Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
- ---   ---           ---                   ---                Abu          UNKNOWN        False           dhAbu      5         START_INSERTING_AT_START  -1.914  ---           ---               ---             ---         ---                                
- jagA  0             oxoDec                EPIMERIZATION      Thr          L              False           aThr/Thr   7         MATCH                     1.548   3.181         0.081             -1.714          DFWSIGMVHK  LSAHFDFSVWEGSQIFGGEINMYGITETTVHVTS 
- jagB  0             oxoDec                EPIMERIZATION      Thr          D              False           aThr/Thr   8         MATCH                     4.815   3.181         0.081             1.573           DFWSIGMVHK  LSAHFDFSVWEGSQIFGGEINMYGITETTVHVTS 
- jagB  1             oxoDec                EPIMERIZATION      Tyr          D              False           Tyr        2         MATCH                     4.896   3.252         0.081             1.573           DASTLAAVCK  LAQAFDAAVSEMTLLVAGEINAYGPTEASVCASM 
- jagC  0             oxoDec                EPIMERIZATION      Abu          UNKNOWN        False           dhAbu      1         MATCH                     -0.659  -0.72         0.081             0               DFWSVGMVHK  LAAHFDFSVWEGSQVFGGEINMYGITETTVHVTW 
- jagC  1             oxoDec                EPIMERIZATION      Gln          D              False           Gln        9         MATCH                     4.51    2.866         0.081             1.573           DAWQFGLIDK  HWITFDASVWEAQVFAGGEVNLYGPTETTIDATY 
- jagC  2             oxoDec                ---                Gly          UNKNOWN        False           Gly        10        MATCH                     3.051   2.98          0.081             0               DILQWGLIWK  ASFTFDIAMLELQGWCGGEWNLYGPTETTIWSAA 
- jagD  0             aThr                  ---                Thr          L              False           aThr/Thr   4         MATCH                     -1.291  -1.282        0.081             0.034           DFWSVGMVHK  LNDHFDFTVWEGSQVFGGEINMYGITETCVHVTF 
- jagD  1             His                   ---                His          D              False           His        3         MATCH                     5.213   5.316         0.081             -0.173          DSALIAEVWK  SARSFDSSVALGLCIVAGEYNEYGPTEGTVWASV 
+ Gene  A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ jagA  0             Thr                   EPIMERIZATION      unknown      UNKNOWN        False           dhAbu      5         MATCH           0.926   0.855         0.081             0.0             DFWSIGMVHK  LSAHFDFSVWEGSQIFGGEINMYGITETTVHVTS 
+ jagA  0             Thr                   EPIMERIZATION      Thr          L              False           aThr/Thr   7         MATCH           1.011   2.654         0.081             -1.714          DFWSIGMVHK  LSAHFDFSVWEGSQIFGGEINMYGITETTVHVTS 
+ jagB  0             Thr                   EPIMERIZATION      Thr          D              False           aThr/Thr   8         MATCH           4.298   2.654         0.081             1.573           DFWSIGMVHK  LSAHFDFSVWEGSQIFGGEINMYGITETTVHVTS 
+ jagB  1             Tyr                   EPIMERIZATION      Tyr          D              False           Tyr        2         MATCH           4.997   3.354         0.081             1.573           DASTLAAVCK  LAQAFDAAVSEMTLLVAGEINAYGPTEASVCASM 
+ jagC  0             Thr                   EPIMERIZATION      unknown      UNKNOWN        False           dhAbu      1         MATCH           0.926   0.855         0.081             0.0             DFWSVGMVHK  LAAHFDFSVWEGSQVFGGEINMYGITETTVHVTW 
+ jagC  1             Aad,Ant,Sal           EPIMERIZATION      Gln          D              False           Gln        9         MATCH           4.565   2.921         0.081             1.573           DAWQFGLIDK  HWITFDASVWEAQVFAGGEVNLYGPTETTIDATY 
+ jagC  2             Gly                   ---                Gly          UNKNOWN        False           Gly        10        MATCH           3.113   3.042         0.081             0.0             DILQWGLIWK  ASFTFDIAMLELQGWCGGEWNLYGPTETTIWSAA 
+ jagD  0             Aad,Ant,Sal           ---                Thr          L              False           aThr/Thr   4         MATCH           -1.111  -1.216        0.081             0.034           DFWSVGMVHK  LNDHFDFTVWEGSQVFGGEINMYGITETCVHVTF 
+ jagD  1             His                   ---                His          D              False           His        3         MATCH           5.268   5.371         0.081             -0.173          DSALIAEVWK  SARSFDSSVALGLCIVAGEYNEYGPTEGTVWASV 
 
 
 
