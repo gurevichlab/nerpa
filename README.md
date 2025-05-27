@@ -100,12 +100,11 @@ Next, install all required dependencies. We recommend creating and activating a 
 conda env create -f environment.yml
 conda activate nerpa-env
 ```
-Finally, if you want to use the fast C++ version (optional), compile it by running:
-
+Finally, run
 ```commandline
 bash install.sh
 ```
-
+This will download PARAS specificity prediction model and compile the C++ part.
 <a name="sec_install_verify"></a>
 ## Verifying your installation
 
