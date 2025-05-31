@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple, NamedTuple
-from collections import Counter
+from collections import Counter, defaultdict
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import create_step_function
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
@@ -9,7 +9,7 @@ from src.training.hmm_parameters.step_function import (
     plot_step_function,
     plot_step_function_stacked,
 )
-from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE
+from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, MonomerResidue
 from src.data_types import LogProb, Prob
 from src.data_types import (
     BGC_Module,
@@ -64,12 +64,20 @@ def get_modifications_frequencies(emissions: List[Tuple[BGC_Module, NRP_Monomer]
     result = {}
     # Laplace rule of succession (add 1 to numerator and 2 to denominator)
     result['METHYLATION'] = \
-        {'BGC_True': (mt_cnt['BGC_True_NRP_True'] + 1) / (mt_cnt['BGC_True_NRP_True'] + mt_cnt['BGC_True_NRP_False'] + 2),
-         'BGC_False': (mt_cnt['BGC_False_NRP_True'] + 1) / (mt_cnt['BGC_False_NRP_True'] + mt_cnt['BGC_False_NRP_False'] + 2)}
+        {'BGC_True_NRP_True': (mt_cnt['BGC_True_NRP_True'] + 1) / (mt_cnt['BGC_True_NRP_True'] + mt_cnt['BGC_True_NRP_False'] + 2),
+         'BGC_False_NRP_True': (mt_cnt['BGC_False_NRP_True'] + 1) / (mt_cnt['BGC_False_NRP_True'] + mt_cnt['BGC_False_NRP_False'] + 2)}
+
+    result['METHYLATION']['BGC_True_NRP_False'] = 1 - result['METHYLATION']['BGC_True_NRP_True']
+    result['METHYLATION']['BGC_False_NRP_False'] = 1 - result['METHYLATION']['BGC_False_NRP_True']
+
     # TODO: check if this is correct (some amino acids are stereosymmetric, etc)
     result['EPIMERIZATION'] = \
-        {'BGC_True': (ep_cnt['BGC_True_NRP_D'] + 1) / (ep_cnt['BGC_True_NRP_D'] + ep_cnt['BGC_True_NRP_L'] + 2),
-         'BGC_False': (ep_cnt['BGC_False_NRP_D'] + 1) / (ep_cnt['BGC_False_NRP_D'] + ep_cnt['BGC_False_NRP_L'] + 2)}
+        {'BGC_True_NRP_True': (ep_cnt['BGC_True_NRP_D'] + 1) / (ep_cnt['BGC_True_NRP_D'] + ep_cnt['BGC_True_NRP_L'] + 2),
+         'BGC_False_NRP_True': (ep_cnt['BGC_False_NRP_D'] + 1) / (ep_cnt['BGC_False_NRP_D'] + ep_cnt['BGC_False_NRP_L'] + 2)}
+
+    result['EPIMERIZATION']['BGC_True_NRP_False'] = 1 - result['EPIMERIZATION']['BGC_True_NRP_True']
+    result['EPIMERIZATION']['BGC_False_NRP_False'] = 1 - result['EPIMERIZATION']['BGC_False_NRP_True']
+
     return result
 
 
@@ -174,27 +182,40 @@ def get_unknown_because_pks_prob(emissions: List[MatchEmissionInfo],
 
 class EmissionParams(NamedTuple):
     step_function: List[float]
-    modifications_scores: Dict[str, float]
+    modifications_frequences: Dict[str, Dict[str, Prob]]  # (modification_type -> (BGC_{True/False}_NRP_{True/False} -> frequency))
     unknown_because_pks_prob: Prob
+    default_modifications_frequencies: Dict[str, Prob]  # default frequencies for modifications, used for score normalization
+    default_residue_frequencies: Dict[str, Prob]  # default probabilities for residues, used for score normalization
 
 
 def infer_emission_params(emissions: List[MatchEmissionInfo],
                           norine_stats: NorineStats,
-                          output_dir: Path) -> EmissionParams:
+                          output_dir: Path,
+                          monomer_names_helper: MonomerNamesHelper) -> EmissionParams:
     print('Building step function...')
     step_function = fit_step_function(emissions, 20, 1000,
                                       output_dir)  # TODO: put in config
-    print('Calculating modifications frequencies...')
-    default_freqs = {'METHYLATION': norine_stats.methylated / norine_stats.total_monomers,
-                     'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
 
+    print('Calculating modifications frequencies...')
     emissions_ = [(bgc_module, nrp_monomer.to_base_mon())
                   for bgc_info, bgc_module, nrp_monomer in emissions]
-    modifications_scores = get_modifications_scores(emissions_, default_freqs)
+    #modifications_scores = get_modifications_scores(emissions_, default_freqs)
+    modification_frequencies = get_modifications_frequencies(emissions_)
+
+    default_mod_freqs = {'METHYLATION': norine_stats.methylated / norine_stats.total_monomers,
+                         'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
+    default_residue_freqs: Dict[MonomerResidue, Prob] = defaultdict(float)
+    for norine_residue, freq in norine_stats.residue_frequencies.items():
+        nerpa_residue = monomer_names_helper.parsed_name(norine_residue, 'norine').residue
+        default_residue_freqs[nerpa_residue] += freq
+
+    default_residue_freqs = dict(default_residue_freqs)  # to dump as YAML
 
     print('Calculating PKS probability...')
     unknown_because_pks_prob = get_unknown_because_pks_prob(emissions, step_function)
 
     return EmissionParams(step_function=step_function,
-                          modifications_scores=modifications_scores,
+                          modifications_frequences=modification_frequencies,
+                          default_modifications_frequencies=default_mod_freqs,
+                          default_residue_frequencies=default_residue_freqs,
                           unknown_because_pks_prob=unknown_because_pks_prob)

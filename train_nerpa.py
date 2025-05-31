@@ -156,7 +156,8 @@ def main():
 
     emission_params = infer_emission_params(data_for_training.match_emissions,
                                             norine_stats,
-                                            args.output_dir)  # for plotting step function
+                                            args.output_dir,
+                                            monomer_names_helper)  # for plotting step function
     write_params(edge_params=edge_params,
                  emission_params=emission_params,
                  data_for_training=data_for_training,

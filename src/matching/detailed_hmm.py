@@ -29,6 +29,7 @@ from src.matching.hmm_auxiliary_types import (
 )
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.build_output.draw_hmm import draw_hmm
+from src.matching.p_values_estimation import PValueEstimator
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 from src.matching.viterbi_algorithm import get_opt_path_with_score
@@ -58,6 +59,8 @@ class DetailedHMM:
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
     _hmm: Optional[HMM] = None
+    _p_value_estimator: Optional[PValueEstimator] = None
+
 
     @classmethod
     def from_bgc_variant(cls,
@@ -92,6 +95,11 @@ class DetailedHMM:
                         module_match_states=self._module_idx_to_match_state_idx,
                         bgc_variant_id=self.bgc_variant.bgc_variant_id)
         return self._hmm
+
+    def get_p_value(self, score: LogProb) -> float:
+        if self._p_value_estimator is None:
+            self._p_value_estimator = PValueEstimator(self.to_hmm())
+        return self._p_value_estimator(score)
 
     def get_opt_path_with_emissions(self,
                                     start_state: StateIdx,

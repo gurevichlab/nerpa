@@ -1,6 +1,6 @@
 d_chirality: 2030
 methylated: 1081
-monomer_frequencies:
+residue_frequencies:
   Aad: 0.0002610966057441253
   Abu: 0.013228894691035683
   Acc: 8.703220191470844e-05

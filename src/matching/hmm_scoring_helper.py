@@ -51,8 +51,6 @@ class HMMHelper:
     def match_chirality_score(self,
                               bgc_module: BGC_Module,
                               nrp_monomer: NRP_Monomer) -> LogProb:
-        if nrp_monomer.chirality == Chirality.UNKNOWN:
-            return 0
         chirality_match = ChiralityMatch(BGC_Module_Modification.EPIMERIZATION in bgc_module.modifications,
                                          nrp_monomer.chirality)
         return self.scoring_config.chirality_score[chirality_match]
@@ -62,11 +60,11 @@ class HMMHelper:
                              nrp_monomer: NRP_Monomer,
                              pks_domains_in_bgc: bool = False) -> MatchDetailedScore:
         residue_score = self.match_residue_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
-        modifications_score = self.match_methylation_score(bgc_module, nrp_monomer)
+        methylation_score = self.match_methylation_score(bgc_module, nrp_monomer)
         chirality_score = self.match_chirality_score(bgc_module, nrp_monomer)
 
         return MatchDetailedScore(residue_score,
-                                  modifications_score,
+                                  methylation_score,
                                   chirality_score)
 
     def match(self,
@@ -74,6 +72,29 @@ class HMMHelper:
               nrp_monomer: NRP_Monomer,
               pks_domains_in_bgc: bool = False) -> LogProb:
         return sum(self.match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc))
+
+    def monomer_detailed_default_score(self,
+                                       nrp_monomer: NRP_Monomer) -> MatchDetailedScore:
+        return self.scoring_config.monomer_detailed_default_score[nrp_monomer]
+
+    def monomer_default_score(self,
+                              nrp_monomer: NRP_Monomer) -> LogProb:
+        return sum(self.scoring_config.monomer_detailed_default_score[nrp_monomer])
+
+    def normalized_match_detailed_score(self,
+                                        bgc_module: BGC_Module,
+                                        nrp_monomer: NRP_Monomer,
+                                        pks_domains_in_bgc: bool = False) -> MatchDetailedScore:
+          """
+          Returns the match detailed score normalized by the sum of the default scores.
+          """
+          match_score = self.match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
+          default_score = self.monomer_detailed_default_score(nrp_monomer)
+          return MatchDetailedScore(
+                match_score.residue_score - default_score.residue_score,
+                match_score.methylation_score - default_score.methylation_score,
+                match_score.chirality_score - default_score.chirality_score
+          )
 
     def get_emissions(self,
                       bgc_module: BGC_Module,
