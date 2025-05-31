@@ -11,8 +11,6 @@ def get_opt_path_with_score(hmm: HMM,
                             observed_sequence: List[MonCode],
                             start_state: Optional[StateIdx] = None,
                             finish_state: Optional[StateIdx] = None) -> Tuple[LogProb, List[StateIdx]]:
-    if start_state == 44:
-        pass
     seq_len = len(observed_sequence)
     num_states = len(hmm.transitions)
 

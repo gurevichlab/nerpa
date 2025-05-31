@@ -1,18 +1,18 @@
+from __future__ import annotations
 from typing import List, Tuple, Dict, NamedTuple, NewType
+from src.data_types import LogProb, Prob
+from src.matching.detailed_hmm import StateIdx
 import numpy as np
 from numpy.typing import NDArray
 
-StateIdx = NewType('StateIdx', int)
-LogProb = NewType('LogProb', float)
 DiscreteProb = NewType('DiscreteProb', int)
-Prob = NewType('Prob', float)  # actual probability value in range [0, 1]
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(100000)
+MAX_DISCRETE_PROB = DiscreteProb(1000)
 MIN_DISCRETE_PROB = DiscreteProb(0)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
-LOG_PROB_MIN_VALUE = LogProb(-10)
+LOG_PROB_MIN_VALUE = LogProb(-20)
 LOG_PROB_MAX_VALUE = LogProb(0)
 
 
@@ -39,8 +39,17 @@ class PValueEstimator:
 
     def __call__(self, path_log_prob: LogProb) -> Prob:
         disc_threshold_score = to_discrete_prob(path_log_prob)
-        p_value = self._p_values[disc_threshold_score]
+        p_value = float(self._p_values[disc_threshold_score])
         return Prob(p_value)
+
+    @classmethod
+    def _from_precomputed_p_values(cls, p_values: NDArray[np.float64]) -> PValueEstimator:
+        """
+        Create a PValueEstimator from precomputed p-values.
+        """
+        obj = cls.__new__(cls)
+        obj._p_values = p_values
+        return obj
 
 
 def discretization_error(hmm: HMM) -> LogProb:
@@ -106,22 +115,22 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
                 continue
 
             number_of_paths = dp[state, disc_prob]
-            path_prob = to_log_prob(DiscreteProb(disc_prob))
+            path_lp = to_log_prob(DiscreteProb(disc_prob))
 
             # Process each outgoing transition
-            for next_state, transition_prob in hmm.transitions[state]:
+            for next_state, transition_lp in hmm.transitions[state]:
                 # Process each emission of the next state if they exist
                 if hmm.emissions[next_state]:
-                    for emission_prob in hmm.emissions[next_state]:
-                        new_path_prob = path_prob + transition_prob + emission_prob
-                        disc_new_path_prob = to_discrete_prob(LogProb(new_path_prob))
+                    for emission_lp in hmm.emissions[next_state]:
+                        new_path_lp = path_lp + transition_lp + emission_lp
+                        disc_new_path_lp = to_discrete_prob(LogProb(new_path_lp))
 
-                        dp[next_state][disc_new_path_prob] += number_of_paths
+                        dp[next_state][disc_new_path_lp] += number_of_paths
                 else:
-                    new_path_prob = path_prob + transition_prob
-                    disc_new_path_prob = to_discrete_prob(LogProb(new_path_prob))
+                    new_path_lp = path_lp + transition_lp
+                    disc_new_path_lp = to_discrete_prob(LogProb(new_path_lp))
 
-                    dp[next_state][disc_new_path_prob] += number_of_paths
+                    dp[next_state][disc_new_path_lp] += number_of_paths
 
     def to_prob(disc_prob: DiscreteProb) -> np.float64:
         return np.exp(to_log_prob(DiscreteProb(disc_prob)))

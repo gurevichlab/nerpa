@@ -48,18 +48,24 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
         #print('Reconstructing alignments for', hmm_match.bgc_variant_id, hmm_match.nrp_id)
         hmm = hmm_by_bgc_info[hmm_match.bgc_variant_id]
         alignments = []
+        null_hypothesis_score = 0
         for nrp_linearization, optimal_path in zip(hmm_match.nrp_linearizations, hmm_match.optimal_paths):
             rban_monomers = [rban_idx_to_rban_mon[hmm_match.nrp_id][rban_idx]
                              for rban_idx in nrp_linearization]
+            null_hypothesis_score += sum(hmm.hmm_helper.monomer_default_score(mon.to_base_mon())
+                                         for mon in rban_monomers)
+
             alignments.append(hmm.path_to_alignment(optimal_path, rban_monomers))
             if debug:
                 path_with_emissions = alignment_to_hmm_path(hmm, alignments[-1])
                 path = [state for state, _ in path_with_emissions]
                 assert path == optimal_path, f'Path mismatch: {path} != {optimal_path}'
 
+
         matches.append(Match(bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),
-                             score=hmm_match.score,
+                             score=hmm_match.score - null_hypothesis_score,
+                             p_value=hmm.get_p_value(hmm_match.score),
                              alignments=alignments))
 
     return matches

@@ -70,7 +70,7 @@ def get_residue_frequencies(norine_monomers_info: Path,
                             monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
      norine_monomers = yaml.safe_load(open(norine_monomers_info))
      residue_frequencies: Dict[MonomerResidue, Prob] = defaultdict(float)
-     for mon_name, frequency in norine_monomers['monomer_frequencies'].items():
+     for mon_name, frequency in norine_monomers['residue_frequencies'].items():
          residue = monomer_names_helper.parsed_name(mon_name, 'antismash').residue
          residue_frequencies[residue] += frequency
 

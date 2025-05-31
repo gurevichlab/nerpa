@@ -102,8 +102,8 @@
             font-weight: bold; /* Bold indicator */
         }
 
-        /* Align Match ID and Score columns to the right */
-        td.match-id, td.score {
+        /* Align Match ID, Score and p-value columns to the right */
+        td.match-id, td.score, td["p-value"] {
             text-align: right;
         }
 
@@ -209,6 +209,7 @@
                     <tr>
                         <th>Match ID</th>
                         <th>Score</th>
+                        <th>p-value</th>
                         <th>NRP</th>
                         <th>Genome</th>
                         <th>BGC ID</th>
@@ -236,6 +237,7 @@
                             <tr>
                                 <th>Match ID</th>
                                 <th>Score</th>
+                                <th>p-value</th>
                                 <th>NRP</th>
                                 <th>Genome</th>
                                 <th>BGC ID</th>
@@ -347,7 +349,7 @@
         function isNumeric(value) {
             return !isNaN(parseFloat(value)) && isFinite(value);
         }
-        
+
         // Detect column indices by header names
         const columnIndices = {};
         const headers = document.querySelectorAll('#reportTable th');
@@ -395,11 +397,12 @@
             if (data && Array.isArray(data)) {
                 data.forEach(item => {
                     const row = document.createElement('tr');
-                    const bgc_id = item.bgc_variant_id.bgc_id
-                    const nrp_id = item.nrp_variant_id.nrp_id
+                    const bgc_id = item.bgc_variant_id.bgc_id;
+                    const nrp_id = item.nrp_variant_id.nrp_id;
                     row.innerHTML = `
                         <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
                         <td class="score">${parseFloat(item.score).toFixed(2)}</td>
+                        <td class="p-value">${parseFloat(item.p_value).toFixed(2)}</td>
                         <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="">${bgc_id.genome_id}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
@@ -412,7 +415,7 @@
                     link.addEventListener('click', event => {
                         event.preventDefault(); // Prevent default link behavior
                         const matchID = link.dataset.match; // Get the Match ID
-                        toggleMatchViewer(false, matchID)
+                        toggleMatchViewer(false, matchID);
                     });
                 });
 
@@ -422,7 +425,7 @@
                         event.preventDefault(); // Prevent default link behavior
                         const genomeID = link.dataset.genome; // Get the Genome ID
                         const bgcID = link.dataset.bgc; // Get the specific BGC ID within the genome
-                        toggleGenomeViewer(false, genomeID, bgcID)
+                        toggleGenomeViewer(false, genomeID, bgcID);
                     });
                 });
 
@@ -431,7 +434,7 @@
                     link.addEventListener('click', event => {
                         event.preventDefault(); // Prevent default link behavior
                         const nrpID = link.dataset.nrp; // Get the NRP ID
-                        toggleNrpViewer(false, nrpID)
+                        toggleNrpViewer(false, nrpID);
                     });
                 });
             } else {
@@ -449,13 +452,13 @@
             const label = document.getElementById('matchViewerLabel');
 
             if (hide) {
-                frame.style.display = 'none'; // Hide frame (div) with images
+                frame.style.display = 'none'; // Hide frame (div) with details
                 label.style.display = 'block'; // Show label
                 hideBtn.style.display = 'none'; // Hide the button
 
                 // hiding corresponding Genome and NRP viewers
-                toggleGenomeViewer(hide)
-                toggleNrpViewer(hide)
+                toggleGenomeViewer(hide);
+                toggleNrpViewer(hide);
             } else {
                 // Update table content
                 var item = data.at(matchID);
@@ -463,16 +466,18 @@
                 const matchTableBody = document.querySelector('#matchTable tbody');
                 matchTableBody.innerHTML = '';
                 const matchRow = document.createElement('tr');
-                const bgc_id = item.bgc_variant_id.bgc_id
-                const nrp_id = item.nrp_variant_id.nrp_id
+                const bgc_id = item.bgc_variant_id.bgc_id;
+                const nrp_id = item.nrp_variant_id.nrp_id;
                 matchRow.innerHTML = `
                     <td class="match-id">${item.Match_ID}</td>
                     <td class="score">${parseFloat(item.score).toFixed(2)}</td>
+                    <td class="p-value">${parseFloat(item.p_value).toFixed(2)}</td>
                     <td>${nrp_id}</td>
                     <td>${bgc_id.genome_id}</td>
                     <td>Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</td>
                 `;
                 matchTableBody.appendChild(matchRow);
+
                 // Match alignment info
                 const alignmentTableBody = document.querySelector('#alignmentTable tbody');
                 alignmentTableBody.innerHTML = '';
@@ -504,8 +509,8 @@
                 hideBtn.style.display = 'block';
 
                 // showing corresponding Genome and NRP viewers
-                toggleGenomeViewer(false, bgc_id.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`)
-                toggleNrpViewer(false, nrp_id)
+                toggleGenomeViewer(false, bgc_id.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
+                toggleNrpViewer(false, nrp_id);
             }
         }
 

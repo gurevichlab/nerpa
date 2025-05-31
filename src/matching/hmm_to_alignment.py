@@ -85,9 +85,9 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
                 mon_idx += 1
 
             case ET.MATCH:
-                match_detailed_score = hmm.hmm_helper.match_detailed_score(bgc_module,
-                                                                           nrp_mon.to_base_mon(),
-                                                                           hmm.bgc_variant.has_pks_domains())
+                match_detailed_score = hmm.hmm_helper.normalized_match_detailed_score(bgc_module,
+                                                                                      nrp_mon.to_base_mon(),
+                                                                                      hmm.bgc_variant.has_pks_domains())
                 emission_score = sum(match_detailed_score)
                 alignment.append(AlignmentStep(bgc_module=bgc_module_info,
                                                nrp_monomer=nrp_mon,

@@ -43,10 +43,12 @@ from itertools import chain
 
 def get_residue_scores(a_domain: A_Domain,
                        specificity_prediction_helper: SpecificityPredictionHelper) -> Dict[MonomerResidue, LogProb]:
-    apriori_prob = specificity_prediction_helper.config.APRIORI_RESIDUE_PROB
+    #apriori_prob = specificity_prediction_helper.config.APRIORI_RESIDUE_PROB
     predictions = specificity_prediction_helper.predict(a_domain)
-    return {res: ((log(prob) - log(apriori_prob[res]))
-                  if prob > 0.0 else -float('inf'))
+    #return {res: ((log(prob) - log(apriori_prob[res]))
+    #              if prob > 0.0 else -float('inf'))
+    #        for res, prob in predictions.items()}
+    return {res: log(prob) if prob > 0.0 else -float('inf')
             for res, prob in predictions.items()}
 
 
