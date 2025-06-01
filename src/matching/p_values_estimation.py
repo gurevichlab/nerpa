@@ -2,23 +2,20 @@ from __future__ import annotations
 from typing import List, Tuple, Dict, NamedTuple, NewType
 from src.data_types import LogProb, Prob
 from src.matching.detailed_hmm import StateIdx
+from src.matching.hmm_auxiliary_types import HMM
 import numpy as np
 from numpy.typing import NDArray
+from joblib import Parallel, delayed
 
 DiscreteProb = NewType('DiscreteProb', int)
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(1000)
+MAX_DISCRETE_PROB = DiscreteProb(10000)
 MIN_DISCRETE_PROB = DiscreteProb(0)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
 LOG_PROB_MIN_VALUE = LogProb(-20)
 LOG_PROB_MAX_VALUE = LogProb(0)
-
-
-class HMM(NamedTuple):
-    transitions: List[List[Tuple[StateIdx, LogProb]]]   # u -> [(v, log_prob(u -> v))]
-    emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
 
 
 class PValueComparisonResult(NamedTuple):
@@ -51,6 +48,25 @@ class PValueEstimator:
         obj._p_values = p_values
         return obj
 
+    @classmethod
+    def _precompute_p_values_for_hmms(cls,
+                                      hmms: List[HMM],
+                                      num_threads: int = 1) -> List[NDArray[np.float64]]:
+        p_values_list = Parallel(n_jobs=num_threads, backend="loky")(
+            delayed(compute_hmm_p_values)(hmm) for hmm in hmms
+        )
+        return p_values_list
+
+    @classmethod
+    def precompute_p_value_estimators_for_hmms(cls,
+                                               hmms: List[HMM],
+                                               num_threads: int = 1):
+        """
+        Precompute p-values for a list of HMMs in parallel and return a list of PValueEstimator objects.
+        This method is used to speed up p-value estimation for multiple HMMs.
+        """
+        p_values_list = cls._precompute_p_values_for_hmms(hmms, num_threads)
+        return [PValueEstimator._from_precomputed_p_values(p_values) for p_values in p_values_list]
 
 def discretization_error(hmm: HMM) -> LogProb:
     # Error of discretization of one transition or emission
@@ -96,6 +112,15 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
     the score to_log_prob(k) or higher in the HMM. One path with exactly that score
     is not counted in the probability.
     """
+    assert all(edge_weight <= LogProb(0)
+               for edges in hmm.transitions
+               for _, edge_weight in edges), \
+        "All transition probabilities must be non-positive (log probabilities)."
+    assert all(emission_prob <= LogProb(0)
+                for emissions in hmm.emissions
+                for emission_prob in emissions), \
+        "All emission probabilities must be non-positive (log probabilities)."
+
     num_states = len(hmm.transitions)
     initial_state = 0
     final_state = num_states - 1
@@ -107,7 +132,8 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
     dp[initial_state, MAX_DISCRETE_PROB] = 1
 
     # Iterate over probabilities first, from highest to lowest
-    for disc_prob in map(DiscreteProb, range(MAX_DISCRETE_PROB, MIN_DISCRETE_PROB - 1, -1)):
+    # MIN_DISCRETE_PROB is excluded to avoid overflow: it corresponds to -inf log probability and infinite number of paths
+    for disc_prob in map(DiscreteProb, range(MAX_DISCRETE_PROB, MIN_DISCRETE_PROB, -1)):
         # Then iterate over states
         for state in range(num_states):
             # Skip if no paths with this probability for this state
@@ -125,12 +151,16 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
                         new_path_lp = path_lp + transition_lp + emission_lp
                         disc_new_path_lp = to_discrete_prob(LogProb(new_path_lp))
 
-                        dp[next_state][disc_new_path_lp] += number_of_paths
+                        # to avoid overflow, don't count paths with probability 0
+                        if disc_new_path_lp > MIN_DISCRETE_PROB:
+                            dp[next_state][disc_new_path_lp] += number_of_paths
                 else:
                     new_path_lp = path_lp + transition_lp
                     disc_new_path_lp = to_discrete_prob(LogProb(new_path_lp))
 
-                    dp[next_state][disc_new_path_lp] += number_of_paths
+                    # to avoid overflow, don't count paths with probability 0
+                    if disc_new_path_lp > MIN_DISCRETE_PROB:
+                        dp[next_state][disc_new_path_lp] += number_of_paths
 
     def to_prob(disc_prob: DiscreteProb) -> np.float64:
         return np.exp(to_log_prob(DiscreteProb(disc_prob)))

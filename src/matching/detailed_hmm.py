@@ -101,6 +101,19 @@ class DetailedHMM:
             self._p_value_estimator = PValueEstimator(self.to_hmm())
         return self._p_value_estimator(score)
 
+    @classmethod
+    def set_p_value_estimators_for_hmms(cls,
+                                        detailed_hmms: List[DetailedHMM],
+                                        num_threads: int = 1) -> None:
+        """
+        Precompute p-value estimators for a list of DetailedHMMs in parallel.
+        This method is useful for speeding up p-value estimation when many DetailedHMMs are used.
+        """
+        hmms = [detailed_hmm.to_hmm() for detailed_hmm in detailed_hmms]
+        estimators = PValueEstimator.precompute_p_value_estimators_for_hmms(hmms, num_threads)
+        for detailed_hmm, estimator in zip(detailed_hmms, estimators):
+            detailed_hmm._p_value_estimator = estimator
+
     def get_opt_path_with_emissions(self,
                                     start_state: StateIdx,
                                     finish_state: StateIdx,

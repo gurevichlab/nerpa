@@ -20,6 +20,7 @@ from src.matching.hmm_match import HMM_Match
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.match_type import Match, NRP_Variant_ID
 from src.matching.alignment_type import Alignment, alignment_score, combined_alignments_score
+from src.matching.p_values_estimation import PValueEstimator
 from src.matching.viterbi_algorithm import get_opt_path_with_score
 from src.matching.hmm_checkpoints_heuristic import get_checkpoints
 from src.pipeline.logger import NerpaLogger
@@ -118,8 +119,14 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
 NRP_ID = str
 
 def filter_and_sort_matches(matches: List[HMM_Match],
-                            nrps_null_hypothesis_scores: Dict[NRP_ID, LogProb],
+                            hmms: List[DetailedHMM],
+                            nrp_linearizations: List[NRP_Linearizations],
                             config: MatchingConfig) -> List[HMM_Match]:
+    nrps_null_hypothesis_scores = {
+        linearizations.nrp_id: null_hypothesis_score(linearizations, hmms[0].hmm_helper)
+        for linearizations in nrp_linearizations
+    }
+
     def normalized_match_score(match: HMM_Match) -> LogProb:
         """Calculate the normalized score of a match."""
         nrp_id = match.nrp_id
@@ -199,13 +206,23 @@ def get_hmm_matches(hmms: List[DetailedHMM],
     matches = get_all_hmm_matches(hmms, nrp_linearizations, matching_cfg, num_threads, log)
 
     if log is not None:
-        log.info('Matches obtained. Filtering and sorting...')
+        log.info('Matches obtained.')
 
-    nrps_null_hypothesis_scores = {
-        linearizations.nrp_id: null_hypothesis_score(linearizations, DetailedHMM.hmm_helper)
-        for linearizations in nrp_linearizations
-    }
 
-    return filter_and_sort_matches(matches,
-                                   nrps_null_hypothesis_scores,
-                                   matching_cfg)
+    if log is not None:
+        log.info('Estimating p-values for matches...')
+
+    DetailedHMM.set_p_value_estimators_for_hmms(hmms, num_threads)
+
+    if log is not None:
+        log.info('P-values obtained. Filtering and sorting matches...')
+
+    matches = filter_and_sort_matches(matches,
+                                      hmms,
+                                      nrp_linearizations,
+                                      matching_cfg)
+
+    if log is not None:
+        log.info(f'Obtained {len(matches)} matches after filtering and sorting.')
+
+    return matches
