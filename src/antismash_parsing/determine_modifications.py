@@ -35,9 +35,11 @@ def ends_with_pcp_pcp(gene: Gene) -> bool:
 
 
 def get_iterative_genes_orphan_c(genes: List[Gene]) -> Set[GeneId]:
+    """ TODO: remove --- I don't need sorted assumption anymore
     genes_are_sorted = all(gene1.coords.start < gene2.coords.start
                            for gene1, gene2 in pairwise(genes))
     assert genes_are_sorted, "genes should be sorted by coordinates"
+    """
 
     iterative_genes_ids = set()
     for gene1, gene2 in pairwise(genes):
@@ -58,9 +60,9 @@ def get_iterative_genes_orphan_c(genes: List[Gene]) -> Set[GeneId]:
     return iterative_genes_ids
 
 
-def get_iterative_genes(_genes: List[Gene]) -> Set[GeneId]:
-    genes = _genes[:]  # make a copy to avoid modifying the original list
-    genes.sort(key=lambda gene: (gene.coords.start, gene.coords.strand))
+def get_iterative_genes(genes: List[Gene]) -> Set[GeneId]:
+    #genes = _genes[:]  # make a copy to avoid modifying the original list
+    #genes.sort(key=lambda gene: (gene.coords.start, gene.coords.strand))
 
     iterative_genes_orphan_c = get_iterative_genes_orphan_c(genes)
     iterative_genes_pcp = {gene.gene_id for gene in genes if ends_with_pcp_pcp(gene)}
