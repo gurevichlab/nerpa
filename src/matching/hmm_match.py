@@ -64,7 +64,7 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
 
         matches.append(Match(bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),
-                             score=hmm_match.score - null_hypothesis_score,
+                             score=hmm_match.score, # - null_hypothesis_score,  FOR DEBUGGING
                              p_value=hmm.get_p_value(hmm_match.score),
                              alignments=alignments))
 
