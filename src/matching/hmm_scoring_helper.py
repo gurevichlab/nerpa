@@ -11,7 +11,7 @@ from src.data_types import (
     NRP_Monomer,
     LogProb,
 )
-from src.matching.hmm_config import (
+from src.matching.hmm_scoring_config import (
     ChiralityMatch,
     MethylationMatch,
     HMMScoringConfig
@@ -75,11 +75,19 @@ class HMMHelper:
 
     def monomer_detailed_default_score(self,
                                        nrp_monomer: NRP_Monomer) -> MatchDetailedScore:
-        return self.scoring_config.monomer_detailed_default_score[nrp_monomer]
+        if nrp_monomer.is_pks_hybrid:
+            # PKS hybrids are treated as unknown residues for default scoring
+            mon = NRP_Monomer(residue=UNKNOWN_RESIDUE,
+                              chirality=nrp_monomer.chirality,
+                              methylated=nrp_monomer.methylated,
+                              is_pks_hybrid=False)
+            return self.scoring_config.monomer_detailed_default_score[mon]
+        else:
+            return self.scoring_config.monomer_detailed_default_score[nrp_monomer]
 
     def monomer_default_score(self,
                               nrp_monomer: NRP_Monomer) -> LogProb:
-        return sum(self.scoring_config.monomer_detailed_default_score[nrp_monomer])
+        return sum(self.monomer_detailed_default_score(nrp_monomer))
 
     def normalized_match_detailed_score(self,
                                         bgc_module: BGC_Module,

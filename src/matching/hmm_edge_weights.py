@@ -1,7 +1,7 @@
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
 from src.data_types import Prob, LogProb
-from src.matching.hmm_config import HMMScoringConfig
+from src.matching.hmm_scoring_config import HMMScoringConfig
 
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM

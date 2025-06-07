@@ -11,7 +11,7 @@ from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     GenomicContext,
 )
-from src.matching.hmm_config import EDGE_TYPE_DEPENDENCIES
+from src.matching.hmm_scoring_config import EDGE_TYPE_DEPENDENCIES
 from src.training.hmm_parameters.training_types import EdgeInfo
 from src.write_results import write_yaml
 

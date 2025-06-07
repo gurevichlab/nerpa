@@ -6,6 +6,8 @@ from typing import (
     Union, Optional, Set
 )
 
+import dacite
+
 from src.data_types import (
     Chirality,
     LogProb,
@@ -19,7 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import yaml
 
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper import NRP_Monomer, MonomerNamesHelper, MonomersDefaultFrequencies
 
 # TODO: put this in config
 EDGE_TYPE_DEPENDENCIES = {
@@ -57,7 +59,6 @@ EDGE_TYPE_DEPENDENCIES = {
     #DetailedHMMEdgeType.END_INSERTING: set(),
 }
 
-
 class ChiralityMatch(NamedTuple):
     bgc_epim: bool
     nrp_chr: Chirality
@@ -75,6 +76,7 @@ class HMMScoringConfig:
     edge_weight_parameters: Dict[DetailedHMMEdgeType, Dict[ModuleGenomicContext, LogProb]]
     relevant_genomic_features: Dict[DetailedHMMEdgeType, Set[ModuleGenomicContextFeature]]
     monomer_detailed_default_score: Dict[NRP_Monomer, MatchDetailedScore]
+    #norine_monomers_info: NorineStats
 
 
 def load_methylation_score(cfg: dict) -> Dict[MethylationMatch, LogProb]:
@@ -85,9 +87,10 @@ def load_methylation_score(cfg: dict) -> Dict[MethylationMatch, LogProb]:
             for nrp_meth in (False, True)}
 
 
-def load_chirality_score(cfg: dict) -> Dict[ChiralityMatch, LogProb]:
+def load_chirality_score(cfg: dict,
+                         default_freqs: MonomersDefaultFrequencies) -> Dict[ChiralityMatch, LogProb]:
     epim_freqs = cfg['emission_parameters']['modification_frequencies']['EPIMERIZATION']
-    default_d_chr_freq = cfg['emission_parameters']['default_modification_frequencies']['EPIMERIZATION']
+    default_d_chr_freq = default_freqs.d_chirality
 
     chr_score = {ChiralityMatch(bgc_epim=bgc_epim, nrp_chr=nrp_chr):
                      log(epim_freqs[f'BGC_{bgc_epim}_NRP_{npr_epim}'])
@@ -117,29 +120,27 @@ def load_edge_weight_params(cfg: dict) -> Dict[DetailedHMMEdgeType, Dict[ModuleG
     return parsed_data
 
 
-def load_monomer_detailed_default_score(cfg: dict) -> Dict[NRP_Monomer, MatchDetailedScore]:
-    default_residue_freqs = cfg['emission_parameters']['default_residue_frequencies']
-    default_methylation_freq = cfg['emission_parameters']['default_modification_frequencies']['METHYLATION']
-    default_d_chirality_freq = cfg['emission_parameters']['default_modification_frequencies']['EPIMERIZATION']
-
+def compute_monomers_default_detailed_score(default_freqs: MonomersDefaultFrequencies) \
+        -> Dict[NRP_Monomer, MatchDetailedScore]:
     monomer_default_score = {}
-    for residue, freq in default_residue_freqs.items():
+    for residue, residue_freq in default_freqs.residue.items():
         for methylation in (False, True):
             for chirality in Chirality:
-                residue_score = log(default_residue_freqs[residue])
-                methylation_score = log(default_methylation_freq) \
-                    if methylation else log(1 - default_methylation_freq)
+                residue_score = log(residue_freq)
+                methylation_score = log(default_freqs.methylation) \
+                    if methylation else log(1 - default_freqs.methylation)
 
                 match chirality:
                     case Chirality.D:
-                        chirality_score = log(default_d_chirality_freq)
+                        chirality_score = log(default_freqs.d_chirality)
                     case Chirality.L:
-                        chirality_score = log(1 - default_d_chirality_freq)
+                        # slightly inaccurate because some monomers are stereosymmetric
+                        chirality_score = log(1 - default_freqs.d_chirality)
                     case Chirality.UNKNOWN:
-                        chirality_score = default_d_chirality_freq * log(default_d_chirality_freq) + \
-                            (1 - default_d_chirality_freq) * log(1 - default_d_chirality_freq)
+                        chirality_score = default_freqs.d_chirality * log(default_freqs.d_chirality) + \
+                                          (1 - default_freqs.d_chirality) * log(1 - default_freqs.d_chirality)
 
-                monomer = NRP_Monomer(residue=MonomerResidue(residue),
+                monomer = NRP_Monomer(residue=residue,
                                       methylated=methylation,
                                       chirality=chirality)
                 monomer_default_score[monomer] = MatchDetailedScore(residue_score,
@@ -148,12 +149,13 @@ def load_monomer_detailed_default_score(cfg: dict) -> Dict[NRP_Monomer, MatchDet
 
     return monomer_default_score
 
-
-def load_hmm_scoring_config(path_to_config: Path) -> HMMScoringConfig:
+def load_hmm_scoring_config(path_to_config: Path,
+                            monomer_names_helper: MonomerNamesHelper) -> HMMScoringConfig:
     cfg = yaml.safe_load(path_to_config.open('r'))
 
+    default_scores = compute_monomers_default_detailed_score(monomer_names_helper.default_frequencies)
     return HMMScoringConfig(methylation_score=load_methylation_score(cfg),
-                            chirality_score=load_chirality_score(cfg),
+                            chirality_score=load_chirality_score(cfg, monomer_names_helper.default_frequencies),
                             edge_weight_parameters=load_edge_weight_params(cfg),
                             relevant_genomic_features=EDGE_TYPE_DEPENDENCIES,
-                            monomer_detailed_default_score=load_monomer_detailed_default_score(cfg))
+                            monomer_detailed_default_score=default_scores)

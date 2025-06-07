@@ -34,7 +34,7 @@ from src.matching.matcher import get_hmm_matches
 from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
-from src.matching.hmm_config import load_hmm_scoring_config
+from src.matching.hmm_scoring_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
 import src.write_results as write_results
 
@@ -82,7 +82,7 @@ class PipelineHelper:
 
         self.monomer_names_helper = load_monomer_names_helper(self.config.monomers_config,
                                                               self.config.nerpa_dir)
-        hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config)
+        hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config, self.monomer_names_helper)
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
         external_specificity_predictions = get_paras_results_all(self.args.paras_results,
