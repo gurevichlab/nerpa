@@ -12,7 +12,7 @@ from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission
 from src.training.hmm_parameters.norine_stats import load_norine_stats
 from src.training.hmm_parameters.write_results import write_params
 from src.matching.hmm_scoring_helper import HMMHelper
-from src.matching.hmm_config import load_hmm_scoring_config
+from src.matching.hmm_scoring_config import load_hmm_scoring_config
 from collections import defaultdict
 import argparse
 from argparse import Namespace as CommandlineArgs

@@ -27,6 +27,7 @@ import yaml
 from dataclasses import dataclass
 from itertools import chain
 from copy import deepcopy
+from joblib import Parallel, delayed
 
 
 @dataclass
@@ -102,6 +103,14 @@ class PipelineHelper_antiSMASH:
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
 
+
+    def _safe_extract_bgc_variants(self, antismash_record) -> List[BGC_Variant]:
+        try:
+            return self.extract_bgc_variants_from_antismash(antismash_record)
+        except Exception as e:
+            self.log.info(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
+            return []  # suppress exception
+
     def get_bgc_variants(self) -> List[BGC_Variant]:
         if self.preprocessed_bgc_variants():
             self.log.info('Loading preprocessed BGC variants. All other inputs will be ignored')
@@ -109,15 +118,14 @@ class PipelineHelper_antiSMASH:
 
         antismash_results = self.get_antismash_results()
 
-        self.log.info('\n======= Predicting BGC variants')
+        self.log.info(f'\n======= Predicting BGC variants from antiSMASH results')
+                      #f' using {self.args.threads} threads')
 
-        bgc_variants = []
-        for antismash_record in antismash_results:
-            try:
-                bgc_variants.extend(self.extract_bgc_variants_from_antismash(antismash_record))
-            except Exception as e:
-                self.log.info(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
-                raise e  # TODO: remove
+        bgc_variants_in_chunks = Parallel(n_jobs=1)(  # TODO: debug multithreading
+            delayed(self._safe_extract_bgc_variants)(antismash_record)
+            for antismash_record in antismash_results
+        )
+        bgc_variants = list(chain.from_iterable(bgc_variants_in_chunks))
 
         self.log.info('\n======= Done with Predicting BGC variants')
         return bgc_variants

@@ -283,9 +283,12 @@ def load_monomer_names_helper(monomers_cfg_file: Path,
                               nerpa_dir: Path) -> MonomerNamesHelper:
     monomers_cfg = yaml.safe_load(monomers_cfg_file.open('r'))
     monomers_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
+    norine_monomers_cnts_file = nerpa_dir / monomers_cfg['norine_monomers_cnts']
+    norine_monomers_cnts = yaml.safe_load(norine_monomers_cnts_file.open('r'))
     return MonomerNamesHelper(names_table=pd.read_csv(monomers_table_tsv, sep='\t'),
                               supported_residues=monomers_cfg['supported_residues'],
-                              pks_names=monomers_cfg['pks_names'])
+                              pks_names=monomers_cfg['pks_names'],
+                              norine_monomer_cnts=norine_monomers_cnts)
 
 
 def load_config(args: Optional[CommandLineArgs] = None) -> Config:

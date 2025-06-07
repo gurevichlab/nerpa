@@ -26,7 +26,7 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.match_type import Match, NRP_Variant_ID
 from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
-from src.matching.hmm_config import load_hmm_scoring_config
+from src.matching.hmm_scoring_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
 import src.write_results as report
 

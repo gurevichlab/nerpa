@@ -10,7 +10,7 @@ from joblib import Parallel, delayed
 DiscreteProb = NewType('DiscreteProb', int)
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(10000)
+MAX_DISCRETE_PROB = DiscreteProb(100)
 MIN_DISCRETE_PROB = DiscreteProb(0)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB

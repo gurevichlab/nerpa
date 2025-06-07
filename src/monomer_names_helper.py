@@ -1,4 +1,5 @@
 from collections import defaultdict
+from math import log
 from typing import (
     Any,
     Dict,
@@ -14,9 +15,11 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
 
+from scripts.extract_norine_monomers_info import norine_graphs_path
 from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.generic.functional import cached_by_key
 import yaml
+
 
 AA10 = NewType('AA10', str)  # 10-letter Stachelhaus code
 AA34 = NewType('AA34', str)  # 34-letter code
@@ -29,7 +32,6 @@ MonCode = NewType('MonCode', int)
 
 def enum_representer(dumper, e: Enum):
     return dumper.represent_scalar(f'!{e.__class__.__name__}', e.name)
-
 
 class Chirality(Enum):
     L = auto()
@@ -55,26 +57,48 @@ class NRP_Monomer:
         return hash((self.residue, self.methylated, self.chirality, self.is_pks_hybrid))
 
 UNKNOWN_MONOMER = NRP_Monomer(residue=UNKNOWN_RESIDUE,
-                              methylated=False,  # TODO: should we have a separate UNKNOWN_METYLATION?,
+                              methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
                               chirality=Chirality.UNKNOWN)
 PKS_MONOMER = NRP_Monomer(residue=PKS,
-                          methylated=False,  # TODO: should we have a separate UNKNOWN_METYLATION?,
+                          methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
                           chirality=Chirality.UNKNOWN)
+
+Prob = NewType('Prob', float)  # TODO: import
+
+class MonomersDefaultFrequencies(NamedTuple):
+    residue: Dict[MonomerResidue, Prob]
+    methylation: Prob
+    d_chirality: Prob
+
 
 @dataclass
 class MonomerNamesHelper:
     names_table: pd.DataFrame
     supported_residues: List[MonomerResidue]
+    pks_names: List[NorineMonomerName]
+    norine_monomer_cnts: Dict[NorineMonomerName, int]
+
     _cache: Dict[Tuple[str, str], NRP_Monomer] = None
+    default_frequencies: MonomersDefaultFrequencies = None
 
     mon_to_int: Dict[NRP_Monomer, MonCode] = None
     int_to_mon: Dict[MonCode, NRP_Monomer] = None
-    pks_names: List[NorineMonomerName] = None
+
 
     def __post_init__(self):
         self._cache = {}
-        if self.pks_names is None:
-            self.pks_names = []
+
+        # Validation
+        assert all(res in self.names_table['core'].values or res == UNKNOWN_RESIDUE
+                   for res in self.supported_residues), \
+            f"Some supported residues are absent in the names table: " \
+            f"{set(self.supported_residues) - set(self.names_table['core'].values)}"
+        residues_from_norine = {self.parsed_name(norine_name, 'norine').residue
+                                for norine_name in self.norine_monomer_cnts}
+        assert set(self.supported_residues) == residues_from_norine, \
+            f"Supported residues {set(self.supported_residues) - residues_from_norine} are missing in norine"
+
+        self._set_default_frequencies()
 
         self.int_to_mon = {}
         self.mon_to_int = {}
@@ -89,6 +113,34 @@ class MonomerNamesHelper:
                         mon_int = mon_res_int * 12 + meth_int * 6 + chir_int * 2 + is_pks_hybrid_int
                         self.mon_to_int[mon] = MonCode(mon_int)
                         self.int_to_mon[MonCode(mon_int)] = mon
+
+    def _set_default_frequencies(self):
+        """
+        Set the default frequencies for residues, methylation, and D-chirality.
+        """
+        parsed_monomers_cnts: Dict[NRP_Monomer, int] = {}
+        for monomer_name, cnt in self.norine_monomer_cnts.items():
+            parsed_monomer = self.parsed_name(monomer_name, name_format='norine')
+            parsed_monomers_cnts[parsed_monomer] = parsed_monomers_cnts.get(parsed_monomer, 0) + cnt
+
+        total_monomers = sum(parsed_monomers_cnts.values())
+        total_methylated = sum(cnt for monomer, cnt in parsed_monomers_cnts.items()
+                               if monomer.methylated)
+        total_d_chirality = sum(cnt for monomer, cnt in parsed_monomers_cnts.items()
+                                if monomer.chirality == Chirality.D)
+        norine_methylation_freq = Prob(total_methylated / total_monomers)
+        norine_d_chirality_freq = Prob(total_d_chirality / total_monomers)
+
+        nerpa_residue_cnts: Dict[MonomerResidue, int] = {}
+        for mon, cnt in parsed_monomers_cnts.items():
+            nerpa_residue_cnts[mon.residue] = nerpa_residue_cnts.get(mon.residue, 0) + cnt
+
+        residue_freqs = {residue: Prob(cnt / total_monomers)
+                         for residue, cnt in nerpa_residue_cnts.items()}
+
+        self.default_frequencies = MonomersDefaultFrequencies(residue=residue_freqs,
+                                                              methylation=norine_methylation_freq,
+                                                              d_chirality=norine_d_chirality_freq)
 
     @classmethod
     def parsed_modifications(cls, mods_str: str) -> Tuple[NRP_Monomer_Modification, ...]:
@@ -121,10 +173,17 @@ class MonomerNamesHelper:
         if name == 'NMe-bMe-Leu/diMe-aIle':
             name = 'NMe-Leu'
 
-        if name_format == 'norine' and name.startswith('X'):
-            return UNKNOWN_MONOMER
-        if name_format == 'norine' and name in self.pks_names:
-            return PKS_MONOMER
+        chirality = Chirality.UNKNOWN
+        if name_format == 'norine':
+            if name.startswith('X'):
+                return UNKNOWN_MONOMER
+            if name in self.pks_names:
+                return PKS_MONOMER
+            if name.startswith('D-'):
+                chirality = Chirality.D
+                name = name[2:]
+            else:
+                chirality = Chirality.L
 
         column_name = 'as_short' if name_format == 'antismash' else 'norine_rban_code'
 
@@ -137,7 +196,7 @@ class MonomerNamesHelper:
 
         self._cache[(name, name_format)] = NRP_Monomer(residue=residue,
                                                        methylated=NRP_Monomer_Modification.METHYLATION in self.parsed_modifications(row['modifications']),
-                                                       chirality=Chirality.UNKNOWN)
+                                                       chirality=chirality)
         return self._cache[(name, name_format)]
 
 

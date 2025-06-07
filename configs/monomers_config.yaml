@@ -1,13 +1,18 @@
 monomer_names_table: data/monomer_names_table.tsv
+norine_monomers_cnts: data/norine_monomers_cnts.yaml  # used to compute null hypothesis scores
 pks_names: []
 #supported_residues: ['Aad', 'Abu', 'Ala', 'Arg', 'Asn', 'Asp', 'Bmt', 'Bza', 'Cys', 'Dab',
 #'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hiv', 'Hpg', 'Hse', 'Hty', 'Ile',
 #'Iva', 'Kyn', 'Lac', 'Leu', 'Lys', 'Orn', 'Pen', 'Phe', 'Pip', 'Pro',
 #'Ser', 'Thr', 'Trp', 'Tyr', 'Val', 'aIle', 'aThr', 'bAla', 'bLys',
 #'dHpg', 'oxoDec', 'unknown']  # nerpa supported residues (42)
-supported_residues: ['Aad', 'Aib', 'Ala', 'Ant', 'Arg',
+
+# We started with paras supported core residues
+# collapsed some into simpler names: [('D-Ala', 'Ala'), ('2,3-dohBza', 'Bza'), ('fohOrn', 'Orn'), ('ohOrn', 'Orn'), ('R-ohTyr', 'Tyr')]
+# and removed Ant and Sal, as they were absent in norine
+supported_residues: ['Aad', 'Aib', 'Ala', 'Arg',
                      'Asn', 'Asp', 'Bza', 'Cys', 'Dab',
                      'Gln', 'Glu', 'Gly', 'His', 'Hpg',
                      'Ile', 'Leu', 'Lys', 'Orn', 'Phe',
-                     'Pip', 'Pro', 'Sal', 'Ser', 'Thr',
-                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg','unknown']  # paras supported core residues (30 + unknown)
+                     'Pip', 'Pro', 'Ser', 'Thr',
+                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg','unknown']
