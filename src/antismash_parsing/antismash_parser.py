@@ -29,7 +29,6 @@ from src.monomer_names_helper import (
 )
 from parse import parse
 from collections import defaultdict
-from src.antismash_parsing.determine_modifications import ends_with_pcp_pcp, get_iterative_genes_orphan_c
 from src.pipeline.logger import NerpaLogger
 
 
