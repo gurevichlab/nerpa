@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Dict, Optional
 
 import yaml
@@ -22,16 +23,47 @@ def edge_params_to_yaml(edge_params: Dict[DetailedHMMEdgeType,
     return edge_params_yaml
 
 
+def create_new_configs(old_configs_dir: Path,
+                          config_updates_dir: Path,
+                          new_configs_dir: Path):
+     for old_config_path in old_configs_dir.glob('*.yaml'):
+        old_config = yaml.safe_load(old_config_path.read_text())
+        new_config = old_config.copy()
+
+        update_path = config_updates_dir / old_config_path.name
+        updates = yaml.safe_load(update_path.read_text()) \
+            if update_path.exists() else {}
+
+        new_config.update(updates)
+
+        new_config_path = new_configs_dir / old_config_path.name
+        write_yaml(new_config, new_config_path)
+
+
 def write_params(edge_params,
-                 emission_params: Optional[EmissionParams],
+                 emission_params: EmissionParams,
                  data_for_training: DataForTraining,
-                 output_dir):
+                 old_configs_dir: Path,
+                 output_dir: Path):
     output_dir.mkdir(exist_ok=True, parents=True)
     write_yaml(data_for_training, output_dir / 'data_for_training.yaml')
 
-    if edge_params is not None:
-        yaml.dump(edge_params_to_yaml(edge_params),
-                  (output_dir / 'edge_params.yaml').open('w'))
-    if emission_params is not None:
-        write_yaml(emission_params._asdict(), output_dir / 'emission_params.yaml')
-    print(f'Edge and emission params written to {output_dir}')
+    config_updates_dir = output_dir / 'config_updates'
+    config_updates_dir.mkdir(exist_ok=True, parents=True)
+
+    write_yaml({'CALIBRATION_STEP_FUNCTION_STEPS_PARAS': emission_params.step_function},
+               config_updates_dir / 'specificity_prediction_config.yaml')
+    hmm_scoring_config = {
+        'emission_parameters': {
+            'modification_frequencies': emission_params.modifications_frequences
+        },
+        'edge_weight_parameters': edge_params_to_yaml(edge_params)
+    }
+    write_yaml(hmm_scoring_config, config_updates_dir / 'hmm_scoring_config.yaml')
+
+    new_configs_dir = output_dir / 'new_configs'
+    new_configs_dir.mkdir(exist_ok=True, parents=True)
+
+    create_new_configs(old_configs_dir,
+                       config_updates_dir,
+                       new_configs_dir)

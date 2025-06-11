@@ -114,7 +114,7 @@ def main():
     monomer_names_cfg = nerpa_dir / 'configs/monomers_config.yaml'
     monomer_names_helper = load_monomer_names_helper(monomer_names_cfg, nerpa_dir)
     hmm_config_file = nerpa_dir / 'configs/hmm_scoring_config.yaml'
-    hmm_scoring_config = load_hmm_scoring_config(hmm_config_file)
+    hmm_scoring_config = load_hmm_scoring_config(hmm_config_file, monomer_names_helper)
     hmm_helper = HMMHelper(hmm_scoring_config, monomer_names_helper)
 
     print('Loading approved matches')
@@ -161,6 +161,7 @@ def main():
     write_params(edge_params=edge_params,
                  emission_params=emission_params,
                  data_for_training=data_for_training,
+                 old_configs_dir=nerpa_dir / 'configs',
                  output_dir=args.output_dir)
 
 
