@@ -3,6 +3,7 @@ from collections import Counter, defaultdict
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import create_step_function
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
+from src.matching.hmm_auxiliary_types import DetailedHMMStateType
 from src.training.hmm_parameters.step_function import (
     create_bins,
     fit_step_function_to_bins,
@@ -15,7 +16,7 @@ from src.data_types import (
     BGC_Module,
     BGC_Module_Modification
 )
-from src.training.hmm_parameters.training_types import MatchEmissionInfo
+from src.training.hmm_parameters.training_types import EmissionInfo
 from src.training.hmm_parameters.norine_stats import NorineStats
 
 from pathlib import Path
@@ -24,15 +25,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_score_correctness(emissions: List[MatchEmissionInfo]) -> List[Tuple[LogProb, bool]]:
+def get_score_correctness(emissions: List[EmissionInfo]) -> List[Tuple[LogProb, bool]]:
     score_correctness = []
-    for bgc_id, bgc_module, nrp_monomer in emissions:
+    for bgc_id, bgc_module, nrp_monomer, state_type in emissions:
+        if state_type != DetailedHMMStateType.MATCH:
+            continue
         for predicted_residue, score in bgc_module.residue_score.items():
             score_correctness.append((score, predicted_residue == nrp_monomer.residue))
             # TODO: check that PKS-hybrids are handled correctly
     return score_correctness
 
-def fit_step_function(emissions: List[MatchEmissionInfo],
+def fit_step_function(emissions: List[EmissionInfo],
                       num_bins: int,
                       step_range: int,
                       output_dir: Path) -> List[float]:
@@ -101,10 +104,23 @@ def get_modifications_scores(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
             for nrp in (True, False)}
 
 
-def get_unknown_because_pks_prob(emissions: List[MatchEmissionInfo],
+def get_insert_unknown_prob(emissions: List[EmissionInfo]) -> Prob:
+    insert_emissions = [emission
+                        for emission in emissions
+                        if emission.state_type in (DetailedHMMStateType.INSERT,
+                                                   DetailedHMMStateType.INSERT_AT_START,
+                                                   DetailedHMMStateType.INSERT_AT_END)]
+    num_insert_unknown = sum(1 for emission in insert_emissions
+                             if emission.nrp_monomer.residue == UNKNOWN_RESIDUE)
+    return num_insert_unknown / len(insert_emissions) if insert_emissions else 0.0
+
+
+def get_unknown_because_pks_prob(emissions: List[EmissionInfo],
                                  step_function_steps: List[float]) -> Prob:
-    emissions_with_pks = [emission for emission in emissions
-                          if ModuleGenomicContextFeature.PKS_DOWNSTREAM in emission.bgc_module.genomic_context]
+    emissions_with_pks = [emission
+                          for emission in emissions
+                          if (emission.state_type == DetailedHMMStateType.MATCH and
+                              ModuleGenomicContextFeature.PKS_DOWNSTREAM in emission.bgc_module.genomic_context)]
     calibration_function = create_step_function(step_function_steps)
     unknown_preds_correctness =[(calibration_function(emission.bgc_module.residue_score[UNKNOWN_RESIDUE]),
                                  emission.nrp_monomer.residue == UNKNOWN_RESIDUE)
@@ -184,11 +200,12 @@ class EmissionParams(NamedTuple):
     step_function: List[float]
     modifications_frequences: Dict[str, Dict[str, Prob]]  # (modification_type -> (BGC_{True/False}_NRP_{True/False} -> frequency))
     unknown_because_pks_prob: Prob
+    insert_unknown_prob: Prob  # probability of inserting UNKNOWN residue
     default_modifications_frequencies: Dict[str, Prob]  # default frequencies for modifications, used for score normalization
     default_residue_frequencies: Dict[str, Prob]  # default probabilities for residues, used for score normalization
 
 
-def infer_emission_params(emissions: List[MatchEmissionInfo],
+def infer_emission_params(emissions: List[EmissionInfo],
                           norine_stats: NorineStats,
                           output_dir: Path,
                           monomer_names_helper: MonomerNamesHelper) -> EmissionParams:
@@ -197,10 +214,11 @@ def infer_emission_params(emissions: List[MatchEmissionInfo],
                                       output_dir)  # TODO: put in config
 
     print('Calculating modifications frequencies...')
-    emissions_ = [(bgc_module, nrp_monomer.to_base_mon())
-                  for bgc_info, bgc_module, nrp_monomer in emissions]
+    match_emissions_ = [(bgc_module, nrp_monomer.to_base_mon())
+                  for bgc_info, bgc_module, nrp_monomer, state_type in emissions
+                  if state_type == DetailedHMMStateType.MATCH]
     #modifications_scores = get_modifications_scores(emissions_, default_freqs)
-    modification_frequencies = get_modifications_frequencies(emissions_)
+    modification_frequencies = get_modifications_frequencies(match_emissions_)
 
     default_mod_freqs = {'METHYLATION': norine_stats.methylated / norine_stats.total_monomers,
                          'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
@@ -213,9 +231,11 @@ def infer_emission_params(emissions: List[MatchEmissionInfo],
 
     print('Calculating PKS probability...')
     unknown_because_pks_prob = get_unknown_because_pks_prob(emissions, step_function)
+    insert_unknown_prob = get_insert_unknown_prob(emissions)
 
     return EmissionParams(step_function=step_function,
                           modifications_frequences=modification_frequencies,
                           default_modifications_frequencies=default_mod_freqs,
                           default_residue_frequencies=default_residue_freqs,
-                          unknown_because_pks_prob=unknown_because_pks_prob)
+                          unknown_because_pks_prob=unknown_because_pks_prob,
+                          insert_unknown_prob=insert_unknown_prob)

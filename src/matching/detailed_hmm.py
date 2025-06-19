@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from copy import deepcopy
 from typing import (
     ClassVar,
     Dict,
@@ -30,6 +32,7 @@ from src.matching.hmm_auxiliary_types import (
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.build_output.draw_hmm import draw_hmm
 from src.matching.p_values_estimation import PValueEstimator
+from src.monomer_names_helper import Chirality
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 from src.matching.viterbi_algorithm import get_opt_path_with_score
@@ -59,6 +62,7 @@ class DetailedHMM:
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
     _hmm: Optional[HMM] = None
+    _hmm_wo_unk_chir: Optional[HMM] = None  # HMM without emissions corresponding to monomers with unknown chirality
     _p_value_estimator: Optional[PValueEstimator] = None
 
 
@@ -96,6 +100,25 @@ class DetailedHMM:
                         bgc_variant_id=self.bgc_variant.bgc_variant_id)
         return self._hmm
 
+    def to_hmm_wo_unk_chir(self) -> HMM:
+        """
+        Returns the HMM without emissions
+        corresponding to monomers with unknown chirality.
+        This ensures that emission weights corresponding to a proper probability distribution
+        """
+        if self._hmm_wo_unk_chir is not None:
+            return self._hmm_wo_unk_chir
+        hmm = deepcopy(self.to_hmm())
+        for i, emissions in enumerate(hmm.emissions):
+            for j, emission in enumerate(emissions):
+                mon: NRP_Monomer = self.hmm_helper.monomer_names_helper.int_to_mon[j]
+                if mon.chirality == Chirality.UNKNOWN:
+                    # Remove the 'UNK' character from emissions
+                    hmm.emissions[i][j] = LogProb(float('-inf'))  # or some other value indicating no emission
+
+        self._hmm_wo_unk_chir = hmm
+        return hmm
+
     def get_p_value(self, score: LogProb) -> float:
         if self._p_value_estimator is None:
             self._p_value_estimator = PValueEstimator(self.to_hmm())
@@ -109,7 +132,7 @@ class DetailedHMM:
         Precompute p-value estimators for a list of DetailedHMMs in parallel.
         This method is useful for speeding up p-value estimation when many DetailedHMMs are used.
         """
-        hmms = [detailed_hmm.to_hmm() for detailed_hmm in detailed_hmms]
+        hmms = [detailed_hmm.to_hmm_wo_unk_chir() for detailed_hmm in detailed_hmms]
         estimators = PValueEstimator.precompute_p_value_estimators_for_hmms(hmms, num_threads)
         for detailed_hmm, estimator in zip(detailed_hmms, estimators):
             detailed_hmm._p_value_estimator = estimator
