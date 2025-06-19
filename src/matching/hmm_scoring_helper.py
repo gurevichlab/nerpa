@@ -110,15 +110,37 @@ class HMMHelper:
         return {nrp_monomer: self.match(bgc_module, nrp_monomer, pks_domains_in_bgc)
                 for nrp_monomer in self.monomer_names_helper.mon_to_int}
 
+    # TODO: precompute once and cache
     def get_insert_emissions(self,
                              bgc_module: BGC_Module,
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        return {nrp_monomer: 0 for nrp_monomer in self.monomer_names_helper.mon_to_int}
+        emission_scores = {}
+        insert_unknown_prob = 0.77  # TODO: make this configurable
+        for nrp_monomer in self.monomer_names_helper.mon_to_int:
+            # If the monomer is a PKS hybrid, we treat it as an unknown residue
+            if nrp_monomer.is_pks_hybrid:
+                _nrp_monomer = NRP_Monomer(residue=UNKNOWN_RESIDUE,
+                                          chirality=nrp_monomer.chirality,
+                                          methylated=nrp_monomer.methylated,
+                                          is_pks_hybrid=False)
+                detailed_score = self.scoring_config.monomer_detailed_default_score[_nrp_monomer]
+            else:
+                detailed_score = self.scoring_config.monomer_detailed_default_score[nrp_monomer]
+            if nrp_monomer.residue == UNKNOWN_RESIDUE:
+                new_res_score = math.log(insert_unknown_prob)
+            else:
+                new_res_score = math.log(1 - insert_unknown_prob) + detailed_score.residue_score
+
+            emission_scores[nrp_monomer] = (new_res_score
+                                            + detailed_score.methylation_score
+                                            + detailed_score.chirality_score)
+
+        return emission_scores
 
     def get_insert_at_start_emissions(self,
                                       bgc_module: BGC_Module,
                                       pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        return {nrp_monomer: 0 for nrp_monomer in self.monomer_names_helper.mon_to_int}
+        return self.get_insert_emissions(bgc_module, pks_domains_in_bgc)
 
     def get_edge_weights(self, hmm) -> Dict[Tuple[int, int], LogProb]:
         return get_edge_weights(hmm, self.scoring_config)

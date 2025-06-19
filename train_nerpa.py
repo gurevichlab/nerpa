@@ -2,11 +2,12 @@ from typing import List, Dict, Optional, Set
 from pathlib import Path
 import yaml
 
+from src.matching.hmm_auxiliary_types import DetailedHMMStateType
 from src.matching.match_type import Match
 from src.config import load_monomer_names_helper
 from src.training.hmm_parameters.fix_match import fix_match, fix_bgc_variant, bgc_variant_match_compatible
 from src.training.hmm_parameters.hmm_infer_edge_params import infer_edge_params
-from src.training.hmm_parameters.training_types import MatchWithBGCNRP, MatchEmissionInfo
+from src.training.hmm_parameters.training_types import MatchWithBGCNRP, EmissionInfo
 from src.training.hmm_parameters.extract_data_for_training import extract_data_for_training
 from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission_params
 from src.training.hmm_parameters.norine_stats import load_norine_stats
@@ -76,8 +77,8 @@ def load_bgc_variants_for_matches(matches: List[Match],
     return nrp_id_to_bgc_variant
 
 def dump_emissions_training_data(data_for_training: DataForTraining, output_dir: Path):
-    def emission_dict(emission_info: MatchEmissionInfo) -> dict:
-        bgc_id, bgc_module, nrp_monomer = emission_info
+    def emission_dict(emission_info: EmissionInfo) -> dict:
+        bgc_id, bgc_module, nrp_monomer, state_type = emission_info
         return {'genome': bgc_id.genome_id,
                 'gene': bgc_module.gene_id,
                 'a_domain': bgc_module.a_domain_idx,
@@ -89,7 +90,8 @@ def dump_emissions_training_data(data_for_training: DataForTraining, output_dir:
     output_dir.mkdir(parents=True, exist_ok=True)
     with open(output_dir / 'match_emissions.yaml', 'w') as match_emissions_file:
         yaml.dump([emission_dict(emission_info)
-                   for emission_info in data_for_training.match_emissions],
+                   for emission_info in data_for_training.emissions
+                   if emission_info.state_type == DetailedHMMStateType.MATCH],
                   match_emissions_file)
 
 
@@ -154,7 +156,7 @@ def main():
     norine_stats = load_norine_stats(nerpa_dir / 'data/norine_monomers_info.yaml')
     edge_params = infer_edge_params(data_for_training.edge_choices_cnts)
 
-    emission_params = infer_emission_params(data_for_training.match_emissions,
+    emission_params = infer_emission_params(data_for_training.emissions,
                                             norine_stats,
                                             args.output_dir,
                                             monomer_names_helper)  # for plotting step function

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import (
     Dict,
     Iterable,
@@ -5,6 +6,8 @@ from typing import (
     Optional,
     Tuple, NamedTuple
 )
+
+from src import write_results
 from src.data_types import (
     BGC_ID,
     BGC_Variant,
@@ -203,10 +206,15 @@ def get_hmm_matches(hmms: List[DetailedHMM],
                     matching_cfg: MatchingConfig,
                     num_threads: int = 1,
                     log: Optional[NerpaLogger] = None) -> List[HMM_Match]:
+    debug = True
     matches = get_all_hmm_matches(hmms, nrp_linearizations, matching_cfg, num_threads, log)
 
     if log is not None:
         log.info('Matches obtained.')
+        
+    if debug:
+        write_results.draw_hmms_with_optimal_paths(hmms, matches,
+                                                   Path('/home/ilianolhin/git/nerpa2/hmms'))
 
 
     if log is not None:

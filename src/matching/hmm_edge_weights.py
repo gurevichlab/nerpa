@@ -1,3 +1,4 @@
+from itertools import pairwise
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
 from src.data_types import Prob, LogProb
@@ -45,6 +46,28 @@ def get_edge_weights(hmm,
                 f'Edge context {edge_context} for {edge_type} not found in edge weights config'
             edge_weights[(u, v)] = edge_weights_cfg[edge_type][edge_context]
 
+    # Move total weights of non-branching paths to the first edge in the path
+    # this is done to ensure that weights of transitions from each state correspond to a probability distribution
+    for u in range(len(hmm.states)):
+        if len(hmm.transitions[u]) > 1:
+            for v in hmm.transitions[u]:
+                if len(hmm.transitions[v]) != 1:
+                    continue
+                non_branching_path = [u, v]
+                w = v
+                while len(hmm.transitions[w]) == 1:
+                    edge_end = next(iter(hmm.transitions[w].keys()))
+                    non_branching_path.append(edge_end)
+                    w = edge_end
+
+                total_weight = sum(edge_weights[edge]
+                                   for edge in pairwise(non_branching_path))
+                # Move the total weight to the first edge in the path
+                edge_weights[(u, v)] = total_weight
+                for not_fst_edge in pairwise(non_branching_path)[1:]:
+                    edge_weights[not_fst_edge] = 0.0
+
+
 
     # determine edge weights for the dependent edge types
     for u in range(len(hmm.states)):
@@ -56,5 +79,16 @@ def get_edge_weights(hmm,
                                   for w in hmm.transitions[u]
                                   if w != v)
             edge_weights[(u, v)] = log(1 - sum_other_edges)
+
+    # Assert that all edge weights are valid log probabilities
+    eps = 1e-10  # small value to avoid numerical issues
+    for u in range(len(hmm.states)):
+        if len(hmm.transitions[u]) == 0:
+            continue
+        assert (all(edge_weights[(u, w)] <= 0.0 for w in hmm.transitions[u])
+                and
+                abs(1 - sum(e ** edge_weights[(u, w)] for w in hmm.transitions[u])) < eps), \
+            f'Not all edge weights for vertex {u} are valid log probabilities: ' \
+            f'{[edge_weights[(u, w)] for w in hmm.transitions[u]]}'
 
     return edge_weights

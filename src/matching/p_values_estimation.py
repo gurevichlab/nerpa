@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from math import e
 from typing import List, Tuple, Dict, NamedTuple, NewType
 from src.data_types import LogProb, Prob
 from src.matching.detailed_hmm import StateIdx
@@ -10,8 +12,8 @@ from joblib import Parallel, delayed
 DiscreteProb = NewType('DiscreteProb', int)
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
-MAX_DISCRETE_PROB = DiscreteProb(100)
 MIN_DISCRETE_PROB = DiscreteProb(0)
+MAX_DISCRETE_PROB = DiscreteProb(100)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
 LOG_PROB_MIN_VALUE = LogProb(-20)
@@ -112,14 +114,20 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
     the score to_log_prob(k) or higher in the HMM. One path with exactly that score
     is not counted in the probability.
     """
-    assert all(edge_weight <= LogProb(0)
-               for edges in hmm.transitions
-               for _, edge_weight in edges), \
-        "All transition probabilities must be non-positive (log probabilities)."
-    assert all(emission_prob <= LogProb(0)
-                for emissions in hmm.emissions
-                for emission_prob in emissions), \
-        "All emission probabilities must be non-positive (log probabilities)."
+    eps = 1e-5  # Small value to avoid numerical issues
+    u = next((u
+             for u, edges in enumerate(hmm.transitions)
+             if edges and abs(sum(e ** transition_lp for _, transition_lp in edges) - 1) > eps),
+            None)
+    if u is not None:
+        raise ValueError(f"HMM {hmm.bgc_variant_id} invalid: transition probabilities for the state {u} do not sum to 1.")
+    u = next((u
+              for u, emissions in enumerate(hmm.emissions)
+              if emissions and abs(sum(e ** emission_lp for emission_lp in emissions) - 1) > eps),
+             None)
+    if u is not None:
+        raise ValueError(f"HMM {hmm.bgc_variant_id} invalid: emission probabilities for the state {u} do not sum to "
+                         f"{sum(e ** emission_lp for emission_lp in hmm.emissions[u])} instead of 1.")
 
     num_states = len(hmm.transitions)
     initial_state = 0
@@ -127,7 +135,7 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
 
     # dp[state, discrete_prob] = number of paths ending at the state 'state' and
     # having discretized probability 'discrete_prob'
-    dp = np.zeros((num_states, MAX_DISCRETE_PROB + 1), dtype=int)
+    dp = np.zeros((num_states, MAX_DISCRETE_PROB + 1), dtype=np.int64)
 
     dp[initial_state, MAX_DISCRETE_PROB] = 1
 
@@ -142,6 +150,10 @@ def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
 
             number_of_paths = dp[state, disc_prob]
             path_lp = to_log_prob(DiscreteProb(disc_prob))
+            assert number_of_paths * e ** path_lp <= 1, \
+                (f"Error while computing p-values for HMM {hmm.bgc_variant_id}\n"
+                 f"Number of paths {number_of_paths} with log probability {path_lp} is too large.\n"
+                 f"number_of_paths * e**path_lp = {number_of_paths * e ** path_lp} > 1.")
 
             # Process each outgoing transition
             for next_state, transition_lp in hmm.transitions[state]:

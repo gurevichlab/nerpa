@@ -19,10 +19,10 @@ from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.training.hmm_parameters.training_types import (
     MatchWithBGCNRP,
     DataForTraining,
-    MatchEmissionInfo,
+    EmissionInfo,
     ExtendedEdgeKey,
     EdgeInfo,
-    PathTurnInfo, ChoicesCnts, MatchEmissionKey,
+    PathTurnInfo, ChoicesCnts, EmissionKey,
 )
 from src.training.hmm_parameters.filter_edge_data import get_filtered_edge_choices
 from itertools import pairwise
@@ -32,32 +32,37 @@ PathWithEmissions = List[Tuple[StateIdx, Optional[rBAN_Monomer]]]
 
 def get_emissions_for_match(detailed_hmm: DetailedHMM,
                             path_with_emissions: PathWithEmissions) \
-        -> List[MatchEmissionInfo]:
+        -> List[EmissionInfo]:
     """
-    Get the emissions for each match state in the path
+    Get the emissions in the path
     """
     emissions = []
     match_state_idx_to_module_idx = {state_idx: module_idx
                                      for module_idx, state_idx in enumerate(detailed_hmm._module_idx_to_match_state_idx)}
 
     for state_idx, emission in path_with_emissions:
-        if detailed_hmm.states[state_idx].state_type == DetailedHMMStateType.MATCH:
-            module_idx = match_state_idx_to_module_idx[state_idx]
-            bgc_module = detailed_hmm.bgc_variant.modules[module_idx]
-            emissions.append(MatchEmissionInfo(bgc_id=detailed_hmm.bgc_variant.bgc_variant_id.bgc_id,
-                                               bgc_module=bgc_module,
-                                               nrp_monomer=emission))
+        state_type = detailed_hmm.states[state_idx].state_type
+        if emission is not None:
+            if state_type == DetailedHMMStateType.MATCH:
+                module_idx = match_state_idx_to_module_idx[state_idx]
+                bgc_module = detailed_hmm.bgc_variant.modules[module_idx]
+            else:
+                bgc_module = None
+            emissions.append(EmissionInfo(bgc_id=detailed_hmm.bgc_variant.bgc_variant_id.bgc_id,
+                                          bgc_module=bgc_module,
+                                          nrp_monomer=emission,
+                                          state_type=state_type))
     return emissions
 
 
 def get_emissions(hmms_with_paths_with_emissions: List[Tuple[DetailedHMM, PathWithEmissions]]) \
-        -> List[MatchEmissionInfo]:
+        -> List[EmissionInfo]:
     emissions = []
     seen_emissions = set()
     for detailed_hmm, path_with_emissions in hmms_with_paths_with_emissions:
         new_emissions = get_emissions_for_match(detailed_hmm, path_with_emissions)
         for emission in new_emissions:
-            emission_key = MatchEmissionKey.from_match_emission_info(emission)
+            emission_key = EmissionKey.from_emission_info(emission)
             if emission_key not in seen_emissions:
                 seen_emissions.add(emission_key)
                 emissions.append(emission)
@@ -172,7 +177,7 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
                                                                         hmm_helper,
                                                                         dir_for_hmm_figures)
     turns_info = get_turns_info(hmms_with_paths_with_emissions)
-    match_emissions = get_emissions(hmms_with_paths_with_emissions)
+    emissions = get_emissions(hmms_with_paths_with_emissions)
 
     edge_choices = turns_info_to_edge_choices(turns_info)
     filtered_edge_choices = get_filtered_edge_choices(edge_choices)
@@ -184,5 +189,5 @@ def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
             chosen_edges_occurrences[edge_info.edge_type][edge_info.genomic_context].append(bgc_id)
 
     return DataForTraining(edge_choices_cnts=filtered_edge_choices_cnts,
-                           match_emissions=match_emissions,
+                           emissions=emissions,
                            chosen_edges_occurrences=chosen_edges_occurrences)

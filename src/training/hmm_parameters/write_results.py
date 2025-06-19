@@ -46,7 +46,8 @@ def write_params(edge_params,
                  old_configs_dir: Path,
                  output_dir: Path):
     output_dir.mkdir(exist_ok=True, parents=True)
-    write_yaml(data_for_training, output_dir / 'data_for_training.yaml')
+    write_yaml(data_for_training.to_dict(), output_dir / 'data_for_training.yaml')
+    write_yaml(emission_params._asdict(), output_dir / 'emission_params.yaml')
 
     config_updates_dir = output_dir / 'config_updates'
     config_updates_dir.mkdir(exist_ok=True, parents=True)
