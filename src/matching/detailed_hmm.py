@@ -27,7 +27,7 @@ from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdge,
     HMM,
     StateIdx,
-    GenomicContext
+    GenomicContext, HMM_wo_unk_chir
 )
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.build_output.draw_hmm import draw_hmm
@@ -62,7 +62,7 @@ class DetailedHMM:
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
     _hmm: Optional[HMM] = None
-    _hmm_wo_unk_chir: Optional[HMM] = None  # HMM without emissions corresponding to monomers with unknown chirality
+    _hmm_wo_unk_chir: Optional[HMM_wo_unk_chir] = None  # HMM without emissions corresponding to monomers with unknown chirality
     _p_value_estimator: Optional[PValueEstimator] = None
 
 
@@ -100,7 +100,7 @@ class DetailedHMM:
                         bgc_variant_id=self.bgc_variant.bgc_variant_id)
         return self._hmm
 
-    def to_hmm_wo_unk_chir(self) -> HMM:
+    def to_hmm_wo_unk_chir(self) -> HMM_wo_unk_chir:
         """
         Returns the HMM without emissions
         corresponding to monomers with unknown chirality.
@@ -116,8 +116,8 @@ class DetailedHMM:
                     # Remove the 'UNK' character from emissions
                     hmm.emissions[i][j] = LogProb(float('-inf'))  # or some other value indicating no emission
 
-        self._hmm_wo_unk_chir = hmm
-        return hmm
+        self._hmm_wo_unk_chir = HMM_wo_unk_chir(hmm)
+        return self._hmm_wo_unk_chir
 
     def get_p_value(self, score: LogProb) -> float:
         if self._p_value_estimator is None:

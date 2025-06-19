@@ -4,7 +4,7 @@ from math import e
 from typing import List, Tuple, Dict, NamedTuple, NewType
 from src.data_types import LogProb, Prob
 from src.matching.detailed_hmm import StateIdx
-from src.matching.hmm_auxiliary_types import HMM
+from src.matching.hmm_auxiliary_types import HMM, HMM_wo_unk_chir
 import numpy as np
 from numpy.typing import NDArray
 from joblib import Parallel, delayed
@@ -107,7 +107,7 @@ def to_log_prob(disc_prob: DiscreteProb) -> LogProb:
         return LogProb(log_prob)
 
 
-def compute_hmm_p_values(hmm: HMM) -> NDArray[np.float64]:
+def compute_hmm_p_values(hmm: HMM_wo_unk_chir) -> NDArray[np.float64]:
     """
     Returns an array p_values of length (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1).
     For each k, the element p_values[k] is the probability of finding a path with

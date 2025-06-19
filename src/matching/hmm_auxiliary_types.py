@@ -41,6 +41,7 @@ class HMM(NamedTuple):
             'module_match_states': self.module_match_states
         }
 
+HMM_wo_unk_chir = NewType('HMM_wo_unk_chir', HMM)
 
 class DetailedHMMStateType(Enum):
     INITIAL = auto()
