@@ -1,3 +1,4 @@
+import math
 from math import log
 from typing import (
     Dict,
@@ -146,6 +147,13 @@ def compute_monomers_default_detailed_score(default_freqs: MonomersDefaultFreque
                 monomer_default_score[monomer] = MatchDetailedScore(residue_score,
                                                                     methylation_score,
                                                                     chirality_score)
+
+    # assert that all scores sum to 1
+    total_score = sum(math.e ** (score.residue_score + score.methylation_score + score.chirality_score)
+                      for mon, score in monomer_default_score.items()
+                      if mon.chirality != Chirality.UNKNOWN)
+    assert math.isclose(total_score, 1.0), \
+        f'Total score of monomers default score is {total_score}, expected 1.0'
 
     return monomer_default_score
 

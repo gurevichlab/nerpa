@@ -116,6 +116,7 @@ class HMMHelper:
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
         emission_scores = {}
         insert_unknown_prob = 0.77  # TODO: make this configurable
+        known_residues_old_prob = 1 - self.monomer_names_helper.default_frequencies.residue[UNKNOWN_RESIDUE]
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
             # If the monomer is a PKS hybrid, we treat it as an unknown residue
             if nrp_monomer.is_pks_hybrid:
@@ -129,11 +130,19 @@ class HMMHelper:
             if nrp_monomer.residue == UNKNOWN_RESIDUE:
                 new_res_score = math.log(insert_unknown_prob)
             else:
-                new_res_score = math.log(1 - insert_unknown_prob) + detailed_score.residue_score
+                new_res_score = math.log(1 - insert_unknown_prob) + detailed_score.residue_score - math.log(known_residues_old_prob)
 
             emission_scores[nrp_monomer] = (new_res_score
                                             + detailed_score.methylation_score
                                             + detailed_score.chirality_score)
+
+        # assert that all scores sum to 1
+        total_score = sum(math.e ** score
+                          for mon, score in emission_scores.items()
+                          if mon.chirality != Chirality.UNKNOWN
+                          and not mon.is_pks_hybrid)
+        assert math.isclose(total_score, 1.0), \
+            f'Total score of insert emissions is {total_score}, expected 1.0'
 
         return emission_scores
 

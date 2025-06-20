@@ -13,27 +13,17 @@ DiscreteProb = NewType('DiscreteProb', int)
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
 MIN_DISCRETE_PROB = DiscreteProb(0)
-MAX_DISCRETE_PROB = DiscreteProb(100)
+MAX_DISCRETE_PROB = DiscreteProb(1000)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
 LOG_PROB_MIN_VALUE = LogProb(-20)
 LOG_PROB_MAX_VALUE = LogProb(0)
 
 
-class PValueComparisonResult(NamedTuple):
-    disc_prob: DiscreteProb  # Discretized probability
-    threshold_log_prob: LogProb  # Lof probability threshold
-    true_p_value: Prob  # True p-value
-    approx_p_value: Prob  # Approximate p-value
-    lower_bound_p_value: Prob  # Lower bound of p-value
-    upper_bound_p_value: Prob  # Upper bound of p-value
-    is_within_bounds: bool  # Whether the approximate p-value is within the bounds
-
-
 class PValueEstimator:
     _p_values: NDArray[np.float64]
 
-    def __init__(self, hmm: HMM):
+    def __init__(self, hmm: HMM_wo_unk_chir):
         self._p_values = compute_hmm_p_values(hmm)
 
     def __call__(self, path_log_prob: LogProb) -> Prob:
@@ -69,21 +59,6 @@ class PValueEstimator:
         """
         p_values_list = cls._precompute_p_values_for_hmms(hmms, num_threads)
         return [PValueEstimator._from_precomputed_p_values(p_values) for p_values in p_values_list]
-
-def discretization_error(hmm: HMM) -> LogProb:
-    # Error of discretization of one transition or emission
-    single_error = 0.5 * (LOG_PROB_MAX_VALUE - LOG_PROB_MIN_VALUE + 1) / (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1)
-
-    # Longest path contains less than number of vertices transitions
-    transition_error = single_error * (len(hmm.transitions) - 1)
-
-    # Longest path also contains emissions
-    emission_error = 0.0
-    for state_emissions in hmm.emissions:
-        if state_emissions:
-            emission_error += single_error
-
-    return transition_error + emission_error
 
 
 def to_discrete_prob(log_prob: LogProb) -> DiscreteProb:
@@ -193,6 +168,32 @@ def compute_hmm_p_values(hmm: HMM_wo_unk_chir) -> NDArray[np.float64]:
     p_values = np.clip(p_values, 0.0, 1.0)
 
     return p_values
+
+
+class PValueComparisonResult(NamedTuple):
+    disc_prob: DiscreteProb  # Discretized probability
+    threshold_log_prob: LogProb  # Lof probability threshold
+    true_p_value: Prob  # True p-value
+    approx_p_value: Prob  # Approximate p-value
+    lower_bound_p_value: Prob  # Lower bound of p-value
+    upper_bound_p_value: Prob  # Upper bound of p-value
+    is_within_bounds: bool  # Whether the approximate p-value is within the bounds
+
+def discretization_error(hmm: HMM) -> LogProb:
+    # Error of discretization of one transition or emission
+    single_error = 0.5 * (LOG_PROB_MAX_VALUE - LOG_PROB_MIN_VALUE + 1) / (MAX_DISCRETE_PROB - MIN_DISCRETE_PROB + 1)
+
+    # Longest path contains less than number of vertices transitions
+    transition_error = single_error * (len(hmm.transitions) - 1)
+
+    # Longest path also contains emissions
+    emission_error = 0.0
+    for state_emissions in hmm.emissions:
+        if state_emissions:
+            emission_error += single_error
+
+    return transition_error + emission_error
+
 
 
 def get_all_paths_log_probs(hmm: HMM) -> List[LogProb]:

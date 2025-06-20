@@ -206,7 +206,7 @@ def get_hmm_matches(hmms: List[DetailedHMM],
                     matching_cfg: MatchingConfig,
                     num_threads: int = 1,
                     log: Optional[NerpaLogger] = None) -> List[HMM_Match]:
-    debug = True
+    debug = False
     matches = get_all_hmm_matches(hmms, nrp_linearizations, matching_cfg, num_threads, log)
 
     if log is not None:

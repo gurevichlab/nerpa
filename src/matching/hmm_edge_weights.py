@@ -1,4 +1,5 @@
-from itertools import pairwise
+from itertools import pairwise, islice
+from pathlib import Path
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
 from src.data_types import Prob, LogProb
@@ -7,7 +8,7 @@ from src.matching.hmm_scoring_config import HMMScoringConfig
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
 
-from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
+from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType, DetailedHMMEdge, DetailedHMMStateType
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature, ModuleGenomicContext
 from math import log, e
 
@@ -16,8 +17,8 @@ def get_edge_weights(hmm,
                      hmm_scoring_cfg: HMMScoringConfig) -> Dict[Tuple[int, int], float]:  # hmm: DetailedHMM
     # for brevity
     ET = DetailedHMMEdgeType
+    ST = DetailedHMMStateType
     MGF = ModuleGenomicContextFeature
-
     edge_weights_cfg = hmm_scoring_cfg.edge_weight_parameters
 
     # weights of the following edge types are determined based on the other edge types
@@ -33,40 +34,75 @@ def get_edge_weights(hmm,
         for u in range(len(hmm.states))
     )
 
+    def get_edge_weight(_edge_info: DetailedHMMEdge):
+        _edge_type = _edge_info.edge_type
+        _edge_context = tuple(feature for feature in _edge_info.genomic_context
+                             if feature in hmm_scoring_cfg.relevant_genomic_features[_edge_type])
+        assert _edge_type in edge_weights_cfg and _edge_context in edge_weights_cfg[_edge_type], \
+            f'Edge context {_edge_context} for {_edge_type} not found in edge weights config'
+        return edge_weights_cfg[_edge_type][_edge_context]
+
     edge_weights = {}
     for u in range(len(hmm.states)):
         for v, edge_info in hmm.transitions[u].items():
             edge_type = edge_info.edge_type
             if edge_type in dependent_edge_types:
-                continue
+                pass
+            elif edge_type in (ET.SKIP_MODULE,
+                               ET.SKIP_MODULE_AT_START,
+                               ET.SKIP_MODULE_AT_END):
+                    edge_weights[(u, v)] = 0.0  # penalties for skipping modules are added later
+            else:
+                edge_weights[(u, v)] = get_edge_weight(edge_info)
 
-            edge_context = tuple(feature for feature in edge_info.genomic_context
-                                 if feature in hmm_scoring_cfg.relevant_genomic_features[edge_type])
-            assert edge_type in edge_weights_cfg and edge_context in edge_weights_cfg[edge_type], \
-                f'Edge context {edge_context} for {edge_type} not found in edge weights config'
-            edge_weights[(u, v)] = edge_weights_cfg[edge_type][edge_context]
-
-    # Move total weights of non-branching paths to the first edge in the path
-    # this is done to ensure that weights of transitions from each state correspond to a probability distribution
+    # Accumulate skip-module penalties in the first edge of each skip-module path at start.
     for u in range(len(hmm.states)):
-        if len(hmm.transitions[u]) > 1:
-            for v in hmm.transitions[u]:
-                if len(hmm.transitions[v]) != 1:
-                    continue
-                non_branching_path = [u, v]
-                w = v
-                while len(hmm.transitions[w]) == 1:
-                    edge_end = next(iter(hmm.transitions[w].keys()))
-                    non_branching_path.append(edge_end)
-                    w = edge_end
+        if any(edge.edge_type == ET.START_MATCHING   # start of fragment skip at start
+               for edge in hmm.transitions[u].values()):
+            v = next((v for v in hmm.transitions[u]
+                      if hmm.transitions[u][v].edge_type in (ET.START_SKIP_MODULES_AT_START,
+                                                             ET.SKIP_MODULE_AT_START)),
+                     None)
+            if v is None:  # no more skip modules at start possible
+                continue
+            skip_path = [u, v]
+            while len(hmm.transitions[v]) == 1:
+                v = next(iter(hmm.transitions[v].keys()))
+                skip_path.append(v)
 
-                total_weight = sum(edge_weights[edge]
-                                   for edge in pairwise(non_branching_path))
-                # Move the total weight to the first edge in the path
-                edge_weights[(u, v)] = total_weight
-                for not_fst_edge in pairwise(non_branching_path)[1:]:
-                    edge_weights[not_fst_edge] = 0.0
+            print(f'Skip path at start: {skip_path}')
 
+            total_weight = sum(get_edge_weight(hmm.transitions[w1][w2])
+                               for w1, w2 in pairwise(skip_path))
+            # Move the total weight to the first edge in the path
+            edge_weights[(skip_path[0], skip_path[1])] = total_weight
+
+    # Accumulate skip-module penalties in the first edge of each skip-module path at end.
+    for u in range(len(hmm.states)):
+        v = next((v
+                 for v, edge_info in hmm.transitions[u].items()
+                 if edge_info.edge_type in (ET.END_MATCHING,
+                                            ET.SKIP_MODULE_END_MATCHING)),
+                 None)  # end of fragment skip at end):
+        if v is None:
+            continue
+
+        w = next(w
+                 for w, edge_info in hmm.transitions[v].items()
+                 if hmm.states[w].state_type == ST.END_INSERTING_AT_END)
+
+        skip_path = [w]
+        while hmm.states[skip_path[-1]].state_type != ST.FINAL:
+            assert len(hmm.transitions[skip_path[-1]]) == 1,\
+                f'Expected only one transition from {hmm.states[skip_path[-1]].state_type}({skip_path[-1]})'
+            skip_path.append(next(iter(hmm.transitions[skip_path[-1]].keys())))
+
+        print(f'Skip path at end: {skip_path}')
+
+        total_weight = sum(get_edge_weight(hmm.transitions[w1][w2])
+                           for w1, w2 in pairwise(skip_path))
+        # Move the total weight to the first edge in the path
+        edge_weights[(u, v)] += total_weight
 
 
     # determine edge weights for the dependent edge types
@@ -78,7 +114,12 @@ def get_edge_weights(hmm,
             sum_other_edges = sum(e ** edge_weights[(u, w)]
                                   for w in hmm.transitions[u]
                                   if w != v)
-            edge_weights[(u, v)] = log(1 - sum_other_edges)
+            try:
+                edge_weights[(u, v)] = log(1 - sum_other_edges)
+            except ValueError:
+                raise ValueError(f'Invalid log probability for edge ({u}, {v}): '
+                                 f'sum of other edges is {sum_other_edges}, '
+                                 f'edge weights: {[edge_weights[(u, w)] for w in hmm.transitions[u] if w != v]}')
 
     # Assert that all edge weights are valid log probabilities
     eps = 1e-10  # small value to avoid numerical issues
