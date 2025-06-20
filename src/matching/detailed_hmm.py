@@ -103,7 +103,7 @@ class DetailedHMM:
     def to_hmm_wo_unk_chir(self) -> HMM_wo_unk_chir:
         """
         Returns the HMM without emissions
-        corresponding to monomers with unknown chirality.
+        corresponding to monomers with unknown chirality or pks-hybrids.
         This ensures that emission weights corresponding to a proper probability distribution
         """
         if self._hmm_wo_unk_chir is not None:
@@ -112,7 +112,7 @@ class DetailedHMM:
         for i, emissions in enumerate(hmm.emissions):
             for j, emission in enumerate(emissions):
                 mon: NRP_Monomer = self.hmm_helper.monomer_names_helper.int_to_mon[j]
-                if mon.chirality == Chirality.UNKNOWN:
+                if mon.chirality == Chirality.UNKNOWN or mon.is_pks_hybrid:
                     # Remove the 'UNK' character from emissions
                     hmm.emissions[i][j] = LogProb(float('-inf'))  # or some other value indicating no emission
 
