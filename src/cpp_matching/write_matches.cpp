@@ -5,13 +5,16 @@
 #include "parsing/json.hpp"
 #include <algorithm>
 
-void write_matches_to_json(const std::vector<MatchInfo>& matches,
-                           const std::string& output_path)
+void write_output_to_json(const std::vector<MatchInfo>& matches,
+                          const std::unordered_map<BGC_Variant_ID, std::vector<double>>& p_values_vec,
+                          const std::string& output_path)
 {
     using json = nlohmann::json;
-    json j_out = json::array();
 
-    std::transform(matches.begin(), matches.end(), std::back_inserter(j_out), [](const auto& match) {
+    // 1. Convert matches to JSON format
+    json matches_json = json::array();
+
+    std::transform(matches.begin(), matches.end(), std::back_inserter(matches_json), [](const auto& match) {
         json linearizations_json;
         std::transform(match.linearizations.begin(), match.linearizations.end(), std::back_inserter(linearizations_json),
                        [](const auto& lin) { return lin.second; });
@@ -37,6 +40,29 @@ void write_matches_to_json(const std::vector<MatchInfo>& matches,
         }; // <-- Removed the extra semicolon here
     });
 
+    // 2. Convert p-values to JSON format
+    json p_values_json = json::array();
+    for (const auto& [bgc_variant_id, pvals] : p_values_vec) {
+        json bgc_variant_info = {
+                {"bgc_id", {
+                                   {"genome_id", genome_id(bgc_id(bgc_variant_id))},
+                                   {"contig_idx", contig_idx(bgc_id(bgc_variant_id))},
+                                   {"bgc_idx", bgc_idx(bgc_id(bgc_variant_id))}}},
+                {"variant_idx", variant_idx(bgc_variant_id)}
+        };
+        p_values_json.push_back({
+                                        {"bgc_variant_info", bgc_variant_info},
+                                        {"p_values", pvals}
+                                });
+    }
+
+    // 3. Combine matches and p-values into a single JSON object
+    json j_out = {
+            {"matches", matches_json},
+            {"p_values", p_values_json}
+    };
+
+    // 4. Write the JSON object to the output file
     std::ofstream ofs(output_path);
     if (!ofs.is_open()) {
         throw std::runtime_error("Failed to open output file: " + output_path);

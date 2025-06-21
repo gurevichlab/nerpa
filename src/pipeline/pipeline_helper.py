@@ -8,6 +8,7 @@ import yaml
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.generic.functional import timing_decorator
+from src.matching.p_values_estimation import PValueEstimator
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
     get_command_line_args,
@@ -135,7 +136,15 @@ class PipelineHelper:
         #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
         if self.args.fast_matching:
-            return self.pipeline_helper_cpp.get_hmm_matches(hmms, nrp_linearizations)
+            cpp_output = self.pipeline_helper_cpp.get_hmm_matches_and_p_values(hmms, nrp_linearizations)
+
+            # Set p-value estimators for hmms (TODO: that's ugly, it breaks encapsulation)
+            hmm_by_id = {hmm.bgc_variant.bgc_variant_id: hmm for hmm in hmms}
+            assert hmm_by_id.keys() == cpp_output.p_values_by_bgc_variant.keys(), \
+                "Mismatch in BGC variant IDs between HMMs and precomputed p-values"
+            for bgc_variant_id, p_values in cpp_output.p_values_by_bgc_variant.items():
+                hmm_by_id[bgc_variant_id]._p_value_estimator = PValueEstimator._from_precomputed_p_values(p_values)
+            return cpp_output.matches
         else:
             return get_hmm_matches(hmms,
                                    nrp_linearizations,

@@ -27,5 +27,8 @@
  * @param hmm_json_path path to the JSON file
  * @return an unordered_map<BGC_Info, HMM> keyed by BGC_Info
  */
-std::unordered_map<BGC_Variant_ID , HMM>
+std::pair<
+        std::unordered_map<BGC_Variant_ID , HMM>,
+        std::unordered_map<BGC_Variant_ID , HMM>
+>
 parse_hmms_from_json(const std::string& hmm_json_path);

@@ -40,6 +40,7 @@ struct NRP_Linearizations {
 
 // HMM data structure
 struct HMM {
+    BGC_Variant_ID  bgc_variant_id;
     // transitions[i]: vector of (next_state, log_prob)
     std::vector<std::vector<std::pair<StateIdx, LogProb>>> transitions;
     // emissions[i][j]: log probability of emitting monomer j from state i
