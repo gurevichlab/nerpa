@@ -7,6 +7,7 @@
 #include "parsing/parse_hmms.h"
 #include "parsing/parse_nrps.h"
 #include "matching/matcher.h"
+#include "p_values/p_values.h"
 #include "write_matches.h"
 
 int main(int argc, char** argv)
@@ -56,7 +57,7 @@ int main(int argc, char** argv)
     try {
         // 1. Parse input data (HMMs, BGC_Info)
         std::cout << "Parsing HMMs from " << hmms_json_path << std::endl;
-        auto hmms_map = parse_hmms_from_json(hmms_json_path);
+        auto [hmms_for_mathcing, hmms_for_p_value_estimation] = parse_hmms_from_json(hmms_json_path);
 
         // 2. Parse NRP linearizations + NRP IDs
         std::cout << "Parsing NRP linearizations from " << hmms_json_path << std::endl;
@@ -71,19 +72,32 @@ int main(int argc, char** argv)
 
         // 4. Call your matching function to get the final list of matches
         std::cout << "Matching " <<
-            hmms_map.size() << " HMMs against " <<
+            hmms_for_mathcing.size() << " HMMs against " <<
             nrp_linearizations.size() << " NRP linearizations in " <<
             num_threads << " threads...\n";
 
         auto start = std::chrono::high_resolution_clock::now(); // Start time
-        auto matches = get_matches(hmms_map, nrp_linearizations, matching_cfg, num_threads);
+        auto matches = get_matches(hmms_for_mathcing, nrp_linearizations, matching_cfg, num_threads);
         auto end = std::chrono::high_resolution_clock::now();   // End time
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         std::cout << "Matching took " << duration.count() / 1000.0 << " s" << std::endl;
 
-        // 5. Dump the resulting matches to an output JSON file
-        std::cout << "Writing matches to " << output_json_path << std::endl;
-        write_matches_to_json(matches, output_json_path);
+        // 5. Estimate p-values for the HMMs
+        std::cout << "Estimating p-values..." << std::endl;
+        start = std::chrono::high_resolution_clock::now(); // Start time
+        std::unordered_map<BGC_Variant_ID, std::vector<double>> p_values_by_hmm;
+        for (const auto& [bgc_variant_id, hmm] : hmms_for_p_value_estimation) {
+            p_values_by_hmm[bgc_variant_id] = compute_hmm_p_values(hmm);
+        }
+        end = std::chrono::high_resolution_clock::now();   // End time
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << "Estimated p-values for " << p_values_by_hmm.size() << " HMMs." << std::endl;
+        std::cout << "P-value estimation took " << duration.count() / 1000.0 << " s" << std::endl;
+
+
+        // 6. Dump the resulting matches to an output JSON file
+        std::cout << "Writing matches and p-values to " << output_json_path << std::endl;
+        write_output_to_json(matches, p_values_by_hmm, output_json_path);
 
         std::cout << "Done! Wrote " << matches.size() << " matches to "
                   << output_json_path << "\n";

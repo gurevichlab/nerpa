@@ -16,6 +16,7 @@ add_executable(hmm_nrp_matcher
         src/cpp_matching/parsing/parse_nrps.cpp
         src/cpp_matching/matching/matcher.cpp
         src/cpp_matching/matching/viterbi_algorithm.cpp
+        src/cpp_matching/p_values/p_values.cpp
         src/cpp_matching/write_matches.cpp
         )
 

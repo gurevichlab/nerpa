@@ -1,7 +1,7 @@
 from typing import (
     Dict,
     List,
-    Tuple
+    Tuple, NamedTuple
 )
 
 import yaml
@@ -15,7 +15,7 @@ from src.pipeline.logger import NerpaLogger
 from src.config import Config, load_config
 from src.data_types import (
     BGC_Variant,
-    NRP_Variant
+    NRP_Variant, BGC_Variant_ID
 )
 import src.pipeline.nerpa_utils as nerpa_utils
 from src.rban_parsing.rban_parser import (
@@ -43,6 +43,19 @@ import subprocess
 from dataclasses import dataclass
 
 
+class CppOutput(NamedTuple):
+    matches: List[HMM_Match]
+    p_values_by_bgc_variant: Dict[BGC_Variant_ID, List[float]]
+
+def reformat_json(json_str: str) -> str:
+    # Force newlines for lists
+    json_str = json_str.replace("[[", "[\n    [").replace("]]", "]\n]")
+    json_str = json_str.replace("], [", "],\n    [")
+    json_str = json_str.replace("}, {", "},\n    {")
+    json_str = json_str.replace(': {"', ': {\n"')
+    json_str = json_str.replace(', "', ',\n"')
+    return json_str
+
 @dataclass
 class PipelineHelperCpp:
     config: Config
@@ -52,16 +65,13 @@ class PipelineHelperCpp:
 
     def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
         out_file = self.config.output_config.cpp_io_config.hmms_json
-        data = [detailed_hmm.to_hmm().to_json() for detailed_hmm in detailed_hmms]
+        data = [{"bgc_variant_info": detailed_hmm.bgc_variant.bgc_variant_id.to_dict(),
+                 "hmm_for_matching": detailed_hmm.to_hmm().to_json(),
+                 "hmm_for_p_values_estimation": detailed_hmm.to_hmm_wo_unk_chir().to_json()}
+                for detailed_hmm in detailed_hmms]
+
+        #pretty_json = reformat_json(json.dumps(data))
         pretty_json = json.dumps(data)
-
-        # Force newlines for lists
-        pretty_json = pretty_json.replace("[[", "[\n    [").replace("]]", "]\n]")
-        pretty_json = pretty_json.replace("], [", "],\n    [")
-        pretty_json = pretty_json.replace("}, {", "},\n    {")
-        pretty_json = pretty_json.replace(': {"', ': {\n"')
-        pretty_json = pretty_json.replace(', "',',\n"')
-
         with open(out_file, 'w') as f:
             f.write(pretty_json)
         return out_file
@@ -71,21 +81,16 @@ class PipelineHelperCpp:
         out_file = self.config.output_config.cpp_io_config.nrp_linearizations_json
         data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper)
                 for nrp_linearization in nrp_linearizations]
-        pretty_json = json.dumps(data)
 
-        # Force newlines for lists
-        pretty_json = pretty_json.replace("[[", "[\n    [").replace("]]", "]\n]")
-        pretty_json = pretty_json.replace("], [", "],\n    [")
-        pretty_json = pretty_json.replace("}, {", "},\n    {")
-        pretty_json = pretty_json.replace(': {"', ': {\n"')
-        pretty_json = pretty_json.replace(', "',',\n"')
+        #pretty_json = reformat_json(json.dumps(data))
+        pretty_json = json.dumps(data)
         with open(out_file, 'w') as f:
             f.write(pretty_json)
         return out_file
 
     def run_cpp_matcher(self,
                         hmms_json: Path,
-                        nrp_linearizations_json: Path) -> List[HMM_Match]:
+                        nrp_linearizations_json: Path) -> CppOutput:
         # Prepare the command
         cmd = list(map(str,
                           [
@@ -107,13 +112,18 @@ class PipelineHelperCpp:
 
         # Collect the results
         with open(self.config.output_config.cpp_io_config.cpp_output_json, 'r') as f:
-            hmm_matches = [HMM_Match.from_json(json_dict)
-                           for json_dict in json.load(f)]
-        return hmm_matches
+            json_data = json.load(f)
+            hmm_matches = [HMM_Match.from_json(match_dict)
+                           for match_dict in json_data["matches"]]
+            p_values_by_bgc_variant = {BGC_Variant_ID.from_dict(p_values_dict["bgc_variant_info"]):
+                                           p_values_dict["p_values"]
+                                        for p_values_dict in json_data["p_values"]}
+        return CppOutput(matches=hmm_matches,
+                         p_values_by_bgc_variant=p_values_by_bgc_variant)
 
-    def get_hmm_matches(self,
-                        detailed_hmms: List[DetailedHMM],
-                        nrp_linearizations: List[NRP_Linearizations]) -> List[HMM_Match]:
+    def get_hmm_matches_and_p_values(self,
+                                     detailed_hmms: List[DetailedHMM],
+                                     nrp_linearizations: List[NRP_Linearizations]) -> CppOutput:
         hmms_json = self.dump_hmms(detailed_hmms)
         nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations)
         return self.run_cpp_matcher(hmms_json, nrp_linearizations_json)

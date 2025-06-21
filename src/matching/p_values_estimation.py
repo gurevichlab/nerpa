@@ -3,8 +3,7 @@ from __future__ import annotations
 from math import e
 from typing import List, Tuple, Dict, NamedTuple, NewType
 from src.data_types import LogProb, Prob
-from src.matching.detailed_hmm import StateIdx
-from src.matching.hmm_auxiliary_types import HMM, HMM_wo_unk_chir
+from src.matching.hmm_auxiliary_types import HMM, HMM_wo_unk_chir, StateIdx
 import numpy as np
 from numpy.typing import NDArray
 from joblib import Parallel, delayed
@@ -125,7 +124,7 @@ def compute_hmm_p_values(hmm: HMM_wo_unk_chir) -> NDArray[np.float64]:
 
             number_of_paths = dp[state, disc_prob]
             path_lp = to_log_prob(DiscreteProb(disc_prob))
-            assert number_of_paths * e ** path_lp <= 1, \
+            assert number_of_paths * e ** path_lp < 1 + 1e-7, \
                 (f"Error while computing p-values for HMM {hmm.bgc_variant_id}\n"
                  f"Number of paths {number_of_paths} with log probability {path_lp} is too large.\n"
                  f"number_of_paths * e**path_lp = {number_of_paths * e ** path_lp} > 1.")

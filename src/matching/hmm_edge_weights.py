@@ -48,9 +48,7 @@ def get_edge_weights(hmm,
             edge_type = edge_info.edge_type
             if edge_type in dependent_edge_types:
                 pass
-            elif edge_type in (ET.SKIP_MODULE,
-                               ET.SKIP_MODULE_AT_START,
-                               ET.SKIP_MODULE_AT_END):
+            elif edge_type in (ET.SKIP_MODULE_AT_START, ET.SKIP_MODULE_AT_END):
                     edge_weights[(u, v)] = 0.0  # penalties for skipping modules are added later
             else:
                 edge_weights[(u, v)] = get_edge_weight(edge_info)
@@ -69,8 +67,6 @@ def get_edge_weights(hmm,
             while len(hmm.transitions[v]) == 1:
                 v = next(iter(hmm.transitions[v].keys()))
                 skip_path.append(v)
-
-            print(f'Skip path at start: {skip_path}')
 
             total_weight = sum(get_edge_weight(hmm.transitions[w1][w2])
                                for w1, w2 in pairwise(skip_path))
@@ -96,8 +92,6 @@ def get_edge_weights(hmm,
             assert len(hmm.transitions[skip_path[-1]]) == 1,\
                 f'Expected only one transition from {hmm.states[skip_path[-1]].state_type}({skip_path[-1]})'
             skip_path.append(next(iter(hmm.transitions[skip_path[-1]].keys())))
-
-        print(f'Skip path at end: {skip_path}')
 
         total_weight = sum(get_edge_weight(hmm.transitions[w1][w2])
                            for w1, w2 in pairwise(skip_path))
