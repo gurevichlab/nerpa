@@ -402,7 +402,7 @@
                     row.innerHTML = `
                         <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
                         <td class="score">${parseFloat(item.score).toFixed(2)}</td>
-                        <td class="p-value">${parseFloat(item.p_value).toFixed(2)}</td>
+                        <td class="p-value">${parseFloat(item.p_value).toFixed(3)}</td>
                         <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="">${bgc_id.genome_id}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
@@ -471,7 +471,7 @@
                 matchRow.innerHTML = `
                     <td class="match-id">${item.Match_ID}</td>
                     <td class="score">${parseFloat(item.score).toFixed(2)}</td>
-                    <td class="p-value">${parseFloat(item.p_value).toFixed(2)}</td>
+                    <td class="p-value">${parseFloat(item.p_value).toFixed(3)}</td>
                     <td>${nrp_id}</td>
                     <td>${bgc_id.genome_id}</td>
                     <td>Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</td>

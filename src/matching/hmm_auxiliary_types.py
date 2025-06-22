@@ -33,10 +33,13 @@ class HMM(NamedTuple):
     module_match_states: List[StateIdx]
 
     def to_json(self):
+        _emissions = [[emission if emission != LogProb(float('-inf')) else None
+                      for emission in state_emissions]
+                     for state_emissions in self.emissions]
         return {
             'bgc_variant_id': self.bgc_variant_id.to_dict(),
             'transitions': self.transitions,
-            'emissions': self.emissions,
+            'emissions': _emissions,
             'module_start_states': self.module_start_states,
             'module_match_states': self.module_match_states
         }

@@ -12,10 +12,10 @@ DiscreteProb = NewType('DiscreteProb', int)
 
 # DiscreteProb is a value between MIN_DISCRETE_VALUE and MAX_DISCRETE_PROB
 MIN_DISCRETE_PROB = DiscreteProb(0)
-MAX_DISCRETE_PROB = DiscreteProb(1000)
+MAX_DISCRETE_PROB = DiscreteProb(10000)
 
 # LogProbs less than MIN_VALUE discretize to MIN_DISCRETE_PROB
-LOG_PROB_MIN_VALUE = LogProb(-20)
+LOG_PROB_MIN_VALUE = LogProb(-30)
 LOG_PROB_MAX_VALUE = LogProb(0)
 
 
