@@ -2,7 +2,7 @@ import math
 
 from typing import (
     Dict,
-    Tuple,
+    Tuple, Literal,
 )
 from src.data_types import (
     BGC_Module,
@@ -106,19 +106,46 @@ class HMMHelper:
 
     def get_emissions(self,
                       bgc_module: BGC_Module,
+                      scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
+                      allow_unknown_chiralities: bool = True,
                       pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        return {nrp_monomer: self.match(bgc_module, nrp_monomer, pks_domains_in_bgc)
-                for nrp_monomer in self.monomer_names_helper.mon_to_int}
+        assert scoring_type in ['LogProb', 'LogOdds'], \
+            f'Invalid scoring type: {scoring_type}. Expected "LogProb" or "LogOdds".'
+        emission_scores = {}
+        for nrp_monomer in self.monomer_names_helper.mon_to_int:
+            if (nrp_monomer.chirality == Chirality.UNKNOWN
+                    and not allow_unknown_chiralities):
+                emission_scores[nrp_monomer] = float('-inf')
+                continue
+
+            if scoring_type == 'LogProb':
+                emission_scores[nrp_monomer] = self.match(bgc_module, nrp_monomer, pks_domains_in_bgc)
+            elif scoring_type == 'LogOdds':
+                detailed_score = self.normalized_match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
+                emission_scores[nrp_monomer] = (detailed_score.residue_score
+                                          + detailed_score.methylation_score
+                                          + detailed_score.chirality_score)
+
+        return emission_scores
 
     # TODO: precompute once and cache
     def get_insert_emissions(self,
                              bgc_module: BGC_Module,
+                             scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
+                             allow_unknown_chiralities: bool = True,
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
+        assert scoring_type in ['LogProb', 'LogOdds'], \
+            f'Invalid scoring type: {scoring_type}. Expected "LogProb" or "LogOdds".'
+
         emission_scores = {}
         insert_unknown_prob = 0.77  # TODO: make this configurable
         known_residues_old_prob = 1 - self.monomer_names_helper.default_frequencies.residue[UNKNOWN_RESIDUE]
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
             # If the monomer is a PKS hybrid, we treat it as an unknown residue
+            if (nrp_monomer.chirality == Chirality.UNKNOWN
+                    and not allow_unknown_chiralities):
+                emission_scores[nrp_monomer] = float('-inf')
+                continue
             if nrp_monomer.is_pks_hybrid:
                 _nrp_monomer = NRP_Monomer(residue=UNKNOWN_RESIDUE,
                                           chirality=nrp_monomer.chirality,
@@ -132,9 +159,14 @@ class HMMHelper:
             else:
                 new_res_score = math.log(1 - insert_unknown_prob) + detailed_score.residue_score - math.log(known_residues_old_prob)
 
-            emission_scores[nrp_monomer] = (new_res_score
-                                            + detailed_score.methylation_score
-                                            + detailed_score.chirality_score)
+            if scoring_type == 'LogProb':
+                emission_scores[nrp_monomer] = (new_res_score
+                                                + detailed_score.methylation_score
+                                                + detailed_score.chirality_score)
+            elif scoring_type == 'LogOdds':
+                emission_scores[nrp_monomer] = new_res_score - detailed_score.residue_score
+
+
 
         # assert that all scores sum to 1
         total_score = sum(math.e ** score
@@ -148,8 +180,13 @@ class HMMHelper:
 
     def get_insert_at_start_emissions(self,
                                       bgc_module: BGC_Module,
+                                      scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
+                                      allow_unknown_chiralities: bool = True,
                                       pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        return self.get_insert_emissions(bgc_module, pks_domains_in_bgc)
+        return self.get_insert_emissions(bgc_module,
+                                         scoring_type,
+                                         allow_unknown_chiralities,
+                                         pks_domains_in_bgc)
 
     def get_edge_weights(self, hmm) -> Dict[Tuple[int, int], LogProb]:
         return get_edge_weights(hmm, self.scoring_config)

@@ -27,7 +27,7 @@ from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdge,
     HMM,
     StateIdx,
-    GenomicContext, HMM_wo_unk_chir
+    GenomicContext, HMM_LOUC, HMM_LPKC
 )
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.build_output.draw_hmm import draw_hmm
@@ -61,8 +61,8 @@ class DetailedHMM:
     _module_idx_to_match_state_idx: List[StateIdx]  # points to MATCH state for each module. Used for checkpoints heuristic
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
-    _hmm: Optional[HMM] = None
-    _hmm_wo_unk_chir: Optional[HMM_wo_unk_chir] = None  # HMM without emissions corresponding to monomers with unknown chirality
+    _hmm_lo: Optional[HMM_LOUC] = None
+    _hmm_lp: Optional[HMM_LPKC] = None
     _p_value_estimator: Optional[PValueEstimator] = None
 
 
@@ -72,57 +72,60 @@ class DetailedHMM:
                          hmm_helper: HMMHelper) -> DetailedHMM:
         #print('from_bgc_variant', bgc_variant.genome_id)
         try:
-            return bgc_variant_to_detailed_hmm(DetailedHMM,
-                                               bgc_variant,
-                                               hmm_helper)
+            detailed_hmm = bgc_variant_to_detailed_hmm(DetailedHMM,
+                                              bgc_variant,
+                                              hmm_helper)
+            detailed_hmm._set_hmms()
+            return detailed_hmm
         except Exception as e:
             print(f'Failed to create DetailedHMM from BGC variant {bgc_variant.bgc_variant_id}')
             raise e
 
-    def to_hmm(self) -> HMM:
-        if self._hmm is not None:
-            return self._hmm
+    def _set_hmms(self):
         num_states = len(self.states)
 
         adj_list = [[(edge_to, edge_data.weight)
                      for edge_to, edge_data in self.transitions[edge_from].items()]
                     for edge_from in range(num_states)]
 
-        emission_log_probs = [[state.emissions[mon]
+        # substiute log-probabilities with log-odds
+        def lo_score(mon: NRP_Monomer, lp_score: LogProb) -> LogProb:
+            return lp_score - self.hmm_helper.monomer_default_score(mon)
+
+        def lp_score_wo_unk(mon: NRP_Monomer, lp_score: LogProb) -> LogProb:
+            if mon.chirality == Chirality.UNKNOWN or mon.is_pks_hybrid:
+                return LogProb(float('-inf'))
+            return lp_score
+
+        emission_scores_lo = [[lo_score(mon, state.emissions[mon])
                                for mon in sorted(state.emissions,
                                                  key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
 
-        self._hmm = HMM(transitions=adj_list,
-                        emissions=emission_log_probs,
-                        module_start_states=self._module_idx_to_state_idx,
-                        module_match_states=self._module_idx_to_match_state_idx,
-                        bgc_variant_id=self.bgc_variant.bgc_variant_id)
-        return self._hmm
+        emission_scores_lp = [[lp_score_wo_unk(mon, state.emissions[mon])
+                               for mon in sorted(state.emissions,
+                                                 key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
+                              for state in self.states]
 
-    def to_hmm_wo_unk_chir(self) -> HMM_wo_unk_chir:
-        """
-        Returns the HMM without emissions
-        corresponding to monomers with unknown chirality or pks-hybrids.
-        This ensures that emission weights corresponding to a proper probability distribution
-        """
-        if self._hmm_wo_unk_chir is not None:
-            return self._hmm_wo_unk_chir
-        hmm = deepcopy(self.to_hmm())
-        for i, emissions in enumerate(hmm.emissions):
-            for j, emission in enumerate(emissions):
-                mon: NRP_Monomer = self.hmm_helper.monomer_names_helper.int_to_mon[j]
-                if mon.chirality == Chirality.UNKNOWN or mon.is_pks_hybrid:
-                    # Remove the 'UNK' character from emissions
-                    hmm.emissions[i][j] = LogProb(float('-inf'))  # or some other value indicating no emission
+        self._hmm_lo= HMM_LOUC(HMM(transitions=adj_list,
+                                   emissions=emission_scores_lo,
+                                   module_start_states=self._module_idx_to_state_idx,
+                                   module_match_states=self._module_idx_to_match_state_idx,
+                                   bgc_variant_id=self.bgc_variant.bgc_variant_id))
+        self._hmm_lp= HMM_LPKC(HMM(transitions=adj_list,
+                                   emissions=emission_scores_lp,
+                                   module_start_states=self._module_idx_to_state_idx,
+                                   module_match_states=self._module_idx_to_match_state_idx,
+                                   bgc_variant_id=self.bgc_variant.bgc_variant_id))
 
-        self._hmm_wo_unk_chir = HMM_wo_unk_chir(hmm)
-        return self._hmm_wo_unk_chir
+    def to_hmm_louc(self) -> HMM_LOUC:
+        return self._hmm_lo
 
-    def get_p_value(self, score: LogProb) -> float:
-        if self._p_value_estimator is None:
-            self._p_value_estimator = PValueEstimator(self.to_hmm())
-        return self._p_value_estimator(score)
+    def to_hmm_lpkc(self) -> HMM_LPKC:
+        return self._hmm_lp
+
+    def get_p_value(self, lo_score: LogProb, lp_score: LogProb) -> float:
+        return self._p_value_estimator(lo_score, lp_score)
 
     @classmethod
     def set_p_value_estimators_for_hmms(cls,
@@ -132,7 +135,8 @@ class DetailedHMM:
         Precompute p-value estimators for a list of DetailedHMMs in parallel.
         This method is useful for speeding up p-value estimation when many DetailedHMMs are used.
         """
-        hmms = [detailed_hmm.to_hmm_wo_unk_chir() for detailed_hmm in detailed_hmms]
+        hmms = [(detailed_hmm.to_hmm_lpkc(), detailed_hmm.to_hmm_louc())
+                for detailed_hmm in detailed_hmms]
         estimators = PValueEstimator.precompute_p_value_estimators_for_hmms(hmms, num_threads)
         for detailed_hmm, estimator in zip(detailed_hmms, estimators):
             detailed_hmm._p_value_estimator = estimator
@@ -143,7 +147,7 @@ class DetailedHMM:
                                     emitted_monomers: List[rBAN_Monomer]) -> List[Tuple[int, Optional[rBAN_Monomer]]]:
         monomer_codes = [self.hmm_helper.monomer_names_helper.mon_to_int[mon.to_base_mon()]
                          for mon in emitted_monomers]
-        score, path = get_opt_path_with_score(hmm=self.to_hmm(),
+        score, path = get_opt_path_with_score(hmm=self.to_hmm_louc(),
                                               observed_sequence=monomer_codes,
                                               start_state=start_state,
                                               finish_state=finish_state)

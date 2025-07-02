@@ -61,11 +61,14 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
                 path = [state for state, _ in path_with_emissions]
                 assert path == optimal_path, f'Path mismatch: {path} != {optimal_path}'
 
+        lo_score = hmm_match.score
+        lp_score = hmm_match.score + null_hypothesis_score
 
         matches.append(Match(bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),
-                             score=hmm_match.score - null_hypothesis_score,
-                             p_value=hmm.get_p_value(hmm_match.score),
+                             hmm_log_prob=lp_score,
+                             log_odds_score=lo_score,
+                             p_value=hmm.get_p_value(lo_score, lp_score),
                              alignments=alignments))
 
     return matches
