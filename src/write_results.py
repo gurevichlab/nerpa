@@ -56,10 +56,12 @@ def draw_hmms_with_optimal_paths(hmms: List[DetailedHMM],
 def build_report(matches: List[Match]) -> str:
     result = StringIO()
     csv_writer = csv.DictWriter(result,
-                                fieldnames=('Score', 'NRP_ID', 'NRP_Variant_Idx', 'Genome_ID', 'BGC_ID', 'BGC_Variant_Idx'),
+                                fieldnames=('LogOdds score', 'HMM log prob', 'p_value', 'NRP_ID', 'NRP_Variant_Idx', 'Genome_ID', 'BGC_ID', 'BGC_Variant_Idx'),
                                 delimiter='\t')
     csv_writer.writeheader()
-    csv_writer.writerows({'Score': match.score,
+    csv_writer.writerows({'LogOdds score': match.log_odds_score,
+                          'HMM log prob': match.hmm_log_prob,
+                          'p_value': match.p_value,
                           'NRP_ID': match.nrp_variant_id.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
                           'Genome_ID': match.bgc_variant_id.bgc_id.genome_id,
@@ -138,10 +140,17 @@ def write_results(matches: List[Match],
                   log: Optional[NerpaLogger] = None):
     output_cfg.report.write_text(build_report(matches))
 
+    bgc_variants_in_matches = {match.bgc_variant_id for match in matches}
+    nrp_variants_in_matches = {match.nrp_variant_id for match in matches}
+
     if bgc_variants is not None:
+        bgc_variants = [bgc_variant for bgc_variant in bgc_variants
+                        if bgc_variant.bgc_variant_id in bgc_variants_in_matches]
         output_cfg.bgc_variants_dir.mkdir()
         write_bgc_variants(bgc_variants, output_cfg.bgc_variants_dir)
     if nrp_variants is not None:
+        nrp_variants = [nrp_variant for nrp_variant in nrp_variants
+                        if nrp_variant.nrp_variant_id in nrp_variants_in_matches]
         write_nrp_variants(nrp_variants,
                            rban_records=rban_records,
                            matches=matches,

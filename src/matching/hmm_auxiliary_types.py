@@ -44,7 +44,18 @@ class HMM(NamedTuple):
             'module_match_states': self.module_match_states
         }
 
-HMM_wo_unk_chir = NewType('HMM_wo_unk_chir', HMM)
+# HMM_LOKC: emisson scores are Log-Odds,
+# Unknown Chiralities are allowed,
+# These HMMs are used for matching
+# Transition and emission scores do NOT sum to 1
+HMM_LOUC = NewType('HMM_LOUC', HMM)
+
+# HMM_LPUC: emisson scores are Log-Probabilities,
+# Unknown Chiralities are NOT allowed (the corresponding scores are set to -inf),
+# These HMMs are used for p-value estimation
+# Transition and emission scores sum to 1
+HMM_LPKC = NewType('HMM_LPKC', HMM)
+
 
 class DetailedHMMStateType(Enum):
     INITIAL = auto()

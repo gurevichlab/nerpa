@@ -80,9 +80,10 @@ def get_best_match_for_nrp(hmm: HMM,
         split_score = 0.0
         split_matches = []
         for group_linearizations in groups_linearizations:
-            group_match= max((match_for_linearization(linearization)
-                              for linearization in group_linearizations),
-                             key=lambda match: match.score)
+            group_match = max((match_for_linearization(linearization)
+                               for linearization in group_linearizations),
+                              key=lambda match: match.score)
+
             split_matches.append(group_match)
             split_score += group_match.score
         if split_score > best_iterative_score:
@@ -103,11 +104,10 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
         log.info(f'Processing BGC {detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id} '
                  f'variant {detailed_hmm.bgc_variant.bgc_variant_id.variant_idx}')
 
-    bgc_variant_id = detailed_hmm.bgc_variant.bgc_variant_id
     max_num_matches_per_bgc_variant = matching_cfg.max_num_matches_per_bgc \
         if matching_cfg.max_num_matches_per_bgc != 0 else None
 
-    hmm = detailed_hmm.to_hmm()
+    hmm = detailed_hmm.to_hmm_louc()
     matches: List[HMM_Match] = [get_best_match_for_nrp(hmm, nrp_linearizations,
                                                        detailed_hmm.hmm_helper.monomer_names_helper,
                                                        detailed_hmm)
@@ -132,9 +132,7 @@ def filter_and_sort_matches(matches: List[HMM_Match],
 
     def normalized_match_score(match: HMM_Match) -> LogProb:
         """Calculate the normalized score of a match."""
-        nrp_id = match.nrp_id
-        null_hypothesis_score = nrps_null_hypothesis_scores[nrp_id]
-        return match.score - null_hypothesis_score
+        return match.score
 
     # Step 0: Keep only the top match per (BGC, NRP) pair
     matches_map: Dict[Tuple[BGC_ID, NRP_ID], List[HMM_Match]] = defaultdict(list)
@@ -219,8 +217,11 @@ def get_hmm_matches(hmms: List[DetailedHMM],
 
     if log is not None:
         log.info('Estimating p-values for matches...')
-
-    DetailedHMM.set_p_value_estimators_for_hmms(hmms, num_threads)
+    # Estimate p-values for the matches
+    bgc_variants_in_matches = {match.bgc_variant_id: match for match in matches}
+    DetailedHMM.set_p_value_estimators_for_hmms([hmm for hmm in hmms
+                                                 if hmm.bgc_variant.bgc_variant_id in bgc_variants_in_matches],
+                                                num_threads)
 
     if log is not None:
         log.info('P-values obtained. Filtering and sorting matches...')

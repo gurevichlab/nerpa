@@ -22,14 +22,16 @@ from itertools import takewhile
 class Match:
     bgc_variant_id: BGC_Variant_ID
     nrp_variant_id: NRP_Variant_ID
-    score: float
+    hmm_log_prob: LogProb  # log probability of the match in HMM
+    log_odds_score: float
     p_value: float
     alignments: List[Alignment]  # alignments of each fragment
 
     def to_dict(self) -> dict:
         return {'bgc_variant_id': self.bgc_variant_id.to_dict(),
                 'nrp_variant_id': self.nrp_variant_id._asdict(),
-                'score': self.score,
+                'log_odds_score': self.log_odds_score,
+                'hmm_log_prob': self.hmm_log_prob,
                 'p_value': self.p_value,
                 'alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
                                 for alignment_step in alignment]
@@ -39,7 +41,8 @@ class Match:
     def from_dict(cls, data: dict) -> Match:
         return cls(bgc_variant_id=BGC_Variant_ID.from_dict(data['bgc_variant_id']),
                    nrp_variant_id=NRP_Variant_ID(**data['nrp_variant_id']),
-                   score=data['score'],
+                   hmm_log_prob=data['hmm_log_prob'],
+                   log_odds_score=data['log_odds_score'],
                    p_value=data['p_value'],
                    alignments=[[AlignmentStep.from_dict(alignment_step_data)
                                 for alignment_step_data in alignment_data]
@@ -53,7 +56,8 @@ class Match:
                              f'BGC_variant: {self.bgc_variant_id.variant_idx}',
                              f'NRP: {self.nrp_variant_id.nrp_id}',
                              f'NRP_variant: {self.nrp_variant_id.variant_idx}',
-                             f'Score: {self.score}',
+                             f'HMM log prob: {self.hmm_log_prob}',
+                             f'LogOdds score: {self.log_odds_score}',
                              f'P-value: {self.p_value}',
                              'Alignment:']))
         out.write('\n')
@@ -83,7 +87,8 @@ class Match:
             'BGC_variant_idx': int,
             'NRP': str,
             'NRP_variant_idx': int,
-            'Score': float,
+            'HMM log prob': float,
+            'LogOdds score': float,
             'P-value': float,
         }
         field_lines = takewhile(lambda x: not x.startswith('Alignment:'), lines_iter)
@@ -115,5 +120,6 @@ class Match:
         return cls(bgc_variant_id=bgc_variant_id,
                    nrp_variant_id=nrp_variant_id,
                    alignments=alignments,
-                   score=data['Score'],
+                   hmm_log_prob=data['HMM log prob'],
+                   log_odds_score=data['LogOdds score'],
                    p_value=data['P-value'])
