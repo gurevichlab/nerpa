@@ -93,7 +93,7 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
                     continue
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   output_file=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
+                                   output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
                 try:
                     draw_molecule(monomer_graph, output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
                 except Exception as e:
