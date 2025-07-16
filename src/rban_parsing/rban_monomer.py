@@ -41,6 +41,7 @@ class rBAN_Monomer(NamedTuple):
                            is_pks_hybrid=self.is_pks_hybrid)
 
 
+
 rBAN_MONOMER_DUMMY = rBAN_Monomer(residue=MonomerResidue(''),
                                   methylated=False,
                                   chirality=Chirality.UNKNOWN,

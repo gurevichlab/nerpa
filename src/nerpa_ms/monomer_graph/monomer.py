@@ -12,6 +12,7 @@ from src.nerpa_ms.monomer_graph.bonds import (
     get_binding_sites
 )
 from src.monomer_names_helper import NorineMonomerName
+from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.rban_parsing.rban_parser import (
     AtomId,
     Chirality,
