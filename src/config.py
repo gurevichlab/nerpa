@@ -65,6 +65,37 @@ def get_aa_codes(aa_codes_tsv: Path,
             aa34_codes[residue].append(AA34(row['aa34']))
     return aa10_codes, aa34_codes
 
+RESIDUE_FREQS = {
+    'Aad': 0.0032,
+    'Aib': 0.0056,
+    'Ala': 0.0659,
+    'Arg': 0.0167,
+    'Asn': 0.0275,
+    'Asp': 0.0214,
+    'Bza': 0.0176,
+    'Cys': 0.0275,
+    'Dab': 0.0176,
+    'Gln': 0.0267,
+    'Glu': 0.0144,
+    'Gly': 0.0524,
+    'His': 0.0050,
+    'Hpg': 0.0255,
+    'Ile': 0.0398,
+    'Leu': 0.0940,
+    'Lys': 0.0126,
+    'Orn': 0.0226,
+    'Phe': 0.0310,
+    'Pip': 0.0059,
+    'Pro': 0.0349,
+    'Ser': 0.0747,
+    'Thr': 0.0776,
+    'Trp': 0.0243,
+    'Tyr': 0.0434,
+    'Val': 0.0823,
+    'bAla': 0.0064,
+    'dHpg': 0.0114,
+    'unknown': 0.1122,
+}
 
 def get_residue_frequencies(norine_monomers_info: Path,
                             monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
@@ -84,7 +115,8 @@ def get_residue_frequencies(norine_monomers_info: Path,
      for residue in residue_frequencies:
          residue_frequencies[residue] /= total
 
-     return residue_frequencies
+     return RESIDUE_FREQS
+#     return residue_frequencies
 
 
 @dataclass

@@ -10,7 +10,8 @@ from src.antismash_parsing.antismash_parser_types import A_Domain, SVM_Predictio
 from src.config import SpecificityPredictionConfig
 from src.data_types import LogProb, Prob
 from src.generic.string import hamming_distance
-from src.monomer_names_helper import AA34, MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue
+from src.monomer_names_helper import AA34, MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue, \
+    UNKNOWN_RESIDUE
 from src.paras.paras_wrapper import ParasWrapper
 from src.pipeline.logger import NerpaLogger
 from src.pipeline.paras_parsing import PARAS_RESIDUE
@@ -153,6 +154,9 @@ class SpecificityPredictionHelper:
         # calibrate scores to better represent the probability of residue incorporation
         predictions = {res: calibration_function(score)
                        for res, score in _predictions.items()}
+        #  paras model does not predict UNKNOWN_RESIDUE
+        if self.DEFAULT_MODEL == 'paras':
+            predictions[UNKNOWN_RESIDUE] = self.config.APRIORI_RESIDUE_PROB[UNKNOWN_RESIDUE]
 
         # normalize probabilities
         total_prob = sum(predictions.values())
