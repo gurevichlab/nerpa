@@ -192,6 +192,7 @@ class MonomerNamesHelper:
             row = self.names_table[self.names_table[column_name] == name].iloc[0]
             residue = MonomerResidue(row['core']) if row['core'] in self.supported_residues else UNKNOWN_RESIDUE
         except IndexError:
+            #print(f'WARNING: Name {name} not found in the names table')
             return UNKNOWN_MONOMER  # TODO: raise ValueError when the table is ready
             # raise ValueError(f'Name {name} not found in the names table')
 
@@ -205,14 +206,57 @@ PARAS_RESIDUE = str
 
 def paras_residue_to_nerpa_residue(paras_name: PARAS_RESIDUE,
                                    monomer_names_helper: MonomerNamesHelper) -> MonomerResidue:
+    core_map = {
+        '2,3-dihydroxybenzoic acid': 'Bza',
+        'anthranilic acid': 'Bza',
+        'salicylic acid': 'Bza',
+        '2,4-diaminobutyric acid': 'Dab',
+        '2-aminoadipic acid': 'Aad',
+        '2-aminoisobutyric acid': 'Aib',
+        '3,5-dihydroxyphenylglycine': 'dHpg',
+        '4-hydroxyphenylglycine': 'Hpg',
+        'D-alanine': 'Ala',
+        'alanine': 'Ala',
+        'beta-alanine': 'bAla',
+        'N5-hydroxyornithine': 'Orn',
+        'N5-formyl-N5-hydroxyornithine': 'Orn',
+        'R-beta-hydroxytyrosine': 'Tyr',
+        'arginine': 'Arg',
+        'asparagine': 'Asn',
+        'aspartic acid': 'Asp',
+        'cysteine': 'Cys',
+        'glutamic acid': 'Glu',
+        'glutamine': 'Gln',
+        'glycine': 'Gly',
+        'histidine': 'His',
+        'isoleucine': 'Ile',
+        'leucine': 'Leu',
+        'lysine': 'Lys',
+        'ornithine': 'Orn',
+        'phenylalanine': 'Phe',
+        'pipecolic acid': 'Pip',
+        'proline': 'Pro',
+        'serine': 'Ser',
+        'threonine': 'Thr',
+        'tryptophan': 'Trp',
+        'tyrosine': 'Tyr',
+        'valine': 'Val',
+        # anything not in this dict can be mapped to 'unknown'
+    }
+    return core_map.get(paras_name, UNKNOWN_RESIDUE)
+
+"""
     paras_name_core = paras_name.split('-')[-1]
     try:
-        as_short = next(substrate.short
-                        for substrate in KNOWN_SUBSTRATES
-                        if paras_name_core in substrate.long)
+        as_substrate = min((substrate
+                       for substrate in KNOWN_SUBSTRATES
+                       if paras_name_core in substrate.long),
+                       key=lambda substrate: len(substrate.long))
+        as_short = as_substrate.short
         result = monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
     except StopIteration:
         print(f"WARNING: paras name {paras_name} not recognized")
         result = UNKNOWN_RESIDUE
 
     return result
+"""
