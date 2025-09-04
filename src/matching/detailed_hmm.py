@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from cmath import e
 from copy import deepcopy
+from math import log
 from typing import (
     ClassVar,
     Dict,
@@ -67,9 +68,23 @@ class DetailedHMM:
     _p_value_estimator: Optional[PValueEstimator] = None
     _score_vs_avg_nrp: Optional[LogProb] = None
 
-    def score_vs_avg_bgc(self, nrp_monomers: List[rBAN_Monomer]) -> LogProb:
-        return sum(self.hmm_helper.monomer_default_score(mon.to_base_mon())
-                   for mon in nrp_monomers)
+    def score_vs_avg_bgc(self,
+                         nrp_monomers: List[rBAN_Monomer],
+                         specificities_source: Literal['PARAS average', 'Norine frequencies'] = 'PARAS average') -> LogProb:
+        def paras_avg_mon_score(mon: rBAN_Monomer) -> LogProb:
+            return self.hmm_helper.monomer_default_score(mon.to_base_mon())
+
+        def norine_mon_freq_score(mon: rBAN_Monomer) -> LogProb:
+            return self.hmm_helper.monomer_names_helper.monomer_default_log_freq(mon.to_base_mon())
+
+        if specificities_source == 'PARAS average':
+            mon_score = paras_avg_mon_score
+        elif specificities_source == 'Norine frequencies':
+            mon_score = norine_mon_freq_score
+        else:
+            raise ValueError(f'Invalid specificities_source: {specificities_source}')
+
+        return sum(mon_score(mon) for mon in nrp_monomers)
 
     def score_vs_avg_nrp(self) -> LogProb:
         '''
