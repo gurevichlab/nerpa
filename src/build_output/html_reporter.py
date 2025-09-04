@@ -24,7 +24,10 @@ def _create_match_dicts(matches: List[Match], debug_output: bool) -> List[Dict]:
                 cleaned_alignment.append(alignment_step)
             # Update the original alignment in the match_dict
             match_dict['alignments'][i] = cleaned_alignment
-        match_dict['score'] = match_dict['log_odds_score']
+
+        match_dict['score'] = match_dict['score']
+        match_dict['log_odds_vs_avg_bgc'] = match_dict['score'] - match_dict['score_vs_avg_bgc']
+        match_dict['log_odds_vs_avg_nrp'] = match_dict['score'] - match_dict['score_vs_avg_nrp']
 
         return match_dict
 

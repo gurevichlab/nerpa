@@ -36,6 +36,7 @@ constexpr auto& rban_idxs(NRP_Linearization & t) { return std::get<1>(t); }
 struct NRP_Linearizations {
     std::vector<NRP_Linearization> non_iterative;
     std::vector<std::vector<std::vector<NRP_Linearization>>> iterative;
+    double score_vs_avg_bgc;  // used for ranking matches
 };
 
 // HMM data structure
@@ -67,7 +68,8 @@ struct MatchInfo {
 };
 
 struct MatchInfoLight {
-    LogProb score;
+    LogProb raw_score;
+    LogProb score;  // used for ranking matches
     BGC_Variant_ID bgc_variant_id;
     NRP_ID nrp_id;
     std::vector<const NRP_Linearization*> linearizations;

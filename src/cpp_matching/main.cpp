@@ -87,7 +87,7 @@ int main(int argc, char** argv)
         std::cout << "Matching took " << duration.count() / 1000.0 << " s" << std::endl;
 
         // 5. Estimate p-values for the HMMs
-        std::cout << "Estimating p-values in " << num_threads << " threads..." << std::endl;
+        // std::cout << "Estimating p-values in " << num_threads << " threads..." << std::endl;
         start = std::chrono::high_resolution_clock::now(); // Start time
 
         std::unordered_map<BGC_Variant_ID, std::vector<double>> p_values_by_hmm;
@@ -106,7 +106,8 @@ int main(int argc, char** argv)
                 const auto &bgc_variant_id = bgc_variant_ids[i];
                 const auto &hmm_lo = hmms_for_matching[bgc_variant_id];
                 const auto &hmm_lp = hmms_for_p_value_estimation.at(bgc_variant_id);
-                auto p_values = compute_hmm_p_values(hmm_lo, hmm_lp);
+                // auto p_values = compute_hmm_p_values(hmm_lo, hmm_lp);
+                auto p_values = std::vector<double>();
                 p_values_for_thread.emplace_back(bgc_variant_id, p_values);
             }
 #pragma omp critical
@@ -119,8 +120,8 @@ int main(int argc, char** argv)
 
         end = std::chrono::high_resolution_clock::now();   // End time
         duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Estimated p-values for " << p_values_by_hmm.size() << " HMMs." << std::endl;
-        std::cout << "P-value estimation took " << duration.count() / 1000.0 << " s" << std::endl;
+       // std::cout << "Estimated p-values for " << p_values_by_hmm.size() << " HMMs." << std::endl;
+        //std::cout << "P-value estimation took " << duration.count() / 1000.0 << " s" << std::endl;
 
 
         // 6. Dump the resulting matches to an output JSON file

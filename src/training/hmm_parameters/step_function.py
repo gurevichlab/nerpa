@@ -140,10 +140,14 @@ def fit_step_function(score_correctness: List[Tuple[LogProb, bool]],
     return step_function
 
 
-def create_step_function(steps: List[float], step_len: float) -> Callable[[float], float]:
+def create_step_function(steps: List[float]) -> Callable[[float], float]:
+    '''
+     Create a step function [0,1] -> R given the list of steps
+     equally spaced on [0,1]
+    '''
     def step_function(x: float) -> float:
         for i, step in enumerate(steps):
-            if x < (i + 1) * step_len:
+            if x < (i + 1) / len(steps):
                 return steps[i]
         return steps[-1]
     return step_function

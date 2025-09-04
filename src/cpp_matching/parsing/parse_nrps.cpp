@@ -66,6 +66,9 @@ parse_nrps_from_json(const std::string& nrp_json_path)
             nrp_obj.iterative.push_back(split_vec);
         }
 
+        // Get score_vs_avg_bgc
+        nrp_obj.score_vs_avg_bgc = entry["score_vs_avg_bgc"].get<double>();
+
         nrp_linearizations.emplace_back(std::move(nrp_obj), nrp_id);
     }
 

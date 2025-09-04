@@ -184,7 +184,7 @@ class SpecificityPredictionHelper:
 
         for res in nerpa_predictions:
             if nerpa_predictions[res] > 1:
-                print(f"Invalid probability: {nerpa_predictions[res]}")
+                print(f"Invalid probability for {res}: {nerpa_predictions[res]}")
                 nerpa_predictions[res] = 1.0
 
         return nerpa_predictions

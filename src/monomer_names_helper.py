@@ -9,16 +9,12 @@ from typing import (
     Optional,
     NamedTuple,
     NewType,
-    Tuple
+    Tuple, Iterable
 )
 import pandas as pd
 from dataclasses import dataclass
 from enum import Enum, auto
-from pathlib import Path
 
-from scripts.extract_norine_monomers_info import norine_graphs_path
-from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
-from src.generic.functional import cached_by_key
 import yaml
 
 
@@ -115,6 +111,31 @@ class MonomerNamesHelper:
                         self.mon_to_int[mon] = MonCode(mon_int)
                         self.int_to_mon[MonCode(mon_int)] = mon
 
+    def is_proper_monomer(self, mon: NRP_Monomer) -> bool:
+        return all([not mon.is_pks_hybrid,
+                    mon.chirality != Chirality.UNKNOWN,])
+
+    def proper_monomers(self) -> Iterable[NRP_Monomer]:
+        """
+        Get a list of all proper monomers (excluding UNKNOWN and PKS).
+        """
+        return filter(self.is_proper_monomer, self.mon_to_int.keys())
+
+    def monomer_default_freq(self, mon: NRP_Monomer) -> float:  # actually Prob (to avoid circular import)
+        """
+        Calculate the default log-frequency for a given monomer.
+        """
+        if not self.is_proper_monomer(mon):
+            raise ValueError(f"Can't compute default frequency for an improper monomer {mon}"
+                             f" (UNKNOWN or PKS or improper chirality)")
+
+        residue_freq = self.default_frequencies.residue[mon.residue]
+        methylation_freq = self.default_frequencies.methylation \
+            if mon.methylated else (1 - self.default_frequencies.methylation)
+        chirality_freq = self.default_frequencies.d_chirality \
+            if mon.chirality == Chirality.D else (1 - self.default_frequencies.d_chirality)
+        return residue_freq * methylation_freq * chirality_freq
+
     def _set_default_frequencies(self):
         """
         Set the default frequencies for residues, methylation, and D-chirality.
@@ -136,8 +157,12 @@ class MonomerNamesHelper:
         for mon, cnt in parsed_monomers_cnts.items():
             nerpa_residue_cnts[mon.residue] = nerpa_residue_cnts.get(mon.residue, 0) + cnt
 
-        residue_freqs = {residue: Prob(cnt / total_monomers)
-                         for residue, cnt in nerpa_residue_cnts.items()}
+        residue_freqs = defaultdict(lambda: Prob(0),
+                                    {residue: Prob(cnt / total_monomers)
+                                     for residue, cnt in nerpa_residue_cnts.items()})
+
+        #print(f'Default frequencies set: residues \n',
+        #      '\n'.join(f'{res}: {freq}' for res, freq in dict(residue_freqs).items()))
 
         self.default_frequencies = MonomersDefaultFrequencies(residue=residue_freqs,
                                                               methylation=norine_methylation_freq,

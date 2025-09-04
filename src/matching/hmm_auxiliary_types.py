@@ -56,6 +56,11 @@ HMM_LOUC = NewType('HMM_LOUC', HMM)
 # Transition and emission scores sum to 1
 HMM_LPKC = NewType('HMM_LPKC', HMM)
 
+# HMM_LPUC: emisson scores are Log-Probabilities,
+# Unknown Chiralities are allowed
+# These HMMs are used for matching
+# emission scores do NOT sum to 1
+HMM_LPUC = NewType('HMM_LPUC', HMM)
 
 class DetailedHMMStateType(Enum):
     INITIAL = auto()
