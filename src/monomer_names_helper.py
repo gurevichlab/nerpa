@@ -121,20 +121,30 @@ class MonomerNamesHelper:
         """
         return filter(self.is_proper_monomer, self.mon_to_int.keys())
 
-    def monomer_default_freq(self, mon: NRP_Monomer) -> float:  # actually Prob (to avoid circular import)
-        """
-        Calculate the default log-frequency for a given monomer.
-        """
-        if not self.is_proper_monomer(mon):
-            raise ValueError(f"Can't compute default frequency for an improper monomer {mon}"
-                             f" (UNKNOWN or PKS or improper chirality)")
+    def monomer_default_freq(self,
+                             mon: NRP_Monomer,
+                             handle_pks_hybrids: bool = False) -> float:  # actually Prob (unannotated to avoid circular import)
+        return math.e ** self.monomer_default_log_freq(mon, handle_pks_hybrids)
 
-        residue_freq = self.default_frequencies.residue[mon.residue]
-        methylation_freq = self.default_frequencies.methylation \
-            if mon.methylated else (1 - self.default_frequencies.methylation)
-        chirality_freq = self.default_frequencies.d_chirality \
-            if mon.chirality == Chirality.D else (1 - self.default_frequencies.d_chirality)
-        return residue_freq * methylation_freq * chirality_freq
+    def monomer_default_log_freq(self,
+                                 mon: NRP_Monomer,
+                                 handle_pks_hybrids: bool = False) -> float:  # actually LogProb (unannotated to avoid circular import)
+        res = mon.residue if not mon.is_pks_hybrid or handle_pks_hybrids else UNKNOWN_RESIDUE
+        residue_log_freq = log(self.default_frequencies.residue[res])
+        methylation_log_freq = log(self.default_frequencies.methylation) \
+            if mon.methylated else log(1 - self.default_frequencies.methylation)
+
+        d_chr_freq = self.default_frequencies.d_chirality
+        match mon.chirality:
+            case Chirality.D:
+                chirality_log_freq = log(d_chr_freq)
+            case Chirality.L:
+                chirality_log_freq = log(1 - d_chr_freq)
+            case Chirality.UNKNOWN:
+                chirality_log_freq = (d_chr_freq * log(d_chr_freq)
+                                    + (1 - d_chr_freq) * log(1 - d_chr_freq))
+
+        return residue_log_freq + methylation_log_freq + chirality_log_freq
 
     def _set_default_frequencies(self):
         """
