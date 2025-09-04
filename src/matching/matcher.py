@@ -18,7 +18,7 @@ from src.data_types import (
 )
 from src.config import MatchingConfig
 from src.matching.detailed_hmm import DetailedHMM
-from src.matching.hmm_auxiliary_types import HMM
+from src.matching.hmm_auxiliary_types import HMM, HMM_LPUC
 from src.matching.hmm_match import HMM_Match
 from src.matching.hmm_scoring_helper import HMMHelper
 from src.matching.match_type import Match, NRP_Variant_ID
@@ -39,6 +39,8 @@ import math
 
 def join_hmm_matches(hmm_matches: List[HMM_Match]) -> HMM_Match:
     score = sum(hmm_match.score for hmm_match in hmm_matches)
+    score_vs_avg_nrp = sum(hmm_match.score_vs_avg_nrp for hmm_match in hmm_matches)
+    score_vs_avg_bgc = sum(hmm_match.score_vs_avg_bgc for hmm_match in hmm_matches)
     bgc_variant_id = hmm_matches[0].bgc_variant_id
     nrp_id = hmm_matches[0].nrp_id
 
@@ -49,13 +51,15 @@ def join_hmm_matches(hmm_matches: List[HMM_Match]) -> HMM_Match:
                      for hmm_match in hmm_matches
                      for opt_path in hmm_match.optimal_paths]
     return HMM_Match(score=score,
+                     score_vs_avg_nrp=score_vs_avg_nrp,
+                     score_vs_avg_bgc=score_vs_avg_bgc,
                      bgc_variant_id=bgc_variant_id,
                      nrp_id=nrp_id,
                      nrp_linearizations=nrp_linearizations,
                      optimal_paths=optimal_paths)
 
 
-def get_best_match_for_nrp(hmm: HMM,
+def get_best_match_for_nrp(hmm: HMM_LPUC,
                            nrp_linearizations: NRP_Linearizations,
                            monomer_names_helper: MonomerNamesHelper,
                            detailed_hmm: DetailedHMM) -> HMM_Match:
@@ -64,7 +68,11 @@ def get_best_match_for_nrp(hmm: HMM,
         mon_codes = [monomer_names_helper.mon_to_int[mon.to_base_mon()]
                      for mon in linearization]
         score, opt_path = get_opt_path_with_score(hmm, mon_codes)
+        score_vs_avg_bgc = detailed_hmm.score_vs_avg_bgc(linearization)
+        score_vs_avg_nrp = detailed_hmm.score_vs_avg_nrp()
         return HMM_Match(score=score,
+                         score_vs_avg_nrp=score_vs_avg_nrp,
+                         score_vs_avg_bgc=score_vs_avg_bgc,
                          bgc_variant_id=detailed_hmm.bgc_variant.bgc_variant_id,
                          nrp_id=nrp_linearizations.nrp_id,
                          nrp_linearizations=[[mon.rban_idx for mon in linearization]],
@@ -107,7 +115,7 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
     max_num_matches_per_bgc_variant = matching_cfg.max_num_matches_per_bgc \
         if matching_cfg.max_num_matches_per_bgc != 0 else None
 
-    hmm = detailed_hmm.to_hmm_louc()
+    hmm = detailed_hmm.to_hmm_lpuc()
     matches: List[HMM_Match] = [get_best_match_for_nrp(hmm, nrp_linearizations,
                                                        detailed_hmm.hmm_helper.monomer_names_helper,
                                                        detailed_hmm)
@@ -115,7 +123,7 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
 
 
     return list(islice(sorted(matches,
-                              key=lambda match: match.score,
+                              key=lambda match: match.score - match.score_vs_avg_bgc,
                               reverse=True),
                        max_num_matches_per_bgc_variant))
 
@@ -125,14 +133,16 @@ def filter_and_sort_matches(matches: List[HMM_Match],
                             hmms: List[DetailedHMM],
                             nrp_linearizations: List[NRP_Linearizations],
                             config: MatchingConfig) -> List[HMM_Match]:
+    """
     nrps_null_hypothesis_scores = {
         linearizations.nrp_id: null_hypothesis_score(linearizations, hmms[0].hmm_helper)
         for linearizations in nrp_linearizations
     }
+    """
 
     def normalized_match_score(match: HMM_Match) -> LogProb:
         """Calculate the normalized score of a match."""
-        return match.score
+        return match.score - match.score_vs_avg_bgc
 
     # Step 0: Keep only the top match per (BGC, NRP) pair
     matches_map: Dict[Tuple[BGC_ID, NRP_ID], List[HMM_Match]] = defaultdict(list)
@@ -176,10 +186,10 @@ def filter_and_sort_matches(matches: List[HMM_Match],
 
 
 def get_all_hmm_matches(hmms: List[DetailedHMM],
-                    nrp_linearizations: List[NRP_Linearizations],
-                    matching_cfg: MatchingConfig,
-                    num_threads: int = 1,
-                    log: Optional[NerpaLogger] = None) -> List[HMM_Match]:
+                        nrp_linearizations: List[NRP_Linearizations],
+                        matching_cfg: MatchingConfig,
+                        num_threads: int = 1,
+                        log: Optional[NerpaLogger] = None) -> List[HMM_Match]:
     if log is not None:
         total_linearizations = sum(num_linearizations(nrp_linearization)
                                    for nrp_linearization in nrp_linearizations)
@@ -215,6 +225,7 @@ def get_hmm_matches(hmms: List[DetailedHMM],
                                                    Path('/home/ilianolhin/git/nerpa2/hmms'))
 
 
+    """
     if log is not None:
         log.info('Estimating p-values for matches...')
     # Estimate p-values for the matches
@@ -222,9 +233,10 @@ def get_hmm_matches(hmms: List[DetailedHMM],
     DetailedHMM.set_p_value_estimators_for_hmms([hmm for hmm in hmms
                                                  if hmm.bgc_variant.bgc_variant_id in bgc_variants_in_matches],
                                                 num_threads)
-
+    
     if log is not None:
         log.info('P-values obtained. Filtering and sorting matches...')
+    """
 
     matches = filter_and_sort_matches(matches,
                                       hmms,

@@ -47,3 +47,6 @@ emission_parameters:
                     BGC_True_NRP_False: 0.2068965517241379, BGC_False_NRP_False: 0.914}
 
 norine_monomers_info: data/norine_monomers_info.yaml  # used to compute null hypothesis scores
+paras_predictions_table: data/paras_dataset_results.tsv  # used to compute null hypothesis scores
+mibig_methylation_freq: 0.1  # placeholder value; TODO: compute from data
+mibig_epimerization_freq: 0.2  # placeholder value; TODO: compute from data

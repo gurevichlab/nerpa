@@ -72,7 +72,8 @@ def run_nerpa(nerpa_dir: Path,
         raise
 
 
-def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
+def load_command_line_args(nerpa_dir: Path,
+                           local_paths: dict) -> CommandlineArgs:
     parser = argparse.ArgumentParser(description="Runs Nerpa on NRPs and BGCs "
                                                  "from approved matches and checks the results.")
     parser.add_argument("--approved-matches", type=Path,
@@ -89,10 +90,16 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
     return parser.parse_args()
 
 
+def load_local_paths(nerpa_dir: Path) -> dict:
+    with open(nerpa_dir / 'local_paths.yaml') as local_paths_yaml:
+        return yaml.safe_load(local_paths_yaml)
+
+
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
-    args = load_command_line_args(nerpa_dir)
+    local_paths = load_local_paths(nerpa_dir)
+    args = load_command_line_args(nerpa_dir, local_paths)
 
     print('Loading approved matches')
     approved_matches = load_matches_from_txt(args.approved_matches)

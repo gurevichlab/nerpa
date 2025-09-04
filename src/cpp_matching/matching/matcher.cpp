@@ -78,8 +78,10 @@ get_best_matches_for_bgc_variant(const HMM& hmm,
 {
     vector<MatchInfoLight> best_matches;
     for (const auto& [nrp_linearizations, nrp_id] : all_nrp_linearizations) {
-        auto [score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
-        best_matches.push_back({score, bgc_info, nrp_id, linearizations});
+        auto [raw_score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
+        double score = raw_score - nrp_linearizations.score_vs_avg_bgc;
+
+        best_matches.push_back({raw_score, score, bgc_info, nrp_id, linearizations});
     }
 
     sort(best_matches.begin(), best_matches.end(),

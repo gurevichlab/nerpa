@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 from dataclasses import dataclass
 from src.data_types import LogProb, BGC_Variant_ID
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
@@ -15,6 +15,8 @@ from collections import defaultdict
 class HMM_Match:
     score: LogProb
     bgc_variant_id: BGC_Variant_ID
+    score_vs_avg_bgc: Optional[LogProb]
+    score_vs_avg_nrp: Optional[LogProb]
     nrp_id: str
     nrp_linearizations: List[List[rBAN_idx]]
     optimal_paths: List[List[StateIdx]]
@@ -22,6 +24,8 @@ class HMM_Match:
     @classmethod
     def from_json(cls, json_data: dict) -> HMM_Match:
         return cls(score=json_data['score'],
+                   score_vs_avg_nrp=json_data.get('score_vs_avg_nrp', None),
+                   score_vs_avg_bgc=json_data.get('score_vs_avg_bgc', None),
                    bgc_variant_id=BGC_Variant_ID.from_dict(json_data['bgc_variant_id']),
                    nrp_id=json_data['nrp_id'],
                    nrp_linearizations=json_data['nrp_linearizations'],
@@ -48,12 +52,11 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
         #print('Reconstructing alignments for', hmm_match.bgc_variant_id, hmm_match.nrp_id)
         hmm = hmm_by_bgc_info[hmm_match.bgc_variant_id]
         alignments = []
-        null_hypothesis_score = 0
+        all_rban_monomers = []
         for nrp_linearization, optimal_path in zip(hmm_match.nrp_linearizations, hmm_match.optimal_paths):
             rban_monomers = [rban_idx_to_rban_mon[hmm_match.nrp_id][rban_idx]
                              for rban_idx in nrp_linearization]
-            null_hypothesis_score += sum(hmm.hmm_helper.monomer_default_score(mon.to_base_mon())
-                                         for mon in rban_monomers)
+            all_rban_monomers.extend(rban_monomers)
 
             alignments.append(hmm.path_to_alignment(optimal_path, rban_monomers))
             if debug:
@@ -61,14 +64,16 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
                 path = [state for state, _ in path_with_emissions]
                 assert path == optimal_path, f'Path mismatch: {path} != {optimal_path}'
 
-        lo_score = hmm_match.score
-        lp_score = hmm_match.score + null_hypothesis_score
+        p_value = hmm.get_p_value(lp_score=hmm_match.score,
+                                  lo_score=hmm_match.score - hmm_match.score_vs_avg_nrp) \
+            if hmm._p_value_estimator is not None else None
 
         matches.append(Match(bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),
-                             hmm_log_prob=lp_score,
-                             log_odds_score=lo_score,
-                             p_value=hmm.get_p_value(lo_score, lp_score),
+                             score=hmm_match.score,
+                             score_vs_avg_nrp=hmm.score_vs_avg_nrp(),
+                             score_vs_avg_bgc=hmm.score_vs_avg_bgc(all_rban_monomers),
+                             p_value=p_value,
                              alignments=alignments))
 
     return matches

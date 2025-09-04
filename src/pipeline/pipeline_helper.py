@@ -83,8 +83,6 @@ class PipelineHelper:
 
         self.monomer_names_helper = load_monomer_names_helper(self.config.monomers_config,
                                                               self.config.nerpa_dir)
-        hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config, self.monomer_names_helper)
-        self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
         external_specificity_predictions = get_paras_results_all(self.args.paras_results,
                                                                  self.monomer_names_helper,
@@ -94,6 +92,11 @@ class PipelineHelper:
                                                                     self.monomer_names_helper,
                                                                     self.log,
                                                                     external_specificity_predictions)
+
+        hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config,
+                                                     specificity_prediction_helper,
+                                                     self.monomer_names_helper)
+        self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args,
@@ -142,8 +145,10 @@ class PipelineHelper:
             hmm_by_id = {hmm.bgc_variant.bgc_variant_id: hmm for hmm in hmms}
             assert hmm_by_id.keys() == cpp_output.p_values_by_bgc_variant.keys(), \
                 "Mismatch in BGC variant IDs between HMMs and precomputed p-values"
+            '''
             for bgc_variant_id, p_values in cpp_output.p_values_by_bgc_variant.items():
                 hmm_by_id[bgc_variant_id]._p_value_estimator = PValueEstimator._from_precomputed_p_values(p_values)
+            '''
             return cpp_output.matches
         else:
             return get_hmm_matches(hmms,

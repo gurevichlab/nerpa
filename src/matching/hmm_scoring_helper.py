@@ -20,6 +20,7 @@ from src.matching.alignment_step_type import MatchDetailedScore
 from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE, PKS
 from src.matching.hmm_edge_weights import get_edge_weights
 from dataclasses import dataclass
+from math import log
 
 
 @dataclass
@@ -109,8 +110,8 @@ class HMMHelper:
                       scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
                       allow_unknown_chiralities: bool = True,
                       pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        assert scoring_type in ['LogProb', 'LogOdds'], \
-            f'Invalid scoring type: {scoring_type}. Expected "LogProb" or "LogOdds".'
+        assert scoring_type in ['LogProb'], \
+            f'Invalid scoring type: {scoring_type}. Expected "LogProb". "LogOdds" is deprecated.'
         emission_scores = {}
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
             if (nrp_monomer.chirality == Chirality.UNKNOWN
@@ -134,38 +135,48 @@ class HMMHelper:
                              scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
                              allow_unknown_chiralities: bool = True,
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        assert scoring_type in ['LogProb', 'LogOdds'], \
-            f'Invalid scoring type: {scoring_type}. Expected "LogProb" or "LogOdds".'
+        # adjust default monomer frequencies to force the probability of UNKNOWN_RESIDUE to be UNKNOWN_INSERT_FREQ
+        UNKNOWN_INSERT_FREQ = 0.77  # TODO: make this configurable
+        scale_factor = (1 - UNKNOWN_INSERT_FREQ) / (1 - self.monomer_names_helper.default_frequencies.residue[UNKNOWN_RESIDUE])
+        default_insert_freqs = {res: freq * scale_factor
+                                for res, freq in self.monomer_names_helper.default_frequencies.residue.items()}
+        default_insert_freqs[UNKNOWN_RESIDUE] = UNKNOWN_INSERT_FREQ
+
+        assert scoring_type in ['LogProb'], \
+            (f'Invalid scoring type: {scoring_type}. Expected "LogProb" '
+             f'("LogOdds" deprecated for now).')
 
         emission_scores = {}
-        insert_unknown_prob = 0.77  # TODO: make this configurable
-        known_residues_old_prob = 1 - self.monomer_names_helper.default_frequencies.residue[UNKNOWN_RESIDUE]
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
-            # If the monomer is a PKS hybrid, we treat it as an unknown residue
-            if (nrp_monomer.chirality == Chirality.UNKNOWN
-                    and not allow_unknown_chiralities):
+            if (not allow_unknown_chiralities
+                    and (nrp_monomer.chirality == Chirality.UNKNOWN
+                         or nrp_monomer.is_pks_hybrid)):
                 emission_scores[nrp_monomer] = float('-inf')
                 continue
-            if nrp_monomer.is_pks_hybrid:
-                _nrp_monomer = NRP_Monomer(residue=UNKNOWN_RESIDUE,
-                                          chirality=nrp_monomer.chirality,
-                                          methylated=nrp_monomer.methylated,
-                                          is_pks_hybrid=False)
-                detailed_score = self.scoring_config.monomer_detailed_default_score[_nrp_monomer]
-            else:
-                detailed_score = self.scoring_config.monomer_detailed_default_score[nrp_monomer]
-            if nrp_monomer.residue == UNKNOWN_RESIDUE:
-                new_res_score = math.log(insert_unknown_prob)
-            else:
-                new_res_score = math.log(1 - insert_unknown_prob) + detailed_score.residue_score - math.log(known_residues_old_prob)
 
-            if scoring_type == 'LogProb':
-                emission_scores[nrp_monomer] = (new_res_score
-                                                + detailed_score.methylation_score
-                                                + detailed_score.chirality_score)
-            elif scoring_type == 'LogOdds':
-                emission_scores[nrp_monomer] = new_res_score - detailed_score.residue_score
+            # If the monomer is a PKS hybrid, we treat it as an unknown residue
+            res = nrp_monomer.residue if not nrp_monomer.is_pks_hybrid else UNKNOWN_RESIDUE
 
+            res_freq = default_insert_freqs[res]
+            res_score = log(res_freq)
+            meth_freq = (self.monomer_names_helper.default_frequencies.methylation
+                            if nrp_monomer.methylated else
+                            1 - self.monomer_names_helper.default_frequencies.methylation)
+            meth_score = log(meth_freq)
+
+            d_chr_freq = self.monomer_names_helper.default_frequencies.d_chirality
+            match nrp_monomer.chirality:
+                case Chirality.D:
+                    chr_score = log(d_chr_freq)
+                case Chirality.L:
+                    chr_score = log(1 - d_chr_freq)
+                case Chirality.UNKNOWN:
+                    chr_score = (
+                            d_chr_freq * log(d_chr_freq)
+                            + (1 - d_chr_freq) * log(1 - d_chr_freq)
+                    )
+
+            emission_scores[nrp_monomer] = res_score + meth_score + chr_score
 
 
         # assert that all scores sum to 1

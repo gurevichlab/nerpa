@@ -8,13 +8,16 @@ from typing import (
 )
 
 import dacite
+import pandas as pd
 
+from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.data_types import (
     Chirality,
     LogProb,
     MonomerResidue, Prob,
 )
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
+from src.generic.numeric import safe_log
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.matching.alignment_step_type import MatchDetailedScore
 
@@ -22,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import yaml
 
-from src.monomer_names_helper import NRP_Monomer, MonomerNamesHelper, MonomersDefaultFrequencies
+from src.monomer_names_helper import NRP_Monomer, MonomerNamesHelper, MonomersDefaultFrequencies, UNKNOWN_RESIDUE
 
 # TODO: put this in config
 EDGE_TYPE_DEPENDENCIES = {
@@ -59,6 +62,10 @@ EDGE_TYPE_DEPENDENCIES = {
     #DetailedHMMEdgeType.NO_INSERTIONS: set(),
     #DetailedHMMEdgeType.END_INSERTING: set(),
 }
+from src.training.hmm_parameters.step_function import (
+    fit_step_function,
+    create_step_function
+)
 
 class ChiralityMatch(NamedTuple):
     bgc_epim: bool
@@ -121,7 +128,7 @@ def load_edge_weight_params(cfg: dict) -> Dict[DetailedHMMEdgeType, Dict[ModuleG
     return parsed_data
 
 
-def compute_monomers_default_detailed_score(default_freqs: MonomersDefaultFrequencies) \
+def compute_monomers_default_detailed_score_old(default_freqs: MonomersDefaultFrequencies) \
         -> Dict[NRP_Monomer, MatchDetailedScore]:
     monomer_default_score = {}
     for residue, residue_freq in default_freqs.residue.items():
@@ -157,13 +164,94 @@ def compute_monomers_default_detailed_score(default_freqs: MonomersDefaultFreque
 
     return monomer_default_score
 
+
+def compute_monomers_default_detailed_score(paras_default_residue_freqs: Dict[MonomerResidue, Prob],
+                                            methylation_score: Dict[MethylationMatch, LogProb],
+                                            chirality_score: Dict[ChiralityMatch, LogProb],
+                                            methylation_freq: Prob,
+                                            epimerization_freq: Prob) \
+        -> Dict[NRP_Monomer, MatchDetailedScore]:
+    monomer_default_score = {}
+    for residue, residue_freq in paras_default_residue_freqs.items():
+        for nrp_meth in (False, True):
+            for nrp_chr in Chirality:
+                residue_score = safe_log(residue_freq)
+                default_methylation_score = (
+                    methylation_freq * methylation_score[MethylationMatch(bgc_meth=True, nrp_meth=nrp_meth)]
+                    + (1 - methylation_freq) * methylation_score[MethylationMatch(bgc_meth=False, nrp_meth=nrp_meth)]
+                )
+                default_chirality_score = (
+                    epimerization_freq * chirality_score[ChiralityMatch(bgc_epim=True, nrp_chr=nrp_chr)]
+                    + (1 - epimerization_freq) * chirality_score[ChiralityMatch(bgc_epim=False, nrp_chr=nrp_chr)]
+                )
+
+                monomer = NRP_Monomer(residue=residue,
+                                      methylated=nrp_meth,
+                                      chirality=nrp_chr)
+                monomer_default_score[monomer] = MatchDetailedScore(residue_score,
+                                                                    default_methylation_score,
+                                                                    default_chirality_score)
+
+    return monomer_default_score
+
+
+def load_paras_default_residue_scores(paras_results_tsv: Path,
+                                      specificity_prediction_helper: SpecificityPredictionHelper,
+                                      monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
+    assert specificity_prediction_helper.DEFAULT_MODEL == 'paras', \
+        'PARAS residue frequencies can be loaded only if PARAS is used as the default specificity prediction model.'
+    paras_results = pd.read_csv(paras_results_tsv, sep='\t')
+    paras_predictions = [
+        dict(zip(group["substrate"], group["score"]))
+        for _, group in paras_results.groupby("id")
+    ]
+
+    predictions = [specificity_prediction_helper.paras_predictions_to_nerpa_predictions(single_prediction)
+                   for single_prediction in paras_predictions]
+
+    calibrated_predictions = [
+        specificity_prediction_helper.calibrate_scores(prediction,
+                                                       specificity_prediction_helper._calibration_step_function_paras)
+        for prediction in predictions
+    ]
+
+    residues = calibrated_predictions[0].keys()
+    averaged_predictions = {
+        res: sum(pred[res] for pred in calibrated_predictions) / len(calibrated_predictions)
+        for res in residues
+    }
+
+    '''
+    print('Loaded PARAS default residue frequencies:\n',
+          '\n'.join(f"{res}: {freq:.4f}"
+                    for res, freq in averaged_predictions.items()))
+    '''
+
+    assert math.isclose(sum(averaged_predictions.values()), 1.0, rel_tol=1e-4), \
+        f'Total score of averaged PARAS predictions is {sum(averaged_predictions.values())}, expected 1.0'
+
+    return averaged_predictions
+
+
 def load_hmm_scoring_config(path_to_config: Path,
+                            specificity_prediction_helper: SpecificityPredictionHelper,
                             monomer_names_helper: MonomerNamesHelper) -> HMMScoringConfig:
     cfg = yaml.safe_load(path_to_config.open('r'))
 
-    default_scores = compute_monomers_default_detailed_score(monomer_names_helper.default_frequencies)
-    return HMMScoringConfig(methylation_score=load_methylation_score(cfg),
-                            chirality_score=load_chirality_score(cfg, monomer_names_helper.default_frequencies),
+    methylation_score = load_methylation_score(cfg)
+    chirality_score = load_chirality_score(cfg, monomer_names_helper.default_frequencies)
+
+    paras_default_residue_scores = load_paras_default_residue_scores(Path(cfg['paras_predictions_table']),
+                                                                     specificity_prediction_helper,
+                                                                     monomer_names_helper)
+    default_scores = compute_monomers_default_detailed_score(paras_default_residue_freqs=paras_default_residue_scores,
+                                                             methylation_freq=cfg['mibig_methylation_freq'],
+                                                             epimerization_freq=cfg['mibig_epimerization_freq'],
+                                                             methylation_score=methylation_score,
+                                                             chirality_score=chirality_score)
+
+    return HMMScoringConfig(methylation_score=methylation_score,
+                            chirality_score=chirality_score,
                             edge_weight_parameters=load_edge_weight_params(cfg),
                             relevant_genomic_features=EDGE_TYPE_DEPENDENCIES,
                             monomer_detailed_default_score=default_scores)

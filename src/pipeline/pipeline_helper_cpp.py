@@ -66,8 +66,10 @@ class PipelineHelperCpp:
     def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
         out_file = self.config.output_config.cpp_io_config.hmms_json
         data = [{"bgc_variant_info": detailed_hmm.bgc_variant.bgc_variant_id.to_dict(),
-                 "hmm_for_matching": detailed_hmm.to_hmm_louc().to_json(),
-                 "hmm_for_p_values_estimation": detailed_hmm.to_hmm_lpkc().to_json()}
+                 "hmm_for_matching": detailed_hmm.to_hmm(unknown_chirality_allowed=True,
+                                                         emission_weights_type='LogProb').to_json(),
+                 "hmm_for_p_values_estimation": detailed_hmm.to_hmm(unknown_chirality_allowed=False,
+                                                                    emission_weights_type='LogProb').to_json()}
                 for detailed_hmm in detailed_hmms]
 
         #pretty_json = reformat_json(json.dumps(data))
@@ -77,9 +79,11 @@ class PipelineHelperCpp:
         return out_file
 
 
-    def dump_nrp_linearizations(self, nrp_linearizations: List[NRP_Linearizations]) -> Path:
+    def dump_nrp_linearizations(self,
+                                nrp_linearizations: List[NRP_Linearizations],
+                                any_hmm: DetailedHMM) -> Path:
         out_file = self.config.output_config.cpp_io_config.nrp_linearizations_json
-        data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper)
+        data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper, any_hmm)
                 for nrp_linearization in nrp_linearizations]
 
         #pretty_json = reformat_json(json.dumps(data))
@@ -125,6 +129,6 @@ class PipelineHelperCpp:
                                      detailed_hmms: List[DetailedHMM],
                                      nrp_linearizations: List[NRP_Linearizations]) -> CppOutput:
         hmms_json = self.dump_hmms(detailed_hmms)
-        nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations)
+        nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations, detailed_hmms[0])
         return self.run_cpp_matcher(hmms_json, nrp_linearizations_json)
 
