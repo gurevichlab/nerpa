@@ -220,6 +220,8 @@ class CppIOConfig:
 class MatchingConfig:
     max_num_matches_per_bgc: int
     max_num_matches_per_nrp: int  # 0 means no limit
+    min_num_matches_per_bgc: int
+    min_num_matches_per_nrp: int  # 0 means no limit
     max_num_matches: int
     checkpoints_heuristic: bool
 
@@ -231,14 +233,13 @@ class MatchingConfig:
         if args is None:
             return
 
-        if args.max_num_matches_per_bgc is not None:
-            self.max_num_matches_per_bgc = args.max_num_matches_per_bgc
-        if args.max_num_matches_per_nrp is not None:
-            self.max_num_matches_per_nrp = args.max_num_matches_per_nrp
-        if args.max_num_matches is not None:
-            self.max_num_matches = args.max_num_matches
-        if args.fast_matching is not None:
-            self.checkpoints_heuristic = args.fast_matching
+        for field_name in ('min_num_matches_per_bgc',
+                           'min_num_matches_per_nrp',
+                           'max_num_matches_per_bgc',
+                           'max_num_matches_per_nrp',):
+            arg_value = getattr(args, field_name, None)
+            if arg_value is not None:
+                setattr(self, field_name, arg_value)
 
 
 @dataclass

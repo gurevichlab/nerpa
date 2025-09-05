@@ -103,6 +103,8 @@ class PipelineHelperCpp:
                               '--nrps_json', nrp_linearizations_json,
                               '--max_num_matches_per_bgc', str(self.config.matching_config.max_num_matches_per_bgc),
                               '--max_num_matches_per_nrp', str(self.config.matching_config.max_num_matches_per_nrp),
+                              '--min_num_matches_per_bgc', str(self.config.matching_config.min_num_matches_per_bgc),
+                              '--min_num_matches_per_nrp', str(self.config.matching_config.min_num_matches_per_nrp),
                               '--max_num_matches', str(self.config.matching_config.max_num_matches),
                               '--threads', str(self.args.threads),
                                 '--output', self.config.output_config.cpp_io_config.cpp_output_json

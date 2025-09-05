@@ -20,7 +20,9 @@ int main(int argc, char** argv)
     std::string nrps_json_path;
     std::string config_json_path;
     int num_threads;
-    int max_num_matches_per_bgc, max_num_matches_per_nrp, max_num_matches;
+    int max_num_matches_per_bgc, max_num_matches_per_nrp;
+    int min_num_matches_per_bgc, min_num_matches_per_nrp;
+    int max_num_matches;
     std::string output_json_path;
 
     // Create command line options (very similar to argparse in Python)
@@ -40,6 +42,13 @@ int main(int argc, char** argv)
                    "Maximum number of matches to keep per NRP. Set to 0 to keep all matches.")
             ->required();
 
+    app.add_option("--min_num_matches_per_bgc", min_num_matches_per_bgc,
+                   "Minimum number of matches to keep per BGC. Overwrites max-num-matches-per-bgc.")
+            ->required();
+
+    app.add_option("--min_num_matches_per_nrp", min_num_matches_per_nrp,
+                   "Minimum number of matches to keep per NRP. Overwrites max-num-matches-per-nrp.")
+            ->required();
     app.add_option("--max_num_matches", max_num_matches,
                    "Maximum number of matches to keep in total. Set to 0 to keep all matches.")
             ->required();
@@ -71,6 +80,8 @@ int main(int argc, char** argv)
         auto matching_cfg = MatchingConfig{
             max_num_matches_per_bgc,
             max_num_matches_per_nrp,
+            min_num_matches_per_bgc,
+            min_num_matches_per_nrp,
             max_num_matches
         };
 
