@@ -46,7 +46,7 @@ emission_parameters:
     EPIMERIZATION: {BGC_True_NRP_True: 0.7931034482758621, BGC_False_NRP_True: 0.086,
                     BGC_True_NRP_False: 0.2068965517241379, BGC_False_NRP_False: 0.914}
 
-norine_monomers_info: data/norine_monomers_info.yaml  # used to compute null hypothesis scores
-paras_predictions_table: data/paras_dataset_results.tsv  # used to compute null hypothesis scores
+norine_monomers_info: data/nerpa_internal/norine_monomers_info.yaml  # used to compute null hypothesis scores
+paras_predictions_table: data/nerpa_internal/paras_dataset_results.tsv  # used to compute null hypothesis scores
 mibig_methylation_freq: 0.1  # placeholder value; TODO: compute from data
 mibig_epimerization_freq: 0.2  # placeholder value; TODO: compute from data

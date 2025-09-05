@@ -3,8 +3,8 @@ ENABLE_CALIBRATION: True  # should be set to True unless for debugging
 
 nerpa_specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
 paras_model: external_tools/paras/model.paras
-a_domains_signatures: data/signatures.tsv
-norine_monomers_info: data/norine_monomers_info.yaml  # used as apriori specificity probability
+a_domains_signatures: data/nerpa_internal/signatures.tsv
+norine_monomers_info: data/nerpa_internal/norine_monomers_info.yaml  # used as apriori specificity probability
 
 SVM_SUBSTRATES: [dHpg, Asn, Iva, Ile, Glu, Cys, Abu, Gly, Gln, Val, Ser, Arg, Asp,
     Hpg, Leu, Trp, Ala, Lys, Phe, Orn, Thr, Tyr, Aad, Bza, Pip, Pro]

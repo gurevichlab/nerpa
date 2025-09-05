@@ -189,7 +189,7 @@ In the latter case, the default column separator (`\t`), names of the SMILES col
 The Nerpa release package comes with a set of NRP databases in the SMILES format:  
 
 - Compounds from [MIBiG 4.0](https://mibig.secondarymetabolites.org/) and [Norine](https://bioinfo.cristal.univ-lille.fr/norine/index.jsp), available in [data/mibig_norine.tsv](data/mibig_norine.tsv).  
-- Our own database of putative NRP structures, pNRPdb, available in [data/pnrpdb2rc1_summary.tsv](data/pnrpdb2rc1_summary.tsv).  
+- Our own database of putative NRP structures, pNRPdb, available in [data/pnrpdb2rc1_summary.tsv](data/input/pnrpdb2rc1_summary.tsv).  
 
 ### Advanced Input
 
