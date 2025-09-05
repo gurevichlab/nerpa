@@ -54,6 +54,8 @@ struct HMM {
 struct MatchingConfig {
     int max_num_matches_per_bgc;
     int max_num_matches_per_nrp;
+    int min_num_matches_per_bgc;
+    int min_num_matches_per_nrp;
     int max_num_matches;
 };
 

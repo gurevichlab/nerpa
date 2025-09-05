@@ -96,6 +96,33 @@ get_best_matches_for_bgc_variant(const HMM& hmm,
     return best_matches;
 }
 
+vector<MatchInfoLight>
+get_best_matches_for_nrp(const NRP_ID& nrp_id,
+                         const NRP_Linearizations& nrp_linearization,
+                         const vector<pair<BGC_Variant_ID, HMM>>& hmms,
+                         const int max_num_matches_per_nrp)
+{
+
+    vector<MatchInfoLight> best_matches;
+    for (const auto& [bgc_info, hmm] : hmms) {
+        auto [raw_score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearization);
+        double score = raw_score - nrp_linearization.score_vs_avg_bgc;
+
+        best_matches.push_back({raw_score, score, bgc_info, nrp_id, linearizations});
+    }
+
+    sort(best_matches.begin(), best_matches.end(),
+         [](const auto& a, const auto& b) {
+             return a.score > b.score;
+         });
+
+    // Truncate to at most max_num_matches_per_bgc entries.
+    if (best_matches.size() > static_cast<size_t>(max_num_matches_per_nrp) and max_num_matches_per_nrp > 0) {
+        best_matches.resize(max_num_matches_per_nrp);
+    }
+    return best_matches;
+}
+
 
 vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& matches,
                                                const MatchingConfig& config)
@@ -133,31 +160,29 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
         // Step 2: Filter by BGC. For each BGC (ignoring variant_idx), only keep up to max_num_matches_per_bgc.
         // Define BGC_key as a tuple of (genome_id, contig_idx, bgc_idx).
         unordered_map<BGC_ID, int> bgcCounts;
-        vector<MatchInfoLight> bgcFiltered;
+        unordered_map<NRP_ID, int> nrpCounts;
+        vector<MatchInfoLight> top_matches;
         for (const auto& match : sortedMatches) {
             BGC_ID _bgc_id = bgc_id(match.bgc_variant_id);
-            if (bgcCounts[_bgc_id] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0) {
-                bgcFiltered.push_back(match);
+            NRP_ID nrp_id = match.nrp_id;
+
+            bool can_add_for_bgc = (bgcCounts[_bgc_id] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0);
+            bool can_add_for_nrp = (nrpCounts[nrp_id] < config.max_num_matches_per_nrp or config.max_num_matches_per_nrp == 0);
+            bool should_add_for_bgc = bgcCounts[_bgc_id] < config.min_num_matches_per_bgc;
+            bool should_add_for_nrp = nrpCounts[nrp_id] < config.min_num_matches_per_nrp;
+            if ((can_add_for_bgc or can_add_for_nrp) or should_add_for_bgc or should_add_for_nrp) {
+                top_matches.push_back(match);
                 bgcCounts[_bgc_id]++;
+                nrpCounts[nrp_id]++;
             }
         }
 
-        // Step 3: Filter by NRP_ID. Only keep up to max_num_matches_per_nrp for each NRP.
-        unordered_map<NRP_ID, int> nrpCounts;
-        vector<MatchInfoLight> nrpFiltered;
-        for (const auto& match : bgcFiltered) {
-            if (nrpCounts[match.nrp_id] < config.max_num_matches_per_nrp or config.max_num_matches_per_nrp == 0) {
-                nrpFiltered.push_back(match);
-                nrpCounts[match.nrp_id]++;
-            }
+        // Step 3: From the remaining matches, return only the top max_num_matches overall.
+        if (top_matches.size() > static_cast<size_t>(config.max_num_matches) and config.max_num_matches > 0) {
+            top_matches.resize(config.max_num_matches);
         }
 
-        // Step 4: From the remaining matches, return only the top max_num_matches overall.
-        if (nrpFiltered.size() > static_cast<size_t>(config.max_num_matches) and config.max_num_matches > 0) {
-            nrpFiltered.resize(config.max_num_matches);
-        }
-
-        return nrpFiltered;
+        return top_matches;
     }
 }
 
@@ -212,6 +237,17 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Variant_ID , HMM>& hmms,
             local_matches.insert(local_matches.end(),
                                  matches_light_for_bgc_variant.begin(),
                                  matches_light_for_bgc_variant.end());
+        }
+
+        for (int i = 0; i < static_cast<int>(bgc_hmm_pairs.size()); i++) {
+            const auto& [nrp_linearization, nrp_id] = nrp_linearizations[i];
+            auto matches_light_for_nrp = get_best_matches_for_nrp(nrp_id,
+                                                                  nrp_linearization,
+                                                                  bgc_hmm_pairs,
+                                                                  config.max_num_matches_per_nrp);
+            local_matches.insert(local_matches.end(),
+                                 matches_light_for_nrp.begin(),
+                                 matches_light_for_nrp.end());
         }
         // Merge the thread-local matches into the global vector.
 #pragma omp critical

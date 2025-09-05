@@ -91,6 +91,14 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                help="maximum number of matches to report per NRP; set 0 for unlimited "
                                     f"[default: {default_cfg.matching_config.max_num_matches_per_nrp}]",
                                action="store")
+    configs_group.add_argument("--min-num-matches-per-bgc", default=None, type=int, metavar='INT',
+                               help="minimum number of matches to report per BGC; overwrites max-num-matches-per-bgc "
+                                    f"[default: {default_cfg.matching_config.min_num_matches_per_bgc}]",
+                               action="store")
+    configs_group.add_argument("--min-num-matches-per-nrp", default=None, type=int, metavar='INT',
+                               help="minimum number of matches to report per NRP; overwrites min-num-matches-per-nrp "
+                                    f"[default: {default_cfg.matching_config.min_num_matches_per_nrp}]",
+                               action="store")
     configs_group.add_argument("--max-num-matches", default=None, type=int, metavar='INT',
                                help="maximum number of matches to report in total; set 0 for unlimited "
                                     f"[default: {default_cfg.matching_config.max_num_matches}]",
