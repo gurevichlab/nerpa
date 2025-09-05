@@ -130,6 +130,9 @@ class PipelineHelperCpp:
     def get_hmm_matches_and_p_values(self,
                                      detailed_hmms: List[DetailedHMM],
                                      nrp_linearizations: List[NRP_Linearizations]) -> CppOutput:
+        if not detailed_hmms or not nrp_linearizations:
+            return CppOutput(matches=[], p_values_by_bgc_variant={})
+        
         hmms_json = self.dump_hmms(detailed_hmms)
         nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations, detailed_hmms[0])
         return self.run_cpp_matcher(hmms_json, nrp_linearizations_json)
