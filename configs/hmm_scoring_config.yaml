@@ -48,5 +48,5 @@ emission_parameters:
 
 norine_monomers_info: data/nerpa_internal/norine_monomers_info.yaml  # used to compute null hypothesis scores
 paras_predictions_table: data/nerpa_internal/paras_dataset_results.tsv  # used to compute null hypothesis scores
-mibig_methylation_freq: 0.1  # placeholder value; TODO: compute from data
-mibig_epimerization_freq: 0.2  # placeholder value; TODO: compute from data
+mibig_methylation_freq: 0.0583
+mibig_epimerization_freq: 0.3364
