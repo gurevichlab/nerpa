@@ -5,6 +5,7 @@ channels:
     - rdkit
     - defaults
 dependencies:
+    - cairosvg
     - python>=3.10
     - biopython
     - pip

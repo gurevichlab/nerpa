@@ -135,7 +135,7 @@ Alternatively, you can download it from [here](https://github.com/gurevichlab/ne
 To run Nerpa on the test data, execute:
 
 ```commandline
-nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv
+nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv --col-id ID --output-dir nerpa_results/test_run
 ```
 
 The output will be saved in the `nerpa_results/{CURRENT_TIME}` directory and symlinked to `nerpa_results/latest` for your convenience.  
