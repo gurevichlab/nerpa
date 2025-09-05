@@ -1,2 +1,2 @@
 rban_jar: external_tools/rBAN/rBAN-1.0.jar
-nerpa_monomers: data/monomersdb_nerpa.json
+nerpa_monomers: data/nerpa_internal/monomersdb_nerpa.json

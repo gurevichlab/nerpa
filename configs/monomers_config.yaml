@@ -1,5 +1,5 @@
-monomer_names_table: data/monomer_names_table.tsv
-norine_monomers_cnts: data/norine_monomers_cnts.yaml  # used to compute null hypothesis scores
+monomer_names_table: data/nerpa_internal/monomer_names_table.tsv
+norine_monomers_cnts: data/nerpa_internal/norine_monomers_cnts.yaml  # used to compute null hypothesis scores
 pks_names: []
 #supported_residues: ['Aad', 'Abu', 'Ala', 'Arg', 'Asn', 'Asp', 'Bmt', 'Bza', 'Cys', 'Dab',
 #'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hiv', 'Hpg', 'Hse', 'Hty', 'Ile',
