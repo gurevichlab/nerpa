@@ -94,9 +94,13 @@ class PipelineHelper_antiSMASH:
                                                                 self.config.output_config.antismash_out_dir,
                                                                 self.log)
                                      for job_id in self.args.antismash_job_ids)
-        antismash_jsons = [antismash_json_file
-                           for antismash_dir in antismash_results
-                           for antismash_json_file in antismash_dir.glob('**/*.json')]
+        antismash_jsons = []
+        for antismash_dir in antismash_results:
+            antismash_jsons_in_dir = list(antismash_dir.glob('**/*.json'))
+            if not antismash_jsons_in_dir:
+                self.log.warning(f'No antiSMASH json files found in {antismash_dir}, skipping')
+                antismash_jsons.extend(antismash_jsons_in_dir)
+
         self.create_symlinks_to_antismash_results(antismash_json.parent
                                                   for antismash_json in antismash_jsons)
         return (antiSMASH_record(json.loads(antismash_json_file.read_text()))
