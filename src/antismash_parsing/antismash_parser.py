@@ -90,6 +90,9 @@ def extract_a_domains_info(contig_data: dict,
 
 
 def extract_a_domains_coords(contig_data: dict) -> Dict[A_Domain_Id, Coords]:
+    if "antismash.detection.nrps_pks_domains" not in contig_data["modules"]:  # no nrps/pks domains found in the contig
+        return {}
+
     a_domains_coords: Dict[A_Domain_Id, Coords] = {}
     for gene_id, gene_hmm_hits in contig_data['modules']['antismash.detection.nrps_pks_domains']['cds_results'].items():
         gene_a_domains_coords = sorted([Coords.from_hmm_hit(query_start=domain_hmm['query_start'],
@@ -284,7 +287,9 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
             a_domains_info = extract_a_domains_info(contig_data, config,
                                                     ctg_idx, genome_id, log)  # pass genome_id and ctg_idx for error messages
             a_domains_coords = extract_a_domains_coords(contig_data)
-            assert a_domains_info.keys() == a_domains_coords.keys()
+            if a_domains_info.keys() != a_domains_coords.keys():
+                raise ValueError('A domain sets do not match between '
+                                 'info about specificity and info about coordinates')
             if not any(a_domain is not None for a_domain in a_domains_info.values()):  # no A-domains found in the contig
                 continue
 
@@ -295,6 +300,7 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
                 log.error(f'Error parsing contig {ctg_idx} of genome {genome_id}:\n'
                           f'{type(e).__name__}: {e}')
             else:
-                log.warning(f'Error parsing contig {ctg_idx} of genome {genome_id}')
+                log.warning(f'Error parsing contig {ctg_idx} of genome {genome_id}:\n'
+                            f'{type(e).__name__}: {e}')
 
     return bgcs
