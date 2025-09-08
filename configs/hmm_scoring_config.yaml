@@ -50,3 +50,4 @@ norine_monomers_info: data/nerpa_internal/norine_monomers_info.yaml  # used to c
 paras_predictions_table: data/nerpa_internal/paras_dataset_results.tsv  # used to compute null hypothesis scores
 mibig_methylation_freq: 0.0583
 mibig_epimerization_freq: 0.3364
+insert_unknown_freq: 0.77

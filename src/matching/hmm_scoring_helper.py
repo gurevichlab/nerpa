@@ -136,7 +136,7 @@ class HMMHelper:
                              allow_unknown_chiralities: bool = True,
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
         # adjust default monomer frequencies to force the probability of UNKNOWN_RESIDUE to be UNKNOWN_INSERT_FREQ
-        UNKNOWN_INSERT_FREQ = 0.77  # TODO: make this configurable
+        UNKNOWN_INSERT_FREQ = self.scoring_config.insert_unknown_freq
         scale_factor = (1 - UNKNOWN_INSERT_FREQ) / (1 - self.monomer_names_helper.default_frequencies.residue[UNKNOWN_RESIDUE])
         default_insert_freqs = {res: freq * scale_factor
                                 for res, freq in self.monomer_names_helper.default_frequencies.residue.items()}

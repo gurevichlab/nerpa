@@ -6,15 +6,15 @@ from typing import List
 from src.data_types import BGC_Variant, BGC_Module_Modification
 from src.monomer_names_helper import MonomerResidue
 from src.pipeline.pipeline_helper import PipelineHelper
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logger import NerpaLogger, PreliminaryLogger
 from src.rban_parsing.get_linearizations import NRP_Linearizations
 from src.write_results import write_bgc_variants
 from pathlib import Path
 
 
 
-def main(log: NerpaLogger):  # log is passed as an argument to make it easier to write log in case of exception
-    pipeline_helper = PipelineHelper(log)
+def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make it easier to write log in case of exception
+    pipeline_helper = PipelineHelper(pre_logger)
 
     bgc_variants = pipeline_helper.get_bgc_variants()
     #compute_modification_freqs(bgc_variants)
@@ -30,12 +30,12 @@ def main(log: NerpaLogger):  # log is passed as an argument to make it easier to
 
 
 if __name__ == "__main__":
-    log = NerpaLogger()
+    log = PreliminaryLogger()
     try:
         main(log)
     except Exception as e:
         _, exc_value, _ = sys.exc_info()
-        log.exception(exc_value)
+        log.exception(str(exc_value))
     finally:
         # TODO: clean up: remove all intermediate files
         pass

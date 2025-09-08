@@ -14,7 +14,7 @@ from src.pipeline.command_line_args_helper import (
     get_command_line_args,
     ValidationError
 )
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logger import NerpaLogger, PreliminaryLogger
 from src.config import (
     Config,
     load_config,
@@ -57,26 +57,23 @@ class PipelineHelper:
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     pipeline_helper_cpp: PipelineHelperCpp
 
-    def __init__(self, log: NerpaLogger):
-        self.log = log
+    def __init__(self, pre_logger: PreliminaryLogger):
 
         default_cfg = load_config()
         try:
             self.args = get_command_line_args(default_cfg)
         except ValidationError as e:
-            self.log.error(str(e), to_stderr=True)
             raise e
 
         try:
             self.config = load_config(self.args)
         except ValueError as e:
-            self.log.error(str(e), to_stderr=True)
             raise e
         nerpa_utils.set_up_output_dir(output_cfg=self.config.output_config,
                                       crash_if_exists=not self.args.output_dir_reuse,
-                                      log=self.log)
+                                      log=pre_logger)
 
-        self.log.set_up_file_handler(self.config.output_config.main_out_dir)
+        self.log = NerpaLogger(self.config.logging_config)
         self.log.start()
 
         shutil.copytree(self.config.configs_dir, self.config.output_config.configs_output, copy_function=shutil.copy)
