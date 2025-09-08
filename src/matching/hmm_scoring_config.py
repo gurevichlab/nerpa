@@ -81,9 +81,15 @@ class MethylationMatch(NamedTuple):
 class HMMScoringConfig:
     methylation_score: Dict[MethylationMatch, LogProb]
     chirality_score: Dict[ChiralityMatch, LogProb]
+
     edge_weight_parameters: Dict[DetailedHMMEdgeType, Dict[ModuleGenomicContext, LogProb]]
     relevant_genomic_features: Dict[DetailedHMMEdgeType, Set[ModuleGenomicContextFeature]]
+
+    # the score of a monomer averaged over all BGC modules from MIBiG
+    # used for normalization
     monomer_detailed_default_score: Dict[NRP_Monomer, MatchDetailedScore]
+    # probability that an inserted monomer has unknown residue
+    insert_unknown_freq: Prob
     #norine_monomers_info: NorineStats
 
 
@@ -254,4 +260,5 @@ def load_hmm_scoring_config(path_to_config: Path,
                             chirality_score=chirality_score,
                             edge_weight_parameters=load_edge_weight_params(cfg),
                             relevant_genomic_features=EDGE_TYPE_DEPENDENCIES,
-                            monomer_detailed_default_score=default_scores)
+                            monomer_detailed_default_score=default_scores,
+                            insert_unknown_freq=cfg['insert_unknown_freq'],)

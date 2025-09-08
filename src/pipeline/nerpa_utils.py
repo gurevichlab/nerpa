@@ -5,18 +5,18 @@ import datetime
 import shlex
 import subprocess
 from src.config import OutputConfig
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logger import NerpaLogger, PreliminaryLogger
 from pathlib import Path
 
 
 def set_up_output_dir(output_cfg: OutputConfig,
                       crash_if_exists: bool,
-                      log: NerpaLogger):
+                      log: PreliminaryLogger):
     if output_cfg.main_out_dir.exists():
         if crash_if_exists:
             log.error(f"Output directory ({output_cfg.main_out_dir}) already exists! "
                       f"Rerun with --force-output-dir if you still want to use it as the output dir "
-                      f"OR specify another directory. Exiting now..", to_stderr=True)
+                      f"OR specify another directory. Exiting now..")
             exit(1)
         if output_cfg.main_out_dir.is_dir():  # TODO: check whether we want to completely remove it always
             shutil.rmtree(output_cfg.main_out_dir)

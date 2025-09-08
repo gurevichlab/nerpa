@@ -28,6 +28,7 @@ from src.monomer_names_helper import (
     AA10,
     AA34
 )
+from src.pipeline.logger import LoggingConfig
 
 
 @dataclass
@@ -303,6 +304,7 @@ class Config:
     matching_config: MatchingConfig
     cpp_matcher_exec: Path
     output_config: OutputConfig
+    logging_config: LoggingConfig
 
 
 def get_default_output_dir(cfg: dict) -> Path:
@@ -352,6 +354,9 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     output_cfg_dict = yaml.safe_load((nerpa_dir / cfg['output_config']).open('r'))
     output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, main_out_dir, args)
 
+    logging_cfg_dict = yaml.safe_load((nerpa_dir / cfg['logging_config']).open('r'))
+    logging_cfg = LoggingConfig(logging_cfg_dict, nerpa_dir)
+
     matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
     matching_cfg = MatchingConfig(matching_cfg_dict, args)
 
@@ -363,6 +368,7 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
                   rban_processing_config=rban_processing_cfg,
                   hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
                   output_config=output_cfg,
+                  logging_config=logging_cfg,
                   monomers_config=nerpa_dir / cfg['monomers_config'],
                   matching_config=matching_cfg,
                   cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec'])

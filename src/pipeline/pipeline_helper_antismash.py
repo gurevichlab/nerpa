@@ -99,7 +99,7 @@ class PipelineHelper_antiSMASH:
             antismash_jsons_in_dir = list(antismash_dir.glob('**/*.json'))
             if not antismash_jsons_in_dir:
                 self.log.warning(f'No antiSMASH json files found in {antismash_dir}, skipping')
-                antismash_jsons.extend(antismash_jsons_in_dir)
+            antismash_jsons.extend(antismash_jsons_in_dir)
 
         self.create_symlinks_to_antismash_results(antismash_json.parent
                                                   for antismash_json in antismash_jsons)
@@ -112,7 +112,7 @@ class PipelineHelper_antiSMASH:
         try:
             return self.extract_bgc_variants_from_antismash(antismash_record)
         except Exception as e:
-            self.log.info(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
+            self.log.error(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
             return []  # suppress exception
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
@@ -122,10 +122,10 @@ class PipelineHelper_antiSMASH:
 
         antismash_results = self.get_antismash_results()
 
-        self.log.info(f'\n======= Predicting BGC variants from antiSMASH results')
-                      #f' using {self.args.threads} threads')
+        self.log.info(f'\n======= Predicting BGC variants from antiSMASH results'
+                     f' using {self.args.threads} threads')
 
-        bgc_variants_in_chunks = Parallel(n_jobs=1)(  # TODO: debug multithreading
+        bgc_variants_in_chunks = Parallel(n_jobs=1)(  # TODO: implement multithreading
             delayed(self._safe_extract_bgc_variants)(antismash_record)
             for antismash_record in antismash_results
         )

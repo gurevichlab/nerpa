@@ -3,75 +3,116 @@ import logging
 import datetime
 import platform
 import os
+from dataclasses import dataclass
+from logging import Logger
+from pathlib import Path
+from typing import Literal
 
+UNRECOVERABLE_ERROR_MSG = ("An unrecoverable error has occurred, and Nerpa cannot continue.\n"
+                           "In case you have troubles running our tool, "
+                           "you can post an issue on https://github.com/gurevichlab/nerpa/issues "
+                           "or write to alexey.gurevich@helmholtz-hips.de")
 
-class NerpaLogger(object):
-    _NAME = 'nerpa'
-    _SINGLE_INDENT = '  '
+@dataclass
+class LoggingConfig:
+    log_file: Path
+    warnings_file: Path
+    stdout_log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    nerpa_version: str
 
-    _logger = None
-    _log_fpath = ''
-    _start_time = None
-    _num_warnings = 0
+    def __init__(self,
+                 cfg: dict,
+                 nerpa_dir: Path):
+        self.log_file = nerpa_dir / cfg['log_file']
+        self.warnings_file = nerpa_dir / cfg['warnings_file']
 
+        stdout_log_level = cfg.get('stdout_log_level', 'INFO')
+        if stdout_log_level not in ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'):
+            raise ValueError(f'Invalid log level: {stdout_log_level}')
+        self.stdout_log_level = stdout_log_level
+        self.nerpa_version = (nerpa_dir / 'VERSION.txt').read_text().strip()
+
+class PreliminaryLogger(Logger):
+    """
+    A simple logger used before the main NerpaLogger is set up.
+    """
     def __init__(self):
-        self._logger = logging.getLogger(self._NAME)
-        self._logger.setLevel(logging.DEBUG)
-        self._set_up_console_handler()
+        super().__init__(name='preliminary_nerpa_logger', level=logging.DEBUG)
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setLevel(logging.ERROR)
+        self.addHandler(console_handler)
 
-    def enable_debug_mode(self):  # by default: print all DEBUG-level to file but only INFO-level to stdout
-        for handler in self._logger.handlers:
-            handler.setLevel(logging.DEBUG)
-
-    def set_up_file_handler(self, output_dir):
-        self._log_fpath = os.path.join(output_dir, self._NAME + '.log')
-        file_handler = logging.FileHandler(self._log_fpath, mode='w')
-        file_handler.setLevel(logging.DEBUG)
-        self._logger.addHandler(file_handler)
-
-    def _set_up_console_handler(self):
-        console_handler = logging.StreamHandler(sys.stdout)
-        # console_handler.setFormatter(logging.Formatter(indent_val * '  ' + '%(message)s'))
-        # handler.setFormatter(logging.Formatter('%(asctime)s\t%(message)s', '%Y-%m-%d %H:%M:%S'))
-        console_handler.setLevel(logging.INFO)
-        self._logger.addHandler(console_handler)
-
-    def error(self, msg, to_stderr=False, is_exception=False):
+    def exception(self, msg='', *args, **kwargs):
         if msg:
-            if is_exception:
-                msg = 'EXCEPTION! ' + str(msg)
-            else:
-                msg = 'ERROR! ' + str(msg)
-            msg += "\nIn case you have troubles running our tool, " \
-                   "you can post an issue on https://github.com/gurevichlab/nerpa/issues " \
-                   "or write to alexey.gurevich@helmholtz-hips.de"
+            msg += '\n\n'
+        msg += UNRECOVERABLE_ERROR_MSG
+        super().error(msg, *args, **kwargs)
 
-        if to_stderr or self._logger is None or not self._logger.handlers:
-            sys.stderr.write('\n' + msg + '\n')
-        else:
-            self._logger.error('')
-            if is_exception:
-                self._logger.exception(msg)
-            else:
-                self._logger.error(msg)
+        for handler in list(self.handlers):  # iterate over a copy
+            self.removeHandler(handler)
+            try:
+                handler.close()
+            except Exception:
+                pass
 
-        sys.exit(1)
 
-    def exception(self, e):
-        self.error(e, is_exception=True)
+class NerpaLogger(Logger):
+    cfg: LoggingConfig
+    _start_time: datetime.datetime
+    _num_warnings: int
+    _num_errors: int
+    _indent = '    '
 
-    def info(self, msg, indent=0):
-        # self._logger.info('INFO: ' + msg)
-        self._logger.info(indent * self._SINGLE_INDENT + msg)
 
-    def debug(self, msg):
-        self._logger.debug(msg)
+    def __init__(self, cfg: LoggingConfig):
+        super().__init__(name='nerpa', level=logging.DEBUG)
+        self.cfg = cfg
+        self._num_warnings = 0
+        self._num_errors = 0
 
-    def warning(self, msg):
-        self._logger.warning('WARNING: ' + msg)
+        # Set up console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(cfg.stdout_log_level)
+        self.addHandler(console_handler)
+
+        # Set up file handlers:
+        # verbose log (DEBUG+) and warnings log (WARNING+)
+        self.cfg.log_file.parent.mkdir(parents=True, exist_ok=True)
+        self.cfg.warnings_file.parent.mkdir(parents=True, exist_ok=True)
+
+        verbose_handler = logging.FileHandler(self.cfg.log_file, mode='w', encoding='utf-8')
+        verbose_handler.setLevel(logging.DEBUG)
+        verbose_fmt = logging.Formatter(
+            fmt='%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d (%(funcName)s) - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        verbose_handler.setFormatter(verbose_fmt)
+        self.addHandler(verbose_handler)
+
+        warn_handler = logging.FileHandler(self.cfg.warnings_file, mode='w', encoding='utf-8')
+        warn_handler.setLevel(logging.WARNING)
+        warn_fmt = logging.Formatter(
+            fmt='%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        warn_handler.setFormatter(warn_fmt)
+        self.addHandler(warn_handler)
+
+    def info(self, msg: str, *args, **kwargs):
+        indent = kwargs.pop('indent', 0)
+        if indent > 0:
+            msg = self._indent * indent + msg.replace('\n', '\n' + self._indent * indent)
+        super().info(msg, *args, **kwargs)
+
+    def warning(self, *args, **kwargs):
+        super().warning(*args, **kwargs)
         self._num_warnings += 1
 
-    def print_command_line(self):
+    def error(self, *args, **kwargs):
+        super().error(*args, **kwargs)
+        self._num_errors += 1
+
+    def log_command_line_args(self):
         args = sys.argv[:]
         for i, arg in enumerate(args):
             if ' ' in arg or '\t' in arg:
@@ -79,7 +120,7 @@ class NerpaLogger(object):
         self.info('')
         self.info('Started with command: ' + ' '.join(args))
 
-    def print_system_info(self):
+    def log_system_info(self):
         self.info('')
         self.info("System information:")
         self.info("OS: " + platform.platform(), indent=1)
@@ -90,31 +131,41 @@ class NerpaLogger(object):
         except ImportError:
             self.info("Problem occurred when getting CPUs number information", indent=1)
 
-    def print_timestamp(self, msg=''):
-        now = datetime.datetime.now()
-        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        self.info('')
-        self.info(msg + current_time)
-        return now
+    def unrecoverable_error(self, msg='', *args, **kwargs):
+        if msg:
+            msg += '\n\n'
+        msg += UNRECOVERABLE_ERROR_MSG
+        self.error(msg, *args, **kwargs)
+
+    def log_tool_version(self):
+        self.info('\nNerpa version: ' + self.cfg.nerpa_version)
 
     def start(self):
-        # self.print_tool_version()
-        self.print_command_line()
-        self.print_system_info()
+        self.log_command_line_args()
+        self.log_tool_version()
+        self.log_system_info()
 
-        self._start_time = self.print_timestamp('Started: ')
-        self.info('')
-        self.info('Logging to ' + self._log_fpath)
+        self._start_time = datetime.datetime.now()
+        self.info('Started: ' + self._start_time.strftime("%Y-%m-%d %H:%M:%S"))
+        self.info(f'Logging to {self.cfg.log_file} (verbose) and {self.cfg.warnings_file} (warnings)')
 
     def finish(self):
-        self.info('Log is saved to ' + self._log_fpath, indent=1)
+        self.info(f'Verbose log is saved to {self.cfg.log_file}')
+        self.info(f'Warnings log is saved to {self.cfg.warnings_file}')
 
-        finish_time = self.print_timestamp('Finished: ')
-        self.info('Elapsed time: ' + str(finish_time - self._start_time))
+        finish_time = datetime.datetime.now()
+        self.info('Finished: ' + finish_time.strftime("%Y-%m-%d %H:%M:%S"))
+        self.info(f'Elapsed time: {finish_time - self._start_time}')
         if self._num_warnings:
-            self.info("WARNINGs: %d" % self._num_warnings)
+            self.info(f'WARNINGs: {self._num_warnings}')
+        if self._num_errors:
+            self.info(f'ERRORs: {self._num_errors}')
 
         self.info('\nThank you for using Nerpa!')
 
-        for handler in self._logger.handlers:
-            self._logger.removeHandler(handler)
+        for handler in list(self.handlers):  # iterate over a copy
+            self.removeHandler(handler)
+            try:
+                handler.close()
+            except Exception:
+                pass

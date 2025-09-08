@@ -1,0 +1,4 @@
+log_file: nerpa.log
+warnings_file: warnings.log
+stdout_log_level: INFO
+nerpa_version: 2.1.0
