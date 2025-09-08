@@ -17,6 +17,8 @@ from src.generic.combinatorics import generate_permutations, split_sequence_bloc
 from functools import partial
 from itertools import chain, islice, pairwise, product, groupby
 from more_itertools import split_before, split_at
+
+from src.pipeline.buffered_logger import BufferedLogger
 from src.pipeline.logger import NerpaLogger
 
 
@@ -185,12 +187,12 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster) -> Iterable[Fragmented_BGC_Cluste
 
 def split_and_reorder(bgc: BGC_Cluster,
                       config: antiSMASH_Processing_Config,
-                      log: NerpaLogger) -> List[Fragmented_BGC_Cluster]:
+                      log: BufferedLogger) -> List[Fragmented_BGC_Cluster]:
     result = list(islice((fragmented_bgc
                           for fragmented_bgc in generate_fragmented_bgcs(bgc)),
                          config.MAX_VARIANTS_PER_BGC + 1))
     if len(result) > config.MAX_VARIANTS_PER_BGC:
-        log.info(f'WARNING: Too many BGC variants. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
+        log.warning(f'Too many BGC variants. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')
         # del result[-1]
         result = result[:config.MAX_VARIANTS_PER_BGC]
     return result

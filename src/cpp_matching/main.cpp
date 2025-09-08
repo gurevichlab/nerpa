@@ -73,7 +73,7 @@ int main(int argc, char** argv)
         //auto [hmms_for_matching, hmms_for_p_value_estimation] = parse_hmms_from_json(hmms_json_path);
 
         // 2. Parse NRP linearizations + NRP IDs
-        std::cout << "Parsing NRP linearizations from " << hmms_json_path << std::endl;
+        std::cout << "Parsing NRP linearizations from " << nrps_json_path << std::endl;
         auto nrp_linearizations = parse_nrps_from_json(nrps_json_path);
 
         // 3. Parse the matching configuration

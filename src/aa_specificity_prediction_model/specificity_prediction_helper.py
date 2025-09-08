@@ -13,6 +13,7 @@ from src.generic.string import hamming_distance
 from src.monomer_names_helper import AA34, MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue, \
     UNKNOWN_RESIDUE
 from src.paras.paras_wrapper import ParasWrapper
+from src.pipeline.buffered_logger import BufferedLogger
 from src.pipeline.logger import NerpaLogger
 from src.pipeline.paras_parsing import PARAS_RESIDUE
 
@@ -36,7 +37,6 @@ class SpecificityPredictionHelper:
     KNOWN_SPECIFICITIES: Dict[AA34, List[MonomerResidue]]
     external_predictions: Dict[AA34, Dict[MonomerResidue, LogProb]]
     DEFAULT_MODEL: Literal['nerpa', 'paras']
-    log: NerpaLogger
 
     _calibration_step_function_nerpa: Callable[[float], float]
     _calibration_step_function_paras: Callable[[float], float]
@@ -49,7 +49,6 @@ class SpecificityPredictionHelper:
     def __init__(self,
                  config: SpecificityPredictionConfig,
                  monomer_names_helper: MonomerNamesHelper,
-                 log: NerpaLogger,
                  external_predictions: Optional[Dict[AA34, Dict[MonomerResidue, Prob]]] = None):
         self.config = config
         self.monomer_names_helper = monomer_names_helper
@@ -72,12 +71,12 @@ class SpecificityPredictionHelper:
         self._calibration_step_function_nerpa = create_step_function(config.CALIBRATION_STEP_FUNCTION_STEPS_NERPA)
 
         self._cache = {}
-        self.log = log
 
     def predict(self,
                 a_domain: A_Domain,
                 _no_cache: bool = False,  # for debugging/training purposes
-                _no_calibration: bool = False) -> Dict[MonomerResidue, Prob]:
+                _no_calibration: bool = False,
+                log: Optional[NerpaLogger | BufferedLogger] = None) -> Dict[MonomerResidue, Prob]:
         if a_domain.aa34 in self._cache and not _no_cache:
             return self._cache[a_domain.aa34]
 
@@ -86,8 +85,8 @@ class SpecificityPredictionHelper:
             raw_predictions = self.external_predictions[a_domain.aa34]
             calibration_function = self._calibration_step_function_paras
         else:
-            if self.external_predictions:
-                self.log.info(f"Warning: no external prediction for {a_domain.aa34}"
+            if self.external_predictions and log is not None:
+                log.info(f"Warning: no external prediction for {a_domain.aa34}"
                          f" - using {self.DEFAULT_MODEL} model instead.")
             if self.DEFAULT_MODEL == 'paras':
                 raw_predictions = self._predict_paras(a_domain)

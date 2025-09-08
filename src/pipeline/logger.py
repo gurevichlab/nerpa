@@ -169,3 +169,4 @@ class NerpaLogger(Logger):
                 handler.close()
             except Exception:
                 pass
+

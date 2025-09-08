@@ -87,7 +87,6 @@ class PipelineHelper:
             if self.args.paras_results is not None else None
         specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
                                                                     self.monomer_names_helper,
-                                                                    self.log,
                                                                     external_specificity_predictions)
 
         hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config,

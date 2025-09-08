@@ -4,14 +4,17 @@ from typing import (
     Iterable,
     List,
     Optional,
-    Union
+    Union, Tuple
 )
 
+from more_itertools import chunked
+
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
+from src.pipeline.buffered_logger import BufferedLogger
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logger import NerpaLogger
 from src.pipeline.download_antismash_results import download_antismash_results
-from src.config import Config
+from src.config import Config, antiSMASH_Processing_Config
 from src.data_types import AA34, BGC_Variant, LogProb
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
@@ -28,6 +31,30 @@ from dataclasses import dataclass
 from itertools import chain
 from copy import deepcopy
 from joblib import Parallel, delayed
+
+
+def extract_bgc_variants_from_antismash(antismash_results_chunk: Iterable[Tuple[Path, antiSMASH_record]],
+                                        antismash_processing_config: antiSMASH_Processing_Config,
+                                        specificity_prediction_helper: SpecificityPredictionHelper,
+                                        log: BufferedLogger,
+                                        ) -> Tuple[List[BGC_Variant], BufferedLogger]:
+    bgc_variants: List[BGC_Variant] = []
+    for antismash_json_file, antismash_json_contents in antismash_results_chunk:
+        try:
+            antismash_bgcs = parse_antismash_json(antismash_json_contents,
+                                                  antismash_processing_config,
+                                                  log)
+            new_bgc_variants = chain.from_iterable(build_bgc_variants(bgc,
+                                                                      specificity_prediction_helper,
+                                                                      antismash_processing_config,
+                                                                      log)
+                                                   for bgc in antismash_bgcs)
+            bgc_variants.extend(new_bgc_variants)
+        except Exception as e:
+            log.error(f'Unexpected error while parsing antiSMASH JSON {antismash_json_file}: {e}'
+                      f'\nSkipping this file.')
+
+    return bgc_variants, log
 
 
 @dataclass
@@ -69,7 +96,7 @@ class PipelineHelper_antiSMASH:
                 symlink.symlink_to(antismash_dir.resolve())
 
     # TODO: refactor: this function is doing too much
-    def get_antismash_results(self) -> Iterable[antiSMASH_record]:
+    def get_antismash_results(self) -> Iterable[Tuple[Path, antiSMASH_record]]:
         self.config.output_config.antismash_out_dir.mkdir(exist_ok=True)
         antismash_results: List[Path] = []
         if self.args.antismash is not None:
@@ -103,17 +130,9 @@ class PipelineHelper_antiSMASH:
 
         self.create_symlinks_to_antismash_results(antismash_json.parent
                                                   for antismash_json in antismash_jsons)
-        return (antiSMASH_record(json.loads(antismash_json_file.read_text()))
+        return ((antismash_json_file, antiSMASH_record(json.loads(antismash_json_file.read_text())))
                 for antismash_dir in antismash_results
                 for antismash_json_file in antismash_dir.glob('**/*.json'))
-
-
-    def _safe_extract_bgc_variants(self, antismash_record) -> List[BGC_Variant]:
-        try:
-            return self.extract_bgc_variants_from_antismash(antismash_record)
-        except Exception as e:
-            self.log.error(f'Error while parsing antismash record: {antismash_record["input_file"]}, skipping')
-            return []  # suppress exception
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
         if self.preprocessed_bgc_variants():
@@ -125,14 +144,21 @@ class PipelineHelper_antiSMASH:
         self.log.info(f'\n======= Predicting BGC variants from antiSMASH results'
                      f' using {self.args.threads} threads')
 
-        bgc_variants_in_chunks = Parallel(n_jobs=1)(  # TODO: implement multithreading
-            delayed(self._safe_extract_bgc_variants)(antismash_record)
-            for antismash_record in antismash_results
+        bgc_variants_in_chunks = Parallel(n_jobs=self.args.threads)(  # TODO: implement multithreading
+            delayed(extract_bgc_variants_from_antismash)(
+                antismash_results_chunk,
+                self.config.antismash_processing_config,
+                self.specificity_prediction_helper,
+                BufferedLogger())
+            for antismash_results_chunk in chunked(antismash_results,
+                                                   self.config.antismash_processing_config.MIN_FILES_PER_THREAD)
         )
-        bgc_variants = list(chain.from_iterable(bgc_variants_in_chunks))
+        bgc_variants_batches, loggers = zip(*bgc_variants_in_chunks)
+        BufferedLogger.replay(self.log, loggers)
+
 
         self.log.info('\n======= Done with Predicting BGC variants')
-        return bgc_variants
+        return list(chain(*bgc_variants_batches))
 
     def run_antismash(self, dna_sequences: Path,
                       threads: int, output_dir: Path,
@@ -146,37 +172,7 @@ class PipelineHelper_antiSMASH:
         sys_call(command, log, cwd=self.config.output_config.main_out_dir)
         return output_dir
 
-    def extract_bgc_variants_from_antismash(self,
-                                            antismash_json: antiSMASH_record) -> List[BGC_Variant]:
-        antismash_bgcs = parse_antismash_json(antismash_json,
-                                              self.config.antismash_processing_config,
-                                              self.log)
-        bgc_variants = list(chain.from_iterable(build_bgc_variants(bgc,
-                                                                   self.specificity_prediction_helper,
-                                                                   self.config.antismash_processing_config,
-                                                                   self.log)
-                                                for bgc in antismash_bgcs))
-
-        if self.args.debug:
-            debug_specificity_prediction_cfg = deepcopy(self.config.specificity_prediction_config)
-            debug_specificity_prediction_cfg.ENABLE_CALIBRATION = False
-            debug_specificity_prediction_cfg.ENABLE_DICTIONARY_LOOKUP = False
-
-            debug_specificity_prediction_cfg.APRIORI_RESIDUE_PROB = \
-                {res: 1.0 for res in self.monomer_names_helper.supported_residues}  # this effectively forces computing logprobs instead of log-odds
-            debug_spec_helper = SpecificityPredictionHelper(debug_specificity_prediction_cfg,
-                                                            self.monomer_names_helper,
-                                                            self.log)
-
-            bgc_variants_no_cal = list(chain.from_iterable(build_bgc_variants(bgc,
-                                                                              debug_spec_helper,
-                                                                              self.config.antismash_processing_config,
-                                                                              self.log)
-                                                    for bgc in antismash_bgcs))
-            write_bgc_variants(bgc_variants_no_cal,
-                               self.config.output_config.bgc_variants_no_calibration_dir)
 
 
-        return bgc_variants
 
 

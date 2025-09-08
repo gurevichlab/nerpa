@@ -39,6 +39,7 @@ class antiSMASH_Processing_Config:
     MAX_PERMUTATIONS_PER_BGC: int
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
     DEBUG_MODE: bool
+    MIN_FILES_PER_THREAD: int
 
     def __init__(self,
                  cfg_dict: dict,

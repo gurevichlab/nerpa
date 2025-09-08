@@ -32,6 +32,7 @@ from src.data_types import (
     LogProb
      )
 from src.monomer_names_helper import MonomerNamesHelper, MonomerResidue
+from src.pipeline.buffered_logger import BufferedLogger
 from src.pipeline.logger import NerpaLogger
 from src.config import antiSMASH_Processing_Config, SpecificityPredictionConfig
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
@@ -92,11 +93,11 @@ def build_bgc_assembly_line(fragmented_bgc: Fragmented_BGC_Cluster,
 def build_bgc_variants(bgc: BGC_Cluster,
                        specificity_prediction_helper: SpecificityPredictionHelper,
                        antismash_cfg: antiSMASH_Processing_Config,
-                       log: NerpaLogger) -> List[BGC_Variant]:
+                       log: BufferedLogger) -> List[BGC_Variant]:
     if not any(module.a_domain is not None
                for gene in bgc.genes
                for module in gene.modules):
-        log.info(f'WARNING: BGC {bgc.bgc_id} has no genes with A-domains. Skipping.')
+        log.warning(f'BGC {bgc.bgc_id} has no genes with A-domains. Skipping.')
         return []
     fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
 
