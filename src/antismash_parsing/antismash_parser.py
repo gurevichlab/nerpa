@@ -29,6 +29,8 @@ from src.monomer_names_helper import (
 )
 from parse import parse
 from collections import defaultdict
+
+from src.pipeline.buffered_logger import BufferedLogger
 from src.pipeline.logger import NerpaLogger
 
 
@@ -65,7 +67,7 @@ def extract_a_domains_info(contig_data: dict,
                            config: antiSMASH_Processing_Config,
                            ctg_idx: int,  # only for error messages
                            genome_id: str, # only for error messages
-                           log: NerpaLogger) -> Dict[A_Domain_Id, A_Domain]:
+                           log: BufferedLogger) -> Dict[A_Domain_Id, A_Domain]:
     if "antismash.modules.nrps_pks" not in contig_data["modules"]:
         return {}
 
@@ -279,7 +281,7 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
 
 def parse_antismash_json(antismash_json: antiSMASH_record,
                          config: antiSMASH_Processing_Config,
-                         log: NerpaLogger) -> List[BGC_Cluster]:
+                         log: BufferedLogger) -> List[BGC_Cluster]:
     bgcs = []
     genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
     for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
