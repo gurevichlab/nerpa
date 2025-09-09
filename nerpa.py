@@ -23,13 +23,6 @@ def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make
     nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()
     nrp_linearizations = pipeline_helper.get_nrp_linearizations(nrp_variants)
 
-    nrp_ids = {nrp_linearization.nrp_id
-               for nrp_linearization in nrp_linearizations
-               if nrp_linearization.non_iterative}
-    with open('nrp_ids.txt', 'w') as f:
-        for nrp_id in sorted(nrp_ids):
-            f.write(f"{nrp_id}\n")
-
     matches = pipeline_helper.get_matches(hmms, nrp_linearizations, nrp_variants)
     pipeline_helper.write_results(matches, bgc_variants, nrp_variants, rban_records)
 

@@ -23,7 +23,6 @@ parse_nrps_from_json(const std::string& nrp_json_path)
 
     for (auto& entry : j) {
         NRP_ID nrp_id = entry["nrp_id"].get<std::string>();
-
         NRP_Linearizations nrp_obj;
         // Parse non_iterative
         for (auto& lin_j : entry["non_iterative"]) {
@@ -35,6 +34,7 @@ parse_nrps_from_json(const std::string& nrp_json_path)
             for (auto& m : mon_codes_j) {
                 lin.first.push_back(m.get<MonCode>());
             }
+
             for (auto& r : rban_idxs_j) {
                 lin.second.push_back(r.get<rBAN_idx>());
             }
@@ -71,6 +71,5 @@ parse_nrps_from_json(const std::string& nrp_json_path)
 
         nrp_linearizations.emplace_back(std::move(nrp_obj), nrp_id);
     }
-
     return nrp_linearizations;
 }

@@ -26,7 +26,7 @@ class PlotsDataHelper:
                                        sep='\t')
         self.rban_graphs_table = pd.read_csv(nerpa_dir / 'scripts' / 'build_mibig_info_table' / 'rban_graphs_filtered.tsv',
                                         sep='\t')
-        self.mibig_norine_nrps = set(pd.read_csv(nerpa_dir / 'data' / 'mibig_norine_compounds.tsv', sep='\t')['ID'])
+        self.mibig_norine_nrps = set(pd.read_csv(nerpa_dir / 'data/input' / 'pnrpdb2_mibig_norine_deduplicated.tsv', sep='\t')['ID'])
 
         self.bgc_to_nrp_iso_classes = defaultdict(set)
         for _, row in self.mibig_nrps_table.iterrows():
@@ -624,9 +624,14 @@ def nerpa1_vs_nerpa2_vs_nerpa2new():
     # 4. Generate plots
     print('Generating plots...')
     output_dir = Path('/home/ilianolhin/git/nerpa2/benchmarking/nerpa1_vs_nerpa2_plots')
+    '''
     helper.plot_all({'Nerpa 1': nerpa1_report,
                      'Nerpa 2': nerpa2_report,
                      'Nerpa 2 score vs avg NRP': nerpa2_new_vs_avg_nrp,
+                     'Nerpa 2 score vs avg BGC': nerpa2_new_vs_avg_bgc},
+                    output_dir=output_dir)
+    '''
+    helper.plot_all({'Nerpa 1': nerpa1_report,
                      'Nerpa 2 score vs avg BGC': nerpa2_new_vs_avg_bgc},
                     output_dir=output_dir)
 

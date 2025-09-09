@@ -356,7 +356,7 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     output_cfg = OutputConfig(output_cfg_dict, nerpa_dir, main_out_dir, args)
 
     logging_cfg_dict = yaml.safe_load((nerpa_dir / cfg['logging_config']).open('r'))
-    logging_cfg = LoggingConfig(logging_cfg_dict, nerpa_dir)
+    logging_cfg = LoggingConfig(logging_cfg_dict, nerpa_dir, main_out_dir)
 
     matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
     matching_cfg = MatchingConfig(matching_cfg_dict, args)
