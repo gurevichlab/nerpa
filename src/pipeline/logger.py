@@ -22,9 +22,10 @@ class LoggingConfig:
 
     def __init__(self,
                  cfg: dict,
-                 nerpa_dir: Path):
-        self.log_file = nerpa_dir / cfg['log_file']
-        self.warnings_file = nerpa_dir / cfg['warnings_file']
+                 nerpa_dir: Path,
+                 main_out_dir: Path):
+        self.log_file = main_out_dir / cfg['log_file']
+        self.warnings_file = main_out_dir / cfg['warnings_file']
 
         stdout_log_level = cfg.get('stdout_log_level', 'INFO')
         if stdout_log_level not in ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'):
@@ -111,6 +112,11 @@ class NerpaLogger(Logger):
     def error(self, *args, **kwargs):
         super().error(*args, **kwargs)
         self._num_errors += 1
+
+    def _log(self, level, msg, args,
+             exc_info=None, extra=None, stack_info=False, stacklevel=1):
+        # Skip this wrapper frame so filename/lineno point to the caller
+        super()._log(level, msg, args, exc_info, extra, stack_info, stacklevel + 1)
 
     def log_command_line_args(self):
         args = sys.argv[:]

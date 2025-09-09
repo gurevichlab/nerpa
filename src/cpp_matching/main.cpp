@@ -89,7 +89,7 @@ int main(int argc, char** argv)
         std::cout << "Matching " <<
                   hmms_for_matching.size() << " HMMs against " <<
                   nrp_linearizations.size() << " NRP linearizations in " <<
-            num_threads << " threads...\n";
+            num_threads << " threads..." << std::endl;
 
         auto start = std::chrono::high_resolution_clock::now(); // Start time
         auto matches = get_matches(hmms_for_matching, nrp_linearizations, matching_cfg, num_threads);
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
 
         // 6. Dump the resulting matches to an output JSON file
-        std::cout << "Writing matches and p-values to " << output_json_path << std::endl;
+        std::cout << "Writing matches to " << output_json_path << std::endl;
         write_output_to_json(matches, p_values_by_hmm, output_json_path);
 
         std::cout << "Done! Wrote " << matches.size() << " matches to "

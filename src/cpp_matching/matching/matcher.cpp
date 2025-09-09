@@ -10,9 +10,7 @@ using namespace std;
 
 LogProb linearization_score(const HMM& hmm,
                             const NRP_Linearization& linearization){
-    vector<pair<StateIdx, int>> checkpoints = { {0, 0},
-                                                {(int) hmm.transitions.size() - 1, linearization.first.size()} };
-    return get_hmm_score(hmm, linearization.first, checkpoints);
+    return get_hmm_score(hmm, linearization.first);
 }
 
 
@@ -239,7 +237,8 @@ vector<MatchInfo> get_matches(const unordered_map<BGC_Variant_ID , HMM>& hmms,
                                  matches_light_for_bgc_variant.end());
         }
 
-        for (int i = 0; i < static_cast<int>(bgc_hmm_pairs.size()); i++) {
+#pragma omp for nowait
+        for (int i = 0; i < static_cast<int>(nrp_linearizations.size()); i++) {
             const auto& [nrp_linearization, nrp_id] = nrp_linearizations[i];
             auto matches_light_for_nrp = get_best_matches_for_nrp(nrp_id,
                                                                   nrp_linearization,

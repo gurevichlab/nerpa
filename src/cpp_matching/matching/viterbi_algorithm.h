@@ -3,8 +3,7 @@
 #include <vector>
 
 LogProb get_hmm_score(const HMM& hmm,
-                      const std::vector<MonCode>& nrp_monomers,
-                      const std::vector<std::pair<StateIdx, int>>& checkpoints);
+                      const std::vector<MonCode>& nrp_monomers);
 
 std::pair<LogProb, std::vector<StateIdx>>
 get_opt_hmm_path(const HMM& hmm,
