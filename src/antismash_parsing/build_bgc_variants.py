@@ -85,10 +85,17 @@ def build_bgc_variants(bgc: BGC_Cluster,
                for module in gene.modules):
         log.warning(f'BGC {bgc.bgc_id} has no genes with A-domains. Skipping.')
         return []
-    fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
 
-    return [BGC_Variant(bgc_variant_id=BGC_Variant_ID(bgc_id=bgc.bgc_id, variant_idx=idx),
-                        modules=assembly_line)
-            for idx, fragmented_bgc in enumerate(fragmented_bgcs)
-            if (assembly_line := build_bgc_assembly_line(fragmented_bgc,
-                                                         specificity_prediction_helper))]
+    try:
+        fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
+
+        bgc_variants = [BGC_Variant(bgc_variant_id=BGC_Variant_ID(bgc_id=bgc.bgc_id, variant_idx=idx),
+                                    modules=assembly_line)
+                        for idx, fragmented_bgc in enumerate(fragmented_bgcs)
+                        if (assembly_line := build_bgc_assembly_line(fragmented_bgc,
+                                                                     specificity_prediction_helper))]
+    except Exception as e:
+        log.error(f'Error processing BGC {bgc.bgc_id}: {e}. Skipping.')
+        return []
+
+    return bgc_variants

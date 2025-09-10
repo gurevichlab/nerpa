@@ -99,6 +99,10 @@ class PipelineHelper_antiSMASH:
                                      for job_id in self.args.antismash_job_ids)
         antismash_jsons: List[Path] = []
         for antismash_dir in antismash_results:
+            if antismash_dir.is_file() and antismash_dir.suffix == '.json':
+                antismash_jsons.append(antismash_dir)
+                continue
+
             antismash_jsons_in_dir = list(antismash_dir.glob('**/*.json'))
             if not antismash_jsons_in_dir:
                 self.log.warning(f'No antiSMASH json files found in {antismash_dir}, skipping')
@@ -114,6 +118,9 @@ class PipelineHelper_antiSMASH:
             return self.load_bgc_variants()
 
         as_json_paths = self.get_antismash_results()
+        if not as_json_paths:
+            self.log.error('No antiSMASH results provided, aborting')
+            raise ValueError('No antiSMASH results provided')
 
         self.log.info(f'\n======= Predicting BGC variants from antiSMASH results'
                      f' using {self.args.threads} threads')
