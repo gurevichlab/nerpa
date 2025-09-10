@@ -83,7 +83,7 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
     matched_nrp_ids = {match.nrp_variant_id.nrp_id for match in matches}
     if rban_records is not None:
         write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
-                   output_cfg.main_out_dir / Path('rban_graphs.yaml'))
+                   output_cfg.rban_graphs)
         if output_cfg.draw_molecules:
             for rban_record in rban_records:
                 if rban_record.compound_id not in matched_nrp_ids:
@@ -97,19 +97,16 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
 
-    output_cfg.nrp_variants_dir.mkdir()
-    for nrp_id, nrp_id_variants in sort_groupby(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_variant_id.nrp_id):
-        write_yaml(list(nrp_id_variants), output_cfg.nrp_variants_dir / f'{nrp_id}.yaml')
+    write_yaml(sorted(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_variant_id),
+               output_cfg.nrp_variants)
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
-                       output_dir: Path):
-    for bgc_id, bgc_id_variants in sort_groupby(bgc_variants, key=lambda bgc_variant: bgc_variant.bgc_variant_id.bgc_id):
-        bgc_id_str = f'{bgc_id.genome_id}_{bgc_id.contig_idx}_{bgc_id.bgc_idx}'
-        bgc_id_variants = list(bgc_id_variants)
-        write_yaml([bgc_variant.to_dict() for bgc_variant in bgc_id_variants],
-                   output_dir / f'{bgc_id_str}.yaml')
-
+                       output_file: Path):
+    write_yaml([bgc_variant.to_dict()
+                for bgc_variant in sorted(bgc_variants,
+                                          key=lambda bgc_id_variant: bgc_id_variant.bgc_variant_id)],
+               output_file)
 
 def write_matches_details(matches: List[Match],
                           matches_details_output_dir: Path):
@@ -134,6 +131,7 @@ def write_results(matches: List[Match],
                   matches_details: bool = True,
                   html_report: bool = True,
                   debug_output: bool = False,
+                  write_only_present_in_matches: bool = True,
                   log: Optional[NerpaLogger] = None):
     output_cfg.report.write_text(build_report(matches))
 
@@ -141,13 +139,16 @@ def write_results(matches: List[Match],
     nrp_variants_in_matches = {match.nrp_variant_id for match in matches}
 
     if bgc_variants is not None:
-        bgc_variants = [bgc_variant for bgc_variant in bgc_variants
-                        if bgc_variant.bgc_variant_id in bgc_variants_in_matches]
-        output_cfg.bgc_variants_dir.mkdir()
-        write_bgc_variants(bgc_variants, output_cfg.bgc_variants_dir)
+        if write_only_present_in_matches:
+            bgc_variants = [bgc_variant for bgc_variant in bgc_variants
+                            if bgc_variant.bgc_variant_id in bgc_variants_in_matches]
+        output_cfg.bgc_variants.parent.mkdir(exist_ok=True, parents=True)
+        write_bgc_variants(bgc_variants, output_cfg.bgc_variants)
     if nrp_variants is not None:
-        nrp_variants = [nrp_variant for nrp_variant in nrp_variants
-                        if nrp_variant.nrp_variant_id in nrp_variants_in_matches]
+        if write_only_present_in_matches:
+            nrp_variants = [nrp_variant for nrp_variant in nrp_variants
+                            if nrp_variant.nrp_variant_id in nrp_variants_in_matches]
+        output_cfg.nrp_variants.parent.mkdir(exist_ok=True, parents=True)
         write_nrp_variants(nrp_variants,
                            rban_records=rban_records,
                            matches=matches,

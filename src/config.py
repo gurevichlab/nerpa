@@ -244,8 +244,8 @@ class OutputConfig:
     symlink_to_latest: Optional[Path]
     configs_output: Path
     antismash_out_dir: Path
-    bgc_variants_dir: Path
-    nrp_variants_dir: Path
+    bgc_variants: Path
+    nrp_variants: Path
     nrp_images_dir: Path
     rban_graphs: Path
     draw_molecules: bool
