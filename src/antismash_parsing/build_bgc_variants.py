@@ -1,22 +1,13 @@
-from copy import deepcopy
 from math import log
 from typing import (
-    Any,
-    Callable,
     Dict,
-    List,
-    NamedTuple,
-    Optional
+    List
 )
-from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
     BGC_Cluster,
-    DomainType,
-    Gene,
-    SVM_LEVEL,
-    SVM_Prediction, BGC_Module_ID, Fragmented_BGC_Cluster
+    BGC_Module_ID, Fragmented_BGC_Cluster
 )
 from src.antismash_parsing.determine_modifications import (
     get_modules_modifications,
@@ -24,20 +15,15 @@ from src.antismash_parsing.determine_modifications import (
     get_iterative_modules_ids
 )
 from src.data_types import (
-    AA34,
-    BGC_ID,
     BGC_Variant_ID,
     BGC_Variant,
     BGC_Module,
     LogProb
      )
-from src.monomer_names_helper import MonomerNamesHelper, MonomerResidue
-from src.pipeline.buffered_logger import BufferedLogger
-from src.pipeline.logger import NerpaLogger
-from src.config import antiSMASH_Processing_Config, SpecificityPredictionConfig
+from src.monomer_names_helper import MonomerResidue
+from src.pipeline.logging.buffered_logger import BufferedLogger
+from src.config import antiSMASH_Processing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
-from src.generic.string import hamming_distance
-from src.generic.functional import cached_by_key
 from src.antismash_parsing.genomic_context import get_modules_genomic_context
 from itertools import chain
 

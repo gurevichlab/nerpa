@@ -1,7 +1,7 @@
 import requests
 from pathlib import Path
 import zipfile
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.logger import NerpaLogger
 from bs4 import BeautifulSoup
 
 

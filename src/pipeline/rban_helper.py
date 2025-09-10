@@ -8,7 +8,7 @@ from typing import (
 )
 from src.monomer_names_helper import NorineMonomerName
 from src.pipeline import nerpa_utils
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.logger import NerpaLogger
 from src.config import rBAN_Config, rBAN_Output_Config
 
 import json

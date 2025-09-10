@@ -2,10 +2,8 @@ import time
 from typing import (
     Dict,
     List,
-    Literal,
     Optional,
-    Tuple,
-    TYPE_CHECKING
+    Tuple
 )
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,11 +14,7 @@ from argparse import Namespace as CommandLineArgs
 import pandas as pd
 from collections import defaultdict
 
-from scipy.signal import residue
-
-from src.antismash_parsing.genomic_context import ModuleGenomicContext
-from src.data_types import Prob, LogProb
-from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
+from src.data_types import Prob
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     MonomerResidue,
@@ -28,7 +22,7 @@ from src.monomer_names_helper import (
     AA10,
     AA34
 )
-from src.pipeline.logger import LoggingConfig
+from src.pipeline.logging.logger import LoggingConfig
 
 
 @dataclass

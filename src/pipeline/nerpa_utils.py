@@ -1,12 +1,10 @@
 import os
 import re
 import shutil
-import datetime
 import shlex
 import subprocess
 from src.config import OutputConfig
-from src.pipeline.logger import NerpaLogger, PreliminaryLogger
-from pathlib import Path
+from src.pipeline.logging.logger import PreliminaryLogger
 
 
 def set_up_output_dir(output_cfg: OutputConfig,

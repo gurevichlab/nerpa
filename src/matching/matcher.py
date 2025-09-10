@@ -21,7 +21,7 @@ from src.matching.hmm_auxiliary_types import HMM_LPUC
 from src.matching.hmm_match import HMM_Match
 from src.matching.viterbi_algorithm import get_opt_path_with_score
 from src.monomer_names_helper import MonomerNamesHelper
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.logger import NerpaLogger
 from src.rban_parsing.get_linearizations import NRP_Linearizations, num_linearizations
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
