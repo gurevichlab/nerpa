@@ -98,7 +98,12 @@ class PipelineHelper:
 
     @timing_decorator('Getting BGC variants')
     def get_bgc_variants(self) -> List[BGC_Variant]:
-        return self.pipeline_helper_antismash.get_bgc_variants()
+        bgc_variants = self.pipeline_helper_antismash.get_bgc_variants()
+        if not bgc_variants:
+            self.log.info("No BGC variants found. Exiting.")
+            self.finish()
+            exit(0)
+        return bgc_variants
 
     @timing_decorator('Getting NRP variants')
     def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
@@ -108,6 +113,11 @@ class PipelineHelper:
         else:
             rban_records = self.pipeline_helper_rban.get_rban_results()
             nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
+
+        if not nrp_variants:
+            self.log.info("No NRP variants found. Exiting.")
+            self.finish()
+            exit(0)
         return nrp_variants, rban_records
 
     @timing_decorator('Constructing HMMs')

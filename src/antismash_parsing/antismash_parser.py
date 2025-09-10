@@ -55,6 +55,12 @@ def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
                                         substrates=[antiSMASH_MonomerName(substrate['short'])
                                                     for substrate in substrates])
 
+    if len(svm_dict['aa10']) == 34 and len(svm_dict['aa34']) == 10:
+        # sometimes antiSMASH returns aa10 of length 34 and aa34 of length 10 - probably a bug
+        svm_dict['aa10'], svm_dict['aa34'] = svm_dict['aa34'], svm_dict['aa10']
+    if len(svm_dict['aa10']) != 10 or len(svm_dict['aa34']) != 34:
+        raise ValueError('Unexpected length of aa10 or aa34 code')
+
     return A_Domain(aa10=AA10(svm_dict['aa10']),
                     aa34=AA34(svm_dict['aa34']),
                     svm=svm)
