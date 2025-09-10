@@ -47,6 +47,7 @@ class PipelineHelperCpp:
 
     def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
         out_file = self.config.output_config.cpp_io_config.hmms_json
+        out_file.parent.mkdir(parents=True, exist_ok=True)
         data = [{"bgc_variant_info": detailed_hmm.bgc_variant.bgc_variant_id.to_dict(),
                  "hmm_for_matching": detailed_hmm.to_hmm(unknown_chirality_allowed=True,
                                                          emission_weights_type='LogProb').to_json(),
@@ -65,6 +66,7 @@ class PipelineHelperCpp:
                                 nrp_linearizations: List[NRP_Linearizations],
                                 any_hmm: DetailedHMM) -> Path:
         out_file = self.config.output_config.cpp_io_config.nrp_linearizations_json
+        out_file.parent.mkdir(parents=True, exist_ok=True)
         data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper, any_hmm)
                 for nrp_linearization in nrp_linearizations]
 
@@ -89,7 +91,7 @@ class PipelineHelperCpp:
                               '--min_num_matches_per_nrp', str(self.config.matching_config.min_num_matches_per_nrp),
                               '--max_num_matches', str(self.config.matching_config.max_num_matches),
                               '--threads', str(self.args.threads),
-                                '--output', self.config.output_config.cpp_io_config.cpp_output_json
+                              '--output', self.config.output_config.cpp_io_config.cpp_output_json
                           ]))
         print(f"Running C++ matcher with command: {' '.join(cmd)}")
         # q: print current time

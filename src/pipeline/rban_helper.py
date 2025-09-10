@@ -53,6 +53,8 @@ class rBAN_Helper:
         if output_file_name is None:
             output_file_name = self.output_cfg.default_output_file_name
 
+        self.output_cfg.rban_output_dir.mkdir(parents=True, exist_ok=True)
+
         json.dump(smiles_with_ids, input_file.open('w'))
         json.dump(self.monomers_db, self.output_cfg.default_monomers_file.open('w'))
         command = ['java', '-jar', str(self.config.rban_jar),

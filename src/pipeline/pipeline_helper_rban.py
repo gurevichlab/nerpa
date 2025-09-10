@@ -77,7 +77,8 @@ class PipelineHelper_rBAN:
 
         self.log.info('\n======= Structures preprocessing with rBAN')
         return self.rban_helper.run_rban(smiles_with_ids,
-                                         self.log, report_not_processed=True)
+                                         self.log,
+                                         report_not_processed=True)
 
     def get_chiralities_per_record(self, rban_records: List[Raw_rBAN_Record]) -> Dict[int, Dict[int, Chirality]]:
         chiralities_dict = {}
@@ -105,7 +106,7 @@ class PipelineHelper_rBAN:
     def get_nrp_variants(self,
                          parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
-        self.log.info(f'results will be in {self.config.output_config.main_out_dir / Path("NRP_Variants")}')
+        self.log.info(f'results will be in {self.config.output_config.nrp_variants}')
         nrp_variants = retrieve_nrp_variants(parsed_rban_records,
                                              self.monomer_names_helper,
                                              self.config.rban_processing_config,

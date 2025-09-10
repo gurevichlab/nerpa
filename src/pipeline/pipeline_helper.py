@@ -172,6 +172,7 @@ class PipelineHelper:
                                     bgc_variants, nrp_variants,
                                     rban_records,
                                     matches_details,
+                                    write_only_present_in_matches=True,
                                     log=self.log)
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
