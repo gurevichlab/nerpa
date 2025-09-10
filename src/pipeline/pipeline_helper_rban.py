@@ -1,8 +1,8 @@
 from collections import defaultdict
 from typing import Dict, List
 from src.pipeline.command_line_args_helper import CommandLineArgs
-from src.pipeline.logger import NerpaLogger
-from src.config import Config, rBAN_Processing_Config
+from src.pipeline.logging.logger import NerpaLogger
+from src.config import Config
 from src.data_types import Chirality, NRP_Variant
 
 from src.rban_parsing.retrieve_nrp_variants import retrieve_nrp_variants

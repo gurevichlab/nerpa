@@ -1,44 +1,26 @@
 from typing import (
     Dict,
     List,
-    Tuple, NamedTuple
+    NamedTuple
 )
-
-import yaml
 
 from src.pipeline.command_line_args_helper import (
-    CommandLineArgs,
-    get_command_line_args,
-    ValidationError
+    CommandLineArgs
 )
-from src.pipeline.logger import NerpaLogger
-from src.config import Config, load_config
+from src.pipeline.logging.logger import NerpaLogger
+from src.config import Config
 from src.data_types import (
-    BGC_Variant,
-    NRP_Variant, BGC_Variant_ID
-)
-import src.pipeline.nerpa_utils as nerpa_utils
-from src.rban_parsing.rban_parser import (
-    Parsed_rBAN_Record
+    BGC_Variant_ID
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.match_type import Match, NRP_Variant_ID
 from src.matching.detailed_hmm import DetailedHMM
-from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
-from src.matching.hmm_scoring_config import load_hmm_scoring_config
-from src.matching.hmm_scoring_helper import HMMHelper
-import src.write_results as report
 
-import shutil
-import pandas as pd
-from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
 from src.rban_parsing.get_linearizations import NRP_Linearizations
 
-from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
+from src.matching.hmm_match import HMM_Match
 import json
 from pathlib import Path
-from dataclasses import asdict
 import subprocess
 from dataclasses import dataclass
 

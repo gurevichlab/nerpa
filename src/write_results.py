@@ -1,11 +1,7 @@
 from typing import (
     Callable,
-    Iterable,
     List,
-    TypeVar,
-    Tuple,
-    Optional,
-    Union
+    Optional
 )
 
 from src.matching.detailed_hmm import DetailedHMM
@@ -18,7 +14,7 @@ from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
 from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.logger import NerpaLogger
 from pathlib import Path
 from io import StringIO
 import csv

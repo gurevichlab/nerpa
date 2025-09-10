@@ -1,8 +1,4 @@
 from functools import partial
-from itertools import (
-    chain,
-    count
-)
 from typing import (
     List
 )
@@ -16,17 +12,15 @@ from src.data_types import (
 )
 from src.monomer_names_helper import (
     MonomerNamesHelper,
-    NRP_Monomer,
     UNKNOWN_RESIDUE
 )
 from src.rban_parsing.rban_parser import MonomerInfo
 from src.rban_parsing.monomer_features import get_monomer_features
 from src.generic.graphs import (
     BackboneSequence,
-    permuted_backbones,
     putative_backbones
 )
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.logger import NerpaLogger
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.config import rBAN_Processing_Config
 from src.rban_parsing.rban_monomer import rBAN_Monomer

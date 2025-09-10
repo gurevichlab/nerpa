@@ -13,13 +13,11 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND, Fragmented_BGC_Cluster
 )
 from src.config import antiSMASH_Processing_Config
-from src.generic.combinatorics import generate_permutations, split_sequence_blocks
-from functools import partial
+from src.generic.combinatorics import generate_permutations
 from itertools import chain, islice, pairwise, product, groupby
 from more_itertools import split_before, split_at
 
-from src.pipeline.buffered_logger import BufferedLogger
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.buffered_logger import BufferedLogger
 
 
 def split_by_dist(bgc_cluster: BGC_Cluster,

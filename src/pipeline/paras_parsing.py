@@ -9,7 +9,8 @@ from math import log
 from Bio import SeqIO
 import json
 
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.logger import NerpaLogger
+from src.pipeline.logging.logging_types import AnyLogger
 
 PARAS_RESIDUE = str
 
@@ -90,7 +91,7 @@ def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE
 @timing_decorator
 def get_paras_results_all(paras_results: Path,
                           monomer_names_helper: MonomerNamesHelper,
-                          log: NerpaLogger) -> Dict[AA34, Dict[MonomerResidue, LogProb]]:
+                          log: AnyLogger) -> Dict[AA34, Dict[MonomerResidue, LogProb]]:
     log.info("Extracting PARAS results...")
 
     if not paras_results.exists() or not paras_results.is_dir():

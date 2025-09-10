@@ -1,20 +1,16 @@
 from typing import (
-    Dict,
     List,
     Tuple
 )
 
-import yaml
-
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.generic.functional import timing_decorator
-from src.matching.p_values_estimation import PValueEstimator
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
     get_command_line_args,
     ValidationError
 )
-from src.pipeline.logger import NerpaLogger, PreliminaryLogger
+from src.pipeline.logging.logger import NerpaLogger, PreliminaryLogger
 from src.config import (
     Config,
     load_config,
@@ -30,7 +26,7 @@ from src.rban_parsing.rban_parser import (
 )
 from src.monomer_names_helper import MonomerNamesHelper
 
-from src.matching.match_type import Match, NRP_Variant_ID
+from src.matching.match_type import Match
 from src.matching.matcher import get_hmm_matches
 from src.matching.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
@@ -40,12 +36,11 @@ from src.matching.hmm_scoring_helper import HMMHelper
 import src.write_results as write_results
 
 import shutil
-import pandas as pd
 from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
 from src.pipeline.paras_parsing import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
-from pathlib import Path
+
 
 class PipelineHelper:
     config: Config

@@ -1,11 +1,9 @@
 from collections import defaultdict
-from pathlib import Path
 from typing import Literal, Dict, List, Callable, Optional
 
 import pandas as pd
 
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
-from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.antismash_parsing.antismash_parser_types import A_Domain, SVM_Prediction, SVM_LEVEL
 from src.config import SpecificityPredictionConfig
 from src.data_types import LogProb, Prob
@@ -13,8 +11,8 @@ from src.generic.string import hamming_distance
 from src.monomer_names_helper import AA34, MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue, \
     UNKNOWN_RESIDUE
 from src.paras.paras_wrapper import ParasWrapper
-from src.pipeline.buffered_logger import BufferedLogger
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.buffered_logger import BufferedLogger
+from src.pipeline.logging.logger import NerpaLogger
 from src.pipeline.paras_parsing import PARAS_RESIDUE
 
 

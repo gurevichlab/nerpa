@@ -3,9 +3,7 @@ from typing import (
     List,
     Dict,
     NamedTuple,
-    Tuple,
-    Optional,
-    Set
+    Tuple
 )
 from src.antismash_parsing.antismash_parser_types import (
     A_Domain,
@@ -30,8 +28,7 @@ from src.monomer_names_helper import (
 from parse import parse
 from collections import defaultdict
 
-from src.pipeline.buffered_logger import BufferedLogger
-from src.pipeline.logger import NerpaLogger
+from src.pipeline.logging.buffered_logger import BufferedLogger
 
 
 class A_Domain_Id(NamedTuple):
