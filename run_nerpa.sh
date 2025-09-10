@@ -1,13 +1,11 @@
 python nerpa.py \
 -a /share/home/azat/nerpa/asdb-jsons \
---smiles-tsv /share/home/azat/nerpa/nerpa2-antismashdb-kenan/compounds_kenan.tsv \
---col-id ID \
---col-smiles SMILES \
+--nrp-variants ./data/input/preprocessed/pnrpdb2_deduplicated_preprocessed.yaml \
 -o ./nerpa_results/antismashdb/ \
 --force-output-dir \
 --fast-matching \
 --process-hybrids \
---min-num-matches-per-nrp 10 \
---max-num-matches-per-nrp 10 \
---max-num-matches 0 \
---threads 32
+--max-num-matches-per-bgc 10 \
+--max-num-matches 1000 \
+--threads 32 \
+--skip-molecule-drawing
