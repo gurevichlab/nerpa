@@ -129,7 +129,8 @@ class NRP_Fragment:
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Fragment:
         return cls(is_cyclic=data['is_cyclic'],
-                   monomers=list(map(rBAN_Monomer.from_yaml_dict, data['monomers'])))
+                   monomers=[rBAN_Monomer.from_list(mon_data_lst)
+                             for mon_data_lst in data['monomers']])
 
 
 class NRP_Variant_ID(NamedTuple):
@@ -144,7 +145,7 @@ class NRP_Variant:
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Variant:
-        return cls(nrp_variant_id=NRP_Variant_ID(**data['nrp_variant_id']),
+        return cls(nrp_variant_id=NRP_Variant_ID(*data['nrp_variant_id']),
                    fragments=list(map(NRP_Fragment.from_yaml_dict, data['fragments'])),
                    isolated_unknown_monomers=list(map(rBAN_Monomer.from_yaml_dict, data['isolated_monomers']))
                    if data.get('isolated_monomers') else [])

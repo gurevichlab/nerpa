@@ -34,6 +34,15 @@ class rBAN_Monomer(NamedTuple):
                    rban_name=NorineMonomerName(data['rban_name']),
                    rban_idx=int(data['rban_idx']))
 
+    @classmethod
+    def from_list(cls, data: list) -> rBAN_Monomer:
+        return cls(residue=MonomerResidue(data[0]),
+                   methylated=data[1],
+                   chirality=Chirality[data[2]],
+                   is_pks_hybrid=data[3],
+                   rban_name=NorineMonomerName(data[4]),
+                   rban_idx=int(data[5]))
+
     def to_base_mon(self) -> NRP_Monomer:
         return NRP_Monomer(residue=self.residue,
                            methylated=self.methylated,

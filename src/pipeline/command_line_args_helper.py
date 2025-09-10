@@ -43,9 +43,11 @@ def add_advanced_arguments(parser: argparse.ArgumentParser):
                                                      'Preprocessed data '
                                                      'in custom Nerpa-compliant formats')
     advanced_input_group.add_argument("--bgc-variants", dest="bgc_variants", metavar='DIR',
-                                      help="directory with predicted BGC variants (yaml files)", type=Path)
+                                      help="directory with predicted BGC variants (YAML files)"
+                                           "or a single YAML file", type=Path)
     advanced_input_group.add_argument("--nrp-variants", dest="nrp_variants", metavar='DIR',
-                                      help="directory with predicted NRP variants (yaml files)", type=Path)
+                                      help="directory with predicted NRP variants (YAML files) "
+                                           "or a single YAML file", type=Path)
     advanced_input_group.add_argument("--configs-dir", help="custom directory with Nerpa configs",
                                       metavar='DIR', action="store", type=Path)
     advanced_input_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,

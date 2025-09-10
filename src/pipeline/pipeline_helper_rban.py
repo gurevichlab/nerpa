@@ -38,12 +38,16 @@ class PipelineHelper_rBAN:
 
     def load_nrp_variants(self) -> List[NRP_Variant]:
         self.log.info('Loading preprocessed NRP variants')
-        nrp_variants = []
-        for file_with_nrp_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                             self.args.nrp_variants.iterdir()):
-            nrp_variants.extend(NRP_Variant.from_yaml_dict(yaml_record)
-                                for yaml_record in yaml.safe_load(file_with_nrp_variants.read_text()))
-        return nrp_variants
+
+        if self.args.nrp_variants.is_dir():
+            files_with_nrp_variants = filter(lambda f: f.suffix in ('.yml', '.yaml'),
+                                             self.args.nrp_variants.iterdir())
+        else:
+            files_with_nrp_variants = [self.args.nrp_variants]
+
+        return [NRP_Variant.from_yaml_dict(yaml_record)
+                for file_path in files_with_nrp_variants
+                for yaml_record in yaml.safe_load(file_path.read_text())]
 
     def set_rban_helper(self):
         custom_monomers = list(chain(*(json.load(path_to_monomers.open('r'))

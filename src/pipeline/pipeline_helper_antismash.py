@@ -49,13 +49,17 @@ class PipelineHelper_antiSMASH:
 
     def load_bgc_variants(self) -> List[BGC_Variant]:
         self.log.info('Loading preprocessed BGC variants')
-        bgc_variants: List[BGC_Variant] = []
-        for file_with_bgc_variants in filter(lambda f: f.suffix in ('.yml', '.yaml'),
-                                             self.args.bgc_variants.iterdir()):
-            bgc_variants.extend(BGC_Variant.from_yaml_dict(yaml_record)
-                                for yaml_record in yaml.safe_load(file_with_bgc_variants.read_text()))
 
-        return bgc_variants
+        if self.args.bgc_variants.is_dir():
+            files_with_bgc_variants = filter(lambda f: f.suffix in ('.yml', '.yaml'),
+                                             self.args.bgc_variants.iterdir())
+        else:
+            files_with_bgc_variants = [self.args.bgc_variants]
+
+        return [BGC_Variant.from_yaml_dict(yaml_record)
+                for file_with_bgc_variants in files_with_bgc_variants
+                for yaml_record in yaml.safe_load(file_with_bgc_variants.read_text())]
+
 
     # TODO: watch out for name collisions
     def create_symlinks_to_antismash_results(self, antismash_dirs: Iterable[Path]):

@@ -27,11 +27,8 @@ if __name__ == "__main__":
     try:
         main(log)
     except Exception as e:
-        _, exc_value, _ = sys.exc_info()
-        log.exception(str(exc_value))
-    finally:
-        # TODO: clean up: remove all intermediate files
-        pass
+        log.exception(str(e))
+        raise e
 
 '''
 def compute_modification_freqs(bgc_variants: List[BGC_Variant]):
