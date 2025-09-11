@@ -83,11 +83,13 @@ class NerpaLogger(Logger):
 
         verbose_handler = logging.FileHandler(self.cfg.log_file, mode='w', encoding='utf-8')
         verbose_handler.setLevel(logging.DEBUG)
+        '''
         verbose_fmt = logging.Formatter(
             fmt='%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d (%(funcName)s) - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         verbose_handler.setFormatter(verbose_fmt)
+        '''
         self.addHandler(verbose_handler)
 
         warn_handler = logging.FileHandler(self.cfg.warnings_file, mode='w', encoding='utf-8')
@@ -112,6 +114,7 @@ class NerpaLogger(Logger):
     def error(self, *args, **kwargs):
         super().error(*args, **kwargs)
         self._num_errors += 1
+
 
     def _log(self, level, msg, args,
              exc_info=None, extra=None, stack_info=False, stacklevel=1):
@@ -153,11 +156,11 @@ class NerpaLogger(Logger):
 
         self._start_time = datetime.datetime.now()
         self.info('Started: ' + self._start_time.strftime("%Y-%m-%d %H:%M:%S"))
-        self.info(f'Logging to {self.cfg.log_file} (verbose) and {self.cfg.warnings_file} (warnings)')
+        self.info(f'Logging to {self.cfg.log_file} (all) and {self.cfg.warnings_file} (warnings and errors)')
 
     def finish(self):
-        self.info(f'Verbose log is saved to {self.cfg.log_file}')
-        self.info(f'Warnings log is saved to {self.cfg.warnings_file}')
+        self.info(f'The whole log is saved to {self.cfg.log_file}')
+        self.info(f'Verbose warnings log is saved to {self.cfg.warnings_file}')
 
         finish_time = datetime.datetime.now()
         self.info('Finished: ' + finish_time.strftime("%Y-%m-%d %H:%M:%S"))
