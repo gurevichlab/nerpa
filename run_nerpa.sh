@@ -6,6 +6,6 @@ python nerpa.py \
 --fast-matching \
 --process-hybrids \
 --max-num-matches-per-bgc 10 \
---max-num-matches 1000 \
+--max-num-matches 10000 \
 --threads 32 \
 --skip-molecule-drawing
