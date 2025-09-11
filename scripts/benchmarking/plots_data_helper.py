@@ -12,19 +12,7 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sklearn.linear_model import LinearRegression
 
-
-class NerpaReport(pd.DataFrame):
-    NRP_ISO_CLASS_COL = 'nrp_iso_class'  # absent in the original report, but added here for convenience
-    NRP_ID_COL = 'NRP_ID'
-    BGC_ID_COL = 'Genome_ID'
-    SCORE_COL = 'Score'
-
-
-NerpaReportRaw = pd.Series
-
-
-def is_bgc_or_norine_nrp(nrp_id: str) -> bool:
-    return nrp_id.startswith('BGC') or nrp_id.startswith('NOR')
+from scripts.benchmarking.nerpa_report import NerpaReport, load_nerpa_report
 
 
 class PlotsDataHelper:
@@ -172,102 +160,58 @@ class PlotsDataHelper:
         return [id_value for id_value in set(report[id_column])
                 if id_identified(report, id_value)]
 
-    def leave_only_data_for_benchmarking(self,
-                                         _report: NerpaReport,
-                                         report_name: str = 'REPORT_NAME_MISSING',
-                                         top_matches_per_bgc: int = 10) -> NerpaReport:
-        report = _report.copy()
-        mibig_nrps_table = self.mibig_bgcs_info
-        bgc_ids_appr = mibig_nrps_table[mibig_nrps_table['in_approved_matches'] == True]['bgc_id'].unique()
-
-        # Filter report to only include BGCs present in the approved matches
-        report = report[report[NerpaReport.BGC_ID_COL].isin(bgc_ids_appr)]
-        if set(report[NerpaReport.BGC_ID_COL]) != set(bgc_ids_appr):
-            print(f"Warning! Some BGC IDs from the approved matches are missing in the report {report_name}")
-            print(f"Missing BGC IDs: {set(bgc_ids_appr) - set(report['Genome_ID'])}")
-
-        # Filter report to only include NRPs from MIBiG + Norine
-        report = (
-            report[report[NerpaReport.NRP_ID_COL]
-            .map(lambda nrp_id: nrp_id in self.mibig_norine_nrps)]
-        )
-
-        # Leave only one of isomorphic NRPs per BGC
-        report[NerpaReport.NRP_ISO_CLASS_COL] = (
-            report[NerpaReport.NRP_ID_COL]
-            .map(self.nrp_id_to_iso_class)
-        )
-        report.drop_duplicates(subset=[NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL],
-                               inplace=True)
-
-        '''
-        mibig_norine_iso_classes = set(map(self.nrp_id_to_iso_class, self.mibig_norine_nrps))
-        if set(report['iso_class_idx']) != mibig_norine_iso_classes:
-            print(f"Warning! Some NRP iso-classes from MIBiG + Norine are missing in the report {report_name}")
-            print(f"Missing iso classes: {mibig_norine_iso_classes - set(report['iso_class_idx'])}")
-        '''
-
-        # Keep only top matches per BGC
-        report = (report
-                  .sort_values(by=score_column, ascending=False)
-                  .groupby(NerpaReport.BGC_ID_COL)
-                  .head(top_matches_per_bgc)
-                  .reset_index(drop=True))
-
-        return report
-
-    def load_nerpa_report(self,
-                          report_path: Path,
-                          report_name: str = 'REPORT_NAME_MISSING',
-                          score_column: str = 'LogOdds score',
-                          nerpa_version: Literal['Nerpa 1', 'Nerpa 2'] = 'Nerpa 2') -> NerpaReport:
-        report = pd.read_csv(report_path, sep='\t' if nerpa_version == 'Nerpa 2' else ',')
-        if nerpa_version == 'Nerpa 1':
-            report = nerpa1_report_to_nerpa2_compatible(report)
-
-        report[NerpaReport.SCORE_COL] = report[score_column]
-        report = self.leave_only_data_for_benchmarking(report, report_name)
-        return report
-
-    def check_report_discrepancy(self,
+    def check_reports_discrepancy(self,
                                  report1: NerpaReport,
-                                 report2: NerpaReport,
-                                 report1_name: str,
-                                 report2_name: str,
-                                 check_nrp_ids: bool = True) -> None:
+                                 report2: NerpaReport) -> None:
         """
         Check for discrepancies between two reports.
         """
         print('Checking report discrepancies between '
-              f'{report1_name} and {report2_name}...')
+              f'{report1.name} and {report2.name}...')
 
-        if set(report1['Genome_ID']) != set(report2['Genome_ID']):
+        if set(report1[NerpaReport.BGC_ID_COL]) != set(report2[NerpaReport.BGC_ID_COL]):
             print(f"Warning! Genome IDs in reports "
-                  f"{report1_name} and {report2_name} do not match")
-            print(f'{report1_name} \ {report2_name} = {set(report1["Genome_ID"]) - set(report2["Genome_ID"])}')
-            print(f'{report2_name} \ {report1_name} = {set(report2["Genome_ID"]) - set(report1["Genome_ID"])}')
+                  f"{report1.name} and {report2.name} do not match")
+            print(f'{report1.name} \ {report2.name} = '
+                  f'{set(report1[NerpaReport.BGC_ID_COL]) - set(report2[NerpaReport.BGC_ID_COL])}')
+            print(f'{report2.name} \ {report1.name} = '
+                  f'{set(report2[NerpaReport.BGC_ID_COL]) - set(report1[NerpaReport.BGC_ID_COL])}')
         else:
             print("Genome IDs sets match")
 
-        if check_nrp_ids:
-            if set(report1['NRP_ID']) != set(report2['NRP_ID']):
-                print(f"Warning! NRP IDs in reports "
-                      f"{report1_name} and {report2_name} do not match")
-                print(f'{report1_name} \ {report2_name} = {set(report1["NRP_ID"]) - set(report2["NRP_ID"])}')
-                print(f'{report2_name} \ {report1_name} = {set(report2["NRP_ID"]) - set(report1["NRP_ID"])}')
-            else:
-                print("NRP IDs sets match")
 
-        id_columns = ['Genome_ID', 'NRP_ID'] if check_nrp_ids else ['Genome_ID']
-        for id_column in id_columns:
+        for id_column in (NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL):
             identified_ids_in_report1 = self.get_identified_ids(report1, id_column)
             identified_ids_in_report2 = self.get_identified_ids(report2, id_column)
             if set(identified_ids_in_report1) != set(identified_ids_in_report2):
                 print(f"Warning! Identified {id_column}s in reports "
-                      f"{report1_name} and {report2_name} do not match")
-                print(f'Identified in {report1_name} but not in {report2_name}:'
+                      f"{report1.name} and {report2.name} do not match")
+                print(f'Identified in {report1.name} but not in {report2.name}:'
                       f'\n{set(identified_ids_in_report1) - set(identified_ids_in_report2)}')
-                print(f'Identified in {report2_name} but not in {report1_name}:'
+                print(f'Identified in {report2.name} but not in {report1.name}:'
                       f'\n{set(identified_ids_in_report2) - set(identified_ids_in_report1)}')
             else:
                 print(f'Identified {id_column}s match')
+
+    def load_nerpa_report(self,
+                          report_path: Path,
+                          report_name: str = 'REPORT_NAME_MISSING',
+                          score_column: str = 'LogOdds score') -> NerpaReport:
+        appr_matches_rows = self.mibig_bgcs_info[self.mibig_bgcs_info['is_approved_match']]
+        bgc_ids_to_keep = appr_matches_rows['bgc_id'].dropduplicates()
+        nrp_ids_to_keep = appr_matches_rows['compound_id'].dropduplicates()
+        out_cfg = NerpaReport.OutputSizeConfig(
+            max_num_matches=float('inf'),
+            max_num_matches_per_bgc=10,
+            max_num_matches_per_nrp=10,
+            min_num_matches_per_bgc=10,
+            min_num_matches_per_nrp=10,
+        )
+
+        return load_nerpa_report(report_path=report_path,
+                                 bgc_ids_to_keep=bgc_ids_to_keep,
+                                 nrp_ids_to_keep=nrp_ids_to_keep,
+                                 nrp_id_to_iso_class=self.nrp_id_to_iso_class,
+                                 out_size_cfg=out_cfg,
+                                 report_name=report_name,
+                                 score_column=score_column)
