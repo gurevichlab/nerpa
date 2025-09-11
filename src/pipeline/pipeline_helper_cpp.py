@@ -93,12 +93,23 @@ class PipelineHelperCpp:
                               '--threads', str(self.args.threads),
                               '--output', self.config.output_config.cpp_io_config.cpp_output_json
                           ]))
-        print(f"Running C++ matcher with command: {' '.join(cmd)}")
+        self.log.info(f"Running C++ matcher with command: {' '.join(cmd)}")
         # q: print current time
 
         # Run the C++ executable
-        subprocess.run(cmd, check=True)
-
+        run_result = subprocess.run(cmd, capture_output=True, text=True)
+        if run_result.returncode != 0:
+            self.log.error(f"C++ matcher failed with return code {run_result.returncode}")
+            if run_result.stdout.strip():
+                self.log.error(f"Stdout: {run_result.stdout}")
+            if run_result.stderr.strip():
+                self.log.error(f"Stderr: {run_result.stderr}")
+            raise RuntimeError("C++ matcher execution failed")
+        else:
+            self.log.info(f"Stdout: {run_result.stdout}")
+            if run_result.stderr.strip():
+                self.log.error(f"Stderr: {run_result.stderr}")
+            self.log.info("C++ matcher completed successfully")
 
         # Collect the results
         with open(self.config.output_config.cpp_io_config.cpp_output_json, 'r') as f:

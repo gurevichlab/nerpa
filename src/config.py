@@ -229,10 +229,7 @@ class MatchingConfig:
         if args is None:
             return
 
-        for field_name in ('min_num_matches_per_bgc',
-                           'min_num_matches_per_nrp',
-                           'max_num_matches_per_bgc',
-                           'max_num_matches_per_nrp',):
+        for field_name in cfg_dict:
             arg_value = getattr(args, field_name, None)
             if arg_value is not None:
                 setattr(self, field_name, arg_value)

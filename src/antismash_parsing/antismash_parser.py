@@ -301,11 +301,7 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
             genes = extract_genes(contig_data, a_domains_info, a_domains_coords, config)
             bgcs.extend(extract_bgc_clusters(genome_id, ctg_idx, contig_data, genes))
         except Exception as e:
-            if config.DEBUG_MODE:
                 log.error(f'Error parsing contig {ctg_idx} of genome {genome_id}:\n'
-                          f'{type(e).__name__}: {e}')
-            else:
-                log.warning(f'Error parsing contig {ctg_idx} of genome {genome_id}:\n'
                             f'{type(e).__name__}: {e}')
 
     return bgcs
