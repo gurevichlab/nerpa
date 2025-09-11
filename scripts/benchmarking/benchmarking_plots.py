@@ -1,3 +1,16 @@
+from __future__ import annotations
+from itertools import chain
+from pathlib import Path
+import os
+from typing import Literal, Dict, Optional, Sequence, List, Tuple
+
+import numpy as np
+import pandas as pd
+from collections import defaultdict
+
+from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from sklearn.linear_model import LinearRegression
 
 
 def cnts_to_percentages(cnts: pd.Series[int]) -> pd.Series[float]:
@@ -255,43 +268,6 @@ class PlotsHelper:
     
 
 
-def nerpa1_report_to_nerpa2_compatible(nerpa1_report: pd.DataFrame,
-                                       genome_ids_to_filter: Optional[List[str]] = None) -> NerpaReport:
-    """
-    Convert a Nerpa1 report to a Nerpa2 compatible format.
-    Nerpa1 report should have columns: 'NRP_ID', 'Genome_ID', 'LogOdds score', 'p_value'.
-    """
-    def pred_file_name_to_genome_id(pred_file_name: str) -> str:
-        """
-        Extract genome ID from the prediction
-        """
-        name = pred_file_name.split('/')[-1]  # Assuming the first part is the genome ID
-        return name.split('_')[0]  # Extract the genome ID from the file name
-
-    nerpa2_report = pd.DataFrame()
-    nerpa2_report['LogOdds score'] = nerpa1_report['Score']
-    nerpa2_report['NRP_ID'] = nerpa1_report['StructureId'].apply(lambda s: s.split('_')[0])  # Extract NRP ID from 'Structure ID'
-    nerpa2_report['Genome_ID'] = nerpa1_report['PredictionFileName'].apply(pred_file_name_to_genome_id)  # Extract Genome ID from 'BGC ID'
-
-    '''
-    # q: group by NRP_ID and Genome_ID, and take the first row with the highest LogOdds score
-    nerpa2_report = (nerpa2_report
-                     .sort_values(by='LogOdds score', ascending=False)
-                     .drop_duplicates(subset=['NRP_ID', 'Genome_ID'], keep='first')
-                     .reset_index(drop=True))
-
-    if genome_ids_to_filter is not None:
-        # q: filter by genome IDs
-        nerpa2_report = nerpa2_report[nerpa2_report['Genome_ID'].isin(genome_ids_to_filter)]
-
-    # q: leave only 10 best matches per Genome_ID
-    nerpa2_report = (nerpa2_report
-                     .groupby('Genome_ID')
-                     .head(10)
-                     .reset_index(drop=True))
-    '''
-
-    return nerpa2_report
 
 
 def nerpa1_vs_nerpa2():
