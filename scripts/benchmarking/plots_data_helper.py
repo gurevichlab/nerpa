@@ -12,7 +12,12 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sklearn.linear_model import LinearRegression
 
-from scripts.benchmarking.nerpa_report import NerpaReport, load_nerpa_report
+from scripts.benchmarking.nerpa_report import (
+    NerpaReport,
+    NerpaReportRow,
+    load_nerpa_report,
+    is_bgc_or_norine_nrp
+)
 
 
 class PlotsDataHelper:
@@ -39,7 +44,7 @@ class PlotsDataHelper:
         self.nrp_id_to_iso_class = {row['compound_id']: row['iso_class_idx']
                                     for _, row in self.pnrpdb_info.iterrows()}
 
-    def match_is_correct(self, report_row: NerpaReportRaw):  # row in report.tsv
+    def match_is_correct(self, report_row: NerpaReportRow):  # row in report.tsv
         try:
             nrp_iso_class = report_row[NerpaReport.NRP_ISO_CLASS_COL]
             bgc_id = report_row[NerpaReport.BGC_ID_COL]
@@ -160,9 +165,7 @@ class PlotsDataHelper:
         return [id_value for id_value in set(report[id_column])
                 if id_identified(report, id_value)]
 
-    def check_reports_discrepancy(self,
-                                 report1: NerpaReport,
-                                 report2: NerpaReport) -> None:
+    def check_reports_discrepancy(self, report1: NerpaReport, report2: NerpaReport) -> None:
         """
         Check for discrepancies between two reports.
         """

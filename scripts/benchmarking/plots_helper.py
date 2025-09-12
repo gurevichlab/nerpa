@@ -32,18 +32,14 @@ class PlotsHelper:
         self.data_helper = PlotsDataHelper()
 
     def plot_num_correct_matches(self,
-                                 nerpa_reports: Dict[str, NerpaReport],
+                                 nerpa_reports: List[NerpaReport],
                                  output_dir: Path,
                                  in_one_plot: bool = True,
-                                 score_columns: Optional[Dict[str, Literal['LogOdds score', 'p_value']]] = None,
                                  y_axis: Literal['Count', 'Percentage'] = 'Count') -> List[Path]:
-        if score_columns is None:
-            score_columns = {report_name: 'LogOdds score' for report_name in nerpa_reports.keys()}
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        graphs = {report_name: self.data_helper.compute_num_correct_matches(nerpa_report,
-                                                                            sort_by=score_columns[report_name])
-                  for report_name, nerpa_report in nerpa_reports.items()}
+        graphs = {nerpa_report.name: self.data_helper.compute_num_correct_matches(nerpa_report)
+                  for nerpa_report in nerpa_reports}
 
         def _plot_single_graph(ax: Axes,
                                _values: pd.Series,
@@ -95,18 +91,15 @@ class PlotsHelper:
             return list(out_files.values())
 
     def plot_score_correctness(self,
-                               nerpa_reports: Dict[str, NerpaReport],
-                               score_columns: Dict[str, Literal['LogOdds score', 'p_value']],
+                               nerpa_reports: List[NerpaReport],
                                output_dir: Path,
                                num_bins: int = 20) -> List[Path]:
         output_dir.mkdir(parents=True, exist_ok=True)
-        out_files = {report_name: output_dir / f'score_correctness_{report_name}.png'
-                     for report_name in nerpa_reports.keys()}
+        out_files = {report.name: output_dir / f'score_correctness_{report.name}.png'
+                     for report in nerpa_reports}
 
-        for report_name, nerpa_report in nerpa_reports.items():
-            correct_incorrect_counts = self.data_helper.compute_score_correctness(nerpa_report,
-                                                                                  score_columns[report_name],
-                                                                                  num_bins)
+        for nerpa_report in nerpa_reports:
+            correct_incorrect_counts = self.data_helper.compute_score_correctness(nerpa_report, num_bins)
 
             ax = correct_incorrect_counts[["Correct", "Incorrect"]].plot(
                 kind="bar",
@@ -116,7 +109,7 @@ class PlotsHelper:
                 rot=45,
                 xlabel="Score range",
                 ylabel="Number of matches",
-                title=f"{report_name}: Correct vs. incorrect matches per score ({score_columns[report_name]}) bin (N={num_bins})"
+                title=f"{nerpa_report.name}: Correct vs. incorrect matches per score bin (N={num_bins})"
             )
             ax.set_xticklabels(
                 [f"{iv.left:.2f}–{iv.right:.2f}" for iv in correct_incorrect_counts.index],
@@ -124,35 +117,36 @@ class PlotsHelper:
             )
 
             plt.tight_layout()
-            plt.savefig(out_files[report_name])
+            plt.savefig(out_files[nerpa_report.name])
             plt.close()
 
         return list(out_files.values())
 
     def plot_num_identified(self,
-                            nerpa_reports: Dict[str, 'NerpaReport'],
-                            id_column: Literal['Genome_ID', 'NRP_ID'],
+                            nerpa_reports: List[NerpaReport],
+                            id_column: str,
                             output_dir: Path,
-                            score_columns: Dict[str, Literal['LogOdds score', 'p_value']],
                             y_axis: Literal['Count', 'Percentage'] = 'Count',
                             top_ks: Tuple[int, ...] = (1,)) -> List[Path]:
+        assert id_column in (NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL), \
+            f'id_column should be one of {NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL}'
+
         output_dir.mkdir(parents=True, exist_ok=True)
         out_files_per_top_k = {top_k: output_dir / f'{y_axis}_identified_{id_column}_top{top_k}.png'
                                for top_k in top_ks}
-        out_files_per_id = {report_name: output_dir / f'{y_axis}_identified_{id_column}_{report_name}.png'
-                            for report_name in nerpa_reports.keys()}
+        out_files_per_id = {report.name: output_dir / f'{y_axis}_identified_{id_column}_{report.name}.png'
+                            for report in nerpa_reports}
 
         graphs = {
-            report_name: {
+            report.name: {
                 top_k: self.data_helper.compute_num_identified(
-                    nerpa_report,
+                    report,
                     id_column,
-                    score_columns[report_name],
                     top_k
                 )
                 for top_k in top_ks
             }
-            for report_name, nerpa_report in nerpa_reports.items()
+            for report in nerpa_reports
         }
 
         # Plot per report (all top_ks)
@@ -164,7 +158,7 @@ class PlotsHelper:
                 else:
                     values = _values
                 ax.plot(values.index, values.values, label=f"top-{top_k}")
-            ax.set_title(f"Num Identified by {id_column} using {score_columns[report_name]}: {report_name}")
+            ax.set_title(f"Num Identified by {id_column}: {report_name}")
             ax.set_xlabel(f"Num top {id_column}")
             ax.set_ylabel(f"{y_axis} identified")
             ax.grid()
@@ -182,7 +176,7 @@ class PlotsHelper:
                     values = cnts_to_percentages(_values)
                 else:
                     values = _values
-                ax.plot(values.index, values.values, label=f'{report_name} ({score_columns[report_name]})')
+                ax.plot(values.index, values.values, label=f'{report_name}')
             ax.set_title(f"{y_axis} Identified {id_column}: top-{top_k}")
             ax.set_xlabel("Identifier")
             ax.set_ylabel(y_axis)
@@ -195,25 +189,25 @@ class PlotsHelper:
         return list(chain(out_files_per_top_k.values(), out_files_per_id.values()))
 
     def plot_total_identified(self,
-                              nerpa_reports: Dict[str, NerpaReport],
-                              id_column: Literal['Genome_ID', 'NRP_ID'],
+                              nerpa_reports: List[NerpaReport],
+                              id_column: str,
                               output_dir: Path,
-                              score_columns: Dict[str, Literal['LogOdds score', 'p_value']],
                               max_top_k: int = 10,
                               y_axis: Literal['Count', 'Percentage'] = 'Count') -> List[Path]:
         """
         Plot the total number of identified BGCs/NRPs for each report
         """
+        assert id_column in (NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL), \
+            f'id_column should be one of {NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL}'
 
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'total_{y_axis}_identified_{id_column}.png'
-        graphs = {report_name: self.data_helper.compute_total_identified(
-            nerpa_report,
+        graphs = {report.name: self.data_helper.compute_total_identified(
+            report,
             id_column,
-            score_columns[report_name],
             max_top_k=max_top_k,
             y_axis=y_axis
-        ) for report_name, nerpa_report in nerpa_reports.items()}
+        ) for report in nerpa_reports}
 
         fig, ax = plt.subplots(figsize=(10, 6))
         for report_name, total_identified in graphs.items():
@@ -222,9 +216,9 @@ class PlotsHelper:
                     label=f"{report_name}")
             ax.set_xticks(total_identified.index)
 
-        ax.set_title(f'{y_axis} of identified {"BGCs" if id_column == "Genome_ID" else "NRPs"}',
+        ax.set_title(f'{y_axis} of identified {id_column}',
                      fontsize=22)
-        ax.set_xlabel(f'Num top matches considered for each {"BGC" if id_column == "Genome_ID" else "NRP"}',
+        ax.set_xlabel(f'Num top matches considered for each {id_column}',
                       fontsize=18)
         ax.set_ylabel(f'{y_axis} Identified', fontsize=18)
         ax.grid()
@@ -236,7 +230,7 @@ class PlotsHelper:
         return [out_file]
 
     def plot_all(self,
-                 nerpa_reports: Dict[str, NerpaReport],
+                 nerpa_reports: List[NerpaReport],
                  output_dir: Path,
                  num_score_bins: int = 20,
                  top_ks: Tuple[int, ...] = (1, 3, 5, 10)) -> List[Path]:
@@ -244,28 +238,24 @@ class PlotsHelper:
         Generate all plots and return paths to the generated files.
         """
         output_dir.mkdir(parents=True, exist_ok=True)
-        score_columns = {report_name: 'LogOdds score' for report_name in nerpa_reports.keys()}
         plot_files = []
 
         plot_files.extend(self.plot_score_correctness(nerpa_reports,
-                                                      score_columns,
                                                       output_dir,
                                                       num_score_bins))
         for y_axis in ['Count', 'Percentage']:
             plot_files.extend(self.plot_num_correct_matches(nerpa_reports,
                                                             y_axis=y_axis,
                                                             output_dir=output_dir))
-            for id_column in ('Genome_ID', 'NRP_ID'):
+            for id_column in (NerpaReport.BGC_ID_COL, NerpaReport.NRP_ISO_CLASS_COL):
                 plot_files.extend(self.plot_num_identified(nerpa_reports,
                                                            id_column=id_column,
                                                            y_axis=y_axis,
                                                            output_dir=output_dir,
-                                                           score_columns=score_columns,
                                                            top_ks=top_ks))
                 plot_files.extend(self.plot_total_identified(nerpa_reports,
                                                              id_column=id_column,
                                                              y_axis=y_axis,
-                                                             output_dir=output_dir,
-                                                             score_columns=score_columns))
+                                                             output_dir=output_dir))
 
         return plot_files
