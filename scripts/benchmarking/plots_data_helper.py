@@ -31,7 +31,11 @@ class PlotsDataHelper:
     bgc_to_nrp_iso_classes: defaultdict[str, set[int]]
     nrp_id_to_iso_class: Dict[str, int]
 
-    def __init__(self):
+    test_bgcs: set[str]
+    nrp_classes_with_matches: set[int]
+
+    def __init__(self,
+                 bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'):
         nerpa_dir = Path(__file__).parent.parent.parent
         self.mibig_bgcs_info = pd.read_csv(nerpa_dir / 'data/for_training_and_testing/mibig_bgcs_info.tsv',
                                            sep='\t')
@@ -47,6 +51,36 @@ class PlotsDataHelper:
         # q: compute nrp_id_to_iso_class only once
         self.nrp_id_to_iso_class = {row['compound_id']: row['iso_class_idx']
                                     for _, row in self.pnrpdb_info.iterrows()}
+
+        bgcs_info = pl.from_pandas(self.mibig_bgcs_info)
+        training_bgcs_info = bgcs_info.filter(pl.col('in_approved_matches'))
+        training_bgcs_fams = set(training_bgcs_info['bigscape_families'])
+
+        dissimilar_to_training_bgcs_info = (
+            bgcs_info
+            .filter(~pl.col('bigscape_families')
+                    .is_in(training_bgcs_fams))
+        )
+
+        match bgc_test_set:
+            case 'training_bgcs':
+                self.test_bgcs = set(training_bgcs_info['bgc_id'])
+            case 'mibig4_wo_training_bgcs':
+                self.test_bgcs = set(
+                    dissimilar_to_training_bgcs_info
+                    .filter(pl.col('num_a_domains') >= 2)
+                    ['bgc_id']
+                )
+            case _:
+                raise ValueError(f'Unknown bgc_test_set: {bgc_test_set}')
+
+        self.nrp_classes_with_matches = set(
+            chain.from_iterable(
+                self.bgc_to_nrp_iso_classes[bgc_id]
+                for bgc_id in self.test_bgcs
+            )
+        )
+
 
     def match_is_correct(self, report_row: NerpaReportRow):  # row in report.tsv
         try:
@@ -96,11 +130,10 @@ class PlotsDataHelper:
     def load_nerpa_report(self,
                           report_path: Path,
                           report_name: str = 'REPORT_NAME_MISSING',
-                          score_column: str = 'LogOdds score',
+                          score_column: str = NerpaReport.SCORE_COL,
                           tool_version: Literal['Nerpa 1, Nerpa 2'] = 'Nerpa 2') -> NerpaReport:
-        appr_matches_rows = self.mibig_bgcs_info[self.mibig_bgcs_info['in_approved_matches']]
-        bgc_ids_to_keep = set(appr_matches_rows['bgc_id'].drop_duplicates())
         nrp_ids_to_keep = self.mibig_norine_nrps
+        bgc_ids_to_keep = self.test_bgcs
         out_cfg = OutputSizeConfig(
             max_num_matches=float('inf'),  # no limit on total matches
             max_num_matches_per_bgc=10,
