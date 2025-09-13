@@ -13,7 +13,7 @@ def nerpa1_vs_nerpa2():
     helper = PlotsHelper()
 
     nerpa1_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
-                                                         nerpa_version='Nerpa 1',
+                                                         tool_version='Nerpa 1',
                                                          report_name='Nerpa 1')
     nerpa2_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/nerpa_results/approved_vs_mibig_norine/report.tsv'),
                                                          report_name='Nerpa 2',
@@ -31,17 +31,21 @@ def nerpa1_vs_nerpa2_vs_nerpa2new():
 
     # 1. Load reports
     nerpa1_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
-                                                         nerpa_version='Nerpa 1',
+                                                         score_column='Score',
+                                                         tool_version='Nerpa 1',
                                                          report_name='Nerpa 1')
     nerpa2_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/nerpa_results/approved_vs_mibig_norine/report.tsv'),
-                                                         report_name='Nerpa 2')
+                                                         report_name='Nerpa 2.0')
     nerpa2_new_vs_avg_bgc = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/nerpa_results/approved_vs_mibig_norine_new/report.tsv'),
                                                                  score_column='LogOdds_vs_avg_BGC',
-                                                                 report_name='Nerpa 2 new')
+                                                                 report_name='Nerpa 2.1')
+
+    print(f'Nerpa 1 report: {nerpa1_report.head()}')
+    print(f'Nerpa 2 report: {nerpa2_report.head()}')
 
     # 2. Check for reports discrepancies
-    helper.data_helper.check_report_discrepancy(nerpa1_report, nerpa2_report)
-    helper.data_helper.check_report_discrepancy(nerpa2_report, nerpa2_new_vs_avg_bgc)
+    helper.data_helper.check_reports_discrepancy(nerpa1_report, nerpa2_report)
+    helper.data_helper.check_reports_discrepancy(nerpa2_report, nerpa2_new_vs_avg_bgc)
 
 
     # 4. Generate plots

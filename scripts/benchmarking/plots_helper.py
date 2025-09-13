@@ -12,7 +12,12 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sklearn.linear_model import LinearRegression
 
+from scripts.benchmarking.plot_promiscuity_handling import plot_promiscuity_handling
 from scripts.benchmarking.plots_data_helper import PlotsDataHelper, NerpaReport
+from scripts.benchmarking.score_correctness_per_bgc_length import (
+    score_correctness_per_bgc_length,
+    plot_compare_score_correctness,
+)
 
 
 def cnts_to_percentages(cnts: pd.Series[int]) -> pd.Series[float]:
@@ -122,6 +127,25 @@ class PlotsHelper:
 
         return list(out_files.values())
 
+    def plot_score_correctness_per_bgc_len(self,
+                                           nerpa_report: NerpaReport,
+                                           output_dir: Path,
+                                           num_len_bins: int = 3,
+                                           ) -> Path:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        out_file = output_dir / f'score_correctness_per_bgc_len_{nerpa_report.name}.png'
+        data = score_correctness_per_bgc_length(nerpa_report,
+                                                self.data_helper,
+                                                num_len_bins)
+        fig, ax = plt.subplots(figsize=(10, 6))
+        plot_compare_score_correctness(data, ax=ax)
+        ax.set_title(f'Score Correctness per BGC Length: {nerpa_report.name}')
+        fig.tight_layout()
+        fig.savefig(out_file)
+        plt.close(fig)
+        return out_file
+
+
     def plot_num_identified(self,
                             nerpa_reports: List[NerpaReport],
                             id_column: str,
@@ -229,6 +253,23 @@ class PlotsHelper:
 
         return [out_file]
 
+    def plot_promiscuity_handling(self,
+                                  reports: List[NerpaReport],
+                                  output_dir: Path) -> Path:
+        """
+        Create a grouped bar chart for all reports and save it to a PNG.
+        """
+        output_dir.mkdir(parents=True, exist_ok=True)
+        out_file = output_dir / f"promiscuity_hist.png"
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        plot_promiscuity_handling(reports, self.data_helper, ax)
+        ax.set_title("Mean fraction of identified variants by num_nrp_classes")
+        fig.tight_layout()
+        fig.savefig(out_file, dpi=200)
+        plt.close(fig)
+        return out_file
+
     def plot_all(self,
                  nerpa_reports: List[NerpaReport],
                  output_dir: Path,
@@ -243,6 +284,10 @@ class PlotsHelper:
         plot_files.extend(self.plot_score_correctness(nerpa_reports,
                                                       output_dir,
                                                       num_score_bins))
+        plot_files.extend(self.plot_score_correctness_per_bgc_len(nerpa_report, output_dir)
+                          for nerpa_report in nerpa_reports)
+        plot_files.append(self.plot_promiscuity_handling(nerpa_reports, output_dir))
+        '''
         for y_axis in ['Count', 'Percentage']:
             plot_files.extend(self.plot_num_correct_matches(nerpa_reports,
                                                             y_axis=y_axis,
@@ -258,4 +303,5 @@ class PlotsHelper:
                                                              y_axis=y_axis,
                                                              output_dir=output_dir))
 
+        '''
         return plot_files
