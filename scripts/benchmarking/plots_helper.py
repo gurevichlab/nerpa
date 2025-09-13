@@ -33,8 +33,9 @@ def cnts_to_percentages(cnts: pd.Series[int]) -> pd.Series[float]:
 
 
 class PlotsHelper:
-    def __init__(self):
-        self.data_helper = PlotsDataHelper()
+    def __init__(self,
+                 bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'):
+        self.data_helper = PlotsDataHelper(bgc_test_set)
 
     def plot_num_correct_matches(self,
                                  nerpa_reports: List[NerpaReport],
@@ -287,7 +288,6 @@ class PlotsHelper:
         plot_files.extend(self.plot_score_correctness_per_bgc_len(nerpa_report, output_dir)
                           for nerpa_report in nerpa_reports)
         plot_files.append(self.plot_promiscuity_handling(nerpa_reports, output_dir))
-        '''
         for y_axis in ['Count', 'Percentage']:
             plot_files.extend(self.plot_num_correct_matches(nerpa_reports,
                                                             y_axis=y_axis,
@@ -303,5 +303,4 @@ class PlotsHelper:
                                                              y_axis=y_axis,
                                                              output_dir=output_dir))
 
-        '''
         return plot_files

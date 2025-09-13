@@ -31,7 +31,6 @@ def nerpa1_vs_nerpa2_vs_nerpa2new():
 
     # 1. Load reports
     nerpa1_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
-                                                         score_column='Score',
                                                          tool_version='Nerpa 1',
                                                          report_name='Nerpa 1')
     nerpa2_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/nerpa_results/approved_vs_mibig_norine/report.tsv'),
@@ -55,14 +54,29 @@ def nerpa1_vs_nerpa2_vs_nerpa2new():
                     output_dir=output_dir)
 
 
+def nerpa1_vs_nerpa2_mibig4_wo_training_bgcs():
+    helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
+
+    nerpa1_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
+                                                         tool_version='Nerpa 1',
+                                                         report_name='Nerpa 1')
+    nerpa2_report = helper.data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
+                                                         report_name='Nerpa 2.1',
+                                                         score_column='LogOdds_vs_avg_BGC')
+
+
+    output_dir = Path('/home/ilianolhin/git/nerpa2/benchmarking/nerpa1_vs_nerpa2_mibig4_wo_training_bgcs_plots')
+    helper.plot_all([nerpa1_report, nerpa2_report],
+                    output_dir=output_dir)
 
 
 if __name__ == "__main__":
     # Example usage
     #nerpa1_vs_nerpa2()
-    nerpa1_vs_nerpa2_vs_nerpa2new()
+    #nerpa1_vs_nerpa2_vs_nerpa2new()
     #cross_validation()
     #log_odds_vs_p_values()
+    nerpa1_vs_nerpa2_mibig4_wo_training_bgcs()
 
 '''
 def log_odds_vs_p_values():
