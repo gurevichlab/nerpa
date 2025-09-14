@@ -8,6 +8,13 @@ from argparse import Namespace as CommandlineArgs
 from itertools import islice
 import subprocess
 import pandas as pd
+from src.testing.testing_types import (
+    TestMatch,
+    TestResult,
+    simplified_alignment_from_match,
+    _wrap_alignment,
+)
+
 
 def load_matches(nerpa_results_dir: Path) -> List[Match]:
     with open(nerpa_results_dir / 'matches_details/matches.yaml') as matches_file:
@@ -16,49 +23,25 @@ def load_matches(nerpa_results_dir: Path) -> List[Match]:
     return loaded_matches
 
 
-def load_matches_from_txt(matches_txt: Path) -> List[Match]:
-    matches_strs = matches_txt.read_text().split('\n\n')
-    matches_strs = [match_str for match_str in matches_strs
-                    if match_str.strip()]
-    return [Match.from_str(matches_str)
-            for matches_str in matches_strs]
-
-
 def run_nerpa(nerpa_dir: Path,
-              antismash_jsons: Path,
               antismash_paths: Path,
-              rban_inputs: Path,
+              smiles_tsv: Path,
               output_dir: Path):
-    """
-    Run the Nerpa tool with the specified parameters.
-
-    Parameters:
-        nerpa_dir (Path): Path to the directory containing nerpa.py.
-        antismash_jsons (Path): Path to the antiSMASH input directory.
-        rban_inputs (Path): Path to the rBAN input JSON file.
-        output_dir (Path): Path to the output directory.
-    """
-    # Ensure paths are resolved and exist
     nerpa_script = nerpa_dir / "nerpa.py"
-    assert nerpa_script.is_file(), f"Nerpa script not found at: {nerpa_script}"
-    assert antismash_jsons.is_dir(), f"antiSMASH inputs directory not found: {antismash_jsons}"
-    assert rban_inputs.is_file(), f"rBAN inputs JSON not found: {rban_inputs}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Construct the command
     command = [
         "python3", str(nerpa_script),
-        "--antismash", str(antismash_jsons),
-        #"--antismash-paths-file", str(antismash_paths),
-        "--rban-json", str(rban_inputs),
-        #"--paras-results", str(nerpa_dir / "paras/antismash7.1_nrps"),
+        "--antismash-paths-file", str(antismash_paths),
+        "--smiles-tsv", str(smiles_tsv),
+        "--col-id", "ID",
         "--output-dir", str(output_dir),
         "--force-output-dir",
         "--max-num-matches", "0",
         "--max-num-matches-per-bgc", "10",
-        "--debug",
         "--skip-molecule-drawing",
-        "--threads", "10",
+        "--threads", "8",
         "--fast-matching"
     ]
 
@@ -76,14 +59,13 @@ def load_command_line_args(nerpa_dir: Path,
                            local_paths: dict) -> CommandlineArgs:
     parser = argparse.ArgumentParser(description="Runs Nerpa on NRPs and BGCs "
                                                  "from approved matches and checks the results.")
-    parser.add_argument("--approved-matches", type=Path,
-                        default=nerpa_dir / 'test_data/approved_matches/approved_matches.txt')
-    parser.add_argument("--rban-records", type=Path,
-                        default=nerpa_dir / 'test_data/approved_matches/rban_records/merged.json')
-    parser.add_argument("--antismash-jsons", type=Path,
-                        default=nerpa_dir / 'test_data/approved_matches/antismash_jsons')
-    parser.add_argument("--antismash-paths", type=Path,
-                        default=nerpa_dir / 'test_data/approved_matches/paths_to_as_uniq.txt')
+    parser.add_argument("--test-matches", type=Path,
+                        default=nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml',
+                        help="Path to the approved matches file.")
+    parser.add_argument("--smiles-tsv", type=Path,
+                        default=nerpa_dir / 'data/input/pnrpdb2_mibig_norine_deduplicated.tsv')
+    parser.add_argument("--antismash-results", type=Path,
+                        default=local_paths['as_results_mibig4_nrps'])
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'test_results')
 
@@ -95,54 +77,82 @@ def load_local_paths(nerpa_dir: Path) -> dict:
         return yaml.safe_load(local_paths_yaml)
 
 
+def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
+                        output_file: Path):
+    data = []
+    for match, test_match in wrong_matches:
+        data.append({
+            'bgc_id': test_match.bgc_id,
+            'nrp_id': test_match.nrp_id,
+            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(match)),
+            'true_alignment': _wrap_alignment(test_match.true_alignment),
+        })
+    output_file.write_text(yaml.dump(data, default_flow_style=False, sort_keys=False))
+
+
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
     local_paths = load_local_paths(nerpa_dir)
     args = load_command_line_args(nerpa_dir, local_paths)
 
-    print('Loading approved matches')
-    approved_matches = load_matches_from_txt(args.approved_matches)
+    print('Loading tests')
+    test_matches_yaml = yaml.safe_load(args.test_matches.read_text())
+    test_matches = [TestMatch.from_yaml_dict(test_match_dict)
+                    for test_match_dict in test_matches_yaml]
+    test_matches_bgcs = {match.bgc_id for match in test_matches}
+
+    # create a file with paths to antismash results for run_nerpa
+    as_results_file = nerpa_dir / 'antismash_paths_for_testing.txt'
+    with open(as_results_file, 'w') as f:
+        for bgc_id in test_matches_bgcs:
+            f.write(f"{args.antismash_results / bgc_id}\n")
 
     print('Running Nerpa')
+    '''
     run_nerpa(nerpa_dir,
-              antismash_jsons=args.antismash_jsons,
-              antismash_paths=args.antismash_paths,
-              rban_inputs=args.rban_records,
+              antismash_paths=as_results_file,
+              smiles_tsv=args.smiles_tsv,
               output_dir=args.output_dir / 'nerpa_results')
+    '''
     print('Nerpa finished')
 
     print('Loading Nerpa results')
     matches = load_matches(args.output_dir / 'nerpa_results')
+    matches_by_id = {(match.bgc_variant_id.bgc_id.genome_id,
+                      match.nrp_variant_id.nrp_id): match
+                         for match in matches}
+    test_matches_by_id = {(test_match.bgc_id, test_match.nrp_id): test_match
+                          for test_match in test_matches}
+
 
     print('Checking matches')
-    missing_cnt, wrong_matches = find_wrong_matches(matches, approved_matches)
-    print(f'{missing_cnt} matches are missing in Nerpa output')
-    print(f'{len(approved_matches) - missing_cnt} matches were tested')
+    missing_tests = test_matches_by_id.keys() - matches_by_id.keys()
 
-    matches_table_tsv = nerpa_dir / 'matches_inspection' / 'new_matches_inspection_table.tsv'
-    matches_table = pd.read_csv(matches_table_tsv, sep='\t')
-    matches_table.set_index('NRP variant', inplace=True)
+    verdicts = {
+        (test_match.bgc_id, test_match.nrp_id):
+            test_match.test(matches_by_id.get((test_match.bgc_id,
+                                               test_match.nrp_id)))
+        for test_match in test_matches
+        if (test_match.bgc_id, test_match.nrp_id) in matches_by_id
+    }
 
-    wrong_matches_should_pass = [(match, correct_match)
-                                 for match, correct_match in wrong_matches
-                                 if matches_table.at[match.nrp_variant_id.nrp_id, 'Expected Nerpa behaviour']
-                                 == 'should pass']
-    wrong_matches_can_fail = [match
-                              for match, correct_match in wrong_matches
-                              if matches_table.at[match.nrp_variant_id.nrp_id, 'Expected Nerpa behaviour']
-                              == 'can fail']
+    total = len(test_matches)
+    verdicts_lst = list(verdicts.values())
+    print(f'Ok: {verdicts_lst.count(TestResult.CORRECT)}/{total}\n'
+          f'Acceptable alternative: {verdicts_lst.count(TestResult.ACCEPTABLE_ALTERNATIVE)}/{total}\n'
+          f'Wrong: {verdicts_lst.count(TestResult.WRONG)}/{total}\n'
+          f'Missing: {len(missing_tests)}/{total}')
 
-    if wrong_matches_can_fail:
-        print(f'{len(wrong_matches_can_fail)} tests allowed to fail have failed (thats ok)')
-    if wrong_matches_should_pass:
-        print(f'{len(wrong_matches_should_pass)} tests that should pass have failed (thats not ok!)')
-        wrong_matches_txt = args.output_dir / 'wrong_matches.txt'
-        with open(wrong_matches_txt, 'w') as f:
-            for nerpa_match, correct_match in wrong_matches_should_pass:
-                f.write(f'Nerpa match (wrong):\n{nerpa_match}\n\nCorrect match:\n{correct_match}\n\n')
-    else:
-        print('All tests that should pass have passed')
+    print(f'Missing matches:\n{missing_tests}')
+
+    wrong_matches_file = args.output_dir / 'wrong_matches.yaml'
+    write_wrong_matches([(matches_by_id[(bgc_id, nrp_id)],
+                          test_matches_by_id[(bgc_id, nrp_id)])
+                         for (bgc_id, nrp_id), verdict in verdicts.items()
+                         if verdict == TestResult.WRONG],
+                       wrong_matches_file)
+
 
 
 if __name__ == "__main__":

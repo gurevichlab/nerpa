@@ -168,7 +168,7 @@ vector<MatchInfoLight> filter_and_sort_matches(const vector<MatchInfoLight>& mat
             bool can_add_for_nrp = (nrpCounts[nrp_id] < config.max_num_matches_per_nrp or config.max_num_matches_per_nrp == 0);
             bool should_add_for_bgc = bgcCounts[_bgc_id] < config.min_num_matches_per_bgc;
             bool should_add_for_nrp = nrpCounts[nrp_id] < config.min_num_matches_per_nrp;
-            if ((can_add_for_bgc or can_add_for_nrp) or should_add_for_bgc or should_add_for_nrp) {
+            if ((can_add_for_bgc and can_add_for_nrp) or should_add_for_bgc or should_add_for_nrp) {
                 top_matches.push_back(match);
                 bgcCounts[_bgc_id]++;
                 nrpCounts[nrp_id]++;
