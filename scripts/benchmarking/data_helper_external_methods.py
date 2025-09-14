@@ -134,6 +134,7 @@ def compute_total_identified(data_helper: 'PlotsDataHelper',
     return pd.Series(total_identified, index=range(1, max_top_k + 1))
 
 
+# TODO: now redundant. Use data_helper.test_bgcs and data_helper.nrp_classes_with_matches instead
 def get_identified_ids(data_helper,
                        report: NerpaReport,
                        id_column: str) -> Sequence[str]:

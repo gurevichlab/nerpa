@@ -70,6 +70,16 @@ class BGC_Module:
         return res
 
 
+class A_Domain_ID(NamedTuple):
+    gene_id: GeneId
+    a_domain_idx: int  # not the same as module_idx because modules with no a_domain are skipped
+
+    @classmethod
+    def from_module(cls, module: BGC_Module) -> A_Domain_ID:
+        return cls(gene_id=module.gene_id,
+                   a_domain_idx=module.a_domain_idx)
+
+
 BGC_MODULE_DUMMY = BGC_Module(gene_id=GeneId(''), fragment_idx=-1, genomic_context=(), a_domain_idx=-1,
                               residue_score={}, modifications=(), iterative_module=False, iterative_gene=False)
 
