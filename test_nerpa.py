@@ -12,7 +12,7 @@ from src.testing.testing_types import (
     TestMatch,
     TestResult,
     simplified_alignment_from_match,
-    _wrap_alignment,
+    _wrap_alignment, fst_mismatched_step,
 )
 
 
@@ -81,11 +81,21 @@ def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
                         output_file: Path):
     data = []
     for match, test_match in wrong_matches:
+        al_wrong = simplified_alignment_from_match(match)
+        al_right = test_match.true_alignment
+        mismatched_step_wrong, mismatched_step_right = fst_mismatched_step(al_wrong, al_right)
+        mismatched_step_wrong = _wrap_alignment([mismatched_step_wrong]) \
+            if mismatched_step_wrong is not None else None
+        mismatched_step_right = _wrap_alignment([mismatched_step_right]) \
+            if mismatched_step_right is not None else None
+
         data.append({
             'bgc_id': test_match.bgc_id,
             'nrp_id': test_match.nrp_id,
             'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(match)),
             'true_alignment': _wrap_alignment(test_match.true_alignment),
+            'first_mismatched_step': [mismatched_step_wrong,
+                                      mismatched_step_right],
         })
     output_file.write_text(yaml.dump(data, default_flow_style=False, sort_keys=False))
 
