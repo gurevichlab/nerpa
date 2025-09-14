@@ -15,7 +15,8 @@ from src.matching.match_type import Match
 from src.monomer_names_helper import NorineMonomerName
 from src.write_results import write_yaml
 
-SimplifiedAlignment = List[Tuple[Optional[A_Domain_ID], Optional[NorineMonomerName]]]
+SimplifiedAlignmentStep = Tuple[Optional[A_Domain_ID], Optional[NorineMonomerName]]
+SimplifiedAlignment = List[SimplifiedAlignmentStep]
 
 # ---- PyYAML helper to force flow style on selected sequences ----
 class FlowSeq(list):
@@ -71,25 +72,48 @@ def simplified_alignment_from_str(s: str) -> SimplifiedAlignment:
     return simplified_alignment_from_match(match)
 
 
-def check_simplified_alignments_equal(al1: SimplifiedAlignment,
-                                      al2: SimplifiedAlignment) -> bool:
-    only_matches1 = [(a_domain_id, rban_name) 
-                     for (a_domain_id, rban_name) in al1 
+def match_steps_coincide(step1: SimplifiedAlignmentStep,
+                         step2: SimplifiedAlignmentStep) -> bool:
+    a_domain_id_1, rban_name_1 = step1
+    a_domain_id_2, rban_name_2 = step2
+    assert all([a_domain_id_1 is not None,
+                a_domain_id_2 is not None,
+                rban_name_1 is not None,
+                rban_name_2 is not None]), \
+        "Cannot compare steps with missing A-domain ID or rBAN name"
+
+    rban_names_coinside = (rban_name_1 == rban_name_2) \
+                          or (rban_name_1[0] == 'X' and rban_name_2[0] == 'X')
+    return a_domain_id_1 == a_domain_id_2 and rban_names_coinside
+
+
+def fst_mismatched_step(al1: SimplifiedAlignment,
+                        al2: SimplifiedAlignment) -> Optional[Tuple[Optional[SimplifiedAlignmentStep], Optional[SimplifiedAlignmentStep]]]:
+    only_matches1 = [(a_domain_id, rban_name)
+                     for (a_domain_id, rban_name) in al1
                      if a_domain_id is not None and rban_name is not None]
     only_matches2 = [(a_domain_id, rban_name)
-                     for (a_domain_id, rban_name) in al2 
+                     for (a_domain_id, rban_name) in al2
                      if a_domain_id is not None and rban_name is not None]
-    
-    if len(only_matches1) != len(only_matches2):
-        return False
-    
-    for (a_domain_id_1, rban_name_1), (a_domain_id_2, rban_name_2) in zip(only_matches1, only_matches2):
-        rban_names_coinside = (rban_name_1 == rban_name_2) \
-                or (rban_name_1[0] == 'X' and rban_name_2[0] == 'X')
-        if a_domain_id_1 != a_domain_id_2 or not rban_names_coinside:
-            return False
-        
-    return True
+
+    fst_discrepancy = next(((step1, step2)
+                            for step1, step2 in zip(only_matches1, only_matches2)
+                            if not match_steps_coincide(step1, step2)),
+                           None)
+    if fst_discrepancy is not None:
+        return fst_discrepancy
+
+    if len(only_matches1) > len(only_matches2):
+        return (only_matches1[len(only_matches2)], None)
+    if len(only_matches2) > len(only_matches1):
+        return (None, only_matches2[len(only_matches1)])
+
+    return None
+
+
+def check_simplified_alignments_equal(al1: SimplifiedAlignment,
+                                      al2: SimplifiedAlignment) -> bool:
+    return fst_mismatched_step(al1, al2) is None
 
 
 class TestResult(Enum):
