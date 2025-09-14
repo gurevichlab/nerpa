@@ -27,6 +27,16 @@ def _repr_flowseq(dumper, data):
 
 yaml.add_representer(FlowSeq, _repr_flowseq)
 
+def _wrap_alignment(al: SimplifiedAlignment):
+    wrapped = []
+    for ad_id, monomer in al:
+        first = FlowSeq(list(ad_id)) if ad_id is not None else None
+        wrapped.append(FlowSeq([first, monomer]))
+    return wrapped
+
+def simplified_alignment_to_str(al: SimplifiedAlignment) -> str:
+    return yaml.dump(_wrap_alignment(al), default_flow_style=False, sort_keys=False)
+
 
 def simplify_alignment(al: Alignment) -> SimplifiedAlignment:
     simplified_alignment = []
@@ -43,7 +53,8 @@ def simplify_alignment(al: Alignment) -> SimplifiedAlignment:
             if step.nrp_monomer is not None
             else None
         )
-        simplified_alignment.append((a_domain_id, rban_monomer_name))
+        if a_domain_id is not None or rban_monomer_name is not None:
+            simplified_alignment.append((a_domain_id, rban_monomer_name))
         
     return simplified_alignment
 
@@ -72,7 +83,7 @@ def check_simplified_alignments_equal(al1: SimplifiedAlignment,
     if len(only_matches1) != len(only_matches2):
         return False
     
-    for (a_domain_id_1, rban_name_1), (a_domain_id_2, rban_name_2) in zip(al1, al2):
+    for (a_domain_id_1, rban_name_1), (a_domain_id_2, rban_name_2) in zip(only_matches1, only_matches2):
         rban_names_coinside = (rban_name_1 == rban_name_2) \
                 or (rban_name_1[0] == 'X' and rban_name_2[0] == 'X')
         if a_domain_id_1 != a_domain_id_2 or not rban_names_coinside:
@@ -82,9 +93,9 @@ def check_simplified_alignments_equal(al1: SimplifiedAlignment,
 
 
 class TestResult(Enum):
-    OK = 'OK'
-    ACCEPTABLE_ALTERNATIVE_ALIGNMENT = 'ACCEPTABLE_ALTERNATIVE_ALIGNMENT'
-    WRONG_ALIGNMENT = 'WRONG_ALIGNMENT'
+    CORRECT = 'CORRECT'
+    ACCEPTABLE_ALTERNATIVE = 'ACCEPTABLE_ALTERNATIVE'
+    WRONG = 'WRONG'
 
 
 @dataclass
@@ -104,13 +115,13 @@ class TestMatch:
         
         simplified_alignment = simplified_alignment_from_match(match)
         if check_simplified_alignments_equal(simplified_alignment, self.true_alignment):
-            return TestResult.OK
+            return TestResult.CORRECT
         
         for alt_al in self.acceptable_alternative_alignments:
             if check_simplified_alignments_equal(simplified_alignment, alt_al):
-                return TestResult.ACCEPTABLE_ALTERNATIVE_ALIGNMENT
+                return TestResult.ACCEPTABLE_ALTERNATIVE
             
-        return TestResult.WRONG_ALIGNMENT
+        return TestResult.WRONG
 
     @classmethod
     def from_match(cls, match: Match) -> TestMatch:
@@ -121,24 +132,27 @@ class TestMatch:
         if match_bgc_id == 'converted_antiSMASH_v5_outputs':
             match_bgc_id = match_nrp_id.split('.')[0]
 
+        if min(
+            step.bgc_module.a_domain_idx
+            for alignment in match.alignments
+            for step in alignment
+            if step.bgc_module is not None
+        ) != 0:
+            raise ValueError('The match alignment does not start with A-domain index 0; '
+                             'cannot create a TestMatch from it.')
+
         return cls(bgc_id=match_bgc_id,
                    nrp_id=match.nrp_variant_id.nrp_id,
                    true_alignment=simplified_alignment_from_match(match),
                    acceptable_alternative_alignments=[])
 
-    def _wrap_alignment(self, al: SimplifiedAlignment):
-        wrapped = []
-        for ad_id, monomer in al:
-            first = FlowSeq(list(ad_id)) if ad_id is not None else None
-            wrapped.append(FlowSeq([first, monomer]))
-        return wrapped
 
     def to_yaml_obj(self):
         """Return a dict representation with flow sequences, ready for YAML dump."""
         data = asdict(self)
-        data["true_alignment"] = self._wrap_alignment(self.true_alignment)
+        data["true_alignment"] = _wrap_alignment(self.true_alignment)
         data["acceptable_alternative_alignments"] = [
-            self._wrap_alignment(al) for al in self.acceptable_alternative_alignments
+            _wrap_alignment(al) for al in self.acceptable_alternative_alignments
         ]
         return data
 
