@@ -1,7 +1,7 @@
 python nerpa.py \
 -a /share/home/azat/nerpa/asdb-jsons \
 --nrp-variants ./data/input/preprocessed/pnrpdb2_deduplicated_preprocessed.yaml \
--o ./nerpa_results/antismashdb/ \
+-o ./nerpa_results/antismashdb_with_pictures/ \
 --force-output-dir \
 --fast-matching \
 --process-hybrids \
