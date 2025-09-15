@@ -7,5 +7,4 @@ python nerpa.py \
 --process-hybrids \
 --max-num-matches-per-bgc 10 \
 --max-num-matches 10000 \
---threads 32 \
---skip-molecule-drawing
+--threads 32

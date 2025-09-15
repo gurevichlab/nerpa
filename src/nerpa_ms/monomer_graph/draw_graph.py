@@ -1,5 +1,5 @@
 import io
-from typing import Dict, Tuple, List, NewType, Optional
+from typing import Dict, Tuple, List, NewType, Optional, Literal
 from itertools import product, chain
 from collections import defaultdict
 from pathlib import Path
@@ -20,6 +20,15 @@ import colorsys
 import cairosvg
 from PIL import Image
 
+def ensure_image_ext(p: Path, fmt: Literal['png', 'svg']) -> Path:
+    """Ensure path ends with .svg or .png without stripping mid-name parts like '.1'."""
+    s = str(p)
+    fmt = fmt.lower()
+    if s.lower().endswith('.png') or s.lower().endswith('.svg'):
+        s = s[:s.rfind('.')] + f'.{fmt}'
+    else:
+        s = s + f'.{fmt}'
+    return Path(s)
 
 RGB = NewType('RGB', Tuple[float, float, float])
 ColorHex = NewType('ColorHex', str)
@@ -62,7 +71,10 @@ def monomer_color_dict(monomers: Optional[List[str]] = None,
                        dict(zip(monomers, colors)))
 
 
-def draw_molecule(G: MonomerGraph, output_file: Path):
+def draw_molecule(G: MonomerGraph,
+                  output_file: Path,
+                  format: Literal['png', 'svg'] = 'png',
+                  size: Tuple[int, int] = (1000, 1000)):
     aa_color = monomer_color_dict()
 
     atomic_graph_atoms, atomic_graph_edges = to_atomic_graph(G)
@@ -97,7 +109,13 @@ def draw_molecule(G: MonomerGraph, output_file: Path):
             bond_idx = mol.GetBondBetweenAtoms(index1, index2).GetIdx()
             bonds_to_highlight.append(bond_idx)
 
-    drawer = rdMolDraw2D.MolDraw2DCairo(1000, 1000)
+    w, h = size
+    if format == "svg":
+        drawer = rdMolDraw2D.MolDraw2DSVG(w, h)
+    elif format == "png":
+        drawer = rdMolDraw2D.MolDraw2DCairo(w, h)
+    else:
+        raise ValueError(f"Unsupported format: {format}. Use 'svg' or 'png'.")
 
     opts = drawer.drawOptions()
     for atom_index, label in atom_labels.items():  # write names of monomers
@@ -108,8 +126,13 @@ def draw_molecule(G: MonomerGraph, output_file: Path):
                         highlightBonds=bonds_to_highlight)
 
     drawer.FinishDrawing()
+    data = drawer.GetDrawingText()
+    if isinstance(data, str):  # SVG is text
+        data = data.encode("utf-8")
+
+    output_file = ensure_image_ext(output_file, format)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_bytes(drawer.GetDrawingText())
+    output_file.write_bytes(data)
 
 
 def make_graph_to_draw(G: MonomerGraph) -> nx.DiGraph:
@@ -134,11 +157,13 @@ def make_graph_to_draw(G: MonomerGraph) -> nx.DiGraph:
 def draw_monomer_graph(G: MonomerGraph,
                        output_path: Path,
                        with_rban_indexes: bool = True,
-                       format: str = 'png',
+                       format: Literal['png', 'svg'] = 'png',
                        size: Tuple[int, int] = (1000, 1000),
                        dpi: int = 300) -> graphviz.Digraph:
-    if format != 'png':
-        raise ValueError(f"Unsupported format: {format}. Currently only 'png' is supported.")
+    if format not in ('png',):
+        # SVG
+        raise ValueError(f"Unsupported format: {format}. "
+                         f"Currently only '.png' is supported.")
     
     aa_color = monomer_color_dict()
     H = make_graph_to_draw(G)
@@ -184,6 +209,26 @@ def draw_monomer_graph(G: MonomerGraph,
         else:  # directed edge --> peptide bond
             fig.edge(str(u), str(v), color='blue')
 
+    output_path = ensure_image_ext(output_path, format)
+    output_path.parent.mkdir(exist_ok=True, parents=True)
+
+    if format == 'svg':
+        svg_bytes = fig.pipe(format='svg')
+        output_path.write_bytes(svg_bytes)
+    else:  # PNG path stays identical to your original (center onto exact canvas)
+        png_bytes = fig.pipe(format='png')
+        img = Image.open(io.BytesIO(png_bytes))
+        w_tgt, h_tgt = size
+        canvas = Image.new('RGBA', (w_tgt, h_tgt), (255, 255, 255, 255))
+        w_cur, h_cur = img.size
+        x_off = max((w_tgt - w_cur) // 2, 0)
+        y_off = max((h_tgt - h_cur) // 2, 0)
+        canvas.paste(img, (x_off, y_off))
+        canvas.save(output_path, format='PNG')
+
+    return fig
+
+'''
     if output_path:
         output_path.parent.mkdir(exist_ok=True, parents=True)
 
@@ -215,4 +260,4 @@ def draw_monomer_graph(G: MonomerGraph,
         canvas.save(str(output_path), format='PNG')
 
     return fig
-
+'''
