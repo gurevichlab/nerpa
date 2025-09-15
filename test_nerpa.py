@@ -149,7 +149,7 @@ def main():
 
     total = len(test_matches)
     verdicts_lst = list(verdicts.values())
-    print(f'Ok: {verdicts_lst.count(TestResult.CORRECT)}/{total}\n'
+    print(f'Correct: {verdicts_lst.count(TestResult.CORRECT)}/{total}\n'
           f'Acceptable alternative: {verdicts_lst.count(TestResult.ACCEPTABLE_ALTERNATIVE)}/{total}\n'
           f'Wrong: {verdicts_lst.count(TestResult.WRONG)}/{total}\n'
           f'Missing: {len(missing_tests)}/{total}')
