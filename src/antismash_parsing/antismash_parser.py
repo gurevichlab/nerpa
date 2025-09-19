@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import json
+from pathlib import Path
 from typing import (
     List,
     Dict,
@@ -16,7 +19,7 @@ from src.antismash_parsing.antismash_parser_types import (
     Module,
     SVM_LEVEL,
     SVM_Prediction,
-    STRAND
+    STRAND, antiSMASH_metadata
 )
 from src.config import antiSMASH_Processing_Config
 from src.data_types import BGC_ID
@@ -68,8 +71,7 @@ def extract_a_domain_specificity_info(a_domain_data: dict) -> A_Domain:
 
 def extract_a_domains_info(contig_data: dict,
                            config: antiSMASH_Processing_Config,
-                           ctg_idx: int,  # only for error messages
-                           genome_id: str, # only for error messages
+                           metadata: antiSMASH_metadata,  # only for error messages
                            log: BufferedLogger) -> Dict[A_Domain_Id, A_Domain]:
     if "antismash.modules.nrps_pks" not in contig_data["modules"]:
         return {}
@@ -84,10 +86,12 @@ def extract_a_domains_info(contig_data: dict,
             except Exception as e:
                 if config.DEBUG_MODE:
                     log.error(f'Error parsing A-domain {as_domain_id} '
-                              f'in contig {ctg_idx} of genome {genome_id}:\n')
+                              f'in contig {metadata.contig_idx} from the input file {metadata.sequence_file}:\n'
+                              f'{type(e).__name__}: {e}')
                 else:
                     log.warning(f'Error parsing A-domain {as_domain_id} '
-                                f'in contig {ctg_idx} of genome {genome_id}')
+                                f'in contig {metadata.contig_idx} from the input file {metadata.sequence_file}:\n'
+                                f'{type(e).__name__}: {e}')
             else:
                 a_domain_per_id[parsed_id] = specificity_info
 
@@ -266,8 +270,9 @@ def extract_genes(contig_data: dict,
     return list(filter(lambda gene: gene.modules, genes))
 
 
-def extract_bgc_clusters(genome_id: str, ctg_idx: int,
-                         contig_data: dict, genes: List[Gene]) -> List[BGC_Cluster]:
+def extract_bgc_clusters(contig_data: dict,
+                         genes: List[Gene],
+                         metadata: antiSMASH_metadata) -> List[BGC_Cluster]:
     bgcs = []
     for bgc_idx, bgc_data in enumerate(contig_data['areas'], start=1):
         if 'NRPS' in bgc_data['products']:
@@ -275,22 +280,24 @@ def extract_bgc_clusters(genome_id: str, ctg_idx: int,
                          if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
 
             if bgc_genes:
-                bgcs.append(BGC_Cluster(bgc_id=BGC_ID(genome_id=genome_id,
-                                                      contig_idx=ctg_idx,
+                bgcs.append(BGC_Cluster(bgc_id=BGC_ID(input_file=metadata.sequence_file,
+                                                      contig_idx=metadata.contig_idx,
                                                       bgc_idx=bgc_idx),
-                                        genes=bgc_genes))
+                                        genes=bgc_genes,
+                                        metadata=metadata))
     return bgcs
 
 
-def parse_antismash_json(antismash_json: antiSMASH_record,
+def parse_antismash_json(antismash_json_file: Path,
                          config: antiSMASH_Processing_Config,
                          log: BufferedLogger) -> List[BGC_Cluster]:
     bgcs = []
-    genome_id = antismash_json['input_file'].rsplit('.', 1)[0]  # remove extension
+    antismash_json = json.load(open(antismash_json_file))
     for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
         try:
+            metadata = antiSMASH_metadata.from_record(antismash_json, ctg_idx, antismash_json_file)
             a_domains_info = extract_a_domains_info(contig_data, config,
-                                                    ctg_idx, genome_id, log)  # pass genome_id and ctg_idx for error messages
+                                                    metadata, log)  # pass genome_id and ctg_idx for error messages
             a_domains_coords = extract_a_domains_coords(contig_data)
             if a_domains_info.keys() != a_domains_coords.keys():
                 raise ValueError('A domain sets do not match between '
@@ -299,9 +306,9 @@ def parse_antismash_json(antismash_json: antiSMASH_record,
                 continue
 
             genes = extract_genes(contig_data, a_domains_info, a_domains_coords, config)
-            bgcs.extend(extract_bgc_clusters(genome_id, ctg_idx, contig_data, genes))
+            bgcs.extend(extract_bgc_clusters(contig_data, genes, metadata))
         except Exception as e:
-                log.error(f'Error parsing contig {ctg_idx} of genome {genome_id}:\n'
+                log.error(f'Error parsing contig {ctg_idx} from input file {antismash_json.get("input_file")}:\n'
                             f'{type(e).__name__}: {e}')
 
     return bgcs

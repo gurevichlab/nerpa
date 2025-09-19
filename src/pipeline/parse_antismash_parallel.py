@@ -45,10 +45,7 @@ def extract_bgc_variants_from_antismash_batch(antismash_paths: Iterable[Path],
     bgc_variants: List[BGC_Variant] = []
     for antismash_json_file in antismash_paths:
         try:
-            with open(antismash_json_file, 'r') as f:
-                antismash_json_contents = json.load(f)
-
-            antismash_bgcs = parse_antismash_json(antismash_json_contents,
+            antismash_bgcs = parse_antismash_json(antismash_json_file,
                                                   antismash_processing_config,
                                                   log)
             new_bgc_variants = chain.from_iterable(build_bgc_variants(bgc,

@@ -90,7 +90,8 @@ def build_bgc_variants(bgc: BGC_Cluster,
         fragmented_bgcs = split_and_reorder(bgc, antismash_cfg, log)
 
         bgc_variants = [BGC_Variant(bgc_variant_id=BGC_Variant_ID(bgc_id=bgc.bgc_id, variant_idx=idx),
-                                    modules=assembly_line)
+                                    modules=assembly_line,
+                                    metadata=bgc.metadata)
                         for idx, fragmented_bgc in enumerate(fragmented_bgcs)
                         if (assembly_line := build_bgc_assembly_line(fragmented_bgc,
                                                                      specificity_prediction_helper))]

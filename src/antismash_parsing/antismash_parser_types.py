@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from pathlib import Path
 from typing import (
     Dict,
     List,
@@ -115,18 +117,54 @@ class Gene:
 
 
 class BGC_ID(NamedTuple):
-    genome_id: str
+    input_file: str
     contig_idx: int
     bgc_idx: int
 
     def __str__(self):
-        return f'{self.genome_id}_{self.contig_idx}_{self.bgc_idx}'
+        return f'{self.input_file}_{self.contig_idx}_{self.bgc_idx}'
+
+
+@dataclass
+class antiSMASH_metadata:
+    antismash_json: Path
+    contig_idx: int
+    sequence_file: Optional[str]
+    id: Optional[str]
+    organism: Optional[str]
+    taxonomy: Optional[List[str]]  # e.g. ['Bacteria', 'Proteobacteria', 'Alphaproteobacteria', 'Hyphomicrobiales', 'Rhizobiaceae', 'Rhizobium/Agrobacterium group', 'Agrobacterium', 'Agrobacterium tumefaciens complex']
+
+    @classmethod
+    def from_record(cls,
+                    record: antiSMASH_record,
+                    ctg_idx: int,
+                    antismash_json_file: Path) -> antiSMASH_metadata:  # contig_data is an element of antismash_json['records']
+        sequence_file = record.get('input_file')
+        try:
+            contig_data = record['contigs'][ctg_idx]
+            annotations = contig_data['annotations']
+        except KeyError:
+            return cls(antismash_json=antismash_json_file,
+                       contig_idx=ctg_idx,
+                       sequence_file=sequence_file,
+                       id=None, organism=None, taxonomy=None)
+
+        id = annotations.get('id')
+        organism = annotations.get('organism')
+        taxonomy = annotations.get('taxonomy')
+        return cls(antismash_json=antismash_json_file,
+                   contig_idx=ctg_idx,
+                   sequence_file=sequence_file,
+                   id=id,
+                   organism=organism,
+                   taxonomy=taxonomy)
 
 
 @dataclass
 class BGC_Cluster:
     bgc_id: BGC_ID
     genes: List[Gene]
+    metadata: antiSMASH_metadata
 
     def has_pks_domains(self) -> bool:
         return any(DomainType.PKS in module.domains_sequence

@@ -98,7 +98,7 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
                         matching_cfg: MatchingConfig,
                         log=None) -> List[HMM_Match]:
     if log is not None:
-        log.info(f'Processing BGC {detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id} '
+        log.info(f'Processing BGC {detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.input_file} '
                  f'variant {detailed_hmm.bgc_variant.bgc_variant_id.variant_idx}')
 
     max_num_matches_per_bgc_variant = matching_cfg.max_num_matches_per_bgc \

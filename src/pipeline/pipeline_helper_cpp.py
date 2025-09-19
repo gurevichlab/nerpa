@@ -17,7 +17,7 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.detailed_hmm import DetailedHMM
 
 from src.rban_parsing.get_linearizations import NRP_Linearizations
-
+from src.generic.other import json_round_floats
 from src.matching.hmm_match import HMM_Match
 import json
 from pathlib import Path
@@ -56,7 +56,8 @@ class PipelineHelperCpp:
                 for detailed_hmm in detailed_hmms]
 
         #pretty_json = reformat_json(json.dumps(data))
-        pretty_json = json.dumps(data)
+        pretty_json = json.dumps(json_round_floats(data, ndigits=3))
+        #pretty_json = json.dumps(data)
         with open(out_file, 'w') as f:
             f.write(pretty_json)
         return out_file

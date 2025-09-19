@@ -63,7 +63,7 @@ def load_bgc_variants_for_matches(matches: List[Match],
                                    if bgc_variant.bgc_variant_id.variant_idx == bgc_variant_idx)
             else:
                 bgc_variant = next(bgc_variant
-                                   for bgc_id in filter(lambda bgc_id: bgc_id.genome_id == genome_id,
+                                   for bgc_id in filter(lambda bgc_id: bgc_id.sequence_file == genome_id,
                                                         bgc_variants)
                                    for bgc_variant in bgc_variants[bgc_id]
                                    if bgc_variant_match_compatible(bgc_variant, match))
@@ -79,7 +79,7 @@ def load_bgc_variants_for_matches(matches: List[Match],
 def dump_emissions_training_data(data_for_training: DataForTraining, output_dir: Path):
     def emission_dict(emission_info: EmissionInfo) -> dict:
         bgc_id, bgc_module, nrp_monomer, state_type = emission_info
-        return {'genome': bgc_id.genome_id,
+        return {'genome': bgc_id.sequence_file,
                 'gene': bgc_module.gene_id,
                 'a_domain': bgc_module.a_domain_idx,
                 'true_residue': nrp_monomer.residue,

@@ -1,9 +1,10 @@
+from __future__ import annotations
 from typing import (
     Dict,
     List,
     NamedTuple,
     Tuple,
-    Union
+    Union, Optional
 )
 from src.rban_parsing import handle_monomers
 from src.data_types import (
@@ -61,16 +62,36 @@ def parsed_chiralities(chiralities: Dict[MonomerIdx, Union[bool, None]]) -> Dict
 
 
 @dataclass
+class NRP_metadata:
+    name: Optional[str]
+    smiles: Optional[SMILES]
+    origin: Optional[str]
+    inchikey: Optional[str]
+    source: Optional[str]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> NRP_metadata:
+        fields = cls.__dataclass_fields__.keys()
+        class_data = {field: None for field in fields}
+        for key, value in data.items():
+            if key.lower() in fields:
+                class_data[key] = data[key]
+        return cls(**class_data)
+
+
+@dataclass
 class Parsed_rBAN_Record:
     compound_id: str
     monomers: Dict[MonomerIdx, MonomerInfo]
     monomer_bonds: Dict[MonomerEdge, MonomerEdgeInfo]
     atoms: Dict[AtomId, AtomInfo]
     atomic_bonds: Dict[AtomicEdge, AtomicEdgeInfo]
+    metadata: NRP_metadata
 
     def __init__(self, rban_record: Raw_rBAN_Record,
                  hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
-                 chiralities: Dict[MonomerIdx, Chirality]):
+                 chiralities: Dict[MonomerIdx, Chirality],
+                 metadata: Dict[str, NRP_metadata]):
 
         def get_monomer_name(idx: MonomerIdx) -> NorineMonomerName:
             if idx in hybrid_monomers:
@@ -84,6 +105,7 @@ class Parsed_rBAN_Record:
             return NorineMonomerName(name)
 
         self.compound_id = rban_record['id']
+        self.metadata = metadata[self.compound_id] if self.compound_id in metadata else NRP_metadata(None, None, None, None, None)
         self.atoms = {atom['cdk_idx']: AtomInfo(name=atom['name'],
                                                 hydrogens=atom['hydrogens'])
                       for atom in rban_record['atomicGraph']['atomicGraph']['atoms']}
