@@ -53,7 +53,7 @@ class Match:
 
     def __str__(self):
         out = StringIO()
-        out.write('\n'.join([f'Genome: {self.bgc_variant_id.bgc_id.genome_id}',
+        out.write('\n'.join([f'Genome: {self.bgc_variant_id.bgc_id.input_file}',
                              f'Contig_idx: {self.bgc_variant_id.bgc_id.contig_idx}',
                              f'BGC_idx: {self.bgc_variant_id.bgc_id.bgc_idx}',
                              f'BGC_variant: {self.bgc_variant_id.variant_idx}',

@@ -15,7 +15,7 @@ from src.monomer_names_helper import (
     Chirality,
     NRP_Monomer
 )
-from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID
+from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID, antiSMASH_metadata
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.monomer_names_helper import enum_representer, AA10, AA34
@@ -111,12 +111,18 @@ class BGC_Variant_ID(NamedTuple):
 class BGC_Variant:
     bgc_variant_id: BGC_Variant_ID
     modules: List[BGC_Module]
+    metadata: Optional[antiSMASH_metadata]
 
     @classmethod
     def from_yaml_dict(cls, data: dict) -> BGC_Variant:
+        try:
+            metadata = antiSMASH_metadata(**data['metadata'])
+        except:
+            metadata = None
         return cls(
             bgc_variant_id=BGC_Variant_ID.from_dict(data["bgc_variant_id"]),
-            modules=[BGC_Module.from_dict(module) for module in data["modules"]]
+            modules=[BGC_Module.from_dict(module) for module in data["modules"]],
+            metadata=metadata
         )
 
     def to_dict(self) -> Dict[str, Any]:

@@ -130,7 +130,7 @@ class TestMatch:
     acceptable_alternative_alignments: List[SimplifiedAlignment]
     
     def test(self, match: Match) -> TestResult:
-        match_bgc_id = match.bgc_variant_id.bgc_id.genome_id
+        match_bgc_id = match.bgc_variant_id.bgc_id.input_file
         if match_bgc_id.endswith('.gbk'):
             match_bgc_id = match_bgc_id[:-4]
         if (match_bgc_id != self.bgc_id
@@ -150,7 +150,7 @@ class TestMatch:
     @classmethod
     def from_match(cls, match: Match) -> TestMatch:
         match_nrp_id = match.nrp_variant_id.nrp_id
-        match_bgc_id = match.bgc_variant_id.bgc_id.genome_id
+        match_bgc_id = match.bgc_variant_id.bgc_id.input_file
         if match_bgc_id.endswith('.gbk'):
             match_bgc_id = match_bgc_id[:-4]
         if match_bgc_id == 'converted_antiSMASH_v5_outputs':

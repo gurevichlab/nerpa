@@ -190,6 +190,14 @@ class PipelineHelper:
         self.log.info("Detailed reports are saved to " + str(self.config.output_config.matches_details), indent=1)
 
     def finish(self):
+        if not self.args.keep_intermediate_files:
+            self.log.info("Removing intermediate files...")
+            shutil.rmtree(self.config.output_config.rban_output_config.rban_output_dir,
+                          ignore_errors=True)
+            self.config.output_config.cpp_io_config.cpp_output_json.unlink(missing_ok=True)
+            self.config.output_config.cpp_io_config.hmms_json.unlink(missing_ok=True)
+            self.config.output_config.cpp_io_config.nrp_linearizations_json.unlink(missing_ok=True)
+
         self.log.finish()
 
 

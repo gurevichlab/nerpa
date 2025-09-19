@@ -61,7 +61,7 @@ def build_report(matches: List[Match]) -> str:
                           'p_value': match.p_value,
                           'NRP_ID': match.nrp_variant_id.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
-                          'Genome_ID': match.bgc_variant_id.bgc_id.genome_id,
+                          'Genome_ID': match.bgc_variant_id.bgc_id.input_file,
                           'BGC_ID': match.bgc_variant_id.bgc_id.bgc_idx,
                           'BGC_Variant_Idx': match.bgc_variant_id.variant_idx}
                          for match in matches)
@@ -116,7 +116,7 @@ def write_matches_details(matches: List[Match],
 
     (matches_details_output_dir / Path('per_BGC')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant_id.bgc_id.genome_id}_{match.bgc_variant_id.get_antismash_id()}')
+                         get_id=lambda match: f'{match.bgc_variant_id.bgc_id.sequence_file}_{match.bgc_variant_id.get_antismash_id()}')
 
     (matches_details_output_dir / Path('per_NRP')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_NRP'),

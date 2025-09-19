@@ -116,6 +116,11 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                action="store_true", default=False,
                                help="use C++ executable to perform matching (requires compilation)")
 
+    configs_group.add_argument("--keep-intermediate-files",
+                               action="store_true", default=False,
+                               help="keep all intermediate files (rBAN results, HMMs, etc) "
+                                    "in the output directory")
+
     # configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
     #                            help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
     configs_group.add_argument("--debug", action="store_true", default=False,

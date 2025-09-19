@@ -129,7 +129,7 @@ def main():
 
     print('Loading Nerpa results')
     matches = load_matches(args.output_dir / 'nerpa_results')
-    matches_by_id = {(match.bgc_variant_id.bgc_id.genome_id,
+    matches_by_id = {(match.bgc_variant_id.bgc_id.input_file,
                       match.nrp_variant_id.nrp_id): match
                          for match in matches}
     test_matches_by_id = {(test_match.bgc_id, test_match.nrp_id): test_match

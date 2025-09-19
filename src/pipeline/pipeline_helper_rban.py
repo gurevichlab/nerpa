@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logging.logger import NerpaLogger
 from src.config import Config
@@ -9,7 +9,7 @@ from src.rban_parsing.retrieve_nrp_variants import retrieve_nrp_variants
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record,
     parsed_chiralities,
-    Raw_rBAN_Record
+    Raw_rBAN_Record, NRP_metadata
 )
 from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.handle_monomers import get_monomers_chirality
@@ -58,31 +58,44 @@ class PipelineHelper_rBAN:
                                        self.config.output_config.rban_output_config,
                                        custom_monomers)
 
-    def get_input_for_rban(self) -> List[dict]:
+    def get_input_for_rban_with_metadata(self) -> Tuple[List[dict], Dict[str, NRP_metadata]]:
         def default_id(i: int) -> str:
             return f'compound_{i:06d}'
 
+        rows = []
+        metadata = {}
         if self.args.smiles_tsv:
             reader = csv.DictReader(self.args.smiles_tsv.open('r'),
                                     delimiter=self.args.sep, quoting=csv.QUOTE_NONE)
-            return [{'id': row[self.args.col_id] if self.args.col_id else default_id(i),
-                     'smiles': row[self.args.col_smiles]}
-                    for i, row in enumerate(reader)]
+            for i, row in enumerate(reader):
+                compound_id = row[self.args.col_id] if self.args.col_id else default_id(i)
+                metadata[compound_id] = NRP_metadata.from_dict(row)
+                rows.append({'id': compound_id,
+                             'smiles': row[self.args.col_smiles]})
         elif self.args.smiles:
-            return [{'id': default_id(i), 'smiles': smiles}
-                    for i, smiles in enumerate(self.args.smiles)]
+            for i, smiles in enumerate(self.args.smiles):
+                compound_id = default_id(i)
+                metadata[compound_id] = NRP_metadata.from_dict({'smiles': smiles})
+                rows.append({'id': compound_id,
+                             'smiles': smiles})
 
-    def get_raw_rban_results(self) -> List[Raw_rBAN_Record]:
+        return rows, metadata
+
+    def get_raw_rban_results(self) -> Tuple[List[Raw_rBAN_Record], Dict[str, NRP_metadata]]:
         if self.args.rban_output:
+            metadata = defaultdict(lambda : NRP_metadata(None, None, None, None, None))
             rban_records = json.load(self.args.rban_output.open('r'))
-            return rban_records if isinstance(rban_records, list) else [rban_records]
+            return (rban_records, metadata) if isinstance(rban_records, list) else ([rban_records], metadata)
 
-        smiles_with_ids = self.get_input_for_rban()
+        smiles_with_ids, metadata = self.get_input_for_rban_with_metadata()
 
         self.log.info('\n======= Structures preprocessing with rBAN')
-        return self.rban_helper.run_rban(smiles_with_ids,
-                                         self.log,
-                                         report_not_processed=True)
+        rban_output =  self.rban_helper.run_rban(smiles_with_ids,
+                                                 self.log,
+                                                 report_not_processed=True)
+
+        return rban_output, metadata
+
 
     def get_chiralities_per_record(self, rban_records: List[Raw_rBAN_Record]) -> Dict[int, Dict[int, Chirality]]:
         chiralities_dict = {}
@@ -97,14 +110,15 @@ class PipelineHelper_rBAN:
         return chiralities_dict
 
     def get_rban_results(self) -> List[Parsed_rBAN_Record]:
-        rban_records = self.get_raw_rban_results()
+        rban_records, metadata = self.get_raw_rban_results()
         hybrid_monomers_per_record = self.rban_helper.get_hybrid_monomers_per_record(rban_records, self.log)
         chiralities_per_record = self.get_chiralities_per_record(rban_records)
 
         self.log.info("\n======= Done with Structures preprocessing with rBAN")
         return [Parsed_rBAN_Record(rban_record,
                                    hybrid_monomers_per_record[i],
-                                   chiralities_per_record[i])
+                                   chiralities_per_record[i],
+                                   metadata)
                 for i, rban_record in enumerate(rban_records)]
 
     def get_nrp_variants(self,
