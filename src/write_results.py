@@ -55,13 +55,13 @@ def build_report(matches: List[Match]) -> str:
                                 fieldnames=('LogOdds_vs_avg_NRP', 'LogOdds_vs_avg_BGC', 'Raw_score', 'p_value', 'NRP_ID', 'NRP_Variant_Idx', 'Genome_ID', 'BGC_ID', 'BGC_Variant_Idx'),
                                 delimiter='\t')
     csv_writer.writeheader()
-    csv_writer.writerows({'LogOdds_vs_avg_NRP': match.score - match.score_vs_avg_nrp,
-                          'LogOdds_vs_avg_BGC': match.score - match.score_vs_avg_bgc,
-                          'Raw_score': match.score,
+    csv_writer.writerows({'LogOdds_vs_avg_NRP': match.log_odds_vs_avg_nrp,
+                          'LogOdds_vs_avg_BGC': match.log_odds_vs_avg_bgc,
+                          'Raw_score': match.raw_score,
                           'p_value': match.p_value,
                           'NRP_ID': match.nrp_variant_id.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
-                          'Genome_ID': match.bgc_variant_id.bgc_id.input_file,
+                          'Genome_ID': match.bgc_variant_id.bgc_id.antiSMASH_file,
                           'BGC_ID': match.bgc_variant_id.bgc_id.bgc_idx,
                           'BGC_Variant_Idx': match.bgc_variant_id.variant_idx}
                          for match in matches)
@@ -116,7 +116,7 @@ def write_matches_details(matches: List[Match],
 
     (matches_details_output_dir / Path('per_BGC')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_BGC'),
-                         get_id=lambda match: f'{match.bgc_variant_id.bgc_id.sequence_file}_{match.bgc_variant_id.get_antismash_id()}')
+                         get_id=lambda match: f'{match.bgc_variant_id.bgc_id.to_str_short()}')
 
     (matches_details_output_dir / Path('per_NRP')).mkdir()
     write_matches_per_id(matches, matches_details_output_dir / Path('per_NRP'),

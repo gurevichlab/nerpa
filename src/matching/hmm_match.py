@@ -68,11 +68,12 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
                                   lo_score=hmm_match.score - hmm_match.score_vs_avg_nrp) \
             if hmm._p_value_estimator is not None else None
 
-        matches.append(Match(bgc_variant_id=hmm_match.bgc_variant_id,
+        matches.append(Match(genome_id=hmm.bgc_variant.get_genome_id(),
+                             bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),
-                             score=hmm_match.score,
-                             score_vs_avg_nrp=hmm.score_vs_avg_nrp(),
-                             score_vs_avg_bgc=hmm.score_vs_avg_bgc(all_rban_monomers),
+                             raw_score=hmm_match.score,
+                             log_odds_vs_avg_nrp=hmm_match.score - hmm.score_vs_avg_nrp(),
+                             log_odds_vs_avg_bgc=hmm_match.score - hmm.score_vs_avg_bgc(all_rban_monomers),
                              p_value=p_value,
                              alignments=alignments))
 

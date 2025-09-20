@@ -140,7 +140,7 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
             try:
                 path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(alignment)
                 if dir_for_hmm_figures is not None:
-                    detailed_hmm.draw(dir_for_hmm_figures / Path(f'{detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.input_file}_path_{i}.png'),
+                    detailed_hmm.draw(dir_for_hmm_figures / Path(f'{detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.antiSMASH_file}_path_{i}.png'),
                                       highlight_path=[state for state, _ in path_with_emissions])  # for debugging
             except Exception as e:
                 print(f'WARNING: alignment {i} for match {match.nrp_variant_id.nrp_id} '

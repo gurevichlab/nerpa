@@ -122,7 +122,7 @@ def find_wrong_matches(matches: List[Match], approved_matches: List[Match]) -> C
         try:
             test_match = next(match for match in matches
                               if match.nrp_variant_id.nrp_id == nrp_id
-                              and match.bgc_variant_id.bgc_id.input_file == bgc_id)
+                              and match.bgc_variant_id.bgc_id.antiSMASH_file == bgc_id)
         except StopIteration:
             print(f'WARNING: match for {nrp_id} is missing')
             missing_cnt += 1

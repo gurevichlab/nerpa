@@ -28,7 +28,7 @@ void write_output_to_json(const std::vector<MatchInfo>& matches,
                 {"score", match.score},
                 {"bgc_variant_id", {
                                   {"bgc_id", {
-                                                     {"genome_id", genome_id(bgc_id(match.bgc_variant_id))},
+                                                     {"antiSMASH_file", genome_id(bgc_id(match.bgc_variant_id))},
                                                      {"contig_idx", contig_idx(bgc_id(match.bgc_variant_id))},
                                                      {"bgc_idx", bgc_idx(bgc_id(match.bgc_variant_id))}
                                              }},
@@ -45,7 +45,7 @@ void write_output_to_json(const std::vector<MatchInfo>& matches,
     for (const auto& [bgc_variant_id, pvals] : p_values_vec) {
         json bgc_variant_info = {
                 {"bgc_id", {
-                                   {"genome_id", genome_id(bgc_id(bgc_variant_id))},
+                                   {"antiSMASH_file", genome_id(bgc_id(bgc_variant_id))},
                                    {"contig_idx", contig_idx(bgc_id(bgc_variant_id))},
                                    {"bgc_idx", bgc_idx(bgc_id(bgc_variant_id))}}},
                 {"variant_idx", variant_idx(bgc_variant_id)}
