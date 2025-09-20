@@ -8,7 +8,9 @@ from src.config import OutputConfig
 from src.matching.match_type import Match
 
 
-def _create_match_dicts(matches: List[Match], debug_output: bool) -> List[Dict]:
+def _create_match_dicts(matches: List[Match],
+                        debug_output: bool,
+                        default_score_field: str = 'log_odds_vs_avg_bgc') -> List[Dict]:
     # TODO: make this function less hard-coded, maybe do all stuff in AlignmentStep.to_dict()? See alignment_step_type.py
     def _postprocess_alignments_for_html(match_dict: Dict) -> Dict:
         for i, alignment in enumerate(match_dict['alignments']):
@@ -25,10 +27,8 @@ def _create_match_dicts(matches: List[Match], debug_output: bool) -> List[Dict]:
             # Update the original alignment in the match_dict
             match_dict['alignments'][i] = cleaned_alignment
 
-        match_dict['score'] = match_dict['score']
-        match_dict['log_odds_vs_avg_bgc'] = match_dict['score'] - match_dict['score_vs_avg_bgc']
-        match_dict['log_odds_vs_avg_nrp'] = match_dict['score'] - match_dict['score_vs_avg_nrp']
-
+        # Adding log-odds score and the default score column
+        match_dict['score'] = match_dict[default_score_field]
         return match_dict
 
     # TODO: think if we need some minimal leading_zeros always, e.g., at least 3
@@ -52,7 +52,10 @@ def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
     return template
 
 
-def create_html_report(output_cfg: OutputConfig, matches: List[Match], debug_output: bool = False):
+def create_html_report(output_cfg: OutputConfig,
+                       matches: List[Match],
+                       debug_output: bool = False,
+                       default_score_field: str = 'log_odds_vs_avg_bgc'):
     current_dir = Path(__file__).resolve().parent
     template_main_report_path = current_dir / 'main_report_template.html'
     main_report_path = output_cfg.html_report
@@ -64,7 +67,9 @@ def create_html_report(output_cfg: OutputConfig, matches: List[Match], debug_out
     html_aux_dir = output_cfg.main_out_dir / 'html_aux'
     report_data_js_path = html_aux_dir / 'report_data.js'
     html_aux_dir.mkdir()
-    match_dicts = _create_match_dicts(matches, debug_output)
+    match_dicts = _create_match_dicts(matches,
+                                      debug_output,
+                                      default_score_field=default_score_field)
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:
         json_file.write('var data = ')

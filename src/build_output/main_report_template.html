@@ -196,14 +196,15 @@
                 <a href="#" id="toggleMainColumnsButton">Select columns to display</a>
                 <div id="mainCheckboxContainer" style="display: none;">
                     <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Match ID" checked> Match ID</label></span>
+                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Score" checked> Score</label></span>
                     <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Raw score"> Raw score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP score" checked> NRP score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC score" checked> BGC score</label></span>
+                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP score"> NRP score</label></span>
+                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC score"> BGC score</label></span>
                     <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP" checked> NRP</label></span>
                     <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Genome" checked> Genome</label></span>
                     <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC ID" checked> BGC ID</label></span>
                 </div>
-                <small>(Raw score hidden by default)</small>
+                <small>(Raw score, NRP score and BGC score hidden by default)</small>
             </div>
         </div>
 
@@ -221,6 +222,7 @@
             <thead>
             <tr>
                 <th title="Unique identifier of the match">Match ID</th>
+                <th title="Default score of the match. Coincides with one of the other score columns (hidden by default)">Score</th>
                 <th title="Log‑probability from the HMM that the BGC generates the NRP">Raw score</th>
                 <th title="Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC">NRP score</th>
                 <th title="Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP">BGC score</th>
@@ -249,6 +251,7 @@
                     <thead>
                     <tr>
                         <th title="Unique identifier of the match">Match ID</th>
+                        <th title="Default score of the match. Coincides with one of the other score columns (hidden by default)">Score</th>
                         <th title="Log‑probability from the HMM that the BGC generates the NRP">Raw score</th>
                         <th title="Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC">NRP score</th>
                         <th title="Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP">BGC score</th>
@@ -403,11 +406,12 @@
                 row.innerHTML = `
                         <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
                         <td class="score">${fmtNum(item.score)}</td>
+                        <td class="score">${fmtNum(item.raw_score)}</td>
                         <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
                         <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
                         <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="">${bgc_id.genome_id}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${bgc_id.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="">${item.genome_id}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
                     `;
                 tableBody.appendChild(row);
             });
@@ -472,10 +476,11 @@
             matchRow.innerHTML = `
                     <td class="match-id">${item.Match_ID}</td>
                     <td class="score">${fmtNum(item.score)}</td>
+                    <td class="score">${fmtNum(item.raw_score)}</td>
                     <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
                     <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
                     <td>${nrp_id}</td>
-                    <td>${bgc_id.genome_id}</td>
+                    <td>${item.genome_id}</td>
                     <td>Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</td>
                 `;
             matchTableBody.appendChild(matchRow);
@@ -502,7 +507,7 @@
             label.style.display = 'none';
             hideBtn.style.display = 'block';
 
-            toggleGenomeViewer(false, bgc_id.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
+            toggleGenomeViewer(false, item.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
             toggleNrpViewer(false, nrp_id);
         }
     }
@@ -637,6 +642,7 @@
             if (txt === 'Raw score') columnIndices.rawScore = index;
             else if (txt === 'NRP score') columnIndices.nrpScore = index;
             else if (txt === 'BGC score') columnIndices.bgcScore = index;
+            else if (txt === 'Score') columnIndices.score = index;
             else if (txt === 'Match ID') columnIndices.matchID = index;
             else if (txt === 'NRP') columnIndices.nrp = index;
             else if (txt === 'Genome') columnIndices.genome = index;
@@ -649,16 +655,20 @@
             header.appendChild(indicator);
         });
 
-        // Default sort by NRP score (descending)
-        if (typeof columnIndices.nrpScore === 'number') {
-            headers[columnIndices.nrpScore].dataset.sortDirection = 'desc';
-            const ind = headers[columnIndices.nrpScore].querySelector('.indicator');
+        // Default sort by Score (descending)
+        if (typeof columnIndices.score === 'number') {
+            headers[columnIndices.score].dataset.sortDirection = 'desc';
+            const ind = headers[columnIndices.score].querySelector('.indicator');
             if (ind) { ind.style.visibility = 'visible'; ind.textContent = '▼'; }
         }
 
-        // Hide Raw score by default
+        // Hide Raw score, NRP score, and BGC score by default
         const rawCb = document.querySelector('#mainCheckboxContainer input[data-column="Raw score"]');
         if (rawCb) { rawCb.checked = false; }
+        const nrpCb = document.querySelector('#mainCheckboxContainer input[data-column="NRP score"]');
+        if (nrpCb) { nrpCb.checked = false; }
+        const bgcCb = document.querySelector('#mainCheckboxContainer input[data-column="BGC score"]');
+        if (bgcCb) { bgcCb.checked = false; }
 
         // After DOM ready, populate table and apply visibility
         populateTable(data);

@@ -280,7 +280,7 @@ def extract_bgc_clusters(contig_data: dict,
                          if bgc_data['start'] <= gene.coords.start <= gene.coords.end <= bgc_data['end']]
 
             if bgc_genes:
-                bgcs.append(BGC_Cluster(bgc_id=BGC_ID(input_file=metadata.sequence_file,
+                bgcs.append(BGC_Cluster(bgc_id=BGC_ID(antiSMASH_file=metadata.antismash_json,
                                                       contig_idx=metadata.contig_idx,
                                                       bgc_idx=bgc_idx),
                                         genes=bgc_genes,

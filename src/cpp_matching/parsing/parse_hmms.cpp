@@ -11,7 +11,7 @@ HMM parse_hmm(const nlohmann::json& entry)
 
     // parse BGC Variant ID ID
     // std::cout << "Parsing BGC Variant ID from JSON entry." << std::endl;
-    auto genome_id   = entry["bgc_variant_id"]["bgc_id"]["genome_id"].get<std::string>();
+    auto genome_id   = entry["bgc_variant_id"]["bgc_id"]["antiSMASH_file"].get<std::string>();
     int contig_idx   = entry["bgc_variant_id"]["bgc_id"]["contig_idx"].get<int>();
     int bgc_idx      = entry["bgc_variant_id"]["bgc_id"]["bgc_idx"].get<int>();
     int variant_idx  = entry["bgc_variant_id"]["variant_idx"].get<int>();

@@ -115,7 +115,8 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
     return NRP_Variant(nrp_variant_id=NRP_Variant_ID(variant_idx=0,
                                                      nrp_id=rban_record.compound_id),
                        fragments=proper_fragments,
-                       isolated_unknown_monomers=isolated_unknown_monomers)
+                       isolated_unknown_monomers=isolated_unknown_monomers,
+                       metadata=rban_record.metadata)
 
 
 def retrieve_nrp_variants(rban_records: List[Parsed_rBAN_Record],

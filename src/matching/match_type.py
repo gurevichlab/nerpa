@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from io import StringIO
+from pathlib import Path
 from typing import List, NamedTuple, Optional
 from src.data_types import (
     BGC_Variant,
@@ -20,20 +21,22 @@ from itertools import takewhile
 
 @dataclass
 class Match:
+    genome_id: str
     bgc_variant_id: BGC_Variant_ID
     nrp_variant_id: NRP_Variant_ID
-    score: LogProb  # log probability of the match in HMM
-    score_vs_avg_nrp: LogProb  # the score of matching the BGC to an "average" NRP of the same length
-    score_vs_avg_bgc: LogProb  # the score of matching the NRP to an "average" BGC of the same length
+    raw_score: LogProb  # log probability of the match in HMM
+    log_odds_vs_avg_nrp: LogProb  # the score of matching the BGC to an "average" NRP of the same length
+    log_odds_vs_avg_bgc: LogProb  # the score of matching the NRP to an "average" BGC of the same length
     p_value: Prob
     alignments: List[Alignment]  # alignments of each fragment
 
     def to_dict(self) -> dict:
-        return {'bgc_variant_id': self.bgc_variant_id.to_dict(),
+        return {'genome_id': self.genome_id,
+                'bgc_variant_id': self.bgc_variant_id.to_dict(),
                 'nrp_variant_id': self.nrp_variant_id._asdict(),
-                'score': self.score,
-                'score_vs_avg_nrp': self.score_vs_avg_nrp,
-                'score_vs_avg_bgc': self.score_vs_avg_bgc,
+                'raw_score': self.raw_score,
+                'log_odds_vs_avg_nrp': self.log_odds_vs_avg_nrp,
+                'log_odds_vs_avg_bgc': self.log_odds_vs_avg_bgc,
                 'p_value': self.p_value,
                 'alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
                                 for alignment_step in alignment]
@@ -41,11 +44,12 @@ class Match:
 
     @classmethod
     def from_dict(cls, data: dict) -> Match:
-        return cls(bgc_variant_id=BGC_Variant_ID.from_dict(data['bgc_variant_id']),
+        return cls(genome_id=data['genome_id'],
+                   bgc_variant_id=BGC_Variant_ID.from_dict(data['bgc_variant_id']),
                    nrp_variant_id=NRP_Variant_ID(**data['nrp_variant_id']),
-                   score=data['score'],
-                   score_vs_avg_nrp=data['score_vs_avg_nrp'],
-                   score_vs_avg_bgc=data['score_vs_avg_bgc'],
+                   raw_score=data['raw_score'],
+                   log_odds_vs_avg_nrp=data['log_odds_vs_avg_nrp'],
+                   log_odds_vs_avg_bgc=data['log_odds_vs_avg_bgc'],
                    p_value=data['p_value'],
                    alignments=[[AlignmentStep.from_dict(alignment_step_data)
                                 for alignment_step_data in alignment_data]
@@ -53,15 +57,16 @@ class Match:
 
     def __str__(self):
         out = StringIO()
-        out.write('\n'.join([f'Genome: {self.bgc_variant_id.bgc_id.input_file}',
+        out.write('\n'.join([f'Genome: {self.genome_id}',
+                             f'antiSMASH_file: {self.bgc_variant_id.bgc_id.antiSMASH_file}',
                              f'Contig_idx: {self.bgc_variant_id.bgc_id.contig_idx}',
                              f'BGC_idx: {self.bgc_variant_id.bgc_id.bgc_idx}',
                              f'BGC_variant: {self.bgc_variant_id.variant_idx}',
                              f'NRP: {self.nrp_variant_id.nrp_id}',
                              f'NRP_variant: {self.nrp_variant_id.variant_idx}',
-                             f'Score: {self.score}',
-                             f'LogOdds_vs_avg_BGC: {(self.score - self.score_vs_avg_bgc) if self.score_vs_avg_bgc is not None else "NA"}',
-                             f'LogOdds_vs_avg_NRP: {(self.score - self.score_vs_avg_nrp) if self.score_vs_avg_nrp is not None else "NA"}',
+                             f'RawScore: {self.raw_score}',
+                             f'LogOdds_vs_avg_BGC: {self.log_odds_vs_avg_bgc}',
+                             f'LogOdds_vs_avg_NRP: {self.log_odds_vs_avg_nrp}',
                              f'P-value: {self.p_value}',
                              'Alignment:']))
         out.write('\n')
@@ -86,12 +91,13 @@ class Match:
         data = defaultdict(lambda: None)
         field_type = {
             'Genome': str,
+            'antiSMASH_file': Path,
             'Contig_idx': int,
             'BGC_idx': int,
             'BGC_variant_idx': int,
             'NRP': str,
             'NRP_variant_idx': int,
-            'Score': float,
+            'RawScore': float,
             'LogOdds_vs_avg_BGC': float,
             'LogOdds_vs_avg_NRP': float,
             'P-value': float,
@@ -108,7 +114,7 @@ class Match:
                         print('Assigning None')
                     data[field_name] = None
 
-        bgc_variant_id = BGC_Variant_ID(bgc_id=BGC_ID(genome_id=data['Genome'],
+        bgc_variant_id = BGC_Variant_ID(bgc_id=BGC_ID(antiSMASH_file=data['antiSMASH_file'],
                                                       contig_idx=data['Contig_idx'],
                                                       bgc_idx=data['BGC_idx']),
                                         variant_idx=data['BGC_variant_idx'])
@@ -123,19 +129,11 @@ class Match:
         alignments = [alignment_from_str('\n'.join(fragment_block))
                       for fragment_block in fragments_blocks]
 
-        score = data['Score']
-        score_vs_avg_nrp = data['Score'] - data['LogOdds_vs_avg_NRP'] \
-                if data['Score'] is not None and data['LogOdds_vs_avg_NRP'] is not None \
-                else None
-        score_vs_avg_bgc = data['Score'] - data['LogOdds_vs_avg_BGC'] \
-                if data['Score'] is not None and data['LogOdds_vs_avg_BGC'] is not None \
-                else None
-
-
-        return cls(bgc_variant_id=bgc_variant_id,
+        return cls(genome_id=data['Genome'],
+                   bgc_variant_id=bgc_variant_id,
                    nrp_variant_id=nrp_variant_id,
                    alignments=alignments,
-                   score=score,
-                   score_vs_avg_bgc=score_vs_avg_bgc,
-                   score_vs_avg_nrp=score_vs_avg_nrp,
+                   raw_score=data['RawScore'],
+                   log_odds_vs_avg_bgc=data['LogOdds_vs_avg_bgc'],
+                   log_odds_vs_avg_nrp=data['LogOdds_vs_avg_nrp'],
                    p_value=data['P-value'])
