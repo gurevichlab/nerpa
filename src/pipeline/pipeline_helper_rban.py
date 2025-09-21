@@ -1,6 +1,7 @@
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, NamedTuple
 from src.pipeline.command_line_args_helper import CommandLineArgs
+from src.pipeline.deduplication import cluster_isomorphic_nrp_variants
 from src.pipeline.logging.logger import NerpaLogger
 from src.config import Config
 from src.data_types import Chirality, NRP_Variant
@@ -21,6 +22,19 @@ import json
 import yaml
 from dataclasses import dataclass
 from itertools import chain
+
+class NRP_Variant_ID(NamedTuple):
+    nrp_id: str
+    variant_idx: int
+
+class NRP_Variants_Info(NamedTuple):
+    nrp_variants: List[NRP_Variant]
+    rban_records: List[Parsed_rBAN_Record]
+    nrp_id_to_repr_id: Dict[NRP_Variant_ID, NRP_Variant_ID]
+
+    def get_representative_nrps(self) -> List[NRP_Variant]:
+        repr_ids = set(self.nrp_id_to_repr_id.values())
+        return [nrp for nrp in self.nrp_variants if nrp.nrp_variant_id in repr_ids]
 
 
 @dataclass
@@ -121,8 +135,8 @@ class PipelineHelper_rBAN:
                                    metadata)
                 for i, rban_record in enumerate(rban_records)]
 
-    def get_nrp_variants(self,
-                         parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
+    def get_nrp_variants_info(self,
+                              parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
         self.log.info(f'results will be in {self.config.output_config.nrp_variants}')
         nrp_variants = retrieve_nrp_variants(parsed_rban_records,

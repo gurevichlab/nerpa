@@ -9,15 +9,17 @@ from src.pipeline.logging.logger import PreliminaryLogger
 def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(pre_logger)
 
-    nrp_variants, rban_records = pipeline_helper.get_nrp_variants_and_rban_records()
-    nrp_linearizations = pipeline_helper.get_nrp_linearizations(nrp_variants)
+    nrp_variants_info = pipeline_helper.get_nrp_variants_and_rban_records()
+    representative_nrps = nrp_variants_info.get_representative_nrp_variants()
+    nrp_linearizations = pipeline_helper.get_nrp_linearizations(representative_nrps)
 
-    bgc_variants = pipeline_helper.get_bgc_variants()
+    bgc_variants_info = pipeline_helper.get_bgc_variants()
+    representative_bgcs = bgc_variants_info.representative_bgc_variants()
     #compute_modification_freqs(bgc_variants)
-    hmms = pipeline_helper.construct_hmms(bgc_variants)
+    hmms = pipeline_helper.construct_hmms(representative_bgcs)
 
-    matches = pipeline_helper.get_matches(hmms, nrp_linearizations, nrp_variants)
-    pipeline_helper.write_results(matches, bgc_variants, nrp_variants, rban_records)
+    matches = pipeline_helper.get_matches(hmms, nrp_linearizations, representative_nrps)
+    pipeline_helper.write_results(matches, bgc_variants_info, nrp_variants_info)
 
     pipeline_helper.finish()
 

@@ -1,7 +1,8 @@
+from __future__ import annotations
 from typing import (
     Iterable,
     List,
-    Union, Tuple
+    Union, Tuple, NamedTuple, Dict
 )
 
 from more_itertools import chunked
@@ -17,7 +18,7 @@ from src.data_types import BGC_Variant
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
 from src.monomer_names_helper import MonomerNamesHelper
 from src.antismash_parsing.antismash_parser import parse_antismash_json
-from src.antismash_parsing.antismash_parser_types import antiSMASH_record
+from src.antismash_parsing.antismash_parser_types import antiSMASH_record, BGC_ID
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
 from src.pipeline.parse_antismash_parallel import extract_bgc_variants_from_antismash_batch
 from pathlib import Path
@@ -26,6 +27,30 @@ import yaml
 from dataclasses import dataclass
 from itertools import chain
 from joblib import Parallel, delayed
+
+
+class BGC_Variant_ID(NamedTuple):
+    bgc_id: BGC_ID
+    variant_idx: int
+
+    @classmethod
+    def from_dict(cls, data: dict) -> BGC_Variant_ID:
+        return cls(
+            bgc_id=BGC_ID.from_dict(data["bgc_id"]),
+            variant_idx=data["variant_idx"]
+        )
+
+    def to_dict(self) -> dict:
+        return {'bgc_id': self.bgc_id.to_dict(),
+                'variant_idx': self.variant_idx}
+
+class BGC_Variants_Info(NamedTuple):
+    bgc_variants: List[BGC_Variant]
+    bgc_id_to_repr_id: Dict[BGC_Variant_ID, BGC_Variant_ID]
+
+    def get_representative_bgcs(self) -> List[BGC_Variant]:
+        repr_ids = set(self.bgc_id_to_repr_id.values())
+        return [bgc for bgc in self.bgc_variants if bgc.bgc_variant_id in repr_ids]
 
 
 @dataclass
