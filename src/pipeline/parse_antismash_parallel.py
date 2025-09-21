@@ -8,7 +8,7 @@ from src.aa_specificity_prediction_model.specificity_prediction_helper import Sp
 from src.pipeline.logging.buffered_logger import BufferedLogger
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.config import antiSMASH_Processing_Config, load_monomer_names_helper
-from src.data_types import BGC_Variant
+from src.antismash_parsing.bgc_variant_types import BGC_Variant
 
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants

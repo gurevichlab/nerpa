@@ -3,7 +3,7 @@ from math import log
 import matplotlib.pyplot as plt
 from pathlib import Path
 import math
-from src.data_types import LogProb
+from src.general_type_aliases import LogProb
 
 def step_cost(step_y_norm: float, bin: Tuple[int, int]) -> float:
     '''

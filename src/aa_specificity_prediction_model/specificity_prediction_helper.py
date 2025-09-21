@@ -6,9 +6,9 @@ import pandas as pd
 from src.aa_specificity_prediction_model.model_wrapper import ModelWrapper
 from src.antismash_parsing.antismash_parser_types import A_Domain, SVM_Prediction, SVM_LEVEL
 from src.config import SpecificityPredictionConfig
-from src.data_types import LogProb, Prob
+from src.general_type_aliases import AA34, LogProb, Prob
 from src.generic.string import hamming_distance
-from src.monomer_names_helper import AA34, MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue, \
+from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue, \
     UNKNOWN_RESIDUE
 from src.paras.paras_wrapper import ParasWrapper
 from src.pipeline.logging.buffered_logger import BufferedLogger

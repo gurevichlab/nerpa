@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List, Tuple, NamedTuple, Dict, Optional
 
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
-from src.data_types import BGC_Variant, GeneId
+from src.antismash_parsing.bgc_variant_types import BGC_Variant, GeneId
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType,

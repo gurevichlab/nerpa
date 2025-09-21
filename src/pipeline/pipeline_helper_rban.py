@@ -4,7 +4,8 @@ from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.deduplication import cluster_isomorphic_nrp_variants
 from src.pipeline.logging.logger import NerpaLogger
 from src.config import Config
-from src.data_types import Chirality, NRP_Variant
+from src.monomer_names_helper import Chirality
+from src.rban_parsing.nrp_variant_types import NRP_Variant
 
 from src.rban_parsing.retrieve_nrp_variants import retrieve_nrp_variants
 from src.rban_parsing.rban_parser import (
@@ -23,18 +24,6 @@ import yaml
 from dataclasses import dataclass
 from itertools import chain
 
-class NRP_Variant_ID(NamedTuple):
-    nrp_id: str
-    variant_idx: int
-
-class NRP_Variants_Info(NamedTuple):
-    nrp_variants: List[NRP_Variant]
-    rban_records: List[Parsed_rBAN_Record]
-    nrp_id_to_repr_id: Dict[NRP_Variant_ID, NRP_Variant_ID]
-
-    def get_representative_nrps(self) -> List[NRP_Variant]:
-        repr_ids = set(self.nrp_id_to_repr_id.values())
-        return [nrp for nrp in self.nrp_variants if nrp.nrp_variant_id in repr_ids]
 
 
 @dataclass

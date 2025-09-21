@@ -11,10 +11,9 @@ import dacite
 import pandas as pd
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
-from src.data_types import (
-    Chirality,
+from src.general_type_aliases import (
     LogProb,
-    MonomerResidue, Prob,
+     Prob,
 )
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.generic.numeric import safe_log
@@ -25,7 +24,14 @@ from dataclasses import dataclass
 from pathlib import Path
 import yaml
 
-from src.monomer_names_helper import NRP_Monomer, MonomerNamesHelper, MonomersDefaultFrequencies, UNKNOWN_RESIDUE
+from src.monomer_names_helper import (
+    Chirality,
+    NRP_Monomer,
+    MonomerResidue,
+    MonomerNamesHelper,
+    MonomersDefaultFrequencies,
+    UNKNOWN_RESIDUE
+)
 
 # TODO: put this in config
 EDGE_TYPE_DEPENDENCIES = {

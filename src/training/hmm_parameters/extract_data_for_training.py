@@ -6,7 +6,7 @@ from typing import (
     Tuple,
     Optional
 )
-from src.data_types import BGC_ID
+from src.general_type_aliases import BGC_ID
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMStateType,
     DetailedHMMEdgeType,

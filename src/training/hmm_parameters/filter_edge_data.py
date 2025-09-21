@@ -1,19 +1,11 @@
-from pathlib import Path
 from typing import (
     List,
-    Tuple,
-    Optional
+    Tuple
 )
 
 from src.antismash_parsing.antismash_parser_types import BGC_ID
-from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
-from src.matching.hmm_auxiliary_types import (
-    DetailedHMMEdgeType,
-    GenomicContext,
-)
 from src.matching.hmm_scoring_config import EDGE_TYPE_DEPENDENCIES
 from src.training.hmm_parameters.training_types import EdgeInfo
-from src.write_results import write_yaml
 
 
 # leave only relevant genomic context features for each edge type

@@ -13,7 +13,7 @@ from src.matching.hmm_auxiliary_types import (
     EdgeKey, DetailedHMMStateType
 )
 from src.matching.match_type import Match
-from src.data_types import (
+from src.general_type_aliases import (
     BGC_Module,
     BGC_Variant,
     NRP_Monomer,

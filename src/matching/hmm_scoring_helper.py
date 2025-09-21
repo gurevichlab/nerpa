@@ -4,11 +4,17 @@ from typing import (
     Dict,
     Tuple, Literal,
 )
-from src.data_types import (
+from src.antismash_parsing.bgc_variant_types import (
+    BGC_ID,
+    BGC_Variant_ID,
+    BGC_Variant,
     BGC_Module,
-    BGC_Module_Modification,
-    Chirality,
-    NRP_Monomer,
+BGC_Module_Modification,
+    GeneId,
+)
+from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
+from src.monomer_names_helper import Chirality, NRP_Monomer
+from src.general_type_aliases import (
     LogProb,
 )
 from src.matching.hmm_scoring_config import (

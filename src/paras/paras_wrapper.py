@@ -5,7 +5,7 @@ from typing import Dict, List, Sequence, Any
 from pathlib import Path
 import joblib
 import numpy as np
-from src.data_types import AA34, Prob
+from src.general_type_aliases import AA34, Prob
 from src.pipeline.paras_parsing import PARAS_RESIDUE
 
 

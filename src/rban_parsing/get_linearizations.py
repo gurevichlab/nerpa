@@ -4,7 +4,7 @@ from typing import (
     NamedTuple,
     Tuple, Optional
 )
-from src.data_types import NRP_Variant, NRP_Fragment
+from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Fragment
 from src.matching.detailed_hmm import DetailedHMM
 from src.monomer_names_helper import MonomerNamesHelper, MonCode
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rBAN_idx

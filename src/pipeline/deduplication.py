@@ -1,9 +1,11 @@
 from typing import List, Dict
-from src.data_types import (
+from src.antismash_parsing.bgc_variant_types import (
     BGC_Variant_ID,
     BGC_Variant,
-    NRP_Variant,
+)
+from src.rban_parsing.nrp_variant_types import (
     NRP_Variant_ID,
+    NRP_Variant,
 )
 
 

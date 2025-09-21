@@ -14,13 +14,11 @@ from argparse import Namespace as CommandLineArgs
 import pandas as pd
 from collections import defaultdict
 
-from src.data_types import Prob
+from src.general_type_aliases import AA10, AA34, Prob
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     MonomerResidue,
     MonomerNamesHelper,
-    AA10,
-    AA34
 )
 from src.pipeline.logging.logger import LoggingConfig
 

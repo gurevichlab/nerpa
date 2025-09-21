@@ -12,12 +12,16 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from src.antismash_parsing.genomic_context import ModuleGenomicContext
-from src.data_types import (
+from src.antismash_parsing.bgc_variant_types import (
     BGC_ID,
     BGC_Variant_ID,
+    BGC_Variant,
     GeneId,
-    NRP_Monomer,
+)
+from src.monomer_names_helper import NRP_Monomer
+from src.general_type_aliases import (
     LogProb,
+    Prob,
 )
 from src.monomer_names_helper import enum_representer, MonCode
 import yaml

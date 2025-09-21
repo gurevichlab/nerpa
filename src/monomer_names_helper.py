@@ -11,6 +11,8 @@ from typing import (
     NewType,
     Tuple, Iterable
 )
+from src.build_output.yaml_representers import enum_representer
+from src.general_type_aliases import Prob
 import pandas as pd
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -18,17 +20,12 @@ from enum import Enum, auto
 import yaml
 
 
-AA10 = NewType('AA10', str)  # 10-letter Stachelhaus code
-AA34 = NewType('AA34', str)  # 34-letter code
 antiSMASH_MonomerName = NewType('antiSMASH_MonomerName', str)  # antiSMASH Short
 NorineMonomerName = NewType('NorineMonomerName', str)
 MonomerResidue = NewType('MonomerResidue', str)
 UNKNOWN_RESIDUE = MonomerResidue('unknown')
 PKS = MonomerResidue('PKS')
 MonCode = NewType('MonCode', int)
-
-def enum_representer(dumper, e: Enum):
-    return dumper.represent_scalar(f'!{e.__class__.__name__}', e.name)
 
 class Chirality(Enum):
     L = auto()
@@ -60,7 +57,6 @@ PKS_MONOMER = NRP_Monomer(residue=PKS,
                           methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
                           chirality=Chirality.UNKNOWN)
 
-Prob = NewType('Prob', float)  # TODO: import
 
 class MonomersDefaultFrequencies(NamedTuple):
     residue: Dict[MonomerResidue, Prob]

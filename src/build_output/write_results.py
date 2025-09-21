@@ -8,10 +8,9 @@ from src.matching.detailed_hmm import DetailedHMM
 from src.matching.hmm_match import HMM_Match
 from src.matching.match_type import Match
 from src.config import OutputConfig
-from src.data_types import BGC_Variant, NRP_Variant
+from src.antismash_parsing.bgc_variant_types import BGC_Variant, BGC_Variants_Info
+from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variants_Info
 from src.generic.combinatorics import sort_groupby
-if TYPE_CHECKING:
-    from src.pipeline.pipeline_helper import BGC_Variants_Info, NRP_Variants_Info
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph

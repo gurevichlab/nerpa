@@ -9,7 +9,7 @@ from src.pipeline.command_line_args_helper import (
 )
 from src.pipeline.logging.logger import NerpaLogger
 from src.config import Config
-from src.data_types import (
+from src.antismash_parsing.bgc_variant_types import (
     BGC_Variant_ID
 )
 from src.monomer_names_helper import MonomerNamesHelper

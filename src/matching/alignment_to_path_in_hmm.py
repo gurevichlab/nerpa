@@ -7,7 +7,7 @@ from src.matching.alignment_type import Alignment, show_alignment
 from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.generic.graphs import shortest_path_through
 import networkx as nx
-from src.data_types import GeneId
+from src.antismash_parsing.antismash_parser_types import GeneId
 from src.monomer_names_helper import NRP_Monomer
 from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
 from src.matching.alignment_type import Alignment

@@ -10,10 +10,10 @@ from typing import (
 
 from joblib import delayed, Parallel
 
-from src import write_results
+from src.antismash_parsing.antismash_parser_types import BGC_ID
+from src.build_output import write_results
 from src.config import MatchingConfig
-from src.data_types import (
-    BGC_ID,
+from src.general_type_aliases import (
     LogProb
 )
 from src.matching.detailed_hmm import DetailedHMM

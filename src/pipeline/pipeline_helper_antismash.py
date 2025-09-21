@@ -13,7 +13,7 @@ from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.logging.logger import NerpaLogger
 from src.pipeline.download_antismash_results import download_antismash_results
 from src.config import Config, antiSMASH_Processing_Config
-from src.data_types import BGC_Variant
+from src.antismash_parsing.bgc_variant_types import BGC_Variant
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
 from src.monomer_names_helper import MonomerNamesHelper
@@ -28,29 +28,6 @@ from dataclasses import dataclass
 from itertools import chain
 from joblib import Parallel, delayed
 
-
-class BGC_Variant_ID(NamedTuple):
-    bgc_id: BGC_ID
-    variant_idx: int
-
-    @classmethod
-    def from_dict(cls, data: dict) -> BGC_Variant_ID:
-        return cls(
-            bgc_id=BGC_ID.from_dict(data["bgc_id"]),
-            variant_idx=data["variant_idx"]
-        )
-
-    def to_dict(self) -> dict:
-        return {'bgc_id': self.bgc_id.to_dict(),
-                'variant_idx': self.variant_idx}
-
-class BGC_Variants_Info(NamedTuple):
-    bgc_variants: List[BGC_Variant]
-    bgc_id_to_repr_id: Dict[BGC_Variant_ID, BGC_Variant_ID]
-
-    def get_representative_bgcs(self) -> List[BGC_Variant]:
-        repr_ids = set(self.bgc_id_to_repr_id.values())
-        return [bgc for bgc in self.bgc_variants if bgc.bgc_variant_id in repr_ids]
 
 
 @dataclass

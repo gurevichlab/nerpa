@@ -7,12 +7,13 @@ from typing import (
     Union, Optional
 )
 from src.rban_parsing import handle_monomers
-from src.data_types import (
-    Chirality,
+from src.general_type_aliases import (
     SMILES,
-    NRP_metadata
 )
-from src.monomer_names_helper import NorineMonomerName
+from src.monomer_names_helper import (
+    Chirality,
+    NorineMonomerName,
+)
 from networkx import DiGraph, is_isomorphic
 
 from collections import defaultdict
@@ -61,6 +62,23 @@ def parsed_chiralities(chiralities: Dict[MonomerIdx, Union[bool, None]]) -> Dict
                        {mon_id: parsed_chirality(ch)
                         for mon_id, ch in chiralities.items()})
 
+
+@dataclass
+class NRP_metadata:
+    name: Optional[str]
+    smiles: Optional[SMILES]
+    origin: Optional[str]
+    inchikey: Optional[str]
+    source: Optional[str]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> NRP_metadata:
+        fields = cls.__dataclass_fields__.keys()
+        class_data = {field: None for field in fields}
+        for key, value in data.items():
+            if key.lower() in fields:
+                class_data[key.lower()] = data[key]
+        return cls(**class_data)
 
 
 

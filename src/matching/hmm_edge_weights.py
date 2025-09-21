@@ -2,7 +2,7 @@ from itertools import pairwise, islice
 from pathlib import Path
 from typing import Dict, Tuple, TYPE_CHECKING, Union
 
-from src.data_types import Prob, LogProb
+from src.general_type_aliases import Prob, LogProb
 from src.matching.hmm_scoring_config import HMMScoringConfig
 
 if TYPE_CHECKING:

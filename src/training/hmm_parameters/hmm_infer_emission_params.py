@@ -11,8 +11,8 @@ from src.training.hmm_parameters.step_function import (
     plot_step_function_stacked,
 )
 from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, MonomerResidue
-from src.data_types import LogProb, Prob
-from src.data_types import (
+from src.general_type_aliases import LogProb, Prob
+from src.general_type_aliases import (
     BGC_Module,
     BGC_Module_Modification
 )

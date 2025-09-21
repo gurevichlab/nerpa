@@ -14,13 +14,19 @@ from typing import (
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.data_types import (
-    BGC_Module,
-    BGC_Variant,
+from src.antismash_parsing.bgc_variant_types import (
+    BGC_ID,
     BGC_Variant_ID,
+    BGC_Variant,
     GeneId,
+)
+from src.monomer_names_helper import NRP_Monomer
+from src.general_type_aliases import (
     LogProb,
-    NRP_Monomer,
+    Prob,
+)
+from src.general_type_aliases import (
+    LogProb,
 )
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType,

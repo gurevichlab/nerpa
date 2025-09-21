@@ -1,8 +1,8 @@
 from typing import List, Tuple, Optional
-from src.data_types import LogProb
+from src.general_type_aliases import LogProb
 from src.matching.hmm_auxiliary_types import HMM, StateIdx
 from src.monomer_names_helper import MonCode
-from src.data_types import LogProb
+from src.general_type_aliases import LogProb
 import numpy as np
 from math import log
 

@@ -1,6 +1,5 @@
 from typing import (
-    List,
-    Tuple, Dict, Optional, NamedTuple
+    List
 )
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
@@ -16,28 +15,26 @@ from src.config import (
     load_config,
     load_monomer_names_helper
 )
-from src.data_types import (
-    BGC_Variant,
-    NRP_Variant,
-)
+from src.antismash_parsing.bgc_variant_types import BGC_Variant
+from src.rban_parsing.nrp_variant_types import NRP_Variant
 import src.pipeline.nerpa_utils as nerpa_utils
 from src.pipeline.deduplication import cluster_isomorphic_nrp_variants, cluster_isomorphic_bgc_variants
-from src.rban_parsing.rban_parser import (
-    Parsed_rBAN_Record
-)
 from src.monomer_names_helper import MonomerNamesHelper
 
 from src.matching.match_type import Match
 from src.matching.matcher import get_hmm_matches
 from src.matching.detailed_hmm import DetailedHMM
-from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN, NRP_Variants_Info
+from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
+from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
+from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
 from src.matching.hmm_scoring_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
-import src.write_results as write_results
+import src.build_output.write_results as write_results
 
 import shutil
-from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH, BGC_Variants_Info
+from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
+from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.pipeline.paras_parsing import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
