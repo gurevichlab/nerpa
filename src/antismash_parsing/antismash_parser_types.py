@@ -9,13 +9,10 @@ from typing import (
     NewType,
     Optional,
 )
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from enum import Enum, auto
-from src.monomer_names_helper import (
-    antiSMASH_MonomerName,
-    AA10,
-    AA34
-)
+from src.monomer_names_helper import antiSMASH_MonomerName
+from src.general_type_aliases import AA10, AA34
 
 
 antiSMASH_record = NewType('antiSMASH_record', dict)
@@ -143,10 +140,10 @@ class BGC_ID(NamedTuple):
 
 @dataclass
 class antiSMASH_metadata:
-    antismash_json: Path
+    antismash_json: Path  # str instead of Path for easier serialization
     contig_idx: int
     sequence_file: Optional[str]
-    id: Optional[str]
+    accessions: Optional[List[str]]
     organism: Optional[str]
     taxonomy: Optional[List[str]]  # e.g. ['Bacteria', 'Proteobacteria', 'Alphaproteobacteria', 'Hyphomicrobiales', 'Rhizobiaceae', 'Rhizobium/Agrobacterium group', 'Agrobacterium', 'Agrobacterium tumefaciens complex']
 
@@ -157,24 +154,31 @@ class antiSMASH_metadata:
                     antismash_json_file: Path) -> antiSMASH_metadata:  # contig_data is an element of antismash_json['records']
         sequence_file = record.get('input_file')
         try:
-            contig_data = record['contigs'][ctg_idx]
+            # 'records' is a list of contigs in antismash terminology
+            # contig_idx is 1-based to align with antiSMASH output
+            contig_data = record['records'][ctg_idx - 1]
             annotations = contig_data['annotations']
         except KeyError:
             return cls(antismash_json=antismash_json_file,
                        contig_idx=ctg_idx,
                        sequence_file=sequence_file,
-                       id=None, organism=None, taxonomy=None)
+                       accessions=None, organism=None, taxonomy=None)
 
-        id = annotations.get('id')
+        accessions = annotations.get('accessions')
         organism = annotations.get('organism')
         taxonomy = annotations.get('taxonomy')
         return cls(antismash_json=antismash_json_file,
                    contig_idx=ctg_idx,
                    sequence_file=sequence_file,
-                   id=id,
+                   accessions=accessions,
                    organism=organism,
                    taxonomy=taxonomy)
 
+    def to_dict(self) -> dict:
+        res = asdict(self)
+        # by default Path converts to a list
+        res['antismash_json'] = str(self.antismash_json)
+        return res
 
 @dataclass
 class BGC_Cluster:

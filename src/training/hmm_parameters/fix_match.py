@@ -1,9 +1,9 @@
 from typing import List, Tuple
 from src.matching.alignment_type import Alignment
-from src.data_types import GeneId
+from src.general_type_aliases import GeneId
 from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.match_type import Match
-from src.data_types import GeneId, BGC_Variant
+from src.general_type_aliases import GeneId, BGC_Variant
 from src.generic.combinatorics import is_subsequence, filter_unique
 from itertools import pairwise, groupby, chain
 

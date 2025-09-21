@@ -15,7 +15,7 @@ from src.antismash_parsing.antismash_parser_types import (
     BGC_Cluster,
     BGC_Module_ID
 )
-from src.data_types import BGC_Module_Modification
+from src.antismash_parsing.bgc_variant_types import BGC_Module_Modification
 
 
 def is_a_domain(domain_type: DomainType) -> bool:  # TODO: rename

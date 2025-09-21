@@ -1,5 +1,14 @@
 from typing import List, Dict, Tuple
-from src.data_types import BGC_Module, GeneId, NRP_Monomer, LogProb
+from src.antismash_parsing.bgc_variant_types import (
+    BGC_ID,
+    BGC_Variant_ID,
+    BGC_Variant,
+    BGC_Module,
+    GeneId,
+)
+from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
+
+from src.general_type_aliases import LogProb
 from collections import defaultdict
 
 

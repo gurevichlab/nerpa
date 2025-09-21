@@ -8,12 +8,10 @@ from itertools import chain
 from pathlib import Path
 from typing import Optional, Tuple, List
 
-from src.antismash_parsing.antismash_parser_types import BGC_ID
-from src.data_types import A_Domain_ID
+from src.general_type_aliases import A_Domain_ID
 from src.matching.alignment_type import Alignment
 from src.matching.match_type import Match
 from src.monomer_names_helper import NorineMonomerName
-from src.write_results import write_yaml
 
 SimplifiedAlignmentStep = Tuple[Optional[A_Domain_ID], Optional[NorineMonomerName]]
 SimplifiedAlignment = List[SimplifiedAlignmentStep]

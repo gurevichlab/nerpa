@@ -14,7 +14,7 @@ def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make
     nrp_linearizations = pipeline_helper.get_nrp_linearizations(representative_nrps)
 
     bgc_variants_info = pipeline_helper.get_bgc_variants()
-    representative_bgcs = bgc_variants_info.representative_bgc_variants()
+    representative_bgcs = bgc_variants_info.get_representative_bgc_variants()
     #compute_modification_freqs(bgc_variants)
     hmms = pipeline_helper.construct_hmms(representative_bgcs)
 

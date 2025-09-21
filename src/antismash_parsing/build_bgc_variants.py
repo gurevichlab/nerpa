@@ -14,12 +14,12 @@ from src.antismash_parsing.determine_modifications import (
     get_iterative_genes,
     get_iterative_modules_ids
 )
-from src.data_types import (
+from src.antismash_parsing.bgc_variant_types import (
     BGC_Variant_ID,
     BGC_Variant,
     BGC_Module,
-    LogProb
-     )
+)
+from src.general_type_aliases import LogProb
 from src.monomer_names_helper import MonomerResidue
 from src.pipeline.logging.buffered_logger import BufferedLogger
 from src.config import antiSMASH_Processing_Config

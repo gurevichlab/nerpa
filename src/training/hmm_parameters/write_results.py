@@ -1,13 +1,13 @@
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 import yaml
 
-from src.data_types import LogProb
+from src.general_type_aliases import LogProb
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType, GenomicContext
 from src.training.hmm_parameters.hmm_infer_emission_params import EmissionParams
 from src.training.hmm_parameters.training_types import DataForTraining
-from src.write_results import write_yaml
+from src.build_output.write_results import write_yaml
 
 
 def edge_params_to_yaml(edge_params: Dict[DetailedHMMEdgeType,

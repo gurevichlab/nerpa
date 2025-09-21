@@ -2,7 +2,7 @@ from src.matching.alignment_step_type import (
     AlignmentStep,
     AlignmentStep_BGC_Module_Info
 )
-from src.data_types import NRP_Monomer_Modification
+from src.monomer_names_helper import NRP_Monomer_Modification
 from src.matching.alignment_type import Alignment
 from src.matching.match_type import Match
 from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType

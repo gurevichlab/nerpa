@@ -6,11 +6,11 @@ from typing import (
     Optional,
     Tuple
 )
-from src.data_types import (
+from src.antismash_parsing.bgc_variant_types import (
     BGC_Module,
     BGC_Module_Modification,
-    LogProb,
 )
+from src.general_type_aliases import LogProb
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.monomer_names_helper import (
     MonomerResidue,

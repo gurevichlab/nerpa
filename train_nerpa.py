@@ -17,7 +17,7 @@ from src.matching.hmm_scoring_config import load_hmm_scoring_config
 from collections import defaultdict
 import argparse
 from argparse import Namespace as CommandlineArgs
-from src.data_types import (
+from src.general_type_aliases import (
     BGC_Variant,
     BGC_ID
 )

@@ -6,7 +6,7 @@ from typing import (
     Union
 )
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
-from src.data_types import LogProb
+from src.general_type_aliases import LogProb
 from src.matching.hmm_auxiliary_types import (
     DetailedHMMEdgeType, GenomicContext
 )

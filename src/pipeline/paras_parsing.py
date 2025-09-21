@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 from pathlib import Path
 from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
-from src.data_types import AA34, LogProb, Prob
+from src.general_type_aliases import AA34, LogProb, Prob
 from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper, UNKNOWN_RESIDUE
 from src.generic.functional import timing_decorator
 import pandas as pd

@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from math import e
 from typing import List, Tuple, Dict, NamedTuple, NewType
-from src.data_types import LogProb, Prob
+from src.general_type_aliases import LogProb, Prob
 from src.matching.hmm_auxiliary_types import HMM, HMM_LOUC, StateIdx, HMM_LPKC
 import numpy as np
 from numpy.typing import NDArray

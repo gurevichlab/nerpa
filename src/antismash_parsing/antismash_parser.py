@@ -22,11 +22,10 @@ from src.antismash_parsing.antismash_parser_types import (
     STRAND, antiSMASH_metadata
 )
 from src.config import antiSMASH_Processing_Config
-from src.data_types import BGC_ID
+from src.antismash_parsing.bgc_variant_types import BGC_ID
+from src.general_type_aliases import AA10, AA34
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
-    AA10,
-    AA34
 )
 from parse import parse
 from collections import defaultdict

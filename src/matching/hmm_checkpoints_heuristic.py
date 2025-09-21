@@ -7,7 +7,7 @@ from typing import (
 )
 if TYPE_CHECKING:
     from src.matching.detailed_hmm import DetailedHMM
-from src.data_types import NRP_Monomer
+from src.monomer_names_helper import NRP_Monomer
 from src.matching.hmm_auxiliary_types import StateIdx
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from itertools import chain

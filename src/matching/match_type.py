@@ -3,14 +3,16 @@ from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from typing import List, NamedTuple, Optional
-from src.data_types import (
-    BGC_Variant,
-    LogProb,
-    NRP_Variant,
+from src.antismash_parsing.bgc_variant_types import (
     BGC_ID,
     BGC_Variant_ID,
-    NRP_Variant_ID,
-    GeneId, Prob
+    BGC_Variant,
+    GeneId,
+)
+from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
+from src.general_type_aliases import (
+    LogProb,
+    Prob,
 )
 from src.matching.alignment_step_type import AlignmentStep
 from src.matching.alignment_type import Alignment, alignment_score, show_alignment, alignment_from_str

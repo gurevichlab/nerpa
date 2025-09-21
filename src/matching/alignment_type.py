@@ -1,7 +1,15 @@
 from typing import List
 from prettytable import PrettyTable
 import more_itertools
-from src.data_types import LogProb, BGC_Module
+from src.general_type_aliases import LogProb
+from src.antismash_parsing.bgc_variant_types import (
+    BGC_ID,
+    BGC_Variant_ID,
+    BGC_Variant,
+    BGC_Module,
+    GeneId,
+)
+from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
 from src.matching.alignment_step_type import AlignmentStep
 from src.generic.other import parse_pretty_table
 

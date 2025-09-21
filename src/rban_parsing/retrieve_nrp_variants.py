@@ -5,7 +5,7 @@ from typing import (
 
 import networkx as nx
 
-from src.data_types import (
+from src.rban_parsing.nrp_variant_types import (
     NRP_Fragment,
     NRP_Variant,
     NRP_Variant_ID
