@@ -1,7 +1,7 @@
 from typing import (
     Callable,
     List,
-    Optional
+    Optional, TYPE_CHECKING
 )
 
 from src.matching.detailed_hmm import DetailedHMM
@@ -10,6 +10,8 @@ from src.matching.match_type import Match
 from src.config import OutputConfig
 from src.data_types import BGC_Variant, NRP_Variant
 from src.generic.combinatorics import sort_groupby
+if TYPE_CHECKING:
+    from src.pipeline.pipeline_helper import BGC_Variants_Info, NRP_Variants_Info
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
 from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
@@ -124,10 +126,9 @@ def write_matches_details(matches: List[Match],
 
 
 def write_results(matches: List[Match],
+                  bgc_variants_info: BGC_Variants_Info,
+                  nrp_variants_info: NRP_Variants_Info,
                   output_cfg: OutputConfig,
-                  bgc_variants: Optional[List[BGC_Variant]] = None,
-                  nrp_variants: Optional[List[NRP_Variant]] = None,
-                  rban_records: Optional[List[Parsed_rBAN_Record]] = None,
                   matches_details: bool = True,
                   html_report: bool = True,
                   debug_output: bool = False,
@@ -138,22 +139,25 @@ def write_results(matches: List[Match],
     bgc_variants_in_matches = {match.bgc_variant_id for match in matches}
     nrp_variants_in_matches = {match.nrp_variant_id for match in matches}
 
-    if bgc_variants is not None:
-        if write_only_present_in_matches:
-            bgc_variants = [bgc_variant for bgc_variant in bgc_variants
-                            if bgc_variant.bgc_variant_id in bgc_variants_in_matches]
-        output_cfg.bgc_variants.parent.mkdir(exist_ok=True, parents=True)
-        write_bgc_variants(bgc_variants, output_cfg.bgc_variants)
-    if nrp_variants is not None:
-        if write_only_present_in_matches:
-            nrp_variants = [nrp_variant for nrp_variant in nrp_variants
-                            if nrp_variant.nrp_variant_id in nrp_variants_in_matches]
-        output_cfg.nrp_variants.parent.mkdir(exist_ok=True, parents=True)
-        write_nrp_variants(nrp_variants,
-                           rban_records=rban_records,
-                           matches=matches,
-                           output_cfg=output_cfg,
-                           log=log)
+    if write_only_present_in_matches:
+        bgc_variants = [bgc_variant
+                        for bgc_variant in bgc_variants_info.bgc_variants
+                        if bgc_variant.bgc_variant_id in bgc_variants_in_matches]
+        nrp_variants = [nrp_variant for nrp_variant in nrp_variants_info.nrp_variants
+                        if nrp_variant.nrp_variant_id in nrp_variants_in_matches]
+    else:
+        bgc_variants = bgc_variants_info.bgc_variants
+        nrp_variants = nrp_variants_info.nrp_variants
+
+    output_cfg.bgc_variants.parent.mkdir(exist_ok=True, parents=True)
+    write_bgc_variants(bgc_variants, output_cfg.bgc_variants)
+
+    output_cfg.nrp_variants.parent.mkdir(exist_ok=True, parents=True)
+    write_nrp_variants(nrp_variants,
+                       rban_records=nrp_variants_info.rban_records,
+                       matches=matches,
+                       output_cfg=output_cfg,
+                       log=log)
 
     if matches_details:
         write_matches_details(matches, output_cfg.matches_details)

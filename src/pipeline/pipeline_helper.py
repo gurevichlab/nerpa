@@ -1,6 +1,6 @@
 from typing import (
     List,
-    Tuple
+    Tuple, Dict, Optional, NamedTuple
 )
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
@@ -18,9 +18,10 @@ from src.config import (
 )
 from src.data_types import (
     BGC_Variant,
-    NRP_Variant
+    NRP_Variant,
 )
 import src.pipeline.nerpa_utils as nerpa_utils
+from src.pipeline.deduplication import cluster_isomorphic_nrp_variants, cluster_isomorphic_bgc_variants
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record
 )
@@ -29,14 +30,14 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.matching.match_type import Match
 from src.matching.matcher import get_hmm_matches
 from src.matching.detailed_hmm import DetailedHMM
-from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
+from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN, NRP_Variants_Info
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
 from src.matching.hmm_scoring_config import load_hmm_scoring_config
 from src.matching.hmm_scoring_helper import HMMHelper
 import src.write_results as write_results
 
 import shutil
-from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH
+from src.pipeline.pipeline_helper_antismash import PipelineHelper_antiSMASH, BGC_Variants_Info
 from src.pipeline.paras_parsing import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
@@ -97,28 +98,37 @@ class PipelineHelper:
         self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
 
     @timing_decorator('Getting BGC variants')
-    def get_bgc_variants(self) -> List[BGC_Variant]:
+    def get_bgc_variants(self) -> BGC_Variants_Info:
         bgc_variants = self.pipeline_helper_antismash.get_bgc_variants()
         if not bgc_variants:
             self.log.info("No BGC variants found. Exiting.")
             self.finish()
             exit(0)
-        return bgc_variants
+
+        self.log.info("Deduplicating extracted BGC variants...")
+        bgc_id_to_repr_id = cluster_isomorphic_bgc_variants(bgc_variants)
+        return BGC_Variants_Info(bgc_variants=bgc_variants,
+                                 bgc_id_to_repr_id=bgc_id_to_repr_id)
 
     @timing_decorator('Getting NRP variants')
-    def get_nrp_variants_and_rban_records(self) -> Tuple[List[NRP_Variant], List[Parsed_rBAN_Record]]:
+    def get_nrp_variants_and_rban_records(self) -> NRP_Variants_Info:
         if self.pipeline_helper_rban.preprocessed_nrp_variants():
             rban_records = []
             nrp_variants = self.pipeline_helper_rban.load_nrp_variants()
         else:
             rban_records = self.pipeline_helper_rban.get_rban_results()
-            nrp_variants = self.pipeline_helper_rban.get_nrp_variants(rban_records)
+            nrp_variants = self.pipeline_helper_rban.get_nrp_variants_info(rban_records)
 
         if not nrp_variants:
             self.log.info("No NRP variants found. Exiting.")
             self.finish()
             exit(0)
-        return nrp_variants, rban_records
+
+        self.log.info("Deduplicating extracted NRP variants...")
+        nrp_id_to_repr_id = cluster_isomorphic_nrp_variants(nrp_variants)
+        return NRP_Variants_Info(nrp_variants=nrp_variants,
+                                 rban_records=rban_records,
+                                 nrp_id_to_repr_id=nrp_id_to_repr_id)
 
     @timing_decorator('Constructing HMMs')
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
@@ -173,16 +183,16 @@ class PipelineHelper:
     @timing_decorator('Writing results')
     def write_results(self,
                       matches: List[Match],
-                      bgc_variants: List[BGC_Variant],
-                      nrp_variants: List[NRP_Variant],
-                      rban_records: List[Parsed_rBAN_Record],
+                      bgc_variants_info: BGC_Variants_Info,
+                      nrp_variants_info: NRP_Variants_Info,
                       matches_details: bool = True):
         self.log.info("\n======= Writing results")
-        write_results.write_results(matches, self.config.output_config,
-                                    bgc_variants, nrp_variants,
-                                    rban_records,
-                                    matches_details,
+        write_results.write_results(matches,
+                                    bgc_variants_info,
+                                    nrp_variants_info,
+                                    self.config.output_config,
                                     write_only_present_in_matches=True,
+                                    matches_details=matches_details,
                                     log=self.log)
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)

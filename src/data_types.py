@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import math
 from typing import (
     Any,
     Dict,
@@ -17,6 +19,8 @@ from src.monomer_names_helper import (
 )
 from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID, antiSMASH_metadata
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
+from src.pipeline.pipeline_helper_antismash import BGC_Variant_ID
+from src.pipeline.pipeline_helper_rban import NRP_Variant_ID
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.monomer_names_helper import enum_representer, AA10, AA34
 from enum import auto, Enum
@@ -70,6 +74,20 @@ class BGC_Module:
             raise  # for debugging
         return res
 
+    def __eq__(self, other: BGC_Module) -> bool:
+        features_coincide = all([
+            self.genomic_context == other.genomic_context,
+            self.modifications == other.modifications,
+            self.iterative_module == other.iterative_module,
+            self.iterative_gene == other.iterative_gene])
+
+        residue_scores_coincide = all([
+            math.isclose(score, other.residue_score[res],
+                         abs_tol=1e-3)
+            for res, score in self.residue_score])
+
+        return features_coincide and residue_scores_coincide
+
 
 class A_Domain_ID(NamedTuple):
     gene_id: GeneId
@@ -88,21 +106,6 @@ BGC_MODULE_DUMMY = BGC_Module(gene_id=GeneId(''), fragment_idx=-1, genomic_conte
 BGC_Fragment = List[BGC_Module]
 
 
-
-class BGC_Variant_ID(NamedTuple):
-    bgc_id: BGC_ID
-    variant_idx: int
-
-    @classmethod
-    def from_dict(cls, data: dict) -> BGC_Variant_ID:
-        return cls(
-            bgc_id=BGC_ID.from_dict(data["bgc_id"]),
-            variant_idx=data["variant_idx"]
-        )
-
-    def to_dict(self) -> dict:
-        return {'bgc_id': self.bgc_id.to_dict(),
-                'variant_idx': self.variant_idx}
 
 
 
@@ -141,6 +144,11 @@ class BGC_Variant:
         else:
             return self.bgc_variant_id.bgc_id.antiSMASH_file.stem
 
+    def __eq__(self, other: BGC_Variant) -> bool:
+        if not isinstance(other, BGC_Variant):
+            return NotImplemented
+        return self.modules == other.modules
+
 
 @dataclass
 class NRP_Fragment:
@@ -153,10 +161,21 @@ class NRP_Fragment:
                    monomers=[rBAN_Monomer.from_list(mon_data_lst)
                              for mon_data_lst in data['monomers']])
 
+    def __eq__(self, other):
+        if not isinstance(other, NRP_Fragment):
+            return NotImplemented
+        if len(self.monomers) != len(other.monomers) or self.is_cyclic != other.is_cyclic:
+            return False
+        mons1 = [mon.to_base_mon() for mon in self.monomers]
+        mons2 = [mon.to_base_mon() for mon in other.monomers]
+        if self.is_cyclic:
+            # Check all cyclic permutations
+            return any(mons1 == (mons2[i:] + mons2[:i])
+                       for i in range(len(mons2)))
+        else:
+            return mons1 == mons2
 
-class NRP_Variant_ID(NamedTuple):
-    nrp_id: str
-    variant_idx: int
+
 
 
 @dataclass
@@ -195,4 +214,13 @@ class NRP_Variant:
                    isolated_unknown_monomers=list(map(rBAN_Monomer.from_yaml_dict, data['isolated_monomers']))
                    if data.get('isolated_monomers') else [],
                    metadata=metadata)
+
+    def __eq__(self, other):
+        if not isinstance(other, NRP_Variant):
+            return NotImplemented
+        if len(self.fragments) != len(other.fragments):
+            return False
+
+        return any(self.fragments == list(permuted_other_frags)
+                   for permuted_other_frags in permutations(other.fragments))
 
