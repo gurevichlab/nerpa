@@ -333,9 +333,12 @@ class PlotsHelper:
 
         fig, ax = plt.subplots(figsize=(10, 6))
         for report_name, total_identified in graphs.items():
-            ax.plot(total_identified.index,
-                    total_identified.values,
-                    label=f"{report_name}")
+            ax.step(
+                total_identified.index,
+                total_identified.values,
+                where="post",  # "mid" makes the step flat across each x interval
+                label=report_name
+            )
             ax.set_xticks(total_identified.index)
 
         ax.set_title(f'{y_axis} of identified {id_column}',
@@ -390,7 +393,7 @@ class PlotsHelper:
         plot_files.extend(self.bgc_len_histogram(nerpa_report, output_dir, num_len_bins=20)
                           for nerpa_report in nerpa_reports)
 
-        return plot_files
+        #return plot_files
         for y_axis in ['Count', 'Percentage']:
             plot_files.extend(self.plot_num_correct_matches(nerpa_reports,
                                                             y_axis=y_axis,
