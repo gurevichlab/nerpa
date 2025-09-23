@@ -228,5 +228,7 @@ def group_by_bgc_length(data_helper: 'PlotsDataHelper',
         interval: df.loc[df["_len_bin"] == interval]
         for interval in len_bins
     }
+    for interval, group in out.items():
+        group.drop(columns=['_bgc_len', '_len_bin'], inplace=True)
     return out
 
