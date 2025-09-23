@@ -97,6 +97,9 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
+    else:
+        if log is not None:
+            log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')
 
     write_yaml(sorted(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_variant_id),
                output_cfg.nrp_variants)

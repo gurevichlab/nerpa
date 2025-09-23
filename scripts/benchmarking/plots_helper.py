@@ -6,6 +6,7 @@ from typing import Literal, Dict, Optional, Sequence, List, Tuple
 
 import numpy as np
 import pandas as pd
+import polars as pl
 from collections import defaultdict
 
 from matplotlib import pyplot as plt
@@ -131,7 +132,7 @@ class PlotsHelper:
     def plot_score_correctness_per_bgc_len(self,
                                            nerpa_report: NerpaReport,
                                            output_dir: Path,
-                                           num_len_bins: int = 3,
+                                           num_len_bins: int = 5,
                                            ) -> Path:
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'score_correctness_per_bgc_len_{nerpa_report.name}.png'
@@ -145,6 +146,63 @@ class PlotsHelper:
         fig.savefig(out_file)
         plt.close(fig)
         return out_file
+
+    def box_plots_score_per_bgc_len(self,
+                                    nerpa_report: NerpaReport,
+                                    output_dir: Path,
+                                    num_len_bins: int = 5):
+        output_dir.mkdir(parents=True, exist_ok=True)
+        out_file = output_dir / f'score_boxplot_per_bgc_len_{nerpa_report.name}.png'
+        grouped = self.data_helper.group_by_bgc_length(nerpa_report, num_len_bins)
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.boxplot([group[NerpaReport.SCORE_COL] for group in grouped.values()],
+                   labels=[f'{int(interval.left)}-{int(interval.right)}' for interval in grouped.keys()],
+                   showfliers=False)
+        ax.set_title(f'Score Distribution per BGC Length: {nerpa_report.name}')
+        ax.set_xlabel('BGC Length')
+        ax.set_ylabel('Score')
+        fig.tight_layout()
+        fig.savefig(out_file)
+        plt.close(fig)
+        return out_file
+
+    def bgc_len_histogram(self,
+                          nerpa_report: NerpaReport,
+                          output_dir: Path,
+                          num_len_bins: int = 5) -> Path:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        out_file = output_dir / f'bgc_length_histogram_{nerpa_report.name}.png'
+
+        bgc_len = {
+            row['bgc_id']: row["num_a_domains"]
+            for _, row in self.data_helper.mibig_bgcs_info.iterrows()
+        }
+
+        df = pl.from_pandas(nerpa_report)
+        df = df.with_columns(
+            pl.col(NerpaReport.BGC_ID_COL)
+            .map_elements(lambda bgc_id: bgc_len[bgc_id], return_dtype=pl.Int64)
+            .alias("bgc_len")
+        )
+        bgc_lengths = list(
+            df.group_by(NerpaReport.BGC_ID_COL)
+            .agg(pl.col("bgc_len").first())
+        )
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.hist(bgc_lengths,
+                bins=num_len_bins,
+                edgecolor='black')
+        ax.set_title(f'BGC Length Histogram: {nerpa_report.name}')
+        ax.set_xlabel('BGC Length')
+        ax.set_ylabel('Count')
+        fig.tight_layout()
+        fig.savefig(out_file)
+        plt.close(fig)
+        return out_file
+
+
+
 
 
     def plot_num_identified(self,
@@ -288,6 +346,12 @@ class PlotsHelper:
         plot_files.extend(self.plot_score_correctness_per_bgc_len(nerpa_report, output_dir)
                           for nerpa_report in nerpa_reports)
         plot_files.append(self.plot_promiscuity_handling(nerpa_reports, output_dir))
+        plot_files.extend(self.box_plots_score_per_bgc_len(nerpa_report, output_dir)
+                          for nerpa_report in nerpa_reports)
+        plot_files.extend(self.bgc_len_histogram(nerpa_report, output_dir)
+                          for nerpa_report in nerpa_reports)
+
+        return plot_files
         for y_axis in ['Count', 'Percentage']:
             plot_files.extend(self.plot_num_correct_matches(nerpa_reports,
                                                             y_axis=y_axis,
@@ -302,5 +366,6 @@ class PlotsHelper:
                                                              id_column=id_column,
                                                              y_axis=y_axis,
                                                              output_dir=output_dir))
+
 
         return plot_files

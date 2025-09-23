@@ -56,7 +56,6 @@ def compute_score_correctness(data_helper,
     ...
     """
     df = nerpa_report.copy()
-    df["is_correct"] = df.apply(data_helper.match_is_correct, axis=1)
 
     # --- Bin scores ------------------------------------------------------------
     # Cut scores into equal-width bins; include lowest edge to capture min score
@@ -150,31 +149,45 @@ def get_identified_ids(data_helper,
             if id_identified(report, id_value)]
 
 def promiscuity_handling_stats(data_helper,
-                               nerpa_report: NerpaReport) -> pd.DataFrame:
+                               nerpa_report: NerpaReport,
+                               identified_if: Literal['default', 'top_N_variants_matches'] = 'top_N_variants_matches') -> pd.DataFrame:
     report = pl.from_pandas(nerpa_report)
 
-    # Count total nrp iso-classes per BGC (from Python dict)
-    cnt_nrps_per_bgc = (
-        pl.DataFrame(
-            [
-                {NerpaReport.BGC_ID_COL: bgc_id, 'num_nrp_classes': len(iso_classes)}
-                for bgc_id, iso_classes in data_helper.bgc_to_nrp_iso_classes.items()
-            ]
-        )
+    # add a column 'num_nrp_classes' with the total number of NRP iso-classes per BGC
+    report = report.with_columns(
+        [
+            pl.col(NerpaReport.BGC_ID_COL)
+            .map_elements(lambda bgc_id: len(data_helper.bgc_to_nrp_iso_classes.get(bgc_id, [])))
+            .alias('num_nrp_classes'),
+
+            pl.col(NerpaReport.SCORE_COL)
+            .rank(method="dense", descending=True)  # rank best scores as 1, ties share the same rank
+            .over(NerpaReport.BGC_ID_COL)
+            .alias("rank_in_bgc")
+        ]
     )
+
+    if identified_if == 'top_N_variants_matches':
+        # only keep top N matches per BGC, where N is the number of NRP iso-classes for that BGC
+        report = report.filter(
+            pl.col('rank_in_bgc') <= pl.col('num_nrp_classes')
+        )
 
     # Count identified iso-classes per BGC
-    cnt_identified = (
+    cnts = (
         report.group_by(NerpaReport.BGC_ID_COL)
-        .agg(pl.col(NerpaReport.NRP_ISO_CLASS_COL)
-             .filter(pl.col('is_correct') == True)
-             .n_unique()
-             .alias("num_identified_nrp_classes"))
+        .agg([
+            pl.col(NerpaReport.NRP_ISO_CLASS_COL)
+            .filter(pl.col('is_correct') == True)
+            .n_unique()
+            .alias("num_identified_nrp_classes"),
+
+            pl.col('num_nrp_classes').first().alias('num_nrp_classes')
+        ])
     )
 
-    cnts_joined = cnt_nrps_per_bgc.join(cnt_identified, on=NerpaReport.BGC_ID_COL)
     fraction_variants_identified = (
-        cnts_joined.filter((pl.col('num_identified_nrp_classes') > 0) & (pl.col('num_nrp_classes') > 1))
+        cnts.filter((pl.col('num_identified_nrp_classes') > 0) & (pl.col('num_nrp_classes') > 1))
         .with_columns(
             ((pl.col('num_identified_nrp_classes') - 1) / (pl.col('num_nrp_classes') - 1))
             .alias('fraction_variants_identified')
@@ -193,3 +206,27 @@ def promiscuity_handling_stats(data_helper,
     )
 
     return result.sort('num_nrp_classes').to_pandas()
+
+
+def group_by_bgc_length(data_helper: 'PlotsDataHelper',
+                        report: NerpaReport,
+                        num_bins: int = 5,) -> Dict[pd.IntervalIndex, pd.DataFrame]:
+    # Build map from BGC ID to length directly (allowing duplicates in table)
+    bgc_len = {
+        row['bgc_id']: row["num_a_domains"]
+        for _, row in data_helper.mibig_bgcs_info.iterrows()
+    }
+    df = report.copy()
+    df["_bgc_len"] = df[NerpaReport.BGC_ID_COL].map(bgc_len)
+
+    # Bin by BGC length
+    df["_len_bin"] = pd.cut(df["_bgc_len"], bins=num_bins, include_lowest=True, right=True)
+    len_bins = df["_len_bin"].cat.categories
+
+    # Split into groups
+    out: dict[pd.IntervalIndex, pd.DataFrame] = {
+        interval: df.loc[df["_len_bin"] == interval]
+        for interval in len_bins
+    }
+    return out
+
