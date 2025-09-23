@@ -14,7 +14,8 @@ from matplotlib.axes import Axes
 from sklearn.linear_model import LinearRegression
 
 from scripts.benchmarking.data_helper_external_methods import compute_num_correct_matches, compute_score_correctness, \
-    compute_num_identified, compute_total_identified, get_identified_ids, promiscuity_handling_stats
+    compute_num_identified, compute_total_identified, get_identified_ids, promiscuity_handling_stats, \
+    group_by_bgc_length
 from scripts.benchmarking.nerpa_report import (
     NerpaReport,
     NerpaReportRow,
@@ -122,6 +123,11 @@ class PlotsDataHelper:
     def promiscuity_handling_stats(self,
                                    nerpa_report: NerpaReport) -> pd.DataFrame:
         return promiscuity_handling_stats(self, nerpa_report)
+
+    def group_by_bgc_length(self,
+                        nerpa_report: NerpaReport,
+                        num_bins: int = 5) -> dict[pd.IntervalIndex, pd.DataFrame]:
+        return group_by_bgc_length(self, nerpa_report, num_bins)
 
     def check_reports_discrepancy(self,  # type : PlotsDataHelper. Can't import due to circular dependency
                                   report1: NerpaReport, report2: NerpaReport) -> None:
