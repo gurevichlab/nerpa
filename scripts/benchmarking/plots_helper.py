@@ -154,9 +154,38 @@ class PlotsHelper:
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'score_boxplot_per_bgc_len_{nerpa_report.name}.png'
         grouped = self.data_helper.group_by_bgc_length(nerpa_report, num_len_bins)
+
+        correct_scores_per_len = {
+            len_interval: (
+                pl.from_pandas(group)
+                .filter(pl.col('is_correct'))
+                .get_column(NerpaReport.SCORE_COL).to_list()
+            )
+            for len_interval, group in grouped.items()
+        }
+
+        wrong_scores_per_len = {
+            len_interval: (
+                pl.from_pandas(group)
+                .filter(~pl.col('is_correct'))
+                .get_column(NerpaReport.SCORE_COL).to_list()
+            )
+            for len_interval, group in grouped.items()
+        }
+
+        scores_to_plot = list(chain.from_iterable(
+            (correct_scores_per_len[interval], wrong_scores_per_len[interval])
+            for interval in grouped.keys()
+        ))
+        labels = list(chain.from_iterable(
+            (f'{int(interval.left)}-{int(interval.right)}\nCorrect',
+             f'{int(interval.left)}-{int(interval.right)}\nWrong')
+            for interval in grouped.keys()
+        ))
+
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.boxplot([group[NerpaReport.SCORE_COL] for group in grouped.values()],
-                   labels=[f'{int(interval.left)}-{int(interval.right)}' for interval in grouped.keys()],
+        ax.boxplot(scores_to_plot,
+                   labels=labels,
                    showfliers=False)
         ax.set_title(f'Score Distribution per BGC Length: {nerpa_report.name}')
         ax.set_xlabel('BGC Length')
@@ -184,18 +213,28 @@ class PlotsHelper:
             .map_elements(lambda bgc_id: bgc_len[bgc_id], return_dtype=pl.Int64)
             .alias("bgc_len")
         )
+
+        print(df.head())
+
         bgc_lengths = list(
             df.group_by(NerpaReport.BGC_ID_COL)
-            .agg(pl.col("bgc_len").first())
+            .agg(pl.col("bgc_len").first())["bgc_len"]
         )
 
+        print(bgc_lengths[:10])
         fig, ax = plt.subplots(figsize=(10, 6))
+        min_len, max_len = min(bgc_lengths), max(bgc_lengths)
+        bins = np.arange(min_len, max_len + 2) - 0.5  # shift by 0.5 so bars center on integers
+
         ax.hist(bgc_lengths,
-                bins=num_len_bins,
+                bins=bins,
                 edgecolor='black')
+        ax.set_xticks(range(min_len, max_len + 1))
+
         ax.set_title(f'BGC Length Histogram: {nerpa_report.name}')
         ax.set_xlabel('BGC Length')
         ax.set_ylabel('Count')
+
         fig.tight_layout()
         fig.savefig(out_file)
         plt.close(fig)
@@ -346,9 +385,9 @@ class PlotsHelper:
         plot_files.extend(self.plot_score_correctness_per_bgc_len(nerpa_report, output_dir)
                           for nerpa_report in nerpa_reports)
         plot_files.append(self.plot_promiscuity_handling(nerpa_reports, output_dir))
-        plot_files.extend(self.box_plots_score_per_bgc_len(nerpa_report, output_dir)
+        plot_files.extend(self.box_plots_score_per_bgc_len(nerpa_report, output_dir, num_len_bins=20)
                           for nerpa_report in nerpa_reports)
-        plot_files.extend(self.bgc_len_histogram(nerpa_report, output_dir)
+        plot_files.extend(self.bgc_len_histogram(nerpa_report, output_dir, num_len_bins=20)
                           for nerpa_report in nerpa_reports)
 
         return plot_files
