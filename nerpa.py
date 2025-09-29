@@ -4,17 +4,20 @@ import sys
 
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logging.logger import PreliminaryLogger
+import traceback
 
 
 def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(pre_logger)
 
     nrp_variants_info = pipeline_helper.get_nrp_variants_and_rban_records()
-    representative_nrps = nrp_variants_info.get_representative_nrp_variants()
+    #representative_nrps = nrp_variants_info.get_representative_nrp_variants()
+    representative_nrps = nrp_variants_info.nrp_variants
     nrp_linearizations = pipeline_helper.get_nrp_linearizations(representative_nrps)
 
     bgc_variants_info = pipeline_helper.get_bgc_variants()
-    representative_bgcs = bgc_variants_info.get_representative_bgc_variants()
+    #representative_bgcs = bgc_variants_info.get_representative_bgc_variants()
+    representative_bgcs = bgc_variants_info.bgc_variants
     #compute_modification_freqs(bgc_variants)
     hmms = pipeline_helper.construct_hmms(representative_bgcs)
 
@@ -29,8 +32,8 @@ if __name__ == "__main__":
     try:
         main(log)
     except Exception as e:
-        log.exception(str(e))
-        raise e
+        log.exception(traceback.format_exc())
+        exit(1)
 
 '''
 def compute_modification_freqs(bgc_variants: List[BGC_Variant]):

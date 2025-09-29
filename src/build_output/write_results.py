@@ -89,6 +89,7 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
             for rban_record in rban_records:
                 if rban_record.compound_id not in matched_nrp_ids:
                     continue
+                print(f'Drawing {rban_record.compound_id}', flush=True)
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
                                    output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')

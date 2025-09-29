@@ -261,15 +261,6 @@
   - [[MXAN_3779, 8], Ala]
   - [[MXAN_3779, 9], null]
   acceptable_alternative_alignments: []
-- bgc_id: BGC0000395
-  nrp_id: BGC0000395.0
-  true_alignment:
-  - [[nocA, 0], null]
-  - [[nocA, 1], Abu]
-  - [[nocA, 2], OH-dHpg]
-  - [[nocB, 0], Ala]
-  - [[nocB, 1], Hpg]
-  acceptable_alternative_alignments: []
 - bgc_id: BGC0000398
   nrp_id: BGC0000398.0
   true_alignment:
@@ -346,13 +337,6 @@
   nrp_id: BGC0000405.1
   true_alignment:
   - [[pcbAB, 0], Aad]
-  - [[pcbAB, 1], Cys]
-  - [[pcbAB, 2], Val]
-  acceptable_alternative_alignments: []
-- bgc_id: BGC0000405
-  nrp_id: BGC0000405.3
-  true_alignment:
-  - [[pcbAB, 0], GlyA]
   - [[pcbAB, 1], Cys]
   - [[pcbAB, 2], Val]
   acceptable_alternative_alignments: []
@@ -677,7 +661,16 @@
   - [null, diOH-Bz]
   - [[RBAM_029010, 0], Gly]
   - [[RBAM_029010, 1], aThr/Thr]
-  acceptable_alternative_alignments: []
+  acceptable_alternative_alignments:
+  - - [[RBAM_029030, 0], diOH-Bz]
+    - [[RBAM_029010, 0], Gly]
+    - [[RBAM_029010, 1], aThr/Thr]
+    - [[RBAM_029030, 0], diOH-Bz]
+    - [[RBAM_029010, 0], Gly]
+    - [[RBAM_029010, 1], aThr/Thr]
+    - [[RBAM_029030, 0], diOH-Bz]
+    - [[RBAM_029010, 0], Gly]
+    - [[RBAM_029010, 1], aThr/Thr]
 - bgc_id: BGC0001207
   nrp_id: BGC0001207.0
   true_alignment:
@@ -976,7 +969,17 @@
   - [[puwA, 0], NMe-Asn]
   - [[puwA, 1], Pro]
   - [null, X1]
-  acceptable_alternative_alignments: []
+  acceptable_alternative_alignments:
+  - - [[puwA, 0], NMe-Asn]
+    - [[puwA, 1], Pro]
+    - [null, X0]
+    - [[puwE, 0], Val]
+    - [[puwF, 0], dhAbu]
+    - [[puwF, 1], Asn]
+    - [null, dhAbu]
+    - [[puwG, 0], Asn]
+    - [[puwG, 1], Ala]
+    - [[puwH, 0], aThr/Thr]
 - bgc_id: BGC0001955
   nrp_id: BGC0001955.0
   true_alignment:
@@ -1202,8 +1205,8 @@
   - [[KGB56_24765, 2], dhCys]
   - [[KGB56_24760, 0], Gln]
   - [[KGB56_24755, 0], Val]
-  - [null, 3OH-Pro]
-  - [null, X1]
+  - [[KGB56_24755, 1], 3OH-Pro]
+  
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002123
   nrp_id: BGC0002123.11
@@ -1215,10 +1218,10 @@
   - [[KGB56_24765, 1], Pro]
   - [[KGB56_24765, 2], dhCys]
   - [[KGB56_24760, 0], Gln]
-  - [null, X2]
   - [[KGB56_24755, 0], Ile/aIle]
-  - [null, 3OH-Pro]
+  - [[KGB56_24755, 1], 3OH-Pro]
   acceptable_alternative_alignments: []
+
 - bgc_id: BGC0002123
   nrp_id: BGC0002123.5
   true_alignment:
@@ -1230,8 +1233,7 @@
   - [[KGB56_24765, 2], dhCys]
   - [[KGB56_24760, 0], Gln]
   - [[KGB56_24755, 0], Ile/aIle]
-  - [null, 3OH-Pro]
-  - [null, X1]
+  - [[KGB56_24755, 1], 3OH-Pro]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002286
   nrp_id: BGC0002286.0
@@ -1290,7 +1292,14 @@
   - [[bolH, 1], Val]
   - [[bolH, 2], Hse]
   - [[bolH, 3], Ser]
-  acceptable_alternative_alignments: []
+  acceptable_alternative_alignments: 
+  - - [null, X1]
+    - [[bolB, 0], X0]
+    - [[bolH, 0], Ser]
+    - [[bolH, 1], Val]
+    - [[bolH, 2], Hse]
+    - [[bolH, 3], Ser]
+    - [[bolO, 0], null]
 - bgc_id: BGC0002327
   nrp_id: BGC0002327.1
   true_alignment:
@@ -1298,7 +1307,14 @@
   - [[bolH, 1], Ile/aIle]
   - [[bolH, 2], Hse]
   - [[bolH, 3], Ser]
-  acceptable_alternative_alignments: []
+  acceptable_alternative_alignments: 
+  - - [null, X1]
+    - [[bolB, 0], X0]
+    - [[bolH, 0], Ser]
+    - [[bolH, 1], Ile/aIle]
+    - [[bolH, 2], Hse]
+    - [[bolH, 3], Ser]
+    - [[bolO, 0], null]
 - bgc_id: BGC0002351
   nrp_id: BGC0002351.0
   true_alignment:
@@ -1341,7 +1357,17 @@
   - [null, diOH-Bz]
   - [[JJO56_07700, 0], Lys]
   - [[JJO56_07700, 1], Ser]
-  acceptable_alternative_alignments: []
+  acceptable_alternative_alignments: 
+  - - [[JJO56_07675, 0], diOH-Bz]
+    - [[JJO56_07700, 0], Lys]
+    - [[JJO56_07700, 1], Ser]
+    - [[JJO56_07675, 0], diOH-Bz]
+    - [[JJO56_07700, 0], Lys]
+    - [[JJO56_07700, 1], Ser]
+    - [[JJO56_07675, 0], diOH-Bz]
+    - [[JJO56_07700, 0], Lys]
+    - [[JJO56_07700, 1], Ser]
+
 - bgc_id: BGC0002424
   nrp_id: BGC0002424.0
   true_alignment:
@@ -1693,7 +1719,7 @@
 - bgc_id: BGC0002581
   nrp_id: BGC0002581.2
   true_alignment:
-  - [[QKF54435.2, 0], null]
+  - [[QKF54435.2, 0], NFo-Tyr]
   - [[QKF54435.2, 1], Tyr]
   - [[QKF54436.1, 0], Leu]
   - [[QKF54436.1, 1], OH-Asp]
@@ -1701,7 +1727,7 @@
   - [[QKF54438.1, 0], X0]
   - [[QKF54438.1, 1], Leu]
   - [[QKF54438.1, 2], Gly]
-  - [[QKF54440.2, 0], X1]
+  - [[QKF54440.2, 0], null]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002581
   nrp_id: BGC0002581.3

@@ -62,6 +62,9 @@ def add_debug(parser: argparse.ArgumentParser):
                                    help='do not use dictionary of known A domain specificities')
     debug_input_group.add_argument('--draw-hmms', action='store_true',
                                    help='draw HMMs with optimal paths for all matches')
+    debug_input_group.add_argument('--let-it-crash', action='store_true',
+                                   help='crash on first error instead of logging it and continuing')
+
 
 def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
     configs_group = parser.add_argument_group('Nerpa pipeline',
