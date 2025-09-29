@@ -39,7 +39,7 @@ def run_nerpa(nerpa_dir: Path,
         "--output-dir", str(output_dir),
         "--force-output-dir",
         "--max-num-matches", "0",
-        "--max-num-matches-per-bgc", "10",
+        "--max-num-matches-per-bgc", "20",
         "--skip-molecule-drawing",
         "--threads", "8",
         "--fast-matching"
@@ -63,7 +63,7 @@ def load_command_line_args(nerpa_dir: Path,
                         default=nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml',
                         help="Path to the approved matches file.")
     parser.add_argument("--smiles-tsv", type=Path,
-                        default=nerpa_dir / 'data/input/pnrpdb2_mibig_norine_deduplicated.tsv')
+                        default=nerpa_dir / 'data/input/pnrpdb2_mibig_norine.tsv')
     parser.add_argument("--antismash-results", type=Path,
                         default=local_paths['as_results_mibig4_nrps'])
     parser.add_argument("--output-dir", type=Path,
@@ -102,6 +102,13 @@ def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
 
 # TODO: load paths from config instead of hardcoding them
 def main():
+    MIBIG_ERRORS = {'BGC0002379',  # the compound is wrong.
+                    }
+    WRONG_EXPECTED = {('BGC0000342', 'BGC0000342.0'),  # Nerpa incorrectly chooses to skip two monomers instead of iterating a gene
+                      }
+    MISSING_EXPECTED = {('BGC0001667', 'BGC0001667.4'),   # NRP aligns poorly to its true BGC
+                        }
+
     nerpa_dir = Path(__file__).parent
     local_paths = load_local_paths(nerpa_dir)
     args = load_command_line_args(nerpa_dir, local_paths)
@@ -110,6 +117,8 @@ def main():
     test_matches_yaml = yaml.safe_load(args.test_matches.read_text())
     test_matches = [TestMatch.from_yaml_dict(test_match_dict)
                     for test_match_dict in test_matches_yaml]
+    test_matches = [test_match for test_match in test_matches
+                    if test_match.bgc_id not in MIBIG_ERRORS]
     test_matches_bgcs = {match.bgc_id for match in test_matches}
 
     # create a file with paths to antismash results for run_nerpa
@@ -118,18 +127,17 @@ def main():
         for bgc_id in test_matches_bgcs:
             f.write(f"{args.antismash_results / bgc_id}\n")
 
-    print('Running Nerpa')
     '''
+    print('Running Nerpa')
     run_nerpa(nerpa_dir,
               antismash_paths=as_results_file,
               smiles_tsv=args.smiles_tsv,
               output_dir=args.output_dir / 'nerpa_results')
-    '''
     print('Nerpa finished')
-
+    '''
     print('Loading Nerpa results')
     matches = load_matches(args.output_dir / 'nerpa_results')
-    matches_by_id = {(match.bgc_variant_id.bgc_id.antiSMASH_file,
+    matches_by_id = {(match.genome_id,
                       match.nrp_variant_id.nrp_id): match
                          for match in matches}
     test_matches_by_id = {(test_match.bgc_id, test_match.nrp_id): test_match
@@ -138,6 +146,8 @@ def main():
 
     print('Checking matches')
     missing_tests = test_matches_by_id.keys() - matches_by_id.keys()
+    missing_expected = missing_tests.intersection(MISSING_EXPECTED)
+    missing_unexpected = missing_tests - missing_expected
 
     verdicts = {
         (test_match.bgc_id, test_match.nrp_id):
@@ -149,12 +159,18 @@ def main():
 
     total = len(test_matches)
     verdicts_lst = list(verdicts.values())
+    verdicts_wrong = verdicts_lst.count(TestResult.WRONG)
+    wrong_expected = len({(bgc_id, nrp_id)
+                          for (bgc_id, nrp_id), verdict in verdicts.items()
+                          if verdict == TestResult.WRONG and (bgc_id, nrp_id) in WRONG_EXPECTED})
     print(f'Correct: {verdicts_lst.count(TestResult.CORRECT)}/{total}\n'
           f'Acceptable alternative: {verdicts_lst.count(TestResult.ACCEPTABLE_ALTERNATIVE)}/{total}\n'
-          f'Wrong: {verdicts_lst.count(TestResult.WRONG)}/{total}\n'
-          f'Missing: {len(missing_tests)}/{total}')
+          f'Wrong (expected): {wrong_expected}/{total}\n'
+          f'Wrong (unexpected): {verdicts_wrong - wrong_expected}/{total}\n'
+          f'Missing (expected): {len(missing_expected)}/{total}\n'
+          f'Missing (unexpected): {len(missing_unexpected)}/{total}\n')
 
-    print(f'Missing matches:\n{missing_tests}')
+    print(f'Missing matches (unexpected):\n{missing_unexpected}')
 
     wrong_matches_file = args.output_dir / 'wrong_matches.yaml'
     write_wrong_matches([(matches_by_id[(bgc_id, nrp_id)],

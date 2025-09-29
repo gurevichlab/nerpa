@@ -8,7 +8,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Optional, Tuple, List
 
-from src.general_type_aliases import A_Domain_ID
+from src.antismash_parsing.bgc_variant_types import A_Domain_ID
 from src.matching.alignment_type import Alignment
 from src.matching.match_type import Match
 from src.monomer_names_helper import NorineMonomerName
@@ -128,7 +128,7 @@ class TestMatch:
     acceptable_alternative_alignments: List[SimplifiedAlignment]
     
     def test(self, match: Match) -> TestResult:
-        match_bgc_id = match.bgc_variant_id.bgc_id.antiSMASH_file
+        match_bgc_id = match.genome_id
         if match_bgc_id.endswith('.gbk'):
             match_bgc_id = match_bgc_id[:-4]
         if (match_bgc_id != self.bgc_id

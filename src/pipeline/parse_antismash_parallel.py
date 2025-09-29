@@ -51,11 +51,14 @@ def extract_bgc_variants_from_antismash_batch(antismash_paths: Iterable[Path],
             new_bgc_variants = chain.from_iterable(build_bgc_variants(bgc,
                                                                       specificity_prediction_helper,
                                                                       antismash_processing_config,
-                                                                      log)
+                                                                      log,
+                                                                      args.let_it_crash)
                                                    for bgc in antismash_bgcs)
             bgc_variants.extend(new_bgc_variants)
         except Exception as e:
             log.error(f'Unexpected error while parsing antiSMASH JSON {antismash_json_file}: {e}'
                       f'\nSkipping this file.')
+            if args.let_it_crash:
+                raise e
 
     return bgc_variants, log

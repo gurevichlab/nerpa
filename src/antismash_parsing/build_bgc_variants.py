@@ -79,7 +79,8 @@ def build_bgc_assembly_line(fragmented_bgc: Fragmented_BGC_Cluster,
 def build_bgc_variants(bgc: BGC_Cluster,
                        specificity_prediction_helper: SpecificityPredictionHelper,
                        antismash_cfg: antiSMASH_Processing_Config,
-                       log: BufferedLogger) -> List[BGC_Variant]:
+                       log: BufferedLogger,
+                       let_it_crash: bool = False) -> List[BGC_Variant]:
     if not any(module.a_domain is not None
                for gene in bgc.genes
                for module in gene.modules):
@@ -97,6 +98,8 @@ def build_bgc_variants(bgc: BGC_Cluster,
                                                                      specificity_prediction_helper))]
     except Exception as e:
         log.error(f'Error processing BGC {bgc.bgc_id}: {e}. Skipping.')
+        if let_it_crash:
+            raise e
         return []
 
     return bgc_variants

@@ -105,14 +105,14 @@ class NerpaLogger(Logger):
         indent = kwargs.pop('indent', 0)
         if indent > 0:
             msg = self._indent * indent + msg.replace('\n', '\n' + self._indent * indent)
-        super().info(msg, *args, **kwargs)
+        super().info(msg, *args, stacklevel=2, **kwargs)
 
     def warning(self, *args, **kwargs):
-        super().warning(*args, **kwargs)
+        super().warning(*args, stacklevel=2, **kwargs)
         self._num_warnings += 1
 
     def error(self, *args, **kwargs):
-        super().error(*args, **kwargs)
+        super().error(*args, stacklevel=2, **kwargs)
         self._num_errors += 1
 
 

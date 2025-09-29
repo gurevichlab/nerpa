@@ -149,17 +149,36 @@ def split_genes_into_fragments(genes: List[Gene]) -> List[BGC_Fragment]:
 
 
 GeneBlock = List[Gene]  # a continuous sequence of genes from the same strand
-def split_gene_block_into_fragments(genes: List[Gene]) -> Iterable[List[BGC_Fragment]]:
+
+def reverse_gene_block(genes: GeneBlock) -> GeneBlock:
+    reversed_genes = genes[::-1]
+    for gene in reversed_genes:
+        rev_strand = STRAND.FORWARD \
+            if gene.coords.strand == STRAND.REVERSE \
+            else STRAND.REVERSE
+        gene.coords._replace(strand=rev_strand)
+    return reversed_genes
+
+
+def split_gene_block_into_fragments(gene_block: List[Gene],
+                                    num_blocks: int = 1) -> Iterable[List[BGC_Fragment]]:
     """returns all the ways to split a gene block into fragments"""
-    splits = [split_genes_into_fragments(genes)]
-    if len(genes) == 2 or genes[0].coords.strand == STRAND.REVERSE:
-        splits.append(split_genes_into_fragments(genes[::-1]))
+    if gene_block[0].coords.strand == STRAND.FORWARD:
+        splits = [split_genes_into_fragments(gene_block)]
+    else:
+        splits = [split_genes_into_fragments(gene_block[::-1])]
+        # sometimes the order of genes is opposite the order of them on the strand
+        # I apply this only for blocks opposite the main direction and having only two genes
+        # this is a stub and can be improved later
+        if num_blocks > 1 and len(gene_block) == 2:
+            splits.append(split_genes_into_fragments(gene_block))
     return splits
+
 
 
 def generate_fragmented_bgcs(bgc: BGC_Cluster) -> Iterable[Fragmented_BGC_Cluster]:
     def gene_blocks_to_fragment_sequences(gene_blocks: List[GeneBlock]) -> Iterable[Tuple[List[BGC_Fragment], ...]]:
-        return product(*(split_gene_block_into_fragments(gene_block)
+        return product(*(split_gene_block_into_fragments(gene_block, num_blocks=len(gene_blocks))
                          for gene_block in gene_blocks))
 
     def build_fragmented_bgc(genes_fragments: Iterable[List[Gene]]) -> Fragmented_BGC_Cluster:
@@ -174,8 +193,11 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster) -> Iterable[Fragmented_BGC_Cluste
     gene_blocks: List[GeneBlock] = [list(genes_group)
                                     for _, genes_group in groupby(bgc.genes,
                                                                   key=lambda gene: gene.coords.strand)]
-    gene_blocks_rearrangements = [gene_blocks, gene_blocks[::-1]] \
-        if len(gene_blocks) == 2 else [gene_blocks]
+    gene_blocks_rearrangements = [gene_blocks]
+    if len(gene_blocks) > 1:
+        gene_blocks_rearrangements.append([reverse_gene_block(gene_block)
+                                           for gene_block in gene_blocks[::-1]])
+
 
     for gene_blocks in gene_blocks_rearrangements:
         for fragments_seqs in gene_blocks_to_fragment_sequences(gene_blocks):

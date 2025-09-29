@@ -69,7 +69,7 @@ def get_best_match_for_nrp(hmm: HMM_LPUC,
 
     best_noniterative_match = max((match_for_linearization(non_iterative_linearization)
                                    for non_iterative_linearization in nrp_linearizations.non_iterative),
-                                  key=lambda match: match.raw_score)
+                                  key=lambda match: match.score)
 
     best_iterative_score = float('-inf')
     best_iterative_match = []
@@ -79,7 +79,7 @@ def get_best_match_for_nrp(hmm: HMM_LPUC,
         for group_linearizations in groups_linearizations:
             group_match = max((match_for_linearization(linearization)
                                for linearization in group_linearizations),
-                              key=lambda match: match.raw_score)
+                              key=lambda match: match.score)
 
             split_matches.append(group_match)
             split_score += group_match.score
@@ -112,7 +112,7 @@ def get_matches_for_hmm(detailed_hmm: DetailedHMM,
 
 
     return list(islice(sorted(matches,
-                              key=lambda match: match.raw_score - match.score_vs_avg_bgc,
+                              key=lambda match: match.score - match.score_vs_avg_bgc,
                               reverse=True),
                        max_num_matches_per_bgc_variant))
 
@@ -136,7 +136,7 @@ def get_matches_for_nrp(nrp_linearization: NRP_Linearizations,
 
 
     return list(islice(sorted(matches,
-                              key=lambda match: match.raw_score - match.score_vs_avg_bgc,
+                              key=lambda match: match.score - match.score_vs_avg_bgc,
                               reverse=True),
                        max_num_matches_per_nrp))
 
