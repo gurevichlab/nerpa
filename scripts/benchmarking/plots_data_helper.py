@@ -137,7 +137,7 @@ class PlotsDataHelper:
                           report_path: Path,
                           report_name: str = 'REPORT_NAME_MISSING',
                           score_column: str = NerpaReport.SCORE_COL,
-                          tool_version: Literal['Nerpa 1, Nerpa 2'] = 'Nerpa 2') -> NerpaReport:
+                          tool_version: Literal['Nerpa 1', 'Nerpa 2'] = 'Nerpa 2') -> NerpaReport:
         nrp_ids_to_keep = self.mibig_norine_nrps
         bgc_ids_to_keep = self.test_bgcs
         out_cfg = OutputSizeConfig(

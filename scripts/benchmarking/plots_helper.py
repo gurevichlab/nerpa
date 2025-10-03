@@ -42,7 +42,8 @@ class PlotsHelper:
                                  nerpa_reports: List[NerpaReport],
                                  output_dir: Path,
                                  in_one_plot: bool = True,
-                                 y_axis: Literal['Count', 'Percentage'] = 'Count') -> List[Path]:
+                                 y_axis: Literal['Count', 'Percentage'] = 'Count',
+                                 max_num_matches: Optional[int] = 500) -> List[Path]:
 
         output_dir.mkdir(parents=True, exist_ok=True)
         graphs = {nerpa_report.name: self.data_helper.compute_num_correct_matches(nerpa_report)
@@ -56,6 +57,9 @@ class PlotsHelper:
                 values = cnts_to_percentages(_values)
             else:
                 values = _values
+            if max_num_matches is not None:
+                values = values[:max_num_matches]
+
             if label:
                 ax.plot(values.index, values, label=label)
             else:
@@ -184,9 +188,23 @@ class PlotsHelper:
         ))
 
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.boxplot(scores_to_plot,
-                   labels=labels,
-                   showfliers=False)
+        boxplots = ax.boxplot(scores_to_plot,
+                              labels=labels,
+                              showfliers=False,
+                              patch_artist=True,  # needed to color the boxes
+                              )
+
+        # Alternate colors for odd/even
+        colors = [(0, 1, 0, 0.2),  # green, 20% opaque
+                  (1, 0, 0, 0.2)]  # red, 20% opaque
+
+        for i, box in enumerate(boxplots['boxes']):
+            box.set_facecolor(colors[i % 2])  # odd/even coloring
+
+        # You may also want to color the medians, whiskers, etc.
+        for i, median in enumerate(boxplots['medians']):
+            median.set_color("black")
+
         ax.set_title(f'Score Distribution per BGC Length: {nerpa_report.name}')
         ax.set_xlabel('BGC Length')
         ax.set_ylabel('Score')
@@ -346,6 +364,8 @@ class PlotsHelper:
         ax.set_xlabel(f'Num top matches considered for each {id_column}',
                       fontsize=18)
         ax.set_ylabel(f'{y_axis} Identified', fontsize=18)
+        ax.set_ylim(bottom=0)
+
         ax.grid()
         ax.legend(fontsize=18)
         fig.tight_layout()
