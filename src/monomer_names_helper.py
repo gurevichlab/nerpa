@@ -66,6 +66,10 @@ class MonomersDefaultFrequencies(NamedTuple):
 
 @dataclass
 class MonomerNamesHelper:
+    '''
+    names_table: a dataframe with columns
+     MonomerName,NameFormat,antiSMASH_short_core/Nerpa_residue,Modifications,Comment
+    '''
     names_table: pd.DataFrame
     supported_residues: List[MonomerResidue]
     pks_names: List[NorineMonomerName]

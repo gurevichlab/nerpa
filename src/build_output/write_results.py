@@ -53,7 +53,9 @@ def draw_hmms_with_optimal_paths(hmms: List[DetailedHMM],
 def build_report(matches: List[Match]) -> str:
     result = StringIO()
     csv_writer = csv.DictWriter(result,
-                                fieldnames=('LogOdds_vs_avg_NRP', 'LogOdds_vs_avg_BGC', 'Raw_score', 'p_value', 'NRP_ID', 'NRP_Variant_Idx', 'Genome_ID', 'BGC_ID', 'BGC_Variant_Idx'),
+                                fieldnames=('LogOdds_vs_avg_NRP', 'LogOdds_vs_avg_BGC', 'Raw_score', 'p_value',
+                                            'NRP_ID', 'NRP_Variant_Idx',
+                                            'Genome_ID', 'antiSMASH_input', 'BGC_idx', 'BGC_Variant_Idx'),
                                 delimiter='\t')
     csv_writer.writeheader()
     csv_writer.writerows({'LogOdds_vs_avg_NRP': match.log_odds_vs_avg_nrp,
@@ -62,8 +64,9 @@ def build_report(matches: List[Match]) -> str:
                           'p_value': match.p_value,
                           'NRP_ID': match.nrp_variant_id.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
-                          'Genome_ID': match.bgc_variant_id.bgc_id.antiSMASH_file,
-                          'BGC_ID': match.bgc_variant_id.bgc_id.bgc_idx,
+                          'Genome_ID': match.genome_id,
+                          'antiSMASH_input': match.bgc_variant_id.bgc_id.antiSMASH_file,
+                          'BGC_idx': match.bgc_variant_id.bgc_id.bgc_idx,
                           'BGC_Variant_Idx': match.bgc_variant_id.variant_idx}
                          for match in matches)
     return result.getvalue()
