@@ -15,4 +15,5 @@ supported_residues: ['Aad', 'Aib', 'Ala', 'Arg',
                      'Gln', 'Glu', 'Gly', 'His', 'Hpg',
                      'Ile', 'Leu', 'Lys', 'Orn', 'Phe',
                      'Pip', 'Pro', 'Ser', 'Thr',
-                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg','unknown']
+                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg',
+                     'unknown']
