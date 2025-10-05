@@ -13,7 +13,7 @@ from src.antismash_parsing.bgc_variant_types import (
 from src.general_type_aliases import LogProb
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.monomer_names_helper import (
-    MonomerResidue,
+    NerpaResidue,
     Chirality
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
@@ -28,7 +28,7 @@ from dataclasses import dataclass
 class AlignmentStep_BGC_Module_Info(NamedTuple):
     gene_id: GeneId
     a_domain_idx: int
-    top_scoring_residues: List[MonomerResidue]
+    top_scoring_residues: List[NerpaResidue]
     modifying_domains: List[BGC_Module_Modification]
     aa10_code: str
     aa34_code: str

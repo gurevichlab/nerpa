@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import NamedTuple
 from src.monomer_names_helper import (
     Chirality,
-    MonomerResidue,
+    NerpaResidue,
     NRP_Monomer,
     NorineMonomerName
 )
@@ -10,7 +10,7 @@ from src.monomer_names_helper import (
 rBAN_idx = int
 
 class rBAN_Monomer(NamedTuple):
-    residue: MonomerResidue
+    residue: NerpaResidue
     methylated: bool
     chirality: Chirality
     is_pks_hybrid: bool
@@ -27,7 +27,7 @@ class rBAN_Monomer(NamedTuple):
             is_pks_hybrid = data['is_hybrid']
         else:
             is_pks_hybrid = False
-        return cls(residue=MonomerResidue(data['residue']),
+        return cls(residue=NerpaResidue(data['residue']),
                    methylated=methylated,
                    chirality=Chirality[data['chirality']],
                    is_pks_hybrid=is_pks_hybrid,
@@ -36,7 +36,7 @@ class rBAN_Monomer(NamedTuple):
 
     @classmethod
     def from_list(cls, data: list) -> rBAN_Monomer:
-        return cls(residue=MonomerResidue(data[0]),
+        return cls(residue=NerpaResidue(data[0]),
                    methylated=data[1],
                    chirality=Chirality[data[2]],
                    is_pks_hybrid=data[3],
@@ -51,7 +51,7 @@ class rBAN_Monomer(NamedTuple):
 
 
 
-rBAN_MONOMER_DUMMY = rBAN_Monomer(residue=MonomerResidue(''),
+rBAN_MONOMER_DUMMY = rBAN_Monomer(residue=NerpaResidue(''),
                                   methylated=False,
                                   chirality=Chirality.UNKNOWN,
                                   is_pks_hybrid=False,

@@ -13,7 +13,7 @@ BGC_Module_Modification,
     GeneId,
 )
 from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
-from src.monomer_names_helper import Chirality, NRP_Monomer
+from src.monomer_names_helper import Chirality, NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
 from src.general_type_aliases import (
     LogProb,
 )
@@ -23,7 +23,7 @@ from src.matching.hmm_scoring_config import (
     HMMScoringConfig
 )
 from src.matching.alignment_step_type import MatchDetailedScore
-from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE, PKS
+from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
 from src.matching.hmm_edge_weights import get_edge_weights
 from dataclasses import dataclass
 from math import log
@@ -38,7 +38,7 @@ class HMMHelper:
                             bgc_module: BGC_Module,
                             nrp_monomer: NRP_Monomer,
                             pks_domains_in_bgc: bool) -> LogProb:
-        if nrp_monomer.residue == PKS:
+        if nrp_monomer.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
             return -math.inf  # PKS residues are never matched to BGC modules
 
         # if there are no PKS domains in the BGC, PKS hybrids are treated as unknown residues

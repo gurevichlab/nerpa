@@ -14,17 +14,24 @@ from typing import (
 from src.build_output.yaml_representers import enum_representer
 from src.general_type_aliases import Prob
 import pandas as pd
+import polars as pl
 from dataclasses import dataclass
 from enum import Enum, auto
 
 import yaml
 
+from src.pipeline.logging.logger import NerpaLogger
 
 antiSMASH_MonomerName = NewType('antiSMASH_MonomerName', str)  # antiSMASH Short
 NorineMonomerName = NewType('NorineMonomerName', str)
-MonomerResidue = NewType('MonomerResidue', str)
-UNKNOWN_RESIDUE = MonomerResidue('unknown')
-PKS = MonomerResidue('PKS')
+PARAS_MonomerName = NewType('PARAS_MonomerName', str)
+NerpaResidue = NewType('NerpaResidue', str)
+
+# Special "residues"
+UNKNOWN_RESIDUE = NerpaResidue('_UNKNOWN')
+NOT_NRPS_RESIDUE = NerpaResidue('_NOT_NRPS')  # residue that can't be attracted by an A domain, e.g. PKS
+PKS_RESIDUE = NerpaResidue('_PKS')  # PKS residue in a PKS-NRPS hybrid
+
 MonCode = NewType('MonCode', int)
 
 class Chirality(Enum):
@@ -42,7 +49,7 @@ yaml.add_representer(NRP_Monomer_Modification, enum_representer)
 
 @dataclass
 class NRP_Monomer:
-    residue: MonomerResidue
+    residue: NerpaResidue
     methylated: bool = False
     chirality: Chirality = Chirality.UNKNOWN
     is_pks_hybrid: bool = False
@@ -53,13 +60,16 @@ class NRP_Monomer:
 UNKNOWN_MONOMER = NRP_Monomer(residue=UNKNOWN_RESIDUE,
                               methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
                               chirality=Chirality.UNKNOWN)
-PKS_MONOMER = NRP_Monomer(residue=PKS,
+PKS_MONOMER = NRP_Monomer(residue=PKS_RESIDUE,
                           methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
                           chirality=Chirality.UNKNOWN)
+NOT_NRPS_MONOMER = NRP_Monomer(residue=NOT_NRPS_RESIDUE,
+                               methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
+                               chirality=Chirality.UNKNOWN)
 
 
 class MonomersDefaultFrequencies(NamedTuple):
-    residue: Dict[MonomerResidue, Prob]
+    residue: Dict[NerpaResidue, Prob]
     methylation: Prob
     d_chirality: Prob
 
@@ -68,11 +78,10 @@ class MonomersDefaultFrequencies(NamedTuple):
 class MonomerNamesHelper:
     '''
     names_table: a dataframe with columns
-     MonomerName,NameFormat,antiSMASH_short_core/Nerpa_residue,Modifications,Comment
+     MonomerName,NameFormat,antiSMASH_short_core/Nerpa_residue,Modifications,Type,Comment
     '''
-    names_table: pd.DataFrame
-    supported_residues: List[MonomerResidue]
-    pks_names: List[NorineMonomerName]
+    names_table: pl.DataFrame
+    supported_residues: List[NerpaResidue]
     norine_monomer_cnts: Dict[NorineMonomerName, int]
 
     _cache: Dict[Tuple[str, str], NRP_Monomer] = None
@@ -86,24 +95,24 @@ class MonomerNamesHelper:
         self._cache = {}
 
         # Validation
-        assert all(res in self.names_table['core'].values or res == UNKNOWN_RESIDUE
+        assert all(res in self.names_table['NerpaResidue']
                    for res in self.supported_residues), \
             f"Some supported residues are absent in the names table: " \
-            f"{set(self.supported_residues) - set(self.names_table['core'].values)}"
-        residues_from_norine = {self.parsed_name(norine_name, 'norine').residue
+            f"{set(self.supported_residues) - set(self.names_table['NerpaResidue'])}"
+        residues_from_norine = {self.parsed_name(norine_name, 'rBAN/Norine').residue
                                 for norine_name in self.norine_monomer_cnts}
-        assert set(self.supported_residues) == residues_from_norine, \
-            f"Supported residues {set(self.supported_residues) - residues_from_norine} are missing in norine"
+        assert set(self.supported_residues) - residues_from_norine == set(), \
+            f"Supported residues {set(self.supported_residues) - residues_from_norine} are missing in Norine"
 
         self._set_default_frequencies()
 
         self.int_to_mon = {}
         self.mon_to_int = {}
-        for mon_res_int, mon_res in enumerate(self.supported_residues):
+        for mon_res_int, mon_res in enumerate(self.supported_residues + [UNKNOWN_RESIDUE]):
             for meth_int, methylated in enumerate([False, True]):
                 for chir_int, chirality in enumerate([Chirality.L, Chirality.D, Chirality.UNKNOWN]):
                     for is_pks_hybrid_int, is_pks_hybrid in enumerate([False, True]):
-                        mon = NRP_Monomer(residue=MonomerResidue(mon_res),
+                        mon = NRP_Monomer(residue=NerpaResidue(mon_res),
                                           methylated=methylated,
                                           chirality=chirality,
                                           is_pks_hybrid=is_pks_hybrid)
@@ -111,9 +120,16 @@ class MonomerNamesHelper:
                         self.mon_to_int[mon] = MonCode(mon_int)
                         self.int_to_mon[MonCode(mon_int)] = mon
 
+        # add special monomers: NOT_NRPS_MONOMER and PKS_MONOMER
+        for SPECIAL_MON in [NOT_NRPS_MONOMER, PKS_MONOMER]:
+            mon_code = MonCode(max(self.int_to_mon.keys()) + 1)
+            self.mon_to_int[SPECIAL_MON] = mon_code
+            self.int_to_mon[mon_code] = SPECIAL_MON
+
     def is_proper_monomer(self, mon: NRP_Monomer) -> bool:
         return all([not mon.is_pks_hybrid,
-                    mon.chirality != Chirality.UNKNOWN,])
+                    mon.chirality != Chirality.UNKNOWN,
+                    mon.residue not in [PKS_RESIDUE, NOT_NRPS_RESIDUE]])
 
     def proper_monomers(self) -> Iterable[NRP_Monomer]:
         """
@@ -152,7 +168,7 @@ class MonomerNamesHelper:
         """
         parsed_monomers_cnts: Dict[NRP_Monomer, int] = {}
         for monomer_name, cnt in self.norine_monomer_cnts.items():
-            parsed_monomer = self.parsed_name(monomer_name, name_format='norine')
+            parsed_monomer = self.parsed_name(monomer_name, name_format='rBAN/Norine')
             parsed_monomers_cnts[parsed_monomer] = parsed_monomers_cnts.get(parsed_monomer, 0) + cnt
 
         total_monomers = sum(parsed_monomers_cnts.values())
@@ -163,7 +179,7 @@ class MonomerNamesHelper:
         norine_methylation_freq = Prob(total_methylated / total_monomers)
         norine_d_chirality_freq = Prob(total_d_chirality / total_monomers)
 
-        nerpa_residue_cnts: Dict[MonomerResidue, int] = {}
+        nerpa_residue_cnts: Dict[NerpaResidue, int] = {}
         for mon, cnt in parsed_monomers_cnts.items():
             nerpa_residue_cnts[mon.residue] = nerpa_residue_cnts.get(mon.residue, 0) + cnt
 
@@ -189,109 +205,42 @@ class MonomerNamesHelper:
         return () if mods_list == [''] else tuple(map(parse_mod, mods_list))
 
     def parsed_name(self, name: str,
-                    name_format: Literal['antismash', 'norine', 'paras']) -> NRP_Monomer:
+                    name_format: Literal['antiSMASH_short', 'rBAN/Norine', 'PARAS'],
+                    log: Optional[NerpaLogger] = None) -> NRP_Monomer:
         if (name, name_format) in self._cache:
             return self._cache[(name, name_format)]
 
-        if name_format == 'paras':
-            return NRP_Monomer(residue=paras_residue_to_nerpa_residue(name, self),
-                               methylated=False,
-                               chirality=Chirality.UNKNOWN)
+        if name_format == 'rBAN/Norine' and name.startswith('X'):
+            return UNKNOWN_MONOMER
 
-        if name == 'Ile/aIle':
-            name = 'Ile'  # temporary fix for the table
-        if name == 'NMe-aIle/NMe-Ile':
-            name = 'NMe-Ile'
-        if name == 'aThr/Thr':
-            name = 'Thr'
-        if name == 'NMe-aThr/NMe-Thr':
-            name = 'NMe-Thr'
-        if name == 'NMe-bMe-Leu/diMe-aIle':
-            name = 'NMe-Leu'
+        rows = (self.names_table
+                .filter((pl.col('MonomerName') == name)
+                         & (pl.col('NameFormat') == name_format)))
 
-        chirality = Chirality.UNKNOWN
-        if name_format == 'norine':
-            if name.startswith('X'):
-                return UNKNOWN_MONOMER
-            if name in self.pks_names:
-                return PKS_MONOMER
-            if name.startswith('D-'):
-                chirality = Chirality.D
-                name = name[2:]
+        if rows.is_empty():  # monomer name not found
+            if log is not None:
+                log.error(f'Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
             else:
-                chirality = Chirality.L
+                print(f'WARNING: Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
+            return UNKNOWN_MONOMER
 
-        column_name = 'as_short' if name_format == 'antismash' else 'norine_rban_code'
+        row = rows.to_dicts()[0]  # it should be exactly one row
 
-        try:
-            row = self.names_table[self.names_table[column_name] == name].iloc[0]
-            residue = MonomerResidue(row['core']) if row['core'] in self.supported_residues else UNKNOWN_RESIDUE
-        except IndexError:
-            #print(f'WARNING: Name {name} not found in the names table')
-            return UNKNOWN_MONOMER  # TODO: raise ValueError when the table is ready
-            # raise ValueError(f'Name {name} not found in the names table')
+        mon_type = row['Type']
+        if mon_type == 'PKS':
+            return PKS_MONOMER
+        if mon_type == 'NA':  # TODO: handle NA monomers better
+            return NOT_NRPS_MONOMER
+
+        assert mon_type == 'NRPS', f'Unexpected monomer type: {mon_type}'
+
+        residue = NerpaResidue(row['NerpaResidue'])
+        if residue not in self.supported_residues:
+            residue = UNKNOWN_RESIDUE
+        methylated = 'MT' in eval(row['Modifications'])
+        chirality = Chirality.D if 'E' in eval(row['Modifications']) else Chirality.L   # TODO: make a separate column for chirality
 
         self._cache[(name, name_format)] = NRP_Monomer(residue=residue,
-                                                       methylated=NRP_Monomer_Modification.METHYLATION in self.parsed_modifications(row['modifications']),
+                                                       methylated=methylated,
                                                        chirality=chirality)
         return self._cache[(name, name_format)]
-
-
-PARAS_RESIDUE = str
-
-def paras_residue_to_nerpa_residue(paras_name: PARAS_RESIDUE,
-                                   monomer_names_helper: MonomerNamesHelper) -> MonomerResidue:
-    core_map = {
-        '2,3-dihydroxybenzoic acid': 'Bza',
-        'anthranilic acid': 'Bza',
-        'salicylic acid': 'Bza',
-        '2,4-diaminobutyric acid': 'Dab',
-        '2-aminoadipic acid': 'Aad',
-        '2-aminoisobutyric acid': 'Aib',
-        '3,5-dihydroxyphenylglycine': 'dHpg',
-        '4-hydroxyphenylglycine': 'Hpg',
-        'D-alanine': 'Ala',
-        'alanine': 'Ala',
-        'beta-alanine': 'bAla',
-        'N5-hydroxyornithine': 'Orn',
-        'N5-formyl-N5-hydroxyornithine': 'Orn',
-        'R-beta-hydroxytyrosine': 'Tyr',
-        'arginine': 'Arg',
-        'asparagine': 'Asn',
-        'aspartic acid': 'Asp',
-        'cysteine': 'Cys',
-        'glutamic acid': 'Glu',
-        'glutamine': 'Gln',
-        'glycine': 'Gly',
-        'histidine': 'His',
-        'isoleucine': 'Ile',
-        'leucine': 'Leu',
-        'lysine': 'Lys',
-        'ornithine': 'Orn',
-        'phenylalanine': 'Phe',
-        'pipecolic acid': 'Pip',
-        'proline': 'Pro',
-        'serine': 'Ser',
-        'threonine': 'Thr',
-        'tryptophan': 'Trp',
-        'tyrosine': 'Tyr',
-        'valine': 'Val',
-        # anything not in this dict can be mapped to 'unknown'
-    }
-    return core_map.get(paras_name, UNKNOWN_RESIDUE)
-
-"""
-    paras_name_core = paras_name.split('-')[-1]
-    try:
-        as_substrate = min((substrate
-                       for substrate in KNOWN_SUBSTRATES
-                       if paras_name_core in substrate.long),
-                       key=lambda substrate: len(substrate.long))
-        as_short = as_substrate.short
-        result = monomer_names_helper.parsed_name(as_short, name_format='antismash').residue
-    except StopIteration:
-        print(f"WARNING: paras name {paras_name} not recognized")
-        result = UNKNOWN_RESIDUE
-
-    return result
-"""

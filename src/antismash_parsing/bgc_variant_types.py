@@ -17,9 +17,9 @@ from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID, antiSMA
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.build_output.yaml_representers import enum_representer
 from src.general_type_aliases import LogProb
-from src.monomer_names_helper import MonomerResidue
+from src.monomer_names_helper import NerpaResidue
 
-ResidueScores = Dict[MonomerResidue, LogProb]
+ResidueScores = Dict[NerpaResidue, LogProb]
 
 
 class BGC_Module_Modification(Enum):

@@ -20,7 +20,7 @@ from src.antismash_parsing.bgc_variant_types import (
     BGC_Module,
 )
 from src.general_type_aliases import LogProb
-from src.monomer_names_helper import MonomerResidue
+from src.monomer_names_helper import NerpaResidue
 from src.pipeline.logging.buffered_logger import BufferedLogger
 from src.config import antiSMASH_Processing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder
@@ -29,7 +29,7 @@ from itertools import chain
 
 
 def get_residue_scores(a_domain: A_Domain,
-                       specificity_prediction_helper: SpecificityPredictionHelper) -> Dict[MonomerResidue, LogProb]:
+                       specificity_prediction_helper: SpecificityPredictionHelper) -> Dict[NerpaResidue, LogProb]:
     #apriori_prob = specificity_prediction_helper.config.APRIORI_RESIDUE_PROB
     predictions = specificity_prediction_helper.predict(a_domain)
     #return {res: ((log(prob) - log(apriori_prob[res]))

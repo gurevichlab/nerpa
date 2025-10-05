@@ -1,6 +1,5 @@
 monomer_names_table: data/nerpa_internal/monomer_names_table.tsv
 norine_monomers_cnts: data/nerpa_internal/norine_monomers_cnts.yaml  # used to compute null hypothesis scores
-pks_names: []
 #supported_residues: ['Aad', 'Abu', 'Ala', 'Arg', 'Asn', 'Asp', 'Bmt', 'Bza', 'Cys', 'Dab',
 #'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hiv', 'Hpg', 'Hse', 'Hty', 'Ile',
 #'Iva', 'Kyn', 'Lac', 'Leu', 'Lys', 'Orn', 'Pen', 'Phe', 'Pip', 'Pro',
@@ -15,5 +14,4 @@ supported_residues: ['Aad', 'Aib', 'Ala', 'Arg',
                      'Gln', 'Glu', 'Gly', 'His', 'Hpg',
                      'Ile', 'Leu', 'Lys', 'Orn', 'Phe',
                      'Pip', 'Pro', 'Ser', 'Thr',
-                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg',
-                     'unknown']
+                     'Trp', 'Tyr', 'Val', 'bAla', 'dHpg']
