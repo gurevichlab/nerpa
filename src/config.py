@@ -12,12 +12,13 @@ import dacite
 from datetime import datetime
 from argparse import Namespace as CommandLineArgs
 import pandas as pd
+import polars as pl
 from collections import defaultdict
 
 from src.general_type_aliases import AA10, AA34, Prob
 from src.monomer_names_helper import (
     antiSMASH_MonomerName,
-    MonomerResidue,
+    NerpaResidue,
     MonomerNamesHelper,
 )
 from src.pipeline.logging.logger import LoggingConfig
@@ -45,14 +46,14 @@ class antiSMASH_Processing_Config:
 def get_aa_codes(aa_codes_tsv: Path,
                  monomer_names_helper: MonomerNamesHelper) \
         -> Tuple[
-            Dict[MonomerResidue, List[AA10]],
-            Dict[MonomerResidue, List[AA34]] ]:
+            Dict[NerpaResidue, List[AA10]],
+            Dict[NerpaResidue, List[AA34]]]:
     aa_codes = pd.read_csv(aa_codes_tsv, sep='\t')
     aa10_codes = defaultdict(list)
     aa34_codes = defaultdict(list)
     for _, row in aa_codes.iterrows():
         as_names: List[antiSMASH_MonomerName] = row['predictions_loose'].split('|')
-        residues = {monomer_names_helper.parsed_name(as_name, 'antismash').residue
+        residues = {monomer_names_helper.parsed_name(as_name, 'antiSMASH_short').residue
                     for as_name in as_names}
         for residue in residues:
             aa10_codes[residue].append(AA10(row['aa10']))
@@ -92,9 +93,9 @@ RESIDUE_FREQS = {
 }
 
 def get_residue_frequencies(norine_monomers_info: Path,
-                            monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
+                            monomer_names_helper: MonomerNamesHelper) -> Dict[NerpaResidue, Prob]:
      norine_monomers = yaml.safe_load(open(norine_monomers_info))
-     residue_frequencies: Dict[MonomerResidue, Prob] = defaultdict(float)
+     residue_frequencies: Dict[NerpaResidue, Prob] = defaultdict(float)
      for mon_name, frequency in norine_monomers['residue_frequencies'].items():
          residue = monomer_names_helper.parsed_name(mon_name, 'antismash').residue
          residue_frequencies[residue] += frequency
@@ -119,14 +120,14 @@ class SpecificityPredictionConfig:
     paras_model: Optional[Path]
     a_domains_signatures: Path
     norine_monomers_info: Path
-    KNOWN_AA10_CODES: Dict[MonomerResidue, List[AA10]]
-    KNOWN_AA34_CODES: Dict[MonomerResidue, List[AA34]]
+    KNOWN_AA10_CODES: Dict[NerpaResidue, List[AA10]]
+    KNOWN_AA34_CODES: Dict[NerpaResidue, List[AA34]]
     SVM_SUBSTRATES: List[str]
     SVM_NOT_SUPPORTED_SCORE: float
     SVM_NO_PREDICTION_SCORE: float
     SCORING_TABLE_INDEX: str
     SCORING_TABLE_COLUMNS: List[str]
-    APRIORI_RESIDUE_PROB: Dict[MonomerResidue, Prob]
+    APRIORI_RESIDUE_PROB: Dict[NerpaResidue, Prob]
     CALIBRATION_STEP_FUNCTION_STEPS_NERPA: List[Prob]
     CALIBRATION_STEP_FUNCTION_STEPS_PARAS: List[Prob]
     PSEUDO_COUNT_FRACTION: float
@@ -310,9 +311,11 @@ def load_monomer_names_helper(monomers_cfg_file: Path,
     monomers_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
     norine_monomers_cnts_file = nerpa_dir / monomers_cfg['norine_monomers_cnts']
     norine_monomers_cnts = yaml.safe_load(norine_monomers_cnts_file.open('r'))
-    return MonomerNamesHelper(names_table=pd.read_csv(monomers_table_tsv, sep='\t'),
+    names_table = pl.read_csv(monomers_table_tsv,
+                              separator='\t',
+                              comment_prefix='#',)
+    return MonomerNamesHelper(names_table=names_table,
                               supported_residues=monomers_cfg['supported_residues'],
-                              pks_names=monomers_cfg['pks_names'],
                               norine_monomer_cnts=norine_monomers_cnts)
 
 

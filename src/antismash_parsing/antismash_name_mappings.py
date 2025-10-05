@@ -1,6 +1,3 @@
-# License: GNU Affero General Public License v3 or later
-# A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
-# pylint: disable=line-too-long
 """ A mapping of A-domain substrate names in multiple naming conventions """
 
 from dataclasses import dataclass

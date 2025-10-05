@@ -10,7 +10,7 @@ from src.training.hmm_parameters.step_function import (
     plot_step_function,
     plot_step_function_stacked,
 )
-from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, MonomerResidue
+from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, NerpaResidue
 from src.general_type_aliases import LogProb, Prob
 from src.general_type_aliases import (
     BGC_Module,
@@ -222,7 +222,7 @@ def infer_emission_params(emissions: List[EmissionInfo],
 
     default_mod_freqs = {'METHYLATION': norine_stats.methylated / norine_stats.total_monomers,
                          'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
-    default_residue_freqs: Dict[MonomerResidue, Prob] = defaultdict(float)
+    default_residue_freqs: Dict[NerpaResidue, Prob] = defaultdict(float)
     for norine_residue, freq in norine_stats.residue_frequencies.items():
         nerpa_residue = monomer_names_helper.parsed_name(norine_residue, 'norine').residue
         default_residue_freqs[nerpa_residue] += freq

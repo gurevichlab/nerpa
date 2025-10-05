@@ -8,7 +8,7 @@ from src.antismash_parsing.antismash_parser_types import A_Domain, SVM_Predictio
 from src.config import SpecificityPredictionConfig
 from src.general_type_aliases import AA34, LogProb, Prob
 from src.generic.string import hamming_distance
-from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper, paras_residue_to_nerpa_residue, \
+from src.monomer_names_helper import NerpaResidue, MonomerNamesHelper, \
     UNKNOWN_RESIDUE
 from src.paras.paras_wrapper import ParasWrapper
 from src.pipeline.logging.buffered_logger import BufferedLogger
@@ -32,14 +32,14 @@ def create_step_function(steps: List[float]) -> Callable[[Prob], float]:
 
 class SpecificityPredictionHelper:
     config: SpecificityPredictionConfig
-    KNOWN_SPECIFICITIES: Dict[AA34, List[MonomerResidue]]
-    external_predictions: Dict[AA34, Dict[MonomerResidue, LogProb]]
+    KNOWN_SPECIFICITIES: Dict[AA34, List[NerpaResidue]]
+    external_predictions: Dict[AA34, Dict[NerpaResidue, LogProb]]
     DEFAULT_MODEL: Literal['nerpa', 'paras']
 
     _calibration_step_function_nerpa: Callable[[float], float]
     _calibration_step_function_paras: Callable[[float], float]
 
-    _cache: Dict[AA34, Dict[MonomerResidue, LogProb]]
+    _cache: Dict[AA34, Dict[NerpaResidue, LogProb]]
     nerpa_model_wrapper: Optional[ModelWrapper] = None
     paras_model_wrapper: Optional[ParasWrapper] = None
 
@@ -47,7 +47,7 @@ class SpecificityPredictionHelper:
     def __init__(self,
                  config: SpecificityPredictionConfig,
                  monomer_names_helper: MonomerNamesHelper,
-                 external_predictions: Optional[Dict[AA34, Dict[MonomerResidue, Prob]]] = None):
+                 external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None):
         self.config = config
         self.monomer_names_helper = monomer_names_helper
         self.external_predictions = external_predictions\
@@ -74,7 +74,7 @@ class SpecificityPredictionHelper:
                 a_domain: A_Domain,
                 _no_cache: bool = False,  # for debugging/training purposes
                 _no_calibration: bool = False,
-                log: Optional[NerpaLogger | BufferedLogger] = None) -> Dict[MonomerResidue, Prob]:
+                log: Optional[NerpaLogger | BufferedLogger] = None) -> Dict[NerpaResidue, Prob]:
         if a_domain.aa34 in self._cache and not _no_cache:
             return self._cache[a_domain.aa34]
 
@@ -108,9 +108,9 @@ class SpecificityPredictionHelper:
             self._cache[a_domain.aa34] = predictions
         return predictions
 
-    def _predict_nerpa(self, a_domain: A_Domain) -> Dict[MonomerResidue, Prob]:
-        def svm_score(aa_name: MonomerResidue, svm_level_prediction: SVM_Prediction) -> float:
-            svm_prediction_substrates = {self.monomer_names_helper.parsed_name(monomer_name, 'antismash').residue
+    def _predict_nerpa(self, a_domain: A_Domain) -> Dict[NerpaResidue, Prob]:
+        def svm_score(aa_name: NerpaResidue, svm_level_prediction: SVM_Prediction) -> float:
+            svm_prediction_substrates = {self.monomer_names_helper.parsed_name(monomer_name, 'antiSMASH_short').residue
                                          for monomer_name in svm_level_prediction.substrates}
             if aa_name not in self.config.SVM_SUBSTRATES:
                 return self.config.SVM_NOT_SUPPORTED_SCORE
@@ -139,15 +139,15 @@ class SpecificityPredictionHelper:
         predictions = self.nerpa_model_wrapper(scoring_table, self.monomer_names_helper)
         return predictions
 
-    def _predict_paras(self, a_domain: A_Domain) -> Dict[MonomerResidue, Prob]:
+    def _predict_paras(self, a_domain: A_Domain) -> Dict[NerpaResidue, Prob]:
         paras_predictions = self.paras_model_wrapper.predict(a_domain.aa34)
         return self.paras_predictions_to_nerpa_predictions(paras_predictions)
 
 
     def calibrate_scores(self,
-                         _predictions: Dict[MonomerResidue, Prob],
+                         _predictions: Dict[NerpaResidue, Prob],
                          calibration_function: Callable[[Prob], Prob])\
-            -> Dict[MonomerResidue, Prob]:
+            -> Dict[NerpaResidue, Prob]:
         # calibrate scores to better represent the probability of residue incorporation
         predictions = {res: calibration_function(score)
                        for res, score in _predictions.items()}
@@ -172,11 +172,12 @@ class SpecificityPredictionHelper:
         return predictions
 
     def paras_predictions_to_nerpa_predictions(self,
-                                               paras_predictions: Dict[PARAS_RESIDUE, Prob]) -> Dict[MonomerResidue, Prob]:
+                                               paras_predictions: Dict[PARAS_RESIDUE, Prob]) -> Dict[NerpaResidue, Prob]:
         nerpa_predictions = {res: 0.0 for res in self.monomer_names_helper.supported_residues}
 
         for paras_residue, prob in paras_predictions.items():
-            nerpa_res = paras_residue_to_nerpa_residue(paras_residue, self.monomer_names_helper)
+            nerpa_res = self.monomer_names_helper.parsed_name(paras_residue,
+                                                              name_format='PARAS').residue
             nerpa_predictions[nerpa_res] += prob
 
         for res in nerpa_predictions:

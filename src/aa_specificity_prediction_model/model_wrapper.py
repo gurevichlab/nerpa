@@ -7,7 +7,7 @@ import joblib
 from src.general_type_aliases import Prob
 from src.monomer_names_helper import (
     MonomerNamesHelper,
-    MonomerResidue
+    NerpaResidue
 )
 
 
@@ -34,7 +34,7 @@ class ModelWrapper(object):
 
     def __call__(self,
                  scoring_table: pd.DataFrame,
-                 monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
+                 monomer_names_helper: MonomerNamesHelper) -> Dict[NerpaResidue, Prob]:
         scores = pd.Series(0, index=scoring_table.index, dtype=float)
         
         # Filter rows with no match in the lookup table

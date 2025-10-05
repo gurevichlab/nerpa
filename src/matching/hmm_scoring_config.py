@@ -27,7 +27,7 @@ import yaml
 from src.monomer_names_helper import (
     Chirality,
     NRP_Monomer,
-    MonomerResidue,
+    NerpaResidue,
     MonomerNamesHelper,
     MonomersDefaultFrequencies,
     UNKNOWN_RESIDUE
@@ -177,7 +177,7 @@ def compute_monomers_default_detailed_score_old(default_freqs: MonomersDefaultFr
     return monomer_default_score
 
 
-def compute_monomers_default_detailed_score(paras_default_residue_freqs: Dict[MonomerResidue, Prob],
+def compute_monomers_default_detailed_score(paras_default_residue_freqs: Dict[NerpaResidue, Prob],
                                             methylation_score: Dict[MethylationMatch, LogProb],
                                             chirality_score: Dict[ChiralityMatch, LogProb],
                                             methylation_freq: Prob,
@@ -209,7 +209,7 @@ def compute_monomers_default_detailed_score(paras_default_residue_freqs: Dict[Mo
 
 def load_paras_default_residue_scores(paras_results_tsv: Path,
                                       specificity_prediction_helper: SpecificityPredictionHelper,
-                                      monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, Prob]:
+                                      monomer_names_helper: MonomerNamesHelper) -> Dict[NerpaResidue, Prob]:
     assert specificity_prediction_helper.DEFAULT_MODEL == 'paras', \
         'PARAS residue frequencies can be loaded only if PARAS is used as the default specificity prediction model.'
     paras_results = pd.read_csv(paras_results_tsv, sep='\t')

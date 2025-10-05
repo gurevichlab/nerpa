@@ -2,7 +2,7 @@ from typing import Dict, Optional
 from pathlib import Path
 from src.antismash_parsing.antismash_name_mappings import KNOWN_SUBSTRATES
 from src.general_type_aliases import AA34, LogProb, Prob
-from src.monomer_names_helper import MonomerResidue, MonomerNamesHelper, UNKNOWN_RESIDUE
+from src.monomer_names_helper import NerpaResidue, MonomerNamesHelper, UNKNOWN_RESIDUE
 from src.generic.functional import timing_decorator
 import pandas as pd
 from math import log
@@ -16,7 +16,7 @@ PARAS_RESIDUE = str
 
 # TODO: put in monomer_names_helper.py
 def paras_residue_to_nerpa_residue(residue: PARAS_RESIDUE,
-                                   monomer_names_helper: MonomerNamesHelper) -> MonomerResidue:
+                                   monomer_names_helper: MonomerNamesHelper) -> NerpaResidue:
         def get_paras_name_core(paras_name: PARAS_RESIDUE) -> str:
             match paras_name:
                 case '3-(2-nitrocyclopropylalanine)':
@@ -71,7 +71,7 @@ def extract_paras_results(paras_predictions: Path,
 
 
 def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE, Prob],
-                                           monomer_names_helper: MonomerNamesHelper) -> Dict[MonomerResidue, LogProb]:
+                                           monomer_names_helper: MonomerNamesHelper) -> Dict[NerpaResidue, LogProb]:
     #print(paras_predictions)
     nerpa_predictions = {res: 0.0 for res in monomer_names_helper.supported_residues}
 
@@ -91,7 +91,7 @@ def paras_predictions_to_nerpa_predictions(paras_predictions: Dict[PARAS_RESIDUE
 @timing_decorator
 def get_paras_results_all(paras_results: Path,
                           monomer_names_helper: MonomerNamesHelper,
-                          log: AnyLogger) -> Dict[AA34, Dict[MonomerResidue, LogProb]]:
+                          log: AnyLogger) -> Dict[AA34, Dict[NerpaResidue, LogProb]]:
     log.info("Extracting PARAS results...")
 
     if not paras_results.exists() or not paras_results.is_dir():

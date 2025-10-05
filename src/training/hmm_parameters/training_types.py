@@ -21,7 +21,7 @@ from src.general_type_aliases import (
 )
 from dataclasses import dataclass, asdict
 
-from src.monomer_names_helper import MonomerResidue
+from src.monomer_names_helper import NerpaResidue
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 
@@ -61,7 +61,7 @@ class EmissionKey(NamedTuple):
     bgc_id: BGC_ID
     gene_id: GeneId
     a_domain_idx: int
-    resisue: MonomerResidue
+    resisue: NerpaResidue
     state_type: DetailedHMMStateType
 
     @classmethod
