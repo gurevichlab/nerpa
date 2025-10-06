@@ -13,7 +13,8 @@ BGC_Module_Modification,
     GeneId,
 )
 from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
-from src.monomer_names_helper import Chirality, NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
+from src.monomer_names_helper import Chirality, NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE, PKS_MONOMER, \
+    NOT_NRPS_MONOMER
 from src.general_type_aliases import (
     LogProb,
 )
@@ -148,9 +149,16 @@ class HMMHelper:
                                 for res, freq in self.monomer_names_helper.default_frequencies.residue.items()}
         default_insert_freqs[UNKNOWN_RESIDUE] = UNKNOWN_INSERT_FREQ
 
+        assert math.isclose(sum(default_insert_freqs.values()), 1.0), \
+            f'Default insert frequencies do not sum to 1: {sum(default_insert_freqs.values())}'
+
         assert scoring_type in ['LogProb'], \
             (f'Invalid scoring type: {scoring_type}. Expected "LogProb" '
              f'("LogOdds" deprecated for now).')
+
+        mon_helper_residues = {mon.residue for mon in self.monomer_names_helper.mon_to_int}
+        assert set(default_insert_freqs.keys()) == mon_helper_residues, \
+            'Default insert frequencies do not match monomer names helper residues.'
 
         emission_scores = {}
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
@@ -161,7 +169,14 @@ class HMMHelper:
                 continue
 
             # If the monomer is a PKS hybrid, we treat it as an unknown residue
-            res = nrp_monomer.residue if not nrp_monomer.is_pks_hybrid else UNKNOWN_RESIDUE
+            if not nrp_monomer.is_pks_hybrid or pks_domains_in_bgc:
+                res = nrp_monomer.residue
+            else:
+                # if there are no PKS domains in the BGC, alleged PKS hybrids are treated as unknown residues
+                res = UNKNOWN_RESIDUE
+
+            #if nrp_monomer.residue == PKS_RESIDUE:
+            #    res = UNKNOWN_RESIDUE  # PKS residues are treated as unknowns in insertions (STUB)
 
             res_freq = default_insert_freqs[res]
             res_score = log(res_freq)
@@ -184,12 +199,20 @@ class HMMHelper:
 
             emission_scores[nrp_monomer] = res_score + meth_score + chr_score
 
+        # methylation and chirality scores are not defined for PKS and NOT_NRPS residues
+        # so their scores are computed incorrectly above
+        emission_scores[PKS_MONOMER] = log(default_insert_freqs[PKS_RESIDUE])
+        emission_scores[NOT_NRPS_MONOMER] = log(default_insert_freqs[NOT_NRPS_RESIDUE])
 
         # assert that all scores sum to 1
-        total_score = sum(math.e ** score
-                          for mon, score in emission_scores.items()
-                          if mon.chirality != Chirality.UNKNOWN
-                          and not mon.is_pks_hybrid)
+        total_score_not_special = sum(math.e ** score
+                                      for mon, score in emission_scores.items()
+                                      if mon.chirality != Chirality.UNKNOWN
+                                      and not mon.is_pks_hybrid)
+        total_score = (total_score_not_special
+                       + math.e ** emission_scores[PKS_MONOMER]
+                       + math.e ** emission_scores[NOT_NRPS_MONOMER])
+
         assert math.isclose(total_score, 1.0), \
             f'Total score of insert emissions is {total_score}, expected 1.0'
 

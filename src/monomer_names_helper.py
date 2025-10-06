@@ -187,6 +187,9 @@ class MonomerNamesHelper:
                                     {residue: Prob(cnt / total_monomers)
                                      for residue, cnt in nerpa_residue_cnts.items()})
 
+        assert math.isclose(sum(residue_freqs.values()), 1.0), \
+            f'Sum of residue frequencies is {sum(residue_freqs.values())}, expected 1.0'
+
         #print(f'Default frequencies set: residues \n',
         #      '\n'.join(f'{res}: {freq}' for res, freq in dict(residue_freqs).items()))
 
@@ -207,6 +210,8 @@ class MonomerNamesHelper:
     def parsed_name(self, name: str,
                     name_format: Literal['antiSMASH_short', 'rBAN/Norine', 'PARAS'],
                     log: Optional[NerpaLogger] = None) -> NRP_Monomer:
+        if name_format not in ('antiSMASH_short', 'rBAN/Norine', 'PARAS'):
+            raise ValueError(f'Unsupported name format: {name_format}')
         if (name, name_format) in self._cache:
             return self._cache[(name, name_format)]
 
@@ -221,7 +226,10 @@ class MonomerNamesHelper:
             if log is not None:
                 log.error(f'Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
             else:
+                with open('missing_norine_names.txt', 'a') as f:
+                    f.write(f'{name}\n')
                 print(f'WARNING: Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
+                raise
             return UNKNOWN_MONOMER
 
         row = rows.to_dicts()[0]  # it should be exactly one row

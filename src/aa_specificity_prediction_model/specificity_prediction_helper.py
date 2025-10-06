@@ -173,7 +173,8 @@ class SpecificityPredictionHelper:
 
     def paras_predictions_to_nerpa_predictions(self,
                                                paras_predictions: Dict[PARAS_RESIDUE, Prob]) -> Dict[NerpaResidue, Prob]:
-        nerpa_predictions = {res: 0.0 for res in self.monomer_names_helper.supported_residues}
+        nerpa_predictions = {res: 0.0
+                             for res in self.monomer_names_helper.supported_residues + [UNKNOWN_RESIDUE]}
 
         for paras_residue, prob in paras_predictions.items():
             nerpa_res = self.monomer_names_helper.parsed_name(paras_residue,

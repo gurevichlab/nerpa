@@ -20,6 +20,7 @@ from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     NerpaResidue,
     MonomerNamesHelper,
+    UNKNOWN_RESIDUE
 )
 from src.pipeline.logging.logger import LoggingConfig
 
@@ -89,7 +90,7 @@ RESIDUE_FREQS = {
     'Val': 0.0823,
     'bAla': 0.0064,
     'dHpg': 0.0114,
-    'unknown': 0.1122,
+    UNKNOWN_RESIDUE: 0.1122,
 }
 
 def get_residue_frequencies(norine_monomers_info: Path,
