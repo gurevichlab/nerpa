@@ -2,7 +2,7 @@ import math
 
 from typing import (
     Dict,
-    Tuple, Literal,
+    Tuple, Literal, Optional,
 )
 from src.antismash_parsing.bgc_variant_types import (
     BGC_ID,
@@ -83,6 +83,8 @@ class HMMHelper:
 
     def monomer_detailed_default_score(self,
                                        nrp_monomer: NRP_Monomer) -> MatchDetailedScore:
+        if nrp_monomer.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
+            return MatchDetailedScore(float('-inf'), float('-inf'), float('-inf'))
         if nrp_monomer.is_pks_hybrid:
             # PKS hybrids are treated as unknown residues for default scoring
             mon = NRP_Monomer(residue=UNKNOWN_RESIDUE,
@@ -138,7 +140,7 @@ class HMMHelper:
 
     # TODO: precompute once and cache
     def get_insert_emissions(self,
-                             bgc_module: BGC_Module,
+                             bgc_module: Optional[BGC_Module],
                              scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
                              allow_unknown_chiralities: bool = True,
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
@@ -199,19 +201,11 @@ class HMMHelper:
 
             emission_scores[nrp_monomer] = res_score + meth_score + chr_score
 
-        # methylation and chirality scores are not defined for PKS and NOT_NRPS residues
-        # so their scores are computed incorrectly above
-        emission_scores[PKS_MONOMER] = log(default_insert_freqs[PKS_RESIDUE])
-        emission_scores[NOT_NRPS_MONOMER] = log(default_insert_freqs[NOT_NRPS_RESIDUE])
-
         # assert that all scores sum to 1
-        total_score_not_special = sum(math.e ** score
-                                      for mon, score in emission_scores.items()
-                                      if mon.chirality != Chirality.UNKNOWN
-                                      and not mon.is_pks_hybrid)
-        total_score = (total_score_not_special
-                       + math.e ** emission_scores[PKS_MONOMER]
-                       + math.e ** emission_scores[NOT_NRPS_MONOMER])
+        total_score = sum(math.e ** score
+                          for mon, score in emission_scores.items()
+                          if mon.chirality != Chirality.UNKNOWN
+                          and not mon.is_pks_hybrid)
 
         assert math.isclose(total_score, 1.0), \
             f'Total score of insert emissions is {total_score}, expected 1.0'

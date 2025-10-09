@@ -98,7 +98,7 @@ def get_residue_frequencies(norine_monomers_info: Path,
      norine_monomers = yaml.safe_load(open(norine_monomers_info))
      residue_frequencies: Dict[NerpaResidue, Prob] = defaultdict(float)
      for mon_name, frequency in norine_monomers['residue_frequencies'].items():
-         residue = monomer_names_helper.parsed_name(mon_name, 'antismash').residue
+         residue = monomer_names_helper.parsed_name(mon_name, 'antiSMASH_short').residue
          residue_frequencies[residue] += frequency
 
      # assign minimal frequencies to residues not present in the table and normalize

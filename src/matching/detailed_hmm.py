@@ -20,7 +20,7 @@ from src.antismash_parsing.bgc_variant_types import (
     BGC_Variant,
     GeneId,
 )
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper import NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
 from src.general_type_aliases import (
     LogProb,
     Prob,
@@ -77,8 +77,13 @@ class DetailedHMM:
     def score_vs_avg_bgc(self,
                          nrp_monomers: List[rBAN_Monomer],
                          specificities_source: Literal['PARAS average', 'Norine frequencies'] = 'PARAS average') -> LogProb:
-        def paras_avg_mon_score(mon: rBAN_Monomer) -> LogProb:
-            return self.hmm_helper.monomer_default_score(mon.to_base_mon())
+        def paras_avg_mon_score(_mon: rBAN_Monomer) -> LogProb:
+            mon = _mon.to_base_mon()
+            if mon.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
+                insert_scores = self.hmm_helper.get_insert_emissions(bgc_module=None)
+                return insert_scores[mon]
+            else:
+                return self.hmm_helper.monomer_default_score(mon)
 
         def norine_mon_freq_score(mon: rBAN_Monomer) -> LogProb:
             return self.hmm_helper.monomer_names_helper.monomer_default_log_freq(mon.to_base_mon())

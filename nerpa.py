@@ -4,6 +4,7 @@ import sys
 
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logging.logger import PreliminaryLogger
+from src.build_output.write_results import write_nrp_variants
 import traceback
 
 

@@ -32,7 +32,7 @@ def build_monomer(mon_info: MonomerInfo,
                   idx: int,
                   backbone_sequence: BackboneSequence,
                   monomer_names_helper: MonomerNamesHelper) -> rBAN_Monomer:
-    parsed_name = monomer_names_helper.parsed_name(mon_info.name, name_format='norine')
+    parsed_name = monomer_names_helper.parsed_name(mon_info.name, name_format='rBAN/Norine')
     monomer_features = get_monomer_features(monomer_idx=idx,
                                             monomer_info=mon_info,
                                             backbone_sequence=backbone_sequence,
