@@ -108,7 +108,8 @@ class MonomerNamesHelper:
 
         self.int_to_mon = {}
         self.mon_to_int = {}
-        for mon_res_int, mon_res in enumerate(self.supported_residues + [UNKNOWN_RESIDUE]):
+        for mon_res_int, mon_res in enumerate(self.supported_residues
+                                              + [UNKNOWN_RESIDUE, PKS_RESIDUE, NOT_NRPS_RESIDUE]):
             for meth_int, methylated in enumerate([False, True]):
                 for chir_int, chirality in enumerate([Chirality.L, Chirality.D, Chirality.UNKNOWN]):
                     for is_pks_hybrid_int, is_pks_hybrid in enumerate([False, True]):
@@ -119,12 +120,6 @@ class MonomerNamesHelper:
                         mon_int = mon_res_int * 12 + meth_int * 6 + chir_int * 2 + is_pks_hybrid_int
                         self.mon_to_int[mon] = MonCode(mon_int)
                         self.int_to_mon[MonCode(mon_int)] = mon
-
-        # add special monomers: NOT_NRPS_MONOMER and PKS_MONOMER
-        for SPECIAL_MON in [NOT_NRPS_MONOMER, PKS_MONOMER]:
-            mon_code = MonCode(max(self.int_to_mon.keys()) + 1)
-            self.mon_to_int[SPECIAL_MON] = mon_code
-            self.int_to_mon[mon_code] = SPECIAL_MON
 
     def is_proper_monomer(self, mon: NRP_Monomer) -> bool:
         return all([not mon.is_pks_hybrid,
@@ -223,13 +218,14 @@ class MonomerNamesHelper:
                          & (pl.col('NameFormat') == name_format)))
 
         if rows.is_empty():  # monomer name not found
+            '''
             if log is not None:
                 log.error(f'Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
             else:
-                with open('missing_norine_names.txt', 'a') as f:
-                    f.write(f'{name}\n')
+                #with open('missing_norine_names.txt', 'a') as f:
+                #    f.write(f'{name}\n')
                 print(f'WARNING: Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
-                raise
+            '''
             return UNKNOWN_MONOMER
 
         row = rows.to_dicts()[0]  # it should be exactly one row
