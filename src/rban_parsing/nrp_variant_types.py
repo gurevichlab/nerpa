@@ -39,8 +39,6 @@ class NRP_Fragment:
             return mons1 == mons2
 
 
-
-
 @dataclass
 class NRP_Variant:
     nrp_variant_id: NRP_Variant_ID

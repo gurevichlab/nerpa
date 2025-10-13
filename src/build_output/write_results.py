@@ -1,3 +1,4 @@
+from idlelib.colorizer import matched_named_groups
 from typing import (
     Callable,
     List,
@@ -86,7 +87,9 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
                        log: Optional[NerpaLogger] = None):
     matched_nrp_ids = {match.nrp_variant_id.nrp_id for match in matches}
     if rban_records is not None:
-        write_yaml([rban_record.to_compact_dict() for rban_record in rban_records],
+        write_yaml([rban_record.to_compact_dict()
+                    for rban_record in rban_records
+                    if rban_record.compound_id in matched_nrp_ids],
                    output_cfg.rban_graphs)
         if output_cfg.draw_molecules:
             for rban_record in rban_records:
@@ -105,8 +108,12 @@ def write_nrp_variants(nrp_variants: List[NRP_Variant],
         if log is not None:
             log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')
 
-    write_yaml(sorted(nrp_variants, key=lambda nrp_variant: nrp_variant.nrp_variant_id),
-               output_cfg.nrp_variants)
+    matched_nrp_variants = [nrp_variant
+                            for nrp_variant in nrp_variants
+                            if nrp_variant.nrp_variant_id.nrp_id in matched_nrp_ids]
+    matched_nrp_variants = sorted(matched_nrp_variants,
+                                  key=lambda nrp_variant: nrp_variant.nrp_variant_id)
+    write_yaml(matched_nrp_variants, output_cfg.nrp_variants)
 
 
 def write_bgc_variants(bgc_variants: List[BGC_Variant],
