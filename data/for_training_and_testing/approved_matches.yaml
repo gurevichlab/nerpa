@@ -200,7 +200,19 @@
   - [[ecm7, 0], diMe-Cys]
   - [[ecm7, 1], NMe-Val]
   - [[ecm13, 0], null]
-  acceptable_alternative_alignments: []
+  acceptable_alternative_alignments:
+   -- [[ecm1, 0], COOH-Qui]
+    - [[ecm6, 0], Ser]
+    - [[ecm6, 1], Ala]
+    - [[ecm7, 0], NMe-Cys]
+    - [[ecm7, 1], NMe-Val]
+    - [[ecm13, 0], null]
+    - [[ecm1, 0], COOH-Qui]
+    - [[ecm6, 0], Ser]
+    - [[ecm6, 1], Ala]
+    - [[ecm7, 0], diMe-Cys]
+    - [[ecm7, 1], NMe-Val]
+    - [[ecm13, 0], null]
 - bgc_id: BGC0000342
   nrp_id: BGC0000342.0
   true_alignment:

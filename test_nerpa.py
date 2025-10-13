@@ -127,14 +127,12 @@ def main():
         for bgc_id in test_matches_bgcs:
             f.write(f"{args.antismash_results / bgc_id}\n")
 
-    '''
     print('Running Nerpa')
     run_nerpa(nerpa_dir,
               antismash_paths=as_results_file,
               smiles_tsv=args.smiles_tsv,
               output_dir=args.output_dir / 'nerpa_results')
     print('Nerpa finished')
-    '''
     print('Loading Nerpa results')
     matches = load_matches(args.output_dir / 'nerpa_results')
     matches_by_id = {(match.genome_id,

@@ -12,108 +12,12 @@ from src.antismash_parsing.bgc_variant_types import A_Domain_ID
 from src.matching.alignment_type import Alignment
 from src.matching.match_type import Match
 from src.monomer_names_helper import NorineMonomerName
-
-SimplifiedAlignmentStep = Tuple[Optional[A_Domain_ID], Optional[NorineMonomerName]]
-SimplifiedAlignment = List[SimplifiedAlignmentStep]
-
-# ---- PyYAML helper to force flow style on selected sequences ----
-class FlowSeq(list):
-    """Marker for sequences that should be dumped in flow style (inline)."""
-    pass
-
-def _repr_flowseq(dumper, data):
-    return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
-
-yaml.add_representer(FlowSeq, _repr_flowseq)
-
-def _wrap_alignment(al: SimplifiedAlignment):
-    wrapped = []
-    for ad_id, monomer in al:
-        first = FlowSeq(list(ad_id)) if ad_id is not None else None
-        wrapped.append(FlowSeq([first, monomer]))
-    return wrapped
-
-def simplified_alignment_to_str(al: SimplifiedAlignment) -> str:
-    return yaml.dump(_wrap_alignment(al), default_flow_style=False, sort_keys=False)
-
-
-def simplify_alignment(al: Alignment) -> SimplifiedAlignment:
-    simplified_alignment = []
-    for step in al:
-        a_domain_id = (
-            A_Domain_ID(step.bgc_module.gene_id, 
-                        step.bgc_module.a_domain_idx)
-            if step.bgc_module is not None
-            else None
-        )
-            
-        rban_monomer_name = (
-            step.nrp_monomer.rban_name
-            if step.nrp_monomer is not None
-            else None
-        )
-        if a_domain_id is not None or rban_monomer_name is not None:
-            simplified_alignment.append((a_domain_id, rban_monomer_name))
-        
-    return simplified_alignment
-
-
-def simplified_alignment_from_match(match: Match) -> SimplifiedAlignment:
-    return list(chain.from_iterable(
-        simplify_alignment(alignment)
-        for alignment in match.alignments)
-    )
-
-
-def simplified_alignment_from_str(s: str) -> SimplifiedAlignment:
-    match = Match.from_str(s)
-    return simplified_alignment_from_match(match)
-
-
-def match_steps_coincide(step1: SimplifiedAlignmentStep,
-                         step2: SimplifiedAlignmentStep) -> bool:
-    a_domain_id_1, rban_name_1 = step1
-    a_domain_id_2, rban_name_2 = step2
-    assert all([a_domain_id_1 is not None,
-                a_domain_id_2 is not None,
-                rban_name_1 is not None,
-                rban_name_2 is not None]), \
-        "Cannot compare steps with missing A-domain ID or rBAN name"
-
-    rban_names_coinside = (rban_name_1 == rban_name_2) \
-                          or (rban_name_1[0] == 'X' and rban_name_2[0] == 'X')
-    return a_domain_id_1 == a_domain_id_2 and rban_names_coinside
-
-
-def fst_mismatched_step(al1: SimplifiedAlignment,
-                        al2: SimplifiedAlignment) -> Optional[Tuple[Optional[SimplifiedAlignmentStep], Optional[SimplifiedAlignmentStep]]]:
-    only_matches1 = [(a_domain_id, rban_name)
-                     for (a_domain_id, rban_name) in al1
-                     if a_domain_id is not None and rban_name is not None]
-    only_matches2 = [(a_domain_id, rban_name)
-                     for (a_domain_id, rban_name) in al2
-                     if a_domain_id is not None and rban_name is not None]
-
-    fst_discrepancy = next(((step1, step2)
-                            for step1, step2 in zip(only_matches1, only_matches2)
-                            if not match_steps_coincide(step1, step2)),
-                           None)
-    if fst_discrepancy is not None:
-        return fst_discrepancy
-
-    if len(only_matches1) > len(only_matches2):
-        return (only_matches1[len(only_matches2)], None)
-    if len(only_matches2) > len(only_matches1):
-        return (None, only_matches2[len(only_matches1)])
-
-    return None
-
-
-def check_simplified_alignments_equal(al1: SimplifiedAlignment,
-                                      al2: SimplifiedAlignment) -> bool:
-    return fst_mismatched_step(al1, al2) is None
-
-
+from src.testing.simplified_alignment import (
+    SimplifiedAlignment,
+    simplified_alignment_from_match,
+    check_simplified_alignments_equal,
+    _wrap_alignment,
+)
 class TestResult(Enum):
     CORRECT = 'CORRECT'
     ACCEPTABLE_ALTERNATIVE = 'ACCEPTABLE_ALTERNATIVE'
@@ -148,7 +52,7 @@ class TestMatch:
     @classmethod
     def from_match(cls, match: Match) -> TestMatch:
         match_nrp_id = match.nrp_variant_id.nrp_id
-        match_bgc_id = match.bgc_variant_id.bgc_id.antiSMASH_file
+        match_bgc_id = match.genome_id
         if match_bgc_id.endswith('.gbk'):
             match_bgc_id = match_bgc_id[:-4]
         if match_bgc_id == 'converted_antiSMASH_v5_outputs':
@@ -234,5 +138,3 @@ if __name__ == '__main__':
     assert len(test_ids) == len(set(test_ids)), "Duplicate test cases found!"
     approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/approved_matches.yaml')
     approved_matches_yaml.write_text(TestMatch.dump_list_to_str(tests))
-
-
