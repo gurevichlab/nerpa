@@ -166,5 +166,5 @@ def write_results(matches: List[Match],
         write_matches_details(matches, output_cfg.matches_details)
 
     if html_report:
-        create_html_report(output_cfg, matches, debug_output)
+        create_html_report(output_cfg, matches, bgc_variants_info, nrp_variants_info, debug_output)
 

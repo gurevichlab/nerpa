@@ -80,6 +80,14 @@ class NRP_metadata:
                 class_data[key.lower()] = data[key]
         return cls(**class_data)
 
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "smiles": self.smiles,
+            "origin": self.origin,
+            "inchikey": self.inchikey,
+            "source": self.source
+        }
 
 
 @dataclass
