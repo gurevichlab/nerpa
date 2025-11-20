@@ -164,7 +164,14 @@
         .column-controls a { text-decoration: none; }
         .column-controls small { color: #666; }
 
-        /* more compact writing of SMILES and InChiKey */
+        /* more compact writing of taxonomy, SMILES and InChiKey */
+        .metadata-taxonomy {
+            font-size: 0.7em;
+            line-height: 1;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
         .metadata-smiles,
         .metadata-inchikey {
             font-size: 0.5em;
@@ -430,29 +437,85 @@
         return metadata;
     }
 
-    function ensureMetadataHeaders(tableId, anchorHeader = "NRP ID") {
+    // === Handling of the BGC metadata === //
+    // Build a lookup: (contig_idx.bgc_idx, variant_idx) -> BGC metadata
+    const bgcMetaIndex = new Map();
+
+    if (typeof bgc_metadata !== 'undefined' && Array.isArray(bgc_metadata)) {
+        bgc_metadata.forEach(m => {
+            const file = m?.bgc_id?.antiSMASH_file;
+            const c    = m?.bgc_id?.contig_idx;
+            const b    = m?.bgc_id?.bgc_idx;
+            const v    = m?.variant_idx ?? 0;
+            if (file && c != null && b != null) {
+                bgcMetaIndex.set(`${file}::${c}.${b}::${v}`, m.metadata || {});
+            }
+        });
+    }
+
+    // Get BGC metadata for a match item
+    function getBgcMetadata(item) {
+        const id = item?.bgc_variant_id?.bgc_id || item?.bgc_id;
+        const v  = item?.bgc_variant_id?.variant_idx ?? 0;
+        if (!id) return {};
+        const file = id.antiSMASH_file;
+        const c    = id.contig_idx;
+        const b    = id.bgc_idx;
+
+        // primary: file+contig+bgc; fallback if file missing (very old data)
+        const key = (file && c != null && b != null)
+            ? `${file}::${c}.${b}::${v}`
+            : `${c}.${b}::${v}`;
+
+        return bgcMetaIndex.get(key) || item?.bgc_variant_id?.metadata || {};
+    }
+
+    // Columns describing extra BGC metadata (to be shown after "Genome" / "Region").
+    // Each column object has:
+    //   header – text in the table header and column chooser
+    //   key    – field name in the BGC metadata object (metadata[key])
+    //   title  – tooltip shown on hover (for <th> and checkbox label)
+    //   hidden – whether the column is hidden by default
+    const bgcMetadataColumns = [
+        { header: "Organism",      key: "organism",      title: "Organism name (antiSMASH metadata)",        hidden: true },
+        { header: "Sequence file", key: "sequence_file", title: "Primary sequence/GenBank file name",        hidden: true },
+        { header: "Accessions",    key: "accessions",    title: "Genome accession ID (antiSMASH metadata)",  hidden: true }, // array
+        { header: "Taxonomy",      key: "taxonomy",      title: "Taxonomic lineage (antiSMASH metadata)",    hidden: true }, // array
+    ];
+
+    // === Common part of both metadata types === //
+    // Insert metadata headers (text columns) after a specific anchor header in a table.
+    // - tableId:       id of the table (e.g., 'reportTable', 'matchTable')
+    // - columns:       array of column defs (e.g., nrpMetadataColumns or bgcMetadataColumns)
+    // - anchorHeader:  header text to insert after (default: "NRP ID")
+    function ensureMetadataHeaders(columns, anchorHeader = "NRP ID", tableId = 'reportTable') {
         const table = document.getElementById(tableId);
         if (!table) return;
+
         const ths = table.querySelectorAll('thead th');
         const anchor = [...ths].find(th => th.textContent.trim() === anchorHeader);
         if (!anchor) return;
 
         let insertAfter = anchor;
-        nrpMetadataColumns.forEach(col => {
+        columns.forEach(col => {
             const th = document.createElement('th');
-            th.textContent = col.header;
             th.title = col.title || col.header;
+
+            // keep sortable look-and-feel consistent with existing headers
+            th.setAttribute('data-sort-direction', ''); // empty by default
+            th.innerHTML = `${col.header}<span class="indicator" style="visibility: hidden;"></span>`;
+
             insertAfter.insertAdjacentElement('afterend', th);
             insertAfter = th;
         });
     }
 
-    // Create checkboxes for each NRP metadata column in the main chooser
-    function ensureChooserCheckboxesForMetadata(containerId = 'mainCheckboxContainer') {
+    // Create checkboxes for each NRP/BGC metadata column in the main chooser
+    function ensureChooserCheckboxesForMetadata(columns, containerId = 'mainCheckboxContainer') {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        nrpMetadataColumns.forEach(col => {
+        columns.forEach(col => {
             const span = document.createElement('span');
             span.style.whiteSpace = 'nowrap';
             const label = document.createElement('label');
@@ -472,18 +535,22 @@
 
     // Create per-column metadata nodes with consistent classes.
     // wrap: "td" for table rows, "span" for cells passed to buildSingleRowTable.
-    function createNrpMetadataNodes(metadata, { wrap = "td" } = {}) {
-        return nrpMetadataColumns.map(col => {
+    function createMetadataNodes(columns, metadata, { wrap = "td" } = {}) {
+        return columns.map(col => {
+            const value = metadata[col.key];
             const el = document.createElement(wrap === "td" ? "td" : "span");
             el.classList.add("metadata", `metadata-${col.key}`);
-            el.textContent = metadata[col.key];
+            if (Array.isArray(value)) {
+                el.textContent = value.join("; "); // e.g., for Taxonomy
+            } else {
+                el.textContent = value;
+            }
             return el;
         });
     }
 
-    function appendNrpMetadataCells(rowEl, item) {
-        const metadata = getNrpMetadata(item);
-        const nodes = createNrpMetadataNodes(metadata, { wrap: "td" });
+    function appendMetadataCells(rowEl, columns, metadata) {
+        const nodes = createMetadataNodes(columns, metadata, { wrap: "td" });
         nodes.forEach(n => rowEl.appendChild(n));
     }
 
@@ -506,11 +573,12 @@
                         <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
                         <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
                     `;
-                appendNrpMetadataCells(row, item);
+                appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(item));
                 row.insertAdjacentHTML('beforeend', `
                         <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="">${item.genome_id}</a></td>
                         <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
                     `);
+                appendMetadataCells(row, bgcMetadataColumns, getBgcMetadata(item));
                 tableBody.appendChild(row);
             });
 
@@ -640,8 +708,8 @@
             nrpIDLink.dataset.nrp = nrp_id;
             nrpIDLink.textContent = nrp_id;
 
-            const metadataSpans = createNrpMetadataNodes(getNrpMetadata(item), { wrap: "span" });
-            const nrpCells = [nrpIDLink, ...metadataSpans];
+            const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(item), { wrap: "span" });
+            const nrpCells = [nrpIDLink, ...nrpMetadataSpans];
 
             const nrpTable = buildSingleRowTable({
                 id: 'matchTableNrp',
@@ -652,7 +720,7 @@
 
             // --- BGC-related info (everything from Genome to the end)
             const regionLabel = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
-            const bgcHeaders = ["Genome", "Region"]; // future: append BGC metadata headers here
+            const bgcHeaders = ["Genome", "Region", ...bgcMetadataColumns.map(c => c.header)];
             const bgcHeaderTitles = [
                 "Genome identifier",
                 "antiSMASH region identifier (contig.region)"
@@ -671,7 +739,8 @@
             regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
             regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
 
-            const bgcCells = [genomeLink, regionLink]; // future: append BGC metadata cells here
+            const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(item), { wrap: "span" });
+            const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
 
             const bgcTable = buildSingleRowTable({
                 id: 'matchTableBgc',
@@ -853,8 +922,11 @@
             "BGC score",
           ]);
 
-        // Also hide dynamically-added NRP metadata columns if needed
-        nrpMetadataColumns.forEach(col => {
+        // Combine all metadata columns (NRP + BGC)
+        const allMetadataColumns = [...nrpMetadataColumns, ...bgcMetadataColumns];
+
+        // and hide dynamically-added metadata columns if needed
+        allMetadataColumns.forEach(col => {
             if (col.hidden) defaultHiddenColumns.add(col.header);
         });
 
@@ -869,9 +941,12 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         // After DOM ready, populate table headers (dynamically-added ones) and rows, and apply visibility
-        ensureMetadataHeaders('reportTable');
-        ensureMetadataHeaders('matchTable');
-        ensureChooserCheckboxesForMetadata();
+        ensureMetadataHeaders(nrpMetadataColumns, 'NRP ID');
+        ensureMetadataHeaders(bgcMetadataColumns, 'BGC ID');
+
+        ensureChooserCheckboxesForMetadata(nrpMetadataColumns);
+        ensureChooserCheckboxesForMetadata(bgcMetadataColumns);
+
         applyDefaultHiddenColumns();
         populateTable(data);
         toggleMainColumnVisibility();
