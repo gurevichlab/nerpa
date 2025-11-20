@@ -173,22 +173,22 @@
         <div style="width: 66%;">
             <div class="filter-section">
                 <label for="scoreFilterInput">Filter by Score</label>
-                <input type="text" id="scoreFilterInput" placeholder="Enter minimal Raw score to filter...">
+                <input type="text" id="scoreFilterInput" placeholder="Enter minimal Score value to filter...">
             </div>
 
             <div class="filter-section">
                 <label for="nrpFilterInput">Filter by NRP</label>
-                <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
+                <input type="text" id="nrpFilterInput" placeholder="Enter NRP ID to filter...">
             </div>
 
             <div class="filter-section">
                 <label for="genomeFilterInput">Filter by Genome</label>
-                <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
+                <input type="text" id="genomeFilterInput" placeholder="Enter Genome name to filter...">
             </div>
 
             <div class="filter-section">
                 <label for="bgcIDFilterInput">Filter by BGC ID</label>
-                <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC_ID to filter...">
+                <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC ID to filter...">
             </div>
 
             <!-- Main-table column chooser -->
@@ -405,12 +405,28 @@
       });
     }
 
-    // Helper to get NRP name with backward-compat fallback
-    function getNrpName(item) {
-      const nrp_id = item?.nrp_variant_id?.nrp_id;
-      const v = item?.nrp_variant_id?.variant_idx ?? 0;
-      const meta = nrpMetaIndex.get(`${nrp_id}::${v}`) || (item?.nrp_variant_id?.metadata) || {};
-      return meta.name || 'n/a';
+    // Extra NRP-metadata column names and the corresponding keys in the serialized object
+    const nrpMetadataColumns = [
+        { header: "NRP name",     key: "name"     },
+        { header: "NRP producer", key: "origin"   },
+        { header: "NRP source",   key: "source"   },
+        { header: "SMILES",       key: "smiles"   },
+        { header: "InChIKey",     key: "inchikey" },
+    ];
+
+    function getNrpMetadata(item) {
+        const nrp_id = item?.nrp_variant_id?.nrp_id;
+        const v = item?.nrp_variant_id?.variant_idx ?? 0;
+        const raw = nrpMetaIndex.get(`${nrp_id}::${v}`) || item?.nrp_variant_id?.metadata || {};
+
+        // Fill defaults for all expected metadata keys
+        const metadata = {};
+        nrpMetadataColumns.forEach(col => {
+            const val = raw[col.key];
+            metadata[col.key] = (val !== undefined && val !== null && val !== "") ? val : "n/a";
+        });
+
+        return metadata;
     }
 
     // Populate main results table
@@ -423,7 +439,8 @@
                 const row = document.createElement('tr');
                 const bgc_id = item.bgc_variant_id.bgc_id;
                 const nrp_id = item.nrp_variant_id.nrp_id;
-                const nrp_name = getNrpName(item);
+                const nrp_metadata = getNrpMetadata(item);
+                const nrp_name = nrp_metadata.name;
                 row.innerHTML = `
                         <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
                         <td class="score">${fmtNum(item.score)}</td>
@@ -495,7 +512,8 @@
             const matchRow = document.createElement('tr');
             const bgc_id = item.bgc_variant_id.bgc_id;
             const nrp_id = item.nrp_variant_id.nrp_id;
-            const nrp_name = getNrpName(item);
+            const nrp_metadata = getNrpMetadata(item);
+            const nrp_name = nrp_metadata.name;
             matchRow.innerHTML = `
                     <td class="match-id">${item.Match_ID}</td>
                     <td class="score">${fmtNum(item.score)}</td>
@@ -670,13 +688,8 @@
         const headers = document.querySelectorAll('#reportTable th');
         headers.forEach((header, index) => {
             const txt = header.textContent.trim();
-            if (txt === 'Raw score') columnIndices.rawScore = index;
-            else if (txt === 'NRP score') columnIndices.nrpScore = index;
-            else if (txt === 'BGC score') columnIndices.bgcScore = index;
-            else if (txt === 'Score') columnIndices.score = index;
-            else if (txt === 'Match ID') columnIndices.matchID = index;
+            if (txt === 'Score') columnIndices.score = index;
             else if (txt === 'NRP ID') columnIndices.nrpID= index;
-            else if (txt === 'NRP name') columnIndices.nrpName = index;
             else if (txt === 'Genome') columnIndices.genome = index;
             else if (txt === 'BGC ID') columnIndices.bgcID = index;
 
@@ -720,7 +733,7 @@
         const nrpIndex = columnIndices.nrpID;
         const genomeIndex = columnIndices.genome;
         const bgcIDIndex = columnIndices.bgcID;
-        const rawIndex = columnIndices.rawScore;
+        const scoreIndex = columnIndices.score;
         const nrpInput = document.getElementById('nrpFilterInput');
         const genomeInput = document.getElementById('genomeFilterInput');
         const bgcIDInput = document.getElementById('bgcIDFilterInput');
@@ -740,7 +753,7 @@
             const nrpTd = tr[i].getElementsByTagName('td')[nrpIndex];
             const genomeTd = tr[i].getElementsByTagName('td')[genomeIndex];
             const bgcIDTd = tr[i].getElementsByTagName('td')[bgcIDIndex];
-            const rawTd = tr[i].getElementsByTagName('td')[rawIndex];
+            const scoreTd = tr[i].getElementsByTagName('td')[scoreIndex];
 
             if (nrpTd) {
                 const v = nrpTd.textContent || nrpTd.innerText;
@@ -754,8 +767,8 @@
                 const v = bgcIDTd.textContent || bgcIDTd.innerText;
                 if (bgcIDFilter && v.toLowerCase().indexOf(bgcIDFilter) === -1) showRow = false;
             }
-            if (rawTd) {
-                const v = parseFloat(rawTd.textContent || rawTd.innerText);
+            if (scoreTd) {
+                const v = parseFloat(scoreTd.textContent || scoreTd.innerText);
                 if (!isNaN(scoreFilter) && v < scoreFilter) showRow = false;
             }
 
