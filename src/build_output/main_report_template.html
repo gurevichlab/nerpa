@@ -808,8 +808,6 @@
         });
     }
 
-
-
     // Sorting for main table
     function sortTable(n) {
         const table = document.getElementById('reportTable');
@@ -870,6 +868,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        // After DOM ready, populate table headers (dynamically-added ones) and rows, and apply visibility
+        ensureMetadataHeaders('reportTable');
+        ensureMetadataHeaders('matchTable');
+        ensureChooserCheckboxesForMetadata();
+        applyDefaultHiddenColumns();
+        populateTable(data);
+        toggleMainColumnVisibility();
+
         // Fill columnIndices after headers exist
         const headers = document.querySelectorAll('#reportTable th');
         headers.forEach((header, index) => {
@@ -892,14 +898,6 @@
             const ind = headers[columnIndices.score].querySelector('.indicator');
             if (ind) { ind.style.visibility = 'visible'; ind.textContent = '▼'; }
         }
-
-        // After DOM ready, populate table headers (dynamically-added ones) and rows, and apply visibility
-        ensureMetadataHeaders('reportTable');
-        ensureMetadataHeaders('matchTable');
-        ensureChooserCheckboxesForMetadata();
-        applyDefaultHiddenColumns();
-        populateTable(data);
-        toggleMainColumnVisibility();
 
         // now all checkboxes are dynamically created, so we can add listeners to them
         document.querySelectorAll('#mainCheckboxContainer input[type="checkbox"]').forEach(checkbox => {
