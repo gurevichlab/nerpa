@@ -163,6 +163,17 @@
         }
         .column-controls a { text-decoration: none; }
         .column-controls small { color: #666; }
+
+        /* more compact writing of SMILES and InChiKey */
+        .metadata-smiles,
+        .metadata-inchikey {
+            font-size: 0.5em;
+            line-height: 1;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
     </style>
 </head>
 <body>
@@ -459,14 +470,21 @@
         });
     }
 
+    // Create per-column metadata nodes with consistent classes.
+    // wrap: "td" for table rows, "span" for cells passed to buildSingleRowTable.
+    function createNrpMetadataNodes(metadata, { wrap = "td" } = {}) {
+        return nrpMetadataColumns.map(col => {
+            const el = document.createElement(wrap === "td" ? "td" : "span");
+            el.classList.add("metadata", `metadata-${col.key}`);
+            el.textContent = metadata[col.key];
+            return el;
+        });
+    }
+
     function appendNrpMetadataCells(rowEl, item) {
         const metadata = getNrpMetadata(item);
-        nrpMetadataColumns.forEach(col => {
-            const td = document.createElement('td');
-            td.classList.add('metadata', `metadata-${col.key}`);
-            td.textContent = metadata[col.key];
-            rowEl.appendChild(td);
-        });
+        const nodes = createNrpMetadataNodes(metadata, { wrap: "td" });
+        nodes.forEach(n => rowEl.appendChild(n));
     }
 
     // ===   === //
@@ -621,7 +639,9 @@
             nrpIDLink.className = 'nrp-link';
             nrpIDLink.dataset.nrp = nrp_id;
             nrpIDLink.textContent = nrp_id;
-            const nrpCells = [nrpIDLink, ...nrpMetadataColumns.map(c => metadata[c.key])];
+
+            const metadataSpans = createNrpMetadataNodes(getNrpMetadata(item), { wrap: "span" });
+            const nrpCells = [nrpIDLink, ...metadataSpans];
 
             const nrpTable = buildSingleRowTable({
                 id: 'matchTableNrp',
