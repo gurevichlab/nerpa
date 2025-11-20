@@ -605,11 +605,18 @@
         box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
     });
 
+    function getHeaderLabel(th) {
+        const tn = Array.from(th.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+        return (tn ? tn.textContent : th.textContent).trim();
+    }
+
     function toggleMainColumnVisibility() {
         const checkboxes = document.querySelectorAll('#mainCheckboxContainer input[type="checkbox"]');
+        const headers = Array.from(document.querySelectorAll('#reportTable th'));
+
         checkboxes.forEach(checkbox => {
             const columnName = checkbox.getAttribute('data-column');
-            const th = Array.from(document.querySelectorAll('#reportTable th')).find(th => th.textContent === columnName);
+            const th = headers.find(h => getHeaderLabel(h) === columnName);
             if (!th) return;
             const columnIndex = Array.from(th.parentNode.children).indexOf(th);
             const cells = document.querySelectorAll(`#reportTable th:nth-child(${columnIndex + 1}), #reportTable td:nth-child(${columnIndex + 1})`);
