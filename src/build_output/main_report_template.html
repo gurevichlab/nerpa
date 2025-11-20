@@ -147,10 +147,10 @@
             margin-bottom: 5px;
         }
 
-        #alignmentLabel {
+        .matchDetailedInfoLabel {
             font-weight: bold;
-            text-align: left;
-            margin-top: 0px;
+            text-align: center;
+            margin-top: 10px;
             margin-bottom: 0px;
         }
 
@@ -246,27 +246,14 @@
             <p id="matchViewerLabel" style="display: block;">Click on a Match ID to display the detailed match report and the corresponding BGC and NRP annotations</p>
         </div>
         <div id="matchViewerContainer" class="viewer" style="display: none;">
+            <p class="matchDetailedInfoLabel">Match general information</p>
             <div class="table-container">
+                <!-- everything is populated here by JavaScript -->
                 <table id="matchTable">
-                    <thead>
-                    <tr>
-                        <th title="Unique identifier of the match">Match ID</th>
-                        <th title="Default score of the match. Coincides with one of the other score columns (hidden by default)">Score</th>
-                        <th title="Log‑probability from the HMM that the BGC generates the NRP">Raw score</th>
-                        <th title="Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC">NRP score</th>
-                        <th title="Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP">BGC score</th>
-                        <th title="NRP identifier">NRP ID</th>
-                        <th title="Genome identifier">Genome</th>
-                        <th title="antiSMASH region identifier (contig.region)">BGC ID</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- Rows will be populated here by JavaScript -->
-                    </tbody>
                 </table>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 5fr; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px;">
-                <p id="alignmentLabel">Alignment details</p>
+            <p class="matchDetailedInfoLabel">Alignment details</p>
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px; flex-wrap: wrap;">
                 <div id="columnControls" style="display: flex; align-items: center;">
                     <a href="#" id="toggleColumnsButton">Select columns to display</a>
                     <div id="checkboxContainer" style="display: none; margin-left: 10px;">
@@ -393,6 +380,7 @@
         'aa34 code': 'aa34_code'
     };
 
+    // === Handling of the NRP metadata === //
     // Build a lookup: (nrp_id, variant_idx) -> metadata
     const nrpMetaIndex = new Map();
 
@@ -481,6 +469,7 @@
         });
     }
 
+    // ===   === //
     // Populate main results table
     function populateTable(data) {
         const tableBody = document.querySelector('#reportTable tbody');
@@ -543,6 +532,38 @@
         toggleMainColumnVisibility();
     }
 
+    // Helper for the detailed Match view: build a one-row table
+    function buildSingleRowTable({ id, headers, headerTitles = [], cells }) {
+        const table = document.createElement('table');
+        if (id) table.id = id;
+
+        const thead = document.createElement('thead');
+        const trH = document.createElement('tr');
+        headers.forEach((h, i) => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            if (headerTitles[i]) th.title = headerTitles[i];
+            trH.appendChild(th);
+        });
+        thead.appendChild(trH);
+
+        const tbody = document.createElement('tbody');
+        const trB = document.createElement('tr');
+        cells.forEach(val => {
+            const td = document.createElement('td');
+            if (val instanceof Node) {
+                td.appendChild(val);
+            } else {
+                td.textContent = (val ?? 'n/a');
+            }
+            trB.appendChild(td);
+        });
+        tbody.appendChild(trB);
+
+        table.append(thead, tbody);
+        return table;
+    }
+
     // Toggle function for hiding/showing the Match details
     function toggleMatchViewer(hide, matchID) {
         const frame = document.getElementById('matchViewerContainer');
@@ -558,26 +579,103 @@
             toggleNrpViewer(hide);
         } else {
             // Basic match info // TODO: maybe split into three rows: basic info, NRP-related & BGC-related metadata
-            var item = data.at(matchID);
-            const matchTableBody = document.querySelector('#matchTable tbody');
-            matchTableBody.innerHTML = '';
-            const matchRow = document.createElement('tr');
+            const item = data.at(matchID);
             const bgc_id = item.bgc_variant_id.bgc_id;
             const nrp_id = item.nrp_variant_id.nrp_id;
-            matchRow.innerHTML = `
-                    <td class="match-id">${item.Match_ID}</td>
-                    <td class="score">${fmtNum(item.score)}</td>
-                    <td class="score">${fmtNum(item.raw_score)}</td>
-                    <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
-                    <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-                    <td>${nrp_id}</td>
-                `;
-            appendNrpMetadataCells(matchRow, item);
-            matchRow.insertAdjacentHTML('beforeend', `
-                    <td>${item.genome_id}</td>
-                    <td>Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</td>
-                `);
-            matchTableBody.appendChild(matchRow);
+            const metadata = getNrpMetadata(item);
+
+            const container = document.querySelector('#matchViewerContainer .table-container');
+            container.innerHTML = ''; // remove the old wide table
+
+            // --- General info (everything before NRP ID)
+            const generalHeaders = ["Match ID", "Score", "Raw score", "NRP score", "BGC score"];
+            const generalCells   = [
+                item.Match_ID,
+                fmtNum(item.score),
+                fmtNum(item.raw_score),
+                fmtNum(item.log_odds_vs_avg_nrp),
+                fmtNum(item.log_odds_vs_avg_bgc),
+            ];
+            const generalTable = buildSingleRowTable({
+                id: 'matchTableGeneral',
+                headers: generalHeaders,
+                // optional: tooltips if you want them
+                headerTitles: [
+                    "Unique identifier of the match",
+                    "Default score of the match. Coincides with one of the other score columns",
+                    "Log‑probability from the HMM that the BGC generates the NRP",
+                    "Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC",
+                    "Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP"
+                ],
+                cells: generalCells
+            });
+
+            // --- NRP-related info (NRP ID + NRP metadata, not including Genome)
+            const nrpHeaders = ["NRP ID", ...nrpMetadataColumns.map(c => c.header)];
+            const nrpHeaderTitles = [
+                "NRP identifier",
+                ...nrpMetadataColumns.map(c => c.title || c.header)
+            ];
+            const nrpIDLink = document.createElement('a');
+            nrpIDLink.href = '#';
+            nrpIDLink.className = 'nrp-link';
+            nrpIDLink.dataset.nrp = nrp_id;
+            nrpIDLink.textContent = nrp_id;
+            const nrpCells = [nrpIDLink, ...nrpMetadataColumns.map(c => metadata[c.key])];
+
+            const nrpTable = buildSingleRowTable({
+                id: 'matchTableNrp',
+                headers: nrpHeaders,
+                headerTitles: nrpHeaderTitles,
+                cells: nrpCells
+            });
+
+            // --- BGC-related info (everything from Genome to the end)
+            const regionLabel = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+            const bgcHeaders = ["Genome", "Region"]; // future: append BGC metadata headers here
+            const bgcHeaderTitles = [
+                "Genome identifier",
+                "antiSMASH region identifier (contig.region)"
+            ];
+            const genomeLink = document.createElement('a');
+            genomeLink.href = '#';
+            genomeLink.className = 'genome-link';
+            genomeLink.dataset.genome = item.genome_id;
+            genomeLink.dataset.bgc = '';
+            genomeLink.textContent = item.genome_id;
+
+            const regionLink = document.createElement('a');
+            regionLink.href = '#';
+            regionLink.className = 'genome-link';
+            regionLink.dataset.genome = item.genome_id;
+            regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
+            regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+
+            const bgcCells = [genomeLink, regionLink]; // future: append BGC metadata cells here
+
+            const bgcTable = buildSingleRowTable({
+                id: 'matchTableBgc',
+                headers: bgcHeaders,
+                headerTitles: bgcHeaderTitles,
+                cells: bgcCells
+            });
+
+            // Append the three compact tables (stacked one under another)
+            container.append(generalTable, nrpTable, bgcTable);
+
+            // Handlers for the NRP-ID, Genome and BGC-ID links in the detailed match info tables
+            container.querySelectorAll('.nrp-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleNrpViewer(false, link.dataset.nrp);
+                });
+            });
+            container.querySelectorAll('.genome-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleGenomeViewer(false, link.dataset.genome, link.dataset.bgc);
+                });
+            });
 
             // Match alignment info
             const alignmentTableBody = document.querySelector('#alignmentTable tbody');
