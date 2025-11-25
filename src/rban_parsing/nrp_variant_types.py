@@ -12,6 +12,10 @@ class NRP_Variant_ID(NamedTuple):
     nrp_id: str
     variant_idx: int
 
+    def to_dict(self) -> dict:
+        return {'nrp_id': self.nrp_id,
+                'variant_idx': self.variant_idx}
+
 
 @dataclass
 class NRP_Fragment:
