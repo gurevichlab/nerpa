@@ -116,6 +116,23 @@
             background-color: #e6f7ff;
         }
 
+        /* === Special setup for main results table row colors === */
+        /* Turn off striping for main table: all main (representative) rows are plain white */
+        #reportTable tbody tr:nth-child(odd),
+        #reportTable tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        /* Duplicates: darker grey background */
+        #reportTable tbody tr.not-repr-row {
+            background-color: #ececec;
+        }
+
+        /* Keep hover highlight on top of base colors */
+        #reportTable tbody tr:hover {
+            background-color: #e6f7ff;
+        }
+
         .table-container {
             max-height: 400px;
             overflow-y: auto;
