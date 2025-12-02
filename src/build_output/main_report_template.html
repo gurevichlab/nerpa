@@ -428,15 +428,6 @@
     };
 
     // === Handling of the NRP metadata === //
-    // Build a lookup: (nrp_id, variant_idx) -> metadata
-    const nrpMetaIndex = new Map();
-
-    if (typeof nrp_metadata !== 'undefined' && Array.isArray(nrp_metadata)) {
-      nrp_metadata.forEach(m => {
-        nrpMetaIndex.set(`${m.nrp_id}::${m.variant_idx}`, m.metadata || {});
-      });
-    }
-
     // Extra NRP-metadata columns in the main table and how to get their values from the serialized metadata object
     // Each entry has:
     //   header – text in the table header and column chooser (checkbox)
@@ -451,10 +442,17 @@
         { header: "InChIKey",     key: "inchikey", title: "",                                         hidden: true  },
     ];
 
-    function getNrpMetadata(item) {
-        const nrp_id = item?.nrp_variant_id?.nrp_id;
-        const v = item?.nrp_variant_id?.variant_idx ?? 0;
-        const raw = nrpMetaIndex.get(`${nrp_id}::${v}`) || item?.nrp_variant_id?.metadata || {};
+    // a lookup dictionary: NRP ID -> NRP metadata
+    const nrpMetaIndex = new Map();
+
+    if (Array.isArray(nrp_metadata)) {
+        nrp_metadata.forEach(m => {
+            nrpMetaIndex.set(m.nrp_id, m.metadata || {});
+        });
+    }
+
+    function getNrpMetadata(nrp_id) {
+        const raw = nrpMetaIndex.get(nrp_id) || {};
 
         // Fill defaults for all expected metadata keys
         const metadata = {};
@@ -467,6 +465,19 @@
     }
 
     // === Handling of the BGC metadata === //
+    // Columns describing extra BGC metadata (to be shown after "Genome" / "Region").
+    // Each entry object has:
+    //   header – text in the table header and column chooser
+    //   key    – field name in the BGC metadata object (metadata[key])
+    //   title  – tooltip shown on hover (for <th> and checkbox label)
+    //   hidden – whether the column is hidden by default
+    const bgcMetadataColumns = [
+        { header: "Organism",      key: "organism",      title: "Organism name (antiSMASH metadata)",        hidden: true },
+        { header: "Sequence file", key: "sequence_file", title: "Primary sequence/GenBank file name",        hidden: true },
+        { header: "Accessions",    key: "accessions",    title: "Genome accession ID (antiSMASH metadata)",  hidden: true }, // array
+        { header: "Taxonomy",      key: "taxonomy",      title: "Taxonomic lineage (antiSMASH metadata)",    hidden: true }, // array
+    ];
+
     // a lookup dictionary: BGC ID -> BGC metadata
     const bgcMetaIndex = new Map();
 
@@ -478,28 +489,22 @@
 
     if (Array.isArray(bgc_metadata)) {
         bgc_metadata.forEach(m => {
-            bgc_metadata.forEach(m => {
-                bgcMetaIndex.set(makeBgcKey(m.bgc_id), m.metadata || {});
-            });
+            bgcMetaIndex.set(makeBgcKey(m.bgc_id), m.metadata || {});
         });
     }
 
     function getBgcMetadata(bgc_id) {
-        return bgcMetaIndex.get(makeBgcKey(bgc_id)) || {};
-    }
+        const raw = bgcMetaIndex.get(makeBgcKey(bgc_id)) || {};
 
-    // Columns describing extra BGC metadata (to be shown after "Genome" / "Region").
-    // Each column object has:
-    //   header – text in the table header and column chooser
-    //   key    – field name in the BGC metadata object (metadata[key])
-    //   title  – tooltip shown on hover (for <th> and checkbox label)
-    //   hidden – whether the column is hidden by default
-    const bgcMetadataColumns = [
-        { header: "Organism",      key: "organism",      title: "Organism name (antiSMASH metadata)",        hidden: true },
-        { header: "Sequence file", key: "sequence_file", title: "Primary sequence/GenBank file name",        hidden: true },
-        { header: "Accessions",    key: "accessions",    title: "Genome accession ID (antiSMASH metadata)",  hidden: true }, // array
-        { header: "Taxonomy",      key: "taxonomy",      title: "Taxonomic lineage (antiSMASH metadata)",    hidden: true }, // array
-    ];
+        // Fill defaults for all expected metadata keys
+        const metadata = {};
+        bgcMetadataColumns.forEach(col => {
+            const val = raw[col.key];
+            metadata[col.key] = (val !== undefined && val !== null && val !== "") ? val : "n/a";
+        });
+
+        return metadata;
+    }
 
     // === Common part of both metadata types === //
     // Insert metadata headers (text columns) after a specific anchor header in a table.
@@ -583,6 +588,15 @@
         });
     }
 
+    // a lookup dictionary: representative NRP ID -> list of represented NRPs (including the repr itself)
+    const nrpReprIndex = new Map();
+
+    if (Array.isArray(nrp_representatives)) {
+        nrp_representatives.forEach(group => {
+            nrpReprIndex.set(group.repr.nrp_id, group.members);
+        });
+    }
+
     // Default view: show only representative BGCs
     let showRepresentativesOnly = true;
 
@@ -620,7 +634,7 @@
         `;
 
         // NRP metadata
-        appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(item));
+        appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(nrp_id));
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
@@ -759,7 +773,7 @@
             const item = data.at(matchID);
             const bgc_id = item.bgc_variant_id.bgc_id;
             const nrp_id = item.nrp_variant_id.nrp_id;
-            const metadata = getNrpMetadata(item);
+            const metadata = getNrpMetadata(nrp_id);
 
             const container = document.querySelector('#matchViewerContainer .table-container');
             container.innerHTML = ''; // remove the old wide table
@@ -799,7 +813,7 @@
             nrpIDLink.dataset.nrp = nrp_id;
             nrpIDLink.textContent = nrp_id;
 
-            const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(item), { wrap: "span" });
+            const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(nrp_id), { wrap: "span" });
             const nrpCells = [nrpIDLink, ...nrpMetadataSpans];
 
             const nrpTable = buildSingleRowTable({
