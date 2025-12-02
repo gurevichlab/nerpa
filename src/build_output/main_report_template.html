@@ -207,6 +207,11 @@
     <div style="display: flex; justify-content: space-between; width: 100%;">
         <div style="width: 66%;">
             <div class="filter-section">
+                <label for="globalFilterInput">Search all fields</label>
+                <input type="text" id="globalFilterInput" placeholder="Enter text to search across all fields...">
+            </div>
+
+            <div class="filter-section">
                 <label for="scoreFilterInput">Filter by Score</label>
                 <input type="text" id="scoreFilterInput" placeholder="Enter minimal Score value to filter...">
             </div>
@@ -219,11 +224,6 @@
             <div class="filter-section">
                 <label for="genomeFilterInput">Filter by Genome</label>
                 <input type="text" id="genomeFilterInput" placeholder="Enter Genome name to filter...">
-            </div>
-
-            <div class="filter-section">
-                <label for="bgcIDFilterInput">Filter by BGC ID</label>
-                <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC ID to filter...">
             </div>
 
             <!-- Main-table column chooser -->
@@ -1105,16 +1105,18 @@
     function filterTable() {
         const nrpIndex = columnIndices.nrpID;
         const genomeIndex = columnIndices.genome;
-        const bgcIDIndex = columnIndices.bgcID;
         const scoreIndex = columnIndices.score;
+
+        const globalInput = document.getElementById('globalFilterInput');
         const nrpInput = document.getElementById('nrpFilterInput');
         const genomeInput = document.getElementById('genomeFilterInput');
-        const bgcIDInput = document.getElementById('bgcIDFilterInput');
         const scoreInput = document.getElementById('scoreFilterInput');
+
+        const globalFilter = globalInput.value.toLowerCase();
         const nrpFilter = nrpInput.value.toLowerCase();
         const genomeFilter = genomeInput.value.toLowerCase();
-        const bgcIDFilter = bgcIDInput.value.toLowerCase();
         const scoreFilter = parseFloat(scoreInput.value);
+
         const table = document.getElementById('reportTable');
         const tr = table.getElementsByTagName('tr');
 
@@ -1129,10 +1131,18 @@
             }
 
             let showRow = true;
-            const nrpTd = tr[i].getElementsByTagName('td')[nrpIndex];
+
+            // --- GLOBAL filter: check full row text (includes numeric cells as strings) ---
+            if (globalFilter) {
+                const rowText = (tr[i].textContent || tr[i].innerText).toLowerCase();
+                if (!rowText.includes(globalFilter)) {
+                    showRow = false;
+                }
+            }
+
+            const nrpTd    = tr[i].getElementsByTagName('td')[nrpIndex];
             const genomeTd = tr[i].getElementsByTagName('td')[genomeIndex];
-            const bgcIDTd = tr[i].getElementsByTagName('td')[bgcIDIndex];
-            const scoreTd = tr[i].getElementsByTagName('td')[scoreIndex];
+            const scoreTd  = tr[i].getElementsByTagName('td')[scoreIndex];
 
             if (nrpTd) {
                 const v = nrpTd.textContent || nrpTd.innerText;
@@ -1141,10 +1151,6 @@
             if (genomeTd) {
                 const v = genomeTd.textContent || genomeTd.innerText;
                 if (genomeFilter && v.toLowerCase().indexOf(genomeFilter) === -1) showRow = false;
-            }
-            if (bgcIDTd) {
-                const v = bgcIDTd.textContent || bgcIDTd.innerText;
-                if (bgcIDFilter && v.toLowerCase().indexOf(bgcIDFilter) === -1) showRow = false;
             }
             if (scoreTd) {
                 const v = parseFloat(scoreTd.textContent || scoreTd.innerText);
@@ -1159,9 +1165,9 @@
         document.getElementById('rowCounter').textContent = `Number of matches ( filtered / total ): ${visibleRowCount} / ${totalRowCount}`;
     }
 
+    document.getElementById('globalFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('nrpFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('genomeFilterInput').addEventListener('keyup', filterTable);
-    document.getElementById('bgcIDFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('scoreFilterInput').addEventListener('keyup', filterTable);
 </script>
 </body>
