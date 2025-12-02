@@ -880,7 +880,7 @@
             regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
             regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
 
-            const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(item), { wrap: "span" });
+            const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id), { wrap: "span" });
             const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
 
             const bgcTable = buildSingleRowTable({
