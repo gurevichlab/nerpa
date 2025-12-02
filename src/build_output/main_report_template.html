@@ -375,6 +375,15 @@
         return (val !== undefined && val !== null && isFinite(parseFloat(val))) ? parseFloat(val).toFixed(2) : 'n/a';
     }
 
+    // Helper to extract stem from a filepath (e.g., "test_data/antismash/BGC0000985/BGC0000985.json" --> "BGC0000985"
+    // Works with Windows paths as well ("\" instead of "/") and with filenames containing dots
+    function getStem(path) {
+        const parts = path.split(/[/\\]+/);
+        const filename = parts.pop();
+        const idx = filename.lastIndexOf('.');
+        return idx !== -1 ? filename.slice(0, idx) : filename;
+    }
+
     // Column indices for main table (filled after headers exist)
     const columnIndices = {};
 
@@ -565,6 +574,7 @@
                 const row = document.createElement('tr');
                 const bgc_id = item.bgc_variant_id.bgc_id;
                 const nrp_id = item.nrp_variant_id.nrp_id;
+                const genome_id = getStem(bgc_id.antiSMASH_file);
                 row.innerHTML = `
                         <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
                         <td class="score">${fmtNum(item.score)}</td>
@@ -575,8 +585,8 @@
                     `;
                 appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(item));
                 row.insertAdjacentHTML('beforeend', `
-                        <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="">${item.genome_id}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="">${genome_id}</a></td>
+                        <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
                     `);
                 appendMetadataCells(row, bgcMetadataColumns, getBgcMetadata(item));
                 tableBody.appendChild(row);
@@ -725,17 +735,18 @@
                 "Genome identifier",
                 "antiSMASH region identifier (contig.region)"
             ];
+            const genome_id = getStem(bgc_id.antiSMASH_file);
             const genomeLink = document.createElement('a');
             genomeLink.href = '#';
             genomeLink.className = 'genome-link';
-            genomeLink.dataset.genome = item.genome_id;
+            genomeLink.dataset.genome = genome_id;
             genomeLink.dataset.bgc = '';
-            genomeLink.textContent = item.genome_id;
+            genomeLink.textContent = genome_id;
 
             const regionLink = document.createElement('a');
             regionLink.href = '#';
             regionLink.className = 'genome-link';
-            regionLink.dataset.genome = item.genome_id;
+            regionLink.dataset.genome = genome_id;
             regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
             regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
 
@@ -788,7 +799,7 @@
             label.style.display = 'none';
             hideBtn.style.display = 'block';
 
-            toggleGenomeViewer(false, item.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
+            toggleGenomeViewer(false, genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
             toggleNrpViewer(false, nrp_id);
         }
     }
