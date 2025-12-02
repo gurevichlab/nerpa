@@ -228,6 +228,9 @@
 
         <div class="logo-container">
             <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo">
+            <button id="toggleReprBtn" class="hide-button" style="display:block; margin-left:auto;">
+                Show all BGCs/NRPs (incl. duplicates)
+            </button>
         </div>
     </div>
 
@@ -447,36 +450,25 @@
     }
 
     // === Handling of the BGC metadata === //
-    // Build a lookup: (contig_idx.bgc_idx, variant_idx) -> BGC metadata
+    // a lookup dictionary: BGC ID -> BGC metadata
     const bgcMetaIndex = new Map();
 
-    if (typeof bgc_metadata !== 'undefined' && Array.isArray(bgc_metadata)) {
+    // Build a consistent unique key for a BGC variant
+    function makeBgcKey(bgc_id) {
+        // all fields in "bgc_id" are always present; no need for null checks
+        return `${bgc_id.antiSMASH_file}::${bgc_id.contig_idx}::${bgc_id.bgc_idx}`;
+    }
+
+    if (Array.isArray(bgc_metadata)) {
         bgc_metadata.forEach(m => {
-            const file = m?.bgc_id?.antiSMASH_file;
-            const c    = m?.bgc_id?.contig_idx;
-            const b    = m?.bgc_id?.bgc_idx;
-            const v    = m?.variant_idx ?? 0;
-            if (file && c != null && b != null) {
-                bgcMetaIndex.set(`${file}::${c}.${b}::${v}`, m.metadata || {});
-            }
+            bgc_metadata.forEach(m => {
+                bgcMetaIndex.set(makeBgcKey(m.bgc_id), m.metadata || {});
+            });
         });
     }
 
-    // Get BGC metadata for a match item
-    function getBgcMetadata(item) {
-        const id = item?.bgc_variant_id?.bgc_id || item?.bgc_id;
-        const v  = item?.bgc_variant_id?.variant_idx ?? 0;
-        if (!id) return {};
-        const file = id.antiSMASH_file;
-        const c    = id.contig_idx;
-        const b    = id.bgc_idx;
-
-        // primary: file+contig+bgc; fallback if file missing (very old data)
-        const key = (file && c != null && b != null)
-            ? `${file}::${c}.${b}::${v}`
-            : `${c}.${b}::${v}`;
-
-        return bgcMetaIndex.get(key) || item?.bgc_variant_id?.metadata || {};
+    function getBgcMetadata(bgc_id) {
+        return bgcMetaIndex.get(makeBgcKey(bgc_id)) || {};
     }
 
     // Columns describing extra BGC metadata (to be shown after "Genome" / "Region").
@@ -563,33 +555,105 @@
         nodes.forEach(n => rowEl.appendChild(n));
     }
 
+    // === Handling of representatives vs all BGC/NRPs === //
+    // a lookup dictionary: representative BGC ID -> list of represented BGCs (including the repr itself)
+    const bgcReprIndex = new Map();
+
+    if (Array.isArray(bgc_representatives)) {
+        bgc_representatives.forEach(group => {
+            const reprKey = makeBgcKey(group.repr.bgc_id);
+            bgcReprIndex.set(reprKey, group.members);
+        });
+    }
+
+    // Default view: show only representative BGCs
+    let showRepresentativesOnly = true;
+
+    // Button click handler: flip mode and refresh
+    function toggleReprMode() {
+        showRepresentativesOnly = !showRepresentativesOnly;
+        const btn = document.getElementById('toggleReprBtn');
+        btn.textContent = showRepresentativesOnly
+            ? 'Show all BGCs/NRPs (incl. duplicates)'
+            : 'Show  representative  BGCs/NRPs  only';
+        filterTable();
+    }
     // ===   === //
+
     // Populate main results table
+    // Builds a single <tr> for the main table (repr or duplicate)
+    function buildMainTableRow({ item, nrp_id, bgc_id, isRepresentative }) {
+        const row = document.createElement('tr');
+
+        const genome_id = getStem(bgc_id.antiSMASH_file);
+        if (!isRepresentative) row.classList.add('not-repr-row'); // so we can show/hide all duplicates as a group
+
+        // Match ID cell: clickable for representative, plain text for duplicates
+        const matchCell = isRepresentative
+            ? `<a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a>`
+            : `${item.Match_ID}`;
+
+        row.innerHTML = `
+            <td class="match-id">${matchCell}</td>
+            <td class="score">${fmtNum(item.score)}</td>
+            <td class="score">${fmtNum(item.raw_score)}</td>
+            <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
+            <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
+            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
+        `;
+
+        // NRP metadata
+        appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(item));
+
+        // Genome + BGC ID
+        row.insertAdjacentHTML('beforeend', `
+            <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">
+                Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
+            </a></td>
+        `);
+
+        // BGC metadata
+        appendMetadataCells(row, bgcMetadataColumns, getBgcMetadata(bgc_id));
+
+        return row;
+    }
+
+    // Builds the full table
     function populateTable(data) {
         const tableBody = document.querySelector('#reportTable tbody');
         tableBody.innerHTML = '';
 
         if (data && Array.isArray(data)) {
             data.forEach(item => {
-                const row = document.createElement('tr');
-                const bgc_id = item.bgc_variant_id.bgc_id;
                 const nrp_id = item.nrp_variant_id.nrp_id;
-                const genome_id = getStem(bgc_id.antiSMASH_file);
-                row.innerHTML = `
-                        <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
-                        <td class="score">${fmtNum(item.score)}</td>
-                        <td class="score">${fmtNum(item.raw_score)}</td>
-                        <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
-                        <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-                        <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
-                    `;
-                appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(item));
-                row.insertAdjacentHTML('beforeend', `
-                        <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="">${genome_id}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
-                    `);
-                appendMetadataCells(row, bgcMetadataColumns, getBgcMetadata(item));
-                tableBody.appendChild(row);
+                const repr_bgc_id = item.bgc_variant_id.bgc_id;
+
+                // Representative row
+                const reprRow = buildMainTableRow({
+                    item,
+                    nrp_id,
+                    bgc_id: repr_bgc_id,
+                    isRepresentative: true
+                });
+                tableBody.appendChild(reprRow);
+
+                // Duplicate rows
+                const reprKey = makeBgcKey(repr_bgc_id);
+                const members = bgcReprIndex.get(reprKey) || [];
+
+                members.forEach(m => {
+                    const member_bgc_id = m.bgc_id;
+                    if (makeBgcKey(member_bgc_id) === reprKey) return; // skip the representative itself
+
+                    const dupRow = buildMainTableRow({
+                        item,
+                        nrp_id,
+                        bgc_id: member_bgc_id,
+                        isRepresentative: false
+                    });
+                    tableBody.appendChild(dupRow);
+                });
             });
 
             // Add click event listeners for Match links
@@ -994,6 +1058,8 @@
         document.querySelectorAll('#columnControls input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', toggleAlignmentColumnVisibility);
         });
+
+        document.getElementById('toggleReprBtn').addEventListener('click', toggleReprMode);
     });
 
     // Filter the table (NRP, Genome, BGC ID, Raw score ≥ threshold)
@@ -1017,6 +1083,12 @@
         let totalRowCount = 0;
 
         for (let i = 1; i < tr.length; i++) {
+            // Special case: show only representative BGC/NRPd unless toggled on
+            if (showRepresentativesOnly && tr[i].classList.contains('not-repr-row')) {
+                tr[i].style.display = 'none';
+                continue;
+            }
+
             let showRow = true;
             const nrpTd = tr[i].getElementsByTagName('td')[nrpIndex];
             const genomeTd = tr[i].getElementsByTagName('td')[genomeIndex];
