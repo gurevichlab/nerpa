@@ -13,7 +13,8 @@
         }
 
         .container {
-            max-width: 1200px;
+            width: 90%;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -29,19 +30,20 @@
         }
 
         .filter-section {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
         .filter-section label {
             font-weight: bold;
-            width: 30%;
+            flex: 0 0 150px;
         }
 
         .filter-section input[type="text"] {
-            width: 65%;
+            flex: 1 1 auto;         /* field takes the rest of the row */
+            max-width: 700px;       /* optional: limit so it doesn’t get absurdly wide */
             padding: 8px;
             box-sizing: border-box;
         }
@@ -56,16 +58,41 @@
             margin-bottom: 5px;
         }
 
-        .logo-container {
-            width: 33%;
-            height: auto;
-            text-align: right;
+        /* Top row layout */
+        .top-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;             /* space between filters and logo */
+            width: 100%;
         }
 
-        .logo-container img {
-            height: auto;
-            display: inline-block;
-            max-width: 55%;
+        /* Filters column expands naturally */
+        .filters-block {
+            flex: 1;               /* take remaining horizontal space */
+        }
+
+        /* Logo + button column */
+        .logo-container {
+            flex: 0 0 260px;          /* fixed width; tweak as needed */
+            display: flex;
+            flex-direction: column;   /* stack logo and button vertically */
+            align-items: flex-end;    /* right-align both */
+            gap: 4px;                 /* space between logo and button */
+        }
+
+        /* Logo size stays stable */
+        .nerpa-logo {
+            height: 180px;            /* adjust until visually right */
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* Optional: button styling tweak */
+        #toggleReprBtn {
+            align-self: flex-end;     /* keep it right-aligned */
+            margin-top: 5px;
+            margin-bottom: 5px;
         }
 
         table {
@@ -204,8 +231,8 @@
 <div class="container">
     <h1>Nerpa Report</h1>
 
-    <div style="display: flex; justify-content: space-between; width: 100%;">
-        <div style="width: 66%;">
+    <div class="top-row">
+        <div class="filters-block">
             <div class="filter-section">
                 <label for="globalFilterInput">Search all fields</label>
                 <input type="text" id="globalFilterInput" placeholder="Enter text to search across all fields...">
@@ -244,8 +271,8 @@
         </div>
 
         <div class="logo-container">
-            <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo">
-            <button id="toggleReprBtn" class="hide-button" style="display:block; margin-left:auto;">
+            <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo" class="nerpa-logo">
+            <button id="toggleReprBtn" style="display:block; margin-left:auto;">
                 Show all BGCs/NRPs (incl. duplicates)
             </button>
         </div>
