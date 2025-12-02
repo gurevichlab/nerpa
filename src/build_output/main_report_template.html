@@ -657,33 +657,41 @@
 
         if (data && Array.isArray(data)) {
             data.forEach(item => {
-                const nrp_id = item.nrp_variant_id.nrp_id;
+                const repr_nrp_id = item.nrp_variant_id.nrp_id;
                 const repr_bgc_id = item.bgc_variant_id.bgc_id;
 
                 // Representative row
                 const reprRow = buildMainTableRow({
                     item,
-                    nrp_id,
+                    nrp_id: repr_nrp_id,
                     bgc_id: repr_bgc_id,
                     isRepresentative: true
                 });
                 tableBody.appendChild(reprRow);
 
-                // Duplicate rows
-                const reprKey = makeBgcKey(repr_bgc_id);
-                const members = bgcReprIndex.get(reprKey) || [];
+                // Duplicate rows: 'n x m - 1' extra rows for 'n' duplicate NRPs and 'm' duplicate BGCs
+                const nrpMembers = nrpReprIndex.get(repr_nrp_id) || [];
+                const reprBgcKey = makeBgcKey(repr_bgc_id);
+                const bgcMembers = bgcReprIndex.get(reprBgcKey) || [];
 
-                members.forEach(m => {
-                    const member_bgc_id = m.bgc_id;
-                    if (makeBgcKey(member_bgc_id) === reprKey) return; // skip the representative itself
+                nrpMembers.forEach(nrpMember => {
+                    const member_nrp_id = nrpMember.nrp_id;
 
-                    const dupRow = buildMainTableRow({
-                        item,
-                        nrp_id,
-                        bgc_id: member_bgc_id,
-                        isRepresentative: false
+                    bgcMembers.forEach(bgcMember => {
+                        const member_bgc_id = bgcMember.bgc_id;
+
+                        // Skip the representative pair (repr_nrp, repr_bgc)
+                        if ((member_nrp_id === repr_nrp_id) && (makeBgcKey(member_bgc_id) === reprBgcKey)) return;
+
+                        const dupRow = buildMainTableRow({
+                            item,
+                            nrp_id: member_nrp_id,
+                            bgc_id: member_bgc_id,
+                            isRepresentative: false
+                        });
+
+                        tableBody.appendChild(dupRow);
                     });
-                    tableBody.appendChild(dupRow);
                 });
             });
 
