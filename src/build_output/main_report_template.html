@@ -256,16 +256,7 @@
             <!-- Main-table column chooser -->
             <div class="column-controls">
                 <a href="#" id="toggleMainColumnsButton">Select columns to display</a>
-                <div id="mainCheckboxContainer" style="display: none;">
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Match ID" checked> Match ID</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Score" checked> Score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Raw score"> Raw score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP score"> NRP score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC score"> BGC score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP ID" checked> NRP ID</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Genome" checked> Genome</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC ID" checked> BGC ID</label></span>
-                </div>
+                <div id="mainCheckboxContainer" style="display: none;"> </div>
                 <small>(Some columns are hidden by default)</small>
             </div>
         </div>
@@ -286,14 +277,7 @@
         <table class="scrollable-table" id="reportTable">
             <thead>
             <tr>
-                <th title="Unique identifier of the match">Match ID</th>
-                <th title="Default score of the match. Coincides with one of the other score columns (hidden by default)">Score</th>
-                <th title="Log‑probability from the HMM that the BGC generates the NRP">Raw score</th>
-                <th title="Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC">NRP score</th>
-                <th title="Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP">BGC score</th>
-                <th title="NRP identifier">NRP ID</th>
-                <th title="Genome identifier">Genome</th>
-                <th title="antiSMASH region identifier (contig.region)">BGC ID</th>
+            <!-- Header will be populated here by JavaScript -->
             </tr>
             </thead>
             <tbody>
@@ -454,6 +438,50 @@
         'aa34 code': 'aa34_code'
     };
 
+    // List of column names and visibility for the main report table and the corresponding checkboxes
+    const mainColumns = [
+        {
+            header: "Match ID",
+            title: "Unique identifier of the match",
+            hidden: false
+        },
+        {
+            header: "Score",
+            title: "Default score of the match. Coincides with one of the other score columns (hidden by default)",
+            hidden: false
+        },
+        {
+            header: "Raw score",
+            title: "Log-probability from the HMM that the BGC generates the NRP",
+            hidden: true
+        },
+        {
+            header: "NRP score",
+            title: "Log-odds vs an average NRP when scoring this BGC",
+            hidden: true
+        },
+        {
+            header: "BGC score",
+            title: "Log-odds vs an average BGC when scoring this NRP",
+            hidden: true
+        },
+        {
+            header: "NRP ID",
+            title: "NRP identifier",
+            hidden: false
+        },
+        {
+            header: "Genome",
+            title: "Genome identifier",
+            hidden: false
+        },
+        {
+            header: "BGC ID",
+            title: "antiSMASH region identifier (contig.region)",
+            hidden: false
+        },
+    ];
+
     // === Handling of the NRP metadata === //
     // Extra NRP-metadata columns in the main table and how to get their values from the serialized metadata object
     // Each entry has:
@@ -557,29 +585,6 @@
 
             insertAfter.insertAdjacentElement('afterend', th);
             insertAfter = th;
-        });
-    }
-
-    // Create checkboxes for each NRP/BGC metadata column in the main chooser
-    function ensureChooserCheckboxesForMetadata(columns, containerId = 'mainCheckboxContainer') {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        columns.forEach(col => {
-            const span = document.createElement('span');
-            span.style.whiteSpace = 'nowrap';
-            const label = document.createElement('label');
-            label.title = col.title || col.header;        // tooltip on hover over the label
-
-            const input = document.createElement('input');
-            input.type = 'checkbox';
-            input.setAttribute('data-column', col.header); // MUST match <th> text
-            input.checked = true;                          // we will default-hide later
-
-            label.appendChild(input);
-            label.append(` ${col.header}`);
-            span.appendChild(label);
-            container.appendChild(span);
         });
     }
 
@@ -1004,6 +1009,18 @@
         return (tn ? tn.textContent : th.textContent).trim();
     }
 
+    function buildMainTableHeader() {
+        const headerRow = document.querySelector('#reportTable thead tr');
+        headerRow.innerHTML = '';  // clear existing
+
+        mainColumns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col.header;
+            th.title = col.title || col.header;
+            headerRow.appendChild(th);
+        });
+    }
+
     function toggleMainColumnVisibility() {
         const checkboxes = document.querySelectorAll('#mainCheckboxContainer input[type="checkbox"]');
         const headers = Array.from(document.querySelectorAll('#reportTable th'));
@@ -1055,40 +1072,51 @@
         rows.forEach(row => tbody.appendChild(row));
     }
 
-    function applyDefaultHiddenColumns() {
-        // Columns that should be hidden by default in the main table
-        const defaultHiddenColumns = new Set([
-            "Raw score",
-            "NRP score",
-            "BGC score",
-          ]);
+    function buildColumnCheckboxes() {
+        const container = document.getElementById('mainCheckboxContainer');
+        container.innerHTML = '';
 
-        // Combine all metadata columns (NRP + BGC)
-        const allMetadataColumns = [...nrpMetadataColumns, ...bgcMetadataColumns];
-
-        // and hide dynamically-added metadata columns if needed
-        allMetadataColumns.forEach(col => {
-            if (col.hidden) defaultHiddenColumns.add(col.header);
+        // Ordered list with NRP/BGC metadata injected at the right place -- TODO make this hard coded places nicer (also used for proper order in the table itself!)
+        const allColumns = mainColumns.flatMap(col => {
+            if (col.header === "NRP ID") {
+                return [col, ...nrpMetadataColumns];
+            }
+            if (col.header === "BGC ID") {
+                return [col, ...bgcMetadataColumns];
+            }
+            return [col];
         });
 
-        // Uncheck those checkboxes if they exist
-        defaultHiddenColumns.forEach(col => {
-          const cb = document.querySelector(
-            `#mainCheckboxContainer input[data-column="${col}"]`
-          );
-          if (cb) cb.checked = false;
+        allColumns.forEach(col => {
+            const span = document.createElement('span');
+            span.style.whiteSpace = 'nowrap';
+
+            const label = document.createElement('label');
+
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.dataset.column = col.header;
+            cb.checked = !col.hidden;
+
+            cb.addEventListener('change', toggleMainColumnVisibility);
+
+            label.appendChild(cb);
+            label.append(` ${col.header}`);
+            label.title = col.title || col.header; // tooltip on hover over the label
+            span.appendChild(label);
+
+            container.appendChild(span);
         });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // After DOM ready, populate table headers (dynamically-added ones) and rows, and apply visibility
+        // After DOM ready, populate table headers and rows, and apply visibility
+        buildMainTableHeader();
         ensureMetadataHeaders(nrpMetadataColumns, 'NRP ID');
         ensureMetadataHeaders(bgcMetadataColumns, 'BGC ID');
 
-        ensureChooserCheckboxesForMetadata(nrpMetadataColumns);
-        ensureChooserCheckboxesForMetadata(bgcMetadataColumns);
+        buildColumnCheckboxes();
 
-        applyDefaultHiddenColumns();
         populateTable(data);
         toggleMainColumnVisibility();
 
