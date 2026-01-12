@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import (
     Iterable,
     List,
@@ -15,7 +16,7 @@ from src.antismash_parsing.antismash_parser_types import (
 from src.config import antiSMASH_Processing_Config
 from src.generic.combinatorics import generate_permutations
 from itertools import chain, islice, pairwise, product, groupby
-from more_itertools import split_before, split_at
+from more_itertools import split_before, split_at, split_when
 
 from src.pipeline.logging.buffered_logger import BufferedLogger
 
@@ -53,36 +54,23 @@ def a_pcp_module(module: Module) -> bool:
                                                                         for domain in domains_set)
 
 
-def genes_contents_consistent(genes: List[Gene]) -> bool:
-    if len(genes) == 1:
-        return True
-
-    joined_modules = [module for gene in genes for module in gene.modules]
-
-    at_least_one_A_domain = any(DomainType.A in module.domains_sequence for module in joined_modules)
-    c_starter_consistent = sum((DomainType.C_STARTER in module.domains_sequence) for module in joined_modules) <= 1
-    a_pcp_consistent = sum(a_pcp_module(module) for module in joined_modules) <= 1
-    te_td_consistent = sum((DomainType.TE_TD in module.domains_sequence) for module in joined_modules) <= 1
-
-    return all([at_least_one_A_domain,
-                a_pcp_consistent,
-                c_starter_consistent,
-                te_td_consistent])
-
-
 def genes_sequence_consistent(genes: List[Gene]) -> bool:
     if len(genes) == 1:
         return True
 
-    joined_modules = [module for gene in genes for module in gene.modules]
+    joined_modules = [module
+                      for gene in genes
+                      for module in gene.modules]
 
-    at_least_one_A_domain = any(DomainType.A in module.domains_sequence for module in joined_modules)
+    at_least_one_A_domain = any(DomainType.A in module.domains_sequence
+                                for module in joined_modules)
     nc_terms_consistent = DomainType.NTERM not in joined_modules[0].domains_sequence and \
                           DomainType.CTERM not in joined_modules[-1].domains_sequence
 
     c_starter_consistent = all(DomainType.C_STARTER not in module.domains_sequence  # TODO: refactor: create one function is_starting_module for all cases
                                for module in joined_modules[1:])
-    a_pcp_consistent = all(not a_pcp_module(module) for module in joined_modules[1:])
+    a_pcp_consistent = all(not a_pcp_module(module)
+                           for module in joined_modules[1:])
     te_td_consistent = all(DomainType.TE_TD not in module.domains_sequence
                            for module in joined_modules[:-1])
 
@@ -151,12 +139,12 @@ def split_genes_into_fragments(genes: List[Gene]) -> List[BGC_Fragment]:
 GeneBlock = List[Gene]  # a continuous sequence of genes from the same strand
 
 def reverse_gene_block(genes: GeneBlock) -> GeneBlock:
-    reversed_genes = genes[::-1]
+    reversed_genes = deepcopy(genes)[::-1]
     for gene in reversed_genes:
         rev_strand = STRAND.FORWARD \
             if gene.coords.strand == STRAND.REVERSE \
             else STRAND.REVERSE
-        gene.coords._replace(strand=rev_strand)
+        gene.coords = gene.coords._replace(strand=rev_strand)
     return reversed_genes
 
 
@@ -165,18 +153,25 @@ def split_gene_block_into_fragments(gene_block: List[Gene],
     """returns all the ways to split a gene block into fragments"""
     if gene_block[0].coords.strand == STRAND.FORWARD:
         splits = [split_genes_into_fragments(gene_block)]
+        reversal_makes_consistent = (not genes_sequence_consistent(gene_block)
+                                     and genes_sequence_consistent(gene_block[::-1]))
+        if reversal_makes_consistent:
+            splits.append(split_genes_into_fragments(gene_block[::-1]))
     else:
         splits = [split_genes_into_fragments(gene_block[::-1])]
         # sometimes the order of genes is opposite the order of them on the strand
         # I apply this only for blocks opposite the main direction and having only two genes
         # this is a stub and can be improved later
-        if num_blocks > 1 and len(gene_block) == 2:
+        reversal_makes_consistent = (not genes_sequence_consistent(gene_block[::-1])
+                                     and genes_sequence_consistent(gene_block))
+        if (num_blocks > 1 and len(gene_block) == 2) or reversal_makes_consistent:
             splits.append(split_genes_into_fragments(gene_block))
     return splits
 
 
 
-def generate_fragmented_bgcs(bgc: BGC_Cluster) -> Iterable[Fragmented_BGC_Cluster]:
+def generate_fragmented_bgcs(bgc: BGC_Cluster,
+                             config: antiSMASH_Processing_Config) -> Iterable[Fragmented_BGC_Cluster]:
     def gene_blocks_to_fragment_sequences(gene_blocks: List[GeneBlock]) -> Iterable[Tuple[List[BGC_Fragment], ...]]:
         return product(*(split_gene_block_into_fragments(gene_block, num_blocks=len(gene_blocks))
                          for gene_block in gene_blocks))
@@ -189,18 +184,24 @@ def generate_fragmented_bgcs(bgc: BGC_Cluster) -> Iterable[Fragmented_BGC_Cluste
                                                         for gene in genes_fragment
                                                         for module in gene.modules)])
 
+    def genes_in_same_block(g1: Gene, g2: Gene) -> bool:
+        return (g1.coords.strand == g2.coords.strand and
+                g2.coords.start - g1.coords.end <= config.MAX_DISTANCE_BETWEEN_GENES_IN_THE_SAME_BLOCK)
+
     # split genes by strand
-    gene_blocks: List[GeneBlock] = [list(genes_group)
-                                    for _, genes_group in groupby(bgc.genes,
-                                                                  key=lambda gene: gene.coords.strand)]
-    gene_blocks_rearrangements = [gene_blocks]
+    gene_blocks: List[GeneBlock] = [
+        list(genes_group)
+        for genes_group in split_when(bgc.genes,
+                                      lambda g1, g2: not genes_in_same_block(g1, g2))
+    ]
+    gene_blocks_orientations = [gene_blocks]
     if len(gene_blocks) > 1:
-        gene_blocks_rearrangements.append([reverse_gene_block(gene_block)
+        gene_blocks_orientations.append([reverse_gene_block(gene_block)
                                            for gene_block in gene_blocks[::-1]])
 
 
-    for gene_blocks in gene_blocks_rearrangements:
-        for fragments_seqs in gene_blocks_to_fragment_sequences(gene_blocks):
+    for gene_blocks_orientation in gene_blocks_orientations:
+        for fragments_seqs in gene_blocks_to_fragment_sequences(gene_blocks_orientation):
             joined_fragments = chain(*fragments_seqs)
             yield build_fragmented_bgc(joined_fragments)
 
@@ -209,7 +210,7 @@ def split_and_reorder(bgc: BGC_Cluster,
                       config: antiSMASH_Processing_Config,
                       log: BufferedLogger) -> List[Fragmented_BGC_Cluster]:
     result = list(islice((fragmented_bgc
-                          for fragmented_bgc in generate_fragmented_bgcs(bgc)),
+                          for fragmented_bgc in generate_fragmented_bgcs(bgc, config)),
                          config.MAX_VARIANTS_PER_BGC + 1))
     if len(result) > config.MAX_VARIANTS_PER_BGC:
         log.warning(f'Too many BGC variants. Keeping first {config.MAX_VARIANTS_PER_BGC} of them.')

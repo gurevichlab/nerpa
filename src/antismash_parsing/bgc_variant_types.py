@@ -85,6 +85,11 @@ class A_Domain_ID(NamedTuple):
         return cls(gene_id=module.gene_id,
                    a_domain_idx=module.a_domain_idx)
 
+    def __lt__(self, other: A_Domain_ID | None) -> bool:
+        if other is None:
+            return False
+        return (self.gene_id, self.a_domain_idx) < (other.gene_id, other.a_domain_idx)
+
 
 BGC_MODULE_DUMMY = BGC_Module(gene_id=GeneId(''), fragment_idx=-1, genomic_context=(), a_domain_idx=-1,
                               residue_score={}, modifications=(), iterative_module=False, iterative_gene=False)

@@ -3,7 +3,7 @@ from __future__ import annotations
 from itertools import permutations
 from typing import List, Optional, NamedTuple, Dict
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from src.general_type_aliases import SMILES
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record, NRP_metadata
 
@@ -18,11 +18,15 @@ class NRP_Fragment:
     monomers: List[rBAN_Monomer]
     is_cyclic: bool
 
+    def to_dict(self) -> Dict:
+        return {'monomers': [mon.to_dict() for mon in self.monomers],
+                'is_cyclic': self.is_cyclic,}
+
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Fragment:
         return cls(is_cyclic=data['is_cyclic'],
-                   monomers=[rBAN_Monomer.from_list(mon_data_lst)
-                             for mon_data_lst in data['monomers']])
+                   monomers=[rBAN_Monomer.from_yaml_dict(mon_data)
+                             for mon_data in data['monomers']])
 
     def __eq__(self, other):
         if not isinstance(other, NRP_Fragment):
@@ -46,16 +50,30 @@ class NRP_Variant:
     isolated_unknown_monomers: List[rBAN_Monomer]
     metadata: NRP_metadata
 
+    def to_dict(self) -> Dict:
+        return {'nrp_variant_id': self.nrp_variant_id._asdict(),
+                'fragments': [frag.to_dict() for frag in self.fragments],
+                'isolated_monomers': [mon.to_dict() for mon in self.isolated_unknown_monomers],
+                'metadata': asdict(self.metadata),}
+
     @classmethod
     def from_yaml_dict(cls, data: dict) -> NRP_Variant:
         if 'metadata' in data:
             metadata = NRP_metadata.from_dict(data['metadata'])
         else:
             metadata = NRP_metadata(name=None, smiles=None, origin=None, inchikey=None, source=None)
-        return cls(nrp_variant_id=NRP_Variant_ID(*data['nrp_variant_id']),
+
+        if isinstance(data['nrp_variant_id'], dict):
+            nrp_variant_id = NRP_Variant_ID(**data['nrp_variant_id'])
+        elif isinstance(data['nrp_variant_id'], list):
+            nrp_variant_id = NRP_Variant_ID(*data['nrp_variant_id'])
+        else:
+            raise ValueError(f"Unexpected format for nrp_variant_id: {data['nrp_variant_id']}")
+
+        return cls(nrp_variant_id=nrp_variant_id,
                    fragments=list(map(NRP_Fragment.from_yaml_dict, data['fragments'])),
-                   isolated_unknown_monomers=list(map(rBAN_Monomer.from_yaml_dict, data['isolated_monomers']))
-                   if data.get('isolated_monomers') else [],
+                   isolated_unknown_monomers=[rBAN_Monomer.from_yaml_dict(mon_data)
+                                              for mon_data in data.get('isolated_monomers', [])],
                    metadata=metadata)
 
     def __eq__(self, other):
@@ -66,6 +84,15 @@ class NRP_Variant:
 
         return any(self.fragments == list(permuted_other_frags)
                    for permuted_other_frags in permutations(other.fragments))
+
+    def to_str_compact(self) -> str:
+        frag_strs = []
+        for frag in self.fragments:
+            mons_str = ', '.join(mon.rban_name for mon in frag.monomers)
+            if frag.is_cyclic:
+                mons_str = f'({mons_str})'
+            frag_strs.append(mons_str)
+        return '\n'.join([self.nrp_variant_id.nrp_id] + frag_strs)
 
 
 class NRP_Variants_Info(NamedTuple):

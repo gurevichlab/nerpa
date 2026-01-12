@@ -20,10 +20,9 @@ from src.monomer_names_helper import (
     antiSMASH_MonomerName,
     NerpaResidue,
     MonomerNamesHelper,
-    UNKNOWN_RESIDUE
+    UNKNOWN_RESIDUE, NOT_NRPS_RESIDUE, PKS_RESIDUE
 )
 from src.pipeline.logging.logger import LoggingConfig
-
 
 @dataclass
 class antiSMASH_Processing_Config:
@@ -32,6 +31,7 @@ class antiSMASH_Processing_Config:
     MAX_VARIANTS_PER_BGC: int
     MAX_PERMUTATIONS_PER_BGC: int
     MAX_BGC_SPLITS_INTO_FRAGMENTS: int
+    MAX_DISTANCE_BETWEEN_GENES_IN_THE_SAME_BLOCK: int
     DEBUG_MODE: bool
     MIN_FILES_PER_THREAD: int
 
@@ -56,6 +56,10 @@ def get_aa_codes(aa_codes_tsv: Path,
         as_names: List[antiSMASH_MonomerName] = row['predictions_loose'].split('|')
         residues = {monomer_names_helper.parsed_name(as_name, 'antiSMASH_short').residue
                     for as_name in as_names}
+
+        assert not any(residue in (NOT_NRPS_RESIDUE, PKS_RESIDUE) for residue in residues), \
+            f'Non-NRP residues provided as A domain specificities: {row["predictions_loose"]}'
+
         for residue in residues:
             aa10_codes[residue].append(AA10(row['aa10']))
             aa34_codes[residue].append(AA34(row['aa34']))
@@ -242,7 +246,9 @@ class OutputConfig:
     configs_output: Path
     antismash_out_dir: Path
     bgc_variants: Path
+    bgc_representatives: Path
     nrp_variants: Path
+    nrp_representatives: Path
     nrp_images_dir: Path
     rban_graphs: Path
     draw_molecules: bool
@@ -337,7 +343,8 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     specificity_prediction_cfg_dict = yaml.safe_load((nerpa_dir / cfg['specificity_prediction_config']).open('r'))
     specificity_prediction_cfg = SpecificityPredictionConfig(nerpa_dir,
                                                              specificity_prediction_cfg_dict,
-                                                             monomer_names_helper)
+                                                             monomer_names_helper,
+                                                             args)
 
     rban_cfg_dict = yaml.safe_load((nerpa_dir / cfg['rban_config']).open('r'))
     rban_cfg = rBAN_Config(rban_cfg_dict, nerpa_dir)

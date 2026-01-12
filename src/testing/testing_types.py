@@ -16,8 +16,9 @@ from src.testing.simplified_alignment import (
     SimplifiedAlignment,
     simplified_alignment_from_match,
     check_simplified_alignments_equal,
-    _wrap_alignment,
+    _wrap_alignment, SimplifiedAlignmentStep,
 )
+from src.testing.simplified_match import nerpa2_match_to_simplified_match  # Import the function
 class TestResult(Enum):
     CORRECT = 'CORRECT'
     ACCEPTABLE_ALTERNATIVE = 'ACCEPTABLE_ALTERNATIVE'
@@ -31,12 +32,12 @@ class TestMatch:
     true_alignment: SimplifiedAlignment
     acceptable_alternative_alignments: List[SimplifiedAlignment]
     
-    def test(self, match: Match) -> TestResult:
+    def test(self, match: Match, check_ids: bool = True) -> TestResult:
         match_bgc_id = match.genome_id
         if match_bgc_id.endswith('.gbk'):
             match_bgc_id = match_bgc_id[:-4]
-        if (match_bgc_id != self.bgc_id
-                or match.nrp_variant_id.nrp_id != self.nrp_id):
+        if check_ids and (match_bgc_id != self.bgc_id
+                          or match.nrp_variant_id.nrp_id != self.nrp_id):
             raise ValueError('BGC ID or NRP ID do not match the test case')
         
         simplified_alignment = simplified_alignment_from_match(match)
@@ -51,25 +52,25 @@ class TestMatch:
 
     @classmethod
     def from_match(cls, match: Match) -> TestMatch:
-        match_nrp_id = match.nrp_variant_id.nrp_id
-        match_bgc_id = match.genome_id
-        if match_bgc_id.endswith('.gbk'):
-            match_bgc_id = match_bgc_id[:-4]
-        if match_bgc_id == 'converted_antiSMASH_v5_outputs':
-            match_bgc_id = match_nrp_id.split('.')[0]
-
         if min(
-            step.bgc_module.a_domain_idx
-            for alignment in match.alignments
-            for step in alignment
-            if step.bgc_module is not None
-        ) != 0:
-            raise ValueError('The match alignment does not start with A-domain index 0; '
-                             'cannot create a TestMatch from it.')
+                step.bgc_module.a_domain_idx
+                for alignment in match.alignments
+                for step in alignment
+                if step.bgc_module is not None
+        ) == 1:
+            index_offset = 1
+        else:
+            index_offset = 0
 
-        return cls(bgc_id=match_bgc_id,
-                   nrp_id=match.nrp_variant_id.nrp_id,
-                   true_alignment=simplified_alignment_from_match(match),
+        simplified_match = nerpa2_match_to_simplified_match(match, index_offset=index_offset)
+
+        # The following check might not be necessary anymore, but keeping it for now
+        # to ensure the alignment starts with A-domain index 0.  Consider removing
+        # if it proves to be redundant.
+
+        return cls(bgc_id=simplified_match.bgc_id,
+                   nrp_id=simplified_match.nrp_id,
+                   true_alignment=simplified_match.alignment,
                    acceptable_alternative_alignments=[])
 
 
@@ -99,18 +100,22 @@ class TestMatch:
     def from_yaml_dict(cls, data: dict) -> TestMatch:
         """Reconstruct a TestMatch instance from a YAML-decoded dictionary."""
 
-        def unwrap_alignment(al):
+        def unwrap_alignment(al: List[dict]) -> SimplifiedAlignment:
             out = []
             for item in al:
                 ad_id, monomer = item
-                ad_id = tuple(ad_id) if ad_id is not None else None
-                out.append((ad_id, monomer))
+                ad_id = A_Domain_ID(*ad_id) if ad_id is not None else None
+                #if ad_id is not None and monomer is not None:
+                out.append(SimplifiedAlignmentStep(ad_id, monomer))
             return out
 
-        true_alignment = unwrap_alignment(data["true_alignment"])
-        acceptable_alternative_alignments = [
-            unwrap_alignment(al) for al in data["acceptable_alternative_alignments"]
-        ]
+        try:
+            true_alignment = unwrap_alignment(data["true_alignment"])
+            acceptable_alternative_alignments = [
+                unwrap_alignment(al) for al in data["acceptable_alternative_alignments"]
+            ]
+        except:
+            raise ValueError(f"Error parsing a test match:\n {data}")
 
         return cls(
             bgc_id=data["bgc_id"],
@@ -129,12 +134,28 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
 
 
 if __name__ == '__main__':
-    approved_matches_txt = Path('/home/ilianolhin/git/nerpa2/matches_inspection/approved_matches.txt')
+    approved_matches_txt = Path('/home/ilianolhin/git/nerpa2/matches_inspection/new_approved_matches.txt')
     approved_matches = load_matches_from_txt(approved_matches_txt)
     tests = sorted([TestMatch.from_match(match)
                     for match in approved_matches],
                    key=lambda test: (test.bgc_id, test.nrp_id))
     test_ids = [(test.bgc_id, test.nrp_id) for test in tests]
     assert len(test_ids) == len(set(test_ids)), "Duplicate test cases found!"
+
+    old_tests_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/approved_matches_old.yaml')
+    old_tests = [TestMatch.from_yaml_dict(old_test_yaml)
+                 for old_test_yaml in yaml.safe_load(old_tests_yaml.read_text())]
+    old_test_ids = [(test.bgc_id, test.nrp_id) for test in old_tests]
+    # q: count num old tests with alternative alignments
+    num_old_tests_with_alternatives = sum(1 for test in old_tests
+                                          if test.acceptable_alternative_alignments)
+    print(f'Number of old tests with alternative alignments: {num_old_tests_with_alternatives}')
+
+    # q: substitute all new tests that are already present in old tests with old versions
+    for i, test in enumerate(tests):
+        if (test.bgc_id, test.nrp_id) in old_test_ids:
+            old_test = old_tests[old_test_ids.index((test.bgc_id, test.nrp_id))]
+            tests[i] = old_test
+
     approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/approved_matches.yaml')
     approved_matches_yaml.write_text(TestMatch.dump_list_to_str(tests))

@@ -1,0 +1,279 @@
+antiSMASH_short	antiSMASH_long	Norine
+n-oh-nitropheBut	(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoic acid	X
+dn-dohHep	(2S,6R)-diamino-(5R,7)-dihydroxy-heptanoic acid	X
+3clLeu	(4S)-5,5,5-trichloroleucine	X
+meHex	(E)-4-methylhex-2-enoic acid	X
+nDece	(S,E)-2-amino-4-decenoic acid	X
+dmeaTrp	1-(1,1-dimethylallyl)-tryptophan	X
+Acc	1-aminocyclopropane-1-carboxylic acid	X
+Pyr	1-pyrroline-5-carboxylic acid	X
+dnmeProp	2,3-diamino-3-methylpropanoic acid	X
+Dpr	2,3-diaminopropionic acid	Dpr
+2,3-doh-4-nBza	2,3-dihydroxy-para-aminobenzoic acid	X
+2,3-dohBza	2,3-dihydroxybenzoic acid	diOH-Bz
+2,3-dohHda	2,3-dihydroxyhexadecanoic acid	X
+Dab	2,4-diaminobutyric acid	Dab
+dohPen	2,4-dihydroxypentanoic acid	X
+Cyc-D-Gly	2-(1-methylcyclopropyl)-D-glycine	X
+ndmHex	2-amino-3,5-dimethyl-4-hexenoic Acid	X
+nHcp	2-amino-3-hydroxycyclopent-2-enone	X
+nohme-oxoDec	2-amino-6-hydroxy-4-methyl-8-oxodecanoic acid	X
+Aad	2-aminoadipic acid	Aad
+Abu	2-aminobutyric acid	Abu
+Aib	2-aminoisobutyric acid	Aib
+cohOhi	2-carboxy-6-hydroxyoctahydroindole	X
+cl-me-dHpg	2-chloro-3,5-dihydroxy-4-methylphenylglycine	X
+2clBza	2-chlorobenzoic acid	X
+2-oh-4-mePen	2-hydroxy-4-methylpentanoic acid	4Me-Hva
+Hpea	2-hydroxypent-4-enoic acid	X
+Kga	2-ketoglutaric acid	X
+Kic	2-ketoisocaproic acid	X
+Kiv	2-ketoisovaleric acid	X
+meSer	2-methylserine	X
+Sma	2-sulfamoylacetic acid	X
+2R-oh-3-mePen	2R-hydroxy-3-methylpentanoic acid	Hmp
+2R-Hiv	2R-hydroxyisovaleric acid	D-Hiv
+3Dab	2S,3S-diaminobutyric acid	L-Dbu
+n-oxoDec	2S-amino-8-oxodecanoic acid	X
+n-epox-oxoDec	2S-amino-9,10-epoxy-8-oxodecanoic acid	C10:0-NH2(2)-Ep(9)-oxo(8)
+nDec	2S-aminodecanoic acid	X
+nDodec	2S-aminododecanoic acid	X
+nOct	2S-aminooctanoic acid	X
+2S-Hic	2S-hydroxyisocaproic acid	X
+2S-Hiv	2S-hydroxyisovaleric acid	Hiv
+me-oxoBut	2S-methyl-3-oxobutyrine	X
+dhLys	3,4-dehydrolysine	X
+3,4-dohBza	3,4-dihydroxybenzoic acid	X
+dclohBfa	3,5-dichloro-4-hydroxybenzoylformic acid	X
+dclHpg	3,5-dichloro-4-hydroxyphenylglycine	Cl2-Hpg
+dHpg	3,5-dihydroxyphenylglycine	Dhpg
+niCpa	3-(2-nitrocyclopropyl)alanine	X
+pyrAla	3-(3-pyridyl)-alanine	X
+2,4-doh-3-nBza	3-amino-2,4-dihydroxybenzoic acid	X
+nohBza	3-amino-4-hydroxybenzoic acid	X
+Ahp	3-amino-6-hydroxy-2-piperidone	Ahp
+Ibu	3-aminoisobutyric acid	X
+clTyr	3-chlorotyrosine	Cl-Tyr
+3-oh-4-mePro	3-hydroxy-4-methylproline	X
+ohdmTyr	3-hydroxy-O-methyl-5-methyltyrosine	X
+ohmeTyr	3-hydroxy-O-methyltyrosine	X
+ohnBza	3-hydroxy-para-aminobenzoic acid	X
+ohAsn	3-hydroxyasparagine	OH-Asn
+ohAsp	3-hydroxyaspartic acid	OH-Asp
+ohGln	3-hydroxyglutamine	bOH-Gln
+ohKyn	3-hydroxykynurenine	X
+3-ohLeu	3-hydroxyleucine	3OH-Leu
+Hpa	3-hydroxypicolinic acid	Hpa
+Hqa	3-hydroxyquinaldic acid	X
+3-ohTyr	3-hydroxytyrosine	X
+3-ohVal	3-hydroxyvaline	bOH-Val
+mxAnt	3-methoxyanthranilic acid	X
+mxAsp	3-methoxyaspartic acid	OMe-Asp
+meAsn	3-methylasparagine	bMe-Asn
+meAsp	3-methylaspartic acid	bMe-Asp
+meGlu	3-methylglutamic acid	3Me-Glu
+nitroTyr	3-nitrotyrosine	3NO2-Tyr
+clPro	3R-chloroproline	X
+ohDab	3R-hydroxy-2,4-diaminobutyric acid	X
+3R-ohAsn	3R-hydroxyasparagine	OH-Asn
+3R-ohAsp	3R-hydroxyaspartic acid	OH-Asp
+ohHty	3R-hydroxyhomotyrosine	X
+3R-ohLeu	3R-hydroxyleucine	3OH-Leu
+branched-D-3R-meAsp	3R-methyl-D-aspartic acid branched	bMe-Asp
+me-bAla	3R-methylbeta-alanine	X
+3R-meGlu	3R-methylglutamic acid	3Me-Glu
+dclPro	3S,4R-dichloroproline	Cl2-Pro
+dohHty	3S,4S-dihydroxyhomotyrosine	X
+3S-Abu	3S-aminobutyric acid	X
+cycHexAla	3S-cyclohex-2-enylalanine	X
+3S-oh-4S-mePro	3S-hydroxy-4S-methylproline	X
+hclHis	3S-hydroxy-6-chlorohistidine	X
+3S-ohAsn	3S-hydroxyasparagine	OH-Asn
+3S-ohLeu	3S-hydroxyleucine	3OH-Leu
+ohPip	3S-hydroxypipecolic acid	X
+3S-ohPro	3S-hydroxyproline	3OH-Pro
+branched-D-3S-meAsp	3S-methyl-D-aspartic acid branched	D-bMe-Asp
+3S-meAsp	3S-methylaspartic acid	bMe-Asp
+meLeu	3S-methylleucine	X
+3S-mePro	3S-methylproline	3Me-Pro
+4,5-dhArg	4,5-dehydroarginine	X
+dhOrn	4,5-dihydroxyornithine	X
+nacPca	4-acetamidopyrrole-2-carboxylic acid	X
+noh-isopox-Bza	4-amino-2-hydroxy-3-isopropoxybenzoic acid	X
+4-Abu	4-aminobutyric acid	X
+nPhe	4-aminophenylalanine	X
+4clBza	4-chlorobenzoic acid	X
+oh-nitroBza	4-hydroxy-3-nitrobenzoic acid	X
+oh-D-Kyn	4-hydroxy-D-kynurenine	X
+4-ohBza	4-hydroxybenzoic acid	pOH-Bz
+4-ohGln	4-hydroxyglutamine	X
+Hpg	4-hydroxyphenylglycine	Hpg
+4-ohPpa	4-hydroxyphenylpyruvic acid	X
+4-mxTrp	4-methoxytryptophan	X
+4mePro	4-methylproline	4Me-Pro
+nitroTrp	4-nitrotryptophan	X
+Bmt	4R-E-butenyl-4R-methylthreonine	Bmt
+4R-ohPro	4R-hydroxyproline	4OH-Pro
+4R-mePro	4R-methylproline	4Me-Pro
+proPro	4R-propylproline	X
+ac-mePro	4S-acetyl-5S-methylproline	X
+4S-ohLys	4S-hydroxylysine	X
+meAze	4S-methylazetidine-2S-carboxylic acid	X
+4S-mePro	4S-methylproline	4Me-Pro
+pPro	4S-propenylproline	X
+dmePip	5,5-dimethylpipecolic acid	X
+nLev	5-aminolevulinic acid	X
+clAnt	5-chloroanthranilic acid	X
+5-clTrp	5-chlorotryptophan	X
+ohPen	5-hydroxy-2-aminopentanoic acid	X
+5-mxTyr	5-methoxytyrosine	X
+meOrs	5-methylorsellinic acid	X
+5S-mePro	5S-methylproline	5Me-Pro
+dclTrp	6,7-dichlorotryptophan	X
+me-clHic	6-chloro-4-hydroxy-1-methyl-indole-3-carboxylic acid	X
+clHic	6-chloro-4-hydroxyindole-3-carboxylic acid	X
+6-clTrp	6-chlorotryptophan	X
+Htia	6-hydroxy-tetrahydro-isoquinoline-3-carboxylic acid	X
+meSal	6-methylsalicylic acid	X
+mePip	6S-methyl-pipecolic acid	X
+HyzPoly	An acid hydrazine polyene (intermediate 14)	X
+PheSuc	Compound 4 (formed by the decarboxylative condensation of L-Phe and succinyl-CoA)	X
+D-Ala	D-alanine	D-Ala
+branched-D-Asp	D-aspartic acid branched	D-Asp
+branched-D-Glu	D-glutamic acid branched	D-Glu
+D-Leu	D-leucine	D-Leu
+D-Lya	D-lysergic acid	X
+D-Phe	D-phenylalanine	D-Phe
+D-pheLac	D-phenyllactic acid	D-Ph-Lac
+D-Pip	D-pipecolic acid	D-Hpr
+1-meTrp	N-(1-methyl)-tryptophan	1Me-Trp
+parTrp	N-(1-propargyl)-tryptophan	X
+foGly	N-formylglycine	X
+N-ohVal	N-hydroxyvaline	X
+1-mxTrp	N1-methoxytryptophan	OMe-Trp
+acohOrn	N5-acetyl-N5-hydroxyornithine	Ac-OH-Orn
+Z-ahmohOrn	N5-cis-anhydromevalonyl-N5-hydroxyornithine	X
+fohOrn	N5-formyl-N5-hydroxyornithine	Fo-OH-Orn
+ohOrn	N5-hydroxyornithine	OH-Orn
+E-ahmohOrn	N5-trans-anhydromevalonyl-N5-hydroxyornithine	X
+N6-ohLys	N6-hydroxylysine	X
+omeThr	O-methylthreonine	X
+omeTyr	O-methyltyrosine	X
+3R-oh-3-mePro	R-3-hydroxy-3-methylproline	X
+aza-bTyr	R-aza-beta-tyrosine	X
+R-bohPhe	R-beta-hydroxyphenylalanine	X
+R-ohTyr	R-beta-hydroxytyrosine	bOH-Tyr
+mePhe	R-beta-methylphenylalanine	bMe-Phe
+R-bmeTrp	R-beta-methyltryptophan	X
+R-bPhe	R-beta-phenylalanine	bPhe
+R-bTyr	R-beta-tyrosine	bTyr
+Sam	S-adenosylmethionine	X
+Hch	S-beta-hydroxycyclohex-2S-enylalanine	X
+ohEnd	S-beta-hydroxyenduracididine	X
+S-bohPhe	S-beta-hydroxyphenylalanine	X
+S-bTyr	S-beta-tyrosine	bTyr
+dhAbu	Z-dehydroaminobutyric acid	dhAbu
+dhTyr	Z-dehydrotyrosine	X
+Ac	acetic acid	X
+Ala	alanine	Ala
+Aol	alaninol	X
+aIle	allo-isoleucine	aIle
+aThr	allo-threonine	aThr
+Ant	anthranilic acid	X
+Arg	arginine	Arg
+Asn	asparagine	Asn
+Asp	aspartic acid	Asp
+branchedAsp	aspartic acid branched	Asp
+Aze	azetidine-2-carboxylic acid	X
+Bza	benzoic acid	Bz
+Boz	benzoxazolinate	X
+bAla	beta-alanine	bAla
+dohmTyr	beta-hydroxy-3-hydroxy-O-methyl-5-methyltyrosine	X
+ohArg	beta-hydroxyarginine	X
+bohPhe	beta-hydroxyphenylalanine	Ph-Ser
+ohTyr	beta-hydroxytyrosine	bOH-Tyr
+bLys	beta-lysine	bLys
+Bet	betaine	X
+But	butyric acid	C4:0
+Cap	capreomycidine	Cap
+Cin	cinnamic acid	X
+Cit	citrulline	Cit
+Cou	coumaric acid	X
+Cya	cysteic acid	CysA
+Cys	cysteine	Cys
+branchedCys	cysteine branched	Cys
+dhArg	dehydroarginine	X
+dhPhe	dehydrophenylalanine	X
+dhTrp	dehydrotryptophan	dh-Trp
+dhVal	dehydrovaline	X
+dmesulf-Pra	dimethylsulfoniopropionic acid	X
+ccemal	double-bonded ethylmalonyl-CoA	ccemal
+ccmal	double-bonded malonyl-CoA	ccmal
+ccmxmal	double-bonded methoxymalonyl-CoA	ccmxmal
+me-ccmal	double-bonded methylmalonyl-CoA	me-ccmal
+End	enduracididine	End
+emal	ethylmalonyl-CoA	emal
+fa	fatty acid	X
+Glu	glutamic acid	Glu
+Gln	glutamine	Gln
+Gly	glycine	Gly
+Glyca	glycolic acid	X
+Gram	graminine	X
+Gua	guanidinoacetic acid	X
+His	histidine	His
+Hph	homophenylalanine	Hph
+Hse	homoserine	Hse
+Hty	homotyrosine	Hty
+ohemal	hydroxy-ethylmalonyl-CoA	ohemal
+ohmal	hydroxy-malonyl-CoA	ohmal
+ohmxmal	hydroxy-methoxymalonyl-CoA	ohmxmal
+me-ohmal	hydroxy-methylmalonyl-CoA	me-ohmal
+ohPro	hydroxyproline	X
+Ile	isoleucine	Ile
+Iva	isovaline	Ival
+Kyn	kynurenine	Kyn
+Lac	lactic acid	Lac
+Leu	leucine	Leu
+Lin	linoleic acid	X
+Lys	lysine	Lys
+MalAc	malic acid	X
+mal	malonyl-CoA	mal
+mTyr	meta-tyrosine	X
+Met	methionine	Met
+mxmal	methoxymalonyl-CoA	mxmal
+me-mal	methylmalonyl-CoA	me-mal
+Nic	nicotinic acid	X
+meAcc	norcoronamic acid	norCMA
+Orn	ornithine	Orn
+ohMan	p-hydroxymandelate	X
+nBza	para-aminobenzoic acid	pNH2-Bz
+Pen	pentanoic acid	X
+dcPhz	phenazine-1,6-dicarboxylic acid	X
+Phe	phenylalanine	Phe
+Pgl	phenylglycine	Ph-Gly
+Ppa	phenylpyruvic acid	X
+Pip	pipecolic acid	Hpr
+Piz	piperazic acid	X
+pks-end1	polyketide end 1	pks-end1
+pks-end2	polyketide end 2	pks-end2
+pks-start1	polyketide starter 1	pks-start1
+Pro	proline	Pro
+Pca	pyrrole-2-carboxylic acid	X
+Pyv	pyruvic acid	X
+redemal	reduced ethylmalonyl-CoA	redemal
+redmal	reduced malonyl-CoA	redmal
+redmxmal	reduced methoxymalonyl-CoA	redmxmal
+me-redmal	reduced methylmalonyl-CoA	me-redmal
+Qui	quinoxaline-2-carboxylic acid	COOH-Qui
+Sal	salicylic acid	X
+Ser	serine	Ser
+Suc	succinic semialdehyde	X
+SucHyzAc	succinyl-hydrazinoacetic acid	X
+Thr	threonine	Thr
+croGly	trans-2-crotylglycine	X
+Trp	tryptophan	Trp
+Tyr	tyrosine	Tyr
+Nrp	unknown amino acid	X
+Pk	unknown ketide	pk
+Val	valine	Val
+Valol	valinol	Valol

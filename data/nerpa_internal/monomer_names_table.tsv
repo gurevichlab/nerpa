@@ -1,1197 +1,1433 @@
-"MonomerName"	"NameFormat"	"NerpaResidue"	"Modifications"	"Type"	"Comment"
-"(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoic acid"	"PARAS"	"But"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"(2S,6R)-diamino-(5R,7)-dihydroxy-heptanoic acid"	"PARAS"	"Hep"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"(4S)-5,5,5-trichloroleucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"(E)-4-methylhex-2-enoic acid"	"PARAS"	"Hex"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"(S,E)-2-amino-4-decenoic acid"	"PARAS"	"Dece"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"1-(1,1-dimethylallyl)-tryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"1-aminocyclopropane-1-carboxylic acid"	"PARAS"	"Acc"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"1-meTrp"	"antiSMASH_short"	"Trp"	"['MT']"	"NRPS"	""
-"1-mxTrp"	"antiSMASH_short"	"Trp"	"['MeO']"	"NRPS"	""
-"1-pyrroline-5-carboxylic acid"	"PARAS"	"Pyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"1Me-Trp"	"rBAN/Norine"	"Trp"	"['MT']"	"NRPS"	""
-"2,3-diaminobutyric acid"	"PARAS"	"2,3-diaminobutyric acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,3-diaminopropionic acid"	"PARAS"	"Dpr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,3-dihydroxy-para-aminobenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,3-dihydroxybenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,3-dihydroxyhexadecanoic acid"	"PARAS"	"Hda"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,3-doh-4-nBza"	"antiSMASH_short"	"Bza"	"['NH', 'OH']"	"NRPS"	""
-"2,3-dohBza"	"antiSMASH_short"	"Bza"	"['OH']"	"NRPS"	""
-"2,3-dohHda"	"antiSMASH_short"	"Hda"	"['OH']"	"NRPS"	""
-"2,4-diaminobutyric acid"	"PARAS"	"Dab"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,4-dihydroxypentanoic acid"	"PARAS"	"Pen"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2,4-doh-3-nBza"	"antiSMASH_short"	"Bza"	"['NH', 'OH']"	"NRPS"	""
-"2-(1-methylcyclopropyl)-D-glycine"	"PARAS"	"Gly"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-amino-3,5-dimethyl-4-hexenoic Acid"	"PARAS"	"Hex"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-amino-3-hydroxycyclopent-2-enone"	"PARAS"	"nHcp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-amino-6-hydroxy-4-methyl-8-oxodecanoic acid"	"PARAS"	"oxoDec"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-aminoadipic acid"	"PARAS"	"Aad"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-aminobutyric acid"	"PARAS"	"Abu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-aminoisobutyric acid"	"PARAS"	"Aib"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-carboxy-6-hydroxyoctahydroindole"	"PARAS"	"cohOhi"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-chloro-3,5-dihydroxy-4-methylphenylglycine"	"PARAS"	"dHpg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-chlorobenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-hydroxy-4-methylpentanoic acid"	"PARAS"	"Pen"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-hydroxypent-4-enoic acid"	"PARAS"	"Hpea"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-ketoglutaric acid"	"PARAS"	"2-ketoglutaric acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-ketoisocaproic acid"	"PARAS"	"Kic"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-ketoisovaleric acid"	"PARAS"	"Kiv"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-methylserine"	"PARAS"	"Ser"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2-oh-4-mePen"	"antiSMASH_short"	"Pen"	"['OH', 'MT']"	"NRPS"	""
-"2-sulfamoylacetic acid"	"PARAS"	"Sma"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2Dh-Mabu"	"rBAN/Norine"	"Abu"	"['DH']"	"NRPS"	""
-"2Me-3Me-pGlu"	"rBAN/Norine"	"Glu"	"['MT', 'unknown']"	"NRPS"	""
-"2R-Hiv"	"antiSMASH_short"	"Hiv"	"[]"	"NRPS"	""
-"2R-hydroxy-3-methylpentanoic acid"	"PARAS"	"Pen"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2R-hydroxyisovaleric acid"	"PARAS"	"Hiv"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2R-oh-3-mePen"	"antiSMASH_short"	"Pen"	"['OH', 'MT']"	"NRPS"	""
-"2S,3S-diaminobutyric acid"	"PARAS"	"Dab"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-Hic"	"antiSMASH_short"	"Hic"	"[]"	"NRPS"	""
-"2S-Hiv"	"antiSMASH_short"	"Hiv"	"[]"	"NRPS"	""
-"2S-amino-8-oxodecanoic acid"	"PARAS"	"oxoDec"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-amino-9,10-epoxy-8-oxodecanoic acid"	"PARAS"	"oxoDec"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-aminodecanoic acid"	"PARAS"	"Dec"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-aminododecanoic acid"	"PARAS"	"Dodec"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-aminooctanoic acid"	"PARAS"	"Oct"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-hydroxyisocaproic acid"	"PARAS"	"Hic"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-hydroxyisovaleric acid"	"PARAS"	"Hiv"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2S-methyl-3-oxobutyrine"	"PARAS"	"But"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"2clBza"	"antiSMASH_short"	"Bza"	"['Cl']"	"NRPS"	""
-"3,4-dehydrolysine"	"PARAS"	"Lys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3,4-dihydroxybenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3,4-dohBza"	"antiSMASH_short"	"Bza"	"['OH']"	"NRPS"	""
-"3,5-dichloro-4-hydroxyphenylglycine"	"PARAS"	"Hpg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3,5-dihydroxyphenylglycine"	"PARAS"	"dHpg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-(2-nitrocyclopropylalanine)"	"PARAS"	"3-(2-nitrocyclopropylalanine)"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-(3-pyridyl)-alanine"	"PARAS"	"Ala"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-amino-2,4-dihydroxybenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-amino-4-hydroxybenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-amino-6-hydroxy-2-piperidone"	"PARAS"	"Ahp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-aminoisobutyric acid"	"PARAS"	"Ibu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-chlorotyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxy-4-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxy-O-methyl-5-methyltyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxy-para-aminobenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxyasparagine"	"PARAS"	"Asn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxyaspartic acid"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxyglutamine"	"PARAS"	"Gln"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxykynurenine"	"PARAS"	"Kyn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxyleucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxypicolinic acid"	"PARAS"	"Hpa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxyquinaldic acid"	"PARAS"	"Hqa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxytyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-hydroxyvaline"	"PARAS"	"Val"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-methoxyanthranilic acid"	"PARAS"	"Ant"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-methoxyaspartic acid"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-methylasparagine"	"PARAS"	"Asn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-methylglutamic acid"	"PARAS"	"Glu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-nitrotyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3-oh-4-mePro"	"antiSMASH_short"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"3-ohLeu"	"antiSMASH_short"	"Leu"	"['OH']"	"NRPS"	""
-"3-ohTyr"	"antiSMASH_short"	"Tyr"	"['OH']"	"NRPS"	""
-"3-ohVal"	"antiSMASH_short"	"Val"	"['OH']"	"NRPS"	""
-"3Dab"	"antiSMASH_short"	"Dab"	"[]"	"NRPS"	""
-"3Me-4Me-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"3Me-Glu"	"rBAN/Norine"	"Glu"	"['MT']"	"NRPS"	""
-"3Me-Hty"	"rBAN/Norine"	"Hty"	"['MT']"	"NRPS"	""
-"3Me-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"3Me-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"3NO2-Tyr"	"rBAN/Norine"	"Tyr"	"['NO']"	"NRPS"	""
-"3OH-5Me-Pro"	"rBAN/Norine"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"3OH-Leu"	"rBAN/Norine"	"Leu"	"['OH']"	"NRPS"	""
-"3OH-Pro"	"rBAN/Norine"	"Pro"	"['OH']"	"NRPS"	""
-"3R-chloroproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-hydroxy-2,4-diaminobutyric acid"	"PARAS"	"Dab"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-hydroxyasparagine"	"PARAS"	"Asn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-hydroxyaspartic acid"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-hydroxyhomotyrosine"	"PARAS"	"Hty"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-hydroxyleucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-meGlu"	"antiSMASH_short"	"Glu"	"['MT']"	"NRPS"	""
-"3R-methylbeta-alanine"	"PARAS"	"bAla"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-methylglutamic acid"	"PARAS"	"Glu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3R-oh-3-mePro"	"antiSMASH_short"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"3R-ohAsn"	"antiSMASH_short"	"Asn"	"['OH']"	"NRPS"	""
-"3R-ohAsp"	"antiSMASH_short"	"Asp"	"['OH']"	"NRPS"	""
-"3R-ohLeu"	"antiSMASH_short"	"Leu"	"['OH']"	"NRPS"	""
-"3S,4R-dichloroproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-Abu"	"antiSMASH_short"	"Abu"	"[]"	"NRPS"	""
-"3S-cyclohex-2-enylalanine"	"PARAS"	"cycHexAla"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-hydroxy-4S-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-hydroxy-6-chlorohistidine"	"PARAS"	"His"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-hydroxyasparagine"	"PARAS"	"Asn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-hydroxyleucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-hydroxypipecolic acid"	"PARAS"	"Pip"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-hydroxyproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-meAsp"	"antiSMASH_short"	"Asp"	"['MT']"	"NRPS"	""
-"3S-mePro"	"antiSMASH_short"	"Pro"	"['MT']"	"NRPS"	""
-"3S-methyl-D-aspartic acid branched"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-methylaspartic acid"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-methylaspartic acid branched"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-methylleucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"3S-oh-4S-mePro"	"antiSMASH_short"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"3S-ohAsn"	"antiSMASH_short"	"Asn"	"['OH']"	"NRPS"	""
-"3S-ohLeu"	"antiSMASH_short"	"Leu"	"['OH']"	"NRPS"	""
-"3S-ohPro"	"antiSMASH_short"	"Pro"	"['OH']"	"NRPS"	""
-"3clLeu"	"antiSMASH_short"	"Leu"	"['Cl']"	"NRPS"	""
-"3d-NMe-Bmt"	"rBAN/Norine"	"Bmt"	"['E', 'MT']"	"NRPS"	""
-"4,5-dehydroarginine"	"PARAS"	"Arg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4,5-dhArg"	"antiSMASH_short"	"Arg"	"['DH']"	"NRPS"	""
-"4-Abu"	"antiSMASH_short"	"Abu"	"[]"	"NRPS"	""
-"4-acetamidopyrrole-2-carboxylic acid"	"PARAS"	"4-acetamidopyrrole-2-carboxylic acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-amino-2-hydroxy-3-isopropoxybenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-aminobutyric acid"	"PARAS"	"Abu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-aminophenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-chlorobenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxy-3-nitrobenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxy-D-kynurenine"	"PARAS"	"Kyn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxybenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxyglutamine"	"PARAS"	"Gln"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxyphenylglycine"	"PARAS"	"Hpg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxyphenylpyruvic acid"	"PARAS"	"Ppa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-hydroxythreonine"	"PARAS"	"Thr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-methoxytryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-mxTrp"	"antiSMASH_short"	"Trp"	"['MeO']"	"NRPS"	""
-"4-nitrotryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4-ohBza"	"antiSMASH_short"	"Bza"	"['OH']"	"NRPS"	""
-"4-ohGln"	"antiSMASH_short"	"Gln"	"['OH']"	"NRPS"	""
-"4-ohPpa"	"antiSMASH_short"	"Ppa"	"['OH']"	"NRPS"	""
-"4-oxoproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4Cl-Thr"	"rBAN/Norine"	"Thr"	"['Cl']"	"NRPS"	""
-"4Me-D-Hva"	"rBAN/Norine"	"Hva"	"['E', 'MT']"	"NA"	""
-"4Me-Hva"	"rBAN/Norine"	"Pen"	"['OH', 'MT']"	"NRPS"	""
-"4Me-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"4OH-D-Ph-Lac"	"rBAN/Norine"	"Lac"	"['E', 'OH', 'unknown']"	"NRPS"	""
-"4OH-Pro"	"rBAN/Norine"	"Pro"	"['OH']"	"NRPS"	""
-"4OH-Thr"	"rBAN/Norine"	"Thr"	"['OH']"	"NRPS"	""
-"4R-E-butenyl-4R-methylthreonine"	"PARAS"	"Bmt"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4R-hydroxyproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4R-mePro"	"antiSMASH_short"	"Pro"	"['MT']"	"NRPS"	""
-"4R-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4R-ohPro"	"antiSMASH_short"	"Pro"	"['OH']"	"NRPS"	""
-"4R-propylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4S,5-dihydroxy-2S-aminopentanoic acid"	"PARAS"	"4S,5-dihydroxy-2S-aminopentanoic acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4S-acetyl-5S-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4S-hydroxylysine"	"PARAS"	"Lys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4S-mePro"	"antiSMASH_short"	"Pro"	"['MT']"	"NRPS"	""
-"4S-methylazetidine-2S-carboxylic acid"	"PARAS"	"Aze"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4S-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4S-ohLys"	"antiSMASH_short"	"Lys"	"['OH']"	"NRPS"	""
-"4S-propenylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"4clBza"	"antiSMASH_short"	"Bza"	"['Cl']"	"NRPS"	""
-"4mePro"	"antiSMASH_short"	"Pro"	"['MT']"	"NRPS"	""
-"4oxo-5Me-Pro"	"rBAN/Norine"	"Pro"	"['MT', 'unknown']"	"NRPS"	""
-"4oxo-Hpr"	"rBAN/Norine"	"Hpr"	"['unknown']"	"NA"	""
-"4oxo-Pro"	"rBAN/Norine"	"Pro"	"['unknown']"	"NRPS"	""
-"5,5-dimethylpipecolic acid"	"PARAS"	"Pip"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"5-aminolevulinic acid"	"PARAS"	"Lev"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"5-chloroanthranilic acid"	"PARAS"	"Ant"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"5-chlorotryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"5-clTrp"	"antiSMASH_short"	"Trp"	"['Cl']"	"NRPS"	""
-"5-methoxytyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"5-methylorsellinic acid"	"PARAS"	"Ors"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"5-mxTyr"	"antiSMASH_short"	"Tyr"	"['MeO']"	"NRPS"	""
-"5Me-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"5OH-Cap"	"rBAN/Norine"	"Cap"	"['OH']"	"NRPS"	""
-"5S-mePro"	"antiSMASH_short"	"Pro"	"['MT']"	"NRPS"	""
-"5S-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6,7-dichlorotryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6-chloro-4-hydroxy-1-methyl-indole-3-carboxylic acid"	"PARAS"	"Hic"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6-chloro-4-hydroxyindole-3-carboxylic acid"	"PARAS"	"Hic"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6-chlorotryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6-clTrp"	"antiSMASH_short"	"Trp"	"['Cl']"	"NRPS"	""
-"6-hydroxy-tetrahydro-isoquinoline-3-carboxylic acid"	"PARAS"	"Htia"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6-methylsalicylic acid"	"PARAS"	"Sal"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"6S-methyl-pipecolic acid"	"PARAS"	"Pip"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"ADMAdda"	"rBAN/Norine"	"ADMAdda"	"[]"	"PKS"	"Warning: core and modifications are not human-verified!"
-"Aad"	"rBAN/Norine"	"Aad"	"[]"	"NRPS"	""
-"Aad"	"antiSMASH_short"	"Aad"	"[]"	"NRPS"	""
-"Abu"	"antiSMASH_short"	"Abu"	"[]"	"NRPS"	""
-"Abu"	"rBAN/Norine"	"Abu"	"[]"	"NRPS"	""
-"Ac"	"antiSMASH_short"	"Ac"	"[]"	"NRPS"	""
-"Ac-Aib"	"rBAN/Norine"	"Aib"	"['Ac']"	"NRPS"	""
-"Ac-Ival"	"rBAN/Norine"	"Ival"	"['Ac']"	"NA"	""
-"Ac-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'OH']"	"NRPS"	""
-"Ac-Phe"	"rBAN/Norine"	"Phe"	"['Ac']"	"NRPS"	""
-"Ac-Pro"	"rBAN/Norine"	"Pro"	"['Ac']"	"NRPS"	""
-"Ac-Ser"	"rBAN/Norine"	"Ser"	"['Ac']"	"NRPS"	""
-"Ac-Trp"	"rBAN/Norine"	"Trp"	"['Ac']"	"NRPS"	""
-"Ac-Val"	"rBAN/Norine"	"Val"	"['Ac']"	"NRPS"	""
-"Acc"	"antiSMASH_short"	"Acc"	"[]"	"NRPS"	""
-"Adda"	"rBAN/Norine"	"Adda"	"[]"	"PKS"	"Warning: core and modifications are not human-verified!"
-"Ahp"	"antiSMASH_short"	"Ahp"	"[]"	"NRPS"	""
-"Ahp"	"rBAN/Norine"	"Ahp"	"[]"	"NRPS"	""
-"Aib"	"antiSMASH_short"	"Aib"	"[]"	"NRPS"	""
-"Aib"	"rBAN/Norine"	"Aib"	"[]"	"NRPS"	""
-"Ala"	"antiSMASH_short"	"Ala"	"[]"	"NRPS"	""
-"Ala"	"rBAN/Norine"	"Ala"	"[]"	"NRPS"	""
-"An acid hydrazine polyene (intermediate 14)"	"PARAS"	"An acid hydrazine polyene (intermediate 14)"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"Ant"	"antiSMASH_short"	"Ant"	"[]"	"NRPS"	""
-"Aol"	"antiSMASH_short"	"Aol"	"[]"	"NRPS"	""
-"Arg"	"antiSMASH_short"	"Arg"	"[]"	"NRPS"	""
-"Arg"	"rBAN/Norine"	"Arg"	"[]"	"NRPS"	""
-"Asn"	"rBAN/Norine"	"Asn"	"[]"	"NRPS"	""
-"Asn"	"antiSMASH_short"	"Asn"	"[]"	"NRPS"	""
-"Asp"	"rBAN/Norine"	"Asp"	"[]"	"NRPS"	""
-"Asp"	"antiSMASH_short"	"Asp"	"[]"	"NRPS"	""
-"Aze"	"antiSMASH_short"	"Aze"	"[]"	"NRPS"	""
-"Bmt"	"rBAN/Norine"	"Bmt"	"[]"	"NRPS"	""
-"Bmt"	"antiSMASH_short"	"Bmt"	"[]"	"NRPS"	""
-"Boz"	"antiSMASH_short"	"Boz"	"[]"	"NRPS"	""
-"Br-OH-Trp"	"rBAN/Norine"	"Trp"	"['OH', 'unknown']"	"NRPS"	""
-"Br-Phe"	"rBAN/Norine"	"Phe"	"['unknown']"	"NRPS"	""
-"Br-Trp"	"rBAN/Norine"	"Trp"	"['unknown']"	"NRPS"	""
-"Br-Tyr"	"rBAN/Norine"	"Tyr"	"['unknown']"	"NRPS"	""
-"But"	"antiSMASH_short"	"But"	"[]"	"NRPS"	""
-"Bz"	"rBAN/Norine"	"Bza"	"[]"	"NRPS"	""
-"Bza"	"antiSMASH_short"	"Bza"	"[]"	"NRPS"	""
-"C10:0-NH2(2)-Ep(9)-oxo(8)"	"rBAN/Norine"	"oxoDec"	"['NH', 'unknown']"	"NRPS"	""
-"C4:0"	"rBAN/Norine"	"But"	"[]"	"NRPS"	""
-"C6:2(t2.t4)"	"rBAN/Norine"	"C6:2(t2.t4)"	"[]"	"PKS"	"Warning: core and modifications are not human-verified!"
-"C8:3(t2.t4.t6)"	"rBAN/Norine"	"C8:3(t2.t4.t6)"	"[]"	"PKS"	"Warning: core and modifications are not human-verified!"
-"CFA"	"rBAN/Norine"	"CFA"	"[]"	"PKS"	"Warning: core and modifications are not human-verified!"
-"COOH-Qui"	"rBAN/Norine"	"Qui"	"[]"	"NRPS"	""
-"Cap"	"antiSMASH_short"	"Cap"	"[]"	"NRPS"	""
-"Cap"	"rBAN/Norine"	"Cap"	"[]"	"NRPS"	""
-"Choi"	"rBAN/Norine"	"cohOhi"	"[]"	"NRPS"	""
-"Cin"	"antiSMASH_short"	"Cin"	"[]"	"NRPS"	""
-"Cit"	"antiSMASH_short"	"Cit"	"[]"	"NRPS"	""
-"Cit"	"rBAN/Norine"	"Cit"	"[]"	"NRPS"	""
-"Cl-Hpg"	"rBAN/Norine"	"Hpg"	"['Cl']"	"NRPS"	""
-"Cl-Ile"	"rBAN/Norine"	"Ile"	"['Cl']"	"NRPS"	""
-"Cl-NMe-Tyr"	"rBAN/Norine"	"Tyr"	"['Cl', 'MT']"	"NRPS"	""
-"Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['Cl']"	"NRPS"	""
-"Cl2-Hpg"	"rBAN/Norine"	"Hpg"	"['Cl']"	"NRPS"	""
-"Cl2-NMe-Leu"	"rBAN/Norine"	"Leu"	"['Cl', 'MT']"	"NRPS"	""
-"Cl2-NMe-dhLeu"	"rBAN/Norine"	"Leu"	"['DH', 'Cl', 'MT']"	"NRPS"	""
-"Cl2-Pro"	"rBAN/Norine"	"Pro"	"['Cl']"	"NRPS"	""
-"Cl3-2OH-NMe-Leu"	"rBAN/Norine"	"Leu"	"['Cl', 'OH', 'MT']"	"NRPS"	""
-"Cl3-5OH-NMe-Leu"	"rBAN/Norine"	"Leu"	"['Cl', 'OH', 'MT']"	"NRPS"	""
-"Cl3-NMe-Leu"	"rBAN/Norine"	"Leu"	"['Cl', 'MT']"	"NRPS"	""
-"Cl3-NMe-dhLeu"	"rBAN/Norine"	"Leu"	"['DH', 'Cl', 'MT']"	"NRPS"	""
-"Compound 4 (formed by the decarboxylative condensation of L-Phe and succinyl-CoA)"	"PARAS"	"Compound 4 (formed by the decarboxylative condensation of L-Phe and succinyl-CoA)"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"Cya"	"antiSMASH_short"	"Cya"	"[]"	"NRPS"	""
-"Cyc-D-Gly"	"antiSMASH_short"	"Gly"	"['E', 'unknown']"	"NRPS"	""
-"Cys"	"antiSMASH_short"	"Cys"	"[]"	"NRPS"	""
-"Cys"	"rBAN/Norine"	"Cys"	"[]"	"NRPS"	""
-"CysA"	"rBAN/Norine"	"Cya"	"[]"	"NRPS"	""
-"D-3OMe-Ala"	"rBAN/Norine"	"Ala"	"['E', 'MeO']"	"NRPS"	""
-"D-4OH-Pro"	"rBAN/Norine"	"Pro"	"['E', 'OH']"	"NRPS"	""
-"D-Abu"	"rBAN/Norine"	"Abu"	"['E']"	"NRPS"	""
-"D-Ac-OH-Orn"	"rBAN/Norine"	"Orn"	"['E', 'Ac', 'OH']"	"NRPS"	""
-"D-Ala"	"rBAN/Norine"	"Ala"	"['E']"	"NRPS"	""
-"D-Ala"	"antiSMASH_short"	"Ala"	"['E']"	"NRPS"	""
-"D-Arg"	"rBAN/Norine"	"Arg"	"['E']"	"NRPS"	""
-"D-Asn"	"rBAN/Norine"	"Asn"	"['E']"	"NRPS"	""
-"D-Asp"	"rBAN/Norine"	"Asp"	"['E']"	"NRPS"	""
-"D-Br-NMe-Tyr"	"rBAN/Norine"	"Tyr"	"['E', 'MT', 'unknown']"	"NRPS"	""
-"D-COOH-Trp"	"rBAN/Norine"	"Trp"	"['E', 'unknown']"	"NRPS"	""
-"D-Cit"	"rBAN/Norine"	"Cit"	"['E']"	"NRPS"	""
-"D-Cl-CONH2-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Cl', 'unknown']"	"NRPS"	""
-"D-Cl-NMe-Tyr"	"rBAN/Norine"	"Tyr"	"['E', 'Cl', 'MT']"	"NRPS"	""
-"D-Cl-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Cl']"	"NRPS"	""
-"D-Cys"	"rBAN/Norine"	"Cys"	"['E']"	"NRPS"	""
-"D-CysA"	"rBAN/Norine"	"CysA"	"['E']"	"NA"	""
-"D-Dab"	"rBAN/Norine"	"Dab"	"['E']"	"NRPS"	""
-"D-Dbu"	"rBAN/Norine"	"Dbu"	"['E']"	"NA"	""
-"D-Dhpg"	"rBAN/Norine"	"Dhpg"	"['E']"	"NA"	""
-"D-End"	"rBAN/Norine"	"End"	"['E']"	"NRPS"	""
-"D-F-ph-Gly"	"rBAN/Norine"	"Gly"	"['E', 'F', 'unknown']"	"NRPS"	""
-"D-Fo-OH-Orn"	"rBAN/Norine"	"Orn"	"['E', 'F', 'OH']"	"NRPS"	""
-"D-Gln"	"rBAN/Norine"	"Gln"	"['E']"	"NRPS"	""
-"D-Glu"	"rBAN/Norine"	"Glu"	"['E']"	"NRPS"	""
-"D-Hiv"	"rBAN/Norine"	"Hiv"	"[]"	"NRPS"	""
-"D-Hmp"	"rBAN/Norine"	"Hmp"	"['E']"	"NA"	""
-"D-Hpg"	"rBAN/Norine"	"Hpg"	"['E']"	"NRPS"	""
-"D-Hpr"	"rBAN/Norine"	"Pip"	"['E']"	"NRPS"	""
-"D-Hse"	"rBAN/Norine"	"Hse"	"['E']"	"NRPS"	""
-"D-I-NMe-Tyr"	"rBAN/Norine"	"Tyr"	"['E', 'MT', 'unknown']"	"NRPS"	""
-"D-Ile"	"rBAN/Norine"	"Ile"	"['E']"	"NRPS"	""
-"D-Ival"	"rBAN/Norine"	"Ival"	"['E']"	"NA"	""
-"D-Kyn"	"rBAN/Norine"	"Kyn"	"['E']"	"NRPS"	""
-"D-Lac"	"rBAN/Norine"	"Lac"	"['E']"	"NRPS"	""
-"D-Leu"	"rBAN/Norine"	"Leu"	"['E']"	"NRPS"	""
-"D-Leu"	"antiSMASH_short"	"Leu"	"['E']"	"NRPS"	""
-"D-Lya"	"antiSMASH_short"	"Lya"	"['E']"	"NRPS"	""
-"D-Lys"	"rBAN/Norine"	"Lys"	"['E']"	"NRPS"	""
-"D-MeO-Glu"	"rBAN/Norine"	"Glu"	"['E', 'MT', 'unknown']"	"NRPS"	""
-"D-N2Me-Asn"	"rBAN/Norine"	"Asn"	"['E', 'MT']"	"NRPS"	""
-"D-N2Me-bOH-Asn"	"rBAN/Norine"	"Asn"	"['E', 'OH', 'MT']"	"NRPS"	""
-"D-NFo-Ala"	"rBAN/Norine"	"Ala"	"['E', 'F']"	"NRPS"	""
-"D-NFo-Lys"	"rBAN/Norine"	"Lys"	"['E', 'F']"	"NRPS"	""
-"D-NMe-Leu"	"rBAN/Norine"	"Leu"	"['E', 'MT']"	"NRPS"	""
-"D-NMe-OMe-Tyr"	"rBAN/Norine"	"Tyr"	"['E', 'MT', 'MeO']"	"NRPS"	""
-"D-NMe-Phe"	"rBAN/Norine"	"Phe"	"['E', 'MT']"	"NRPS"	""
-"D-NMe-Ser"	"rBAN/Norine"	"Ser"	"['E', 'MT']"	"NRPS"	""
-"D-NMe-Val"	"rBAN/Norine"	"Val"	"['E', 'MT']"	"NRPS"	""
-"D-NMe-aIle"	"rBAN/Norine"	"aIle"	"['E', 'MT']"	"NRPS"	""
-"D-OH-Asn"	"rBAN/Norine"	"Asn"	"['E', 'OH']"	"NRPS"	""
-"D-OH-Asp"	"rBAN/Norine"	"Asp"	"['E', 'OH']"	"NRPS"	""
-"D-OH-Orn"	"rBAN/Norine"	"Orn"	"['E', 'OH']"	"NRPS"	""
-"D-OH-cOrn"	"rBAN/Norine"	"Orn"	"['E', 'OH', 'unknown']"	"NRPS"	""
-"D-OH-dHpg"	"rBAN/Norine"	"dHpg"	"['E', 'OH']"	"NRPS"	""
-"D-Orn"	"rBAN/Norine"	"Orn"	"['E']"	"NRPS"	""
-"D-PO-Asn"	"rBAN/Norine"	"Asn"	"['E', 'unknown']"	"NRPS"	""
-"D-Ph-Lac"	"rBAN/Norine"	"Lac"	"['E', 'unknown']"	"NRPS"	""
-"D-Phe"	"antiSMASH_short"	"Phe"	"['E']"	"NRPS"	""
-"D-Phe"	"rBAN/Norine"	"Phe"	"['E']"	"NRPS"	""
-"D-Pip"	"antiSMASH_short"	"Pip"	"['E']"	"NRPS"	""
-"D-Pro"	"rBAN/Norine"	"Pro"	"['E']"	"NRPS"	""
-"D-Ser"	"rBAN/Norine"	"Ser"	"['E']"	"NRPS"	""
-"D-Thr"	"rBAN/Norine"	"Thr"	"['E']"	"NRPS"	""
-"D-Trp"	"rBAN/Norine"	"Trp"	"['E']"	"NRPS"	""
-"D-Tyr"	"rBAN/Norine"	"Tyr"	"['E']"	"NRPS"	""
-"D-Val"	"rBAN/Norine"	"Val"	"['E']"	"NRPS"	""
-"D-aIle"	"rBAN/Norine"	"aIle"	"['E']"	"NRPS"	""
-"D-aThr"	"rBAN/Norine"	"aThr"	"['E']"	"NRPS"	""
-"D-alanine"	"PARAS"	"Ala"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-aspartic acid branched"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-bMe-Asp"	"rBAN/Norine"	"Asp"	"['E', 'MT']"	"NRPS"	""
-"D-bMe-Gln"	"rBAN/Norine"	"Gln"	"['E', 'MT']"	"NRPS"	""
-"D-bOH-Val"	"rBAN/Norine"	"Val"	"['E', 'OH']"	"NRPS"	""
-"D-bPhe"	"rBAN/Norine"	"bPhe"	"['E']"	"NRPS"	""
-"D-glutamic acid branched"	"PARAS"	"Glu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-leucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-lysergic acid"	"PARAS"	"Lya"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-ph-Gly"	"rBAN/Norine"	"Gly"	"['E', 'unknown']"	"NRPS"	""
-"D-pheLac"	"antiSMASH_short"	"Lac"	"['E', 'unknown']"	"NRPS"	""
-"D-phenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-phenyllactic acid"	"PARAS"	"Lac"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-pipecolic acid"	"PARAS"	"Pip"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"D-t-Leu"	"rBAN/Norine"	"Leu"	"['E', 'unknown']"	"NRPS"	""
-"DMAdda"	"rBAN/Norine"	"DMAdda"	"[]"	"PKS"	"Warning: core and modifications are not human-verified!"
-"Dab"	"rBAN/Norine"	"Dab"	"[]"	"NRPS"	""
-"Dab"	"antiSMASH_short"	"Dab"	"[]"	"NRPS"	""
-"Dbu"	"rBAN/Norine"	"Dbu"	"[]"	"NA"	""
-"Dhpg"	"rBAN/Norine"	"dHpg"	"[]"	"NRPS"	""
-"Dpr"	"antiSMASH_short"	"Dpr"	"[]"	"NRPS"	""
-"Dpr"	"rBAN/Norine"	"Dpr"	"[]"	"NRPS"	""
-"E-ahmohOrn"	"antiSMASH_short"	"Orn"	"['OH', 'unknown']"	"NRPS"	""
-"End"	"antiSMASH_short"	"End"	"[]"	"NRPS"	""
-"End"	"rBAN/Norine"	"End"	"[]"	"NRPS"	""
-"Fo-OH-Orn"	"rBAN/Norine"	"Orn"	"['F', 'OH']"	"NRPS"	""
-"Gln"	"antiSMASH_short"	"Gln"	"[]"	"NRPS"	""
-"Gln"	"rBAN/Norine"	"Gln"	"[]"	"NRPS"	""
-"Glu"	"antiSMASH_short"	"Glu"	"[]"	"NRPS"	""
-"Glu"	"rBAN/Norine"	"Glu"	"[]"	"NRPS"	""
-"Gly"	"antiSMASH_short"	"Gly"	"[]"	"NRPS"	""
-"Gly"	"rBAN/Norine"	"Gly"	"[]"	"NRPS"	""
-"Glyca"	"antiSMASH_short"	"Glyca"	"[]"	"NA"	""
-"Gram"	"antiSMASH_short"	"Gram"	"[]"	"NRPS"	""
-"Gua"	"antiSMASH_short"	"Gua"	"[]"	"NRPS"	""
-"Hch"	"antiSMASH_short"	"Hch"	"[]"	"NRPS"	""
-"His"	"rBAN/Norine"	"His"	"[]"	"NRPS"	""
-"His"	"antiSMASH_short"	"His"	"[]"	"NRPS"	""
-"Hiv"	"rBAN/Norine"	"Hiv"	"[]"	"NRPS"	""
-"Hmp"	"rBAN/Norine"	"Pen"	"['OH', 'MT']"	"NRPS"	""
-"Hpa"	"antiSMASH_short"	"Hpa"	"[]"	"NRPS"	""
-"Hpa"	"rBAN/Norine"	"Hpa"	"[]"	"NRPS"	""
-"Hpea"	"antiSMASH_short"	"Hpea"	"[]"	"NRPS"	""
-"Hpg"	"antiSMASH_short"	"Hpg"	"[]"	"NRPS"	""
-"Hpg"	"rBAN/Norine"	"Hpg"	"[]"	"NRPS"	""
-"Hph"	"rBAN/Norine"	"Hph"	"[]"	"NRPS"	""
-"Hph"	"antiSMASH_short"	"Hph"	"[]"	"NRPS"	""
-"Hpr"	"rBAN/Norine"	"Pip"	"[]"	"NRPS"	""
-"Hqa"	"antiSMASH_short"	"Hqa"	"[]"	"NRPS"	""
-"Hse"	"antiSMASH_short"	"Hse"	"[]"	"NRPS"	""
-"Hse"	"rBAN/Norine"	"Hse"	"[]"	"NRPS"	""
-"HseL"	"rBAN/Norine"	"Hse"	"[]"	"NRPS"	""
-"Htia"	"antiSMASH_short"	"Htia"	"[]"	"NRPS"	""
-"Hty"	"rBAN/Norine"	"Hty"	"[]"	"NRPS"	""
-"Hty"	"antiSMASH_short"	"Hty"	"[]"	"NRPS"	""
-"Ibu"	"rBAN/Norine"	"Ibu"	"[]"	"NRPS"	""
-"Ibu"	"antiSMASH_short"	"Ibu"	"[]"	"NRPS"	""
-"Ile"	"rBAN/Norine"	"Ile"	"[]"	"NRPS"	""
-"Ile"	"antiSMASH_short"	"Ile"	"[]"	"NRPS"	""
-"Ile/aIle"	"rBAN/Norine"	"Ile"	"[]"	"NRPS"	"Parsing is ambiguous. Ile is chosen by default as more frequent"
-"Isovaleric_acid"	"rBAN/Norine"	"Hiv"	"[]"	"NRPS"	""
-"Iva"	"antiSMASH_short"	"Iva"	"[]"	"NRPS"	""
-"Ival"	"rBAN/Norine"	"Iva"	"[]"	"NRPS"	""
-"Kic"	"antiSMASH_short"	"Kic"	"[]"	"NRPS"	""
-"Kiv"	"antiSMASH_short"	"Kiv"	"[]"	"NRPS"	""
-"Kyn"	"rBAN/Norine"	"Kyn"	"[]"	"NRPS"	""
-"Kyn"	"antiSMASH_short"	"Kyn"	"[]"	"NRPS"	""
-"L-Dbu"	"rBAN/Norine"	"Dab"	"[]"	"NRPS"	""
-"Lac"	"rBAN/Norine"	"Lac"	"[]"	"NRPS"	""
-"Lac"	"antiSMASH_short"	"Lac"	"[]"	"NRPS"	""
-"Leu"	"antiSMASH_short"	"Leu"	"[]"	"NRPS"	""
-"Leu"	"rBAN/Norine"	"Leu"	"[]"	"NRPS"	""
-"Lin"	"antiSMASH_short"	"Lin"	"[]"	"NRPS"	""
-"Lys"	"rBAN/Norine"	"Lys"	"[]"	"NRPS"	""
-"Lys"	"antiSMASH_short"	"Lys"	"[]"	"NRPS"	""
-"Mab"	"rBAN/Norine"	"But"	"[]"	"NRPS"	""
-"MalAc"	"antiSMASH_short"	"Ac"	"['unknown']"	"NRPS"	""
-"Me-Suc"	"rBAN/Norine"	"Suc"	"['MT']"	"NRPS"	""
-"Me2-Bmt"	"rBAN/Norine"	"Bmt"	"['MT']"	"NRPS"	""
-"MeO-D-Glu"	"rBAN/Norine"	"Glu"	"['E', 'MT', 'unknown']"	"NRPS"	""
-"MeO-Glu"	"rBAN/Norine"	"Glu"	"['MT', 'unknown']"	"NRPS"	""
-"MeOx-Ile"	"rBAN/Norine"	"Ile"	"['MT', 'unknown']"	"NRPS"	""
-"Met"	"rBAN/Norine"	"Met"	"[]"	"NA"	""
-"Met"	"antiSMASH_short"	"Met"	"[]"	"NA"	""
-"N-(1-methyl)-tryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N-(1-propargyl)-tryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N-Suc"	"rBAN/Norine"	"Suc"	"['unknown']"	"NRPS"	""
-"N-formylglycine"	"PARAS"	"Gly"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N-hydroxyvaline"	"PARAS"	"Val"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N-ohVal"	"antiSMASH_short"	"Val"	"['OH']"	"NRPS"	""
-"N1-COOH-bhTrp"	"rBAN/Norine"	"Trp"	"['unknown']"	"NRPS"	""
-"N1-methoxytryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N5-acetyl-N5-hydroxyornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N5-acetyl-hydroxyornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N5-cis-anhydromevalonyl-N5-hydroxyornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N5-formyl-N5-hydroxyornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N5-hydroxyornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N5-trans-anhydromevalonyl-N5-hydroxyornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N6-hydroxylysine"	"PARAS"	"Lys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"N6-ohLys"	"antiSMASH_short"	"Lys"	"['OH']"	"NRPS"	""
-"NAc-1Me-Trp"	"rBAN/Norine"	"Trp"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-2Me-3Me-pGlu"	"rBAN/Norine"	"Glu"	"['Ac', 'MT', 'unknown']"	"NRPS"	""
-"NAc-3Me-4Me-Gln"	"rBAN/Norine"	"Gln"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-3Me-Glu"	"rBAN/Norine"	"Glu"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-3Me-Hty"	"rBAN/Norine"	"Hty"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-3Me-Phe"	"rBAN/Norine"	"Phe"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-3Me-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-3NO2-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac', 'NO']"	"NRPS"	""
-"NAc-3OH-5Me-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'OH', 'MT']"	"NRPS"	""
-"NAc-3OH-Leu"	"rBAN/Norine"	"Leu"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-3OH-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-4Cl-Thr"	"rBAN/Norine"	"Thr"	"['Ac', 'Cl']"	"NRPS"	""
-"NAc-4Me-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-4OH-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-4OH-Thr"	"rBAN/Norine"	"Thr"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-4oxo-5Me-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'MT', 'unknown']"	"NRPS"	""
-"NAc-4oxo-Hpr"	"rBAN/Norine"	"Hpr"	"['Ac', 'unknown']"	"NA"	""
-"NAc-4oxo-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-5Me-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-5OH-Cap"	"rBAN/Norine"	"Cap"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-Aad"	"rBAN/Norine"	"Aad"	"['Ac']"	"NRPS"	""
-"NAc-Abu"	"rBAN/Norine"	"Abu"	"['Ac']"	"NRPS"	""
-"NAc-Ac-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-Ac-Ser"	"rBAN/Norine"	"Ser"	"['Ac']"	"NRPS"	""
-"NAc-Ala"	"rBAN/Norine"	"Ala"	"['Ac']"	"NRPS"	""
-"NAc-Arg"	"rBAN/Norine"	"Arg"	"['Ac']"	"NRPS"	""
-"NAc-Asn"	"rBAN/Norine"	"Asn"	"['Ac']"	"NRPS"	""
-"NAc-Asp"	"rBAN/Norine"	"Asp"	"['Ac']"	"NRPS"	""
-"NAc-Bmt"	"rBAN/Norine"	"Bmt"	"['Ac']"	"NRPS"	""
-"NAc-Br-OH-Trp"	"rBAN/Norine"	"Trp"	"['Ac', 'OH', 'unknown']"	"NRPS"	""
-"NAc-Br-Phe"	"rBAN/Norine"	"Phe"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-Br-Trp"	"rBAN/Norine"	"Trp"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-Br-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-Cap"	"rBAN/Norine"	"Cap"	"['Ac']"	"NRPS"	""
-"NAc-Choi"	"rBAN/Norine"	"cohOhi"	"['Ac']"	"NRPS"	""
-"NAc-Cit"	"rBAN/Norine"	"Cit"	"['Ac']"	"NRPS"	""
-"NAc-Cl-Hpg"	"rBAN/Norine"	"Hpg"	"['Ac', 'Cl']"	"NRPS"	""
-"NAc-Cl-Ile"	"rBAN/Norine"	"Ile"	"['Ac', 'Cl']"	"NRPS"	""
-"NAc-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac', 'Cl']"	"NRPS"	""
-"NAc-Cl2-Hpg"	"rBAN/Norine"	"Hpg"	"['Ac', 'Cl']"	"NRPS"	""
-"NAc-Cl2-Pro"	"rBAN/Norine"	"Pro"	"['Ac', 'Cl']"	"NRPS"	""
-"NAc-Cys"	"rBAN/Norine"	"Cys"	"['Ac']"	"NRPS"	""
-"NAc-CysA"	"rBAN/Norine"	"CysA"	"['Ac']"	"NA"	""
-"NAc-D-COOH-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Ac', 'unknown']"	"NRPS"	""
-"NAc-D-Cl-CONH2-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Ac', 'Cl', 'unknown']"	"NRPS"	""
-"NAc-D-Cl-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Ac', 'Cl']"	"NRPS"	""
-"NAc-D-F-ph-Gly"	"rBAN/Norine"	"Gly"	"['E', 'Ac', 'F', 'unknown']"	"NRPS"	""
-"NAc-D-N2Me-Asn"	"rBAN/Norine"	"Asn"	"['E', 'Ac', 'MT']"	"NRPS"	""
-"NAc-D-N2Me-bOH-Asn"	"rBAN/Norine"	"Asn"	"['E', 'Ac', 'OH', 'MT']"	"NRPS"	""
-"NAc-D-PO-Asn"	"rBAN/Norine"	"Asn"	"['E', 'Ac', 'unknown']"	"NRPS"	""
-"NAc-Dab"	"rBAN/Norine"	"Dab"	"['Ac']"	"NRPS"	""
-"NAc-Dbu"	"rBAN/Norine"	"Dbu"	"['Ac']"	"NA"	""
-"NAc-Dhpg"	"rBAN/Norine"	"Dhpg"	"['Ac']"	"NA"	""
-"NAc-Dpr"	"rBAN/Norine"	"Dpr"	"['Ac']"	"NRPS"	""
-"NAc-End"	"rBAN/Norine"	"End"	"['Ac']"	"NRPS"	""
-"NAc-Fo-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'F', 'OH']"	"NRPS"	""
-"NAc-Gln"	"rBAN/Norine"	"Gln"	"['Ac']"	"NRPS"	""
-"NAc-Glu"	"rBAN/Norine"	"Glu"	"['Ac']"	"NRPS"	""
-"NAc-His"	"rBAN/Norine"	"His"	"['Ac']"	"NRPS"	""
-"NAc-Hpg"	"rBAN/Norine"	"Hpg"	"['Ac']"	"NRPS"	""
-"NAc-Hph"	"rBAN/Norine"	"Hph"	"['Ac']"	"NRPS"	""
-"NAc-Hpr"	"rBAN/Norine"	"Hpr"	"['Ac']"	"NA"	""
-"NAc-Hse"	"rBAN/Norine"	"Hse"	"['Ac']"	"NRPS"	""
-"NAc-Hty"	"rBAN/Norine"	"Hty"	"['Ac']"	"NRPS"	""
-"NAc-Ile"	"rBAN/Norine"	"Ile"	"['Ac']"	"NRPS"	""
-"NAc-Kyn"	"rBAN/Norine"	"Kyn"	"['Ac']"	"NRPS"	""
-"NAc-Leu"	"rBAN/Norine"	"Leu"	"['Ac']"	"NRPS"	""
-"NAc-Lys"	"rBAN/Norine"	"Lys"	"['Ac']"	"NRPS"	""
-"NAc-MeO-Glu"	"rBAN/Norine"	"Glu"	"['Ac', 'MT', 'unknown']"	"NRPS"	""
-"NAc-Met"	"rBAN/Norine"	"Met"	"['Ac']"	"NA"	""
-"NAc-N1-COOH-bhTrp"	"rBAN/Norine"	"Trp"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-O-Met"	"rBAN/Norine"	"Met"	"['Ac', 'unknown']"	"NA"	""
-"NAc-O2-Met"	"rBAN/Norine"	"Met"	"['Ac', 'unknown']"	"NA"	""
-"NAc-OH-Asn"	"rBAN/Norine"	"Asn"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-OH-Asp"	"rBAN/Norine"	"Asp"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-OH-His"	"rBAN/Norine"	"His"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-OH-Trp"	"rBAN/Norine"	"Trp"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-OMe-Asp"	"rBAN/Norine"	"Asp"	"['Ac', 'MeO']"	"NRPS"	""
-"NAc-OMe-Thr"	"rBAN/Norine"	"Thr"	"['Ac', 'MeO']"	"NRPS"	""
-"NAc-OMe-Trp"	"rBAN/Norine"	"Trp"	"['Ac', 'MeO']"	"NRPS"	""
-"NAc-Orn"	"rBAN/Norine"	"Orn"	"['Ac']"	"NRPS"	""
-"NAc-Ph-Gly"	"rBAN/Norine"	"Gly"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-Ph-Ser"	"rBAN/Norine"	"Ser"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-Ser"	"rBAN/Norine"	"Ser"	"['Ac']"	"NRPS"	""
-"NAc-Thr"	"rBAN/Norine"	"Thr"	"['Ac']"	"NRPS"	""
-"NAc-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac']"	"NRPS"	""
-"NAc-aFo-Gly"	"rBAN/Norine"	"Gly"	"['Ac', 'F']"	"NRPS"	""
-"NAc-bMe-Asn"	"rBAN/Norine"	"Asn"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-bMe-Asp"	"rBAN/Norine"	"Asp"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-bMe-Br-Phe"	"rBAN/Norine"	"Phe"	"['Ac', 'MT', 'unknown']"	"NRPS"	""
-"NAc-bMe-Gln"	"rBAN/Norine"	"Gln"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-bMe-Ile"	"rBAN/Norine"	"Ile"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-bMe-Phe"	"rBAN/Norine"	"Phe"	"['Ac', 'MT']"	"NRPS"	""
-"NAc-bOH-Br-Phe"	"rBAN/Norine"	"Phe"	"['Ac', 'OH', 'unknown']"	"NRPS"	""
-"NAc-bOH-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac', 'Cl', 'OH']"	"NRPS"	""
-"NAc-bOH-Gln"	"rBAN/Norine"	"Gln"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-bOH-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-bOH-Val"	"rBAN/Norine"	"Val"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-bOMe-Asp"	"rBAN/Norine"	"Asp"	"['Ac', 'MeO']"	"NRPS"	""
-"NAc-bOMe-Tyr"	"rBAN/Norine"	"Tyr"	"['Ac', 'MeO']"	"NRPS"	""
-"NAc-bbMe2-O-Met"	"rBAN/Norine"	"Met"	"['Ac', 'MT', 'unknown']"	"NA"	""
-"NAc-diOH-Arg"	"rBAN/Norine"	"Arg"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-diOH-Phe"	"rBAN/Norine"	"Phe"	"['Ac', 'OH']"	"NRPS"	""
-"NAc-pGlu"	"rBAN/Norine"	"Glu"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-pTrp"	"rBAN/Norine"	"Trp"	"['Ac', 'unknown']"	"NRPS"	""
-"NAc-t-Leu"	"rBAN/Norine"	"Leu"	"['Ac', 'unknown']"	"NRPS"	""
-"NFo-1Me-Trp"	"rBAN/Norine"	"Trp"	"['F', 'MT']"	"NRPS"	""
-"NFo-2Me-3Me-pGlu"	"rBAN/Norine"	"Glu"	"['F', 'MT', 'unknown']"	"NRPS"	""
-"NFo-3Me-4Me-Gln"	"rBAN/Norine"	"Gln"	"['F', 'MT']"	"NRPS"	""
-"NFo-3Me-Glu"	"rBAN/Norine"	"Glu"	"['F', 'MT']"	"NRPS"	""
-"NFo-3Me-Hty"	"rBAN/Norine"	"Hty"	"['F', 'MT']"	"NRPS"	""
-"NFo-3Me-Phe"	"rBAN/Norine"	"Phe"	"['F', 'MT']"	"NRPS"	""
-"NFo-3Me-Pro"	"rBAN/Norine"	"Pro"	"['F', 'MT']"	"NRPS"	""
-"NFo-3NO2-Tyr"	"rBAN/Norine"	"Tyr"	"['F', 'NO']"	"NRPS"	""
-"NFo-3OH-5Me-Pro"	"rBAN/Norine"	"Pro"	"['F', 'OH', 'MT']"	"NRPS"	""
-"NFo-3OH-Leu"	"rBAN/Norine"	"Leu"	"['F', 'OH']"	"NRPS"	""
-"NFo-3OH-Pro"	"rBAN/Norine"	"Pro"	"['F', 'OH']"	"NRPS"	""
-"NFo-4Cl-Thr"	"rBAN/Norine"	"Thr"	"['F', 'Cl']"	"NRPS"	""
-"NFo-4Me-Pro"	"rBAN/Norine"	"Pro"	"['F', 'MT']"	"NRPS"	""
-"NFo-4OH-Pro"	"rBAN/Norine"	"Pro"	"['F', 'OH']"	"NRPS"	""
-"NFo-4OH-Thr"	"rBAN/Norine"	"Thr"	"['F', 'OH']"	"NRPS"	""
-"NFo-4oxo-5Me-Pro"	"rBAN/Norine"	"Pro"	"['F', 'MT', 'unknown']"	"NRPS"	""
-"NFo-4oxo-Hpr"	"rBAN/Norine"	"Hpr"	"['F', 'unknown']"	"NA"	""
-"NFo-4oxo-Pro"	"rBAN/Norine"	"Pro"	"['F', 'unknown']"	"NRPS"	""
-"NFo-5Me-Pro"	"rBAN/Norine"	"Pro"	"['F', 'MT']"	"NRPS"	""
-"NFo-5OH-Cap"	"rBAN/Norine"	"Cap"	"['F', 'OH']"	"NRPS"	""
-"NFo-Aad"	"rBAN/Norine"	"Aad"	"['F']"	"NRPS"	""
-"NFo-Ac-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'F', 'OH']"	"NRPS"	""
-"NFo-Ac-Ser"	"rBAN/Norine"	"Ser"	"['Ac', 'F']"	"NRPS"	""
-"NFo-Ala"	"rBAN/Norine"	"Ala"	"['F']"	"NRPS"	""
-"NFo-Arg"	"rBAN/Norine"	"Arg"	"['F']"	"NRPS"	""
-"NFo-Asn"	"rBAN/Norine"	"Asn"	"['F']"	"NRPS"	""
-"NFo-Asp"	"rBAN/Norine"	"Asp"	"['F']"	"NRPS"	""
-"NFo-Bmt"	"rBAN/Norine"	"Bmt"	"['F']"	"NRPS"	""
-"NFo-Br-OH-Trp"	"rBAN/Norine"	"Trp"	"['F', 'OH', 'unknown']"	"NRPS"	""
-"NFo-Br-Phe"	"rBAN/Norine"	"Phe"	"['F', 'unknown']"	"NRPS"	""
-"NFo-Br-Trp"	"rBAN/Norine"	"Trp"	"['F', 'unknown']"	"NRPS"	""
-"NFo-Br-Tyr"	"rBAN/Norine"	"Tyr"	"['F', 'unknown']"	"NRPS"	""
-"NFo-Cap"	"rBAN/Norine"	"Cap"	"['F']"	"NRPS"	""
-"NFo-Choi"	"rBAN/Norine"	"cohOhi"	"['F']"	"NRPS"	""
-"NFo-Cit"	"rBAN/Norine"	"Cit"	"['F']"	"NRPS"	""
-"NFo-Cl-Hpg"	"rBAN/Norine"	"Hpg"	"['F', 'Cl']"	"NRPS"	""
-"NFo-Cl-Ile"	"rBAN/Norine"	"Ile"	"['F', 'Cl']"	"NRPS"	""
-"NFo-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['F', 'Cl']"	"NRPS"	""
-"NFo-Cl2-Hpg"	"rBAN/Norine"	"Hpg"	"['F', 'Cl']"	"NRPS"	""
-"NFo-Cl2-Pro"	"rBAN/Norine"	"Pro"	"['F', 'Cl']"	"NRPS"	""
-"NFo-Cys"	"rBAN/Norine"	"Cys"	"['F']"	"NRPS"	""
-"NFo-CysA"	"rBAN/Norine"	"CysA"	"['F']"	"NA"	""
-"NFo-D-Abu"	"rBAN/Norine"	"Abu"	"['E', 'F']"	"NRPS"	""
-"NFo-D-COOH-Trp"	"rBAN/Norine"	"Trp"	"['E', 'F', 'unknown']"	"NRPS"	""
-"NFo-D-Cl-CONH2-Trp"	"rBAN/Norine"	"Trp"	"['E', 'F', 'Cl', 'unknown']"	"NRPS"	""
-"NFo-D-Cl-Trp"	"rBAN/Norine"	"Trp"	"['E', 'F', 'Cl']"	"NRPS"	""
-"NFo-D-F-ph-Gly"	"rBAN/Norine"	"Gly"	"['E', 'F', 'unknown']"	"NRPS"	""
-"NFo-D-N2Me-Asn"	"rBAN/Norine"	"Asn"	"['E', 'F', 'MT']"	"NRPS"	""
-"NFo-D-N2Me-bOH-Asn"	"rBAN/Norine"	"Asn"	"['E', 'F', 'OH', 'MT']"	"NRPS"	""
-"NFo-D-PO-Asn"	"rBAN/Norine"	"Asn"	"['E', 'F', 'unknown']"	"NRPS"	""
-"NFo-Dab"	"rBAN/Norine"	"Dab"	"['F']"	"NRPS"	""
-"NFo-Dbu"	"rBAN/Norine"	"Dbu"	"['F']"	"NA"	""
-"NFo-Dhpg"	"rBAN/Norine"	"Dhpg"	"['F']"	"NA"	""
-"NFo-Dpr"	"rBAN/Norine"	"Dpr"	"['F']"	"NRPS"	""
-"NFo-End"	"rBAN/Norine"	"End"	"['F']"	"NRPS"	""
-"NFo-Fo-OH-Orn"	"rBAN/Norine"	"Orn"	"['F', 'OH']"	"NRPS"	""
-"NFo-Gln"	"rBAN/Norine"	"Gln"	"['F']"	"NRPS"	""
-"NFo-Glu"	"rBAN/Norine"	"Glu"	"['F']"	"NRPS"	""
-"NFo-His"	"rBAN/Norine"	"His"	"['F']"	"NRPS"	""
-"NFo-Hpg"	"rBAN/Norine"	"Hpg"	"['F']"	"NRPS"	""
-"NFo-Hph"	"rBAN/Norine"	"Hph"	"['F']"	"NRPS"	""
-"NFo-Hpr"	"rBAN/Norine"	"Hpr"	"['F']"	"NA"	""
-"NFo-Hse"	"rBAN/Norine"	"Hse"	"['F']"	"NRPS"	""
-"NFo-Hty"	"rBAN/Norine"	"Hty"	"['F']"	"NRPS"	""
-"NFo-Ile"	"rBAN/Norine"	"Ile"	"['F']"	"NRPS"	""
-"NFo-Kyn"	"rBAN/Norine"	"Kyn"	"['F']"	"NRPS"	""
-"NFo-Leu"	"rBAN/Norine"	"Leu"	"['F']"	"NRPS"	""
-"NFo-Lys"	"rBAN/Norine"	"Lys"	"['F']"	"NRPS"	""
-"NFo-MeO-Glu"	"rBAN/Norine"	"Glu"	"['F', 'MT', 'unknown']"	"NRPS"	""
-"NFo-Met"	"rBAN/Norine"	"Met"	"['F']"	"NA"	""
-"NFo-N1-COOH-bhTrp"	"rBAN/Norine"	"Trp"	"['F', 'unknown']"	"NRPS"	""
-"NFo-O-Met"	"rBAN/Norine"	"Met"	"['F', 'unknown']"	"NA"	""
-"NFo-O2-Met"	"rBAN/Norine"	"Met"	"['F', 'unknown']"	"NA"	""
-"NFo-OH-Asn"	"rBAN/Norine"	"Asn"	"['F', 'OH']"	"NRPS"	""
-"NFo-OH-Asp"	"rBAN/Norine"	"Asp"	"['F', 'OH']"	"NRPS"	""
-"NFo-OH-His"	"rBAN/Norine"	"His"	"['F', 'OH']"	"NRPS"	""
-"NFo-OH-Orn"	"rBAN/Norine"	"Orn"	"['F', 'OH']"	"NRPS"	""
-"NFo-OH-Trp"	"rBAN/Norine"	"Trp"	"['F', 'OH']"	"NRPS"	""
-"NFo-OMe-Asp"	"rBAN/Norine"	"Asp"	"['F', 'MeO']"	"NRPS"	""
-"NFo-OMe-Thr"	"rBAN/Norine"	"Thr"	"['F', 'MeO']"	"NRPS"	""
-"NFo-OMe-Trp"	"rBAN/Norine"	"Trp"	"['F', 'MeO']"	"NRPS"	""
-"NFo-Orn"	"rBAN/Norine"	"Orn"	"['F']"	"NRPS"	""
-"NFo-Ph-Gly"	"rBAN/Norine"	"Gly"	"['F', 'unknown']"	"NRPS"	""
-"NFo-Ph-Ser"	"rBAN/Norine"	"Ser"	"['F', 'unknown']"	"NRPS"	""
-"NFo-Phe"	"rBAN/Norine"	"Phe"	"['F']"	"NRPS"	""
-"NFo-Pro"	"rBAN/Norine"	"Pro"	"['F']"	"NRPS"	""
-"NFo-Ser"	"rBAN/Norine"	"Ser"	"['F']"	"NRPS"	""
-"NFo-Thr"	"rBAN/Norine"	"Thr"	"['F']"	"NRPS"	""
-"NFo-Trp"	"rBAN/Norine"	"Trp"	"['F']"	"NRPS"	""
-"NFo-Tyr"	"rBAN/Norine"	"Tyr"	"['F']"	"NRPS"	""
-"NFo-Val"	"rBAN/Norine"	"Val"	"['F']"	"NRPS"	""
-"NFo-aFo-Gly"	"rBAN/Norine"	"Gly"	"['F']"	"NRPS"	""
-"NFo-bMe-Asn"	"rBAN/Norine"	"Asn"	"['F', 'MT']"	"NRPS"	""
-"NFo-bMe-Asp"	"rBAN/Norine"	"Asp"	"['F', 'MT']"	"NRPS"	""
-"NFo-bMe-Br-Phe"	"rBAN/Norine"	"Phe"	"['F', 'MT', 'unknown']"	"NRPS"	""
-"NFo-bMe-Gln"	"rBAN/Norine"	"Gln"	"['F', 'MT']"	"NRPS"	""
-"NFo-bMe-Ile"	"rBAN/Norine"	"Ile"	"['F', 'MT']"	"NRPS"	""
-"NFo-bMe-Phe"	"rBAN/Norine"	"Phe"	"['F', 'MT']"	"NRPS"	""
-"NFo-bOH-Br-Phe"	"rBAN/Norine"	"Phe"	"['F', 'OH', 'unknown']"	"NRPS"	""
-"NFo-bOH-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['F', 'Cl', 'OH']"	"NRPS"	""
-"NFo-bOH-Gln"	"rBAN/Norine"	"Gln"	"['F', 'OH']"	"NRPS"	""
-"NFo-bOH-Tyr"	"rBAN/Norine"	"Tyr"	"['F', 'OH']"	"NRPS"	""
-"NFo-bOH-Val"	"rBAN/Norine"	"Val"	"['F', 'OH']"	"NRPS"	""
-"NFo-bOMe-Asp"	"rBAN/Norine"	"Asp"	"['F', 'MeO']"	"NRPS"	""
-"NFo-bOMe-Tyr"	"rBAN/Norine"	"Tyr"	"['F', 'MeO']"	"NRPS"	""
-"NFo-bbMe2-O-Met"	"rBAN/Norine"	"Met"	"['F', 'MT', 'unknown']"	"NA"	""
-"NFo-diOH-Arg"	"rBAN/Norine"	"Arg"	"['F', 'OH']"	"NRPS"	""
-"NFo-diOH-Phe"	"rBAN/Norine"	"Phe"	"['F', 'OH']"	"NRPS"	""
-"NFo-pGlu"	"rBAN/Norine"	"Glu"	"['F', 'unknown']"	"NRPS"	""
-"NFo-pTrp"	"rBAN/Norine"	"Trp"	"['F', 'unknown']"	"NRPS"	""
-"NFo-t-Leu"	"rBAN/Norine"	"Leu"	"['F', 'unknown']"	"NRPS"	""
-"NMe-1Me-Trp"	"rBAN/Norine"	"Trp"	"['MT']"	"NRPS"	""
-"NMe-2Me-3Me-pGlu"	"rBAN/Norine"	"Glu"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-3Me-4Me-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"NMe-3Me-Glu"	"rBAN/Norine"	"Glu"	"['MT']"	"NRPS"	""
-"NMe-3Me-Hty"	"rBAN/Norine"	"Hty"	"['MT']"	"NRPS"	""
-"NMe-3Me-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"NMe-3Me-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"NMe-3NO2-Tyr"	"rBAN/Norine"	"Tyr"	"['NO', 'MT']"	"NRPS"	""
-"NMe-3OH-5Me-Pro"	"rBAN/Norine"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"NMe-3OH-Leu"	"rBAN/Norine"	"Leu"	"['OH', 'MT']"	"NRPS"	""
-"NMe-3OH-Pro"	"rBAN/Norine"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"NMe-4Cl-Thr"	"rBAN/Norine"	"Thr"	"['Cl', 'MT']"	"NRPS"	""
-"NMe-4Me-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"NMe-4OH-Pro"	"rBAN/Norine"	"Pro"	"['OH', 'MT']"	"NRPS"	""
-"NMe-4OH-Thr"	"rBAN/Norine"	"Thr"	"['OH', 'MT']"	"NRPS"	""
-"NMe-4oxo-5Me-Pro"	"rBAN/Norine"	"Pro"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-4oxo-Hpr"	"rBAN/Norine"	"Hpr"	"['MT', 'unknown']"	"NA"	""
-"NMe-4oxo-Pro"	"rBAN/Norine"	"Pro"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-5Me-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"NMe-5OH-Cap"	"rBAN/Norine"	"Cap"	"['OH', 'MT']"	"NRPS"	""
-"NMe-Aad"	"rBAN/Norine"	"Aad"	"['MT']"	"NRPS"	""
-"NMe-Abu"	"rBAN/Norine"	"Abu"	"['MT']"	"NRPS"	""
-"NMe-Ac-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'OH', 'MT']"	"NRPS"	""
-"NMe-Ac-Ser"	"rBAN/Norine"	"Ser"	"['Ac', 'MT']"	"NRPS"	""
-"NMe-Ala"	"rBAN/Norine"	"Ala"	"['MT']"	"NRPS"	""
-"NMe-Arg"	"rBAN/Norine"	"Arg"	"['MT']"	"NRPS"	""
-"NMe-Asn"	"rBAN/Norine"	"Asn"	"['MT']"	"NRPS"	""
-"NMe-Asp"	"rBAN/Norine"	"Asp"	"['MT']"	"NRPS"	""
-"NMe-Bmt"	"rBAN/Norine"	"Bmt"	"['MT']"	"NRPS"	""
-"NMe-Br-OH-Trp"	"rBAN/Norine"	"Trp"	"['OH', 'MT', 'unknown']"	"NRPS"	""
-"NMe-Br-Phe"	"rBAN/Norine"	"Phe"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-Br-Trp"	"rBAN/Norine"	"Trp"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-Cap"	"rBAN/Norine"	"Cap"	"['MT']"	"NRPS"	""
-"NMe-Choi"	"rBAN/Norine"	"cohOhi"	"['MT']"	"NRPS"	""
-"NMe-Cit"	"rBAN/Norine"	"Cit"	"['MT']"	"NRPS"	""
-"NMe-Cl-Hpg"	"rBAN/Norine"	"Hpg"	"['Cl', 'MT']"	"NRPS"	""
-"NMe-Cl-Ile"	"rBAN/Norine"	"Ile"	"['Cl', 'MT']"	"NRPS"	""
-"NMe-Cl-OH-Trp"	"rBAN/Norine"	"Trp"	"['Cl', 'OH', 'MT']"	"NRPS"	""
-"NMe-Cl-Trp"	"rBAN/Norine"	"Trp"	"['Cl', 'MT']"	"NRPS"	""
-"NMe-Cl2-Hpg"	"rBAN/Norine"	"Hpg"	"['Cl', 'MT']"	"NRPS"	""
-"NMe-Cl2-Pro"	"rBAN/Norine"	"Pro"	"['Cl', 'MT']"	"NRPS"	""
-"NMe-Cys"	"rBAN/Norine"	"Cys"	"['MT']"	"NRPS"	""
-"NMe-CysA"	"rBAN/Norine"	"CysA"	"['MT']"	"NA"	""
-"NMe-D-COOH-Trp"	"rBAN/Norine"	"Trp"	"['E', 'MT', 'unknown']"	"NRPS"	""
-"NMe-D-Cl-CONH2-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Cl', 'MT', 'unknown']"	"NRPS"	""
-"NMe-D-Cl-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Cl', 'MT']"	"NRPS"	""
-"NMe-D-F-ph-Gly"	"rBAN/Norine"	"Gly"	"['E', 'F', 'MT', 'unknown']"	"NRPS"	""
-"NMe-D-N2Me-Asn"	"rBAN/Norine"	"Asn"	"['E', 'MT']"	"NRPS"	""
-"NMe-D-N2Me-bOH-Asn"	"rBAN/Norine"	"Asn"	"['E', 'OH', 'MT']"	"NRPS"	""
-"NMe-D-PO-Asn"	"rBAN/Norine"	"Asn"	"['E', 'MT', 'unknown']"	"NRPS"	""
-"NMe-Dab"	"rBAN/Norine"	"Dab"	"['MT']"	"NRPS"	""
-"NMe-Dbu"	"rBAN/Norine"	"Dbu"	"['MT']"	"NA"	""
-"NMe-Dha"	"rBAN/Norine"	"Ala"	"['MT']"	"NRPS"	""
-"NMe-Dhpg"	"rBAN/Norine"	"Dhpg"	"['MT']"	"NA"	""
-"NMe-Dpr"	"rBAN/Norine"	"Dpr"	"['MT']"	"NRPS"	""
-"NMe-End"	"rBAN/Norine"	"End"	"['MT']"	"NRPS"	""
-"NMe-Fo-OH-Orn"	"rBAN/Norine"	"Orn"	"['F', 'OH', 'MT']"	"NRPS"	""
-"NMe-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"NMe-Glu"	"rBAN/Norine"	"Glu"	"['MT']"	"NRPS"	""
-"NMe-Gly"	"rBAN/Norine"	"Gly"	"['MT']"	"NRPS"	""
-"NMe-His"	"rBAN/Norine"	"His"	"['MT']"	"NRPS"	""
-"NMe-Hpg"	"rBAN/Norine"	"Hpg"	"['MT']"	"NRPS"	""
-"NMe-Hph"	"rBAN/Norine"	"Hph"	"['MT']"	"NRPS"	""
-"NMe-Hpr"	"rBAN/Norine"	"Hpr"	"['MT']"	"NA"	""
-"NMe-Hse"	"rBAN/Norine"	"Hse"	"['MT']"	"NRPS"	""
-"NMe-Hty"	"rBAN/Norine"	"Hty"	"['MT']"	"NRPS"	""
-"NMe-Ile"	"rBAN/Norine"	"Ile"	"['MT']"	"NRPS"	""
-"NMe-Kyn"	"rBAN/Norine"	"Kyn"	"['MT']"	"NRPS"	""
-"NMe-Leu"	"rBAN/Norine"	"Leu"	"['MT']"	"NRPS"	""
-"NMe-Lys"	"rBAN/Norine"	"Lys"	"['MT']"	"NRPS"	""
-"NMe-Me2A-Phe"	"rBAN/Norine"	"Phe"	"['MT', 'NH']"	"NRPS"	""
-"NMe-MeA-Phe"	"rBAN/Norine"	"Phe"	"['MT', 'NH']"	"NRPS"	""
-"NMe-MeO-Glu"	"rBAN/Norine"	"Glu"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-Met"	"rBAN/Norine"	"Met"	"['MT']"	"NA"	""
-"NMe-N1-COOH-bhTrp"	"rBAN/Norine"	"Trp"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-NAc-Ile"	"rBAN/Norine"	"Ile"	"['Ac', 'MT']"	"NRPS"	""
-"NMe-O-Met"	"rBAN/Norine"	"Met"	"['MT', 'unknown']"	"NA"	""
-"NMe-O2-Met"	"rBAN/Norine"	"Met"	"['MT', 'unknown']"	"NA"	""
-"NMe-OH-Asn"	"rBAN/Norine"	"Asn"	"['OH', 'MT']"	"NRPS"	""
-"NMe-OH-Asp"	"rBAN/Norine"	"Asp"	"['OH', 'MT']"	"NRPS"	""
-"NMe-OH-His"	"rBAN/Norine"	"His"	"['OH', 'MT']"	"NRPS"	""
-"NMe-OH-Ile"	"rBAN/Norine"	"Ile"	"['OH', 'MT']"	"NRPS"	""
-"NMe-OH-Orn"	"rBAN/Norine"	"Orn"	"['OH', 'MT']"	"NRPS"	""
-"NMe-OH-Trp"	"rBAN/Norine"	"Trp"	"['OH', 'MT']"	"NRPS"	""
-"NMe-OMe-Asp"	"rBAN/Norine"	"Asp"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-OMe-Ile"	"rBAN/Norine"	"Ile"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-OMe-Thr"	"rBAN/Norine"	"Thr"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-OMe-Trp"	"rBAN/Norine"	"Trp"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-OMe-Tyr"	"rBAN/Norine"	"Tyr"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-Orn"	"rBAN/Norine"	"Orn"	"['MT']"	"NRPS"	""
-"NMe-Ph-Gly"	"rBAN/Norine"	"Gly"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"NMe-Pro"	"rBAN/Norine"	"Pro"	"['MT']"	"NRPS"	""
-"NMe-Ser"	"rBAN/Norine"	"Ser"	"['MT']"	"NRPS"	""
-"NMe-Thr"	"rBAN/Norine"	"Thr"	"['MT']"	"NRPS"	""
-"NMe-Trp"	"rBAN/Norine"	"Trp"	"['MT']"	"NRPS"	""
-"NMe-Tyr"	"rBAN/Norine"	"Tyr"	"['MT']"	"NRPS"	""
-"NMe-Val"	"rBAN/Norine"	"Val"	"['MT']"	"NRPS"	""
-"NMe-aFo-Gly"	"rBAN/Norine"	"Gly"	"['F', 'MT']"	"NRPS"	""
-"NMe-aIle"	"rBAN/Norine"	"aIle"	"['MT']"	"NRPS"	""
-"NMe-aIle/NMe-Ile"	"rBAN/Norine"	"Ile"	"['MT']"	"NRPS"	"Parsing is ambiguous. Ile+MT is chosen by default as more frequent"
-"NMe-aThr/NMe-Thr"	"rBAN/Norine"	"Thr"	"['MT']"	"NRPS"	"Parsing is ambiguous. Thr+MT is chosen by default as more frequent"
-"NMe-bAla"	"rBAN/Norine"	"bAla"	"['MT']"	"NRPS"	""
-"NMe-bMe-Asn"	"rBAN/Norine"	"Asn"	"['MT']"	"NRPS"	""
-"NMe-bMe-Asp"	"rBAN/Norine"	"Asp"	"['MT']"	"NRPS"	""
-"NMe-bMe-Br-Phe"	"rBAN/Norine"	"Phe"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-bMe-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"NMe-bMe-Ile"	"rBAN/Norine"	"Ile"	"['MT']"	"NRPS"	""
-"NMe-bMe-Leu"	"rBAN/Norine"	"Leu"	"['MT']"	"NRPS"	""
-"NMe-bMe-Leu/diMe-aIle"	"rBAN/Norine"	"Leu"	"['MT']"	"NRPS"	"Parsing is ambiguous. Leu+MT is chosen by default as more frequent"
-"NMe-bMe-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"NMe-bOH-Br-Phe"	"rBAN/Norine"	"Phe"	"['OH', 'MT', 'unknown']"	"NRPS"	""
-"NMe-bOH-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['Cl', 'OH', 'MT']"	"NRPS"	""
-"NMe-bOH-Gln"	"rBAN/Norine"	"Gln"	"['OH', 'MT']"	"NRPS"	""
-"NMe-bOH-Tyr"	"rBAN/Norine"	"Tyr"	"['OH', 'MT']"	"NRPS"	""
-"NMe-bOMe-Asp"	"rBAN/Norine"	"Asp"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-bOMe-Tyr"	"rBAN/Norine"	"Tyr"	"['MT', 'MeO']"	"NRPS"	""
-"NMe-bbMe2-O-Met"	"rBAN/Norine"	"Met"	"['MT', 'unknown']"	"NA"	""
-"NMe-dPhe"	"rBAN/Norine"	"Phe"	"['MT', 'DH']"	"NRPS"	""
-"NMe-diOH-Arg"	"rBAN/Norine"	"Arg"	"['OH', 'MT']"	"NRPS"	""
-"NMe-diOH-Phe"	"rBAN/Norine"	"Phe"	"['OH', 'MT']"	"NRPS"	""
-"NMe-hv-Val"	"rBAN/Norine"	"Val"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-pGlu"	"rBAN/Norine"	"Glu"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-pTrp"	"rBAN/Norine"	"Trp"	"['MT', 'unknown']"	"NRPS"	""
-"NMe-t-Leu"	"rBAN/Norine"	"Leu"	"['MT', 'unknown']"	"NRPS"	""
-"NOMe-Ac-D-Phe"	"rBAN/Norine"	"Phe"	"['E', 'Ac', 'MeO']"	"NRPS"	""
-"NOMe-Ac-Val"	"rBAN/Norine"	"Val"	"['Ac', 'MeO']"	"NRPS"	""
-"NdMe-Ala"	"rBAN/Norine"	"Ala"	"['MT']"	"NRPS"	""
-"NdMe-Leu"	"rBAN/Norine"	"Leu"	"['MT']"	"NRPS"	""
-"Nic"	"antiSMASH_short"	"Nic"	"[]"	"NRPS"	""
-"NtMe-Leu"	"rBAN/Norine"	"Leu"	"['MT', 'unknown']"	"NRPS"	""
-"O-Met"	"rBAN/Norine"	"Met"	"['unknown']"	"NA"	""
-"O-methyltyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"O2-Met"	"rBAN/Norine"	"Met"	"['unknown']"	"NA"	""
-"OH-4Abu"	"rBAN/Norine"	"Abu"	"['OH']"	"NRPS"	""
-"OH-Asn"	"rBAN/Norine"	"Asn"	"['OH']"	"NRPS"	""
-"OH-Asp"	"rBAN/Norine"	"Asp"	"['OH']"	"NRPS"	""
-"OH-His"	"rBAN/Norine"	"His"	"['OH']"	"NRPS"	""
-"OH-Orn"	"rBAN/Norine"	"Orn"	"['OH']"	"NRPS"	""
-"OH-Pyr"	"rBAN/Norine"	"Pyr"	"['OH']"	"NRPS"	""
-"OH-Trp"	"rBAN/Norine"	"Trp"	"['OH']"	"NRPS"	""
-"OH-bLys"	"rBAN/Norine"	"bLys"	"['OH']"	"NRPS"	""
-"OH-cOrn"	"rBAN/Norine"	"Orn"	"['OH', 'unknown']"	"NRPS"	""
-"OH-dHpg"	"rBAN/Norine"	"dHpg"	"['OH']"	"NRPS"	""
-"OMe-Asp"	"rBAN/Norine"	"Asp"	"['MeO']"	"NRPS"	""
-"OMe-Thr"	"rBAN/Norine"	"Thr"	"['MT']"	"NRPS"	""
-"OMe-Trp"	"rBAN/Norine"	"Trp"	"['MeO']"	"NRPS"	""
-"OMe-bAla-Thz"	"rBAN/Norine"	"bAla"	"['MeO']"	"NRPS"	""
-"OSu-Hmp"	"rBAN/Norine"	"Hmp"	"['unknown']"	"NA"	""
-"Orn"	"antiSMASH_short"	"Orn"	"[]"	"NRPS"	""
-"Orn"	"rBAN/Norine"	"Orn"	"[]"	"NRPS"	""
-"Pca"	"antiSMASH_short"	"Pca"	"[]"	"NA"	""
-"Pen"	"antiSMASH_short"	"Pen"	"[]"	"NRPS"	""
-"Pgl"	"antiSMASH_short"	"Pgl"	"[]"	"NA"	""
-"Ph-Gly"	"rBAN/Norine"	"Pgl"	"[]"	"NA"	""
-"Ph-Lac"	"rBAN/Norine"	"Lac"	"['unknown']"	"NRPS"	""
-"Ph-Ser"	"rBAN/Norine"	"Phe"	"['OH']"	"NRPS"	""
-"Phe"	"antiSMASH_short"	"Phe"	"[]"	"NRPS"	""
-"Phe"	"rBAN/Norine"	"Phe"	"[]"	"NRPS"	""
-"Pip"	"antiSMASH_short"	"Pip"	"[]"	"NRPS"	""
-"Piz"	"antiSMASH_short"	"Piz"	"[]"	"NRPS"	""
-"Ppa"	"antiSMASH_short"	"Ppa"	"[]"	"NRPS"	""
-"Pro"	"rBAN/Norine"	"Pro"	"[]"	"NRPS"	""
-"Pro"	"antiSMASH_short"	"Pro"	"[]"	"NRPS"	""
-"Pyr"	"rBAN/Norine"	"Pyr"	"[]"	"NRPS"	""
-"Pyr"	"antiSMASH_short"	"Pyr"	"[]"	"NRPS"	""
-"Pyv"	"antiSMASH_short"	"Pyv"	"[]"	"NA"	""
-"Qui"	"antiSMASH_short"	"Qui"	"[]"	"NRPS"	""
-"R-3-hydroxy-3-methylproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-aza-beta-tyrosine"	"PARAS"	"bTyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-bPhe"	"antiSMASH_short"	"bPhe"	"[]"	"NRPS"	""
-"R-bTyr"	"antiSMASH_short"	"bTyr"	"[]"	"NRPS"	""
-"R-beta-hydroxyphenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-beta-hydroxytyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-beta-methylphenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-beta-methyltryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-beta-phenylalanine"	"PARAS"	"bPhe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-beta-tyrosine"	"PARAS"	"bTyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"R-bmeTrp"	"antiSMASH_short"	"Trp"	"['MT', 'unknown']"	"NRPS"	""
-"R-bohPhe"	"antiSMASH_short"	"Phe"	"['OH']"	"NRPS"	""
-"R-ohTyr"	"antiSMASH_short"	"Tyr"	"['OH']"	"NRPS"	""
-"S-adenosylmethionine"	"PARAS"	"Sam"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"S-bTyr"	"antiSMASH_short"	"bTyr"	"[]"	"NRPS"	""
-"S-beta-hydroxycyclohex-2S-enylalanine"	"PARAS"	"Hch"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"S-beta-hydroxyenduracididine"	"PARAS"	"End"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"S-beta-hydroxyphenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"S-beta-methylphenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"S-beta-tyrosine"	"PARAS"	"bTyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"S-bohPhe"	"antiSMASH_short"	"Phe"	"['OH']"	"NRPS"	""
-"Sal"	"antiSMASH_short"	"Sal"	"[]"	"NRPS"	""
-"Sam"	"antiSMASH_short"	"Sam"	"[]"	"NRPS"	""
-"Ser"	"antiSMASH_short"	"Ser"	"[]"	"NRPS"	""
-"Ser"	"rBAN/Norine"	"Ser"	"[]"	"NRPS"	""
-"Sma"	"antiSMASH_short"	"Sma"	"[]"	"NRPS"	""
-"Suc"	"rBAN/Norine"	"Suc"	"[]"	"NRPS"	""
-"Suc"	"antiSMASH_short"	"Suc"	"[]"	"NRPS"	""
-"Thr"	"antiSMASH_short"	"Thr"	"[]"	"NRPS"	""
-"Thr"	"rBAN/Norine"	"Thr"	"[]"	"NRPS"	""
-"Trp"	"rBAN/Norine"	"Trp"	"[]"	"NRPS"	""
-"Trp"	"antiSMASH_short"	"Trp"	"[]"	"NRPS"	""
-"Tyr"	"antiSMASH_short"	"Tyr"	"[]"	"NRPS"	""
-"Tyr"	"rBAN/Norine"	"Tyr"	"[]"	"NRPS"	""
-"Val"	"rBAN/Norine"	"Val"	"[]"	"NRPS"	""
-"Val"	"antiSMASH_short"	"Val"	"[]"	"NRPS"	""
-"Valol"	"rBAN/Norine"	"Valol"	"[]"	"NRPS"	""
-"Valol"	"antiSMASH_short"	"Valol"	"[]"	"NRPS"	""
-"X"	"rBAN/Norine"	"Trp"	"['Cl']"	"NRPS"	""
-"Z-ahmohOrn"	"antiSMASH_short"	"Orn"	"['OH', 'unknown']"	"NRPS"	""
-"aFo-Gly"	"rBAN/Norine"	"Gly"	"['F']"	"NRPS"	""
-"aIle"	"rBAN/Norine"	"aIle"	"[]"	"NRPS"	""
-"aIle"	"antiSMASH_short"	"aIle"	"[]"	"NRPS"	""
-"aMe-Cys"	"rBAN/Norine"	"Cys"	"['MT', 'unknown']"	"NRPS"	""
-"aThr"	"rBAN/Norine"	"aThr"	"[]"	"NRPS"	""
-"aThr"	"antiSMASH_short"	"aThr"	"[]"	"NRPS"	""
-"aThr/Thr"	"rBAN/Norine"	"Thr"	"[]"	"NRPS"	"Parsing is ambiguous. Thr is chosen by default as more frequent"
-"ac-mePro"	"antiSMASH_short"	"Pro"	"['Ac', 'MT']"	"NRPS"	""
-"acetic acid"	"PARAS"	"Sma"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"acohOrn"	"antiSMASH_short"	"Orn"	"['Ac', 'OH']"	"NRPS"	""
-"alanine"	"PARAS"	"niCpa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"alaninol"	"PARAS"	"Aol"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"allo-isoleucine"	"PARAS"	"aIle"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"allo-threonine"	"PARAS"	"aThr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"anthranilic acid"	"PARAS"	"Ant"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"arginine"	"PARAS"	"Arg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"asparagine"	"PARAS"	"Asn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"aspartic acid"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"aspartic acid branched"	"PARAS"	"Asp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"aza-bTyr"	"antiSMASH_short"	"bTyr"	"['unknown']"	"NRPS"	""
-"azetidine-2-carboxylic acid"	"PARAS"	"Aze"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"b1Me-Trp"	"rBAN/Norine"	"Trp"	"['MT']"	"NRPS"	""
-"b3Me-4Me-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"b3Me-Glu"	"rBAN/Norine"	"Glu"	"['MT']"	"NRPS"	""
-"b3Me-Hty"	"rBAN/Norine"	"Hty"	"['MT']"	"NRPS"	""
-"b3Me-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"b3NO2-Tyr"	"rBAN/Norine"	"Tyr"	"['NO', 'unknown']"	"NRPS"	""
-"b3OH-Leu"	"rBAN/Norine"	"Leu"	"['OH']"	"NRPS"	""
-"b4Cl-Thr"	"rBAN/Norine"	"Thr"	"['Cl']"	"NRPS"	""
-"b4OH-Thr"	"rBAN/Norine"	"Thr"	"['OH']"	"NRPS"	""
-"b5OH-Cap"	"rBAN/Norine"	"Cap"	"['OH']"	"NRPS"	""
-"bAad"	"rBAN/Norine"	"bAad"	"[]"	"NA"	""
-"bAbu"	"rBAN/Norine"	"bAbu"	"[]"	"NA"	""
-"bAc-OH-Orn"	"rBAN/Norine"	"Orn"	"['Ac', 'OH', 'unknown']"	"NRPS"	""
-"bAc-Ser"	"rBAN/Norine"	"Ser"	"['Ac', 'unknown']"	"NRPS"	""
-"bAla"	"antiSMASH_short"	"bAla"	"[]"	"NRPS"	""
-"bAla"	"rBAN/Norine"	"bAla"	"[]"	"NRPS"	""
-"bArg"	"rBAN/Norine"	"bArg"	"[]"	"NA"	""
-"bAsn"	"rBAN/Norine"	"bAsn"	"[]"	"NA"	""
-"bBmt"	"rBAN/Norine"	"bBmt"	"[]"	"NA"	""
-"bBr-OH-Trp"	"rBAN/Norine"	"Trp"	"['OH', 'unknown']"	"NRPS"	""
-"bBr-Phe"	"rBAN/Norine"	"Phe"	"['unknown']"	"NRPS"	""
-"bBr-Trp"	"rBAN/Norine"	"Trp"	"['unknown']"	"NRPS"	""
-"bBr-Tyr"	"rBAN/Norine"	"Tyr"	"['unknown']"	"NRPS"	""
-"bCap"	"rBAN/Norine"	"bCap"	"[]"	"NA"	""
-"bCit"	"rBAN/Norine"	"bCit"	"[]"	"NA"	""
-"bCl-Ile"	"rBAN/Norine"	"Ile"	"['Cl']"	"NRPS"	""
-"bCl-Tyr"	"rBAN/Norine"	"Tyr"	"['Cl']"	"NRPS"	""
-"bCys"	"rBAN/Norine"	"bCys"	"[]"	"NA"	""
-"bCysA"	"rBAN/Norine"	"bCysA"	"[]"	"NA"	""
-"bD-COOH-Trp"	"rBAN/Norine"	"Trp"	"['E', 'unknown']"	"NRPS"	""
-"bD-Cl-CONH2-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Cl', 'unknown']"	"NRPS"	""
-"bD-Cl-Trp"	"rBAN/Norine"	"Trp"	"['E', 'Cl']"	"NRPS"	""
-"bD-N2Me-Asn"	"rBAN/Norine"	"Asn"	"['E', 'MT']"	"NRPS"	""
-"bD-N2Me-bOH-Asn"	"rBAN/Norine"	"Asn"	"['E', 'OH', 'MT']"	"NRPS"	""
-"bD-PO-Asn"	"rBAN/Norine"	"Asn"	"['E', 'unknown']"	"NRPS"	""
-"bDab"	"rBAN/Norine"	"bDab"	"[]"	"NA"	""
-"bDbu"	"rBAN/Norine"	"bDbu"	"[]"	"NA"	""
-"bDpr"	"rBAN/Norine"	"bDpr"	"[]"	"NA"	""
-"bEnd"	"rBAN/Norine"	"bEnd"	"[]"	"NA"	""
-"bFo-OH-Orn"	"rBAN/Norine"	"Orn"	"['F', 'OH']"	"NRPS"	""
-"bGln"	"rBAN/Norine"	"bGln"	"[]"	"NA"	""
-"bGlu"	"rBAN/Norine"	"bGlu"	"[]"	"NA"	""
-"bHis"	"rBAN/Norine"	"bHis"	"[]"	"NA"	""
-"bHph"	"rBAN/Norine"	"bHph"	"[]"	"NA"	""
-"bHse"	"rBAN/Norine"	"bHse"	"[]"	"NA"	""
-"bHty"	"rBAN/Norine"	"bHty"	"[]"	"NA"	""
-"bIle"	"rBAN/Norine"	"bIle"	"[]"	"NA"	""
-"bKyn"	"rBAN/Norine"	"bKyn"	"[]"	"NA"	""
-"bLeu"	"rBAN/Norine"	"bLeu"	"[]"	"NA"	""
-"bLys"	"rBAN/Norine"	"bLys"	"[]"	"NRPS"	""
-"bLys"	"antiSMASH_short"	"bLys"	"[]"	"NRPS"	""
-"bMe-Asn"	"rBAN/Norine"	"Asn"	"['MT']"	"NRPS"	""
-"bMe-Asp"	"rBAN/Norine"	"Asp"	"['E', 'MT']"	"NRPS"	""
-"bMe-Br-Phe"	"rBAN/Norine"	"Phe"	"['MT', 'unknown']"	"NRPS"	""
-"bMe-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"bMe-Ile"	"rBAN/Norine"	"Ile"	"['MT']"	"NRPS"	""
-"bMe-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"bMeO-Glu"	"rBAN/Norine"	"Glu"	"['MT', 'unknown']"	"NRPS"	""
-"bMet"	"rBAN/Norine"	"bMet"	"[]"	"NA"	""
-"bN1-COOH-bhTrp"	"rBAN/Norine"	"Trp"	"['unknown']"	"NRPS"	""
-"bO-Met"	"rBAN/Norine"	"Met"	"['unknown']"	"NA"	""
-"bO2-Met"	"rBAN/Norine"	"Met"	"['unknown']"	"NA"	""
-"bOH-Asn"	"rBAN/Norine"	"Asn"	"['OH']"	"NRPS"	""
-"bOH-Asp"	"rBAN/Norine"	"Asp"	"['OH']"	"NRPS"	""
-"bOH-Br-Phe"	"rBAN/Norine"	"Phe"	"['OH', 'unknown']"	"NRPS"	""
-"bOH-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['Cl', 'OH']"	"NRPS"	""
-"bOH-Gln"	"rBAN/Norine"	"Gln"	"['OH']"	"NRPS"	""
-"bOH-His"	"rBAN/Norine"	"His"	"['OH']"	"NRPS"	""
-"bOH-NMe-Phe"	"rBAN/Norine"	"Phe"	"['OH', 'MT']"	"NRPS"	""
-"bOH-NMe-Val"	"rBAN/Norine"	"Val"	"['OH', 'MT']"	"NRPS"	""
-"bOH-Orn"	"rBAN/Norine"	"Orn"	"['OH']"	"NRPS"	""
-"bOH-Trp"	"rBAN/Norine"	"Trp"	"['OH']"	"NRPS"	""
-"bOH-Tyr"	"rBAN/Norine"	"Tyr"	"['OH']"	"NRPS"	""
-"bOH-Val"	"rBAN/Norine"	"Val"	"['OH']"	"NRPS"	""
-"bOMe-Asp"	"rBAN/Norine"	"Asp"	"['MeO']"	"NRPS"	""
-"bOMe-Thr"	"rBAN/Norine"	"Thr"	"['MeO']"	"NRPS"	""
-"bOMe-Trp"	"rBAN/Norine"	"Trp"	"['MeO']"	"NRPS"	""
-"bOMe-Tyr"	"rBAN/Norine"	"Tyr"	"['MeO']"	"NRPS"	""
-"bOrn"	"rBAN/Norine"	"bOrn"	"[]"	"NA"	""
-"bPh-Ser"	"rBAN/Norine"	"Ser"	"['unknown']"	"NRPS"	""
-"bPhe"	"rBAN/Norine"	"bPhe"	"[]"	"NRPS"	""
-"bSer"	"rBAN/Norine"	"bSer"	"[]"	"NA"	""
-"bThr"	"rBAN/Norine"	"bThr"	"[]"	"NA"	""
-"bTrp"	"rBAN/Norine"	"bTrp"	"[]"	"NA"	""
-"bTyr"	"rBAN/Norine"	"bTyr"	"[]"	"NRPS"	""
-"bU-dAla"	"rBAN/Norine"	"Ala"	"['unknown']"	"NRPS"	""
-"bVal"	"rBAN/Norine"	"bVal"	"[]"	"NA"	""
-"baFo-Gly"	"rBAN/Norine"	"Gly"	"['F']"	"NRPS"	""
-"bbMe-Asn"	"rBAN/Norine"	"Asn"	"['MT']"	"NRPS"	""
-"bbMe-Asp"	"rBAN/Norine"	"Asp"	"['MT']"	"NRPS"	""
-"bbMe-Br-Phe"	"rBAN/Norine"	"Phe"	"['MT', 'unknown']"	"NRPS"	""
-"bbMe-Gln"	"rBAN/Norine"	"Gln"	"['MT']"	"NRPS"	""
-"bbMe-NMe-Trp"	"rBAN/Norine"	"Trp"	"['MT']"	"NRPS"	""
-"bbMe-Phe"	"rBAN/Norine"	"Phe"	"['MT']"	"NRPS"	""
-"bbMe2-O-Met"	"rBAN/Norine"	"Met"	"['MT', 'unknown']"	"NA"	""
-"bbNMe-NMe-Trp"	"rBAN/Norine"	"Trp"	"['MT']"	"NRPS"	""
-"bbOH-Br-Phe"	"rBAN/Norine"	"Phe"	"['OH', 'unknown']"	"NRPS"	""
-"bbOH-Cl-Tyr"	"rBAN/Norine"	"Tyr"	"['Cl', 'OH', 'unknown']"	"NRPS"	""
-"bbOH-Gln"	"rBAN/Norine"	"Gln"	"['OH']"	"NRPS"	""
-"bbOH-Tyr"	"rBAN/Norine"	"Tyr"	"['OH']"	"NRPS"	""
-"bbOMe-Asp"	"rBAN/Norine"	"Asp"	"['MeO']"	"NRPS"	""
-"bbOMe-Tyr"	"rBAN/Norine"	"Tyr"	"['MeO']"	"NRPS"	""
-"bdiOH-Arg"	"rBAN/Norine"	"Arg"	"['OH']"	"NRPS"	""
-"bdiOH-Phe"	"rBAN/Norine"	"Phe"	"['OH']"	"NRPS"	""
-"benzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"benzoxazolinate"	"PARAS"	"Boz"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"beta-alanine"	"PARAS"	"bAla"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"beta-hydroxy-3-hydroxy-O-methyl-5-methyltyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"beta-hydroxyarginine"	"PARAS"	"Arg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"beta-hydroxyphenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"beta-hydroxytyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"beta-lysine"	"PARAS"	"bLys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"betaine"	"PARAS"	"betaine"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"bohPhe"	"antiSMASH_short"	"Phe"	"['OH']"	"NRPS"	""
-"branched-D-3R-meAsp"	"antiSMASH_short"	"Asp"	"['E', 'MT']"	"NRPS"	""
-"branched-D-3S-meAsp"	"antiSMASH_short"	"Asp"	"['E', 'MT']"	"NRPS"	""
-"branched-D-Asp"	"antiSMASH_short"	"Asp"	"['E']"	"NRPS"	""
-"branched-D-Glu"	"antiSMASH_short"	"Glu"	"['E']"	"NRPS"	""
-"branchedAsp"	"antiSMASH_short"	"Asp"	"[]"	"NRPS"	""
-"branchedCys"	"antiSMASH_short"	"Cys"	"[]"	"NRPS"	""
-"butyric acid"	"PARAS"	"Dab"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"capreomycidine"	"PARAS"	"Cap"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"cinnamic acid"	"PARAS"	"Cin"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"citrulline"	"PARAS"	"Cit"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"ck-Arg"	"rBAN/Norine"	"Arg"	"['unknown']"	"NRPS"	""
-"cl-me-dHpg"	"antiSMASH_short"	"dHpg"	"['Cl', 'MT']"	"NRPS"	""
-"clAnt"	"antiSMASH_short"	"Ant"	"['Cl']"	"NRPS"	""
-"clHic"	"antiSMASH_short"	"Hic"	"['Cl']"	"NRPS"	""
-"clPro"	"antiSMASH_short"	"Pro"	"['Cl']"	"NRPS"	""
-"clTyr"	"antiSMASH_short"	"Tyr"	"['Cl']"	"NRPS"	""
-"cohOhi"	"antiSMASH_short"	"cohOhi"	"['unknown']"	"NRPS"	""
-"coumaric acid"	"PARAS"	"coumaric acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"croGly"	"antiSMASH_short"	"Gly"	"['unknown']"	"NRPS"	""
-"cycHexAla"	"antiSMASH_short"	"cycHexAla"	"['unknown']"	"NRPS"	""
-"cysteic acid"	"PARAS"	"Cya"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"cysteine"	"PARAS"	"Cys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"cysteine branched"	"PARAS"	"Cys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"dHpg"	"antiSMASH_short"	"dHpg"	"[]"	"NRPS"	""
-"dPyr"	"rBAN/Norine"	"Pyr"	"['DH']"	"NRPS"	""
-"dcPhz"	"antiSMASH_short"	"Phz"	"['unknown']"	"NRPS"	""
-"dclHpg"	"antiSMASH_short"	"Hpg"	"['Cl']"	"NRPS"	""
-"dclPro"	"antiSMASH_short"	"Pro"	"['Cl']"	"NRPS"	""
-"dclTrp"	"antiSMASH_short"	"Trp"	"['Cl']"	"NRPS"	""
-"dclohBfa"	"antiSMASH_short"	"Bfa"	"['Cl', 'OH']"	"NA"	""
-"dehydroarginine"	"PARAS"	"Arg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"dehydrophenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"dehydrotryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"dehydrovaline"	"PARAS"	"Val"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"dh-Ala"	"rBAN/Norine"	"Ala"	"['DH']"	"NRPS"	""
-"dh-Trp"	"rBAN/Norine"	"Trp"	"['DH']"	"NRPS"	""
-"dhAbu"	"antiSMASH_short"	"Abu"	"['DH']"	"NRPS"	""
-"dhAbu"	"rBAN/Norine"	"Abu"	"['DH']"	"NRPS"	""
-"dhArg"	"antiSMASH_short"	"Arg"	"['DH']"	"NRPS"	""
-"dhCys"	"rBAN/Norine"	"Cys"	"['DH']"	"NRPS"	""
-"dhLys"	"antiSMASH_short"	"Lys"	"['DH']"	"NRPS"	""
-"dhOrn"	"antiSMASH_short"	"Orn"	"['OH']"	"NRPS"	""
-"dhPhe"	"antiSMASH_short"	"Phe"	"['DH']"	"NRPS"	""
-"dhTrp"	"antiSMASH_short"	"Trp"	"['DH']"	"NRPS"	""
-"dhTyr"	"antiSMASH_short"	"Tyr"	"['DH']"	"NRPS"	""
-"dhVal"	"antiSMASH_short"	"Val"	"['DH']"	"NRPS"	""
-"diMe-Cys"	"rBAN/Norine"	"Cys"	"['MT']"	"NRPS"	""
-"diMe-aIle"	"rBAN/Norine"	"aIle"	"['MT']"	"NRPS"	""
-"diOH-Arg"	"rBAN/Norine"	"Arg"	"['OH']"	"NRPS"	""
-"diOH-Bz"	"rBAN/Norine"	"Bza"	"['OH']"	"NRPS"	""
-"diOH-Phe"	"rBAN/Norine"	"Phe"	"['OH']"	"NRPS"	""
-"dimethylsulfoniopropionic acid"	"PARAS"	"dimethylsulfoniopropionic acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"dmePip"	"antiSMASH_short"	"Pip"	"['MT']"	"NRPS"	""
-"dmeaTrp"	"antiSMASH_short"	"Trp"	"['MT', 'unknown']"	"NRPS"	""
-"dn-dohHep"	"antiSMASH_short"	"Hep"	"['NH', 'OH']"	"NRPS"	""
-"dnmeProp"	"antiSMASH_short"	"Prop"	"['NH', 'MT']"	"NA"	""
-"dohHty"	"antiSMASH_short"	"Hty"	"['OH']"	"NRPS"	""
-"dohPen"	"antiSMASH_short"	"Pen"	"['OH']"	"NRPS"	""
-"dohmTyr"	"antiSMASH_short"	"Tyr"	"['OH', 'MT']"	"NRPS"	""
-"dv-Tyr"	"rBAN/Norine"	"Tyr"	"['unknown', 'DH']"	"NRPS"	""
-"e-Tyr"	"rBAN/Norine"	"Tyr"	"['unknown']"	"NRPS"	""
-"enduracididine"	"PARAS"	"End"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"fa"	"antiSMASH_short"	"fa"	"['unknown']"	"NRPS"	""
-"fatty acid"	"PARAS"	"fa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"foGly"	"antiSMASH_short"	"Gly"	"['F']"	"NRPS"	""
-"fohOrn"	"antiSMASH_short"	"Orn"	"['F', 'OH']"	"NRPS"	""
-"gOH-NMe-Val"	"rBAN/Norine"	"Val"	"['OH', 'MT']"	"NRPS"	""
-"gSer"	"rBAN/Norine"	"Ser"	"['unknown']"	"NRPS"	""
-"glutamic acid"	"PARAS"	"Glu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"glutamine"	"PARAS"	"Gln"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"glycine"	"PARAS"	"Gly"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"graminine"	"PARAS"	"Gram"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"guanidinoacetic acid"	"PARAS"	"Gua"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"hclHis"	"antiSMASH_short"	"His"	"['Cl', 'OH']"	"NRPS"	""
-"histidine"	"PARAS"	"His"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"hk-Arg"	"rBAN/Norine"	"Arg"	"['unknown']"	"NRPS"	""
-"homophenylalanine"	"PARAS"	"Hph"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"homoserine"	"PARAS"	"Hse"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"homotyrosine"	"PARAS"	"Hty"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"hydroxyproline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"isoleucine"	"PARAS"	"Ile"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"isovaline"	"PARAS"	"Iva"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"k-Arg"	"rBAN/Norine"	"Arg"	"['unknown']"	"NRPS"	""
-"k-Leu"	"rBAN/Norine"	"Leu"	"['unknown']"	"NRPS"	""
-"kynurenine"	"PARAS"	"Kyn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"lactic acid"	"PARAS"	"Lac"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"leucine"	"PARAS"	"Leu"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"linoleic acid"	"PARAS"	"Lin"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"lysine"	"PARAS"	"Lys"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"mTyr"	"antiSMASH_short"	"mTyr"	"[]"	"NRPS"	""
-"malic acid"	"PARAS"	"Ac"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"me-bAla"	"antiSMASH_short"	"bAla"	"['MT']"	"NRPS"	""
-"me-clHic"	"antiSMASH_short"	"Hic"	"['Cl', 'MT']"	"NRPS"	""
-"me-oxoBut"	"antiSMASH_short"	"But"	"['MT', 'unknown']"	"NRPS"	""
-"meAcc"	"antiSMASH_short"	"Acc"	"['MT']"	"NRPS"	""
-"meAsn"	"antiSMASH_short"	"Asn"	"['MT']"	"NRPS"	""
-"meAsp"	"antiSMASH_short"	"Asp"	"['MT']"	"NRPS"	""
-"meAze"	"antiSMASH_short"	"Aze"	"['MT']"	"NRPS"	""
-"meGlu"	"antiSMASH_short"	"Glu"	"['MT']"	"NRPS"	""
-"meHex"	"antiSMASH_short"	"Hex"	"['MT']"	"NRPS"	""
-"meLeu"	"antiSMASH_short"	"Leu"	"['MT']"	"NRPS"	""
-"meOrs"	"antiSMASH_short"	"Ors"	"['MT']"	"NRPS"	""
-"mePhe"	"antiSMASH_short"	"Phe"	"['MT']"	"NRPS"	""
-"mePip"	"antiSMASH_short"	"Pip"	"['MT']"	"NRPS"	""
-"meSal"	"antiSMASH_short"	"Sal"	"['MT']"	"NRPS"	""
-"meSer"	"antiSMASH_short"	"Ser"	"['MT']"	"NRPS"	""
-"meta-tyrosine"	"PARAS"	"mTyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"methionine"	"PARAS"	"Sam"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"mxAnt"	"antiSMASH_short"	"Ant"	"['MeO']"	"NRPS"	""
-"mxAsp"	"antiSMASH_short"	"Asp"	"['MeO']"	"NRPS"	""
-"n-epox-oxoDec"	"antiSMASH_short"	"oxoDec"	"['NH', 'unknown']"	"NRPS"	""
-"n-oh-nitropheBut"	"antiSMASH_short"	"But"	"['NH', 'OH', 'NO']"	"NRPS"	""
-"n-oxoDec"	"antiSMASH_short"	"oxoDec"	"['NH']"	"NRPS"	""
-"nBza"	"antiSMASH_short"	"Bza"	"['NH']"	"NRPS"	""
-"nDec"	"antiSMASH_short"	"Dec"	"['NH']"	"NRPS"	""
-"nDece"	"antiSMASH_short"	"Dece"	"['NH']"	"NRPS"	""
-"nDodec"	"antiSMASH_short"	"Dodec"	"['NH']"	"NRPS"	""
-"nHcp"	"antiSMASH_short"	"nHcp"	"[]"	"NRPS"	""
-"nLev"	"antiSMASH_short"	"Lev"	"['NH']"	"NRPS"	""
-"nOct"	"antiSMASH_short"	"Oct"	"['NH']"	"NRPS"	""
-"nPhe"	"antiSMASH_short"	"Phe"	"['NH']"	"NRPS"	""
-"ndmHex"	"antiSMASH_short"	"Hex"	"['NH', 'MT']"	"NRPS"	""
-"niCpa"	"antiSMASH_short"	"niCpa"	"['unknown']"	"NRPS"	""
-"nicotinic acid"	"PARAS"	"Nic"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"nitroTrp"	"antiSMASH_short"	"Trp"	"['NO']"	"NRPS"	""
-"nitroTyr"	"antiSMASH_short"	"Tyr"	"['NO']"	"NRPS"	""
-"noh-isopox-Bza"	"antiSMASH_short"	"Bza"	"['NH', 'OH', 'unknown']"	"NRPS"	""
-"nohBza"	"antiSMASH_short"	"Bza"	"['NH', 'OH']"	"NRPS"	""
-"nohme-oxoDec"	"antiSMASH_short"	"oxoDec"	"['NH', 'OH', 'MT']"	"NRPS"	""
-"norCMA"	"rBAN/Norine"	"Acc"	"['MT']"	"NRPS"	""
-"norcoronamic acid"	"PARAS"	"Acc"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"oh-D-Kyn"	"antiSMASH_short"	"Kyn"	"['E', 'OH']"	"NRPS"	""
-"oh-nitroBza"	"antiSMASH_short"	"Bza"	"['NO', 'OH']"	"NRPS"	""
-"ohArg"	"antiSMASH_short"	"Arg"	"['OH']"	"NRPS"	""
-"ohAsn"	"antiSMASH_short"	"Asn"	"['OH']"	"NRPS"	""
-"ohAsp"	"antiSMASH_short"	"Asp"	"['OH']"	"NRPS"	""
-"ohDab"	"antiSMASH_short"	"Dab"	"['OH']"	"NRPS"	""
-"ohEnd"	"antiSMASH_short"	"End"	"['OH']"	"NRPS"	""
-"ohGln"	"antiSMASH_short"	"Gln"	"['OH']"	"NRPS"	""
-"ohHty"	"antiSMASH_short"	"Hty"	"['OH']"	"NRPS"	""
-"ohKyn"	"antiSMASH_short"	"Kyn"	"['OH']"	"NRPS"	""
-"ohMan"	"antiSMASH_short"	"Man"	"['OH']"	"NRPS"	""
-"ohOrn"	"antiSMASH_short"	"Orn"	"['OH']"	"NRPS"	""
-"ohPen"	"antiSMASH_short"	"Pen"	"['OH']"	"NRPS"	""
-"ohPip"	"antiSMASH_short"	"Pip"	"['OH']"	"NRPS"	""
-"ohPro"	"antiSMASH_short"	"Pro"	"['OH']"	"NRPS"	""
-"ohTyr"	"antiSMASH_short"	"Tyr"	"['OH']"	"NRPS"	""
-"ohdmTyr"	"antiSMASH_short"	"Tyr"	"['OH', 'MT']"	"NRPS"	""
-"ohmeTyr"	"antiSMASH_short"	"Tyr"	"['OH', 'MT']"	"NRPS"	""
-"ohnBza"	"antiSMASH_short"	"Bza"	"['NH', 'OH']"	"NRPS"	""
-"omeThr"	"antiSMASH_short"	"Thr"	"['MT']"	"NRPS"	""
-"omeTyr"	"antiSMASH_short"	"Tyr"	"['MT']"	"NRPS"	""
-"ornithine"	"PARAS"	"Orn"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"p-hydroxymandelate"	"PARAS"	"Man"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"pGlu"	"rBAN/Norine"	"Glu"	"['unknown']"	"NRPS"	""
-"pNH2-Bz"	"rBAN/Norine"	"Bza"	"['NH']"	"NRPS"	""
-"pOH-Bz"	"rBAN/Norine"	"Bza"	"['OH']"	"NRPS"	""
-"pPro"	"antiSMASH_short"	"Pro"	"['unknown']"	"NRPS"	""
-"pTrp"	"rBAN/Norine"	"Trp"	"['unknown']"	"NRPS"	""
-"parTrp"	"antiSMASH_short"	"Trp"	"['unknown']"	"NRPS"	""
-"para-aminobenzoic acid"	"PARAS"	"Bza"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"pentanoic acid"	"PARAS"	"Pen"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"phenazine-1,6-dicarboxylic acid"	"PARAS"	"Phz"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"phenylalanine"	"PARAS"	"Phe"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"phenylglycine"	"PARAS"	"dHpg"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"phenyllactic acid"	"PARAS"	"Lac"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"phenylpyruvic acid"	"PARAS"	"Ppa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"pipecolic acid"	"PARAS"	"Pip"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"piperazic acid"	"PARAS"	"Piz"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"proPro"	"antiSMASH_short"	"Pro"	"['unknown']"	"NRPS"	""
-"proline"	"PARAS"	"Pro"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"pyrAla"	"antiSMASH_short"	"Ala"	"['unknown']"	"NRPS"	""
-"pyrrole-2-carboxylic acid"	"PARAS"	"pyrrole-2-carboxylic acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"pyruvic acid"	"PARAS"	"Ppa"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"quinoxaline-2-carboxylic acid"	"PARAS"	"Qui"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"salicylic acid"	"PARAS"	"Sal"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"serine"	"PARAS"	"Ser"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"succinic semialdehyde"	"PARAS"	"Suc"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"succinyl-hydrazinoacetic acid"	"PARAS"	"succinyl-hydrazinoacetic acid"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"t-Leu"	"rBAN/Norine"	"Leu"	"['unknown']"	"NRPS"	""
-"threonine"	"PARAS"	"Bmt"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"trans-2-crotylglycine"	"PARAS"	"Gly"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"tryptophan"	"PARAS"	"Trp"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"tyrosine"	"PARAS"	"Tyr"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"v-Arg"	"rBAN/Norine"	"Arg"	"['unknown']"	"NRPS"	""
-"v-OH-Tyr"	"rBAN/Norine"	"Tyr"	"['OH', 'unknown']"	"NRPS"	""
-"v-Tyr"	"rBAN/Norine"	"Tyr"	"['unknown']"	"NRPS"	""
-"valine"	"PARAS"	"Val"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
-"valinol"	"PARAS"	"Valol"	"[]"	"NRPS"	"Warning: core and modifications are not human-verified!"
+MonomerName	NameFormat	NerpaResidue	Modifications	Type	Comment
+1-meTrp	antiSMASH_short	Trp	['MT']	NRPS	
+1-mxTrp	antiSMASH_short	Trp	['MeO']	NRPS	
+1Me-Trp	rBAN/Norine	Trp	['MT']	NRPS	
+2,3-doh-4-nBza	antiSMASH_short	Bza	['NH', 'OH']	NRPS	
+2,3-dohBza	antiSMASH_short	Bza	['OH']	NRPS	
+2,3-dohHda	antiSMASH_short	Hda	['OH']	NRPS	
+2,4-doh-3-nBza	antiSMASH_short	Bza	['NH', 'OH']	NRPS	
+2-oh-4-mePen	antiSMASH_short	Pen	['OH', 'MT']	NRPS	
+2Dh-Mabu	rBAN/Norine	Abu	['DH']	NRPS	
+2Me-3Me-pGlu	rBAN/Norine	Glu	['MT', 'unknown']	NRPS	
+2R-Hiv	antiSMASH_short	Hiv	[]	NRPS	
+2R-oh-3-mePen	antiSMASH_short	Pen	['OH', 'MT']	NRPS	
+2S-Hic	antiSMASH_short	Hic	[]	NRPS	
+2S-Hiv	antiSMASH_short	Hiv	[]	NRPS	
+2clBza	antiSMASH_short	Bza	['Cl']	NRPS	
+3,4-dohBza	antiSMASH_short	Bza	['OH']	NRPS	
+3-oh-4-mePro	antiSMASH_short	Pro	['OH', 'MT']	NRPS	
+3-ohLeu	antiSMASH_short	Leu	['OH']	NRPS	
+3-ohTyr	antiSMASH_short	Tyr	['OH']	NRPS	
+3-ohVal	antiSMASH_short	Val	['OH']	NRPS	
+3Dab	antiSMASH_short	Dab	[]	NRPS	
+3Me-4Me-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+3Me-Glu	rBAN/Norine	Glu	['MT']	NRPS	
+3Me-Hty	rBAN/Norine	Hty	['MT']	NRPS	
+3Me-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+3Me-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+3NO2-Tyr	rBAN/Norine	Tyr	['NO']	NRPS	
+3OH-5Me-Pro	rBAN/Norine	Pro	['OH', 'MT']	NRPS	
+3OH-Leu	rBAN/Norine	Leu	['OH']	NRPS	
+3OH-Pro	rBAN/Norine	Pro	['OH']	NRPS	
+3R-meGlu	antiSMASH_short	Glu	['MT']	NRPS	
+3R-oh-3-mePro	antiSMASH_short	Pro	['OH', 'MT']	NRPS	
+3R-ohAsn	antiSMASH_short	Asn	['OH']	NRPS	
+3R-ohAsp	antiSMASH_short	Asp	['OH']	NRPS	
+3R-ohLeu	antiSMASH_short	Leu	['OH']	NRPS	
+3S-Abu	antiSMASH_short	Abu	[]	NRPS	
+3S-meAsp	antiSMASH_short	Asp	['MT']	NRPS	
+3S-mePro	antiSMASH_short	Pro	['MT']	NRPS	
+3S-oh-4S-mePro	antiSMASH_short	Pro	['OH', 'MT']	NRPS	
+3S-ohAsn	antiSMASH_short	Asn	['OH']	NRPS	
+3S-ohLeu	antiSMASH_short	Leu	['OH']	NRPS	
+3S-ohPro	antiSMASH_short	Pro	['OH']	NRPS	
+3clLeu	antiSMASH_short	Leu	['Cl']	NRPS	
+3d-NMe-Bmt	rBAN/Norine	Bmt	['E', 'MT']	NRPS	
+4,5-dhArg	antiSMASH_short	Arg	['DH']	NRPS	
+4-Abu	antiSMASH_short	Abu	[]	NRPS	
+4-mxTrp	antiSMASH_short	Trp	['MeO']	NRPS	
+4-ohBza	antiSMASH_short	Bza	['OH']	NRPS	
+4-ohGln	antiSMASH_short	Gln	['OH']	NRPS	
+4-ohPpa	antiSMASH_short	Ppa	['OH']	NRPS	
+4Cl-Thr	rBAN/Norine	Thr	['Cl']	NRPS	
+4Me-D-Hva	rBAN/Norine	Hva	['E', 'MT']	NRPS	
+4Me-Hva	rBAN/Norine	Pen	['OH', 'MT']	NRPS	
+4Me-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+4OH-D-Ph-Lac	rBAN/Norine	Lac	['E', 'OH', 'unknown']	NRPS	
+4OH-Pro	rBAN/Norine	Pro	['OH']	NRPS	
+4OH-Thr	rBAN/Norine	Thr	['OH']	NRPS	
+4R-mePro	antiSMASH_short	Pro	['MT']	NRPS	
+4R-ohPro	antiSMASH_short	Pro	['OH']	NRPS	
+4S-mePro	antiSMASH_short	Pro	['MT']	NRPS	
+4S-ohLys	antiSMASH_short	Lys	['OH']	NRPS	
+4clBza	antiSMASH_short	Bza	['Cl']	NRPS	
+4mePro	antiSMASH_short	Pro	['MT']	NRPS	
+4oxo-5Me-Pro	rBAN/Norine	Pro	['MT', 'unknown']	NRPS	
+4oxo-Hpr	rBAN/Norine	Hpr	['unknown']	NRPS	
+4oxo-Pro	rBAN/Norine	Pro	['unknown']	NRPS	
+5-clTrp	antiSMASH_short	Trp	['Cl']	NRPS	
+5-mxTyr	antiSMASH_short	Tyr	['MeO']	NRPS	
+5Me-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+5OH-Cap	rBAN/Norine	Cap	['OH']	NRPS	
+5S-mePro	antiSMASH_short	Pro	['MT']	NRPS	
+6-clTrp	antiSMASH_short	Trp	['Cl']	NRPS	
+ADMAdda	rBAN/Norine	ADMAdda	[]	PKS_Hybrid	The attracted residue by A-domain is phenylacetate, then it's modified by PKS. The origin of the transferred amino group is unknown, although glutamate is implicated.
+Aad	rBAN/Norine	Aad	[]	NRPS	
+Aad	antiSMASH_short	Aad	[]	NRPS	
+Abu	antiSMASH_short	Abu	[]	NRPS	
+Abu	rBAN/Norine	Abu	[]	NRPS	
+Ac	antiSMASH_short	Ac	[]	NRPS	
+Ac-Aib	rBAN/Norine	Aib	['Ac']	NRPS	
+Ac-Ival	rBAN/Norine	Ival	['Ac']	NRPS	
+Ac-OH-Orn	rBAN/Norine	Orn	['Ac', 'OH']	NRPS	
+Ac-Phe	rBAN/Norine	Phe	['Ac']	NRPS	
+Ac-Pro	rBAN/Norine	Pro	['Ac']	NRPS	
+Ac-Ser	rBAN/Norine	Ser	['Ac']	NRPS	
+Ac-Trp	rBAN/Norine	Trp	['Ac']	NRPS	
+Ac-Val	rBAN/Norine	Val	['Ac']	NRPS	
+Acc	antiSMASH_short	Acc	[]	NRPS	
+Adda	rBAN/Norine	Adda	[]	PKS	Warning: core and modifications are not human-verified!
+Ahp	antiSMASH_short	Ahp	[]	NRPS	
+Ahp	rBAN/Norine	Ahp	[]	NRPS	
+Aib	antiSMASH_short	Aib	[]	NRPS	
+Aib	rBAN/Norine	Aib	[]	NRPS	
+Ala	antiSMASH_short	Ala	[]	NRPS	
+Ala	rBAN/Norine	Ala	[]	NRPS	
+Ant	antiSMASH_short	Ant	[]	NRPS	
+Aol	antiSMASH_short	Aol	[]	NRPS	
+Arg	antiSMASH_short	Arg	[]	NRPS	
+Arg	rBAN/Norine	Arg	[]	NRPS	
+Asn	rBAN/Norine	Asn	[]	NRPS	
+Asn	antiSMASH_short	Asn	[]	NRPS	
+Asp	rBAN/Norine	Asp	[]	NRPS	
+Asp	antiSMASH_short	Asp	[]	NRPS	
+Aze	antiSMASH_short	Aze	[]	NRPS	
+Bmt	rBAN/Norine	Bmt	[]	NRPS	
+Bmt	antiSMASH_short	Bmt	[]	NRPS	
+Boz	antiSMASH_short	Boz	[]	NRPS	
+Br-OH-Trp	rBAN/Norine	Trp	['OH', 'unknown']	NRPS	
+Br-Phe	rBAN/Norine	Phe	['unknown']	NRPS	
+Br-Trp	rBAN/Norine	Trp	['unknown']	NRPS	
+Br-Tyr	rBAN/Norine	Tyr	['unknown']	NRPS	
+But	antiSMASH_short	But	[]	NRPS	
+Bz	rBAN/Norine	Bza	[]	NRPS	
+Bza	antiSMASH_short	Bza	[]	NRPS	
+C10:0-NH2(2)-Ep(9)-oxo(8)	rBAN/Norine	oxoDec	['NH', 'unknown']	NRPS	
+C4:0	rBAN/Norine	But	[]	NRPS	
+C6:2(t2.t4)	rBAN/Norine	C6:2(t2.t4)	[]	PKS	Warning: core and modifications are not human-verified!
+C8:3(t2.t4.t6)	rBAN/Norine	C8:3(t2.t4.t6)	[]	PKS	Warning: core and modifications are not human-verified!
+CFA	rBAN/Norine	CFA	[]	PKS	Warning: core and modifications are not human-verified!
+COOH-Qui	rBAN/Norine	Qui	[]	NRPS	
+Cap	antiSMASH_short	Cap	[]	NRPS	
+Cap	rBAN/Norine	Cap	[]	NRPS	
+Choi	rBAN/Norine	cohOhi	[]	NRPS	
+Cin	antiSMASH_short	Cin	[]	NRPS	
+Cit	antiSMASH_short	Cit	[]	NRPS	
+Cit	rBAN/Norine	Cit	[]	NRPS	
+Cl-Hpg	rBAN/Norine	Hpg	['Cl']	NRPS	
+Cl-Ile	rBAN/Norine	Ile	['Cl']	NRPS	
+Cl-NMe-Tyr	rBAN/Norine	Tyr	['Cl', 'MT']	NRPS	
+Cl-Tyr	rBAN/Norine	Tyr	['Cl']	NRPS	
+Cl2-Hpg	rBAN/Norine	Hpg	['Cl']	NRPS	
+Cl2-NMe-Leu	rBAN/Norine	Leu	['Cl', 'MT']	NRPS	
+Cl2-NMe-dhLeu	rBAN/Norine	Leu	['DH', 'Cl', 'MT']	NRPS	
+Cl2-Pro	rBAN/Norine	Pro	['Cl']	NRPS	
+Cl3-2OH-NMe-Leu	rBAN/Norine	Leu	['Cl', 'OH', 'MT']	NRPS	
+Cl3-5OH-NMe-Leu	rBAN/Norine	Leu	['Cl', 'OH', 'MT']	NRPS	
+Cl3-NMe-Leu	rBAN/Norine	Leu	['Cl', 'MT']	NRPS	
+Cl3-NMe-dhLeu	rBAN/Norine	Leu	['DH', 'Cl', 'MT']	NRPS	
+Cya	antiSMASH_short	Cya	[]	NRPS	
+Cyc-D-Gly	antiSMASH_short	Gly	['E', 'unknown']	NRPS	
+Cys	antiSMASH_short	Cys	[]	NRPS	
+Cys	rBAN/Norine	Cys	[]	NRPS	
+CysA	rBAN/Norine	Cya	[]	NRPS	
+D-3OMe-Ala	rBAN/Norine	Ala	['E', 'MeO']	NRPS	
+D-4OH-Pro	rBAN/Norine	Pro	['E', 'OH']	NRPS	
+D-Abu	rBAN/Norine	Abu	['E']	NRPS	
+D-Ac-OH-Orn	rBAN/Norine	Orn	['E', 'Ac', 'OH']	NRPS	
+D-Ala	rBAN/Norine	Ala	['E']	NRPS	
+D-Ala	antiSMASH_short	Ala	['E']	NRPS	
+D-Arg	rBAN/Norine	Arg	['E']	NRPS	
+D-Asn	rBAN/Norine	Asn	['E']	NRPS	
+D-Asp	rBAN/Norine	Asp	['E']	NRPS	
+D-Br-NMe-Tyr	rBAN/Norine	Tyr	['E', 'MT', 'unknown']	NRPS	
+D-COOH-Trp	rBAN/Norine	Trp	['E', 'unknown']	NRPS	
+D-Cit	rBAN/Norine	Cit	['E']	NRPS	
+D-Cl-CONH2-Trp	rBAN/Norine	Trp	['E', 'Cl', 'unknown']	NRPS	
+D-Cl-NMe-Tyr	rBAN/Norine	Tyr	['E', 'Cl', 'MT']	NRPS	
+D-Cl-Trp	rBAN/Norine	Trp	['E', 'Cl']	NRPS	
+D-Cys	rBAN/Norine	Cys	['E']	NRPS	
+D-CysA	rBAN/Norine	CysA	['E']	NRPS	
+D-Dab	rBAN/Norine	Dab	['E']	NRPS	
+D-Dbu	rBAN/Norine	Dbu	['E']	NRPS	
+D-Dhpg	rBAN/Norine	Dhpg	['E']	NRPS	
+D-End	rBAN/Norine	End	['E']	NRPS	
+D-F-ph-Gly	rBAN/Norine	Gly	['E', 'F', 'unknown']	NRPS	
+D-Fo-OH-Orn	rBAN/Norine	Orn	['E', 'F', 'OH']	NRPS	
+D-Gln	rBAN/Norine	Gln	['E']	NRPS	
+D-Glu	rBAN/Norine	Glu	['E']	NRPS	
+D-Hiv	rBAN/Norine	Hiv	[]	NRPS	
+D-Hmp	rBAN/Norine	Hmp	['E']	NRPS	
+D-Hpg	rBAN/Norine	Hpg	['E']	NRPS	
+D-Hpr	rBAN/Norine	Pip	['E']	NRPS	
+D-Hse	rBAN/Norine	Hse	['E']	NRPS	
+D-I-NMe-Tyr	rBAN/Norine	Tyr	['E', 'MT', 'unknown']	NRPS	
+D-Ile	rBAN/Norine	Ile	['E']	NRPS	
+D-Ival	rBAN/Norine	Ival	['E']	NRPS	
+D-Kyn	rBAN/Norine	Kyn	['E']	NRPS	
+D-Lac	rBAN/Norine	Lac	['E']	NRPS	
+D-Leu	rBAN/Norine	Leu	['E']	NRPS	
+D-Leu	antiSMASH_short	Leu	['E']	NRPS	
+D-Lya	antiSMASH_short	Lya	['E']	NRPS	
+D-Lys	rBAN/Norine	Lys	['E']	NRPS	
+D-MeO-Glu	rBAN/Norine	Glu	['E', 'MT', 'unknown']	NRPS	
+D-N2Me-Asn	rBAN/Norine	Asn	['E', 'MT']	NRPS	
+D-N2Me-bOH-Asn	rBAN/Norine	Asn	['E', 'OH', 'MT']	NRPS	
+D-NFo-Ala	rBAN/Norine	Ala	['E', 'F']	NRPS	
+D-NFo-Lys	rBAN/Norine	Lys	['E', 'F']	NRPS	
+D-NMe-Leu	rBAN/Norine	Leu	['E', 'MT']	NRPS	
+D-NMe-OMe-Tyr	rBAN/Norine	Tyr	['E', 'MT', 'MeO']	NRPS	
+D-NMe-Phe	rBAN/Norine	Phe	['E', 'MT']	NRPS	
+D-NMe-Ser	rBAN/Norine	Ser	['E', 'MT']	NRPS	
+D-NMe-Val	rBAN/Norine	Val	['E', 'MT']	NRPS	
+D-NMe-aIle	rBAN/Norine	aIle	['E', 'MT']	NRPS	
+D-OH-Asn	rBAN/Norine	Asn	['E', 'OH']	NRPS	
+D-OH-Asp	rBAN/Norine	Asp	['E', 'OH']	NRPS	
+D-OH-Orn	rBAN/Norine	Orn	['E', 'OH']	NRPS	
+D-OH-cOrn	rBAN/Norine	Orn	['E', 'OH', 'unknown']	NRPS	
+D-OH-dHpg	rBAN/Norine	dHpg	['E', 'OH']	NRPS	
+D-Orn	rBAN/Norine	Orn	['E']	NRPS	
+D-PO-Asn	rBAN/Norine	Asn	['E', 'unknown']	NRPS	
+D-Ph-Lac	rBAN/Norine	Lac	['E', 'unknown']	NRPS	
+D-Phe	antiSMASH_short	Phe	['E']	NRPS	
+D-Phe	rBAN/Norine	Phe	['E']	NRPS	
+D-Pip	antiSMASH_short	Pip	['E']	NRPS	
+D-Pro	rBAN/Norine	Pro	['E']	NRPS	
+D-Ser	rBAN/Norine	Ser	['E']	NRPS	
+D-Thr	rBAN/Norine	Thr	['E']	NRPS	
+D-Trp	rBAN/Norine	Trp	['E']	NRPS	
+D-Tyr	rBAN/Norine	Tyr	['E']	NRPS	
+D-Val	rBAN/Norine	Val	['E']	NRPS	
+D-aIle	rBAN/Norine	aIle	['E']	NRPS	
+D-aThr	rBAN/Norine	aThr	['E']	NRPS	
+D-bMe-Asp	rBAN/Norine	Asp	['E', 'MT']	NRPS	
+D-bMe-Gln	rBAN/Norine	Gln	['E', 'MT']	NRPS	
+D-bOH-Val	rBAN/Norine	Val	['E', 'OH']	NRPS	
+D-bPhe	rBAN/Norine	bPhe	['E']	NRPS	
+D-ph-Gly	rBAN/Norine	Gly	['E', 'unknown']	NRPS	
+D-pheLac	antiSMASH_short	Lac	['E', 'unknown']	NRPS	
+D-t-Leu	rBAN/Norine	Leu	['E', 'unknown']	NRPS	
+DMAdda	rBAN/Norine	DMAdda	[]	PKS	Warning: core and modifications are not human-verified!
+Dab	rBAN/Norine	Dab	[]	NRPS	
+Dab	antiSMASH_short	Dab	[]	NRPS	
+Dbu	rBAN/Norine	Dbu	[]	NRPS	
+Dhpg	rBAN/Norine	dHpg	[]	NRPS	
+Dpr	antiSMASH_short	Dpr	[]	NRPS	
+Dpr	rBAN/Norine	Dpr	[]	NRPS	
+E-ahmohOrn	antiSMASH_short	Orn	['OH', 'unknown']	NRPS	
+End	antiSMASH_short	End	[]	NRPS	
+End	rBAN/Norine	End	[]	NRPS	
+Fo-OH-Orn	rBAN/Norine	Orn	['F', 'OH']	NRPS	
+Gln	antiSMASH_short	Gln	[]	NRPS	
+Gln	rBAN/Norine	Gln	[]	NRPS	
+Glu	antiSMASH_short	Glu	[]	NRPS	
+Glu	rBAN/Norine	Glu	[]	NRPS	
+Gly	antiSMASH_short	Gly	[]	NRPS	
+Gly	rBAN/Norine	Gly	[]	NRPS	
+Glyca	antiSMASH_short	Glyca	[]	NRPS	
+Gram	antiSMASH_short	Gram	[]	NRPS	
+Gua	antiSMASH_short	Gua	[]	NRPS	
+Hch	antiSMASH_short	Hch	[]	NRPS	
+His	rBAN/Norine	His	[]	NRPS	
+His	antiSMASH_short	His	[]	NRPS	
+Hiv	rBAN/Norine	Hiv	[]	NRPS	
+Hmp	rBAN/Norine	Pen	['OH', 'MT']	NRPS	
+Hpa	antiSMASH_short	Hpa	[]	NRPS	
+Hpa	rBAN/Norine	Hpa	[]	NRPS	
+Hpea	antiSMASH_short	Hpea	[]	NRPS	
+Hpg	antiSMASH_short	Hpg	[]	NRPS	
+Hpg	rBAN/Norine	Hpg	[]	NRPS	
+Hph	rBAN/Norine	Hph	[]	NRPS	
+Hph	antiSMASH_short	Hph	[]	NRPS	
+Hpr	rBAN/Norine	Pip	[]	NRPS	
+Hqa	antiSMASH_short	Hqa	[]	NRPS	
+Hse	antiSMASH_short	Hse	[]	NRPS	
+Hse	rBAN/Norine	Hse	[]	NRPS	
+HseL	rBAN/Norine	Hse	[]	NRPS	
+Htia	antiSMASH_short	Htia	[]	NRPS	
+Hty	rBAN/Norine	Hty	[]	NRPS	
+Hty	antiSMASH_short	Hty	[]	NRPS	
+Ibu	rBAN/Norine	Ibu	[]	NRPS	
+Ibu	antiSMASH_short	Ibu	[]	NRPS	
+Ile	rBAN/Norine	Ile	[]	NRPS	
+Ile	antiSMASH_short	Ile	[]	NRPS	
+Ile/aIle	rBAN/Norine	Ile	[]	NRPS	Parsing is ambiguous. Ile is chosen by default as more frequent
+Isovaleric_acid	rBAN/Norine	Hiv	[]	NRPS	
+Iva	antiSMASH_short	Iva	[]	NRPS	
+Ival	rBAN/Norine	Iva	[]	NRPS	
+Kic	antiSMASH_short	Kic	[]	NRPS	
+Kiv	antiSMASH_short	Kiv	[]	NRPS	
+Kyn	rBAN/Norine	Kyn	[]	NRPS	
+Kyn	antiSMASH_short	Kyn	[]	NRPS	
+L-Dbu	rBAN/Norine	Dab	[]	NRPS	
+Lac	rBAN/Norine	Lac	[]	NRPS	
+Lac	antiSMASH_short	Lac	[]	NRPS	
+Leu	antiSMASH_short	Leu	[]	NRPS	
+Leu	rBAN/Norine	Leu	[]	NRPS	
+Lin	antiSMASH_short	Lin	[]	NRPS	
+Lys	rBAN/Norine	Lys	[]	NRPS	
+Lys	antiSMASH_short	Lys	[]	NRPS	
+Mab	rBAN/Norine	But	[]	NRPS	
+MalAc	antiSMASH_short	Ac	['unknown']	NRPS	
+Me-Suc	rBAN/Norine	Suc	['MT']	NRPS	
+Me2-Bmt	rBAN/Norine	Bmt	['MT']	NRPS	
+MeO-D-Glu	rBAN/Norine	Glu	['E', 'MT', 'unknown']	NRPS	
+MeO-Glu	rBAN/Norine	Glu	['MT', 'unknown']	NRPS	
+MeOx-Ile	rBAN/Norine	Ile	['MT', 'unknown']	NRPS	
+Met	rBAN/Norine	Met	[]	NRPS	
+Met	antiSMASH_short	Met	[]	NRPS	
+N-Suc	rBAN/Norine	Suc	['unknown']	NRPS	
+N-ohVal	antiSMASH_short	Val	['OH']	NRPS	
+N1-COOH-bhTrp	rBAN/Norine	Trp	['unknown']	NRPS	
+N6-ohLys	antiSMASH_short	Lys	['OH']	NRPS	
+NAc-1Me-Trp	rBAN/Norine	Trp	['Ac', 'MT']	NRPS	
+NAc-2Me-3Me-pGlu	rBAN/Norine	Glu	['Ac', 'MT', 'unknown']	NRPS	
+NAc-3Me-4Me-Gln	rBAN/Norine	Gln	['Ac', 'MT']	NRPS	
+NAc-3Me-Glu	rBAN/Norine	Glu	['Ac', 'MT']	NRPS	
+NAc-3Me-Hty	rBAN/Norine	Hty	['Ac', 'MT']	NRPS	
+NAc-3Me-Phe	rBAN/Norine	Phe	['Ac', 'MT']	NRPS	
+NAc-3Me-Pro	rBAN/Norine	Pro	['Ac', 'MT']	NRPS	
+NAc-3NO2-Tyr	rBAN/Norine	Tyr	['Ac', 'NO']	NRPS	
+NAc-3OH-5Me-Pro	rBAN/Norine	Pro	['Ac', 'OH', 'MT']	NRPS	
+NAc-3OH-Leu	rBAN/Norine	Leu	['Ac', 'OH']	NRPS	
+NAc-3OH-Pro	rBAN/Norine	Pro	['Ac', 'OH']	NRPS	
+NAc-4Cl-Thr	rBAN/Norine	Thr	['Ac', 'Cl']	NRPS	
+NAc-4Me-Pro	rBAN/Norine	Pro	['Ac', 'MT']	NRPS	
+NAc-4OH-Pro	rBAN/Norine	Pro	['Ac', 'OH']	NRPS	
+NAc-4OH-Thr	rBAN/Norine	Thr	['Ac', 'OH']	NRPS	
+NAc-4oxo-5Me-Pro	rBAN/Norine	Pro	['Ac', 'MT', 'unknown']	NRPS	
+NAc-4oxo-Hpr	rBAN/Norine	Hpr	['Ac', 'unknown']	NRPS	
+NAc-4oxo-Pro	rBAN/Norine	Pro	['Ac', 'unknown']	NRPS	
+NAc-5Me-Pro	rBAN/Norine	Pro	['Ac', 'MT']	NRPS	
+NAc-5OH-Cap	rBAN/Norine	Cap	['Ac', 'OH']	NRPS	
+NAc-Aad	rBAN/Norine	Aad	['Ac']	NRPS	
+NAc-Abu	rBAN/Norine	Abu	['Ac']	NRPS	
+NAc-Ac-OH-Orn	rBAN/Norine	Orn	['Ac', 'OH']	NRPS	
+NAc-Ac-Ser	rBAN/Norine	Ser	['Ac']	NRPS	
+NAc-Ala	rBAN/Norine	Ala	['Ac']	NRPS	
+NAc-Arg	rBAN/Norine	Arg	['Ac']	NRPS	
+NAc-Asn	rBAN/Norine	Asn	['Ac']	NRPS	
+NAc-Asp	rBAN/Norine	Asp	['Ac']	NRPS	
+NAc-Bmt	rBAN/Norine	Bmt	['Ac']	NRPS	
+NAc-Br-OH-Trp	rBAN/Norine	Trp	['Ac', 'OH', 'unknown']	NRPS	
+NAc-Br-Phe	rBAN/Norine	Phe	['Ac', 'unknown']	NRPS	
+NAc-Br-Trp	rBAN/Norine	Trp	['Ac', 'unknown']	NRPS	
+NAc-Br-Tyr	rBAN/Norine	Tyr	['Ac', 'unknown']	NRPS	
+NAc-Cap	rBAN/Norine	Cap	['Ac']	NRPS	
+NAc-Choi	rBAN/Norine	cohOhi	['Ac']	NRPS	
+NAc-Cit	rBAN/Norine	Cit	['Ac']	NRPS	
+NAc-Cl-Hpg	rBAN/Norine	Hpg	['Ac', 'Cl']	NRPS	
+NAc-Cl-Ile	rBAN/Norine	Ile	['Ac', 'Cl']	NRPS	
+NAc-Cl-Tyr	rBAN/Norine	Tyr	['Ac', 'Cl']	NRPS	
+NAc-Cl2-Hpg	rBAN/Norine	Hpg	['Ac', 'Cl']	NRPS	
+NAc-Cl2-Pro	rBAN/Norine	Pro	['Ac', 'Cl']	NRPS	
+NAc-Cys	rBAN/Norine	Cys	['Ac']	NRPS	
+NAc-CysA	rBAN/Norine	CysA	['Ac']	NRPS	
+NAc-D-COOH-Trp	rBAN/Norine	Trp	['E', 'Ac', 'unknown']	NRPS	
+NAc-D-Cl-CONH2-Trp	rBAN/Norine	Trp	['E', 'Ac', 'Cl', 'unknown']	NRPS	
+NAc-D-Cl-Trp	rBAN/Norine	Trp	['E', 'Ac', 'Cl']	NRPS	
+NAc-D-F-ph-Gly	rBAN/Norine	Gly	['E', 'Ac', 'F', 'unknown']	NRPS	
+NAc-D-N2Me-Asn	rBAN/Norine	Asn	['E', 'Ac', 'MT']	NRPS	
+NAc-D-N2Me-bOH-Asn	rBAN/Norine	Asn	['E', 'Ac', 'OH', 'MT']	NRPS	
+NAc-D-PO-Asn	rBAN/Norine	Asn	['E', 'Ac', 'unknown']	NRPS	
+NAc-Dab	rBAN/Norine	Dab	['Ac']	NRPS	
+NAc-Dbu	rBAN/Norine	Dbu	['Ac']	NRPS	
+NAc-Dhpg	rBAN/Norine	Dhpg	['Ac']	NRPS	
+NAc-Dpr	rBAN/Norine	Dpr	['Ac']	NRPS	
+NAc-End	rBAN/Norine	End	['Ac']	NRPS	
+NAc-Fo-OH-Orn	rBAN/Norine	Orn	['Ac', 'F', 'OH']	NRPS	
+NAc-Gln	rBAN/Norine	Gln	['Ac']	NRPS	
+NAc-Glu	rBAN/Norine	Glu	['Ac']	NRPS	
+NAc-His	rBAN/Norine	His	['Ac']	NRPS	
+NAc-Hpg	rBAN/Norine	Hpg	['Ac']	NRPS	
+NAc-Hph	rBAN/Norine	Hph	['Ac']	NRPS	
+NAc-Hpr	rBAN/Norine	Hpr	['Ac']	NRPS	
+NAc-Hse	rBAN/Norine	Hse	['Ac']	NRPS	
+NAc-Hty	rBAN/Norine	Hty	['Ac']	NRPS	
+NAc-Ile	rBAN/Norine	Ile	['Ac']	NRPS	
+NAc-Kyn	rBAN/Norine	Kyn	['Ac']	NRPS	
+NAc-Leu	rBAN/Norine	Leu	['Ac']	NRPS	
+NAc-Lys	rBAN/Norine	Lys	['Ac']	NRPS	
+NAc-MeO-Glu	rBAN/Norine	Glu	['Ac', 'MT', 'unknown']	NRPS	
+NAc-Met	rBAN/Norine	Met	['Ac']	NRPS	
+NAc-N1-COOH-bhTrp	rBAN/Norine	Trp	['Ac', 'unknown']	NRPS	
+NAc-O-Met	rBAN/Norine	Met	['Ac', 'unknown']	NRPS	
+NAc-O2-Met	rBAN/Norine	Met	['Ac', 'unknown']	NRPS	
+NAc-OH-Asn	rBAN/Norine	Asn	['Ac', 'OH']	NRPS	
+NAc-OH-Asp	rBAN/Norine	Asp	['Ac', 'OH']	NRPS	
+NAc-OH-His	rBAN/Norine	His	['Ac', 'OH']	NRPS	
+NAc-OH-Orn	rBAN/Norine	Orn	['Ac', 'OH']	NRPS	
+NAc-OH-Trp	rBAN/Norine	Trp	['Ac', 'OH']	NRPS	
+NAc-OMe-Asp	rBAN/Norine	Asp	['Ac', 'MeO']	NRPS	
+NAc-OMe-Thr	rBAN/Norine	Thr	['Ac', 'MeO']	NRPS	
+NAc-OMe-Trp	rBAN/Norine	Trp	['Ac', 'MeO']	NRPS	
+NAc-Orn	rBAN/Norine	Orn	['Ac']	NRPS	
+NAc-Ph-Gly	rBAN/Norine	Gly	['Ac', 'unknown']	NRPS	
+NAc-Ph-Ser	rBAN/Norine	Ser	['Ac', 'unknown']	NRPS	
+NAc-Ser	rBAN/Norine	Ser	['Ac']	NRPS	
+NAc-Thr	rBAN/Norine	Thr	['Ac']	NRPS	
+NAc-Tyr	rBAN/Norine	Tyr	['Ac']	NRPS	
+NAc-aFo-Gly	rBAN/Norine	Gly	['Ac', 'F']	NRPS	
+NAc-bMe-Asn	rBAN/Norine	Asn	['Ac', 'MT']	NRPS	
+NAc-bMe-Asp	rBAN/Norine	Asp	['Ac', 'MT']	NRPS	
+NAc-bMe-Br-Phe	rBAN/Norine	Phe	['Ac', 'MT', 'unknown']	NRPS	
+NAc-bMe-Gln	rBAN/Norine	Gln	['Ac', 'MT']	NRPS	
+NAc-bMe-Ile	rBAN/Norine	Ile	['Ac', 'MT']	NRPS	
+NAc-bMe-Phe	rBAN/Norine	Phe	['Ac', 'MT']	NRPS	
+NAc-bOH-Br-Phe	rBAN/Norine	Phe	['Ac', 'OH', 'unknown']	NRPS	
+NAc-bOH-Cl-Tyr	rBAN/Norine	Tyr	['Ac', 'Cl', 'OH']	NRPS	
+NAc-bOH-Gln	rBAN/Norine	Gln	['Ac', 'OH']	NRPS	
+NAc-bOH-Tyr	rBAN/Norine	Tyr	['Ac', 'OH']	NRPS	
+NAc-bOH-Val	rBAN/Norine	Val	['Ac', 'OH']	NRPS	
+NAc-bOMe-Asp	rBAN/Norine	Asp	['Ac', 'MeO']	NRPS	
+NAc-bOMe-Tyr	rBAN/Norine	Tyr	['Ac', 'MeO']	NRPS	
+NAc-bbMe2-O-Met	rBAN/Norine	Met	['Ac', 'MT', 'unknown']	NRPS	
+NAc-diOH-Arg	rBAN/Norine	Arg	['Ac', 'OH']	NRPS	
+NAc-diOH-Phe	rBAN/Norine	Phe	['Ac', 'OH']	NRPS	
+NAc-pGlu	rBAN/Norine	Glu	['Ac', 'unknown']	NRPS	
+NAc-pTrp	rBAN/Norine	Trp	['Ac', 'unknown']	NRPS	
+NAc-t-Leu	rBAN/Norine	Leu	['Ac', 'unknown']	NRPS	
+NFo-1Me-Trp	rBAN/Norine	Trp	['F', 'MT']	NRPS	
+NFo-2Me-3Me-pGlu	rBAN/Norine	Glu	['F', 'MT', 'unknown']	NRPS	
+NFo-3Me-4Me-Gln	rBAN/Norine	Gln	['F', 'MT']	NRPS	
+NFo-3Me-Glu	rBAN/Norine	Glu	['F', 'MT']	NRPS	
+NFo-3Me-Hty	rBAN/Norine	Hty	['F', 'MT']	NRPS	
+NFo-3Me-Phe	rBAN/Norine	Phe	['F', 'MT']	NRPS	
+NFo-3Me-Pro	rBAN/Norine	Pro	['F', 'MT']	NRPS	
+NFo-3NO2-Tyr	rBAN/Norine	Tyr	['F', 'NO']	NRPS	
+NFo-3OH-5Me-Pro	rBAN/Norine	Pro	['F', 'OH', 'MT']	NRPS	
+NFo-3OH-Leu	rBAN/Norine	Leu	['F', 'OH']	NRPS	
+NFo-3OH-Pro	rBAN/Norine	Pro	['F', 'OH']	NRPS	
+NFo-4Cl-Thr	rBAN/Norine	Thr	['F', 'Cl']	NRPS	
+NFo-4Me-Pro	rBAN/Norine	Pro	['F', 'MT']	NRPS	
+NFo-4OH-Pro	rBAN/Norine	Pro	['F', 'OH']	NRPS	
+NFo-4OH-Thr	rBAN/Norine	Thr	['F', 'OH']	NRPS	
+NFo-4oxo-5Me-Pro	rBAN/Norine	Pro	['F', 'MT', 'unknown']	NRPS	
+NFo-4oxo-Hpr	rBAN/Norine	Hpr	['F', 'unknown']	NRPS	
+NFo-4oxo-Pro	rBAN/Norine	Pro	['F', 'unknown']	NRPS	
+NFo-5Me-Pro	rBAN/Norine	Pro	['F', 'MT']	NRPS	
+NFo-5OH-Cap	rBAN/Norine	Cap	['F', 'OH']	NRPS	
+NFo-Aad	rBAN/Norine	Aad	['F']	NRPS	
+NFo-Ac-OH-Orn	rBAN/Norine	Orn	['Ac', 'F', 'OH']	NRPS	
+NFo-Ac-Ser	rBAN/Norine	Ser	['Ac', 'F']	NRPS	
+NFo-Ala	rBAN/Norine	Ala	['F']	NRPS	
+NFo-Arg	rBAN/Norine	Arg	['F']	NRPS	
+NFo-Asn	rBAN/Norine	Asn	['F']	NRPS	
+NFo-Asp	rBAN/Norine	Asp	['F']	NRPS	
+NFo-Bmt	rBAN/Norine	Bmt	['F']	NRPS	
+NFo-Br-OH-Trp	rBAN/Norine	Trp	['F', 'OH', 'unknown']	NRPS	
+NFo-Br-Phe	rBAN/Norine	Phe	['F', 'unknown']	NRPS	
+NFo-Br-Trp	rBAN/Norine	Trp	['F', 'unknown']	NRPS	
+NFo-Br-Tyr	rBAN/Norine	Tyr	['F', 'unknown']	NRPS	
+NFo-Cap	rBAN/Norine	Cap	['F']	NRPS	
+NFo-Choi	rBAN/Norine	cohOhi	['F']	NRPS	
+NFo-Cit	rBAN/Norine	Cit	['F']	NRPS	
+NFo-Cl-Hpg	rBAN/Norine	Hpg	['F', 'Cl']	NRPS	
+NFo-Cl-Ile	rBAN/Norine	Ile	['F', 'Cl']	NRPS	
+NFo-Cl-Tyr	rBAN/Norine	Tyr	['F', 'Cl']	NRPS	
+NFo-Cl2-Hpg	rBAN/Norine	Hpg	['F', 'Cl']	NRPS	
+NFo-Cl2-Pro	rBAN/Norine	Pro	['F', 'Cl']	NRPS	
+NFo-Cys	rBAN/Norine	Cys	['F']	NRPS	
+NFo-CysA	rBAN/Norine	CysA	['F']	NRPS	
+NFo-D-Abu	rBAN/Norine	Abu	['E', 'F']	NRPS	
+NFo-D-COOH-Trp	rBAN/Norine	Trp	['E', 'F', 'unknown']	NRPS	
+NFo-D-Cl-CONH2-Trp	rBAN/Norine	Trp	['E', 'F', 'Cl', 'unknown']	NRPS	
+NFo-D-Cl-Trp	rBAN/Norine	Trp	['E', 'F', 'Cl']	NRPS	
+NFo-D-F-ph-Gly	rBAN/Norine	Gly	['E', 'F', 'unknown']	NRPS	
+NFo-D-N2Me-Asn	rBAN/Norine	Asn	['E', 'F', 'MT']	NRPS	
+NFo-D-N2Me-bOH-Asn	rBAN/Norine	Asn	['E', 'F', 'OH', 'MT']	NRPS	
+NFo-D-PO-Asn	rBAN/Norine	Asn	['E', 'F', 'unknown']	NRPS	
+NFo-Dab	rBAN/Norine	Dab	['F']	NRPS	
+NFo-Dbu	rBAN/Norine	Dbu	['F']	NRPS	
+NFo-Dhpg	rBAN/Norine	Dhpg	['F']	NRPS	
+NFo-Dpr	rBAN/Norine	Dpr	['F']	NRPS	
+NFo-End	rBAN/Norine	End	['F']	NRPS	
+NFo-Fo-OH-Orn	rBAN/Norine	Orn	['F', 'OH']	NRPS	
+NFo-Gln	rBAN/Norine	Gln	['F']	NRPS	
+NFo-Glu	rBAN/Norine	Glu	['F']	NRPS	
+NFo-His	rBAN/Norine	His	['F']	NRPS	
+NFo-Hpg	rBAN/Norine	Hpg	['F']	NRPS	
+NFo-Hph	rBAN/Norine	Hph	['F']	NRPS	
+NFo-Hpr	rBAN/Norine	Hpr	['F']	NRPS	
+NFo-Hse	rBAN/Norine	Hse	['F']	NRPS	
+NFo-Hty	rBAN/Norine	Hty	['F']	NRPS	
+NFo-Ile	rBAN/Norine	Ile	['F']	NRPS	
+NFo-Kyn	rBAN/Norine	Kyn	['F']	NRPS	
+NFo-Leu	rBAN/Norine	Leu	['F']	NRPS	
+NFo-Lys	rBAN/Norine	Lys	['F']	NRPS	
+NFo-MeO-Glu	rBAN/Norine	Glu	['F', 'MT', 'unknown']	NRPS	
+NFo-Met	rBAN/Norine	Met	['F']	NRPS	
+NFo-N1-COOH-bhTrp	rBAN/Norine	Trp	['F', 'unknown']	NRPS	
+NFo-O-Met	rBAN/Norine	Met	['F', 'unknown']	NRPS	
+NFo-O2-Met	rBAN/Norine	Met	['F', 'unknown']	NRPS	
+NFo-OH-Asn	rBAN/Norine	Asn	['F', 'OH']	NRPS	
+NFo-OH-Asp	rBAN/Norine	Asp	['F', 'OH']	NRPS	
+NFo-OH-His	rBAN/Norine	His	['F', 'OH']	NRPS	
+NFo-OH-Orn	rBAN/Norine	Orn	['F', 'OH']	NRPS	
+NFo-OH-Trp	rBAN/Norine	Trp	['F', 'OH']	NRPS	
+NFo-OMe-Asp	rBAN/Norine	Asp	['F', 'MeO']	NRPS	
+NFo-OMe-Thr	rBAN/Norine	Thr	['F', 'MeO']	NRPS	
+NFo-OMe-Trp	rBAN/Norine	Trp	['F', 'MeO']	NRPS	
+NFo-Orn	rBAN/Norine	Orn	['F']	NRPS	
+NFo-Ph-Gly	rBAN/Norine	Gly	['F', 'unknown']	NRPS	
+NFo-Ph-Ser	rBAN/Norine	Ser	['F', 'unknown']	NRPS	
+NFo-Phe	rBAN/Norine	Phe	['F']	NRPS	
+NFo-Pro	rBAN/Norine	Pro	['F']	NRPS	
+NFo-Ser	rBAN/Norine	Ser	['F']	NRPS	
+NFo-Thr	rBAN/Norine	Thr	['F']	NRPS	
+NFo-Trp	rBAN/Norine	Trp	['F']	NRPS	
+NFo-Tyr	rBAN/Norine	Tyr	['F']	NRPS	
+NFo-Val	rBAN/Norine	Val	['F']	NRPS	
+NFo-aFo-Gly	rBAN/Norine	Gly	['F']	NRPS	
+NFo-bMe-Asn	rBAN/Norine	Asn	['F', 'MT']	NRPS	
+NFo-bMe-Asp	rBAN/Norine	Asp	['F', 'MT']	NRPS	
+NFo-bMe-Br-Phe	rBAN/Norine	Phe	['F', 'MT', 'unknown']	NRPS	
+NFo-bMe-Gln	rBAN/Norine	Gln	['F', 'MT']	NRPS	
+NFo-bMe-Ile	rBAN/Norine	Ile	['F', 'MT']	NRPS	
+NFo-bMe-Phe	rBAN/Norine	Phe	['F', 'MT']	NRPS	
+NFo-bOH-Br-Phe	rBAN/Norine	Phe	['F', 'OH', 'unknown']	NRPS	
+NFo-bOH-Cl-Tyr	rBAN/Norine	Tyr	['F', 'Cl', 'OH']	NRPS	
+NFo-bOH-Gln	rBAN/Norine	Gln	['F', 'OH']	NRPS	
+NFo-bOH-Tyr	rBAN/Norine	Tyr	['F', 'OH']	NRPS	
+NFo-bOH-Val	rBAN/Norine	Val	['F', 'OH']	NRPS	
+NFo-bOMe-Asp	rBAN/Norine	Asp	['F', 'MeO']	NRPS	
+NFo-bOMe-Tyr	rBAN/Norine	Tyr	['F', 'MeO']	NRPS	
+NFo-bbMe2-O-Met	rBAN/Norine	Met	['F', 'MT', 'unknown']	NRPS	
+NFo-diOH-Arg	rBAN/Norine	Arg	['F', 'OH']	NRPS	
+NFo-diOH-Phe	rBAN/Norine	Phe	['F', 'OH']	NRPS	
+NFo-pGlu	rBAN/Norine	Glu	['F', 'unknown']	NRPS	
+NFo-pTrp	rBAN/Norine	Trp	['F', 'unknown']	NRPS	
+NFo-t-Leu	rBAN/Norine	Leu	['F', 'unknown']	NRPS	
+NMe-1Me-Trp	rBAN/Norine	Trp	['MT']	NRPS	
+NMe-2Me-3Me-pGlu	rBAN/Norine	Glu	['MT', 'unknown']	NRPS	
+NMe-3Me-4Me-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+NMe-3Me-Glu	rBAN/Norine	Glu	['MT']	NRPS	
+NMe-3Me-Hty	rBAN/Norine	Hty	['MT']	NRPS	
+NMe-3Me-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+NMe-3Me-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+NMe-3NO2-Tyr	rBAN/Norine	Tyr	['NO', 'MT']	NRPS	
+NMe-3OH-5Me-Pro	rBAN/Norine	Pro	['OH', 'MT']	NRPS	
+NMe-3OH-Leu	rBAN/Norine	Leu	['OH', 'MT']	NRPS	
+NMe-3OH-Pro	rBAN/Norine	Pro	['OH', 'MT']	NRPS	
+NMe-4Cl-Thr	rBAN/Norine	Thr	['Cl', 'MT']	NRPS	
+NMe-4Me-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+NMe-4OH-Pro	rBAN/Norine	Pro	['OH', 'MT']	NRPS	
+NMe-4OH-Thr	rBAN/Norine	Thr	['OH', 'MT']	NRPS	
+NMe-4oxo-5Me-Pro	rBAN/Norine	Pro	['MT', 'unknown']	NRPS	
+NMe-4oxo-Hpr	rBAN/Norine	Hpr	['MT', 'unknown']	NRPS	
+NMe-4oxo-Pro	rBAN/Norine	Pro	['MT', 'unknown']	NRPS	
+NMe-5Me-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+NMe-5OH-Cap	rBAN/Norine	Cap	['OH', 'MT']	NRPS	
+NMe-Aad	rBAN/Norine	Aad	['MT']	NRPS	
+NMe-Abu	rBAN/Norine	Abu	['MT']	NRPS	
+NMe-Ac-OH-Orn	rBAN/Norine	Orn	['Ac', 'OH', 'MT']	NRPS	
+NMe-Ac-Ser	rBAN/Norine	Ser	['Ac', 'MT']	NRPS	
+NMe-Ala	rBAN/Norine	Ala	['MT']	NRPS	
+NMe-Arg	rBAN/Norine	Arg	['MT']	NRPS	
+NMe-Asn	rBAN/Norine	Asn	['MT']	NRPS	
+NMe-Asp	rBAN/Norine	Asp	['MT']	NRPS	
+NMe-Bmt	rBAN/Norine	Bmt	['MT']	NRPS	
+NMe-Br-OH-Trp	rBAN/Norine	Trp	['OH', 'MT', 'unknown']	NRPS	
+NMe-Br-Phe	rBAN/Norine	Phe	['MT', 'unknown']	NRPS	
+NMe-Br-Trp	rBAN/Norine	Trp	['MT', 'unknown']	NRPS	
+NMe-Cap	rBAN/Norine	Cap	['MT']	NRPS	
+NMe-Choi	rBAN/Norine	cohOhi	['MT']	NRPS	
+NMe-Cit	rBAN/Norine	Cit	['MT']	NRPS	
+NMe-Cl-Hpg	rBAN/Norine	Hpg	['Cl', 'MT']	NRPS	
+NMe-Cl-Ile	rBAN/Norine	Ile	['Cl', 'MT']	NRPS	
+NMe-Cl-OH-Trp	rBAN/Norine	Trp	['Cl', 'OH', 'MT']	NRPS	
+NMe-Cl-Trp	rBAN/Norine	Trp	['Cl', 'MT']	NRPS	
+NMe-Cl2-Hpg	rBAN/Norine	Hpg	['Cl', 'MT']	NRPS	
+NMe-Cl2-Pro	rBAN/Norine	Pro	['Cl', 'MT']	NRPS	
+NMe-Cys	rBAN/Norine	Cys	['MT']	NRPS	
+NMe-CysA	rBAN/Norine	CysA	['MT']	NRPS	
+NMe-D-COOH-Trp	rBAN/Norine	Trp	['E', 'MT', 'unknown']	NRPS	
+NMe-D-Cl-CONH2-Trp	rBAN/Norine	Trp	['E', 'Cl', 'MT', 'unknown']	NRPS	
+NMe-D-Cl-Trp	rBAN/Norine	Trp	['E', 'Cl', 'MT']	NRPS	
+NMe-D-F-ph-Gly	rBAN/Norine	Gly	['E', 'F', 'MT', 'unknown']	NRPS	
+NMe-D-N2Me-Asn	rBAN/Norine	Asn	['E', 'MT']	NRPS	
+NMe-D-N2Me-bOH-Asn	rBAN/Norine	Asn	['E', 'OH', 'MT']	NRPS	
+NMe-D-PO-Asn	rBAN/Norine	Asn	['E', 'MT', 'unknown']	NRPS	
+NMe-Dab	rBAN/Norine	Dab	['MT']	NRPS	
+NMe-Dbu	rBAN/Norine	Dbu	['MT']	NRPS	
+NMe-Dha	rBAN/Norine	Ala	['MT']	NRPS	
+NMe-Dhpg	rBAN/Norine	Dhpg	['MT']	NRPS	
+NMe-Dpr	rBAN/Norine	Dpr	['MT']	NRPS	
+NMe-End	rBAN/Norine	End	['MT']	NRPS	
+NMe-Fo-OH-Orn	rBAN/Norine	Orn	['F', 'OH', 'MT']	NRPS	
+NMe-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+NMe-Glu	rBAN/Norine	Glu	['MT']	NRPS	
+NMe-Gly	rBAN/Norine	Gly	['MT']	NRPS	
+NMe-His	rBAN/Norine	His	['MT']	NRPS	
+NMe-Hpg	rBAN/Norine	Hpg	['MT']	NRPS	
+NMe-Hph	rBAN/Norine	Hph	['MT']	NRPS	
+NMe-Hpr	rBAN/Norine	Hpr	['MT']	NRPS	
+NMe-Hse	rBAN/Norine	Hse	['MT']	NRPS	
+NMe-Hty	rBAN/Norine	Hty	['MT']	NRPS	
+NMe-Ile	rBAN/Norine	Ile	['MT']	NRPS	
+NMe-Kyn	rBAN/Norine	Kyn	['MT']	NRPS	
+NMe-Leu	rBAN/Norine	Leu	['MT']	NRPS	
+NMe-Lys	rBAN/Norine	Lys	['MT']	NRPS	
+NMe-Me2A-Phe	rBAN/Norine	Phe	['MT', 'NH']	NRPS	
+NMe-MeA-Phe	rBAN/Norine	Phe	['MT', 'NH']	NRPS	
+NMe-MeO-Glu	rBAN/Norine	Glu	['MT', 'unknown']	NRPS	
+NMe-Met	rBAN/Norine	Met	['MT']	NRPS	
+NMe-N1-COOH-bhTrp	rBAN/Norine	Trp	['MT', 'unknown']	NRPS	
+NMe-NAc-Ile	rBAN/Norine	Ile	['Ac', 'MT']	NRPS	
+NMe-O-Met	rBAN/Norine	Met	['MT', 'unknown']	NRPS	
+NMe-O2-Met	rBAN/Norine	Met	['MT', 'unknown']	NRPS	
+NMe-OH-Asn	rBAN/Norine	Asn	['OH', 'MT']	NRPS	
+NMe-OH-Asp	rBAN/Norine	Asp	['OH', 'MT']	NRPS	
+NMe-OH-His	rBAN/Norine	His	['OH', 'MT']	NRPS	
+NMe-OH-Ile	rBAN/Norine	Ile	['OH', 'MT']	NRPS	
+NMe-OH-Orn	rBAN/Norine	Orn	['OH', 'MT']	NRPS	
+NMe-OH-Trp	rBAN/Norine	Trp	['OH', 'MT']	NRPS	
+NMe-OMe-Asp	rBAN/Norine	Asp	['MT', 'MeO']	NRPS	
+NMe-OMe-Ile	rBAN/Norine	Ile	['MT', 'MeO']	NRPS	
+NMe-OMe-Thr	rBAN/Norine	Thr	['MT', 'MeO']	NRPS	
+NMe-OMe-Trp	rBAN/Norine	Trp	['MT', 'MeO']	NRPS	
+NMe-OMe-Tyr	rBAN/Norine	Tyr	['MT', 'MeO']	NRPS	
+NMe-Orn	rBAN/Norine	Orn	['MT']	NRPS	
+NMe-Ph-Gly	rBAN/Norine	Gly	['MT', 'unknown']	NRPS	
+NMe-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+NMe-Pro	rBAN/Norine	Pro	['MT']	NRPS	
+NMe-Ser	rBAN/Norine	Ser	['MT']	NRPS	
+NMe-Thr	rBAN/Norine	Thr	['MT']	NRPS	
+NMe-Trp	rBAN/Norine	Trp	['MT']	NRPS	
+NMe-Tyr	rBAN/Norine	Tyr	['MT']	NRPS	
+NMe-Val	rBAN/Norine	Val	['MT']	NRPS	
+NMe-aFo-Gly	rBAN/Norine	Gly	['F', 'MT']	NRPS	
+NMe-aIle	rBAN/Norine	aIle	['MT']	NRPS	
+NMe-aIle/NMe-Ile	rBAN/Norine	Ile	['MT']	NRPS	Parsing is ambiguous. Ile+MT is chosen by default as more frequent
+NMe-aThr/NMe-Thr	rBAN/Norine	Thr	['MT']	NRPS	Parsing is ambiguous. Thr+MT is chosen by default as more frequent
+NMe-bAla	rBAN/Norine	bAla	['MT']	NRPS	
+NMe-bMe-Asn	rBAN/Norine	Asn	['MT']	NRPS	
+NMe-bMe-Asp	rBAN/Norine	Asp	['MT']	NRPS	
+NMe-bMe-Br-Phe	rBAN/Norine	Phe	['MT', 'unknown']	NRPS	
+NMe-bMe-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+NMe-bMe-Ile	rBAN/Norine	Ile	['MT']	NRPS	
+NMe-bMe-Leu	rBAN/Norine	Leu	['MT']	NRPS	
+NMe-bMe-Leu/diMe-aIle	rBAN/Norine	Leu	['MT']	NRPS	Parsing is ambiguous. Leu+MT is chosen by default as more frequent
+NMe-bMe-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+NMe-bOH-Br-Phe	rBAN/Norine	Phe	['OH', 'MT', 'unknown']	NRPS	
+NMe-bOH-Cl-Tyr	rBAN/Norine	Tyr	['Cl', 'OH', 'MT']	NRPS	
+NMe-bOH-Gln	rBAN/Norine	Gln	['OH', 'MT']	NRPS	
+NMe-bOH-Tyr	rBAN/Norine	Tyr	['OH', 'MT']	NRPS	
+NMe-bOMe-Asp	rBAN/Norine	Asp	['MT', 'MeO']	NRPS	
+NMe-bOMe-Tyr	rBAN/Norine	Tyr	['MT', 'MeO']	NRPS	
+NMe-bbMe2-O-Met	rBAN/Norine	Met	['MT', 'unknown']	NRPS	
+NMe-dPhe	rBAN/Norine	Phe	['MT', 'DH']	NRPS	
+NMe-diOH-Arg	rBAN/Norine	Arg	['OH', 'MT']	NRPS	
+NMe-diOH-Phe	rBAN/Norine	Phe	['OH', 'MT']	NRPS	
+NMe-hv-Val	rBAN/Norine	Val	['MT', 'unknown']	NRPS	
+NMe-pGlu	rBAN/Norine	Glu	['MT', 'unknown']	NRPS	
+NMe-pTrp	rBAN/Norine	Trp	['MT', 'unknown']	NRPS	
+NMe-t-Leu	rBAN/Norine	Leu	['MT', 'unknown']	NRPS	
+NOMe-Ac-D-Phe	rBAN/Norine	Phe	['E', 'Ac', 'MeO']	NRPS	
+NOMe-Ac-Val	rBAN/Norine	Val	['Ac', 'MeO']	NRPS	
+NdMe-Ala	rBAN/Norine	Ala	['MT']	NRPS	
+NdMe-Leu	rBAN/Norine	Leu	['MT']	NRPS	
+Nic	antiSMASH_short	Nic	[]	NRPS	
+NtMe-Leu	rBAN/Norine	Leu	['MT', 'unknown']	NRPS	
+O-Met	rBAN/Norine	Met	['unknown']	NRPS	
+O2-Met	rBAN/Norine	Met	['unknown']	NRPS	
+OH-4Abu	rBAN/Norine	Abu	['OH']	NRPS	
+OH-Asn	rBAN/Norine	Asn	['OH']	NRPS	
+OH-Asp	rBAN/Norine	Asp	['OH']	NRPS	
+OH-His	rBAN/Norine	His	['OH']	NRPS	
+OH-Orn	rBAN/Norine	Orn	['OH']	NRPS	
+OH-Pyr	rBAN/Norine	Pyr	['OH']	NRPS	
+OH-Trp	rBAN/Norine	Trp	['OH']	NRPS	
+OH-bLys	rBAN/Norine	bLys	['OH']	NRPS	
+OH-cOrn	rBAN/Norine	Orn	['OH', 'unknown']	NRPS	
+OH-dHpg	rBAN/Norine	dHpg	['OH']	NRPS	
+OMe-Asp	rBAN/Norine	Asp	['MeO']	NRPS	
+OMe-Thr	rBAN/Norine	Thr	['MT']	NRPS	
+OMe-Trp	rBAN/Norine	Trp	['MeO']	NRPS	
+OMe-bAla-Thz	rBAN/Norine	bAla	['MeO']	NRPS	
+OSu-Hmp	rBAN/Norine	Hmp	['unknown']	NOT_NRPS	
+Orn	antiSMASH_short	Orn	[]	NRPS	
+Orn	rBAN/Norine	Orn	[]	NRPS	
+Pca	antiSMASH_short	Pca	[]	NRPS	
+Pen	antiSMASH_short	Pen	[]	NRPS	
+Pgl	antiSMASH_short	Pgl	[]	NRPS	
+Ph-Gly	rBAN/Norine	Pgl	[]	NRPS	
+Ph-Lac	rBAN/Norine	Lac	['unknown']	NRPS	
+Ph-Ser	rBAN/Norine	Phe	['OH']	NRPS	
+Phe	antiSMASH_short	Phe	[]	NRPS	
+Phe	rBAN/Norine	Phe	[]	NRPS	
+Pip	antiSMASH_short	Pip	[]	NRPS	
+Piz	antiSMASH_short	Piz	[]	NRPS	
+Ppa	antiSMASH_short	Ppa	[]	NRPS	
+Pro	rBAN/Norine	Pro	[]	NRPS	
+Pro	antiSMASH_short	Pro	[]	NRPS	
+Pyr	rBAN/Norine	Pyr	[]	NRPS	
+Pyr	antiSMASH_short	Pyr	[]	NRPS	
+Pyv	antiSMASH_short	Pyv	[]	NRPS	
+Qui	antiSMASH_short	Qui	[]	NRPS	
+R-bPhe	antiSMASH_short	bPhe	[]	NRPS	
+R-bTyr	antiSMASH_short	bTyr	[]	NRPS	
+R-bmeTrp	antiSMASH_short	Trp	['MT', 'unknown']	NRPS	
+R-bohPhe	antiSMASH_short	Phe	['OH']	NRPS	
+R-ohTyr	antiSMASH_short	Tyr	['OH']	NRPS	
+S-bTyr	antiSMASH_short	bTyr	[]	NRPS	
+S-bohPhe	antiSMASH_short	Phe	['OH']	NRPS	
+Sal	antiSMASH_short	Sal	[]	NRPS	
+Sam	antiSMASH_short	Sam	[]	NRPS	
+Ser	antiSMASH_short	Ser	[]	NRPS	
+Ser	rBAN/Norine	Ser	[]	NRPS	
+Sma	antiSMASH_short	Sma	[]	NRPS	
+Suc	rBAN/Norine	Suc	[]	NRPS	
+Suc	antiSMASH_short	Suc	[]	NRPS	
+Thr	antiSMASH_short	Thr	[]	NRPS	
+Thr	rBAN/Norine	Thr	[]	NRPS	
+Trp	rBAN/Norine	Trp	[]	NRPS	
+Trp	antiSMASH_short	Trp	[]	NRPS	
+Tyr	antiSMASH_short	Tyr	[]	NRPS	
+Tyr	rBAN/Norine	Tyr	[]	NRPS	
+Val	rBAN/Norine	Val	[]	NRPS	
+Val	antiSMASH_short	Val	[]	NRPS	
+Valol	rBAN/Norine	Valol	[]	NRPS	
+Valol	antiSMASH_short	Valol	[]	NRPS	
+X	rBAN/Norine	Trp	['Cl']	NRPS	
+Z-ahmohOrn	antiSMASH_short	Orn	['OH', 'unknown']	NRPS	
+aFo-Gly	rBAN/Norine	Gly	['F']	NRPS	
+aIle	rBAN/Norine	aIle	[]	NRPS	
+aIle	antiSMASH_short	aIle	[]	NRPS	
+aMe-Cys	rBAN/Norine	Cys	['MT', 'unknown']	NRPS	
+aThr	rBAN/Norine	aThr	[]	NRPS	
+aThr	antiSMASH_short	aThr	[]	NRPS	
+aThr/Thr	rBAN/Norine	Thr	[]	NRPS	Parsing is ambiguous. Thr is chosen by default as more frequent
+ac-mePro	antiSMASH_short	Pro	['Ac', 'MT']	NRPS	
+acohOrn	antiSMASH_short	Orn	['Ac', 'OH']	NRPS	
+aza-bTyr	antiSMASH_short	bTyr	['unknown']	NRPS	
+b1Me-Trp	rBAN/Norine	Trp	['MT']	NRPS	
+b3Me-4Me-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+b3Me-Glu	rBAN/Norine	Glu	['MT']	NRPS	
+b3Me-Hty	rBAN/Norine	Hty	['MT']	NRPS	
+b3Me-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+b3NO2-Tyr	rBAN/Norine	Tyr	['NO', 'unknown']	NRPS	
+b3OH-Leu	rBAN/Norine	Leu	['OH']	NRPS	
+b4Cl-Thr	rBAN/Norine	Thr	['Cl']	NRPS	
+b4OH-Thr	rBAN/Norine	Thr	['OH']	NRPS	
+b5OH-Cap	rBAN/Norine	Cap	['OH']	NRPS	
+bAad	rBAN/Norine	bAad	[]	NRPS	
+bAbu	rBAN/Norine	bAbu	[]	NRPS	
+bAc-OH-Orn	rBAN/Norine	Orn	['Ac', 'OH', 'unknown']	NRPS	
+bAc-Ser	rBAN/Norine	Ser	['Ac', 'unknown']	NRPS	
+bAla	antiSMASH_short	bAla	[]	NRPS	
+bAla	rBAN/Norine	bAla	[]	NRPS	
+bArg	rBAN/Norine	bArg	[]	NRPS	
+bAsn	rBAN/Norine	bAsn	[]	NRPS	
+bBmt	rBAN/Norine	bBmt	[]	NRPS	
+bBr-OH-Trp	rBAN/Norine	Trp	['OH', 'unknown']	NRPS	
+bBr-Phe	rBAN/Norine	Phe	['unknown']	NRPS	
+bBr-Trp	rBAN/Norine	Trp	['unknown']	NRPS	
+bBr-Tyr	rBAN/Norine	Tyr	['unknown']	NRPS	
+bCap	rBAN/Norine	bCap	[]	NRPS	
+bCit	rBAN/Norine	bCit	[]	NRPS	
+bCl-Ile	rBAN/Norine	Ile	['Cl']	NRPS	
+bCl-Tyr	rBAN/Norine	Tyr	['Cl']	NRPS	
+bCys	rBAN/Norine	bCys	[]	NRPS	
+bCysA	rBAN/Norine	bCysA	[]	NRPS	
+bD-COOH-Trp	rBAN/Norine	Trp	['E', 'unknown']	NRPS	
+bD-Cl-CONH2-Trp	rBAN/Norine	Trp	['E', 'Cl', 'unknown']	NRPS	
+bD-Cl-Trp	rBAN/Norine	Trp	['E', 'Cl']	NRPS	
+bD-N2Me-Asn	rBAN/Norine	Asn	['E', 'MT']	NRPS	
+bD-N2Me-bOH-Asn	rBAN/Norine	Asn	['E', 'OH', 'MT']	NRPS	
+bD-PO-Asn	rBAN/Norine	Asn	['E', 'unknown']	NRPS	
+bDab	rBAN/Norine	bDab	[]	NRPS	
+bDbu	rBAN/Norine	bDbu	[]	NRPS	
+bDpr	rBAN/Norine	bDpr	[]	NRPS	
+bEnd	rBAN/Norine	bEnd	[]	NRPS	
+bFo-OH-Orn	rBAN/Norine	Orn	['F', 'OH']	NRPS	
+bGln	rBAN/Norine	bGln	[]	NRPS	
+bGlu	rBAN/Norine	bGlu	[]	NRPS	
+bHis	rBAN/Norine	bHis	[]	NRPS	
+bHph	rBAN/Norine	bHph	[]	NRPS	
+bHse	rBAN/Norine	bHse	[]	NRPS	
+bHty	rBAN/Norine	bHty	[]	NRPS	
+bIle	rBAN/Norine	bIle	[]	NRPS	
+bKyn	rBAN/Norine	bKyn	[]	NRPS	
+bLeu	rBAN/Norine	bLeu	[]	NRPS	
+bLys	rBAN/Norine	bLys	[]	NRPS	
+bLys	antiSMASH_short	bLys	[]	NRPS	
+bMe-Asn	rBAN/Norine	Asn	['MT']	NRPS	
+bMe-Asp	rBAN/Norine	Asp	['E', 'MT']	NRPS	
+bMe-Br-Phe	rBAN/Norine	Phe	['MT', 'unknown']	NRPS	
+bMe-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+bMe-Ile	rBAN/Norine	Ile	['MT']	NRPS	
+bMe-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+bMeO-Glu	rBAN/Norine	Glu	['MT', 'unknown']	NRPS	
+bMet	rBAN/Norine	bMet	[]	NRPS	
+bN1-COOH-bhTrp	rBAN/Norine	Trp	['unknown']	NRPS	
+bO-Met	rBAN/Norine	Met	['unknown']	NRPS	
+bO2-Met	rBAN/Norine	Met	['unknown']	NRPS	
+bOH-Asn	rBAN/Norine	Asn	['OH']	NRPS	
+bOH-Asp	rBAN/Norine	Asp	['OH']	NRPS	
+bOH-Br-Phe	rBAN/Norine	Phe	['OH', 'unknown']	NRPS	
+bOH-Cl-Tyr	rBAN/Norine	Tyr	['Cl', 'OH']	NRPS	
+bOH-Gln	rBAN/Norine	Gln	['OH']	NRPS	
+bOH-His	rBAN/Norine	His	['OH']	NRPS	
+bOH-NMe-Phe	rBAN/Norine	Phe	['OH', 'MT']	NRPS	
+bOH-NMe-Val	rBAN/Norine	Val	['OH', 'MT']	NRPS	
+bOH-Orn	rBAN/Norine	Orn	['OH']	NRPS	
+bOH-Trp	rBAN/Norine	Trp	['OH']	NRPS	
+bOH-Tyr	rBAN/Norine	Tyr	['OH']	NRPS	
+bOH-Val	rBAN/Norine	Val	['OH']	NRPS	
+bOMe-Asp	rBAN/Norine	Asp	['MeO']	NRPS	
+bOMe-Thr	rBAN/Norine	Thr	['MeO']	NRPS	
+bOMe-Trp	rBAN/Norine	Trp	['MeO']	NRPS	
+bOMe-Tyr	rBAN/Norine	Tyr	['MeO']	NRPS	
+bOrn	rBAN/Norine	bOrn	[]	NRPS	
+bPh-Ser	rBAN/Norine	Ser	['unknown']	NRPS	
+bPhe	rBAN/Norine	bPhe	[]	NRPS	
+bSer	rBAN/Norine	bSer	[]	NRPS	
+bThr	rBAN/Norine	bThr	[]	NRPS	
+bTrp	rBAN/Norine	bTrp	[]	NRPS	
+bTyr	rBAN/Norine	bTyr	[]	NRPS	
+bU-dAla	rBAN/Norine	Ala	['unknown']	NRPS	
+bVal	rBAN/Norine	bVal	[]	NRPS	
+baFo-Gly	rBAN/Norine	Gly	['F']	NRPS	
+bbMe-Asn	rBAN/Norine	Asn	['MT']	NRPS	
+bbMe-Asp	rBAN/Norine	Asp	['MT']	NRPS	
+bbMe-Br-Phe	rBAN/Norine	Phe	['MT', 'unknown']	NRPS	
+bbMe-Gln	rBAN/Norine	Gln	['MT']	NRPS	
+bbMe-NMe-Trp	rBAN/Norine	Trp	['MT']	NRPS	
+bbMe-Phe	rBAN/Norine	Phe	['MT']	NRPS	
+bbMe2-O-Met	rBAN/Norine	Met	['MT', 'unknown']	NRPS	
+bbNMe-NMe-Trp	rBAN/Norine	Trp	['MT']	NRPS	
+bbOH-Br-Phe	rBAN/Norine	Phe	['OH', 'unknown']	NRPS	
+bbOH-Cl-Tyr	rBAN/Norine	Tyr	['Cl', 'OH', 'unknown']	NRPS	
+bbOH-Gln	rBAN/Norine	Gln	['OH']	NRPS	
+bbOH-Tyr	rBAN/Norine	Tyr	['OH']	NRPS	
+bbOMe-Asp	rBAN/Norine	Asp	['MeO']	NRPS	
+bbOMe-Tyr	rBAN/Norine	Tyr	['MeO']	NRPS	
+bdiOH-Arg	rBAN/Norine	Arg	['OH']	NRPS	
+bdiOH-Phe	rBAN/Norine	Phe	['OH']	NRPS	
+bohPhe	antiSMASH_short	Phe	['OH']	NRPS	
+branched-D-3R-meAsp	antiSMASH_short	Asp	['E', 'MT']	NRPS	
+branched-D-3S-meAsp	antiSMASH_short	Asp	['E', 'MT']	NRPS	
+branched-D-Asp	antiSMASH_short	Asp	['E']	NRPS	
+branched-D-Glu	antiSMASH_short	Glu	['E']	NRPS	
+branchedAsp	antiSMASH_short	Asp	[]	NRPS	
+branchedCys	antiSMASH_short	Cys	[]	NRPS	
+ck-Arg	rBAN/Norine	Arg	['unknown']	NRPS	
+cl-me-dHpg	antiSMASH_short	dHpg	['Cl', 'MT']	NRPS	
+clAnt	antiSMASH_short	Ant	['Cl']	NRPS	
+clHic	antiSMASH_short	Hic	['Cl']	NRPS	
+clPro	antiSMASH_short	Pro	['Cl']	NRPS	
+clTyr	antiSMASH_short	Tyr	['Cl']	NRPS	
+cohOhi	antiSMASH_short	cohOhi	['unknown']	NRPS	
+croGly	antiSMASH_short	Gly	['unknown']	NRPS	
+cycHexAla	antiSMASH_short	cycHexAla	['unknown']	NRPS	
+dHpg	antiSMASH_short	dHpg	[]	NRPS	
+dPyr	rBAN/Norine	Pyr	['DH']	NRPS	
+dcPhz	antiSMASH_short	Phz	['unknown']	NRPS	
+dclHpg	antiSMASH_short	Hpg	['Cl']	NRPS	
+dclPro	antiSMASH_short	Pro	['Cl']	NRPS	
+dclTrp	antiSMASH_short	Trp	['Cl']	NRPS	
+dclohBfa	antiSMASH_short	Bfa	['Cl', 'OH']	NRPS	
+dh-Ala	rBAN/Norine	Ala	['DH']	NRPS	
+dh-Trp	rBAN/Norine	Trp	['DH']	NRPS	
+dhAbu	antiSMASH_short	Abu	['DH']	NRPS	
+dhAbu	rBAN/Norine	Abu	['DH']	NRPS	
+dhArg	antiSMASH_short	Arg	['DH']	NRPS	
+dhCys	rBAN/Norine	Cys	['DH']	NRPS	
+dhLys	antiSMASH_short	Lys	['DH']	NRPS	
+dhOrn	antiSMASH_short	Orn	['OH']	NRPS	
+dhPhe	antiSMASH_short	Phe	['DH']	NRPS	
+dhTrp	antiSMASH_short	Trp	['DH']	NRPS	
+dhTyr	antiSMASH_short	Tyr	['DH']	NRPS	
+dhVal	antiSMASH_short	Val	['DH']	NRPS	
+diMe-Cys	rBAN/Norine	Cys	['MT']	NRPS	
+diMe-aIle	rBAN/Norine	aIle	['MT']	NRPS	
+diOH-Arg	rBAN/Norine	Arg	['OH']	NRPS	
+diOH-Bz	rBAN/Norine	Bza	['OH']	NRPS	
+diOH-Phe	rBAN/Norine	Phe	['OH']	NRPS	
+dmePip	antiSMASH_short	Pip	['MT']	NRPS	
+dmeaTrp	antiSMASH_short	Trp	['MT', 'unknown']	NRPS	
+dn-dohHep	antiSMASH_short	Hep	['NH', 'OH']	NRPS	
+dnmeProp	antiSMASH_short	Prop	['NH', 'MT']	NRPS	
+dohHty	antiSMASH_short	Hty	['OH']	NRPS	
+dohPen	antiSMASH_short	Pen	['OH']	NRPS	
+dohmTyr	antiSMASH_short	Tyr	['OH', 'MT']	NRPS	
+dv-Tyr	rBAN/Norine	Tyr	['unknown', 'DH']	NRPS	
+e-Tyr	rBAN/Norine	Tyr	['unknown']	NRPS	
+fa	antiSMASH_short	fa	['unknown']	NRPS	
+foGly	antiSMASH_short	Gly	['F']	NRPS	
+fohOrn	antiSMASH_short	Orn	['F', 'OH']	NRPS	
+gOH-NMe-Val	rBAN/Norine	Val	['OH', 'MT']	NRPS	
+gSer	rBAN/Norine	Ser	['unknown']	NRPS	
+hclHis	antiSMASH_short	His	['Cl', 'OH']	NRPS	
+hk-Arg	rBAN/Norine	Arg	['unknown']	NRPS	
+k-Arg	rBAN/Norine	Arg	['unknown']	NRPS	
+k-Leu	rBAN/Norine	Leu	['unknown']	NRPS	
+mTyr	antiSMASH_short	mTyr	[]	NRPS	
+me-bAla	antiSMASH_short	bAla	['MT']	NRPS	
+me-clHic	antiSMASH_short	Hic	['Cl', 'MT']	NRPS	
+me-oxoBut	antiSMASH_short	But	['MT', 'unknown']	NRPS	
+meAcc	antiSMASH_short	Acc	['MT']	NRPS	
+meAsn	antiSMASH_short	Asn	['MT']	NRPS	
+meAsp	antiSMASH_short	Asp	['MT']	NRPS	
+meAze	antiSMASH_short	Aze	['MT']	NRPS	
+meGlu	antiSMASH_short	Glu	['MT']	NRPS	
+meHex	antiSMASH_short	Hex	['MT']	NRPS	
+meLeu	antiSMASH_short	Leu	['MT']	NRPS	
+meOrs	antiSMASH_short	Ors	['MT']	NRPS	
+mePhe	antiSMASH_short	Phe	['MT']	NRPS	
+mePip	antiSMASH_short	Pip	['MT']	NRPS	
+meSal	antiSMASH_short	Sal	['MT']	NRPS	
+meSer	antiSMASH_short	Ser	['MT']	NRPS	
+mxAnt	antiSMASH_short	Ant	['MeO']	NRPS	
+mxAsp	antiSMASH_short	Asp	['MeO']	NRPS	
+n-epox-oxoDec	antiSMASH_short	oxoDec	['NH', 'unknown']	NRPS	
+n-oh-nitropheBut	antiSMASH_short	But	['NH', 'OH', 'NO']	NRPS	
+n-oxoDec	antiSMASH_short	oxoDec	['NH']	NRPS	
+nBza	antiSMASH_short	Bza	['NH']	NRPS	
+nDec	antiSMASH_short	Dec	['NH']	NRPS	
+nDece	antiSMASH_short	Dece	['NH']	NRPS	
+nDodec	antiSMASH_short	Dodec	['NH']	NRPS	
+nHcp	antiSMASH_short	nHcp	[]	NRPS	
+nLev	antiSMASH_short	Lev	['NH']	NRPS	
+nOct	antiSMASH_short	Oct	['NH']	NRPS	
+nPhe	antiSMASH_short	Phe	['NH']	NRPS	
+ndmHex	antiSMASH_short	Hex	['NH', 'MT']	NRPS	
+niCpa	antiSMASH_short	niCpa	['unknown']	NRPS	
+nitroTrp	antiSMASH_short	Trp	['NO']	NRPS	
+nitroTyr	antiSMASH_short	Tyr	['NO']	NRPS	
+noh-isopox-Bza	antiSMASH_short	Bza	['NH', 'OH', 'unknown']	NRPS	
+nohBza	antiSMASH_short	Bza	['NH', 'OH']	NRPS	
+nohme-oxoDec	antiSMASH_short	oxoDec	['NH', 'OH', 'MT']	NRPS	
+norCMA	rBAN/Norine	Acc	['MT']	NRPS	
+oh-D-Kyn	antiSMASH_short	Kyn	['E', 'OH']	NRPS	
+oh-nitroBza	antiSMASH_short	Bza	['NO', 'OH']	NRPS	
+ohArg	antiSMASH_short	Arg	['OH']	NRPS	
+ohAsn	antiSMASH_short	Asn	['OH']	NRPS	
+ohAsp	antiSMASH_short	Asp	['OH']	NRPS	
+ohDab	antiSMASH_short	Dab	['OH']	NRPS	
+ohEnd	antiSMASH_short	End	['OH']	NRPS	
+ohGln	antiSMASH_short	Gln	['OH']	NRPS	
+ohHty	antiSMASH_short	Hty	['OH']	NRPS	
+ohKyn	antiSMASH_short	Kyn	['OH']	NRPS	
+ohMan	antiSMASH_short	Man	['OH']	NRPS	
+ohOrn	antiSMASH_short	Orn	['OH']	NRPS	
+ohPen	antiSMASH_short	Pen	['OH']	NRPS	
+ohPip	antiSMASH_short	Pip	['OH']	NRPS	
+ohPro	antiSMASH_short	Pro	['OH']	NRPS	
+ohTyr	antiSMASH_short	Tyr	['OH']	NRPS	
+ohdmTyr	antiSMASH_short	Tyr	['OH', 'MT']	NRPS	
+ohmeTyr	antiSMASH_short	Tyr	['OH', 'MT']	NRPS	
+ohnBza	antiSMASH_short	Bza	['NH', 'OH']	NRPS	
+omeThr	antiSMASH_short	Thr	['MT']	NRPS	
+omeTyr	antiSMASH_short	Tyr	['MT']	NRPS	
+pGlu	rBAN/Norine	Glu	['unknown']	NRPS	
+pNH2-Bz	rBAN/Norine	Bza	['NH']	NRPS	
+pOH-Bz	rBAN/Norine	Bza	['OH']	NRPS	
+pPro	antiSMASH_short	Pro	['unknown']	NRPS	
+pTrp	rBAN/Norine	Trp	['unknown']	NRPS	
+parTrp	antiSMASH_short	Trp	['unknown']	NRPS	
+proPro	antiSMASH_short	Pro	['unknown']	NRPS	
+pyrAla	antiSMASH_short	Ala	['unknown']	NRPS	
+t-Leu	rBAN/Norine	Leu	['unknown']	NRPS	
+v-Arg	rBAN/Norine	Arg	['unknown']	NRPS	
+v-OH-Tyr	rBAN/Norine	Tyr	['OH', 'unknown']	NRPS	
+v-Tyr	rBAN/Norine	Tyr	['unknown']	NRPS	
+2OMe-Rha	rBAN/Norine	2OMe-Rha	['unknown']	NOT_NRPS	
+4oxo-Van	rBAN/Norine	4oxo-Van	['unknown']	NOT_NRPS	
+aC10:0	rBAN/Norine	aC10:0	['unknown']	NOT_NRPS	
+aC11:0	rBAN/Norine	aC11:0	['unknown']	NOT_NRPS	
+aC11:2(4.6)-Me(2.6)-OH(2.3)	rBAN/Norine	aC11:2(4.6)-Me(2.6)-OH(2.3)	['unknown']	NOT_NRPS	
+aC13:0	rBAN/Norine	aC13:0	['unknown']	NOT_NRPS	
+aC13:0-OH(3)	rBAN/Norine	aC13:0-OH(3)	['unknown']	NOT_NRPS	
+aC13:1(3)	rBAN/Norine	aC13:1(3)	['unknown']	NOT_NRPS	
+aC13:2(2.t4)	rBAN/Norine	aC13:2(2.t4)	['unknown']	NOT_NRPS	
+aC15:0	rBAN/Norine	aC15:0	['unknown']	NOT_NRPS	
+aC15:0-NH2(3)	rBAN/Norine	aC15:0-NH2(3)	['unknown']	NOT_NRPS	
+aC15:0-OH(3)	rBAN/Norine	aC15:0-OH(3)	['unknown']	NOT_NRPS	
+aC15:1(3)	rBAN/Norine	aC15:1(3)	['unknown']	NOT_NRPS	
+aC17:0-NH2(3)	rBAN/Norine	aC17:0-NH2(3)	['unknown']	NOT_NRPS	
+aC17:0-OH(3)	rBAN/Norine	aC17:0-OH(3)	['unknown']	NOT_NRPS	
+aC6:0-OH(2.3)	rBAN/Norine	aC6:0-OH(2.3)	['unknown']	NOT_NRPS	
+aC9:0	rBAN/Norine	aC9:0	['unknown']	NOT_NRPS	
+aC9:0-OH(2)-NH2(3)	rBAN/Norine	aC9:0-OH(2)-NH2(3)	['unknown']	NOT_NRPS	
+aC9:0-OH(3)	rBAN/Norine	aC9:0-OH(3)	['unknown']	NOT_NRPS	
+Aca	rBAN/Norine	Aca	['unknown']	NRPS	
+Aco	rBAN/Norine	Aco	['unknown']	NOT_NRPS	
+Act	rBAN/Norine	Act	['unknown']	NOT_NRPS	
+Agdha	rBAN/Norine	Agdha	['unknown']	NOT_NRPS	
+Ahad	rBAN/Norine	Ahad	['unknown']	NOT_NRPS	
+Ahv	rBAN/Norine	Ahv	['unknown']	NRPS	
+Ala-Thz	rBAN/Norine	Ala-Thz	['unknown']	NOT_NRPS	
+Amv	rBAN/Norine	Amv	['unknown']	NRPS	
+Apv	rBAN/Norine	Apv	['unknown']	NRPS	
+Ara	rBAN/Norine	Ara	['unknown']	NOT_NRPS	
+Argal	rBAN/Norine	Argal	['unknown']	NOT_NRPS	
+Azd	rBAN/Norine	Azd	['unknown']	NOT_NRPS	
+bD-Gal	rBAN/Norine	bD-Gal	['unknown']	NOT_NRPS	
+bPhe	rBAN/Norine	bPhe	['']	NRPS	
+bTyr	rBAN/Norine	bTyr	['']	NRPS	
+C10:0	rBAN/Norine	C10:0	['unknown']	NOT_NRPS	
+C10:0:1(9)-Me(2.4)	rBAN/Norine	C10:0:1(9)-Me(2.4)	['unknown']	NOT_NRPS	
+C10:0-Me(2.2.4)-OH(3.7)	rBAN/Norine	C10:0-Me(2.2.4)-OH(3.7)	['unknown']	NOT_NRPS	
+C10:0-Me(2.2.4)-OH(3)-OMe(7)	rBAN/Norine	C10:0-Me(2.2.4)-OH(3)-OMe(7)	['unknown']	NOT_NRPS	
+C10:0-Me(2.4)-oxo(9)	rBAN/Norine	C10:0-Me(2.4)-oxo(9)	['unknown']	NOT_NRPS	
+C10:0-Me(2)-OH(3)	rBAN/Norine	C10:0-Me(2)-OH(3)	['unknown']	NOT_NRPS	
+C10:0-Me(4)-OH(3)	rBAN/Norine	C10:0-Me(4)-OH(3)	['unknown']	NOT_NRPS	
+C10:0-NH2(2)-oxo(8)	rBAN/Norine	C10:0-NH2(2)-oxo(8)	['unknown']	NOT_NRPS	
+C10:0-OH(2)-NH2(3)	rBAN/Norine	C10:0-OH(2)-NH2(3)	['unknown']	NOT_NRPS	
+C10:0-OH(3)	rBAN/Norine	C10:0-OH(3)	['unknown']	NOT_NRPS	
+C10:0-OH(8)-NH2(2)	rBAN/Norine	C10:0-OH(8)-NH2(2)	['unknown']	NOT_NRPS	
+C10:0-OH(9)-NH2(2)	rBAN/Norine	C10:0-OH(9)-NH2(2)	['unknown']	NOT_NRPS	
+C10:0-OH(9)-NH2(2)-oxo(8)	rBAN/Norine	C10:0-OH(9)-NH2(2)-oxo(8)	['unknown']	NOT_NRPS	
+C10:2(7.9)-OH(2.4.5)-NH2(3)-ePh(10)	rBAN/Norine	C10:2(7.9)-OH(2.4.5)-NH2(3)-ePh(10)	['unknown']	NOT_NRPS	
+C11:0-Me(2)-OH(3)	rBAN/Norine	C11:0-Me(2)-OH(3)	['unknown']	NOT_NRPS	
+C11:0-OH(3)	rBAN/Norine	C11:0-OH(3)	['unknown']	NOT_NRPS	
+C11:2(t2.t8)-Me(2.6.8)-OH(5.7)	rBAN/Norine	C11:2(t2.t8)-Me(2.6.8)-OH(5.7)	['unknown']	NOT_NRPS	
+C12:0	rBAN/Norine	C12:0	['unknown']	NOT_NRPS	
+C12:0-OH(3)	rBAN/Norine	C12:0-OH(3)	['unknown']	NOT_NRPS	
+C12:1(11)-Me(6)-OH(2.4.5)-NH2(3)-mPhe(11)	rBAN/Norine	C12:1(11)-Me(6)-OH(2.4.5)-NH2(3)-mPhe(11)	['unknown']	NOT_NRPS	
+C12:1(5)	rBAN/Norine	C12:1(5)	['unknown']	NOT_NRPS	
+C12:1(5)-OH(3)	rBAN/Norine	C12:1(5)-OH(3)	['unknown']	NOT_NRPS	
+C12:3(7.9.11)-Me(6.10)-OH(2.4.5)-NH2(3)-Ph(12)	rBAN/Norine	C12:3(7.9.11)-Me(6.10)-OH(2.4.5)-NH2(3)-Ph(12)	['unknown']	NOT_NRPS	
+C12:3(7.9.11)-Me(6)-OH(2.4.5)-NH2(3)-Ph(12)	rBAN/Norine	C12:3(7.9.11)-Me(6)-OH(2.4.5)-NH2(3)-Ph(12)	['unknown']	NOT_NRPS	
+C13:0-NH2(3)	rBAN/Norine	C13:0-NH2(3)	['unknown']	NOT_NRPS	
+C13:0-OH(3)	rBAN/Norine	C13:0-OH(3)	['unknown']	NOT_NRPS	
+C13:2(t4.t6)-OH(2.3)	rBAN/Norine	C13:2(t4.t6)-OH(2.3)	['unknown']	NOT_NRPS	
+C14:0	rBAN/Norine	C14:0	['unknown']	NOT_NRPS	
+C14:0-NH2(3)	rBAN/Norine	C14:0-NH2(3)	['unknown']	NOT_NRPS	
+C14:0-OH(3)	rBAN/Norine	C14:0-OH(3)	['unknown']	NOT_NRPS	
+C14:0-OH(3.4)	rBAN/Norine	C14:0-OH(3.4)	['unknown']	NOT_NRPS	
+C14:1(7)	rBAN/Norine	C14:1(7)	['unknown']	NOT_NRPS	
+C14:2(t4.t6)-OH(2.3)	rBAN/Norine	C14:2(t4.t6)-OH(2.3)	['unknown']	NOT_NRPS	
+C15:0-NH2(3)	rBAN/Norine	C15:0-NH2(3)	['unknown']	NOT_NRPS	
+C15:0-OH(3)	rBAN/Norine	C15:0-OH(3)	['unknown']	NOT_NRPS	
+C15:2(t4.t6)-OH(2.3)	rBAN/Norine	C15:2(t4.t6)-OH(2.3)	['unknown']	NOT_NRPS	
+C16:0	rBAN/Norine	C16:0	['unknown']	NOT_NRPS	
+C16:0-NH2(3)	rBAN/Norine	C16:0-NH2(3)	['unknown']	NOT_NRPS	
+C16:0-OH(3)	rBAN/Norine	C16:0-OH(3)	['unknown']	NOT_NRPS	
+C16:0-OH(3.4)	rBAN/Norine	C16:0-OH(3.4)	['unknown']	NOT_NRPS	
+C16:1(7)	rBAN/Norine	C16:1(7)	['unknown']	NOT_NRPS	
+C16:1(9)	rBAN/Norine	C16:1(9)	['unknown']	NOT_NRPS	
+C16:1(9)-OH(3)	rBAN/Norine	C16:1(9)-OH(3)	['unknown']	NOT_NRPS	
+C18:1(9)	rBAN/Norine	C18:1(9)	['unknown']	NOT_NRPS	
+C18:1(9)-OH(3)	rBAN/Norine	C18:1(9)-OH(3)	['unknown']	NOT_NRPS	
+C4:0-Me(2)	rBAN/Norine	C4:0-Me(2)	['unknown']	NOT_NRPS	
+C4:0-OH(2.3)	rBAN/Norine	C4:0-OH(2.3)	['unknown']	NOT_NRPS	
+C4:0-OH(2.3.4)	rBAN/Norine	C4:0-OH(2.3.4)	['unknown']	NOT_NRPS	
+C4:0-OH(2.3)-Cl(4)	rBAN/Norine	C4:0-OH(2.3)-Cl(4)	['unknown']	NOT_NRPS	
+C4:0-OH(2)-Ep(3)	rBAN/Norine	C4:0-OH(2)-Ep(3)	['unknown']	NOT_NRPS	
+C4:0-OH(3)	rBAN/Norine	C4:0-OH(3)	['unknown']	NOT_NRPS	
+C4:1(3)-OH(2)	rBAN/Norine	C4:1(3)-OH(2)	['unknown']	NOT_NRPS	
+C5:0-NH2(3)	rBAN/Norine	C5:0-NH2(3)	['unknown']	NOT_NRPS	
+C5:0-OH(2)-Ep(4)	rBAN/Norine	C5:0-OH(2)-Ep(4)	['unknown']	NOT_NRPS	
+C5:1(4)-OH(2)	rBAN/Norine	C5:1(4)-OH(2)	['unknown']	NOT_NRPS	
+C6:0	rBAN/Norine	C6:0	['unknown']	NOT_NRPS	
+C6:0-Ep(2)	rBAN/Norine	C6:0-Ep(2)	['unknown']	NOT_NRPS	
+C6:0-Me(2.2)-OH(3)	rBAN/Norine	C6:0-Me(2.2)-OH(3)	['unknown']	NOT_NRPS	
+C6:0-Me(2)-NH2(3)	rBAN/Norine	C6:0-Me(2)-NH2(3)	['unknown']	NOT_NRPS	
+C6:0-OH(3)	rBAN/Norine	C6:0-OH(3)	['unknown']	NOT_NRPS	
+C6:0-OH(3.5)-NH2(4)	rBAN/Norine	C6:0-OH(3.5)-NH2(4)	['unknown']	NOT_NRPS	
+C6:0-OMe(3)	rBAN/Norine	C6:0-OMe(3)	['unknown']	NOT_NRPS	
+C7:0	rBAN/Norine	C7:0	['unknown']	NOT_NRPS	
+C7:0-Me(2)-OH(3)	rBAN/Norine	C7:0-Me(2)-OH(3)	['unknown']	NOT_NRPS	
+C7:0-OH(3)	rBAN/Norine	C7:0-OH(3)	['unknown']	NOT_NRPS	
+C8:0	rBAN/Norine	C8:0	['unknown']	NOT_NRPS	
+C8:0:1(7)	rBAN/Norine	C8:0:1(7)	['unknown']	NOT_NRPS	
+C8:0:1(7)-Me(2)	rBAN/Norine	C8:0:1(7)-Me(2)	['unknown']	NOT_NRPS	
+C8:0:1(7)-Me(2.2)-OH(3)	rBAN/Norine	C8:0:1(7)-Me(2.2)-OH(3)	['unknown']	NOT_NRPS	
+C8:0:1(7)-Me(2)-NH2(3)	rBAN/Norine	C8:0:1(7)-Me(2)-NH2(3)	['unknown']	NOT_NRPS	
+C8:0:1(7)-Me(2)-OH(3)	rBAN/Norine	C8:0:1(7)-Me(2)-OH(3)	['unknown']	NOT_NRPS	
+C8:0-Me(2.2)-OH(3)	rBAN/Norine	C8:0-Me(2.2)-OH(3)	['unknown']	NOT_NRPS	
+C8:0-Me(4)-OH(3)	rBAN/Norine	C8:0-Me(4)-OH(3)	['unknown']	NOT_NRPS	
+C8:0-OH(3)	rBAN/Norine	C8:0-OH(3)	['unknown']	NOT_NRPS	
+C8:1(7)-Me(2.2)-OH(3)	rBAN/Norine	C8:1(7)-Me(2.2)-OH(3)	['unknown']	NOT_NRPS	
+C8:1(7)-OH(2.4.5)-NH2(3)-Ph(8)	rBAN/Norine	C8:1(7)-OH(2.4.5)-NH2(3)-Ph(8)	['unknown']	NOT_NRPS	
+C8:2(2.t4)	rBAN/Norine	C8:2(2.t4)	['unknown']	NOT_NRPS	
+C8:2(5.7)-Me(6)-OH(4)-NH2(3)-brPh(8)	rBAN/Norine	C8:2(5.7)-Me(6)-OH(4)-NH2(3)-brPh(8)	['unknown']	NOT_NRPS	
+C8:2(5.7)-Me(6)-OH(4)-NH2(3)-Ph(8)	rBAN/Norine	C8:2(5.7)-Me(6)-OH(4)-NH2(3)-Ph(8)	['unknown']	NOT_NRPS	
+C9:0	rBAN/Norine	C9:0	['unknown']	NOT_NRPS	
+C9:0-Me(2)-OH(3)	rBAN/Norine	C9:0-Me(2)-OH(3)	['unknown']	NOT_NRPS	
+C9:0-OH(3)	rBAN/Norine	C9:0-OH(3)	['unknown']	NOT_NRPS	
+C9:1(4)-Me(2.4.6)-OH(8)	rBAN/Norine	C9:1(4)-Me(2.4.6)-OH(8)	['unknown']	NOT_NRPS	
+C9:1(8)-Me(2)	rBAN/Norine	C9:1(8)-Me(2)	['unknown']	NOT_NRPS	
+C9:1(Me4)-Me(2.4.6)-OH(8)-Oxo(5)	rBAN/Norine	C9:1(Me4)-Me(2.4.6)-OH(8)-Oxo(5)	['unknown']	NOT_NRPS	
+ChrA	rBAN/Norine	ChrA	['unknown']	NRPS	
+ChrAct	rBAN/Norine	ChrAct	['unknown']	NOT_NRPS	
+ChrD	rBAN/Norine	ChrD	['unknown']	NRPS	
+ChrI	rBAN/Norine	ChrI	['unknown']	NRPS	
+ChrP	rBAN/Norine	ChrP	['unknown']	NRPS	
+CMA	rBAN/Norine	CMA	['unknown']	NRPS	
+CO	rBAN/Norine	CO	['unknown']	NOT_NRPS	
+Dap	rBAN/Norine	Dap	['unknown']	NOT_NRPS	
+D-Ara	rBAN/Norine	D-Ara	['unknown']	NOT_NRPS	
+Daz	rBAN/Norine	Daz	['unknown']	NOT_NRPS	
+Dbu	rBAN/Norine	Dbu	['']	NRPS	
+dDap	rBAN/Norine	dDap	['unknown']	NOT_NRPS	
+dDil	rBAN/Norine	dDil	['unknown']	NOT_NRPS	
+D-Gal	rBAN/Norine	D-Gal	['unknown']	NOT_NRPS	
+D-Glc	rBAN/Norine	D-Glc	['unknown']	NOT_NRPS	
+D-Har	rBAN/Norine	D-Har	['unknown']	NOT_NRPS	
+DHMDA	rBAN/Norine	DHMDA	['unknown']	NOT_NRPS	
+DHPT	rBAN/Norine	DHPT	['unknown']	NRPS	
+Dil	rBAN/Norine	Dil	['unknown']	NOT_NRPS	
+D-Man	rBAN/Norine	D-Man	['unknown']	NOT_NRPS	
+DMOG	rBAN/Norine	DMOG	['unknown']	NOT_NRPS	
+D-NMe-Nva	rBAN/Norine	D-NMe-Nva	['unknown']	NOT_NRPS	
+D-Nva	rBAN/Norine	D-Nva	['unknown']	NOT_NRPS	
+Doe	rBAN/Norine	Doe	['unknown']	NOT_NRPS	
+Dov	rBAN/Norine	Dov	['unknown']	NRPS	
+Dpy	rBAN/Norine	Dpy	['unknown']	NOT_NRPS	
+Ere	rBAN/Norine	Ere	['unknown']	NOT_NRPS	
+Eta	rBAN/Norine	Eta	['unknown']	NRPS	
+Et-Nva	rBAN/Norine	Et-Nva	['unknown']	NRPS	
+Gen	rBAN/Norine	Gen	['unknown']	NOT_NRPS	
+Glc	rBAN/Norine	Glc	['unknown']	NOT_NRPS	
+GSpd	rBAN/Norine	GSpd	['unknown']	NOT_NRPS	
+Hap	rBAN/Norine	Hap	['unknown']	NOT_NRPS	
+Har	rBAN/Norine	Har	['unknown']	NRPS	
+Hil	rBAN/Norine	Hil	['unknown']	NRPS	
+Hip	rBAN/Norine	Hip	['unknown']	NOT_NRPS	
+Hiv	rBAN/Norine	Hiv	['']	NRPS	
+Hmp	rBAN/Norine	Hmp	['OH', 'MT']	NRPS	
+Hpoe	rBAN/Norine	Hpoe	['unknown']	NRPS	
+Hpr	rBAN/Norine	Hpr	['']	NRPS	
+Hva	rBAN/Norine	Hva		NOT_NRPS	
+Hysp	rBAN/Norine	Hysp	['unknown']	NOT_NRPS	
+iC10:0	rBAN/Norine	iC10:0	['unknown']	NOT_NRPS	
+iC10:2(2.t4)	rBAN/Norine	iC10:2(2.t4)	['unknown']	NOT_NRPS	
+iC11:0	rBAN/Norine	iC11:0	['unknown']	NOT_NRPS	
+iC11:0-OH(3)	rBAN/Norine	iC11:0-OH(3)	['unknown']	NOT_NRPS	
+iC12:0	rBAN/Norine	iC12:0	['unknown']	NOT_NRPS	
+iC12:0-OH(3)	rBAN/Norine	iC12:0-OH(3)	['unknown']	NOT_NRPS	
+iC12:2(2.t4)	rBAN/Norine	iC12:2(2.t4)	['unknown']	NOT_NRPS	
+iC13:0	rBAN/Norine	iC13:0	['unknown']	NOT_NRPS	
+iC13:0-OH(3)	rBAN/Norine	iC13:0-OH(3)	['unknown']	NOT_NRPS	
+iC13:1(3)	rBAN/Norine	iC13:1(3)	['unknown']	NOT_NRPS	
+iC14:0	rBAN/Norine	iC14:0	['unknown']	NOT_NRPS	
+iC14:0-NH2(3)	rBAN/Norine	iC14:0-NH2(3)	['unknown']	NOT_NRPS	
+iC14:0-OH(3)	rBAN/Norine	iC14:0-OH(3)	['unknown']	NOT_NRPS	
+iC14:1(3)	rBAN/Norine	iC14:1(3)	['unknown']	NOT_NRPS	
+iC15:0-NH2(3)	rBAN/Norine	iC15:0-NH2(3)	['unknown']	NOT_NRPS	
+iC15:0-OH(3)	rBAN/Norine	iC15:0-OH(3)	['unknown']	NOT_NRPS	
+iC16:0-NH2(3)	rBAN/Norine	iC16:0-NH2(3)	['unknown']	NOT_NRPS	
+iC16:0-OH(3)	rBAN/Norine	iC16:0-OH(3)	['unknown']	NOT_NRPS	
+iC17:0-NH2(3)	rBAN/Norine	iC17:0-NH2(3)	['unknown']	NOT_NRPS	
+iC17:0-OH(3)	rBAN/Norine	iC17:0-OH(3)	['unknown']	NOT_NRPS	
+iC5:0-OH(2.4)	rBAN/Norine	iC5:0-OH(2.4)	['unknown']	NOT_NRPS	
+iC5:0-OH(2)-CA(4)	rBAN/Norine	iC5:0-OH(2)-CA(4)	['unknown']	NOT_NRPS	
+iC6:0-OH(2.4)	rBAN/Norine	iC6:0-OH(2.4)	['unknown']	NOT_NRPS	
+iC7:0	rBAN/Norine	iC7:0	['unknown']	NOT_NRPS	
+iC8:0	rBAN/Norine	iC8:0	['unknown']	NOT_NRPS	
+iC8:0-Me(2.4)-OH(3)	rBAN/Norine	iC8:0-Me(2.4)-OH(3)	['unknown']	NOT_NRPS	
+iC9:0	rBAN/Norine	iC9:0	['unknown']	NOT_NRPS	
+iC9:0-OH(3)	rBAN/Norine	iC9:0-OH(3)	['unknown']	NOT_NRPS	
+iC9:2(2.t4)	rBAN/Norine	iC9:2(2.t4)	['unknown']	NOT_NRPS	
+Ileol	rBAN/Norine	Ileol	['unknown']	NRPS	
+Iser	rBAN/Norine	Iser	['unknown']	NOT_NRPS	
+Ist	rBAN/Norine	Ist	['unknown']	NOT_NRPS	
+Ival	rBAN/Norine	Ival	['']	NRPS	
+Ivalol	rBAN/Norine	Ivalol	['unknown']	NRPS	
+Leuol	rBAN/Norine	Leuol	['unknown']	NRPS	
+Lyx	rBAN/Norine	Lyx	['unknown']	NOT_NRPS	
+Map	rBAN/Norine	Map	['unknown']	NOT_NRPS	
+MCP	rBAN/Norine	MCP	['unknown']	NOT_NRPS	
+MdCP	rBAN/Norine	MdCP	['unknown']	NOT_NRPS	
+Me-AOA	rBAN/Norine	Me-AOA	['unknown']	NRPS	
+Me-Vaa	rBAN/Norine	Me-Vaa	['unknown']	NOT_NRPS	
+NFo-Iser	rBAN/Norine	NFo-Iser	['unknown']	NOT_NRPS	
+NMe-Gly-Thz	rBAN/Norine	NMe-Gly-Thz	['unknown']	NOT_NRPS	
+NMe-Lan	rBAN/Norine	NMe-Lan	['unknown']	NRPS	
+NMe-OMe-TyrC	rBAN/Norine	NMe-OMe-TyrC	['unknown']	NOT_NRPS	
+N-OH-Hta	rBAN/Norine	N-OH-Hta	['unknown']	NRPS	
+NSpd	rBAN/Norine	NSpd	['unknown']	NOT_NRPS	
+Nst	rBAN/Norine	Nst	['unknown']	NOT_NRPS	
+Nva	rBAN/Norine	Nva	['unknown']	NRPS	
+OAc-Leuol	rBAN/Norine	OAc-Leuol	['unknown']	NRPS	
+Oli	rBAN/Norine	Oli	['unknown']	NOT_NRPS	
+oxoDec	rBAN/Norine	oxoDec		NOT_NRPS	
+PALOA	rBAN/Norine	PALOA	['unknown']	NOT_NRPS	
+PAOA	rBAN/Norine	PAOA	['unknown']	NOT_NRPS	
+Pda	rBAN/Norine	Pda	['unknown']	NOT_NRPS	
+Pha	rBAN/Norine	Pha	['unknown']	NOT_NRPS	
+Pheol	rBAN/Norine	Pheol	['unknown']	NRPS	
+Phe-Thz	rBAN/Norine	Phe-Thz	['unknown']	NOT_NRPS	
+PMST	rBAN/Norine	PMST	['unknown']	NOT_NRPS	
+ProC	rBAN/Norine	ProC	['unknown']	NRPS	
+Pro-Thz	rBAN/Norine	Pro-Thz	['unknown']	NOT_NRPS	
+PT	rBAN/Norine	PT	['unknown']	NRPS	
+PTTA	rBAN/Norine	PTTA	['unknown']	NOT_NRPS	
+Put	rBAN/Norine	Put	['unknown']	NOT_NRPS	
+Pya	rBAN/Norine	Pya	['unknown']	NOT_NRPS	
+Rha	rBAN/Norine	Rha	['unknown']	NOT_NRPS	
+Ria	rBAN/Norine	Ria	['unknown']	NOT_NRPS	
+Serol	rBAN/Norine	Serol	['unknown']	NRPS	
+Spd	rBAN/Norine	Spd	['unknown']	NOT_NRPS	
+Sta	rBAN/Norine	Sta	['unknown']	NOT_NRPS	
+Tig	rBAN/Norine	Tig	['unknown']	NOT_NRPS	
+Trpol	rBAN/Norine	Trpol	['unknown']	NRPS	
+U4oxo-Van	rBAN/Norine	U4oxo-Van	['unknown']	NOT_NRPS	
+Van	rBAN/Norine	Van	['unknown']	NOT_NRPS	
+X	rBAN/Norine	X		NOT_NRPS	
+(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoic acid	PARAS	But	['NH', 'OH', 'NO']	NRPS	Warning: core and modifications are not human-verified!
+(2S,6R)-diamino-(5R,7)-dihydroxy-heptanoic acid	PARAS	Hep	['NH', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+(4S)-5,5,5-trichloroleucine	PARAS	Leu	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+(E)-4-methylhex-2-enoic acid	PARAS	Hex	['MT']	NRPS	Warning: core and modifications are not human-verified!
+(S,E)-2-amino-4-decenoic acid	PARAS	Dece	['NH']	NRPS	Warning: core and modifications are not human-verified!
+1-(1,1-dimethylallyl)-tryptophan	PARAS	Trp	['MT', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+1-aminocyclopropane-1-carboxylic acid	PARAS	Acc	['']	NRPS	Warning: core and modifications are not human-verified!
+1-pyrroline-5-carboxylic acid	PARAS	Pyr	['']	NRPS	Warning: core and modifications are not human-verified!
+2,3-diaminopropionic acid	PARAS	Dpr	['']	NRPS	Warning: core and modifications are not human-verified!
+2,3-dihydroxy-para-aminobenzoic acid	PARAS	Bza	['NH', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+2,3-dihydroxybenzoic acid	PARAS	Bza	['OH']	NRPS	Warning: core and modifications are not human-verified!
+2,3-dihydroxyhexadecanoic acid	PARAS	Hda	['OH']	NRPS	Warning: core and modifications are not human-verified!
+2,4-diaminobutyric acid	PARAS	Dab	['']	NRPS	Warning: core and modifications are not human-verified!
+2,4-dihydroxypentanoic acid	PARAS	Pen	['OH']	NRPS	Warning: core and modifications are not human-verified!
+2-(1-methylcyclopropyl)-D-glycine	PARAS	Gly	['E', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+2-amino-3,5-dimethyl-4-hexenoic Acid	PARAS	Hex	['NH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+2-amino-3-hydroxycyclopent-2-enone	PARAS	nHcp	['']	NRPS	Warning: core and modifications are not human-verified!
+2-amino-6-hydroxy-4-methyl-8-oxodecanoic acid	PARAS	oxoDec	['NH', 'OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+2-aminoadipic acid	PARAS	Aad	['']	NRPS	Warning: core and modifications are not human-verified!
+2-aminobutyric acid	PARAS	Abu	['']	NRPS	Warning: core and modifications are not human-verified!
+2-aminoisobutyric acid	PARAS	Aib	['']	NRPS	Warning: core and modifications are not human-verified!
+2-carboxy-6-hydroxyoctahydroindole	PARAS	cohOhi	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+2-chloro-3,5-dihydroxy-4-methylphenylglycine	PARAS	dHpg	['Cl', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+2-chlorobenzoic acid	PARAS	Bza	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+2-hydroxy-4-methylpentanoic acid	PARAS	Pen	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+2-hydroxypent-4-enoic acid	PARAS	Hpea	['']	NRPS	Warning: core and modifications are not human-verified!
+2-ketoisocaproic acid	PARAS	Kic	['']	NRPS	Warning: core and modifications are not human-verified!
+2-ketoisovaleric acid	PARAS	Kiv	['']	NRPS	Warning: core and modifications are not human-verified!
+2-methylserine	PARAS	Ser	['MT']	NRPS	Warning: core and modifications are not human-verified!
+2-sulfamoylacetic acid	PARAS	Sma	['']	NRPS	Warning: core and modifications are not human-verified!
+2R-hydroxy-3-methylpentanoic acid	PARAS	Pen	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+2R-hydroxyisovaleric acid	PARAS	Hiv	['']	NRPS	Warning: core and modifications are not human-verified!
+2S,3S-diaminobutyric acid	PARAS	Dab	['']	NRPS	Warning: core and modifications are not human-verified!
+2S-amino-8-oxodecanoic acid	PARAS	oxoDec	['NH']	NRPS	Warning: core and modifications are not human-verified!
+2S-amino-9,10-epoxy-8-oxodecanoic acid	PARAS	oxoDec	['NH', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+2S-aminodecanoic acid	PARAS	Dec	['NH']	NRPS	Warning: core and modifications are not human-verified!
+2S-aminododecanoic acid	PARAS	Dodec	['NH']	NRPS	Warning: core and modifications are not human-verified!
+2S-aminooctanoic acid	PARAS	Oct	['NH']	NRPS	Warning: core and modifications are not human-verified!
+2S-hydroxyisocaproic acid	PARAS	Hic	['']	NRPS	Warning: core and modifications are not human-verified!
+2S-hydroxyisovaleric acid	PARAS	Hiv	['']	NRPS	Warning: core and modifications are not human-verified!
+2S-methyl-3-oxobutyrine	PARAS	But	['MT', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+3,4-dehydrolysine	PARAS	Lys	['DH']	NRPS	Warning: core and modifications are not human-verified!
+3,4-dihydroxybenzoic acid	PARAS	Bza	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3,5-dichloro-4-hydroxyphenylglycine	PARAS	Hpg	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+3,5-dihydroxyphenylglycine	PARAS	dHpg	['']	NRPS	Warning: core and modifications are not human-verified!
+3-(3-pyridyl)-alanine	PARAS	Ala	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+3-amino-2,4-dihydroxybenzoic acid	PARAS	Bza	['NH', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+3-amino-4-hydroxybenzoic acid	PARAS	Bza	['NH', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+3-amino-6-hydroxy-2-piperidone	PARAS	Ahp	['']	NRPS	Warning: core and modifications are not human-verified!
+3-aminoisobutyric acid	PARAS	Ibu	['']	NRPS	Warning: core and modifications are not human-verified!
+3-chlorotyrosine	PARAS	Tyr	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxy-4-methylproline	PARAS	Pro	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxy-O-methyl-5-methyltyrosine	PARAS	Tyr	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxy-para-aminobenzoic acid	PARAS	Bza	['NH', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxyasparagine	PARAS	Asn	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxyaspartic acid	PARAS	Asp	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxyglutamine	PARAS	Gln	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxykynurenine	PARAS	Kyn	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxyleucine	PARAS	Leu	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxypicolinic acid	PARAS	Hpa	['']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxyquinaldic acid	PARAS	Hqa	['']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxytyrosine	PARAS	Tyr	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-hydroxyvaline	PARAS	Val	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3-methoxyanthranilic acid	PARAS	Ant	['MeO']	NRPS	Warning: core and modifications are not human-verified!
+3-methoxyaspartic acid	PARAS	Asp	['MeO']	NRPS	Warning: core and modifications are not human-verified!
+3-methylasparagine	PARAS	Asn	['MT']	NRPS	Warning: core and modifications are not human-verified!
+3-methylglutamic acid	PARAS	Glu	['MT']	NRPS	Warning: core and modifications are not human-verified!
+3-nitrotyrosine	PARAS	Tyr	['NO']	NRPS	Warning: core and modifications are not human-verified!
+3R-chloroproline	PARAS	Pro	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+3R-hydroxy-2,4-diaminobutyric acid	PARAS	Dab	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3R-hydroxyasparagine	PARAS	Asn	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3R-hydroxyaspartic acid	PARAS	Asp	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3R-hydroxyhomotyrosine	PARAS	Hty	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3R-hydroxyleucine	PARAS	Leu	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3R-methylbeta-alanine	PARAS	bAla	['MT']	NRPS	Warning: core and modifications are not human-verified!
+3R-methylglutamic acid	PARAS	Glu	['MT']	NRPS	Warning: core and modifications are not human-verified!
+3S,4R-dichloroproline	PARAS	Pro	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+3S-cyclohex-2-enylalanine	PARAS	cycHexAla	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+3S-hydroxy-4S-methylproline	PARAS	Pro	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+3S-hydroxy-6-chlorohistidine	PARAS	His	['Cl', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+3S-hydroxyasparagine	PARAS	Asn	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3S-hydroxyleucine	PARAS	Leu	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3S-hydroxypipecolic acid	PARAS	Pip	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3S-hydroxyproline	PARAS	Pro	['OH']	NRPS	Warning: core and modifications are not human-verified!
+3S-methyl-D-aspartic acid branched	PARAS	Asp	['E', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+3S-methylaspartic acid	PARAS	Asp	['MT']	NRPS	Warning: core and modifications are not human-verified!
+3S-methylleucine	PARAS	Leu	['MT']	NRPS	Warning: core and modifications are not human-verified!
+3S-methylproline	PARAS	Pro	['MT']	NRPS	Warning: core and modifications are not human-verified!
+4,5-dehydroarginine	PARAS	Arg	['DH']	NRPS	Warning: core and modifications are not human-verified!
+4-amino-2-hydroxy-3-isopropoxybenzoic acid	PARAS	Bza	['NH', 'OH', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+4-aminobutyric acid	PARAS	Abu	['']	NRPS	Warning: core and modifications are not human-verified!
+4-aminophenylalanine	PARAS	Phe	['NH']	NRPS	Warning: core and modifications are not human-verified!
+4-chlorobenzoic acid	PARAS	Bza	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxy-3-nitrobenzoic acid	PARAS	Bza	['NO', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxy-D-kynurenine	PARAS	Kyn	['E', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxybenzoic acid	PARAS	Bza	['OH']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxyglutamine	PARAS	Gln	['OH']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxyphenylglycine	PARAS	Hpg	['']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxyphenylpyruvic acid	PARAS	Ppa	['OH']	NRPS	Warning: core and modifications are not human-verified!
+4-hydroxythreonine	PARAS	Thr	['OH']	NRPS	Warning: core and modifications are not human-verified!
+4-methoxytryptophan	PARAS	Trp	['MeO']	NRPS	Warning: core and modifications are not human-verified!
+4-methylproline	PARAS	Pro	['MT']	NRPS	Warning: core and modifications are not human-verified!
+4-nitrotryptophan	PARAS	Trp	['NO']	NRPS	Warning: core and modifications are not human-verified!
+4R-E-butenyl-4R-methylthreonine	PARAS	Bmt	['']	NRPS	Warning: core and modifications are not human-verified!
+4R-hydroxyproline	PARAS	Pro	['OH']	NRPS	Warning: core and modifications are not human-verified!
+4R-methylproline	PARAS	Pro	['MT']	NRPS	Warning: core and modifications are not human-verified!
+4R-propylproline	PARAS	Pro	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+4S-acetyl-5S-methylproline	PARAS	Pro	['Ac', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+4S-hydroxylysine	PARAS	Lys	['OH']	NRPS	Warning: core and modifications are not human-verified!
+4S-methylazetidine-2S-carboxylic acid	PARAS	Aze	['MT']	NRPS	Warning: core and modifications are not human-verified!
+4S-methylproline	PARAS	Pro	['MT']	NRPS	Warning: core and modifications are not human-verified!
+4S-propenylproline	PARAS	Pro	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+5,5-dimethylpipecolic acid	PARAS	Pip	['MT']	NRPS	Warning: core and modifications are not human-verified!
+5-aminolevulinic acid	PARAS	Lev	['NH']	NRPS	Warning: core and modifications are not human-verified!
+5-chloroanthranilic acid	PARAS	Ant	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+5-chlorotryptophan	PARAS	Trp	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+5-methoxytyrosine	PARAS	Tyr	['MeO']	NRPS	Warning: core and modifications are not human-verified!
+5-methylorsellinic acid	PARAS	Ors	['MT']	NRPS	Warning: core and modifications are not human-verified!
+5S-methylproline	PARAS	Pro	['MT']	NRPS	Warning: core and modifications are not human-verified!
+6,7-dichlorotryptophan	PARAS	Trp	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+6-chloro-4-hydroxy-1-methyl-indole-3-carboxylic acid	PARAS	Hic	['Cl', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+6-chloro-4-hydroxyindole-3-carboxylic acid	PARAS	Hic	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+6-chlorotryptophan	PARAS	Trp	['Cl']	NRPS	Warning: core and modifications are not human-verified!
+6-hydroxy-tetrahydro-isoquinoline-3-carboxylic acid	PARAS	Htia	['']	NRPS	Warning: core and modifications are not human-verified!
+6-methylsalicylic acid	PARAS	Sal	['MT']	NRPS	Warning: core and modifications are not human-verified!
+6S-methyl-pipecolic acid	PARAS	Pip	['MT']	NRPS	Warning: core and modifications are not human-verified!
+D-alanine	PARAS	Ala	['']	NRPS	Warning: core and modifications are not human-verified!
+D-aspartic acid branched	PARAS	Asp	['E']	NRPS	Warning: core and modifications are not human-verified!
+D-glutamic acid branched	PARAS	Glu	['E']	NRPS	Warning: core and modifications are not human-verified!
+D-leucine	PARAS	Leu	['E']	NRPS	Warning: core and modifications are not human-verified!
+D-lysergic acid	PARAS	Lya	['E']	NRPS	Warning: core and modifications are not human-verified!
+D-phenylalanine	PARAS	Phe	['E']	NRPS	Warning: core and modifications are not human-verified!
+D-phenyllactic acid	PARAS	Lac	['E', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+D-pipecolic acid	PARAS	Pip	['E']	NRPS	Warning: core and modifications are not human-verified!
+N-(1-methyl)-tryptophan	PARAS	Trp	['MT']	NRPS	Warning: core and modifications are not human-verified!
+N-(1-propargyl)-tryptophan	PARAS	Trp	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+N-formylglycine	PARAS	Gly	['F']	NRPS	Warning: core and modifications are not human-verified!
+N-hydroxyvaline	PARAS	Val	['OH']	NRPS	Warning: core and modifications are not human-verified!
+N1-methoxytryptophan	PARAS	Trp	['MeO']	NRPS	Warning: core and modifications are not human-verified!
+N5-acetyl-N5-hydroxyornithine	PARAS	Orn	['Ac', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+N5-cis-anhydromevalonyl-N5-hydroxyornithine	PARAS	Orn	['OH', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+N5-formyl-N5-hydroxyornithine	PARAS	Orn	['F', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+N5-hydroxyornithine	PARAS	Orn	['OH']	NRPS	Warning: core and modifications are not human-verified!
+N5-trans-anhydromevalonyl-N5-hydroxyornithine	PARAS	Orn	['OH', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+N6-hydroxylysine	PARAS	Lys	['OH']	NRPS	Warning: core and modifications are not human-verified!
+O-methyltyrosine	PARAS	Tyr	['MT']	NRPS	Warning: core and modifications are not human-verified!
+R-3-hydroxy-3-methylproline	PARAS	Pro	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+R-aza-beta-tyrosine	PARAS	bTyr	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+R-beta-hydroxyphenylalanine	PARAS	Phe	['OH']	NRPS	Warning: core and modifications are not human-verified!
+R-beta-hydroxytyrosine	PARAS	Tyr	['OH']	NRPS	Warning: core and modifications are not human-verified!
+R-beta-methylphenylalanine	PARAS	Phe	['MT']	NRPS	Warning: core and modifications are not human-verified!
+R-beta-methyltryptophan	PARAS	Trp	['MT', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+R-beta-phenylalanine	PARAS	bPhe	['']	NRPS	Warning: core and modifications are not human-verified!
+R-beta-tyrosine	PARAS	bTyr	['']	NRPS	Warning: core and modifications are not human-verified!
+S-adenosylmethionine	PARAS	Sam	['']	NRPS	Warning: core and modifications are not human-verified!
+S-beta-hydroxycyclohex-2S-enylalanine	PARAS	Hch	['']	NRPS	Warning: core and modifications are not human-verified!
+S-beta-hydroxyenduracididine	PARAS	End	['OH']	NRPS	Warning: core and modifications are not human-verified!
+S-beta-hydroxyphenylalanine	PARAS	Phe	['OH']	NRPS	Warning: core and modifications are not human-verified!
+S-beta-tyrosine	PARAS	bTyr	['']	NRPS	Warning: core and modifications are not human-verified!
+acetic acid	PARAS	Ac	['']	NRPS	Warning: core and modifications are not human-verified!
+alanine	PARAS	Ala	['']	NRPS	Warning: core and modifications are not human-verified!
+alaninol	PARAS	Aol	['']	NRPS	Warning: core and modifications are not human-verified!
+allo-isoleucine	PARAS	Ile	['']	NRPS	Warning: core and modifications are not human-verified!
+allo-threonine	PARAS	Thr	['']	NRPS	Warning: core and modifications are not human-verified!
+anthranilic acid	PARAS	Ant	['']	NRPS	Warning: core and modifications are not human-verified!
+arginine	PARAS	Arg	['']	NRPS	Warning: core and modifications are not human-verified!
+asparagine	PARAS	Asn	['']	NRPS	Warning: core and modifications are not human-verified!
+aspartic acid	PARAS	Asp	['']	NRPS	Warning: core and modifications are not human-verified!
+aspartic acid branched	PARAS	Asp	['']	NRPS	Warning: core and modifications are not human-verified!
+azetidine-2-carboxylic acid	PARAS	Aze	['']	NRPS	Warning: core and modifications are not human-verified!
+benzoic acid	PARAS	Bza	['']	NRPS	Warning: core and modifications are not human-verified!
+benzoxazolinate	PARAS	Boz	['']	NRPS	Warning: core and modifications are not human-verified!
+beta-alanine	PARAS	bAla	['']	NRPS	Warning: core and modifications are not human-verified!
+beta-hydroxy-3-hydroxy-O-methyl-5-methyltyrosine	PARAS	Tyr	['OH', 'MT']	NRPS	Warning: core and modifications are not human-verified!
+beta-hydroxyarginine	PARAS	Arg	['OH']	NRPS	Warning: core and modifications are not human-verified!
+beta-hydroxyphenylalanine	PARAS	Phe	['OH']	NRPS	Warning: core and modifications are not human-verified!
+beta-hydroxytyrosine	PARAS	Tyr	['OH']	NRPS	Warning: core and modifications are not human-verified!
+beta-lysine	PARAS	bLys	['']	NRPS	Warning: core and modifications are not human-verified!
+butyric acid	PARAS	But	['']	NRPS	Warning: core and modifications are not human-verified!
+capreomycidine	PARAS	Cap	['']	NRPS	Warning: core and modifications are not human-verified!
+cinnamic acid	PARAS	Cin	['']	NRPS	Warning: core and modifications are not human-verified!
+citrulline	PARAS	Cit	['']	NRPS	Warning: core and modifications are not human-verified!
+cysteic acid	PARAS	Cya	['']	NRPS	Warning: core and modifications are not human-verified!
+cysteine	PARAS	Cys	['']	NRPS	Warning: core and modifications are not human-verified!
+cysteine branched	PARAS	Cys	['']	NRPS	Warning: core and modifications are not human-verified!
+dehydroarginine	PARAS	Arg	['DH']	NRPS	Warning: core and modifications are not human-verified!
+dehydrophenylalanine	PARAS	Phe	['DH']	NRPS	Warning: core and modifications are not human-verified!
+dehydrotryptophan	PARAS	Trp	['DH']	NRPS	Warning: core and modifications are not human-verified!
+dehydrovaline	PARAS	Val	['DH']	NRPS	Warning: core and modifications are not human-verified!
+enduracididine	PARAS	End	['']	NRPS	Warning: core and modifications are not human-verified!
+fatty acid	PARAS	fa	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+glutamic acid	PARAS	Glu	['']	NRPS	Warning: core and modifications are not human-verified!
+glutamine	PARAS	Gln	['']	NRPS	Warning: core and modifications are not human-verified!
+glycine	PARAS	Gly	['']	NRPS	Warning: core and modifications are not human-verified!
+graminine	PARAS	Gram	['']	NRPS	Warning: core and modifications are not human-verified!
+guanidinoacetic acid	PARAS	Gua	['']	NRPS	Warning: core and modifications are not human-verified!
+histidine	PARAS	His	['']	NRPS	Warning: core and modifications are not human-verified!
+homophenylalanine	PARAS	Hph	['']	NRPS	Warning: core and modifications are not human-verified!
+homoserine	PARAS	Hse	['']	NRPS	Warning: core and modifications are not human-verified!
+homotyrosine	PARAS	Hty	['']	NRPS	Warning: core and modifications are not human-verified!
+hydroxyproline	PARAS	Pro	['OH']	NRPS	Warning: core and modifications are not human-verified!
+isoleucine	PARAS	Ile	['']	NRPS	Warning: core and modifications are not human-verified!
+isovaline	PARAS	Iva	['']	NRPS	Warning: core and modifications are not human-verified!
+kynurenine	PARAS	Kyn	['']	NRPS	Warning: core and modifications are not human-verified!
+lactic acid	PARAS	Lac	['']	NRPS	Warning: core and modifications are not human-verified!
+leucine	PARAS	Leu	['E']	NRPS	Warning: core and modifications are not human-verified!
+linoleic acid	PARAS	Lin	['']	NRPS	Warning: core and modifications are not human-verified!
+lysine	PARAS	Lys	['']	NRPS	Warning: core and modifications are not human-verified!
+malic acid	PARAS	Ac	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+meta-tyrosine	PARAS	mTyr	['']	NRPS	Warning: core and modifications are not human-verified!
+methionine	PARAS	Met	['']	NRPS	Warning: core and modifications are not human-verified!
+nicotinic acid	PARAS	Nic	['']	NRPS	Warning: core and modifications are not human-verified!
+norcoronamic acid	PARAS	Acc	['MT']	NRPS	Warning: core and modifications are not human-verified!
+ornithine	PARAS	Orn	['']	NRPS	Warning: core and modifications are not human-verified!
+p-hydroxymandelate	PARAS	Man	['OH']	NRPS	Warning: core and modifications are not human-verified!
+para-aminobenzoic acid	PARAS	Bza	['NH']	NRPS	Warning: core and modifications are not human-verified!
+pentanoic acid	PARAS	Pen	['']	NRPS	Warning: core and modifications are not human-verified!
+phenazine-1,6-dicarboxylic acid	PARAS	Phz	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+phenylalanine	PARAS	Phe	['E']	NRPS	Warning: core and modifications are not human-verified!
+phenylglycine	PARAS	Pgl	['']	NRPS	Warning: core and modifications are not human-verified!
+phenylpyruvic acid	PARAS	Ppa	['']	NRPS	Warning: core and modifications are not human-verified!
+pipecolic acid	PARAS	Pip	['']	NRPS	Warning: core and modifications are not human-verified!
+piperazic acid	PARAS	Piz	['']	NRPS	Warning: core and modifications are not human-verified!
+proline	PARAS	Pro	['']	NRPS	Warning: core and modifications are not human-verified!
+pyrrole-2-carboxylic acid	PARAS	Pca	['']	NRPS	Warning: core and modifications are not human-verified!
+pyruvic acid	PARAS	Pyv	['']	NRPS	Warning: core and modifications are not human-verified!
+quinoxaline-2-carboxylic acid	PARAS	Qui	['']	NRPS	Warning: core and modifications are not human-verified!
+salicylic acid	PARAS	Sal	['']	NRPS	Warning: core and modifications are not human-verified!
+serine	PARAS	Ser	['']	NRPS	Warning: core and modifications are not human-verified!
+succinic semialdehyde	PARAS	Suc	['']	NRPS	Warning: core and modifications are not human-verified!
+threonine	PARAS	Thr	['']	NRPS	Warning: core and modifications are not human-verified!
+trans-2-crotylglycine	PARAS	Gly	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+tryptophan	PARAS	Trp	['']	NRPS	Warning: core and modifications are not human-verified!
+tyrosine	PARAS	Tyr	['']	NRPS	Warning: core and modifications are not human-verified!
+valine	PARAS	Val	['']	NRPS	Warning: core and modifications are not human-verified!
+valinol	PARAS	Valol	['']	NRPS	Warning: core and modifications are not human-verified!
+2-ketoglutaric acid	PARAS	2-ketoglutaric acid	[]	NRPS	Warning: core and modifications are not human-verified!
+4-acetamidopyrrole-2-carboxylic acid	PARAS	4-acetamidopyrrole-2-carboxylic acid	[]	NRPS	Warning: core and modifications are not human-verified!
+An acid hydrazine polyene (intermediate 14)	PARAS	An acid hydrazine polyene (intermediate 14)	[]	NRPS	Warning: core and modifications are not human-verified!
+Compound 4 (formed by the decarboxylative condensation of L-Phe and succinyl-CoA)	PARAS	Compound 4 (formed by the decarboxylative condensation of L-Phe and succinyl-CoA)	[]	NRPS	Warning: core and modifications are not human-verified!
+betaine	PARAS	betaine	[]	NRPS	Warning: core and modifications are not human-verified!
+coumaric acid	PARAS	coumaric acid	[]	NRPS	Warning: core and modifications are not human-verified!
+dimethylsulfoniopropionic acid	PARAS	dimethylsulfoniopropionic acid	[]	NRPS	Warning: core and modifications are not human-verified!
+succinyl-hydrazinoacetic acid	PARAS	succinyl-hydrazinoacetic acid	[]	NRPS	Warning: core and modifications are not human-verified!
+2,3-diaminobutyric acid	PARAS	2,3-diaminobutyric acid	[]	NRPS	Warning: core and modifications are not human-verified!
+3-(2-nitrocyclopropylalanine)	PARAS	Ala	['NO', 'unknown']	NRPS	Warning: core and modifications are not human-verified!
+3S-methylaspartic acid branched	PARAS	Asp	['MT']	NRPS	Warning: core and modifications are not human-verified!
+4-oxoproline	PARAS	Pro	['unknown']	NRPS	Warning: core and modifications are not human-verified!
+4S,5-dihydroxy-2S-aminopentanoic acid	PARAS	Pen	['OH']	NRPS	Warning: core and modifications are not human-verified!
+N5-acetyl-hydroxyornithine	PARAS	Orn	['Ac', 'OH']	NRPS	Warning: core and modifications are not human-verified!
+S-beta-methylphenylalanine	PARAS	Phe	['MT']	NRPS	Warning: core and modifications are not human-verified!
+phenyllactic acid	PARAS	Lac	['unknown']	NRPS	Warning: core and modifications are not human-verified!

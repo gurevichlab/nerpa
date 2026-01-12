@@ -47,7 +47,7 @@ def build_bgc_assembly_line(fragmented_bgc: Fragmented_BGC_Cluster,
     iterative_genes = get_iterative_genes(genes)
     iterative_modules_ids = get_iterative_modules_ids(genes)
     module_mods = get_modules_modifications(genes)
-    module_id_to_genomic_context = get_modules_genomic_context(genes)
+    module_id_to_genomic_context = get_modules_genomic_context(fragmented_bgc.fragments)
 
     modules = []
     for bgc_fragment_idx, bgc_fragment_genes in enumerate(fragmented_bgc.fragments):
@@ -97,7 +97,7 @@ def build_bgc_variants(bgc: BGC_Cluster,
                         if (assembly_line := build_bgc_assembly_line(fragmented_bgc,
                                                                      specificity_prediction_helper))]
     except Exception as e:
-        log.error(f'Error processing BGC {bgc.bgc_id}: {e}. Skipping.')
+        log.error(f'Error processing BGC {bgc.bgc_id}. {e.__class__.__name__}: {e}. Skipping.')
         if let_it_crash:
             raise e
         return []

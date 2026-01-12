@@ -1,30 +1,20 @@
 symlink_to_latest: latest
 configs_output: configs
-
 antismash_out_dir: antismash_output
-
 bgc_variants: preprocessed_input/BGC_variants.yaml
+bgc_representatives: preprocessed_input/BGC_representatives.yaml
 nrp_variants: preprocessed_input/NRP_variants.yaml
+nrp_representatives: preprocessed_input/NRP_representatives.yaml
 nrp_images_dir: NRP_images
 rban_graphs: preprocessed_input/rban_graphs.yaml
-
 matches_details: matches_details
-
 report: report.tsv
 html_report: report.html
 logo: docs/img/logo.png
-draw_molecules: True
-
-
-rban_output_config:
-    rban_output_dir: intermediate_files/rBAN
-    default_monomers_file: intermediate_files/rBAN/rban_monomers_db.json
-    default_input_file: intermediate_files/rBAN/rban.input.json
-    default_output_file_name: rban.output.json  # I know it's weird to have name instead of path, but that's rBAN quirks and I don't wanna mess with it
-    putative_hybrids_input_file: intermediate_files/rBAN/hybrid_monomers_input.json
-    putative_hybrids_output_file_name: hybrid_monomers_output.json
-
-cpp_io_config:
-    hmms_json: intermediate_files/hmms.json
-    nrp_linearizations_json: intermediate_files/nrp_linearizations.json
-    cpp_output_json: intermediate_files/cpp_matching_output.json
+draw_molecules: true
+rban_output_config: {rban_output_dir: intermediate_files/rBAN, default_monomers_file: intermediate_files/rBAN/rban_monomers_db.json,
+  default_input_file: intermediate_files/rBAN/rban.input.json, default_output_file_name: rban.output.json,
+  putative_hybrids_input_file: intermediate_files/rBAN/hybrid_monomers_input.json,
+  putative_hybrids_output_file_name: hybrid_monomers_output.json}
+cpp_io_config: {hmms_json: intermediate_files/hmms.json, nrp_linearizations_json: intermediate_files/nrp_linearizations.json,
+  cpp_output_json: intermediate_files/cpp_matching_output.json}

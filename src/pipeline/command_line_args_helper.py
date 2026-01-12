@@ -64,6 +64,13 @@ def add_debug(parser: argparse.ArgumentParser):
                                    help='draw HMMs with optimal paths for all matches')
     debug_input_group.add_argument('--let-it-crash', action='store_true',
                                    help='crash on first error instead of logging it and continuing')
+    debug_input_group.add_argument('--disable-deduplication', action='store_true',
+                                   help='do not deduplicate isomorphis BGC and NRP variants')
+    debug_input_group.add_argument('--disable-bgc-deduplication', action='store_true',
+                                   help='do not deduplicate isomorphis BGC variants')
+    debug_input_group.add_argument('--disable-nrp-deduplication', action='store_true',
+                                   help='do not deduplicate isomorphis NRP variants')
+
 
 
 def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config):
@@ -124,6 +131,11 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                help="keep all intermediate files (rBAN results, HMMs, etc) "
                                     "in the output directory")
 
+    configs_group.add_argument("--dump-all-preprocessed",
+                               action="store_true", default=False,
+                               help="dump all preprocessed BGC and NRP variants instead of only those "
+                                    "present in the reported matches")
+
     # configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
     #                            help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
     configs_group.add_argument("--debug", action="store_true", default=False,
@@ -140,16 +152,23 @@ def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
     return parser
 
 
+def post_parsing(args: CommandLineArgs):
+    if args.disable_deduplication:
+        args.disable_bgc_deduplication = True
+        args.disable_nrp_deduplication = True
+
+
 def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
     parser = build_cmdline_args_parser(default_cfg)
     parsed_args = parser.parse_args()
+    post_parsing(parsed_args)
     try:
         validate_arguments(parsed_args, default_cfg)
     except ValidationError as e:
         help_message = StringIO()
         parser.print_help(help_message)
         error_message = str(e) if str(e) else 'Options validation failed!'
-        raise ValidationError(error_message + '\n' + help_message.getvalue())
+        raise ValidationError(error_message + '\n' + help_message.getvalue()) from None
     return parsed_args
 
 
@@ -201,14 +220,12 @@ def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I t
                     duplicates = check_tsv_ids_duplicates(reader, args.col_id)
                     validate(len(duplicates) == 0, f'Duplicate IDs are found: {duplicates}')
         except FileNotFoundError:
-            raise ValidationError(f'No such file: "{args.smiles_tsv}".')
+            raise ValidationError(f'No such file: "{args.smiles_tsv}".') from None
         except csv.Error as e:
-            raise ValidationError(f'Cannot parse "{args.smiles_tsv}": {e}.')
+            raise ValidationError(f'Cannot parse "{args.smiles_tsv}": {e}.') from None
         except Exception as e:
-            raise ValidationError(f'Invalid input file "{args.smiles_tsv}": {e}.')
+            raise ValidationError(f'Invalid input file "{args.smiles_tsv}": {e}.') from None
 
     if args.fast_matching and not default_cfg.cpp_matcher_exec.exists():
         raise ValidationError("Fast matching is enabled, but the cpp matcher executable is not found. "
                               "Please run install.sh in Nerpa root directory to compile the C++ matcher.")
-
-

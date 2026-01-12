@@ -1,22 +1,20 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from src.matching.alignment_step_type import AlignmentStepLight
+from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import MATCHING_STATE_TYPES
+
 if TYPE_CHECKING:
-    from src.matching.detailed_hmm import DetailedHMM
+    from src.hmm.detailed_hmm import DetailedHMM
 from typing import List, Tuple, Optional
-from src.matching.alignment_type import Alignment, show_alignment
-from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
-from src.generic.graphs import shortest_path_through
-import networkx as nx
-from src.antismash_parsing.antismash_parser_types import GeneId
+from src.matching.alignment_type import AlignmentLight
 from src.monomer_names_helper import NRP_Monomer
-from src.matching.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
-from src.matching.alignment_type import Alignment
 from itertools import pairwise
 from copy import deepcopy
 from pathlib import Path
 
 
-def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]
+def _alignment_to_hmm_path(hmm: DetailedHMM, alignment: List[AlignmentStepLight]) -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]
 
     '''
     Given an alignment, return the path through the HMM that corresponds to it.
@@ -31,18 +29,18 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
     #print(f'Alignment: \n{show_alignment(alignment)}')
     #hmm.draw(Path(f'hmm_{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'))
     match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
-                                  if step.bgc_module is not None and step.nrp_monomer is not None]
+                                  if step.a_domain_id is not None and step.nrp_monomer is not None]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
 
     # it could be that the same module is matched multiple times in case of iterations, I need all occurrences
     module_idx_in_bgc = {(module.gene_id, module.a_domain_idx): i
                          for i, module in enumerate(hmm.bgc_variant.modules)}
-    matched_module_idxs = [module_idx_in_bgc[(step.bgc_module.gene_id, step.bgc_module.a_domain_idx)]
+    matched_module_idxs = [module_idx_in_bgc[(step.a_domain_id.gene_id, step.a_domain_id.a_domain_idx)]
                            for step in match_steps]
 
     module_match_state_idxs = [next(edge_to
                                     for edge_to in hmm.transitions[hmm._module_idx_to_state_idx[module_idx]]
-                                    if hmm.states[edge_to].state_type == DetailedHMMStateType.MATCH)
+                                    if hmm.states[edge_to].state_type in MATCHING_STATE_TYPES)
                                for module_idx in range(len(hmm.bgc_variant.modules))]
 
     # subpaths between adjacent matches
@@ -56,7 +54,7 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
 
     # monomers inserted between matches
     monomers_subseqs = [[alignment[step_idx].nrp_monomer  # monomers inserted before the first match
-                        for step_idx in range(match_steps_alignment_idxs[0])
+                         for step_idx in range(match_steps_alignment_idxs[0])
                          if alignment[step_idx].nrp_monomer is not None]]
     for step_idx, next_step_idx in pairwise(match_steps_alignment_idxs):
         monomers_subseqs.append([alignment[i].nrp_monomer
@@ -70,37 +68,38 @@ def alignment_to_hmm_path(hmm: DetailedHMM, alignment: Alignment) -> List[Tuple[
 
     path_with_emissions = []
     for (start, finish), emitted_monomers in zip(paths_endpoints, monomers_subseqs):
-        #print(start, finish, emitted_monomers)
+        # print(start, finish, emitted_monomers)
         # build path between consequent matches
         sub_hmm = deepcopy(hmm)
-        for state in sub_hmm.states:
-            for mon in state.emissions:
-                state.emissions[mon] = 0
+        sub_hmm._hmm = None  # to force recomputing the hmm graph
 
         for state_idx, state in enumerate(sub_hmm.states):
-            if state.state_type == DetailedHMMStateType.MATCH and state_idx != start:
+            if state.state_type in MATCHING_STATE_TYPES and state_idx != start:
                 sub_hmm.transitions[state_idx] = {}  # by design there shouldn't be any matches in between so I make match states "deadends"
-            # essentially, there's only one path between start and finish.
-            # However, I need to make sure that the path skips the whole fragments or genes instead of individual modules
-            # and chooses SKIP_FRAGMENT_AT_START/END instead of just SKIP_FRAGMENT when possible
-            # that's why I assign these edge weights. Yes, dirty hacks :sweat_smile:
-            for edge_to, edge_info in sub_hmm.transitions[state_idx].items():
-                match edge_info.edge_type:
-                    case DetailedHMMEdgeType.SKIP_GENE:
-                        log_prob = -2
-                    case DetailedHMMEdgeType.SKIP_MODULE:
-                        log_prob = -3
-                    case _:
-                        log_prob = 0
-                sub_hmm.transitions[state_idx][edge_to] = sub_hmm.transitions[state_idx][edge_to]._replace(weight=log_prob)
-        sub_hmm._hmm = None
         try:
             path_with_emissions.extend(sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
+            #print('sub_hmm path with emissions:\n', sub_hmm.get_opt_path_with_emissions(start, finish, emitted_monomers))
         except:
             print(f'start: {start}, finish: {finish}, emitted_monomers: {emitted_monomers}')
+            sub_hmm.draw(Path(f'failed_subhmm.png'))
             raise
 
     #hmm.draw(Path(f'/home/ilianolhin/git/nerpa2/{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'),
     #         highlight_path=[state for state, emission in path_with_emissions])  # for debugging
     return path_with_emissions
 
+
+def alignment_to_hmm_path(hmm: DetailedHMM,
+                          alignment: AlignmentLight)\
+        -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]
+    return _alignment_to_hmm_path(hmm, alignment)
+
+# def simplified_alignment_to_hmm_path(hmm: DetailedHMM,
+#                                      simplified_alignment: SimplifiedAlignment,
+#                                      ambiguity_handling: Literal['crash', 'max', 'all'] = 'crash') \
+#     -> List[Tuple[int, Optional[NRP_Monomer]]]:  # [(state_idx, emitted_monomer)]
+#     if ambiguity_handling != 'crash':
+#         raise NotImplementedError('Only ambiguity_handling="crash" is implemented currently')
+#
+#     return
+#

@@ -145,31 +145,31 @@ class SpecificityPredictionHelper:
 
 
     def calibrate_scores(self,
-                         _predictions: Dict[NerpaResidue, Prob],
+                         predictions: Dict[NerpaResidue, Prob],
                          calibration_function: Callable[[Prob], Prob])\
             -> Dict[NerpaResidue, Prob]:
         # calibrate scores to better represent the probability of residue incorporation
-        predictions = {res: calibration_function(score)
-                       for res, score in _predictions.items()}
+        cal_predictions = {res: calibration_function(score)
+                         for res, score in predictions.items()}
         #  paras model does not predict UNKNOWN_RESIDUE
         if self.DEFAULT_MODEL == 'paras':
-            predictions[UNKNOWN_RESIDUE] = self.config.APRIORI_RESIDUE_PROB[UNKNOWN_RESIDUE]
+            cal_predictions[UNKNOWN_RESIDUE] = self.config.APRIORI_RESIDUE_PROB[UNKNOWN_RESIDUE]
 
         # normalize probabilities
-        total_prob = sum(predictions.values())
+        total_prob = sum(cal_predictions.values())
         if total_prob < 1:
-            predictions = {res: score + (1 - total_prob) * self.config.APRIORI_RESIDUE_PROB[res]
-                           for res, score in predictions.items()}
+            cal_predictions = {res: score + (1 - total_prob) * self.config.APRIORI_RESIDUE_PROB[res]
+                           for res, score in cal_predictions.items()}
         else:
-            predictions = {res: score / total_prob
-                           for res, score in predictions.items()}
+            cal_predictions = {res: score / total_prob
+                           for res, score in cal_predictions.items()}
 
         # add pseudo-counts to avoid (near) zero probabilities
-        predictions = {res: score * (1 - self.config.PSEUDO_COUNT_FRACTION) +
+        cal_predictions = {res: score * (1 - self.config.PSEUDO_COUNT_FRACTION) +
                             self.config.PSEUDO_COUNT_FRACTION * self.config.APRIORI_RESIDUE_PROB[res]
-                       for res, score in predictions.items()}
+                       for res, score in cal_predictions.items()}
 
-        return predictions
+        return cal_predictions
 
     def paras_predictions_to_nerpa_predictions(self,
                                                paras_predictions: Dict[PARAS_RESIDUE, Prob]) -> Dict[NerpaResidue, Prob]:

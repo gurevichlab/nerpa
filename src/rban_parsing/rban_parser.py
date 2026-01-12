@@ -75,11 +75,13 @@ class NRP_metadata:
     def from_dict(cls, data: dict) -> NRP_metadata:
         fields = cls.__dataclass_fields__.keys()
         class_data = {field: None for field in fields}
-        for key, value in data.items():
-            if key.lower() in fields:
-                class_data[key.lower()] = data[key]
+        try:
+            for key, value in data.items():
+                if key.lower() in fields:
+                    class_data[key.lower()] = data[key]
+        except:
+            raise ValueError(f"Error parsing metadata:\n {data}") from None
         return cls(**class_data)
-
 
 
 @dataclass

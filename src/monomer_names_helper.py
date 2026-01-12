@@ -31,6 +31,7 @@ NerpaResidue = NewType('NerpaResidue', str)
 UNKNOWN_RESIDUE = NerpaResidue('_UNKNOWN')
 NOT_NRPS_RESIDUE = NerpaResidue('_NOT_NRPS')  # residue that can't be attracted by an A domain, e.g. PKS
 PKS_RESIDUE = NerpaResidue('_PKS')  # PKS residue in a PKS-NRPS hybrid
+SPECIAL_RESIDUES = [UNKNOWN_RESIDUE, NOT_NRPS_RESIDUE, PKS_RESIDUE]
 
 MonCode = NewType('MonCode', int)
 
@@ -56,6 +57,13 @@ class NRP_Monomer:
 
     def __hash__(self):
         return hash((self.residue, self.methylated, self.chirality, self.is_pks_hybrid))
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+        return (self.residue, self.methylated, self.chirality.name, self.is_pks_hybrid) < \
+               (other.residue, other.methylated, other.chirality.name, other.is_pks_hybrid)
+
 
 UNKNOWN_MONOMER = NRP_Monomer(residue=UNKNOWN_RESIDUE,
                               methylated=False,  # TODO: should we have a separate UNKNOWN_METHYLATION?,
@@ -104,12 +112,11 @@ class MonomerNamesHelper:
         assert set(self.supported_residues) - residues_from_norine == set(), \
             f"Supported residues {set(self.supported_residues) - residues_from_norine} are missing in Norine"
 
-        self._set_default_frequencies()
+        self._set_default_frequencies(missing_residue_freq=0.01)  # TODO: move to config
 
         self.int_to_mon = {}
         self.mon_to_int = {}
-        for mon_res_int, mon_res in enumerate(self.supported_residues
-                                              + [UNKNOWN_RESIDUE, PKS_RESIDUE, NOT_NRPS_RESIDUE]):
+        for mon_res_int, mon_res in enumerate(self.supported_residues + SPECIAL_RESIDUES):
             for meth_int, methylated in enumerate([False, True]):
                 for chir_int, chirality in enumerate([Chirality.L, Chirality.D, Chirality.UNKNOWN]):
                     for is_pks_hybrid_int, is_pks_hybrid in enumerate([False, True]):
@@ -157,9 +164,14 @@ class MonomerNamesHelper:
 
         return residue_log_freq + methylation_log_freq + chirality_log_freq
 
-    def _set_default_frequencies(self):
+    def _set_default_frequencies(self, missing_residue_freq: Optional[Prob] = None):
         """
         Set the default frequencies for residues, methylation, and D-chirality.
+
+        Args:
+            missing_residue_freq: Optional default frequency for residues that are in
+                                 supported_residues but not found in Norine data.
+                                 If None, such residues will have frequency 0.
         """
         parsed_monomers_cnts: Dict[NRP_Monomer, int] = {}
         for monomer_name, cnt in self.norine_monomer_cnts.items():
@@ -178,9 +190,28 @@ class MonomerNamesHelper:
         for mon, cnt in parsed_monomers_cnts.items():
             nerpa_residue_cnts[mon.residue] = nerpa_residue_cnts.get(mon.residue, 0) + cnt
 
-        residue_freqs = defaultdict(lambda: Prob(0),
-                                    {residue: Prob(cnt / total_monomers)
-                                     for residue, cnt in nerpa_residue_cnts.items()})
+        residue_freqs = {residue: Prob(cnt / total_monomers)
+                         for residue, cnt in nerpa_residue_cnts.items()}
+
+        # Handle missing residues if a default frequency is provided
+        if missing_residue_freq is not None:
+            missing_residues = [res for res in self.supported_residues + SPECIAL_RESIDUES
+                                if res not in residue_freqs]
+
+            # Calculate total frequency to redistribute
+            total_missing_freq = missing_residue_freq * len(missing_residues)
+
+            scale_factor = (1.0 - total_missing_freq) / sum(residue_freqs.values())
+            residue_freqs = {res: Prob(freq * scale_factor)
+                             for res, freq in residue_freqs.items()}
+
+            for res in missing_residues:
+                residue_freqs[res] = missing_residue_freq
+
+        assert all(res in residue_freqs
+                   for res in self.supported_residues + SPECIAL_RESIDUES), \
+            f'Some supported residues are missing in the default frequencies: ' \
+            f'{set(self.supported_residues + SPECIAL_RESIDUES) - set(residue_freqs.keys())}'
 
         assert math.isclose(sum(residue_freqs.values()), 1.0), \
             f'Sum of residue frequencies is {sum(residue_freqs.values())}, expected 1.0'
@@ -233,10 +264,11 @@ class MonomerNamesHelper:
         mon_type = row['Type']
         if mon_type == 'PKS':
             return PKS_MONOMER
-        if mon_type == 'NA':  # TODO: handle NA monomers better
-            return NOT_NRPS_MONOMER
 
-        assert mon_type == 'NRPS', f'Unexpected monomer type: {mon_type}'
+        #if mon_type == 'NA':  # TODO: handle NA monomers better
+        #    return NOT_NRPS_MONOMER
+
+        assert mon_type in ('NRPS', 'NA'), f'Unexpected monomer type: {mon_type}'
 
         residue = NerpaResidue(row['NerpaResidue'])
         if residue not in self.supported_residues:

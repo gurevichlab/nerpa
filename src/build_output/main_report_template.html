@@ -13,7 +13,8 @@
         }
 
         .container {
-            max-width: 1200px;
+            width: 90%;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -29,19 +30,20 @@
         }
 
         .filter-section {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
         .filter-section label {
             font-weight: bold;
-            width: 30%;
+            flex: 0 0 150px;
         }
 
         .filter-section input[type="text"] {
-            width: 65%;
+            flex: 1 1 auto;         /* field takes the rest of the row */
+            max-width: 700px;       /* optional: limit so it doesn’t get absurdly wide */
             padding: 8px;
             box-sizing: border-box;
         }
@@ -56,16 +58,41 @@
             margin-bottom: 5px;
         }
 
-        .logo-container {
-            width: 33%;
-            height: auto;
-            text-align: right;
+        /* Top row layout */
+        .top-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;             /* space between filters and logo */
+            width: 100%;
         }
 
-        .logo-container img {
-            height: auto;
-            display: inline-block;
-            max-width: 55%;
+        /* Filters column expands naturally */
+        .filters-block {
+            flex: 1;               /* take remaining horizontal space */
+        }
+
+        /* Logo + button column */
+        .logo-container {
+            flex: 0 0 260px;          /* fixed width; tweak as needed */
+            display: flex;
+            flex-direction: column;   /* stack logo and button vertically */
+            align-items: flex-end;    /* right-align both */
+            gap: 4px;                 /* space between logo and button */
+        }
+
+        /* Logo size stays stable */
+        .nerpa-logo {
+            height: 180px;            /* adjust until visually right */
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* Optional: button styling tweak */
+        #toggleReprBtn {
+            align-self: flex-end;     /* keep it right-aligned */
+            margin-top: 5px;
+            margin-bottom: 5px;
         }
 
         table {
@@ -116,6 +143,23 @@
             background-color: #e6f7ff;
         }
 
+        /* === Special setup for main results table row colors === */
+        /* Turn off striping for main table: all main (representative) rows are plain white */
+        #reportTable tbody tr:nth-child(odd),
+        #reportTable tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        /* Duplicates: darker grey background */
+        #reportTable tbody tr.not-repr-row {
+            background-color: #ececec;
+        }
+
+        /* Keep hover highlight on top of base colors */
+        #reportTable tbody tr:hover {
+            background-color: #e6f7ff;
+        }
+
         .table-container {
             max-height: 400px;
             overflow-y: auto;
@@ -147,10 +191,10 @@
             margin-bottom: 5px;
         }
 
-        #alignmentLabel {
+        .matchDetailedInfoLabel {
             font-weight: bold;
-            text-align: left;
-            margin-top: 0px;
+            text-align: center;
+            margin-top: 10px;
             margin-bottom: 0px;
         }
 
@@ -163,53 +207,65 @@
         }
         .column-controls a { text-decoration: none; }
         .column-controls small { color: #666; }
+
+        /* more compact writing of taxonomy, SMILES and InChiKey */
+        .metadata-taxonomy {
+            font-size: 0.7em;
+            line-height: 1;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        .metadata-smiles,
+        .metadata-inchikey {
+            font-size: 0.5em;
+            line-height: 1;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Nerpa Report</h1>
 
-    <div style="display: flex; justify-content: space-between; width: 100%;">
-        <div style="width: 66%;">
+    <div class="top-row">
+        <div class="filters-block">
+            <div class="filter-section">
+                <label for="globalFilterInput">Search all fields</label>
+                <input type="text" id="globalFilterInput" placeholder="Enter text to search across all fields...">
+            </div>
+
             <div class="filter-section">
                 <label for="scoreFilterInput">Filter by Score</label>
-                <input type="text" id="scoreFilterInput" placeholder="Enter minimal Raw score to filter...">
+                <input type="text" id="scoreFilterInput" placeholder="Enter minimal Score value to filter...">
             </div>
 
             <div class="filter-section">
                 <label for="nrpFilterInput">Filter by NRP</label>
-                <input type="text" id="nrpFilterInput" placeholder="Enter NRP_ID to filter...">
+                <input type="text" id="nrpFilterInput" placeholder="Enter NRP ID to filter...">
             </div>
 
             <div class="filter-section">
                 <label for="genomeFilterInput">Filter by Genome</label>
-                <input type="text" id="genomeFilterInput" placeholder="Enter Genome_ID to filter...">
-            </div>
-
-            <div class="filter-section">
-                <label for="bgcIDFilterInput">Filter by BGC ID</label>
-                <input type="text" id="bgcIDFilterInput" placeholder="Enter BGC_ID to filter...">
+                <input type="text" id="genomeFilterInput" placeholder="Enter Genome name to filter...">
             </div>
 
             <!-- Main-table column chooser -->
             <div class="column-controls">
                 <a href="#" id="toggleMainColumnsButton">Select columns to display</a>
-                <div id="mainCheckboxContainer" style="display: none;">
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Match ID" checked> Match ID</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Score" checked> Score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Raw score"> Raw score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP score"> NRP score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC score"> BGC score</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="NRP" checked> NRP</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="Genome" checked> Genome</label></span>
-                    <span style="white-space: nowrap;"><label><input type="checkbox" data-column="BGC ID" checked> BGC ID</label></span>
-                </div>
-                <small>(Raw score, NRP score and BGC score hidden by default)</small>
+                <div id="mainCheckboxContainer" style="display: none;"> </div>
+                <small>(Some columns are hidden by default)</small>
             </div>
         </div>
 
         <div class="logo-container">
-            <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo">
+            <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo" class="nerpa-logo">
+            <button id="toggleReprBtn" style="display:block; margin-left:auto;">
+                Show all BGCs/NRPs (incl. duplicates)
+            </button>
         </div>
     </div>
 
@@ -221,14 +277,7 @@
         <table class="scrollable-table" id="reportTable">
             <thead>
             <tr>
-                <th title="Unique identifier of the match">Match ID</th>
-                <th title="Default score of the match. Coincides with one of the other score columns (hidden by default)">Score</th>
-                <th title="Log‑probability from the HMM that the BGC generates the NRP">Raw score</th>
-                <th title="Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC">NRP score</th>
-                <th title="Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP">BGC score</th>
-                <th title="NRP identifier">NRP</th>
-                <th title="Genome identifier">Genome</th>
-                <th title="antiSMASH region identifier (contig.region)">BGC ID</th>
+            <!-- Header will be populated here by JavaScript -->
             </tr>
             </thead>
             <tbody>
@@ -246,27 +295,14 @@
             <p id="matchViewerLabel" style="display: block;">Click on a Match ID to display the detailed match report and the corresponding BGC and NRP annotations</p>
         </div>
         <div id="matchViewerContainer" class="viewer" style="display: none;">
+            <p class="matchDetailedInfoLabel">Match general information</p>
             <div class="table-container">
+                <!-- everything is populated here by JavaScript -->
                 <table id="matchTable">
-                    <thead>
-                    <tr>
-                        <th title="Unique identifier of the match">Match ID</th>
-                        <th title="Default score of the match. Coincides with one of the other score columns (hidden by default)">Score</th>
-                        <th title="Log‑probability from the HMM that the BGC generates the NRP">Raw score</th>
-                        <th title="Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC">NRP score</th>
-                        <th title="Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP">BGC score</th>
-                        <th title="NRP identifier">NRP</th>
-                        <th title="Genome identifier">Genome</th>
-                        <th title="antiSMASH region identifier (contig.region)">BGC ID</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- Rows will be populated here by JavaScript -->
-                    </tbody>
                 </table>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 5fr; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px;">
-                <p id="alignmentLabel">Alignment details</p>
+            <p class="matchDetailedInfoLabel">Alignment details</p>
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px; flex-wrap: wrap;">
                 <div id="columnControls" style="display: flex; align-items: center;">
                     <a href="#" id="toggleColumnsButton">Select columns to display</a>
                     <div id="checkboxContainer" style="display: none; margin-left: 10px;">
@@ -370,6 +406,15 @@
         return (val !== undefined && val !== null && isFinite(parseFloat(val))) ? parseFloat(val).toFixed(2) : 'n/a';
     }
 
+    // Helper to extract stem from a filepath (e.g., "test_data/antismash/BGC0000985/BGC0000985.json" --> "BGC0000985"
+    // Works with Windows paths as well ("\" instead of "/") and with filenames containing dots
+    function getStem(path) {
+        const parts = path.split(/[/\\]+/);
+        const filename = parts.pop();
+        const idx = filename.lastIndexOf('.');
+        return idx !== -1 ? filename.slice(0, idx) : filename;
+    }
+
     // Column indices for main table (filled after headers exist)
     const columnIndices = {};
 
@@ -393,27 +438,293 @@
         'aa34 code': 'aa34_code'
     };
 
+    // List of column names and visibility for the main report table and the corresponding checkboxes
+    const mainColumns = [
+        {
+            header: "Match ID",
+            title: "Unique identifier of the match",
+            hidden: false
+        },
+        {
+            header: "Score",
+            title: "Default score of the match. Coincides with one of the other score columns (hidden by default)",
+            hidden: false
+        },
+        {
+            header: "Raw score",
+            title: "Log-probability from the HMM that the BGC generates the NRP",
+            hidden: true
+        },
+        {
+            header: "NRP score",
+            title: "Log-odds vs an average NRP when scoring this BGC",
+            hidden: true
+        },
+        {
+            header: "BGC score",
+            title: "Log-odds vs an average BGC when scoring this NRP",
+            hidden: true
+        },
+        {
+            header: "NRP ID",
+            title: "NRP identifier",
+            hidden: false
+        },
+        {
+            header: "Genome",
+            title: "Genome identifier",
+            hidden: false
+        },
+        {
+            header: "BGC ID",
+            title: "antiSMASH region identifier (contig.region)",
+            hidden: false
+        },
+    ];
+
+    // === Handling of the NRP metadata === //
+    // Extra NRP-metadata columns in the main table and how to get their values from the serialized metadata object
+    // Each entry has:
+    //   header – text in the table header and column chooser (checkbox)
+    //   key    – field name in the metadata object (metadata[key])
+    //   title  – tooltip shown on hover (for <th> and checkbox label)
+    //   hidden – whether the column is hidden by default
+    const nrpMetadataColumns = [
+        { header: "NRP name",     key: "name",     title: "Name of the NRP compound",                 hidden: true  },
+        { header: "NRP producer", key: "origin",   title: "Microbial species that produces the NRP",  hidden: true  },
+        { header: "NRP source",   key: "source",   title: "Source database of the NRP entry",         hidden: true  },
+        { header: "SMILES",       key: "smiles",   title: "Chemical SMILES representation",           hidden: true  },
+        { header: "InChIKey",     key: "inchikey", title: "",                                         hidden: true  },
+    ];
+
+    // a lookup dictionary: NRP ID -> NRP metadata
+    const nrpMetaIndex = new Map();
+
+    if (Array.isArray(nrp_metadata)) {
+        nrp_metadata.forEach(m => {
+            nrpMetaIndex.set(m.nrp_id, m.metadata || {});
+        });
+    }
+
+    function getNrpMetadata(nrp_id) {
+        const raw = nrpMetaIndex.get(nrp_id) || {};
+
+        // Fill defaults for all expected metadata keys
+        const metadata = {};
+        nrpMetadataColumns.forEach(col => {
+            const val = raw[col.key];
+            metadata[col.key] = (val !== undefined && val !== null && val !== "") ? val : "n/a";
+        });
+
+        return metadata;
+    }
+
+    // === Handling of the BGC metadata === //
+    // Columns describing extra BGC metadata (to be shown after "Genome" / "Region").
+    // Each entry object has:
+    //   header – text in the table header and column chooser
+    //   key    – field name in the BGC metadata object (metadata[key])
+    //   title  – tooltip shown on hover (for <th> and checkbox label)
+    //   hidden – whether the column is hidden by default
+    const bgcMetadataColumns = [
+        { header: "Organism",      key: "organism",      title: "Organism name (antiSMASH metadata)",        hidden: true },
+        { header: "Sequence file", key: "sequence_file", title: "Primary sequence/GenBank file name",        hidden: true },
+        { header: "Accessions",    key: "accessions",    title: "Genome accession ID (antiSMASH metadata)",  hidden: true }, // array
+        { header: "Taxonomy",      key: "taxonomy",      title: "Taxonomic lineage (antiSMASH metadata)",    hidden: true }, // array
+    ];
+
+    // a lookup dictionary: BGC ID -> BGC metadata
+    const bgcMetaIndex = new Map();
+
+    // Build a consistent unique key for a BGC variant
+    function makeBgcKey(bgc_id) {
+        // all fields in "bgc_id" are always present; no need for null checks
+        return `${bgc_id.antiSMASH_file}::${bgc_id.contig_idx}::${bgc_id.bgc_idx}`;
+    }
+
+    if (Array.isArray(bgc_metadata)) {
+        bgc_metadata.forEach(m => {
+            bgcMetaIndex.set(makeBgcKey(m.bgc_id), m.metadata || {});
+        });
+    }
+
+    function getBgcMetadata(bgc_id) {
+        const raw = bgcMetaIndex.get(makeBgcKey(bgc_id)) || {};
+
+        // Fill defaults for all expected metadata keys
+        const metadata = {};
+        bgcMetadataColumns.forEach(col => {
+            const val = raw[col.key];
+            metadata[col.key] = (val !== undefined && val !== null && val !== "") ? val : "n/a";
+        });
+
+        return metadata;
+    }
+
+    // === Common part of both metadata types === //
+    // Insert metadata headers (text columns) after a specific anchor header in a table.
+    // - tableId:       id of the table (e.g., 'reportTable', 'matchTable')
+    // - columns:       array of column defs (e.g., nrpMetadataColumns or bgcMetadataColumns)
+    // - anchorHeader:  header text to insert after (default: "NRP ID")
+    function ensureMetadataHeaders(columns, anchorHeader = "NRP ID", tableId = 'reportTable') {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        const ths = table.querySelectorAll('thead th');
+        const anchor = [...ths].find(th => th.textContent.trim() === anchorHeader);
+        if (!anchor) return;
+
+        let insertAfter = anchor;
+        columns.forEach(col => {
+            const th = document.createElement('th');
+            th.title = col.title || col.header;
+
+            // keep sortable look-and-feel consistent with existing headers
+            th.setAttribute('data-sort-direction', ''); // empty by default
+            th.innerHTML = `${col.header}<span class="indicator" style="visibility: hidden;"></span>`;
+
+            insertAfter.insertAdjacentElement('afterend', th);
+            insertAfter = th;
+        });
+    }
+
+    // Create per-column metadata nodes with consistent classes.
+    // wrap: "td" for table rows, "span" for cells passed to buildSingleRowTable.
+    function createMetadataNodes(columns, metadata, { wrap = "td" } = {}) {
+        return columns.map(col => {
+            const value = metadata[col.key];
+            const el = document.createElement(wrap === "td" ? "td" : "span");
+            el.classList.add("metadata", `metadata-${col.key}`);
+            if (Array.isArray(value)) {
+                el.textContent = value.join("; "); // e.g., for Taxonomy
+            } else {
+                el.textContent = value;
+            }
+            return el;
+        });
+    }
+
+    function appendMetadataCells(rowEl, columns, metadata) {
+        const nodes = createMetadataNodes(columns, metadata, { wrap: "td" });
+        nodes.forEach(n => rowEl.appendChild(n));
+    }
+
+    // === Handling of representatives vs all BGC/NRPs === //
+    // a lookup dictionary: representative BGC ID -> list of represented BGCs (including the repr itself)
+    const bgcReprIndex = new Map();
+
+    if (Array.isArray(bgc_representatives)) {
+        bgc_representatives.forEach(group => {
+            const reprKey = makeBgcKey(group.repr.bgc_id);
+            bgcReprIndex.set(reprKey, group.members);
+        });
+    }
+
+    // a lookup dictionary: representative NRP ID -> list of represented NRPs (including the repr itself)
+    const nrpReprIndex = new Map();
+
+    if (Array.isArray(nrp_representatives)) {
+        nrp_representatives.forEach(group => {
+            nrpReprIndex.set(group.repr.nrp_id, group.members);
+        });
+    }
+
+    // Default view: show only representative BGCs
+    let showRepresentativesOnly = true;
+
+    // Button click handler: flip mode and refresh
+    function toggleReprMode() {
+        showRepresentativesOnly = !showRepresentativesOnly;
+        const btn = document.getElementById('toggleReprBtn');
+        btn.textContent = showRepresentativesOnly
+            ? 'Show all BGCs/NRPs (incl. duplicates)'
+            : 'Show  representative  BGCs/NRPs  only';
+        filterTable();
+    }
+    // ===   === //
+
     // Populate main results table
+    // Builds a single <tr> for the main table (repr or duplicate)
+    function buildMainTableRow({ item, nrp_id, bgc_id, isRepresentative }) {
+        const row = document.createElement('tr');
+
+        const genome_id = getStem(bgc_id.antiSMASH_file);
+        if (!isRepresentative) row.classList.add('not-repr-row'); // so we can show/hide all duplicates as a group
+
+        // Match ID cell: clickable for representative, plain text for duplicates
+        const matchCell = isRepresentative
+            ? `<a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a>`
+            : `${item.Match_ID}`;
+
+        row.innerHTML = `
+            <td class="match-id">${matchCell}</td>
+            <td class="score">${fmtNum(item.score)}</td>
+            <td class="score">${fmtNum(item.raw_score)}</td>
+            <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
+            <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
+            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
+        `;
+
+        // NRP metadata
+        appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(nrp_id));
+
+        // Genome + BGC ID
+        row.insertAdjacentHTML('beforeend', `
+            <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">
+                Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
+            </a></td>
+        `);
+
+        // BGC metadata
+        appendMetadataCells(row, bgcMetadataColumns, getBgcMetadata(bgc_id));
+
+        return row;
+    }
+
+    // Builds the full table
     function populateTable(data) {
         const tableBody = document.querySelector('#reportTable tbody');
         tableBody.innerHTML = '';
 
         if (data && Array.isArray(data)) {
             data.forEach(item => {
-                const row = document.createElement('tr');
-                const bgc_id = item.bgc_variant_id.bgc_id;
-                const nrp_id = item.nrp_variant_id.nrp_id;
-                row.innerHTML = `
-                        <td class="match-id"><a href="#" class="match-link" data-match="${item.Match_ID}">${item.Match_ID}</a></td>
-                        <td class="score">${fmtNum(item.score)}</td>
-                        <td class="score">${fmtNum(item.raw_score)}</td>
-                        <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
-                        <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-                        <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="">${item.genome_id}</a></td>
-                        <td><a href="#" class="genome-link" data-genome="${item.genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</a></td>
-                    `;
-                tableBody.appendChild(row);
+                const repr_nrp_id = item.nrp_variant_id.nrp_id;
+                const repr_bgc_id = item.bgc_variant_id.bgc_id;
+
+                // Representative row
+                const reprRow = buildMainTableRow({
+                    item,
+                    nrp_id: repr_nrp_id,
+                    bgc_id: repr_bgc_id,
+                    isRepresentative: true
+                });
+                tableBody.appendChild(reprRow);
+
+                // Duplicate rows: 'n x m - 1' extra rows for 'n' duplicate NRPs and 'm' duplicate BGCs
+                const nrpMembers = nrpReprIndex.get(repr_nrp_id) || [];
+                const reprBgcKey = makeBgcKey(repr_bgc_id);
+                const bgcMembers = bgcReprIndex.get(reprBgcKey) || [];
+
+                nrpMembers.forEach(nrpMember => {
+                    const member_nrp_id = nrpMember.nrp_id;
+
+                    bgcMembers.forEach(bgcMember => {
+                        const member_bgc_id = bgcMember.bgc_id;
+
+                        // Skip the representative pair (repr_nrp, repr_bgc)
+                        if ((member_nrp_id === repr_nrp_id) && (makeBgcKey(member_bgc_id) === reprBgcKey)) return;
+
+                        const dupRow = buildMainTableRow({
+                            item,
+                            nrp_id: member_nrp_id,
+                            bgc_id: member_bgc_id,
+                            isRepresentative: false
+                        });
+
+                        tableBody.appendChild(dupRow);
+                    });
+                });
             });
 
             // Add click event listeners for Match links
@@ -452,6 +763,38 @@
         toggleMainColumnVisibility();
     }
 
+    // Helper for the detailed Match view: build a one-row table
+    function buildSingleRowTable({ id, headers, headerTitles = [], cells }) {
+        const table = document.createElement('table');
+        if (id) table.id = id;
+
+        const thead = document.createElement('thead');
+        const trH = document.createElement('tr');
+        headers.forEach((h, i) => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            if (headerTitles[i]) th.title = headerTitles[i];
+            trH.appendChild(th);
+        });
+        thead.appendChild(trH);
+
+        const tbody = document.createElement('tbody');
+        const trB = document.createElement('tr');
+        cells.forEach(val => {
+            const td = document.createElement('td');
+            if (val instanceof Node) {
+                td.appendChild(val);
+            } else {
+                td.textContent = (val ?? 'n/a');
+            }
+            trB.appendChild(td);
+        });
+        tbody.appendChild(trB);
+
+        table.append(thead, tbody);
+        return table;
+    }
+
     // Toggle function for hiding/showing the Match details
     function toggleMatchViewer(hide, matchID) {
         const frame = document.getElementById('matchViewerContainer');
@@ -466,24 +809,108 @@
             toggleGenomeViewer(hide);
             toggleNrpViewer(hide);
         } else {
-            // Basic match info
-            var item = data.at(matchID);
-            const matchTableBody = document.querySelector('#matchTable tbody');
-            matchTableBody.innerHTML = '';
-            const matchRow = document.createElement('tr');
+            // Basic match info // TODO: maybe split into three rows: basic info, NRP-related & BGC-related metadata
+            const item = data.at(matchID);
             const bgc_id = item.bgc_variant_id.bgc_id;
             const nrp_id = item.nrp_variant_id.nrp_id;
-            matchRow.innerHTML = `
-                    <td class="match-id">${item.Match_ID}</td>
-                    <td class="score">${fmtNum(item.score)}</td>
-                    <td class="score">${fmtNum(item.raw_score)}</td>
-                    <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
-                    <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-                    <td>${nrp_id}</td>
-                    <td>${item.genome_id}</td>
-                    <td>Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}</td>
-                `;
-            matchTableBody.appendChild(matchRow);
+            const metadata = getNrpMetadata(nrp_id);
+
+            const container = document.querySelector('#matchViewerContainer .table-container');
+            container.innerHTML = ''; // remove the old wide table
+
+            // --- General info (everything before NRP ID)
+            const generalHeaders = ["Match ID", "Score", "Raw score", "NRP score", "BGC score"];
+            const generalCells   = [
+                item.Match_ID,
+                fmtNum(item.score),
+                fmtNum(item.raw_score),
+                fmtNum(item.log_odds_vs_avg_nrp),
+                fmtNum(item.log_odds_vs_avg_bgc),
+            ];
+            const generalTable = buildSingleRowTable({
+                id: 'matchTableGeneral',
+                headers: generalHeaders,
+                // optional: tooltips if you want them
+                headerTitles: [
+                    "Unique identifier of the match",
+                    "Default score of the match. Coincides with one of the other score columns",
+                    "Log‑probability from the HMM that the BGC generates the NRP",
+                    "Log‑odds vs an average NRP when scoring this BGC. Use to rank NRPs for a fixed BGC",
+                    "Log‑odds vs an average BGC when scoring this NRP. Use to rank BGCs for a fixed NRP"
+                ],
+                cells: generalCells
+            });
+
+            // --- NRP-related info (NRP ID + NRP metadata, not including Genome)
+            const nrpHeaders = ["NRP ID", ...nrpMetadataColumns.map(c => c.header)];
+            const nrpHeaderTitles = [
+                "NRP identifier",
+                ...nrpMetadataColumns.map(c => c.title || c.header)
+            ];
+            const nrpIDLink = document.createElement('a');
+            nrpIDLink.href = '#';
+            nrpIDLink.className = 'nrp-link';
+            nrpIDLink.dataset.nrp = nrp_id;
+            nrpIDLink.textContent = nrp_id;
+
+            const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(nrp_id), { wrap: "span" });
+            const nrpCells = [nrpIDLink, ...nrpMetadataSpans];
+
+            const nrpTable = buildSingleRowTable({
+                id: 'matchTableNrp',
+                headers: nrpHeaders,
+                headerTitles: nrpHeaderTitles,
+                cells: nrpCells
+            });
+
+            // --- BGC-related info (everything from Genome to the end)
+            const regionLabel = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+            const bgcHeaders = ["Genome", "Region", ...bgcMetadataColumns.map(c => c.header)];
+            const bgcHeaderTitles = [
+                "Genome identifier",
+                "antiSMASH region identifier (contig.region)"
+            ];
+            const genome_id = getStem(bgc_id.antiSMASH_file);
+            const genomeLink = document.createElement('a');
+            genomeLink.href = '#';
+            genomeLink.className = 'genome-link';
+            genomeLink.dataset.genome = genome_id;
+            genomeLink.dataset.bgc = '';
+            genomeLink.textContent = genome_id;
+
+            const regionLink = document.createElement('a');
+            regionLink.href = '#';
+            regionLink.className = 'genome-link';
+            regionLink.dataset.genome = genome_id;
+            regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
+            regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+
+            const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id), { wrap: "span" });
+            const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
+
+            const bgcTable = buildSingleRowTable({
+                id: 'matchTableBgc',
+                headers: bgcHeaders,
+                headerTitles: bgcHeaderTitles,
+                cells: bgcCells
+            });
+
+            // Append the three compact tables (stacked one under another)
+            container.append(generalTable, nrpTable, bgcTable);
+
+            // Handlers for the NRP-ID, Genome and BGC-ID links in the detailed match info tables
+            container.querySelectorAll('.nrp-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleNrpViewer(false, link.dataset.nrp);
+                });
+            });
+            container.querySelectorAll('.genome-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleGenomeViewer(false, link.dataset.genome, link.dataset.bgc);
+                });
+            });
 
             // Match alignment info
             const alignmentTableBody = document.querySelector('#alignmentTable tbody');
@@ -507,7 +934,7 @@
             label.style.display = 'none';
             hideBtn.style.display = 'block';
 
-            toggleGenomeViewer(false, item.genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
+            toggleGenomeViewer(false, genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
             toggleNrpViewer(false, nrp_id);
         }
     }
@@ -570,10 +997,6 @@
         });
     }
 
-    document.querySelectorAll('#columnControls input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', toggleAlignmentColumnVisibility);
-    });
-
     // Main-table column chooser
     document.getElementById('toggleMainColumnsButton').addEventListener('click', function (event) {
         event.preventDefault();
@@ -581,21 +1004,36 @@
         box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
     });
 
+    function getHeaderLabel(th) {
+        const tn = Array.from(th.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+        return (tn ? tn.textContent : th.textContent).trim();
+    }
+
+    function buildMainTableHeader() {
+        const headerRow = document.querySelector('#reportTable thead tr');
+        headerRow.innerHTML = '';  // clear existing
+
+        mainColumns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col.header;
+            th.title = col.title || col.header;
+            headerRow.appendChild(th);
+        });
+    }
+
     function toggleMainColumnVisibility() {
         const checkboxes = document.querySelectorAll('#mainCheckboxContainer input[type="checkbox"]');
+        const headers = Array.from(document.querySelectorAll('#reportTable th'));
+
         checkboxes.forEach(checkbox => {
             const columnName = checkbox.getAttribute('data-column');
-            const th = Array.from(document.querySelectorAll('#reportTable th')).find(th => th.textContent === columnName);
+            const th = headers.find(h => getHeaderLabel(h) === columnName);
             if (!th) return;
             const columnIndex = Array.from(th.parentNode.children).indexOf(th);
             const cells = document.querySelectorAll(`#reportTable th:nth-child(${columnIndex + 1}), #reportTable td:nth-child(${columnIndex + 1})`);
             cells.forEach(cell => { cell.style.display = checkbox.checked ? '' : 'none'; });
         });
     }
-
-    document.querySelectorAll('#mainCheckboxContainer input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', toggleMainColumnVisibility);
-    });
 
     // Sorting for main table
     function sortTable(n) {
@@ -634,17 +1072,60 @@
         rows.forEach(row => tbody.appendChild(row));
     }
 
+    function buildColumnCheckboxes() {
+        const container = document.getElementById('mainCheckboxContainer');
+        container.innerHTML = '';
+
+        // Ordered list with NRP/BGC metadata injected at the right place -- TODO make this hard coded places nicer (also used for proper order in the table itself!)
+        const allColumns = mainColumns.flatMap(col => {
+            if (col.header === "NRP ID") {
+                return [col, ...nrpMetadataColumns];
+            }
+            if (col.header === "BGC ID") {
+                return [col, ...bgcMetadataColumns];
+            }
+            return [col];
+        });
+
+        allColumns.forEach(col => {
+            const span = document.createElement('span');
+            span.style.whiteSpace = 'nowrap';
+
+            const label = document.createElement('label');
+
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.dataset.column = col.header;
+            cb.checked = !col.hidden;
+
+            cb.addEventListener('change', toggleMainColumnVisibility);
+
+            label.appendChild(cb);
+            label.append(` ${col.header}`);
+            label.title = col.title || col.header; // tooltip on hover over the label
+            span.appendChild(label);
+
+            container.appendChild(span);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        // After DOM ready, populate table headers and rows, and apply visibility
+        buildMainTableHeader();
+        ensureMetadataHeaders(nrpMetadataColumns, 'NRP ID');
+        ensureMetadataHeaders(bgcMetadataColumns, 'BGC ID');
+
+        buildColumnCheckboxes();
+
+        populateTable(data);
+        toggleMainColumnVisibility();
+
         // Fill columnIndices after headers exist
         const headers = document.querySelectorAll('#reportTable th');
         headers.forEach((header, index) => {
             const txt = header.textContent.trim();
-            if (txt === 'Raw score') columnIndices.rawScore = index;
-            else if (txt === 'NRP score') columnIndices.nrpScore = index;
-            else if (txt === 'BGC score') columnIndices.bgcScore = index;
-            else if (txt === 'Score') columnIndices.score = index;
-            else if (txt === 'Match ID') columnIndices.matchID = index;
-            else if (txt === 'NRP') columnIndices.nrp = index;
+            if (txt === 'Score') columnIndices.score = index;
+            else if (txt === 'NRP ID') columnIndices.nrpID= index;
             else if (txt === 'Genome') columnIndices.genome = index;
             else if (txt === 'BGC ID') columnIndices.bgcID = index;
 
@@ -662,33 +1143,35 @@
             if (ind) { ind.style.visibility = 'visible'; ind.textContent = '▼'; }
         }
 
-        // Hide Raw score, NRP score, and BGC score by default
-        const rawCb = document.querySelector('#mainCheckboxContainer input[data-column="Raw score"]');
-        if (rawCb) { rawCb.checked = false; }
-        const nrpCb = document.querySelector('#mainCheckboxContainer input[data-column="NRP score"]');
-        if (nrpCb) { nrpCb.checked = false; }
-        const bgcCb = document.querySelector('#mainCheckboxContainer input[data-column="BGC score"]');
-        if (bgcCb) { bgcCb.checked = false; }
+        // now all checkboxes are dynamically created, so we can add listeners to them
+        document.querySelectorAll('#mainCheckboxContainer input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', toggleMainColumnVisibility);
+        });
 
-        // After DOM ready, populate table and apply visibility
-        populateTable(data);
-        toggleMainColumnVisibility();
+        // this is not required exactly here since there are no dynamic checkboxes for the alignment (so far)
+        document.querySelectorAll('#columnControls input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', toggleAlignmentColumnVisibility);
+        });
+
+        document.getElementById('toggleReprBtn').addEventListener('click', toggleReprMode);
     });
 
     // Filter the table (NRP, Genome, BGC ID, Raw score ≥ threshold)
     function filterTable() {
-        const nrpIndex = columnIndices.nrp;
+        const nrpIndex = columnIndices.nrpID;
         const genomeIndex = columnIndices.genome;
-        const bgcIDIndex = columnIndices.bgcID;
-        const rawIndex = columnIndices.rawScore;
+        const scoreIndex = columnIndices.score;
+
+        const globalInput = document.getElementById('globalFilterInput');
         const nrpInput = document.getElementById('nrpFilterInput');
         const genomeInput = document.getElementById('genomeFilterInput');
-        const bgcIDInput = document.getElementById('bgcIDFilterInput');
         const scoreInput = document.getElementById('scoreFilterInput');
+
+        const globalFilter = globalInput.value.toLowerCase();
         const nrpFilter = nrpInput.value.toLowerCase();
         const genomeFilter = genomeInput.value.toLowerCase();
-        const bgcIDFilter = bgcIDInput.value.toLowerCase();
         const scoreFilter = parseFloat(scoreInput.value);
+
         const table = document.getElementById('reportTable');
         const tr = table.getElementsByTagName('tr');
 
@@ -696,11 +1179,25 @@
         let totalRowCount = 0;
 
         for (let i = 1; i < tr.length; i++) {
+            // Special case: show only representative BGC/NRPd unless toggled on
+            if (showRepresentativesOnly && tr[i].classList.contains('not-repr-row')) {
+                tr[i].style.display = 'none';
+                continue;
+            }
+
             let showRow = true;
-            const nrpTd = tr[i].getElementsByTagName('td')[nrpIndex];
+
+            // --- GLOBAL filter: check full row text (includes numeric cells as strings) ---
+            if (globalFilter) {
+                const rowText = (tr[i].textContent || tr[i].innerText).toLowerCase();
+                if (!rowText.includes(globalFilter)) {
+                    showRow = false;
+                }
+            }
+
+            const nrpTd    = tr[i].getElementsByTagName('td')[nrpIndex];
             const genomeTd = tr[i].getElementsByTagName('td')[genomeIndex];
-            const bgcIDTd = tr[i].getElementsByTagName('td')[bgcIDIndex];
-            const rawTd = tr[i].getElementsByTagName('td')[rawIndex];
+            const scoreTd  = tr[i].getElementsByTagName('td')[scoreIndex];
 
             if (nrpTd) {
                 const v = nrpTd.textContent || nrpTd.innerText;
@@ -710,12 +1207,8 @@
                 const v = genomeTd.textContent || genomeTd.innerText;
                 if (genomeFilter && v.toLowerCase().indexOf(genomeFilter) === -1) showRow = false;
             }
-            if (bgcIDTd) {
-                const v = bgcIDTd.textContent || bgcIDTd.innerText;
-                if (bgcIDFilter && v.toLowerCase().indexOf(bgcIDFilter) === -1) showRow = false;
-            }
-            if (rawTd) {
-                const v = parseFloat(rawTd.textContent || rawTd.innerText);
+            if (scoreTd) {
+                const v = parseFloat(scoreTd.textContent || scoreTd.innerText);
                 if (!isNaN(scoreFilter) && v < scoreFilter) showRow = false;
             }
 
@@ -727,9 +1220,9 @@
         document.getElementById('rowCounter').textContent = `Number of matches ( filtered / total ): ${visibleRowCount} / ${totalRowCount}`;
     }
 
+    document.getElementById('globalFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('nrpFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('genomeFilterInput').addEventListener('keyup', filterTable);
-    document.getElementById('bgcIDFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('scoreFilterInput').addEventListener('keyup', filterTable);
 </script>
 </body>

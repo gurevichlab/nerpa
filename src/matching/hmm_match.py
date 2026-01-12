@@ -4,10 +4,9 @@ from dataclasses import dataclass
 from src.general_type_aliases import LogProb
 from src.antismash_parsing.bgc_variant_types import BGC_Variant_ID
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
-from src.matching.hmm_auxiliary_types import StateIdx
+from src.hmm.hmm_auxiliary_types import StateIdx
 from src.matching.match_type import NRP_Variant_ID, Match
-from src.rban_parsing.get_linearizations import LinearizationLight
-from src.matching.detailed_hmm import DetailedHMM
+from src.hmm.detailed_hmm import DetailedHMM
 from src.rban_parsing.rban_monomer import rBAN_idx
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from collections import defaultdict

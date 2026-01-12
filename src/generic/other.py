@@ -45,3 +45,24 @@ def json_round_floats(obj, ndigits=3):
         return tuple(json_round_floats(v, ndigits) for v in obj)
     else:
         return obj
+
+def json_remove_infinities(obj, infinity=1e30):
+    '''
+    Recursively substitute all infinities in a JSON-like structure (dicts, lists, floats)
+    with a large finite value.
+    '''
+    if isinstance(obj, float):
+        if obj == float('inf') or obj > infinity:
+            return infinity
+        elif obj == float('-inf') or obj < -infinity:
+            return -infinity
+        else:
+            return obj
+    elif isinstance(obj, dict):
+        return {k: json_remove_infinities(v, infinity) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [json_remove_infinities(v, infinity) for v in obj]
+    elif isinstance(obj, tuple):
+        return tuple(json_remove_infinities(v, infinity) for v in obj)
+    else:
+        return obj

@@ -2,8 +2,9 @@ from typing import Dict, List, Tuple, NamedTuple
 from collections import Counter, defaultdict
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import create_step_function
+from src.antismash_parsing.bgc_variant_types import BGC_Module, BGC_Module_Modification
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
-from src.matching.hmm_auxiliary_types import DetailedHMMStateType
+from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import INSERT_STATE_TYPES, MATCHING_STATE_TYPES
 from src.training.hmm_parameters.step_function import (
     create_bins,
     fit_step_function_to_bins,
@@ -12,10 +13,6 @@ from src.training.hmm_parameters.step_function import (
 )
 from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, NerpaResidue
 from src.general_type_aliases import LogProb, Prob
-from src.general_type_aliases import (
-    BGC_Module,
-    BGC_Module_Modification
-)
 from src.training.hmm_parameters.training_types import EmissionInfo
 from src.training.hmm_parameters.norine_stats import NorineStats
 
@@ -28,7 +25,7 @@ import matplotlib.pyplot as plt
 def get_score_correctness(emissions: List[EmissionInfo]) -> List[Tuple[LogProb, bool]]:
     score_correctness = []
     for bgc_id, bgc_module, nrp_monomer, state_type in emissions:
-        if state_type != DetailedHMMStateType.MATCH:
+        if state_type not in MATCHING_STATE_TYPES:
             continue
         for predicted_residue, score in bgc_module.residue_score.items():
             score_correctness.append((score, predicted_residue == nrp_monomer.residue))
@@ -63,6 +60,9 @@ def get_modifications_frequencies(emissions: List[Tuple[BGC_Module, NRP_Monomer]
 
         mt_cnt[f'BGC_{bgc_meth}_NRP_{nrp_meth}'] += 1
         ep_cnt[f'BGC_{bgc_chir}_NRP_{nrp_chir.name}'] += 1
+
+    # print(f'Methylation counts: {mt_cnt}')
+    # print(f'Epimerization counts: {ep_cnt}')
 
     result = {}
     # Laplace rule of succession (add 1 to numerator and 2 to denominator)
@@ -107,9 +107,7 @@ def get_modifications_scores(emissions: List[Tuple[BGC_Module, NRP_Monomer]],
 def get_insert_unknown_prob(emissions: List[EmissionInfo]) -> Prob:
     insert_emissions = [emission
                         for emission in emissions
-                        if emission.state_type in (DetailedHMMStateType.INSERT,
-                                                   DetailedHMMStateType.INSERT_AT_START,
-                                                   DetailedHMMStateType.INSERT_AT_END)]
+                        if emission.state_type in INSERT_STATE_TYPES]
     num_insert_unknown = sum(1 for emission in insert_emissions
                              if emission.nrp_monomer.residue == UNKNOWN_RESIDUE)
     return num_insert_unknown / len(insert_emissions) if insert_emissions else 0.0
@@ -119,7 +117,7 @@ def get_unknown_because_pks_prob(emissions: List[EmissionInfo],
                                  step_function_steps: List[float]) -> Prob:
     emissions_with_pks = [emission
                           for emission in emissions
-                          if (emission.state_type == DetailedHMMStateType.MATCH and
+                          if (emission.state_type in MATCHING_STATE_TYPES and
                               ModuleGenomicContextFeature.PKS_DOWNSTREAM in emission.bgc_module.genomic_context)]
     calibration_function = create_step_function(step_function_steps)
     unknown_preds_correctness =[(calibration_function(emission.bgc_module.residue_score[UNKNOWN_RESIDUE]),
@@ -214,9 +212,10 @@ def infer_emission_params(emissions: List[EmissionInfo],
                                       output_dir)  # TODO: put in config
 
     print('Calculating modifications frequencies...')
-    match_emissions_ = [(bgc_module, nrp_monomer.to_base_mon())
-                  for bgc_info, bgc_module, nrp_monomer, state_type in emissions
-                  if state_type == DetailedHMMStateType.MATCH]
+    match_emissions_ = [(emission_info.bgc_module, emission_info.nrp_monomer.to_base_mon())
+                  for emission_info in emissions
+                  if emission_info.state_type in MATCHING_STATE_TYPES]
+    print(f'Number of match emissions for modification freq calculation: {len(match_emissions_)}')
     #modifications_scores = get_modifications_scores(emissions_, default_freqs)
     modification_frequencies = get_modifications_frequencies(match_emissions_)
 
@@ -224,7 +223,7 @@ def infer_emission_params(emissions: List[EmissionInfo],
                          'EPIMERIZATION': norine_stats.d_chirality / norine_stats.total_monomers}
     default_residue_freqs: Dict[NerpaResidue, Prob] = defaultdict(float)
     for norine_residue, freq in norine_stats.residue_frequencies.items():
-        nerpa_residue = monomer_names_helper.parsed_name(norine_residue, 'norine').residue
+        nerpa_residue = monomer_names_helper.parsed_name(norine_residue, 'rBAN/Norine').residue
         default_residue_freqs[nerpa_residue] += freq
 
     default_residue_freqs = dict(default_residue_freqs)  # to dump as YAML

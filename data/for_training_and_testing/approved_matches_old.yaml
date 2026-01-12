@@ -1,0 +1,1769 @@
+- bgc_id: BGC0000305
+  nrp_id: BGC0000305.0
+  true_alignment:
+  - [[arfA, 0], Leu]
+  - [[arfA, 1], Asp]
+  - [[arfB, 0], aThr/Thr]
+  - [[arfB, 1], Leu]
+  - [[arfB, 2], Leu]
+  - [[arfB, 3], Ser]
+  - [[arfC, 0], Leu]
+  - [[arfC, 1], Ser]
+  - [[arfC, 2], Ile/aIle]
+  - [[arfC, 3], Ile/aIle]
+  - [[arfC, 4], Asp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000306
+  nrp_id: BGC0000306.0
+  true_alignment:
+  - [[SSIG_07966, 0], NMe-Ser]
+  - [[SSIG_07966, 1], Ala]
+  - [[SSIG_05823, 0], Gly]
+  - [[SSIG_05823, 1], NMe-Hpg]
+  - [[SSIG_05823, 2], Ala]
+  - [[SSIG_05823, 3], Tyr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000310
+  nrp_id: BGC0000310.0
+  true_alignment:
+  - [[bacA, 0], Ile/aIle]
+  - [[bacA, 1], Cys]
+  - [[bacA, 2], Leu]
+  - [[bacA, 3], Glu]
+  - [[bacA, 4], Ile/aIle]
+  - [[bacB, 0], Lys]
+  - [[bacB, 1], Orn]
+  - [[bacC, 0], Ile/aIle]
+  - [[bacC, 1], Phe]
+  - [[bacC, 2], His]
+  - [[bacC, 3], Asp]
+  - [[bacC, 4], Asn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000311
+  nrp_id: BGC0000311.0
+  true_alignment:
+  - [[bpsA, 0], NMe-Leu]
+  - [[bpsA, 1], bOH-Cl-Tyr]
+  - [[bpsA, 2], Asn]
+  - [[bpsB, 0], Hpg]
+  - [[bpsB, 1], Hpg]
+  - [[bpsB, 2], bOH-Cl-Tyr]
+  - [[bpsC, 0], Dhpg]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000315
+  nrp_id: BGC0000315.0
+  true_alignment:
+  - [[SCO3230, 0], Ser]
+  - [[SCO3230, 1], aThr/Thr]
+  - [[SCO3230, 2], Trp]
+  - [[SCO3230, 3], Asp]
+  - [[SCO3230, 4], Asp]
+  - [[SCO3230, 5], Hpg]
+  - [[SCO3231, 0], Asp]
+  - [[SCO3231, 1], Gly]
+  - [[SCO3231, 2], PO-Asn]
+  - [[SCO3232, 0], Glu]
+  - [[SCO3232, 1], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000315
+  nrp_id: BGC0000315.1
+  true_alignment:
+  - [[SCO3230, 0], Ser]
+  - [[SCO3230, 1], aThr/Thr]
+  - [[SCO3230, 2], Trp]
+  - [[SCO3230, 3], Asp]
+  - [[SCO3230, 4], Asp]
+  - [[SCO3230, 5], Hpg]
+  - [[SCO3231, 0], Asp]
+  - [[SCO3231, 1], Gly]
+  - [[SCO3231, 2], PO-Asn]
+  - [[SCO3232, 0], Glu]
+  - [[SCO3232, 1], dh-Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000315
+  nrp_id: BGC0000315.2
+  true_alignment:
+  - [[SCO3230, 0], Ser]
+  - [[SCO3230, 1], aThr/Thr]
+  - [[SCO3230, 2], Trp]
+  - [[SCO3230, 3], Asp]
+  - [[SCO3230, 4], Asp]
+  - [[SCO3230, 5], Hpg]
+  - [[SCO3231, 0], Asp]
+  - [[SCO3231, 1], Gly]
+  - [[SCO3231, 2], PO-Asn]
+  - [[SCO3232, 0], 3Me-Glu]
+  - [[SCO3232, 1], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000315
+  nrp_id: BGC0000315.3
+  true_alignment:
+  - [[SCO3230, 0], Ser]
+  - [[SCO3230, 1], aThr/Thr]
+  - [[SCO3230, 2], Trp]
+  - [[SCO3230, 3], Asp]
+  - [[SCO3230, 4], Asp]
+  - [[SCO3230, 5], Hpg]
+  - [[SCO3231, 0], Asp]
+  - [[SCO3231, 1], Gly]
+  - [[SCO3231, 2], OH-Asn]
+  - [[SCO3232, 0], Glu]
+  - [[SCO3232, 1], dh-Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000315
+  nrp_id: BGC0000315.4
+  true_alignment:
+  - [[SCO3230, 0], Ser]
+  - [[SCO3230, 1], aThr/Thr]
+  - [[SCO3230, 2], Trp]
+  - [[SCO3230, 3], X0]
+  - [[SCO3230, 4], Asp]
+  - [[SCO3230, 5], Hpg]
+  - [[SCO3231, 0], Asp]
+  - [[SCO3231, 1], Gly]
+  - [[SCO3231, 2], OH-Asn]
+  - [[SCO3232, 0], Glu]
+  - [[SCO3232, 1], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000315
+  nrp_id: BGC0000315.6
+  true_alignment:
+  - [[SCO3230, 0], Ser]
+  - [[SCO3230, 1], aThr/Thr]
+  - [[SCO3230, 2], Trp]
+  - [[SCO3230, 3], Asp]
+  - [[SCO3230, 4], Asp]
+  - [[SCO3230, 5], Hpg]
+  - [[SCO3231, 0], Asp]
+  - [[SCO3231, 1], Gly]
+  - [[SCO3231, 2], OH-Asn]
+  - [[SCO3232, 0], 3Me-Glu]
+  - [[SCO3232, 1], dh-Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000323
+  nrp_id: BGC0000323.0
+  true_alignment:
+  - [null, His]
+  - [[AHZ34232.1, 0], Leu]
+  - [[AHZ34232.1, 1], Leu]
+  - [[AHZ34232.1, 2], Gln]
+  - [[AHZ34233.1, 0], Leu]
+  - [[AHZ34233.1, 1], Gln]
+  - [[AHZ34233.1, 2], Val]
+  - [[AHZ34233.1, 3], Leu]
+  - [[AHZ34233.1, 4], Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000334
+  nrp_id: BGC0000334.0
+  true_alignment:
+  - [[simA, 0], Ala]
+  - [[simA, 1], NMe-Leu]
+  - [[simA, 2], NMe-Leu]
+  - [[simA, 3], NMe-Val]
+  - [[simA, 4], NMe-Bmt]
+  - [[simA, 5], Abu]
+  - [[simA, 6], NMe-Gly]
+  - [[simA, 7], NMe-Leu]
+  - [[simA, 8], Val]
+  - [[simA, 9], NMe-Leu]
+  - [[simA, 10], Ala]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000336
+  nrp_id: BGC0000336.0
+  true_alignment:
+  - [[dptA, 0], Trp]
+  - [[dptA, 1], Asn]
+  - [[dptA, 2], Asp]
+  - [[dptA, 3], aThr/Thr]
+  - [[dptA, 4], Gly]
+  - [[dptBC, 0], Orn]
+  - [[dptBC, 1], Asp]
+  - [[dptBC, 2], Ala]
+  - [[dptBC, 3], Asp]
+  - [[dptBC, 4], Gly]
+  - [[dptBC, 5], Ser]
+  - [[dptD, 0], 3Me-Glu]
+  - [[dptD, 1], Kyn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000339
+  nrp_id: BGC0000339.0
+  true_alignment:
+  - [null, COOH-Qui]
+  - [[ecm6, 0], Ser]
+  - [[ecm6, 1], Ala]
+  - [[ecm7, 0], NMe-Cys]
+  - [[ecm7, 1], NMe-Val]
+  - [[ecm13, 0], null]
+  - [null, COOH-Qui]
+  - [[ecm6, 0], Ser]
+  - [[ecm6, 1], Ala]
+  - [[ecm7, 0], diMe-Cys]
+  - [[ecm7, 1], NMe-Val]
+  - [[ecm13, 0], null]
+  acceptable_alternative_alignments:
+   - - [[ecm1, 0], COOH-Qui]
+     - [[ecm6, 0], Ser]
+     - [[ecm6, 1], ala]
+     - [[ecm7, 0], nme-cys]
+     - [[ecm7, 1], nme-val]
+     - [[ecm13, 0], null]
+     - [[ecm1, 0], cooh-qui]
+     - [[ecm6, 0], ser]
+     - [[ecm6, 1], ala]
+     - [[ecm7, 0], dime-cys]
+     - [[ecm7, 1], nme-val]
+     - [[ecm13, 0], null]
+- bgc_id: bgc0000342
+  nrp_id: BGC0000342.0
+  true_alignment:
+  - [[esyn1, 0], Hiv]
+  - [[esyn1, 1], X0]
+  - [[esyn1, 0], Hiv]
+  - [[esyn1, 1], NMe-Val]
+  - [[esyn1, 0], Hiv]
+  - [[esyn1, 1], NMe-aIle/NMe-Ile]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000346
+  nrp_id: BGC0000346.0
+  true_alignment:
+  - [[epxD, 0], NMe-NAc-Ile]
+  - [[epxD, 1], Ile/aIle]
+  - [[epxD, 2], aThr/Thr]
+  - [[epxD, 3], Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000374
+  nrp_id: BGC0000374.6
+  true_alignment:
+  - [[AEH41793.1, 0], X2]
+  - [[AEH41793.1, 1], aThr/Thr]
+  - [[AEH41793.1, 2], bMe-Phe]
+  - [[AEH41793.1, 3], X2]
+  - [[AEH41794.1, 0], bMe-Phe]
+  - [[AEH41794.1, 1], Ile/aIle]
+  - [[AEH41794.1, 2], X3]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000379
+  nrp_id: BGC0000379.0
+  true_alignment:
+  - [null, X0]
+  - [[lpmA, 0], Asp]
+  - [[lpmB, 0], Dpr]
+  - [[lpmB, 1], Hpr]
+  - [[lpmC, 0], Gly]
+  - [[lpmC, 1], Asp]
+  - [[lpmC, 2], Gly]
+  - [[lpmC, 3], Asp]
+  - [[lpmC, 4], Gly]
+  - [[lpmC, 5], aThr/Thr]
+  - [[lpmD, 0], Ile/aIle]
+  - [[lpmD, 1], Pro]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000393
+  nrp_id: BGC0000393.0
+  true_alignment:
+  - [[MXAN_3779, 0], NMe-Ser]
+  - [[MXAN_3779, 1], Leu]
+  - [[MXAN_3779, 2], bOH-Val]
+  - [[MXAN_3779, 3], Ser]
+  - [[MXAN_3779, 4], Val]
+  - [[MXAN_3779, 5], NFo-Ser]
+  - [[MXAN_3779, 6], Tyr]
+  - [[MXAN_3779, 7], bLys]
+  - [[MXAN_3779, 8], Ala]
+  - [[MXAN_3779, 9], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000398
+  nrp_id: BGC0000398.0
+  true_alignment:
+  - [[ofaA, 0], Leu]
+  - [[ofaA, 1], Glu]
+  - [[ofaB, 0], aThr/Thr]
+  - [[ofaB, 1], Val]
+  - [[ofaB, 2], Leu]
+  - [[ofaB, 3], Ser]
+  - [[ofaC, 0], Leu]
+  - [[ofaC, 1], Leu]
+  - [[ofaC, 2], Ser]
+  - [[ofaC, 3], Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000400
+  nrp_id: BGC0000400.0
+  true_alignment:
+  - [null, X0]
+  - [[pbtA, 0], Orn]
+  - [[pbtA, 1], Val]
+  - [[pbtA, 2], aThr/Thr]
+  - [[pbtA, 3], Orn]
+  - [[pbtA, 4], Ser]
+  - [[pbtB, 0], Val]
+  - [[pbtB, 1], Lys]
+  - [[pbtB, 2], Ser]
+  - [[pbtB, 3], Ile/aIle]
+  - [[pbtB, 4], Pro]
+  - [[pbtC, 0], Val]
+  - [[pbtC, 1], Lys]
+  - [[pbtC, 2], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000402
+  nrp_id: BGC0000402.0
+  true_alignment:
+  - [[ERIC2_c18770, 0], Asn]
+  - [[ERIC2_c18760, 0], Tyr]
+  - [[ERIC2_c18760, 1], Asn]
+  - [[ERIC2_c18760, 2], Gln]
+  - [[ERIC2_c18760, 3], Pro]
+  - [[ERIC2_c18750, 0], Asn]
+  - [[ERIC2_c18750, 1], Asn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000402
+  nrp_id: BGC0000402.1
+  true_alignment:
+  - [[ERIC2_c18770, 0], Asp]
+  - [[ERIC2_c18760, 0], Tyr]
+  - [[ERIC2_c18760, 1], Asn]
+  - [[ERIC2_c18760, 2], Gln]
+  - [[ERIC2_c18760, 3], Pro]
+  - [[ERIC2_c18750, 0], Asn]
+  - [[ERIC2_c18750, 1], Asn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000402
+  nrp_id: BGC0000402.2
+  true_alignment:
+  - [[ERIC2_c18770, 0], Asn]
+  - [[ERIC2_c18760, 0], Tyr]
+  - [[ERIC2_c18760, 1], Asn]
+  - [[ERIC2_c18760, 2], Gln]
+  - [[ERIC2_c18760, 3], Pro]
+  - [[ERIC2_c18750, 0], Asn]
+  - [[ERIC2_c18750, 1], Asn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000405
+  nrp_id: BGC0000405.0
+  true_alignment:
+  - [[pcbAB, 0], Aad]
+  - [[pcbAB, 1], Cys]
+  - [[pcbAB, 2], Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000405
+  nrp_id: BGC0000405.1
+  true_alignment:
+  - [[pcbAB, 0], Aad]
+  - [[pcbAB, 1], Cys]
+  - [[pcbAB, 2], Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000426
+  nrp_id: BGC0000426.0
+  true_alignment:
+  - [[sevA, 0], Phe]
+  - [[sevB, 0], Ala]
+  - [[sevB, 1], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000429
+  nrp_id: BGC0000429.0
+  true_alignment:
+  - [[sky29, 0], aThr/Thr]
+  - [[sky29, 1], Ala]
+  - [[sky29, 2], bMe-Asp]
+  - [[sky29, 3], Gly]
+  - [[sky30, 0], Ph-Ser]
+  - [[sky30, 1], Pro]
+  - [[sky30, 2], X2]
+  - [[sky30, 3], Trp]
+  - [[sky31, 0], X0]
+  - [[sky31, 1], Leu]
+  - [[sky31, 2], 3OH-Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000429
+  nrp_id: BGC0000429.1
+  true_alignment:
+  - [[sky29, 0], aThr/Thr]
+  - [[sky29, 1], Ala]
+  - [[sky29, 2], Asp]
+  - [[sky29, 3], Gly]
+  - [[sky30, 0], Ph-Ser]
+  - [[sky30, 1], Pro]
+  - [[sky30, 2], X0]
+  - [[sky30, 3], Trp]
+  - [[sky31, 0], X2]
+  - [[sky31, 1], Leu]
+  - [[sky31, 2], 3OH-Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000433
+  nrp_id: BGC0000433.0
+  true_alignment:
+  - [[srfAA, 0], Glu]
+  - [[srfAA, 1], Leu]
+  - [[srfAA, 2], Leu]
+  - [[srfAB, 0], Val]
+  - [[srfAB, 1], Asp]
+  - [[srfAB, 2], Leu]
+  - [[srfAC, 0], Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000434
+  nrp_id: BGC0000434.0
+  true_alignment:
+  - [[swb11, 0], X1]
+  - [[swb16, 0], Ser]
+  - [[swb16, 1], Ala]
+  - [[swb17, 0], NMe-Cys]
+  - [[swb17, 1], X0]
+  - [[swb11, 0], X1]
+  - [[swb16, 0], Ser]
+  - [[swb16, 1], Ala]
+  - [[swb17, 0], NMe-Cys]
+  - [[swb17, 1], X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000434
+  nrp_id: BGC0000434.1
+  true_alignment:
+  - [[swb11, 0], X1]
+  - [[swb16, 0], Ser]
+  - [[swb16, 1], Ala]
+  - [[swb17, 0], NMe-Cys]
+  - [[swb17, 1], X0]
+  - [[swb11, 0], X1]
+  - [[swb16, 0], Ser]
+  - [[swb16, 1], Ala]
+  - [[swb17, 0], diMe-Cys]
+  - [[swb17, 1], X0]
+  acceptable_alternative_alignments:
+    - - [[swb11, 0], X1]
+      - [[swb12, 0], null]
+      - [[swb16, 0], Ser]
+      - [[swb16, 1], Ala]
+      - [[swb17, 0], diMe-Cys]
+      - [[swb17, 1], X0]
+      - [[swb11, 0], X1]
+      - [[swb12, 0], null]
+      - [[swb16, 0], Ser]
+      - [[swb16, 1], Ala]
+      - [[swb17, 0], NMe-Cys]
+      - [[swb17, 1], X0]
+- bgc_id: BGC0000441
+  nrp_id: BGC0000441.0
+  true_alignment:
+  - [[teiA, 0], Hpg]
+  - [[teiA, 1], Cl-Tyr]
+  - [[teiB, 0], Dhpg]
+  - [[teiC, 0], Hpg]
+  - [[teiC, 1], Hpg]
+  - [[teiC, 2], bOH-Cl-Tyr]
+  - [[teiD, 0], Dhpg]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000445
+  nrp_id: BGC0000445.0
+  true_alignment:
+  - [[tioK, 0], X0]
+  - [[tioR, 0], Cys]
+  - [[tioR, 1], Gly]
+  - [[tioS, 0], NMe-Cys]
+  - [[tioS, 1], diMe-Cys]
+  - [[tioY, 0], null]
+  - [[tioY, 1], null]
+  - [[tioZ, 0], null]
+  - [[tioK, 0], X0]
+  - [[tioR, 0], Cys]
+  - [[tioR, 1], Gly]
+  - [[tioS, 0], NMe-Cys]
+  - [[tioS, 1], diMe-Cys]
+  - [[tioY, 0], null]
+  - [[tioY, 1], null]
+  - [[tioZ, 0], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000450
+  nrp_id: BGC0000450.0
+  true_alignment:
+    - [[trsR, 0], COOH-Qui]
+    - [[trsA, 0], null]
+    - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 0], Ser]
+    - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 1], Ala]
+    - [[trsI, 0], NMe-Cys]
+    - [[trsI, 1], NMe-Val]
+    - [[trsR, 0], COOH-Qui]
+    - [[trsA, 0], null]
+    - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 0], Ser]
+    - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 1], Ala]
+    - [[trsI, 0], NMe-Cys]
+    - [[trsI, 1], NMe-Val]
+  acceptable_alternative_alignments:
+    - - [null, COOH-Qui]
+      - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 0], Ser]
+      - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 1], Ala]
+      - [[trsI, 0], NMe-Cys]
+      - [[trsI, 1], NMe-Val]
+      - [[trsR, 0], null]
+      - [null, COOH-Qui]
+      - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 0], Ser]
+      - [[MIPLSYAQRRMWFINRFEGPSSTYNIPLLLRFHGSLDTAALRAAFQDVLV, 1], Ala]
+      - [[trsI, 0], NMe-Cys]
+      - [[trsI, 1], NMe-Val]
+      - [[trsR, 0], null]
+- bgc_id: BGC0000455
+  nrp_id: BGC0000455.0
+  true_alignment:
+  - [[vcm2, 0], NMe-Leu]
+  - [[vcm2, 1], bOH-Cl-Tyr]
+  - [[vcm2, 2], Asn]
+  - [[vcm3, 0], Hpg]
+  - [[vcm3, 1], Hpg]
+  - [[vcm3, 2], bOH-Cl-Tyr]
+  - [[vcm4, 0], Dhpg]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000459
+  nrp_id: BGC0000459.1
+  true_alignment:
+  - [null, Hpa]
+  - [[AGN74876.1, 0], aThr/Thr]
+  - [[AGN74876.1, 1], Leu]
+  - [[AGN74886.1, 0], 4OH-Pro]
+  - [[AGN74885.1, 0], NMe-Gly]
+  - [[AGN74885.1, 1], NMe-bMe-Leu/diMe-aIle]
+  - [[AGN74885.1, 2], Ala]
+  - [[AGN74885.1, 3], NMe-Ph-Gly]
+  - [[AGN74892.1, 0], null]
+  - [[AGN74895.1, 0], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000461
+  nrp_id: BGC0000461.0
+  true_alignment:
+  - [[AEP18656.1, 0], Ser]
+  - [[AEP18656.1, 1], OH-Asn]
+  - [[AEP18656.1, 2], Ser]
+  - [[AEP18656.1, 3], Gly]
+  - [[AEP18656.1, 4], NMe-Phe]
+  - [[AEP18656.1, 5], Leu]
+  - [[AEP18656.1, 6], Orn]
+  - [[AEP18655.1, 0], Glu]
+  - [[AEP18655.1, 1], Asn]
+  - [[AEP18655.1, 2], Trp]
+  - [[AEP18655.1, 3], Orn]
+  - [[AEP18655.1, 4], NMe-Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0000464
+  nrp_id: BGC0000464.0
+  true_alignment:
+  - [[XDD1_2281, 0], Pro]
+  - [[XDD1_2281, 1], Ala]
+  - [[XDD1_2281, 2], Val]
+  - [[XDD1_2281, 3], Leu]
+  - [[XDD1_2281, 4], Ile/aIle]
+  - [[XDD1_2281, 5], aThr/Thr]
+  - [[XDD1_2281, 6], Val]
+  - [[XDD1_2282, 0], Val]
+  - [[XDD1_2282, 1], Val]
+  - [[XDD1_2283, 0], Ala]
+  - [[XDD1_2283, 1], bAla]
+  - [[XDD1_2283, 2], Pro]
+  - [[XDD1_2283, 3], Val]
+  - [[XDD1_2286, 0], null]
+  - [[XDD1_2286, 1], null]
+  - [[XDD1_2286, 2], null]
+  - [[XDD1_2286, 3], null]
+  - [[XDD1_2286, 4], null]
+  - [[XDD1_2286, 5], null]
+  - [[XDD1_2286, 6], null]
+  - [[XDD1_2287, 0], null]
+  - [[XDD1_2287, 1], null]
+  - [[XDD1_2288, 0], null]
+  - [[XDD1_2288, 1], null]
+  - [[XDD1_2288, 2], null]
+  - [[XDD1_2288, 3], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001018
+  nrp_id: BGC0001018.0
+  true_alignment:
+  - [[mcnA, 0], Asp]
+  - [[mcnB, 0], aThr/Thr]
+  - [[mcnC, 0], Arg]
+  - [[mcnC, 1], Glu]
+  - [[mcnC, 2], Ile/aIle]
+  - [[mcnC, 3], NMe-Tyr]
+  - [[mcnE, 0], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001028
+  nrp_id: BGC0001028.0
+  true_alignment:
+  - [[nosA, 0], Val]
+  - [[nosA, 1], Ser]
+  - [[nosA, 2], 4Me-Pro]
+  - [[nosA, 3], Leu]
+  - [[nosC, 0], NAc-Leu]
+  - [[nosC, 1], Gly]
+  - [[nosC, 2], Asn]
+  - [[nosD, 0], Tyr]
+  - [[nosD, 1], Pro]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001042
+  nrp_id: BGC0001042.0
+  true_alignment:
+  - [[sfaD, 0], Val]
+  - [[sfaD, 1], X1]
+  - [[sfaD, 2], Piz]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001056
+  nrp_id: BGC0001056.3
+  true_alignment:
+  - [[zmn16, 0], Asp]
+  - [[zmn16, 1], His]
+  - [[zmn16, 2], Asp]
+  - [[zmn16, 3], Asn]
+  - [[zmn17, 0], L-Dbu/Dbu]
+  - [[zmn17, 1], Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001090
+  nrp_id: BGC0001090.0
+  true_alignment:
+  - [[RBAM_018180, 0], Asn]
+  - [[RBAM_018170, 0], Tyr]
+  - [[RBAM_018170, 1], Asn]
+  - [[RBAM_018170, 2], Pro]
+  - [[RBAM_018170, 3], Glu]
+  - [[RBAM_018160, 0], Ser]
+  - [[RBAM_018160, 1], aThr/Thr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001098
+  nrp_id: BGC0001098.0
+  true_alignment:
+  - [[ituA, 0], Asn]
+  - [[ituB, 0], Tyr]
+  - [[ituB, 1], Asn]
+  - [[ituB, 2], Gln]
+  - [[ituB, 3], Pro]
+  - [[ituC, 0], Asn]
+  - [[ituC, 1], Ser]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001128
+  nrp_id: BGC0001128.0
+  true_alignment:
+  - [[plu3263, 0], Val]
+  - [[plu3263, 1], Leu]
+  - [[plu3263, 2], Leu]
+  - [[plu3263, 3], Leu]
+  - [[plu3263, 4], Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001135
+  nrp_id: BGC0001135.1
+  true_alignment:
+  - [[nrpS, 0], Arg]
+  - [[nrpS, 1], Leu]
+  - [[nrpS, 2], Arg]
+  - [[nrpS, 3], Arg]
+  - [[nrpS, 4], Arg]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001152
+  nrp_id: BGC0001152.0
+  true_alignment:
+  - [[fusA, 0], aThr/Thr]
+  - [[fusA, 1], Val]
+  - [[fusA, 2], Val]
+  - [[fusA, 3], aThr/Thr]
+  - [[fusA, 4], Gln]
+  - [[fusA, 5], Ala]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001185
+  nrp_id: BGC0001185.0
+  true_alignment:
+  - [null, diOH-Bz]
+  - [[RBAM_029010, 0], Gly]
+  - [[RBAM_029010, 1], aThr/Thr]
+  - [null, diOH-Bz]
+  - [[RBAM_029010, 0], Gly]
+  - [[RBAM_029010, 1], aThr/Thr]
+  - [null, diOH-Bz]
+  - [[RBAM_029010, 0], Gly]
+  - [[RBAM_029010, 1], aThr/Thr]
+  acceptable_alternative_alignments:
+  - - [[RBAM_029030, 0], diOH-Bz]
+    - [[RBAM_029010, 0], Gly]
+    - [[RBAM_029010, 1], aThr/Thr]
+    - [[RBAM_029030, 0], diOH-Bz]
+    - [[RBAM_029010, 0], Gly]
+    - [[RBAM_029010, 1], aThr/Thr]
+    - [[RBAM_029030, 0], diOH-Bz]
+    - [[RBAM_029010, 0], Gly]
+    - [[RBAM_029010, 1], aThr/Thr]
+- bgc_id: BGC0001207
+  nrp_id: BGC0001207.0
+  true_alignment:
+  - [[AJF34463.1, 0], NMe-Phe]
+  - [[AJF34463.1, 1], Ile/aIle]
+  - [[AJF34463.1, 2], Ser]
+  - [[AJF34463.1, 3], Gln]
+  - [[AJF34463.1, 4], Ile/aIle]
+  - [[AJF34463.1, 5], Ile/aIle]
+  - [[AJF34464.1, 0], Ser]
+  - [[AJF34464.1, 1], aThr/Thr]
+  - [[AJF34464.1, 2], Ala]
+  - [[AJF34464.1, 3], End]
+  - [[AJF34464.1, 4], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001233
+  nrp_id: BGC0001233.0
+  true_alignment:
+  - [[fegQ, 0], Hpg]
+  - [[fegQ, 1], Dhpg]
+  - [[fegQ, 2], Val]
+  - [[fegQ, 3], Dhpg]
+  - [[fegR, 0], Hpg]
+  - [[fegR, 1], Dhpg]
+  - [[fegR, 2], Hpg]
+  - [[fegR, 3], Dhpg]
+  - [[fegR, 4], Val]
+  - [[fegR, 5], Dhpg]
+  - [[fegS, 0], Hpg]
+  - [[fegS, 1], Phe]
+  - [[fegS, 2], Asp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001235
+  nrp_id: BGC0001235.0
+  true_alignment:
+  - [[antB, 0], Val]
+  - [[antB, 1], dhCys]
+  - [[antB, 2], Phe]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001370
+  nrp_id: BGC0001370.0
+  true_alignment:
+  - [[cda2PSI, 0], Ser]
+  - [[cda2PSI, 1], aThr/Thr]
+  - [[cda2PSI, 2], Trp]
+  - [[cda2PSI, 3], Asp]
+  - [[cda2PSI, 4], Asp]
+  - [[cda2PSI, 5], Hpg]
+  - [[cda2PS2, 0], Asp]
+  - [[cda2PS2, 1], Gly]
+  - [[cda2PS2, 2], X0]
+  - [[cda2PS3, 0], Glu]
+  - [[cda2PS3, 1], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001370
+  nrp_id: BGC0001370.1
+  true_alignment:
+  - [[cda2PSI, 0], Ser]
+  - [[cda2PSI, 1], aThr/Thr]
+  - [[cda2PSI, 2], Trp]
+  - [[cda2PSI, 3], Asp]
+  - [[cda2PSI, 4], Asp]
+  - [[cda2PSI, 5], Hpg]
+  - [[cda2PS2, 0], Asp]
+  - [[cda2PS2, 1], Gly]
+  - [[cda2PS2, 2], X0]
+  - [[cda2PS3, 0], Glu]
+  - [[cda2PS3, 1], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001406
+  nrp_id: BGC0001406.0
+  true_alignment:
+  - [[tlo20, 0], Asp]
+  - [[tlo20, 1], Ser]
+  - [[tlo20, 2], aThr/Thr]
+  - [[tlo20, 3], aThr/Thr]
+  - [[tlo21, 0], Ala]
+  - [[tlo21, 1], Gly]
+  - [[tlo21, 2], 3OH-Pro]
+  - [[tlo21, 3], dh-Trp]
+  - [[tlo21, 4], X0]
+  - [[tlo22, 0], 3OH-Leu]
+  - [[tlo22, 1], 3OH-Pro]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001414
+  nrp_id: BGC0001414.0
+  true_alignment:
+  - [[griA, 0], X0]
+  - [[griA, 1], 4Me-Pro]
+  - [[griA, 2], NMe-Thr]
+  - [[griA, 3], Leu]
+  - [[griA, 4], 4Me-Pro]
+  - [[griA, 5], Leu]
+  - [[griB, 0], NMe-Val]
+  - [[griB, 1], Pro]
+  - [[griB, 2], NMe-Leu]
+  - [[griC, 0], Gly]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001417
+  nrp_id: BGC0001417.0
+  true_alignment:
+  - [[mchB, 0], NMe-Thr]
+  - [[mchB, 1], Ala]
+  - [[mchC, 0], Leu]
+  - [[mchC, 1], Ala]
+  - [[mchC, 2], Gln]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001422
+  nrp_id: BGC0001422.0
+  true_alignment:
+  - [[mchB, 0], NMe-Thr]
+  - [[mchB, 1], Ala]
+  - [[mchC, 0], Leu]
+  - [[mchC, 1], Pro]
+  - [[mchC, 2], Ala]
+  - [[mchC, 3], Gln]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001424
+  nrp_id: BGC0001424.0
+  true_alignment:
+  - [[mchB, 0], NMe-Thr]
+  - [[mchB, 1], Ala]
+  - [[mchC, 0], Leu]
+  - [[mchC, 1], Pro]
+  - [[mchC, 2], Gln]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001532
+  nrp_id: BGC0001532.0
+  true_alignment:
+  - [null, Hmp]
+  - [[ATY37588.1, 0], dhAbu]
+  - [[ATY37589.1, 0], Leu]
+  - [[ATY37589.1, 1], Orn]
+  - [[ATY37590.1, 0], Ile/aIle]
+  - [[ATY37590.1, 1], Val]
+  - [[ATY37590.1, 2], Val]
+  - [[ATY37590.1, 3], Lys]
+  - [[ATY37591.1, 0], Val]
+  - [[ATY37591.1, 1], Leu]
+  - [[ATY37591.1, 2], Lys]
+  - [[ATY37591.1, 3], Tyr]
+  - [[ATY37592.1, 0], Leu]
+  - [[ATY37592.1, 1], Valol]
+  - [[ATY37596.1, 0], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001565
+  nrp_id: BGC0001565.0
+  true_alignment:
+  - [[cycC, 0], Ala]
+  - [[cycC, 1], NMe-Leu]
+  - [[cycC, 2], NMe-Leu]
+  - [[cycC, 3], NMe-Val]
+  - [[cycC, 4], NMe-Bmt]
+  - [[cycC, 5], aThr/Thr]
+  - [[cycC, 6], NMe-Gly]
+  - [[cycC, 7], NMe-Leu]
+  - [[cycC, 8], Val]
+  - [[cycC, 9], NMe-Leu]
+  - [[cycC, 10], Ala]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001620
+  nrp_id: BGC0001620.1
+  true_alignment:
+  - [[ASX95241.1, 0], Trp]
+  - [[ASX95241.1, 1], NMe-Leu]
+  - [[ASX95241.1, 2], 3NO2-Tyr]
+  - [[ASX95241.1, 3], Ala]
+  - [[ASX95241.1, 4], NMe-Leu]
+  - [[ASX95241.1, 5], Leu]
+  - [[ASX95241.1, 6], X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001620
+  nrp_id: BGC0001620.2
+  true_alignment:
+  - [[ASX95241.1, 0], Trp]
+  - [[ASX95241.1, 1], NMe-Leu]
+  - [[ASX95241.1, 2], 3NO2-Tyr]
+  - [[ASX95241.1, 3], Ala]
+  - [[ASX95241.1, 4], X0]
+  - [[ASX95241.1, 5], Leu]
+  - [[ASX95241.1, 6], X2]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001628
+  nrp_id: BGC0001628.0
+  true_alignment:
+  - [null, Pha]
+  - [[orf4, 0], Val]
+  - [[orf4, 1], Asp]
+  - [[orf5, 0], Ala]
+  - [[orf5, 1], 3OH-Leu]
+  - [[orf6, 0], Gly]
+  - [[orf6, 1], Ala]
+  - [[orf6, 2], Phe]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001628
+  nrp_id: BGC0001628.1
+  true_alignment:
+  - [null, Pha]
+  - [[orf4, 0], Val]
+  - [[orf4, 1], CysA]
+  - [[orf5, 0], Ala]
+  - [[orf5, 1], 3OH-Leu]
+  - [[orf6, 0], Gly]
+  - [[orf6, 1], Ala]
+  - [[orf6, 2], Phe]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001657
+  nrp_id: BGC0001657.0
+  true_alignment:
+  - [[lesA, 0], aThr/Thr]
+  - [[lesA, 1], Arg]
+  - [[lesA, 2], Ser]
+  - [[lesA, 3], Gly]
+  - [[lesA, 4], NMe-Phe]
+  - [[lesA, 5], Leu]
+  - [[lesA, 6], Arg]
+  - [[lesB, 0], Glu]
+  - [[lesB, 1], Gln]
+  - [[lesB, 2], Trp]
+  - [[lesB, 3], Ile/aIle]
+  - [[lesB, 4], aThr/Thr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001667
+  nrp_id: BGC0001667.2
+  true_alignment:
+  - [null, Adda]
+  - [[mcyE, 0], Glu]
+  - [[mcyA, 0], NMe-Dha]
+  - [[mcyA, 1], Ala]
+  - [[mcyB, 0], Leu]
+  - [[mcyB, 1], bMe-Asp]
+  - [[mcyC, 0], Ala]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001667
+  nrp_id: BGC0001667.4
+  true_alignment:
+  - [[mcyA, 0], dh-Ala]
+  - [[mcyA, 1], Ala]
+  - [[mcyB, 0], Leu]
+  - [[mcyB, 1], bMe-Asp]
+  - [[mcyC, 0], Met]
+  - [null, Adda]
+  - [[mcyE, 0], X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001822
+  nrp_id: BGC0001822.2
+  true_alignment:
+  - [[vioA, 0], Ala]
+  - [[vioA, 1], Leu]
+  - [[vioB, 0], X1]
+  - [[vioB, 1], Cys]
+  - [[vioC, 0], dhAbu]
+  - [[vioC, 1], Pro]
+  - [[vioC, 2], aThr/Thr]
+  - [[vioD, 0], NMe-Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001822
+  nrp_id: BGC0001822.3
+  true_alignment:
+  - [[vioA, 0], Ala]
+  - [[vioA, 1], Leu]
+  - [[vioB, 0], Pro]
+  - [[vioB, 1], Cys]
+  - [[vioC, 0], dhAbu]
+  - [[vioC, 1], Pro]
+  - [[vioC, 2], Gly]
+  - [[vioD, 0], NMe-Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001833
+  nrp_id: BGC0001833.0
+  true_alignment:
+  - [[icoS, 0], Leu]
+  - [[icoS, 1], Ser]
+  - [[icoS, 2], Ser]
+  - [[icoS, 3], Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001833
+  nrp_id: BGC0001833.1
+  true_alignment:
+  - [[icoS, 0], Leu]
+  - [[icoS, 1], Ser]
+  - [[icoS, 2], Ser]
+  - [[icoS, 3], Leu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001953
+  nrp_id: BGC0001953.1
+  true_alignment:
+  - [null, X0]
+  - [[puwE, 0], Val]
+  - [[puwF, 0], dhAbu]
+  - [[puwF, 1], Asn]
+  - [null, dhAbu]
+  - [[puwG, 0], Asn]
+  - [[puwG, 1], Ala]
+  - [[puwH, 0], aThr/Thr]
+  - [[puwA, 0], NMe-Asn]
+  - [[puwA, 1], Pro]
+  - [null, X1]
+  acceptable_alternative_alignments:
+  - - [[puwA, 0], NMe-Asn]
+    - [[puwA, 1], Pro]
+    - [null, X0]
+    - [[puwE, 0], Val]
+    - [[puwF, 0], dhAbu]
+    - [[puwF, 1], Asn]
+    - [null, dhAbu]
+    - [[puwG, 0], Asn]
+    - [[puwG, 1], Ala]
+    - [[puwH, 0], aThr/Thr]
+- bgc_id: BGC0001955
+  nrp_id: BGC0001955.0
+  true_alignment:
+  - [[AYA22336.1, 0], Cl-Hpg]
+  - [[AYA22336.1, 1], bOH-Tyr]
+  - [[AYA22335.1, 0], Phe]
+  - [[AYA22334.1, 0], Hpg]
+  - [[AYA22334.1, 1], Hpg]
+  - [[AYA22334.1, 2], bOH-Cl-Tyr]
+  - [[AYA22333.1, 0], Dhpg]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001955
+  nrp_id: BGC0001955.1
+  true_alignment:
+  - [[AYA22336.1, 0], Cl-Hpg]
+  - [[AYA22336.1, 1], bOH-Tyr]
+  - [[AYA22335.1, 0], Phe]
+  - [[AYA22334.1, 0], Hpg]
+  - [[AYA22334.1, 1], Hpg]
+  - [[AYA22334.1, 2], bOH-Cl-Tyr]
+  - [[AYA22333.1, 0], Dhpg]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0001980
+  nrp_id: BGC0001980.0
+  true_alignment:
+  - [[lokA, 0], Leu]
+  - [[lokA, 1], Asp]
+  - [[lokB, 0], aThr/Thr]
+  - [[lokB, 1], Leu]
+  - [[lokB, 2], Leu]
+  - [[lokB, 3], Ser]
+  - [[lokC, 0], Leu]
+  - [[lokC, 1], Ser]
+  - [[lokC, 2], Leu]
+  - [[lokC, 3], Ile/aIle]
+  - [[lokC, 4], Asp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002092
+  nrp_id: BGC0002092.0
+  true_alignment:
+  - [[steA, 0], Leu]
+  - [[steA, 1], Asp]
+  - [[steB, 0], aThr/Thr]
+  - [[steB, 1], Leu]
+  - [[steB, 2], Leu]
+  - [[steB, 3], Ser]
+  - [[steC, 0], Leu]
+  - [[steC, 1], Gln]
+  - [[steC, 2], Leu]
+  - [[steC, 3], Ile/aIle]
+  - [[steC, 4], Glu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002092
+  nrp_id: BGC0002092.2
+  true_alignment:
+  - [[steA, 0], Leu]
+  - [[steA, 1], Asp]
+  - [[steB, 0], aThr/Thr]
+  - [[steB, 1], Leu]
+  - [[steB, 2], Leu]
+  - [[steB, 3], Ser]
+  - [[steC, 0], Leu]
+  - [[steC, 1], Gln]
+  - [[steC, 2], Leu]
+  - [[steC, 3], Leu]
+  - [[steC, 4], Glu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002092
+  nrp_id: BGC0002092.3
+  true_alignment:
+  - [[steA, 0], Leu]
+  - [[steA, 1], Asp]
+  - [[steB, 0], aThr/Thr]
+  - [[steB, 1], Leu]
+  - [[steB, 2], Leu]
+  - [[steB, 3], Ser]
+  - [[steC, 0], Leu]
+  - [[steC, 1], Gln]
+  - [[steC, 2], Leu]
+  - [[steC, 3], Ile/aIle]
+  - [[steC, 4], Glu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002092
+  nrp_id: BGC0002092.5
+  true_alignment:
+  - [[steA, 0], Leu]
+  - [[steA, 1], Asp]
+  - [[steB, 0], aThr/Thr]
+  - [[steB, 1], Leu]
+  - [[steB, 2], Leu]
+  - [[steB, 3], Ser]
+  - [[steC, 0], Leu]
+  - [[steC, 1], Gln]
+  - [[steC, 2], Leu]
+  - [[steC, 3], Ile/aIle]
+  - [[steC, 4], Glu]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002107
+  nrp_id: BGC0002107.0
+  true_alignment:
+  - [null, X2]
+  - [[Atu3670, 0], bAla]
+  - [[Atu3675, 0], Gly]
+  - [[Atu3682, 0], Ala]
+  - [[Atu3682, 1], dhCys]
+  - [[Atu3683, 0], Gly]
+  - [[Atu3683, 1], Ala]
+  - [null, Gly]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002109
+  nrp_id: BGC0002109.1
+  true_alignment:
+  - [null, X2]
+  - [[QDJ74273.1, 0], aThr/Thr]
+  - [[QDJ74273.1, 1], Asn]
+  - [[QDJ74273.1, 2], Ile/aIle]
+  - [[QDJ74273.1, 3], Phe]
+  - [[QDJ74274.1, 0], Val]
+  - [[QDJ74275.1, 0], Gly]
+  - [[QDJ74275.1, 1], Gly]
+  - [[QDJ74275.1, 2], Val]
+  - [[QDJ74275.1, 3], Leu]
+  - [[QDJ74293.1, 0], null]
+  acceptable_alternative_alignments:
+    - - [[QDJ74293.1, 0], X0]
+      - [[QDJ74273.1, 0], aThr/Thr]
+      - [[QDJ74273.1, 1], Asn]
+      - [[QDJ74273.1, 2], Ile/aIle]
+      - [[QDJ74273.1, 3], Phe]
+      - [[QDJ74274.1, 0], Val]
+      - [[QDJ74275.1, 0], Gly]
+      - [[QDJ74275.1, 1], Gly]
+      - [[QDJ74275.1, 2], Val]
+      - [[QDJ74275.1, 3], Leu]
+
+- bgc_id: BGC0002109
+  nrp_id: BGC0002109.2
+  true_alignment:
+  - [null, X2]
+  - [[QDJ74273.1, 0], aThr/Thr]
+  - [[QDJ74273.1, 1], Asn]
+  - [[QDJ74273.1, 2], Val]
+  - [[QDJ74273.1, 3], Phe]
+  - [[QDJ74274.1, 0], Val]
+  - [[QDJ74275.1, 0], Gly]
+  - [[QDJ74275.1, 1], Gly]
+  - [[QDJ74275.1, 2], Val]
+  - [[QDJ74275.1, 3], Leu]
+  - [[QDJ74293.1, 0], null]
+  acceptable_alternative_alignments:
+    - - [[QDJ74293.1, 0], X2]
+      - [[QDJ74273.1, 0], aThr/Thr]
+      - [[QDJ74273.1, 1], Asn]
+      - [[QDJ74273.1, 2], Val]
+      - [[QDJ74273.1, 3], Phe]
+      - [[QDJ74274.1, 0], Val]
+      - [[QDJ74275.1, 0], Gly]
+      - [[QDJ74275.1, 1], Gly]
+      - [[QDJ74275.1, 2], Val]
+      - [[QDJ74275.1, 3], Leu]
+
+- bgc_id: BGC0002109
+  nrp_id: BGC0002109.3
+  true_alignment:
+  - [null, X2]
+  - [[QDJ74273.1, 0], aThr/Thr]
+  - [[QDJ74273.1, 1], Asn]
+  - [[QDJ74273.1, 2], Ile/aIle]
+  - [[QDJ74273.1, 3], Phe]
+  - [[QDJ74274.1, 0], Val]
+  - [[QDJ74275.1, 0], Gly]
+  - [[QDJ74275.1, 1], Gly]
+  - [[QDJ74275.1, 2], Val]
+  - [[QDJ74275.1, 3], Leu]
+  - [[QDJ74293.1, 0], null]
+  acceptable_alternative_alignments:
+    - - [[QDJ74293.1, 0], X0]
+      - [[QDJ74273.1, 0], aThr/Thr]
+      - [[QDJ74273.1, 1], Asn]
+      - [[QDJ74273.1, 2], Ile/aIle]
+      - [[QDJ74273.1, 3], Phe]
+      - [[QDJ74274.1, 0], Val]
+      - [[QDJ74275.1, 0], Gly]
+      - [[QDJ74275.1, 1], Gly]
+      - [[QDJ74275.1, 2], Val]
+      - [[QDJ74275.1, 3], Leu]
+
+- bgc_id: BGC0002109
+  nrp_id: BGC0002109.5
+  true_alignment:
+  - [null, X2]
+  - [[QDJ74273.1, 0], aThr/Thr]
+  - [[QDJ74273.1, 1], Asn]
+  - [[QDJ74273.1, 2], Ile/aIle]
+  - [[QDJ74273.1, 3], Phe]
+  - [[QDJ74274.1, 0], Val]
+  - [[QDJ74275.1, 0], Gly]
+  - [[QDJ74275.1, 1], Gly]
+  - [[QDJ74275.1, 2], Val]
+  - [[QDJ74275.1, 3], Leu]
+  - [[QDJ74293.1, 0], null]
+  acceptable_alternative_alignments:
+    - - [[QDJ74293.1, 0], X0]
+      - [[QDJ74273.1, 0], aThr/Thr]
+      - [[QDJ74273.1, 1], Asn]
+      - [[QDJ74273.1, 2], Ile/aIle]
+      - [[QDJ74273.1, 3], Phe]
+      - [[QDJ74274.1, 0], Val]
+      - [[QDJ74275.1, 0], Gly]
+      - [[QDJ74275.1, 1], Gly]
+      - [[QDJ74275.1, 2], Val]
+      - [[QDJ74275.1, 3], Leu]
+
+- bgc_id: BGC0002123
+  nrp_id: BGC0002123.1
+  true_alignment:
+  - [[KGB56_24770, 0], NFo-Tyr]
+  - [[KGB56_24770, 1], dhAbu]
+  - [[KGB56_24770, 2], Ala]
+  - [[KGB56_24765, 0], Arg]
+  - [[KGB56_24765, 1], Pro]
+  - [[KGB56_24765, 2], dhCys]
+  - [[KGB56_24760, 0], Gln]
+  - [[KGB56_24755, 0], Val]
+  - [[KGB56_24755, 1], 3OH-Pro]
+  
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002123
+  nrp_id: BGC0002123.11
+  true_alignment:
+  - [[KGB56_24770, 0], Tyr]
+  - [[KGB56_24770, 1], X0]
+  - [[KGB56_24770, 2], Ala]
+  - [[KGB56_24765, 0], Arg]
+  - [[KGB56_24765, 1], Pro]
+  - [[KGB56_24765, 2], dhCys]
+  - [[KGB56_24760, 0], Gln]
+  - [[KGB56_24755, 0], Ile/aIle]
+  - [[KGB56_24755, 1], 3OH-Pro]
+  acceptable_alternative_alignments: []
+
+- bgc_id: BGC0002123
+  nrp_id: BGC0002123.5
+  true_alignment:
+  - [[KGB56_24770, 0], NFo-Tyr]
+  - [[KGB56_24770, 1], dhAbu]
+  - [[KGB56_24770, 2], Ala]
+  - [[KGB56_24765, 0], Arg]
+  - [[KGB56_24765, 1], Pro]
+  - [[KGB56_24765, 2], dhCys]
+  - [[KGB56_24760, 0], Gln]
+  - [[KGB56_24755, 0], Ile/aIle]
+  - [[KGB56_24755, 1], 3OH-Pro]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002286
+  nrp_id: BGC0002286.0
+  true_alignment:
+  - [[plu3123, 0], Arg]
+  - [[plu3123, 1], Ile/aIle]
+  - [[plu3123, 2], Arg]
+  - [[plu3123, 3], Ile/aIle]
+  - [[plu3123, 4], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002286
+  nrp_id: BGC0002286.1
+  true_alignment:
+  - [[plu3123, 0], Arg]
+  - [[plu3123, 1], Val]
+  - [[plu3123, 2], Arg]
+  - [[plu3123, 3], Ile/aIle]
+  - [[plu3123, 4], Trp]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002293
+  nrp_id: BGC0002293.0
+  true_alignment:
+  - [[ohmA, 0], NMe-Val]
+  - [[ohmA, 1], Val]
+  - [[ohmA, 2], aThr/Thr]
+  - [[ohmA, 3], NMe-Thr]
+  - [[ohmA, 4], Val]
+  - [[ohmA, 5], NMe-Leu]
+  - [[ohmA, 6], Val]
+  - [[ohmA, 7], NMe-Val]
+  - [[ohmA, 8], X0]
+  - [[ohmA, 9], Val]
+  - [[ohmA, 10], Ph-Ser]
+  - [[ohmA, 11], Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002293
+  nrp_id: BGC0002293.1
+  true_alignment:
+  - [[ohmA, 0], Dov]
+  - [[ohmA, 1], Val]
+  - [[ohmA, 2], aThr/Thr]
+  - [[ohmA, 3], NMe-Thr]
+  - [[ohmA, 4], Val]
+  - [[ohmA, 5], NMe-Leu]
+  - [[ohmA, 6], Val]
+  - [[ohmA, 7], NMe-Val]
+  - [[ohmA, 8], X0]
+  - [[ohmA, 9], Val]
+  - [[ohmA, 10], Ph-Ser]
+  - [[ohmA, 11], Val]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002327
+  nrp_id: BGC0002327.0
+  true_alignment:
+  - [[bolH, 0], Ser]
+  - [[bolH, 1], Val]
+  - [[bolH, 2], Hse]
+  - [[bolH, 3], Ser]
+  acceptable_alternative_alignments: 
+  - - [null, X1]
+    - [[bolB, 0], X0]
+    - [[bolH, 0], Ser]
+    - [[bolH, 1], Val]
+    - [[bolH, 2], Hse]
+    - [[bolH, 3], Ser]
+    - [[bolO, 0], null]
+- bgc_id: BGC0002327
+  nrp_id: BGC0002327.1
+  true_alignment:
+  - [[bolH, 0], Ser]
+  - [[bolH, 1], Ile/aIle]
+  - [[bolH, 2], Hse]
+  - [[bolH, 3], Ser]
+  acceptable_alternative_alignments: 
+  - - [null, X1]
+    - [[bolB, 0], X0]
+    - [[bolH, 0], Ser]
+    - [[bolH, 1], Ile/aIle]
+    - [[bolH, 2], Hse]
+    - [[bolH, 3], Ser]
+    - [[bolO, 0], null]
+- bgc_id: BGC0002351
+  nrp_id: BGC0002351.0
+  true_alignment:
+  - [[thf1, 0], Val]
+  - [[thf1, 1], Ala]
+  - [[thf1, 2], Gln]
+  - [[thf2, 0], Ala]
+  - [[thf2, 1], Val]
+  - [[thf2, 2], Ala]
+  - [[thf2, 3], Pro]
+  - [[thf2, 4], aThr/Thr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002379
+  nrp_id: BGC0002379.0
+  true_alignment:
+  - [null, Leu]
+  - [null, Glu]
+  - [[PRtIB026_33980, 0], Gln]
+  - [[PRtIB026_33980, 1], Val]
+  - [[PRtIB026_33970, 0], Leu]
+  - [[PRtIB026_33970, 1], Gln]
+  - [[PRtIB026_33970, 2], Ser]
+  - [[PRtIB026_33970, 3], Val]
+  - [[PRtIB026_33970, 4], Leu]
+  - [[PRtIB026_33970, 5], Leu]
+  - [[PRtIB026_33960, 0], Gln]
+  - [[PRtIB026_33940, 0], Leu]
+  - [[PRtIB026_33940, 1], Gln]
+  - [[PRtIB026_33940, 2], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002414
+  nrp_id: BGC0002414.0
+  true_alignment:
+  - [null, diOH-Bz]
+  - [[JJO56_07700, 0], Lys]
+  - [[JJO56_07700, 1], Ser]
+  - [null, diOH-Bz]
+  - [[JJO56_07700, 0], Lys]
+  - [[JJO56_07700, 1], Ser]
+  - [null, diOH-Bz]
+  - [[JJO56_07700, 0], Lys]
+  - [[JJO56_07700, 1], Ser]
+  acceptable_alternative_alignments: 
+  - - [[JJO56_07675, 0], diOH-Bz]
+    - [[JJO56_07700, 0], Lys]
+    - [[JJO56_07700, 1], Ser]
+    - [[JJO56_07675, 0], diOH-Bz]
+    - [[JJO56_07700, 0], Lys]
+    - [[JJO56_07700, 1], Ser]
+    - [[JJO56_07675, 0], diOH-Bz]
+    - [[JJO56_07700, 0], Lys]
+    - [[JJO56_07700, 1], Ser]
+
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.0
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.1
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.2
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.3
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.4
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.5
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002424
+  nrp_id: BGC0002424.7
+  true_alignment:
+  - [[sacE, 0], Fo-OH-Orn]
+  - [[sacE, 1], Ser]
+  - [[sacE, 2], OH-Orn]
+  - [[sacE, 3], Fo-OH-Orn]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002432
+  nrp_id: BGC0002432.0
+  true_alignment:
+  - [[BRLA_c025650, 0], Ser]
+  - [[BRLA_c025650, 1], Tyr]
+  - [[BRLA_c025650, 2], Trp]
+  - [[BRLA_c025650, 3], Orn]
+  - [[BRLA_c025650, 4], Orn]
+  - [[BRLA_c025650, 5], Gly]
+  - [[BRLA_c025650, 6], Orn]
+  - [[BRLA_c025650, 7], Trp]
+  - [[BRLA_c025650, 8], aThr/Thr]
+  - [[BRLA_c025640, 0], Ile/aIle]
+  - [[BRLA_c025640, 1], Asn]
+  - [[BRLA_c025640, 2], Gly]
+  - [[BRLA_c025640, 3], Gly]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002484
+  nrp_id: BGC0002484.1
+  true_alignment:
+  - [[WA1_15530, 0], null]
+  - [[WA1_15530, 1], null]
+  - [[WA1_15530, 2], null]
+  - [[WA1_15530, 3], null]
+  - [[WA1_15530, 4], null]
+  - [[WA1_15530, 5], null]
+  - [[WA1_15540, 0], null]
+  - [[WA1_15540, 1], null]
+  - [[WA1_15540, 2], null]
+  - [[WA1_15540, 3], null]
+  - [null, X0]
+  - [[WA1_15565, 0], Val]
+  - [[WA1_15565, 1], 3OH-Leu]
+  - [[WA1_15565, 2], Ala]
+  - [[WA1_15570, 0], 3OH-Leu]
+  - [[WA1_15570, 1], Gln]
+  - [[WA1_15570, 2], NMe-aIle/NMe-Ile]
+  - [[WA1_15575, 0], OH-Asn]
+  - [[WA1_15575, 1], aThr/Thr]
+  - [[WA1_15575, 2], Pro]
+  - [[WA1_15575, 3], Leu]
+  - [[WA1_15580, 0], aThr/Thr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002484
+  nrp_id: BGC0002484.2
+  true_alignment:
+  - [[WA1_15530, 0], null]
+  - [[WA1_15530, 1], null]
+  - [[WA1_15530, 2], null]
+  - [[WA1_15530, 3], null]
+  - [[WA1_15530, 4], null]
+  - [[WA1_15530, 5], null]
+  - [[WA1_15540, 0], null]
+  - [[WA1_15540, 1], null]
+  - [[WA1_15540, 2], null]
+  - [[WA1_15540, 3], null]
+  - [[WA1_15565, 0], Val]
+  - [[WA1_15565, 1], 3OH-Leu]
+  - [[WA1_15565, 2], Ala]
+  - [[WA1_15570, 0], Leu]
+  - [[WA1_15570, 1], Gln]
+  - [[WA1_15570, 2], NMe-aIle/NMe-Ile]
+  - [[WA1_15575, 0], Asn]
+  - [[WA1_15575, 1], aThr/Thr]
+  - [[WA1_15575, 2], Pro]
+  - [[WA1_15575, 3], Leu]
+  - [[WA1_15580, 0], aThr/Thr]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002484
+  nrp_id: BGC0002484.3
+  true_alignment:
+  - [[WA1_15530, 0], null]
+  - [[WA1_15530, 1], null]
+  - [[WA1_15530, 2], null]
+  - [[WA1_15530, 3], null]
+  - [[WA1_15530, 4], null]
+  - [[WA1_15530, 5], null]
+  - [[WA1_15540, 0], null]
+  - [[WA1_15540, 1], null]
+  - [[WA1_15540, 2], null]
+  - [[WA1_15540, 3], null]
+  - [null, X0]
+  - [[WA1_15565, 0], Val]
+  - [[WA1_15565, 1], 3OH-Leu]
+  - [[WA1_15565, 2], Ala]
+  - [[WA1_15570, 0], Leu]
+  - [[WA1_15570, 1], Gln]
+  - [[WA1_15570, 2], NMe-aIle/NMe-Ile]
+  - [[WA1_15575, 0], OH-Asn]
+  - [[WA1_15575, 1], aThr/Thr]
+  - [[WA1_15575, 2], Pro]
+  - [[WA1_15575, 3], Leu]
+  - [[WA1_15580, 0], aThr/Thr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002484
+  nrp_id: BGC0002484.5
+  true_alignment:
+  - [[WA1_15530, 0], null]
+  - [[WA1_15530, 1], null]
+  - [[WA1_15530, 2], null]
+  - [[WA1_15530, 3], null]
+  - [[WA1_15530, 4], null]
+  - [[WA1_15530, 5], null]
+  - [[WA1_15540, 0], null]
+  - [[WA1_15540, 1], null]
+  - [[WA1_15540, 2], null]
+  - [[WA1_15540, 3], null]
+  - [null, X0]
+  - [[WA1_15565, 0], Val]
+  - [[WA1_15565, 1], 3OH-Leu]
+  - [[WA1_15565, 2], Ala]
+  - [[WA1_15570, 0], 3OH-Leu]
+  - [[WA1_15570, 1], Gln]
+  - [[WA1_15570, 2], NMe-aIle/NMe-Ile]
+  - [[WA1_15575, 0], Asn]
+  - [[WA1_15575, 1], aThr/Thr]
+  - [[WA1_15575, 2], Pro]
+  - [[WA1_15575, 3], Leu]
+  - [[WA1_15580, 0], aThr/Thr]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002503
+  nrp_id: BGC0002503.3
+  true_alignment:
+  - [[QPB41096.1, 0], NFo-Phe]
+  - [[QPB41096.1, 1], dhAbu]
+  - [[QPB41096.1, 2], Ser]
+  - [[QPB41097.1, 0], dhAbu]
+  - [[QPB41097.1, 1], Arg]
+  - [[QPB41097.1, 2], Pro]
+  - [[QPB41097.1, 3], dhCys]
+  - [[QPB41098.1, 0], X0]
+  - [[QPB41099.1, 0], null]
+  - [[QPB41099.1, 1], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002503
+  nrp_id: BGC0002503.4
+  true_alignment:
+  - [[QPB41096.1, 0], NFo-Phe]
+  - [[QPB41096.1, 1], dhAbu]
+  - [[QPB41096.1, 2], Ser]
+  - [[QPB41097.1, 0], dhAbu]
+  - [[QPB41097.1, 1], Arg]
+  - [[QPB41097.1, 2], Pro]
+  - [[QPB41097.1, 3], dhCys]
+  - [[QPB41098.1, 0], Met]
+  - [[QPB41099.1, 0], Ile/aIle]
+  - [[QPB41099.1, 1], Pro]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002512
+  nrp_id: BGC0002512.0
+  true_alignment:
+  - [[aptA, 0], NFo-Val]
+  - [[aptA, 1], Lys]
+  - [[aptB, 0], Val]
+  - [[aptC, 0], Trp]
+  - [[aptC, 1], NMe-Ala]
+  - [[aptD, 0], Phe]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002521
+  nrp_id: BGC0002521.0
+  true_alignment:
+  - [[psoA, 0], Leu]
+  - [[psoA, 1], Glu]
+  - [[psoB, 0], Leu]
+  - [[psoB, 1], Leu]
+  - [[psoB, 2], Gln]
+  - [[psoB, 3], Ser]
+  - [[psoB, 4], Val]
+  - [[psoB, 5], Leu]
+  - [[psoB, 6], Ser]
+  - [[psoC, 0], Leu]
+  - [[psoC, 1], Val]
+  - [[psoC, 2], Ser]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002521
+  nrp_id: BGC0002521.2
+  true_alignment:
+  - [[psoA, 0], Leu]
+  - [[psoA, 1], Glu]
+  - [[psoB, 0], Leu]
+  - [[psoB, 1], Leu]
+  - [[psoB, 2], Gln]
+  - [[psoB, 3], Ser]
+  - [[psoB, 4], Val]
+  - [[psoB, 5], Leu]
+  - [[psoB, 6], Ser]
+  - [[psoC, 0], Leu]
+  - [[psoC, 1], Leu]
+  - [[psoC, 2], Ser]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002522
+  nrp_id: BGC0002522.1
+  true_alignment:
+  - [[pdmA, 0], Leu]
+  - [[pdmA, 1], Gln]
+  - [[pdmB, 0], aThr/Thr]
+  - [[pdmB, 1], Val]
+  - [[pdmB, 2], Leu]
+  - [[pdmB, 3], Ser]
+  - [[pdmC, 0], Leu]
+  - [[pdmC, 1], Ser]
+  - [[pdmC, 2], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002548
+  nrp_id: BGC0002548.0
+  true_alignment:
+  - [[banA, 0], Leu]
+  - [[banA, 1], Asp]
+  - [[banB, 0], aThr/Thr]
+  - [[banB, 1], Leu]
+  - [[banB, 2], Leu]
+  - [[banB, 3], Ser]
+  - [[banC, 0], Leu]
+  - [[banC, 1], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002548
+  nrp_id: BGC0002548.1
+  true_alignment:
+  - [[banA, 0], Leu]
+  - [[banA, 1], Asp]
+  - [[banB, 0], aThr/Thr]
+  - [[banB, 1], Leu]
+  - [[banB, 2], Leu]
+  - [[banB, 3], Ser]
+  - [[banC, 0], Leu]
+  - [[banC, 1], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002548
+  nrp_id: BGC0002548.3
+  true_alignment:
+  - [[banA, 0], Leu]
+  - [[banA, 1], Asp]
+  - [[banB, 0], aThr/Thr]
+  - [[banB, 1], Leu]
+  - [[banB, 2], Leu]
+  - [[banB, 3], Ser]
+  - [[banC, 0], Leu]
+  - [[banC, 1], Ile/aIle]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002564
+  nrp_id: BGC0002564.0
+  true_alignment:
+  - [[FNZ07_17560, 0], Gly]
+  - [[FNZ07_17565, 0], OH-Asp]
+  - [[FNZ07_17565, 1], Ser]
+  - [[FNZ07_17565, 2], aThr/Thr]
+  - [[FNZ07_17565, 3], Nva]
+  - [[FNZ07_17565, 4], Ala]
+  - [[FNZ07_17570, 0], Nva]
+  - [null, X0]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002564
+  nrp_id: BGC0002564.1
+  true_alignment:
+  - [[FNZ07_17560, 0], Gly]
+  - [[FNZ07_17565, 0], OH-Asp]
+  - [[FNZ07_17565, 1], Ser]
+  - [[FNZ07_17565, 2], aThr/Thr]
+  - [[FNZ07_17565, 3], Nva]
+  - [[FNZ07_17565, 4], Ala]
+  - [[FNZ07_17570, 0], Nva]
+  - [null, X0]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002564
+  nrp_id: BGC0002564.6
+  true_alignment:
+  - [null, X0]
+  - [[FNZ07_17560, 0], Gly]
+  - [[FNZ07_17565, 0], OH-Asp]
+  - [[FNZ07_17565, 1], Ser]
+  - [[FNZ07_17565, 2], aThr/Thr]
+  - [[FNZ07_17565, 3], Nva]
+  - [[FNZ07_17565, 4], Ser]
+  - [[FNZ07_17570, 0], Nva]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002564
+  nrp_id: BGC0002564.7
+  true_alignment:
+  - [[FNZ07_17560, 0], Gly]
+  - [[FNZ07_17565, 0], OH-Asp]
+  - [[FNZ07_17565, 1], Ser]
+  - [[FNZ07_17565, 2], aThr/Thr]
+  - [[FNZ07_17565, 3], Nva]
+  - [[FNZ07_17565, 4], Ser]
+  - [[FNZ07_17570, 0], Nva]
+  - [null, X0]
+  - [null, X0]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002581
+  nrp_id: BGC0002581.2
+  true_alignment:
+  - [[QKF54435.2, 0], NFo-Tyr]
+  - [[QKF54435.2, 1], Tyr]
+  - [[QKF54436.1, 0], Leu]
+  - [[QKF54436.1, 1], OH-Asp]
+  - [[QKF54436.1, 2], Ser]
+  - [[QKF54438.1, 0], X0]
+  - [[QKF54438.1, 1], Leu]
+  - [[QKF54438.1, 2], Gly]
+  - [[QKF54440.2, 0], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002581
+  nrp_id: BGC0002581.3
+  true_alignment:
+  - [[QKF54435.2, 0], NAc-Tyr]
+  - [[QKF54435.2, 1], Tyr]
+  - [[QKF54436.1, 0], Leu]
+  - [[QKF54436.1, 1], OH-Asp]
+  - [[QKF54436.1, 2], Ser]
+  - [[QKF54438.1, 0], X0]
+  - [[QKF54438.1, 1], Leu]
+  - [[QKF54438.1, 2], Gly]
+  - [[QKF54440.2, 0], null]
+  acceptable_alternative_alignments: []
+- bgc_id: BGC0002581
+  nrp_id: BGC0002581.5
+  true_alignment:
+  - [[QKF54435.2, 0], NAc-Tyr]
+  - [[QKF54435.2, 1], Tyr]
+  - [[QKF54436.1, 0], Leu]
+  - [[QKF54436.1, 1], OH-Asp]
+  - [[QKF54436.1, 2], Ser]
+  - [[QKF54438.1, 0], X0]
+  - [[QKF54438.1, 1], Leu]
+  - [[QKF54438.1, 2], X1]
+  - [[QKF54440.2, 0], null]
+  acceptable_alternative_alignments: []

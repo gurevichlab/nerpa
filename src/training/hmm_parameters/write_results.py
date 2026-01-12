@@ -4,7 +4,7 @@ from typing import Dict
 import yaml
 
 from src.general_type_aliases import LogProb
-from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType, GenomicContext
+from src.hmm.hmm_auxiliary_types import DetailedHMMEdgeType, GenomicContext
 from src.training.hmm_parameters.hmm_infer_emission_params import EmissionParams
 from src.training.hmm_parameters.training_types import DataForTraining
 from src.build_output.write_results import write_yaml
@@ -24,8 +24,8 @@ def edge_params_to_yaml(edge_params: Dict[DetailedHMMEdgeType,
 
 
 def create_new_configs(old_configs_dir: Path,
-                          config_updates_dir: Path,
-                          new_configs_dir: Path):
+                       config_updates_dir: Path,
+                       new_configs_dir: Path):
      for old_config_path in old_configs_dir.glob('*.yaml'):
         old_config = yaml.safe_load(old_config_path.read_text())
         new_config = old_config.copy()

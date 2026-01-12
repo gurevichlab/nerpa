@@ -2,10 +2,13 @@ import json
 import math
 import os
 import shutil
+from dataclasses import asdict
 from pathlib import Path
 from typing import List, Dict
 from src.config import OutputConfig
 from src.matching.match_type import Match
+from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
+from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
 
 
 def _create_match_dicts(matches: List[Match],
@@ -46,6 +49,86 @@ def _create_match_dicts(matches: List[Match],
     ]
 
 
+def _create_serializable_bgc_metadata(bgc_variants_info: BGC_Variants_Info):
+    # Collect only the metadata we need for BGCs (JSON-serializable)
+    bgc_metadata = []
+    for v in bgc_variants_info.bgc_variants:
+        meta = getattr(v, 'metadata', None)
+        if not meta:
+            continue
+        bgc_vid = v.bgc_variant_id.to_dict()  # {'bgc_id': {...}, 'variant_idx': int}
+        bgc_metadata.append({
+            'bgc_id': bgc_vid['bgc_id'],  # keep as dict so JS can access structured fields
+            'variant_idx': bgc_vid['variant_idx'],
+            'metadata': v.metadata.to_dict()
+        })
+
+    return bgc_metadata
+
+
+def _create_serializable_nrp_metadata(nrp_variants_info: NRP_Variants_Info):
+    # Collect only the metadata we need for NRPs (JSON-serializable)
+    nrp_metadata = []
+    for v in nrp_variants_info.nrp_variants:
+        meta = getattr(v, 'metadata', None)
+        if not meta:
+            continue
+        nrp_metadata.append({
+            'nrp_id': v.nrp_variant_id.nrp_id,
+            'variant_idx': v.nrp_variant_id.variant_idx,
+            'metadata': asdict(v.metadata)
+        })
+
+    return nrp_metadata
+
+
+def _create_serializable_bgc_representatives(bgc_variants_info: BGC_Variants_Info):
+    groups = {}
+    for member_id, repr_id in bgc_variants_info.bgc_id_to_repr_id.items():
+        groups.setdefault(repr_id, []).append(member_id)
+
+    out = []
+    for repr_id, member_ids in groups.items():
+        # TODO: thnk of it, see below. Ensure representative itself is not included
+        # member_ids = [m for m in member_ids if m != repr_id]
+        out.append({
+            "repr": repr_id.to_dict(),
+            "members": [m.to_dict() for m in sorted(member_ids,
+                                                    key=lambda x: (x.bgc_id.antiSMASH_file,
+                                                                   x.bgc_id.contig_idx,
+                                                                   x.bgc_id.bgc_idx,
+                                                                   x.variant_idx))]
+        })
+    return out
+
+
+def _create_serializable_nrp_representatives(nrp_variants_info: NRP_Variants_Info):
+    """
+    Reverse nrp_id_to_repr_id into JSON-serializable list of groups:
+    [
+        { "repr": {...}, "members": [{...}, ...] },
+        ...
+    ]
+    Note: the representative itself is also a part of the members
+    """
+    groups = {}
+    for member_id, repr_id in nrp_variants_info.nrp_id_to_repr_id.items():
+        groups.setdefault(repr_id, []).append(member_id)
+
+    out = []
+    for repr_id, member_ids in groups.items():
+        # TODO: think how it is better to do with or without representative
+        #  Ensure representative itself is not included (robust to potential self-maps)
+        # member_ids = [m for m in member_ids if m != repr_id]
+        out.append({
+            "repr": repr_id._asdict(),
+            "members": [m._asdict() for m in sorted(
+                member_ids, key=lambda x: (x.nrp_id, x.variant_idx)
+            )]
+        })
+    return out
+
+
 def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
     for placeholder, value in substitutions.items():
         template = template.replace(placeholder, value)
@@ -54,6 +137,8 @@ def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
 
 def create_html_report(output_cfg: OutputConfig,
                        matches: List[Match],
+                       bgc_variants_info: BGC_Variants_Info,
+                       nrp_variants_info: NRP_Variants_Info,
                        debug_output: bool = False,
                        default_score_field: str = 'log_odds_vs_avg_bgc'):
     current_dir = Path(__file__).resolve().parent
@@ -70,10 +155,32 @@ def create_html_report(output_cfg: OutputConfig,
     match_dicts = _create_match_dicts(matches,
                                       debug_output,
                                       default_score_field=default_score_field)
+    bgc_metadata = _create_serializable_bgc_metadata(bgc_variants_info)
+    nrp_metadata = _create_serializable_nrp_metadata(nrp_variants_info)
+    bgc_representatives = _create_serializable_bgc_representatives(bgc_variants_info)
+    nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
+
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:
         json_file.write('var data = ')
         json.dump(match_dicts, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var bgc_metadata = ')
+        json.dump(bgc_metadata, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var nrp_metadata = ')
+        json.dump(nrp_metadata, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var bgc_representatives = ')
+        json.dump(bgc_representatives, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var nrp_representatives = ')
+        json.dump(nrp_representatives, json_file, indent=4)
+        json_file.write(';\n')
 
     path_substitutions = {
         '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(output_cfg.main_out_dir)),

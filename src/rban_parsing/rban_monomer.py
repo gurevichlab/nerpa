@@ -9,6 +9,12 @@ from src.monomer_names_helper import (
 #from monomer_features_types import MonomerFeature, MonomerFeatures
 rBAN_idx = int
 
+def rban_name_no_unk_idx(rban_name: NorineMonomerName) -> NorineMonomerName:
+    return (
+        NorineMonomerName('X') if rban_name.startswith('X')
+        else rban_name
+    )
+
 class rBAN_Monomer(NamedTuple):
     residue: NerpaResidue
     methylated: bool
@@ -17,14 +23,25 @@ class rBAN_Monomer(NamedTuple):
     rban_name: NorineMonomerName
     rban_idx: rBAN_idx
 
+    def to_dict(self) -> dict:
+        return {'residue': self.residue,
+                'methylated': self.methylated,
+                'chirality': self.chirality.name,
+                'is_pks_hybrid': self.is_pks_hybrid,
+                'rban_name': self.rban_name,
+                'rban_idx': self.rban_idx,}
+
     @classmethod
-    def from_yaml_dict(cls, data: dict) -> rBAN_Monomer:
+    def from_yaml_dict(cls, data: dict | list) -> rBAN_Monomer:
+        if isinstance(data, list):
+            return cls.from_list(data)
+
         if 'methylated' in data:
             methylated = data['methylated']
         else:
-            methylated = 'METHYLATION' in data['modifications']
+            methylated = 'METHYLATION' in data.get('modifications', [])
         if 'is_pks_hybrid' in data:
-            is_pks_hybrid = data['is_hybrid']
+            is_pks_hybrid = data['is_pks_hybrid']
         else:
             is_pks_hybrid = False
         return cls(residue=NerpaResidue(data['residue']),
@@ -57,4 +74,3 @@ rBAN_MONOMER_DUMMY = rBAN_Monomer(residue=NerpaResidue(''),
                                   is_pks_hybrid=False,
                                   rban_name=NorineMonomerName(''),
                                   rban_idx=-1)
-

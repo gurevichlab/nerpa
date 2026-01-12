@@ -3,12 +3,11 @@ from typing import (
     Dict,
     NamedTuple,
     List,
-    Optional,
-    Tuple
+    Optional
 )
 from src.antismash_parsing.bgc_variant_types import (
     BGC_Module,
-    BGC_Module_Modification,
+    BGC_Module_Modification, A_Domain_ID,
 )
 from src.general_type_aliases import LogProb
 from src.antismash_parsing.antismash_parser_types import GeneId
@@ -17,9 +16,7 @@ from src.monomer_names_helper import (
     Chirality
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.matching.hmm_auxiliary_types import DetailedHMMEdgeType
-from src.generic.functional import make_optional
-from enum import Enum, auto
+from src.hmm.hmm_auxiliary_types import DetailedHMMEdgeType
 from collections import OrderedDict
 from dataclasses import dataclass
 
@@ -146,3 +143,8 @@ class AlignmentStep:
                    score=float(data['Score']),
                    match_detailed_score=match_detailed_score,
                    step_type=step_type)
+
+
+class AlignmentStepLight(NamedTuple):
+    a_domain_id: Optional[A_Domain_ID]
+    nrp_monomer: Optional[rBAN_Monomer]

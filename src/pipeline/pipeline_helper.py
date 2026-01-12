@@ -23,13 +23,12 @@ from src.monomer_names_helper import MonomerNamesHelper
 
 from src.matching.match_type import Match
 from src.matching.matcher import get_hmm_matches
-from src.matching.detailed_hmm import DetailedHMM
+from src.hmm.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
-from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
-from src.matching.hmm_scoring_config import load_hmm_scoring_config
-from src.matching.hmm_scoring_helper import HMMHelper
+from src.hmm.hmm_scoring_config import load_hmm_scoring_config
+from src.hmm.hmm_scoring_helper import HMMHelper
 import src.build_output.write_results as write_results
 
 import shutil
@@ -56,7 +55,7 @@ class PipelineHelper:
         try:
             self.args = get_command_line_args(default_cfg)
         except ValidationError as e:
-            raise e
+            raise
 
         try:
             self.config = load_config(self.args)
@@ -82,7 +81,8 @@ class PipelineHelper:
                                                                     self.monomer_names_helper,
                                                                     external_specificity_predictions)
 
-        hmm_scoring_config = load_hmm_scoring_config(self.config.hmm_scoring_config,
+        hmm_scoring_config = load_hmm_scoring_config(self.config.nerpa_dir,
+                                                     self.config.hmm_scoring_config,
                                                      specificity_prediction_helper,
                                                      self.monomer_names_helper)
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
@@ -130,8 +130,17 @@ class PipelineHelper:
     @timing_decorator('Constructing HMMs')
     def construct_hmms(self, bgc_variants: List[BGC_Variant]) -> List[DetailedHMM]:
         self.log.info("\n======= Constructing HMMs")
-        return [DetailedHMM.from_bgc_variant(bgc_variant, self.hmm_helper)
-                for bgc_variant in bgc_variants]
+        hmms = []
+        for bgc_variant in bgc_variants:
+            try:
+                hmms.append(DetailedHMM.from_bgc_variant(bgc_variant, self.hmm_helper))
+            except Exception as e:
+                if self.args.let_it_crash:
+                    raise
+                self.log.warning(f"Error constructing HMM for BGC variant "
+                                 f"{bgc_variant.bgc_variant_id.bgc_id.antiSMASH_file}")
+
+        return hmms
 
     @timing_decorator('Generating linearizations')
     def get_nrp_linearizations(self, nrp_variants: List[NRP_Variant]) \
@@ -182,13 +191,14 @@ class PipelineHelper:
                       matches: List[Match],
                       bgc_variants_info: BGC_Variants_Info,
                       nrp_variants_info: NRP_Variants_Info,
+                      write_only_what_is_matched: bool = True,
                       matches_details: bool = True):
         self.log.info("\n======= Writing results")
         write_results.write_results(matches,
                                     bgc_variants_info,
                                     nrp_variants_info,
                                     self.config.output_config,
-                                    write_only_present_in_matches=True,
+                                    write_only_what_is_matched=write_only_what_is_matched,
                                     matches_details=matches_details,
                                     log=self.log)
         self.log.info("RESULTS:")

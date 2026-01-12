@@ -4,7 +4,6 @@ from typing import (
 )
 
 from src.antismash_parsing.antismash_parser_types import BGC_ID
-from src.matching.hmm_scoring_config import EDGE_TYPE_DEPENDENCIES
 from src.training.hmm_parameters.training_types import EdgeInfo
 
 
