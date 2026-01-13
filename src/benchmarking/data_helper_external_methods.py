@@ -331,9 +331,9 @@ def extra_false_positives(data_helper: 'PlotsDataHelper',
     # Helper function for compatibility with older Polars versions
     def _with_row_index(df: pl.DataFrame, index_name: str) -> pl.DataFrame:
         if hasattr(df, "with_row_index"):
-            return df.with_row_index(f'index_in_{report1.name}')
+            return df.with_row_index(f'index_in_{index_name}')
         else:
-            return df.with_row_count(f'index_in_{report1.name}')
+            return df.with_row_count(f'index_in_{index_name}')
 
     sorted_report1 = report1.sort(NerpaReport.SCORE, descending=True)
     sorted_report1 = _with_row_index(sorted_report1, f'index_in_{report1.name}')
