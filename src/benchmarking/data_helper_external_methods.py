@@ -334,7 +334,7 @@ def extra_false_positives(data_helper: 'PlotsDataHelper',
     extra_fps = []
 
     for row_report1 in (sorted_report1
-                        .filter(pl.col(~NerpaReport.IS_CORRECT))
+                        .filter(~pl.col(NerpaReport.IS_CORRECT))
                         .iter_rows(named=True)):
         # Get the N-th match from report1 (0-indexed, so n-1)
 
@@ -342,7 +342,7 @@ def extra_false_positives(data_helper: 'PlotsDataHelper',
             (pl.col(NerpaReport.BGC_ID) == row_report1[NerpaReport.BGC_ID]) &
             (pl.col(NerpaReport.NRP_ISO_CLASS) == row_report1[NerpaReport.NRP_ISO_CLASS])
         )
-        row_report2 = rows_report2[0] if rows_report2.height > 0 else None
+        row_report2 = rows_report2.row(0, named=True) if rows_report2.height > 0 else None
         if (row_report2 is None or
                 row_report2[f'index_in_{report2.name}'] > row_report1[f'index_in_{report1.name}']):
             extra_fps.append({

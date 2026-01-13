@@ -39,46 +39,48 @@ def join_pngs_side_by_side(output_path, *image_paths):
 def nerpa1_vs_nerpa2():
     helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
 
-    nerpa1_report = helper.data_helper.load_nerpa_report(Path(
-        '/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
+    nerpa_dir = Path(__file__).parent
+    nerpa1_report = helper.data_helper.load_nerpa_report(nerpa_dir / Path(
+        'data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
                                                          tool_version='Nerpa 1',
                                                          report_name='Nerpa 1')
-    nerpa2_report = helper.data_helper.load_nerpa_report(Path('/nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
+    nerpa2_report = helper.data_helper.load_nerpa_report(nerpa_dir / Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
                                                          report_name='Nerpa 2',
                                                          score_column='LogOdds_vs_avg_BGC')
 
     extra_fp = helper.data_helper.extra_false_positives(nerpa2_report, nerpa1_report)
-    with open('/benchmarking/nerpa1_vs_nerpa2_plots/extra_false_positives.tsv', 'w') as f:
+    with open(nerpa_dir / 'benchmarking/nerpa1_vs_nerpa2_plots/extra_false_positives.tsv', 'w') as f:
         extra_fp.write_csv(f, separator='\t')
 
 
-    # output_dir = Path('/home/ilianolhin/git/nerpa2/benchmarking/nerpa1_vs_nerpa2_plots')
-    # helper.plot_all([nerpa1_report, nerpa2_report],
-    #                 output_dir=output_dir)
+    output_dir = Path(nerpa_dir / 'benchmarking/nerpa1_vs_nerpa2_plots')
+    helper.plot_all([nerpa1_report, nerpa2_report],
+                     output_dir=output_dir)
 
 def nerpa1_vs_nerpa2_vs_biocat():
     #helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
     helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
+    nerpa_dir = Path(__file__).parent
 
     nerpa1_report = helper.data_helper.load_nerpa_report(Path(
-        '/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
+        nerpa_dir / 'data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
                                                          tool_version='Nerpa 1',
                                                          report_name='Nerpa 1')
-    nerpa2_report = helper.data_helper.load_nerpa_report(Path('/nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
+    nerpa2_report = helper.data_helper.load_nerpa_report(nerpa_dir / Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
                                                          report_name='Nerpa 2',
                                                          score_column='LogOdds_vs_avg_BGC')
-    biocat_report = helper.data_helper.load_nerpa_report(Path('/data/for_training_and_testing/biocat_results.txt'),
+    biocat_report = helper.data_helper.load_nerpa_report(nerpa_dir / Path('data/for_training_and_testing/biocat_results.txt'),
                                                          report_name='BioCAT',
                                                          tool_version='BioCAT')
 
 
-    output_dir = Path('/benchmarking/nerpa1_vs_nerpa2_vs_biocat_plots')
+    output_dir = nerpa_dir / Path('benchmarking/nerpa1_vs_nerpa2_vs_biocat_plots')
     helper.plot_all([nerpa1_report, nerpa2_report, biocat_report],
                     output_dir=output_dir)
 
 
 def plots_for_paper():
-    nerpa_dir = Path(__file__).parent.parent.parent
+    nerpa_dir = Path(__file__).parent
     
     # nerpa1_vs_nerpa2_vs_biocat()
     # nerpa1_vs_nerpa2_alignment()
@@ -105,8 +107,8 @@ def plots_for_paper():
 
 if __name__ == "__main__":
     # Example usage
-    plots_for_paper()
-    #nerpa1_vs_nerpa2()
+    # plots_for_paper()
+    nerpa1_vs_nerpa2()
     #nerpa1_vs_nerpa2_vs_biocat()
     #nerpa1_vs_nerpa2_vs_nerpa2new()
     #cross_validation()
