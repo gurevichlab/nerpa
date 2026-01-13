@@ -58,7 +58,7 @@ def add_iteration_subgraph(constructor,  # type: HMM_Constructor,
             choose_if_iterate_module = len(constructor.states) - 2
             choose_if_iterate_gene = len(constructor.states) - 1
             module_iteration_return_point = constructor.module_idx_to_subgraph_root[module_idx]
-            fst_module_in_gene_idx = constructor.gene_intervals[module.gene_id][0]
+            fst_module_in_gene_idx = constructor.gene_borders[module.gene_id][0]
             gene_iteration_return_point = constructor.module_idx_to_subgraph_root[fst_module_in_gene_idx]
 
             constructor.add_edge(choose_if_iterate_module, module_iteration_return_point, ET.ITERATE_MODULE)
