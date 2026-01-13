@@ -22,13 +22,13 @@ parse_nrps_from_json(const std::string& nrp_json_path)
     }
 
     for (auto& entry : j) {
-        NRP_ID nrp_id = entry["nrp_id"].get<std::string>();
+        NRP_ID nrp_id = entry.at("nrp_id").get<std::string>();
         NRP_Linearizations nrp_obj;
         // Parse non_iterative
-        for (auto& lin_j : entry["non_iterative"]) {
+        for (auto& lin_j : entry.at("non_iterative")) {
             NRP_Linearization lin;
-            auto mon_codes_j = lin_j[0];
-            auto rban_idxs_j = lin_j[1];
+            auto mon_codes_j = lin_j.at(0);
+            auto rban_idxs_j = lin_j.at(1);
             assert(mon_codes_j.size() == rban_idxs_j.size() and "Non-iterative: Monomer and rBAN index sequences must be of equal length.");
 
             for (auto& m : mon_codes_j) {
@@ -42,7 +42,7 @@ parse_nrps_from_json(const std::string& nrp_json_path)
         }
 
         // Parse iterative
-        for (auto& split_j : entry["iterative"]) {
+        for (auto& split_j : entry.at("iterative")) {
             std::vector<std::vector<NRP_Linearization>> split_vec;
             int group_idx = 0;
             for (auto& group_j : split_j) {
@@ -50,8 +50,8 @@ parse_nrps_from_json(const std::string& nrp_json_path)
                 int lin_idx = 0;
                 for (auto& lin_j : group_j) {
                     NRP_Linearization lin;
-                    auto mon_codes_j = lin_j[0];
-                    auto rban_idxs_j = lin_j[1];
+                    auto mon_codes_j = lin_j.at(0);
+                    auto rban_idxs_j = lin_j.at(1);
                     assert(mon_codes_j.size() == rban_idxs_j.size() and "Iterative: Monomer and rBAN index sequences must be of equal length.");
                     for (auto& m : mon_codes_j) {
                         lin.first.push_back(m.get<MonCode>());
@@ -67,7 +67,7 @@ parse_nrps_from_json(const std::string& nrp_json_path)
         }
 
         // Get score_vs_avg_bgc
-        nrp_obj.score_vs_avg_bgc = entry["score_vs_avg_bgc"].get<double>();
+        nrp_obj.score_vs_avg_bgc = entry.at("score_vs_avg_bgc").get<double>();
 
         nrp_linearizations.emplace_back(std::move(nrp_obj), nrp_id);
     }

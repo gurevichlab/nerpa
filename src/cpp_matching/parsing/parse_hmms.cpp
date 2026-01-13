@@ -11,10 +11,10 @@ HMM parse_hmm(const nlohmann::json& entry)
 
     // parse BGC Variant ID ID
     // std::cout << "Parsing BGC Variant ID from JSON entry." << std::endl;
-    auto genome_id   = entry["bgc_variant_id"]["bgc_id"]["antiSMASH_file"].get<std::string>();
-    int contig_idx   = entry["bgc_variant_id"]["bgc_id"]["contig_idx"].get<int>();
-    int bgc_idx      = entry["bgc_variant_id"]["bgc_id"]["bgc_idx"].get<int>();
-    int variant_idx  = entry["bgc_variant_id"]["variant_idx"].get<int>();
+    auto genome_id   = entry.at("bgc_variant_id").at("bgc_id").at("antiSMASH_file").get<std::string>();
+    int contig_idx   = entry.at("bgc_variant_id").at("bgc_id").at("contig_idx").get<int>();
+    int bgc_idx      = entry.at("bgc_variant_id").at("bgc_id").at("bgc_idx").get<int>();
+    int variant_idx  = entry.at("bgc_variant_id").at("variant_idx").get<int>();
     BGC_ID bgc_id = std::make_tuple(genome_id, contig_idx, bgc_idx);
     BGC_Variant_ID bgc_variant_id = std::make_tuple(bgc_id, variant_idx);
 
@@ -22,18 +22,18 @@ HMM parse_hmm(const nlohmann::json& entry)
 
     // transitions
     // std::cout << "Parsing transitions from JSON entry." << std::endl;
-    for (auto& st : entry["transitions"]) {
+    for (auto& st : entry.at("transitions")) {
         std::vector<std::pair<StateIdx, LogProb>> row;
         for (auto& pair_j : st) {
-            StateIdx st_to = pair_j[0].get<StateIdx>();
-            LogProb  prob  = pair_j[1].get<LogProb>();
+            StateIdx st_to = pair_j.at(0).get<StateIdx>();
+            LogProb  prob  = pair_j.at(1).get<LogProb>();
             row.emplace_back(st_to, prob);
         }
         hmm.transitions.push_back(row);
     }
     // emissions
     // std::cout << "Parsing emissions from JSON entry." << std::endl;
-    for (auto& em_row : entry["emissions"]) {
+    for (auto& em_row : entry.at("emissions")) {
         std::vector<LogProb> em_vec;
         for (auto& val : em_row) {
             if (val.is_null()) {
@@ -48,12 +48,12 @@ HMM parse_hmm(const nlohmann::json& entry)
     }
     // module_start_states
     // std::cout << "Parsing module start states from JSON entry." << std::endl;
-    for (auto& val : entry["module_start_states"]) {
+    for (auto& val : entry.at("module_start_states")) {
         hmm.module_start_states.push_back(val.get<StateIdx>());
     }
     // module_match_states
     // std::cout << "Parsing module match states from JSON entry." << std::endl;
-    for (auto& val : entry["module_match_states"]) {
+    for (auto& val : entry.at("module_match_states")) {
         hmm.module_match_states.push_back(val.get<StateIdx>());
     }
 
