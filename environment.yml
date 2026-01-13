@@ -11,6 +11,7 @@ dependencies:
     - pip
     - scikit-learn=1.2.0
     - pandas>=1.5
+    - polars>=1.33.1
     - rdkit>=2022.09
     - networkx
     - more-itertools

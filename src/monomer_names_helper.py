@@ -265,10 +265,10 @@ class MonomerNamesHelper:
         if mon_type == 'PKS':
             return PKS_MONOMER
 
-        #if mon_type == 'NA':  # TODO: handle NA monomers better
-        #    return NOT_NRPS_MONOMER
+        if mon_type == 'NOT_NRPS':
+            return NOT_NRPS_MONOMER
 
-        assert mon_type in ('NRPS', 'NA'), f'Unexpected monomer type: {mon_type}'
+        assert mon_type in ('NRPS', 'NA'), f'Unexpected monomer type: {name} -- {mon_type}'
 
         residue = NerpaResidue(row['NerpaResidue'])
         if residue not in self.supported_residues:
