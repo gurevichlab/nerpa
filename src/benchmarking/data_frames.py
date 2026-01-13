@@ -20,7 +20,7 @@ class MIBiG_BGCs_Info(pl.DataFrame):
         """Load MIBiG BGCs info from a CSV file."""
         df = pl.read_csv(filepath, separator='\t')
         df = df.filter(~pl.col(cls._DEPRECATED))
-        return cls(df)
+        return df
 
 
 class PNRPDB_Info(pl.DataFrame):
@@ -36,5 +36,5 @@ class PNRPDB_Info(pl.DataFrame):
     def from_csv(cls, filepath: Path) -> PNRPDB_Info:
         """Load PNRPDB info from a CSV file."""
         df = pl.read_csv(filepath, separator='\t')
-        return cls(df)
+        return df
 
