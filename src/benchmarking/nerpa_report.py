@@ -20,7 +20,12 @@ class NerpaReport(pl.DataFrame):
     name: str
 
     def __init__(self, *args, report_name: str = 'REPORT_NAME_MISSING', **kwargs):
-        super().__init__(*args, **kwargs)
+        if len(args) == 1 and isinstance(args[0], pl.DataFrame) and not kwargs:
+            # Convert to something older Polars constructors accept
+            data = args[0].to_dict(as_series=False)  # dict[str, list]
+            super().__init__(data)
+        else:
+            super().__init__(*args, **kwargs)
         self.name = report_name
 
 
