@@ -328,8 +328,17 @@ def extra_false_positives(data_helper: 'PlotsDataHelper',
     and their prefix positions.
     """
     # Sort both reports by score descending and add indexes
-    sorted_report1 = report1.sort(NerpaReport.SCORE, descending=True).with_row_index(f'index_in_{report1.name}')
-    sorted_report2 = report2.sort(NerpaReport.SCORE, descending=True).with_row_index(f'index_in_{report2.name}')
+    # Helper function for compatibility with older Polars versions
+    def _with_row_index(df: pl.DataFrame, index_name: str) -> pl.DataFrame:
+        if hasattr(df, "with_row_index"):
+            return df.with_row_index(f'index_in_{report1.name}')
+        else:
+            return df.with_row_count(f'index_in_{report1.name}')
+
+    sorted_report1 = report1.sort(NerpaReport.SCORE, descending=True)
+    sorted_report1 = _with_row_index(sorted_report1, f'index_in_{report1.name}')
+    sorted_report2 = report2.sort(NerpaReport.SCORE, descending=True)
+    sorted_report2 = _with_row_index(sorted_report2, f'index_in_{report2.name}')
 
     extra_fps = []
 
