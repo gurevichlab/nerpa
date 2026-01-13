@@ -48,12 +48,12 @@ def nerpa1_vs_nerpa2():
                                                          report_name='Nerpa 2',
                                                          score_column='LogOdds_vs_avg_BGC')
 
+    output_dir = Path(nerpa_dir / 'benchmarking/nerpa1_vs_nerpa2_plots')
+    output_dir.mkdir(parents=True, exist_ok=True)
     extra_fp = helper.data_helper.extra_false_positives(nerpa2_report, nerpa1_report)
-    with open(nerpa_dir / 'benchmarking/nerpa1_vs_nerpa2_plots/extra_false_positives.tsv', 'w') as f:
+    with open(output_dir / 'extra_false_positives.tsv', 'w') as f:
         extra_fp.write_csv(f, separator='\t')
 
-
-    output_dir = Path(nerpa_dir / 'benchmarking/nerpa1_vs_nerpa2_plots')
     helper.plot_all([nerpa1_report, nerpa2_report],
                      output_dir=output_dir)
 
