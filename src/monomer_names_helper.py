@@ -268,7 +268,8 @@ class MonomerNamesHelper:
         if mon_type == 'NOT_NRPS':
             return NOT_NRPS_MONOMER
 
-        assert mon_type in ('NRPS', 'NA'), f'Unexpected monomer type: {name} -- {mon_type}'
+        assert mon_type in ('NRPS', 'NA', 'PKS_Hybrid'), \
+            f'Unexpected monomer type: {name} -- {mon_type}'
 
         residue = NerpaResidue(row['NerpaResidue'])
         if residue not in self.supported_residues:
@@ -278,5 +279,6 @@ class MonomerNamesHelper:
 
         self._cache[(name, name_format)] = NRP_Monomer(residue=residue,
                                                        methylated=methylated,
-                                                       chirality=chirality)
+                                                       chirality=chirality,
+                                                       is_pks_hybrid=mon_type == 'PKS_Hybrid')
         return self._cache[(name, name_format)]
