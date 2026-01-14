@@ -213,16 +213,14 @@ class PlotsHelper:
             for row in self.data_helper.mibig_bgcs_info.iter_rows(named=True)
         }
 
-        print('BGCs without length info:',
-              [bgc_id for bgc_id in sorted(set(nerpa_report[NerpaReport.BGC_ID].unique()))
-               if bgc_id not in bgc_len])
+        # build mapping DF
+        bgc_len_df = pl.DataFrame({
+            NerpaReport.BGC_ID: list(bgc_len.keys()),
+            "bgc_len": list(bgc_len.values()),
+        }).with_columns(pl.col("bgc_len").cast(pl.Int64))
 
-        df = nerpa_report.with_columns(
-            pl.col(NerpaReport.BGC_ID)
-            .replace(bgc_len)
-            .cast(pl.Int64)
-            .alias("bgc_len")
-        )
+        # attach lengths
+        df = nerpa_report.join(bgc_len_df, on=NerpaReport.BGC_ID, how="left")
 
         bgc_lengths = list(
             df.group_by(NerpaReport.BGC_ID)
