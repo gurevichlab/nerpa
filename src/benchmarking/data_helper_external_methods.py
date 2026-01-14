@@ -108,7 +108,8 @@ def compute_num_identified(data_helper: 'PlotsDataHelper',
     # Join and compute cumsum
     result = (
         best_scores
-        .join(identified, on=id_column, validate="1:1", maintain_order="left")  # ids are sorted by max_score
+        .join(identified, on=id_column, validate="1:1")  # ids are sorted by max_score
+        .sort(NerpaReport.SCORE, descending=True)
         .select(
             pl.col('identified').cast(pl.Int64)
             .cum_sum()
