@@ -233,6 +233,7 @@ def main():
         # create a file with paths to antismash results for run_nerpa
         test_matches_bgcs = {match.bgc_id for match in test_matches}
         as_results_file = nerpa_dir / args.output_dir / 'antismash_results_paths.txt'
+        as_results_file.parent.mkdir(parents=True, exist_ok=True)
         with open(as_results_file, 'w') as f:
             for bgc_id in test_matches_bgcs:
                 f.write(f"{args.antismash_results / bgc_id}\n")
