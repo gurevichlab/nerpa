@@ -213,6 +213,10 @@ class PlotsHelper:
             for row in self.data_helper.mibig_bgcs_info.iter_rows(named=True)
         }
 
+        print('BGCs without length info:',
+              [bgc_id for bgc_id in sorted(set(nerpa_report[NerpaReport.BGC_ID].unique()))
+               if bgc_id not in bgc_len])
+
         df = nerpa_report.with_columns(
             pl.col(NerpaReport.BGC_ID)
             .replace(bgc_len)
