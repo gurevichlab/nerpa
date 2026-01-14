@@ -216,6 +216,7 @@ class PlotsHelper:
         df = nerpa_report.with_columns(
             pl.col(NerpaReport.BGC_ID)
             .replace(bgc_len)
+            .cast(pl.Int64)
             .alias("bgc_len")
         )
 
