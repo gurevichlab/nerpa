@@ -8,6 +8,15 @@ from src.benchmarking.plots_data_helper import NerpaReport
 from src.benchmarking.plots_utils import highlight_point
 
 
+def _with_row_index(df: pl.DataFrame,
+                    name: str = 'index',
+                    offset: int = 0) -> pl.DataFrame:
+    if hasattr(df, "with_row_index"):
+        return df.with_row_index(name, offset=offset)
+    else:
+        return df.with_row_count(name, offset=offset)
+
+
 def _plot_num_correct_matches(ax: Axes,
                               _report: NerpaReport,
                               y_axis: Literal['Count', 'Percentage'],
@@ -31,7 +40,7 @@ def _plot_num_correct_matches(ax: Axes,
     #print(f"Total matches after filtering: {report.height}")
     #print(f'Number of unique scores: {report[NerpaReport.SCORE].n_unique()}')
 
-    report = report.with_row_index(offset=1)
+    report = _with_row_index(report, offset=1)
 
     # 2. Compute cumulative num correct matches
     report = report.with_columns(
