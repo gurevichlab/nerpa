@@ -102,8 +102,12 @@ class PipelineHelper:
             self.finish()
             exit(0)
 
-        self.log.info("Deduplicating extracted BGC variants...")
-        bgc_id_to_repr_id = cluster_isomorphic_bgc_variants(bgc_variants)
+        if not self.args.disable_bgc_deduplication:
+            self.log.info("Deduplicating extracted BGC variants...")
+            bgc_id_to_repr_id = cluster_isomorphic_bgc_variants(bgc_variants)
+        else:
+            bgc_id_to_repr_id = {bgc_variant.bgc_variant_id: bgc_variant.bgc_variant_id
+                                 for bgc_variant in bgc_variants}
         return BGC_Variants_Info(bgc_variants=bgc_variants,
                                  bgc_id_to_repr_id=bgc_id_to_repr_id)
 
@@ -121,8 +125,12 @@ class PipelineHelper:
             self.finish()
             exit(0)
 
-        self.log.info("Deduplicating extracted NRP variants...")
-        nrp_id_to_repr_id = cluster_isomorphic_nrp_variants(nrp_variants)
+        if not self.args.disable_nrp_deduplication:
+            self.log.info("Deduplicating extracted NRP variants...")
+            nrp_id_to_repr_id = cluster_isomorphic_nrp_variants(nrp_variants)
+        else:
+            nrp_id_to_repr_id = {nrp_variant.nrp_variant_id: nrp_variant.nrp_variant_id
+                                 for nrp_variant in nrp_variants}
         return NRP_Variants_Info(nrp_variants=nrp_variants,
                                  rban_records=rban_records,
                                  nrp_id_to_repr_id=nrp_id_to_repr_id)
