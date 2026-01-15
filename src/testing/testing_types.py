@@ -157,5 +157,5 @@ if __name__ == '__main__':
             old_test = old_tests[old_test_ids.index((test.bgc_id, test.nrp_id))]
             tests[i] = old_test
 
-    approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/approved_matches.yaml')
+    approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/new_approved_matches.yaml')
     approved_matches_yaml.write_text(TestMatch.dump_list_to_str(tests))
