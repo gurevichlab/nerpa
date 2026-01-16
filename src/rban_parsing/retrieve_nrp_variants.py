@@ -110,7 +110,8 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
                         if len(fragment.monomers) > 1 or fragment.monomers[0].residue != UNKNOWN_RESIDUE]
     isolated_unknown_monomers = [fragment.monomers[0]
                                  for fragment in all_fragments
-                                 if len(fragment.monomers) == 1 and fragment.monomers[0].residue == UNKNOWN_RESIDUE]
+                                 if len(fragment.monomers) == 1
+                                 and fragment.monomers[0].residue not in monomer_names_helper.supported_residues]
 
     return NRP_Variant(nrp_variant_id=NRP_Variant_ID(variant_idx=0,
                                                      nrp_id=rban_record.compound_id),
