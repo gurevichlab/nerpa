@@ -298,8 +298,13 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
     total_true_pairs = sum(len(data_helper.bgc_to_nrp_iso_classes[bgc_id])
                            for bgc_id in data_helper.test_bgcs)
 
+    thresholds = (
+        _report.select(pl.col(NerpaReport.SCORE).unique().sort(descending=True))
+        .to_series()
+        .to_list()
+    )
     precision_recall_points = []
-    for score_threshold in _report[NerpaReport.SCORE].unique():
+    for score_threshold in thresholds:
         _report_positive = _report.filter(pl.col(NerpaReport.SCORE) >= score_threshold)
         num_positive = _report_positive.height
         num_true_positives = _report_positive.filter(pl.col(NerpaReport.IS_CORRECT)).height
