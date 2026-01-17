@@ -1,0 +1,12 @@
+python nerpa.py \
+-a ~/tools/nerpa2/input/antismash_db5_vs_pnrpdb2_top_bgcs_with_meta/jsons \
+--smiles-tsv ./data/input/pnrpdb2.tsv \
+--col-id ID \
+-o ./nerpa_results/pnrpdb2_vs_antismash_db5_top_bgcs_with_meta \
+--force-output-dir \
+--fast-matching \
+--process-hybrids \
+--min-num-matches-per-nrp 10 \
+--max-num-matches-per-nrp 10 \
+--max-num-matches 1000 \
+--threads 32
