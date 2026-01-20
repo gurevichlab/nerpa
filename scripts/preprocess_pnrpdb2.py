@@ -73,7 +73,7 @@ def main():
 
     nrp_id_to_repr_id = load_nrp_to_representative(nerpa_results)
     nrp_variants = yaml.safe_load((nerpa_results / 'preprocessed_input' / 'NRP_variants.yaml').open('r'))
-    rban_records = json.loads((nerpa_results / 'intermediate_files' / 'rban.output.json').read_text())
+    rban_records = json.loads((nerpa_results / 'intermediate_files' / 'rBAN' / 'rban.output.json').read_text())
 
     def is_mibig_norine(nrp_id: str) -> bool:
         return nrp_id.startswith('BGC') or nrp_id.startswith('NOR')
