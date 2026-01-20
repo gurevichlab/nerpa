@@ -49,7 +49,7 @@ def load_nrp_to_representative(nerpa_results: Path) -> Dict[str, str]:
                                 / 'NRP_representatives.yaml')
     with nrp_representatives_path.open() as f:
         nrp_representatives = yaml.safe_load(f)
-    nrp_id_to_repr_id = {entry['nrp_id'][0]: entry['represetative_id'][0]
+    nrp_id_to_repr_id = {entry['nrp_id'][0]: entry['representative_id'][0]
                          for entry in nrp_representatives}
     return nrp_id_to_repr_id
 
