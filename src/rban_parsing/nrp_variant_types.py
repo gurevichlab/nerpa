@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from itertools import permutations
-from typing import List, Optional, NamedTuple, Dict
+from typing import List, Optional, NamedTuple, Dict, Callable, Iterable
+
+import networkx as nx
+
+from src.monomer_names_helper import NRP_Monomer
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from dataclasses import dataclass, asdict
 from src.general_type_aliases import SMILES
@@ -28,19 +32,32 @@ class NRP_Fragment:
                    monomers=[rBAN_Monomer.from_yaml_dict(mon_data)
                              for mon_data in data['monomers']])
 
-    def __eq__(self, other):
+    def is_isomorphic_to(self,
+                         other: NRP_Fragment,
+                         monomers_comparator: Callable[[NRP_Monomer, NRP_Monomer], bool] = None) -> bool:
         if not isinstance(other, NRP_Fragment):
             return NotImplemented
         if len(self.monomers) != len(other.monomers) or self.is_cyclic != other.is_cyclic:
             return False
+
+        if monomers_comparator is None:
+            monomers_comparator = lambda m1, m2: m1 == m2
+
         mons1 = [mon.to_base_mon() for mon in self.monomers]
         mons2 = [mon.to_base_mon() for mon in other.monomers]
+
+        def mon_lists_equal(list1: List[NRP_Monomer], list2: List[NRP_Monomer]) -> bool:
+            return all(monomers_comparator(mon1, mon2) for mon1, mon2 in zip(list1, list2))
+
         if self.is_cyclic:
             # Check all cyclic permutations
-            return any(mons1 == (mons2[i:] + mons2[:i])
+            return any(mon_lists_equal(mons1, mons2[i:] + mons2[:i])
                        for i in range(len(mons2)))
         else:
-            return mons1 == mons2
+            return mon_lists_equal(mons1, mons2)
+
+    def __eq__(self, other):
+        return self.is_isomorphic_to(other)
 
 
 @dataclass
@@ -76,14 +93,23 @@ class NRP_Variant:
                                               for mon_data in data.get('isolated_monomers', [])],
                    metadata=metadata)
 
-    def __eq__(self, other):
+    def is_isomorphic_to(self, other,
+                         monomers_comparator: Callable[[NRP_Monomer, NRP_Monomer], bool] = None) -> bool:
         if not isinstance(other, NRP_Variant):
             return NotImplemented
         if len(self.fragments) != len(other.fragments):
             return False
 
-        return any(self.fragments == list(permuted_other_frags)
+        def fragment_lists_equal(list1: Iterable[NRP_Fragment],
+                                 list2: Iterable[NRP_Fragment]) -> bool:
+            return all(frag1.is_isomorphic_to(frag2, monomers_comparator)
+                       for frag1, frag2 in zip(list1, list2))
+
+        return any(fragment_lists_equal(self.fragments, permuted_other_frags)
                    for permuted_other_frags in permutations(other.fragments))
+
+    def __eq__(self, other):
+        return self.is_isomorphic_to(other)
 
     def to_str_compact(self) -> str:
         frag_strs = []
@@ -93,6 +119,18 @@ class NRP_Variant:
                 mons_str = f'({mons_str})'
             frag_strs.append(mons_str)
         return '\n'.join([self.nrp_variant_id.nrp_id] + frag_strs)
+
+    def to_nx_digraph(self, node_label_key: str = 'monomer') -> nx.DiGraph:
+        G = nx.DiGraph()
+        for frag_idx, fragment in enumerate(self.fragments):
+            for mon_idx, monomer in enumerate(fragment.monomers):
+                node_id = (frag_idx, mon_idx)
+                G.add_node(node_id, **{node_label_key: monomer})
+                if mon_idx > 0:
+                    G.add_edge((frag_idx, mon_idx - 1), node_id)
+            if fragment.is_cyclic and len(fragment.monomers) > 1:
+                G.add_edge((frag_idx, len(fragment.monomers) - 1), (frag_idx, 0))
+        return G
 
 
 class NRP_Variants_Info(NamedTuple):

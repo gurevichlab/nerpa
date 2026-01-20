@@ -6,11 +6,13 @@ from typing import (
     Optional,
     TypeVar,
     Tuple,
-    Union
+    Union, Callable
 )
 import networkx as nx
 import copy
 from itertools import chain, permutations, pairwise
+
+from networkx.algorithms.isomorphism.isomorphvf2 import DiGraphMatcher
 
 
 def hamiltonian_path(G: nx.DiGraph,
@@ -140,3 +142,34 @@ def shortest_path_through(G: nx.DiGraph,
             return None
         path.extend(path_segment[1:])
     return path
+
+NodeLabel = TypeVar('NodeLabel')
+
+def graphs_one_substitution_away(G1: nx.DiGraph,
+                                 G2: nx.DiGraph,
+                                 nodes_comparator: Callable[[NodeLabel, NodeLabel], bool],
+                                 label_key: str = 'label') -> bool:
+    ''' checks if G1 can be transformed into G2 by substituting a single node '''
+    
+    # Quick structural filters
+    if G1.number_of_nodes() != G2.number_of_nodes():
+        return False
+    if G1.number_of_edges() != G2.number_of_edges():
+        return False
+
+    # Optional: cheap degree-sequence filter (often helps a lot)
+    if sorted(dict(G1.in_degree()).values()) != sorted(dict(G2.in_degree()).values()):
+        return False
+    if sorted(dict(G1.out_degree()).values()) != sorted(dict(G2.out_degree()).values()):
+        return False
+
+    # Enumerate all directed graph isomorphisms, ignoring labels
+    matcher = DiGraphMatcher(G1, G2)
+
+    # If there are no isomorphisms structurally, we're done
+    return any(
+        sum(not nodes_comparator(G1.nodes[u1].get(label_key),
+                                 G2.nodes[u2].get(label_key))
+            for u1, u2 in mapping.items()) == 1
+        for mapping in matcher.isomorphisms_iter()
+    )
