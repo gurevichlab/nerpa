@@ -51,7 +51,7 @@ def load_nrp_to_representative(nerpa_results: Path) -> Dict[str, str]:
 
 
 def main():
-    nerpa_dir = Path(__file__).resolve().parent
+    nerpa_dir = Path(__file__).resolve().parent.parent
     pnrpdb2_path = (nerpa_dir
                     / 'data'
                     / 'input'

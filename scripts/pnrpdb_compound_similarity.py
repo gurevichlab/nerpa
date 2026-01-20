@@ -27,7 +27,7 @@ def mon_cmp_unknown_chr_equal_known(mon1: NRP_Monomer, mon2: NRP_Monomer) -> boo
                 mon1.is_pks_hybrid == mon2.is_pks_hybrid])
 
 def main():
-    nerpa_dir = Path(__file__).resolve().parent
+    nerpa_dir = Path(__file__).resolve().parent.parent
     pnrpdb_preprocessed_path = (
             nerpa_dir
             / 'input'
