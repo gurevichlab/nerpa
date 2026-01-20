@@ -17,7 +17,7 @@ from src.monomer_names_helper import (
 from networkx import DiGraph, is_isomorphic
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 Raw_rBAN_Record = dict
 
@@ -146,6 +146,34 @@ class Parsed_rBAN_Record:
                           for mon_idx, mon_info in self.monomers.items()},
                 'edges': [(u, v, edge_info.bondType)
                           for (u, v), edge_info in self.monomer_bonds.items()]}
+
+    def to_dict(self) -> dict:
+        return {'compound_id': self.compound_id,
+                'monomers': {mon_idx: mon_info._asdict()
+                             for mon_idx, mon_info in self.monomers.items()},
+                'monomer_bonds': {(u, v): edge_info._asdict()
+                                  for (u, v), edge_info in self.monomer_bonds.items()},
+                'atoms': {atom_id: atom_info._asdict()
+                          for atom_id, atom_info in self.atoms.items()},
+                'atomic_bonds': {(u, v): edge_info._asdict()
+                                 for (u, v), edge_info in self.atomic_bonds.items()},
+                'metadata': asdict(self.metadata)}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Parsed_rBAN_Record:
+        metadata = NRP_metadata.from_dict(data['metadata'])
+        parsed_record = cls.__new__(cls)  # Create an uninitialized instance
+        parsed_record.compound_id = data['compound_id']
+        parsed_record.monomers = {int(mon_idx): MonomerInfo(**mon_info)
+                                  for mon_idx, mon_info in data['monomers'].items()}
+        parsed_record.monomer_bonds = {(int(u), int(v)): MonomerEdgeInfo(**edge_info)
+                                       for (u, v), edge_info in data['monomer_bonds'].items()}
+        parsed_record.atoms = {int(atom_id): AtomInfo(**atom_info)
+                               for atom_id, atom_info in data['atoms'].items()}
+        parsed_record.atomic_bonds = {(int(u), int(v)): AtomicEdgeInfo(**edge_info)
+                                      for (u, v), edge_info in data['atomic_bonds'].items()}
+        parsed_record.metadata = metadata
+        return parsed_record
 
     def to_nx_monomer_graph(self) -> DiGraph:
         G = DiGraph()

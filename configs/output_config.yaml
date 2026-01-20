@@ -7,6 +7,7 @@ nrp_variants: preprocessed_input/NRP_variants.yaml
 nrp_representatives: preprocessed_input/NRP_representatives.yaml
 nrp_images_dir: NRP_images
 rban_graphs: preprocessed_input/rban_graphs.yaml
+parsed_rban_records: preprocessed_input/parsed_rban_records.yaml
 matches_details: matches_details
 report: report.tsv
 html_report: report.html

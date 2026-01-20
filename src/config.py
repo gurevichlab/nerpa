@@ -251,6 +251,7 @@ class OutputConfig:
     nrp_representatives: Path
     nrp_images_dir: Path
     rban_graphs: Path
+    parsed_rban_records: Path
     draw_molecules: bool
     matches_details: Path
     report: Path

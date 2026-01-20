@@ -33,10 +33,13 @@ def main():
             / 'data'
             / 'input'
             / 'preprocessed'
-            / 'pnrpdb2_nrp_variants.yaml'
     )
 
-    nrp_variants = [
+    print(f'Loading NRP variants and rBAN graphs from {pnrpdb_preprocessed_path}...')
+    rban_records = yaml.safe_load(open(pnrpdb_preprocessed_path, 'r'))
+
+    print('Parsing rBAN records...')
+    rban_graphs = [
         NRP_Variant.from_yaml_dict(nrp_variant_dict)
         for nrp_variant_dict in yaml.safe_load(open(pnrpdb_preprocessed_path, 'r'))
     ]
@@ -49,7 +52,8 @@ def main():
     num_pairs = len(nrp_variants_by_id) * (len(nrp_variants_by_id) - 1) // 2
     rows = []
     for i, (nrp1_id, nrp2_id) in enumerate(combinations(nrp_variants_by_id.keys(), 2)):
-        print(f'{i}/{num_pairs}. Comparing {nrp1_id} vs {nrp2_id}')
+        if i % 1000 == 0:
+            print(f'{i}/{num_pairs}. Comparing {nrp1_id} vs {nrp2_id}')
         nrp1_variant, nrp1_graph = nrp_variants_by_id[nrp1_id], nrp_nx_graphs_by_id[nrp1_id]
         nrp2_variant, nrp2_graph = nrp_variants_by_id[nrp2_id], nrp_nx_graphs_by_id[nrp2_id]
 

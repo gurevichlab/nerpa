@@ -111,6 +111,10 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                     for rban_record in rban_records
                     if rban_record.compound_id in compound_ids_to_write],
                    output_cfg.rban_graphs)
+        write_yaml([rban_record.to_dict()
+                    for rban_record in rban_records
+                    if rban_record.compound_id in compound_ids_to_write],
+                   output_cfg.parsed_rban_records)
         if output_cfg.draw_molecules:
             for rban_record in filter(lambda r: r.compound_id in compound_ids_to_write,
                                       rban_records):
@@ -126,7 +130,6 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
     else:
         if log is not None:
             log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')
-
 
 
 def write_bgc_variants(bgc_variants_info: BGC_Variants_Info,
