@@ -30,9 +30,10 @@ def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
     pnrpdb_preprocessed_path = (
             nerpa_dir
+            / 'data'
             / 'input'
             / 'preprocessed'
-            / 'pnrpdb2_preprocessed_nrp_variants.yaml'
+            / 'pnrpdb2_nrp_variants.yaml'
     )
 
     nrp_variants = [
@@ -45,8 +46,10 @@ def main():
     nrp_nx_graphs_by_id = {nrp.nrp_variant_id.nrp_id: nrp.to_nx_digraph(node_label_key='monomer')
                            for nrp in nrp_variants}
 
+    num_pairs = len(nrp_variants_by_id) * (len(nrp_variants_by_id) - 1) // 2
     rows = []
-    for nrp1_id, nrp2_id in combinations(nrp_variants_by_id.keys(), 2):
+    for i, (nrp1_id, nrp2_id) in enumerate(combinations(nrp_variants_by_id.keys(), 2)):
+        print(f'{i}/{num_pairs}. Comparing {nrp1_id} vs {nrp2_id}')
         nrp1_variant, nrp1_graph = nrp_variants_by_id[nrp1_id], nrp_nx_graphs_by_id[nrp1_id]
         nrp2_variant, nrp2_graph = nrp_variants_by_id[nrp2_id], nrp_nx_graphs_by_id[nrp2_id]
 
