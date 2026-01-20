@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 import json
 import subprocess
@@ -42,7 +44,9 @@ def run_nerpa_results_on_pnrpdb2(nerpa_dir: Path,
 
 def load_nrp_to_representative(nerpa_results: Path) -> Dict[str, str]:
     import yaml
-    nrp_representatives_path = nerpa_results / 'NRP_representatives.yaml'
+    nrp_representatives_path = (nerpa_results
+                                / 'preprocessed_input'
+                                / 'NRP_representatives.yaml')
     with nrp_representatives_path.open() as f:
         nrp_representatives = yaml.safe_load(f)
     nrp_id_to_repr_id = {entry['nrp_id'][0]: entry['represetative_id'][0]
@@ -62,9 +66,11 @@ def main():
                      / 'nerpa_results'
                      / 'preprocess_pnrpdb2')
 
-    run_nerpa_results_on_pnrpdb2(nerpa_dir=nerpa_dir,
-                                 pnrpdb2_path=pnrpdb2_path,
-                                 output_dir=nerpa_results)
+    if '--use-existing-results' not in sys.argv:  # for debugging purposes
+        run_nerpa_results_on_pnrpdb2(nerpa_dir=nerpa_dir,
+                                     pnrpdb2_path=pnrpdb2_path,
+                                     output_dir=nerpa_results)
+
     nrp_id_to_repr_id = load_nrp_to_representative(nerpa_results)
     nrp_variants = yaml.safe_load(nerpa_results / 'preprocessed_input' / 'NRP_variants.yaml')
     rban_records = json.loads((nerpa_dir / 'intermediate_files' / 'rban.output.json').read_text())
