@@ -36,9 +36,6 @@ class PipelineHelper_rBAN:
     def __post_init__(self):
         self.set_rban_helper()
 
-    def preprocessed_nrp_variants(self) -> bool:
-        return self.args.nrp_variants is not None
-
     def load_nrp_variants(self) -> List[NRP_Variant]:
         self.log.info('Loading preprocessed NRP variants')
 
@@ -85,11 +82,6 @@ class PipelineHelper_rBAN:
         return rows, metadata
 
     def get_raw_rban_results(self) -> Tuple[List[Raw_rBAN_Record], Dict[str, NRP_metadata]]:
-        if self.args.rban_output:
-            metadata = defaultdict(lambda : NRP_metadata(None, None, None, None, None))
-            rban_records = json.load(self.args.rban_output.open('r'))
-            return (rban_records, metadata) if isinstance(rban_records, list) else ([rban_records], metadata)
-
         smiles_with_ids, metadata = self.get_input_for_rban_with_metadata()
 
         self.log.info('\n======= Structures preprocessing with rBAN')

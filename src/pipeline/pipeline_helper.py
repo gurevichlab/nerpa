@@ -1,6 +1,9 @@
+from pathlib import Path
 from typing import (
     List
 )
+
+import yaml
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
 from src.generic.functional import timing_decorator
@@ -37,7 +40,13 @@ from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.pipeline.paras_parsing import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 
+
+def load_parsed_rban_records(parsed_rban_records_path: Path) -> List[Parsed_rBAN_Record]:
+    with parsed_rban_records_path.open('r') as f:
+        return [Parsed_rBAN_Record.from_dict(record)
+                for record in yaml.safe_load(f)]
 
 class PipelineHelper:
     config: Config
@@ -113,12 +122,13 @@ class PipelineHelper:
 
     @timing_decorator('Getting NRP variants')
     def get_nrp_variants_and_rban_records(self) -> NRP_Variants_Info:
-        if self.pipeline_helper_rban.preprocessed_nrp_variants():
-            rban_records = []
-            nrp_variants = self.pipeline_helper_rban.load_nrp_variants()
+        self.log.info("\n======= Getting rBAN output")
+        if self.args.parsed_rban_records is not None:
+            self.log.info(f"Loading preprocessed rBAN records from {self.args.parsed_rban_records}...")
+            rban_records = load_parsed_rban_records(self.args.parsed_rban_records)
         else:
             rban_records = self.pipeline_helper_rban.get_rban_results()
-            nrp_variants = self.pipeline_helper_rban.get_nrp_variants_info(rban_records)
+        nrp_variants = self.pipeline_helper_rban.get_nrp_variants_info(rban_records)
 
         if not nrp_variants:
             self.log.info("No NRP variants found. Exiting.")

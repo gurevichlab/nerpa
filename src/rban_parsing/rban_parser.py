@@ -45,6 +45,13 @@ class MonomerInfo(NamedTuple):
     chirality: Chirality
     is_pks_hybrid: bool = False
 
+    @classmethod
+    def from_dict(cls, data: dict) -> MonomerInfo:
+        return cls(name=NorineMonomerName(data['name']),
+                   atoms=[AtomId(atom_id) for atom_id in data['atoms']],
+                   chirality=Chirality[data['chirality']],
+                   is_pks_hybrid=data.get('is_pks_hybrid', False))
+
 
 class MonomerEdgeInfo(NamedTuple):
     monomer_to_atom: Dict[MonomerIdx, AtomId]
@@ -151,12 +158,12 @@ class Parsed_rBAN_Record:
         return {'compound_id': self.compound_id,
                 'monomers': {mon_idx: mon_info._asdict()
                              for mon_idx, mon_info in self.monomers.items()},
-                'monomer_bonds': {(u, v): edge_info._asdict()
-                                  for (u, v), edge_info in self.monomer_bonds.items()},
+                'monomer_bonds': [[(u, v), edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
+                                  for (u, v), edge_info in self.monomer_bonds.items()],
                 'atoms': {atom_id: atom_info._asdict()
                           for atom_id, atom_info in self.atoms.items()},
-                'atomic_bonds': {(u, v): edge_info._asdict()
-                                 for (u, v), edge_info in self.atomic_bonds.items()},
+                'atomic_bonds': [[(u, v), edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
+                                 for (u, v), edge_info in self.atomic_bonds.items()],
                 'metadata': asdict(self.metadata)}
 
     @classmethod
@@ -164,14 +171,14 @@ class Parsed_rBAN_Record:
         metadata = NRP_metadata.from_dict(data['metadata'])
         parsed_record = cls.__new__(cls)  # Create an uninitialized instance
         parsed_record.compound_id = data['compound_id']
-        parsed_record.monomers = {int(mon_idx): MonomerInfo(**mon_info)
+        parsed_record.monomers = {int(mon_idx): MonomerInfo.from_dict(mon_info)
                                   for mon_idx, mon_info in data['monomers'].items()}
-        parsed_record.monomer_bonds = {(int(u), int(v)): MonomerEdgeInfo(**edge_info)
-                                       for (u, v), edge_info in data['monomer_bonds'].items()}
+        parsed_record.monomer_bonds = {(int(u), int(v)): MonomerEdgeInfo(**edge_info)  # expecting dict as list of pairs because YAML can't have tuple keys
+                                       for (u, v), edge_info in data['monomer_bonds']}
         parsed_record.atoms = {int(atom_id): AtomInfo(**atom_info)
                                for atom_id, atom_info in data['atoms'].items()}
         parsed_record.atomic_bonds = {(int(u), int(v)): AtomicEdgeInfo(**edge_info)
-                                      for (u, v), edge_info in data['atomic_bonds'].items()}
+                                      for (u, v), edge_info in data['atomic_bonds']}  # expecting dict as list of pairs because YAML can't have tuple keys
         parsed_record.metadata = metadata
         return parsed_record
 

@@ -35,19 +35,15 @@ def add_struct_arguments(parser: argparse.ArgumentParser):
                               type=str)
     struct_group.add_argument("--sep", dest="sep", metavar='CHAR',
                               help="column separator in smiles-tsv [default: '\\t']", type=str, default='\t')
-    struct_input_group.add_argument("--rban-json", dest="rban_output", metavar='FILE',
-                                    help="rBAN-preprocessed NRP structures in the JSON file", type=Path)
 
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
                                                      'Preprocessed data '
                                                      'in custom Nerpa-compliant formats')
-    advanced_input_group.add_argument("--bgc-variants", dest="bgc_variants", metavar='DIR',
-                                      help="directory with predicted BGC variants (YAML files)"
-                                           "or a single YAML file", type=Path)
-    advanced_input_group.add_argument("--nrp-variants", dest="nrp_variants", metavar='DIR',
-                                      help="directory with predicted NRP variants (YAML files) "
-                                           "or a single YAML file", type=Path)
+    advanced_input_group.add_argument("--bgc-variants", dest="bgc_variants", metavar='FILE',
+                                      help="YAML file with predicted BGC variants)", type=Path)
+    advanced_input_group.add_argument("--parsed-rban-records", dest="parsed_rban_records", metavar='FILE',
+                                      help="YAML file with parsed rBAN records (generated in [nerpa_output]/preprocessed_input/rban_records.yaml)", type=Path)
     advanced_input_group.add_argument("--configs-dir", help="custom directory with Nerpa configs",
                                       metavar='DIR', action="store", type=Path)
     advanced_input_group.add_argument('--rban-monomers-db', dest='rban_monomers', type=Path, default=None,
@@ -200,14 +196,12 @@ def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I t
     if args.bgc_variants and (args.antismash or args.antismash_outpaths_file or args.antismash_job_ids or args.seqs):
         # TODO: what's wrong with having both?
         raise ValidationError(f'argument --bgc-variants is not compatible with other genome/BGC input options')
-    if not any([args.nrp_variants,
-                args.smiles,
-                args.smiles_tsv,
-                args.rban_output]):
-        raise ValidationError(f'at least one NRP structure input is required')
-    if args.nrp_variants and (args.smiles or args.smiles_tsv or args.rban_output):
+    if (s := sum(map(bool, [args.parsed_rban_records,
+                            args.smiles,
+                            args.smiles_tsv]))) != 1:
         # TODO: what's wrong with having both?
-        raise ValidationError('argument --nrp-variants is not compatible with other NRP input options')
+        raise ValidationError('Exactly one argument from '
+                              '--parsed-rban-records, --smiles, --smiles-tsv must be provided ')
     if args.smiles_tsv:
         try:
             with open(args.smiles_tsv, newline='') as f_in:
