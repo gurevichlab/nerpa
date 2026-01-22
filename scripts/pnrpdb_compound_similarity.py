@@ -55,7 +55,7 @@ def main():
     nerpa_cfg = load_config()
     monomer_names_helper = load_monomer_names_helper(nerpa_cfg.monomers_config,
                                                      nerpa_dir)
-    preprocessed_dir = nerpa_dir / 'data' / 'input' / 'preprocessed'
+    preprocessed_dir = nerpa_dir / 'data' / 'input' / 'preprocessed' / 'test'
     pnrpdb_parsed_rban_records = preprocessed_dir / 'pnrpdb2_parsed_rban_records.yaml'
     pnrpdb_nrp_variants = preprocessed_dir / 'pnrpdb2_nrp_variants.yaml'
 
