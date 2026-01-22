@@ -127,7 +127,8 @@ def main():
         rban_records_out_path = preprocessed_dir / f'{table_name}_parsed_rban_records.yaml'
 
         rban_records_subset = [
-            rban_record for rban_record in rban_records
+            rban_record.to_dict()
+            for rban_record in rban_records
             if rban_record.compound_id in nrp_ids_in_table
         ]
 
