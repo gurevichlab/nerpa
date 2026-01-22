@@ -56,8 +56,8 @@ def main():
     monomer_names_helper = load_monomer_names_helper(nerpa_cfg.monomers_config,
                                                      nerpa_dir)
     preprocessed_dir = nerpa_dir / 'data' / 'input' / 'preprocessed'
-    pnrpdb_parsed_rban_records = preprocessed_dir / 'parsed_rban_records.yaml'
-    pnrpdb_nrp_variants = preprocessed_dir / 'NRP_variants.yaml'
+    pnrpdb_parsed_rban_records = preprocessed_dir / 'pnrpdb2_parsed_rban_records.yaml'
+    pnrpdb_nrp_variants = preprocessed_dir / 'pnrpdb2_nrp_variants.yaml'
 
     print(f'Loading rBAN records and NRP variants from {preprocessed_dir}...')
     rban_records = [

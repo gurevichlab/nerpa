@@ -1,4 +1,4 @@
-# Nerpa 2.0 Manual
+# Nerpa 2.1 Manual
 
 1. [About Nerpa](#sec_about) </br>
    1.1 [Nerpa pipeline](#sec_about_pipeline)</br>
@@ -194,14 +194,14 @@ The Nerpa release package comes with a set of NRP databases in the SMILES format
 ### Advanced Input
 
 You can reuse preprocessed BGCs and/or chemical structures from a previous Nerpa run.  
-This is useful, for example, if you want to screen the same BGCs against different NRPs, or vice versa.
+This can save much time if, for example, you want to make several Nerpa runs with the same NRP database.
 
 The preprocessed files are stored in the Nerpa output directory in:  
 
-- `BGC_variants/` (for BGCs).  
-- `NRP_variants/` (for NRPs).  
+- `preprocessed_input/BGC_variants.yaml` (for BGCs).  
+- `preprocessed_input/parsed_rban_records.yaml` (for NRPs).  
 
-To reuse them, provide the corresponding paths via the `--bgc-variants` and `--nrp-variants` options.
+To reuse them, provide the corresponding paths via the `--bgc-variants` and `--parsed-rban-records` options.
 
 ### Pipeline Options
 
@@ -234,11 +234,9 @@ The key files and directories inside the Nerpa output directory (`--output-dir`)
 - `report.tsv`  
   A tab-separated file containing matched NRP-BGC pairs with their corresponding scores.
 
-- `BGC_variants/`  
-  Directory containing preprocessed antiSMASH outputs. These can be reused for another run via the `--bgc-variants` option.
-
-- `NRP_variants/`  
-  Directory containing preprocessed compounds.  These can be reused for another run via the `--nrp-variants` option.
+- `preprocessed_input/`  
+  Directory containing preprocessed data. `BGC_variants.yaml` and `parsed_rban_records.yaml` 
+- can be reused for another run via the `--bgc-variants` and `--parsed-rban-records` options.
 
 <a name="sec_cite"></a>
 ## Citation
