@@ -95,6 +95,8 @@ def main():
         for variant in nrp_variants
     }
 
+    print(f'Comparing {len(rban_graphs_by_id)} compounds...')
+
 
     num_pairs = len(rban_graphs_by_id) * (len(rban_graphs_by_id) - 1) // 2
     rows = []
