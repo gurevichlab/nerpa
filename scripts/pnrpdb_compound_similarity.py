@@ -62,7 +62,8 @@ def main():
     print(f'Loading rBAN records and NRP variants from {preprocessed_dir}...')
     rban_records = [
         Parsed_rBAN_Record.from_dict(record)
-        for record in yaml.safe_load(open(pnrpdb_parsed_rban_records, 'r'))
+        for record in yaml.load(open(pnrpdb_parsed_rban_records, 'r'),
+                                Loader=yaml.FullLoader)
     ]
     nrp_variants = [
         NRP_Variant.from_yaml_dict(nrp_dict)

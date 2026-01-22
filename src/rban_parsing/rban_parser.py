@@ -158,11 +158,11 @@ class Parsed_rBAN_Record:
         return {'compound_id': self.compound_id,
                 'monomers': {mon_idx: mon_info._asdict()
                              for mon_idx, mon_info in self.monomers.items()},
-                'monomer_bonds': [[(u, v), edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
+                'monomer_bonds': [[[u, v], edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
                                   for (u, v), edge_info in self.monomer_bonds.items()],
                 'atoms': {atom_id: atom_info._asdict()
                           for atom_id, atom_info in self.atoms.items()},
-                'atomic_bonds': [[(u, v), edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
+                'atomic_bonds': [[[u, v], edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
                                  for (u, v), edge_info in self.atomic_bonds.items()],
                 'metadata': asdict(self.metadata)}
 
