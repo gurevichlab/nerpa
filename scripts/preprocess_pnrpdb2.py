@@ -72,8 +72,7 @@ def main():
                                      output_dir=nerpa_results)
 
     nrp_id_to_repr_id = load_nrp_to_representative(nerpa_results)
-    nrp_variants = yaml.safe_load((nerpa_results / 'preprocessed_input' / 'NRP_variants.yaml').open('r'))
-    rban_records = json.loads((nerpa_results / 'intermediate_files' / 'rBAN' / 'rban.output.json').read_text())
+    rban_records = yaml.safe_load((nerpa_results / 'preprocessed_input' / 'parsed_rban_records.yaml').open())
 
     def is_mibig_norine(nrp_id: str) -> bool:
         return nrp_id.startswith('BGC') or nrp_id.startswith('NOR')
@@ -120,20 +119,12 @@ def main():
         table_df = pd.read_csv(table, sep='\t')
         nrp_ids_in_table = set(table_df['ID'])
 
-        nrp_variants_out_path = preprocessed_dir / f'{table_name}_nrp_variants.yaml'
-        rban_records_out_path = preprocessed_dir / f'{table_name}_rban_records.json'
+        rban_records_out_path = preprocessed_dir / f'{table_name}_parsed_rban_records.yaml'
 
-        nrp_variants_subset = [
-            nrp_variant for nrp_variant in nrp_variants
-            if nrp_variant['nrp_variant_id']['nrp_id'] in nrp_ids_in_table
-        ]
         rban_records_subset = [
             rban_record for rban_record in rban_records
             if rban_record['id'] in nrp_ids_in_table
         ]
-
-        with open(nrp_variants_out_path, 'w') as f:
-            yaml.safe_dump(nrp_variants_subset, f)
 
         with open(rban_records_out_path, 'w') as f:
             json.dump(rban_records_subset, f, indent=2)
