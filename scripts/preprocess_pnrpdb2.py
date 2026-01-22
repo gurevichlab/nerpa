@@ -8,6 +8,8 @@ from typing import Dict
 
 import yaml
 
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+
 
 def run_nerpa_results_on_pnrpdb2(nerpa_dir: Path,
                                  pnrpdb2_path: Path,
@@ -72,7 +74,10 @@ def main():
                                      output_dir=nerpa_results)
 
     nrp_id_to_repr_id = load_nrp_to_representative(nerpa_results)
-    rban_records = yaml.safe_load((nerpa_results / 'preprocessed_input' / 'parsed_rban_records.yaml').open())
+    rban_records = [
+        Parsed_rBAN_Record.from_dict(record)
+        for record in yaml.safe_load((nerpa_results / 'preprocessed_input' / 'parsed_rban_records.yaml').open())
+    ]
 
     def is_mibig_norine(nrp_id: str) -> bool:
         return nrp_id.startswith('BGC') or nrp_id.startswith('NOR')
@@ -123,7 +128,7 @@ def main():
 
         rban_records_subset = [
             rban_record for rban_record in rban_records
-            if rban_record['id'] in nrp_ids_in_table
+            if rban_record.compound_id in nrp_ids_in_table
         ]
 
         with open(rban_records_out_path, 'w') as f:
