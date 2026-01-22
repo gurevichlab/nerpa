@@ -133,7 +133,7 @@ def main():
         ]
 
         with open(rban_records_out_path, 'w') as f:
-            json.dump(rban_records_subset, f, indent=2)
+            yaml.dump(rban_records_subset, f)
 
 
 if __name__ == '__main__':
