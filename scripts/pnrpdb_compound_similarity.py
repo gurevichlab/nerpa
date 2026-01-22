@@ -38,11 +38,11 @@ def parsed_record_to_graph(record: Parsed_rBAN_Record,
         mon = monomer_names_helper.parsed_name(name=mon_info.name,
                                                name_format='rBAN/Norine')
         if mon_info.chirality != Chirality.UNKNOWN:
-            mon = mon._replace(chirality=mon_info.chirality)
+            mon.chirality = mon_info.chirality
         if mon_info.is_pks_hybrid:
-            mon = mon._replace(is_pks_hybrid=mon_info.is_pks_hybrid)
+            mon.is_pks_hybrid = mon_info.is_pks_hybrid
 
-        G.add_node(mon.index, monomer=mon)
+        G.add_node(mon_idx, monomer=mon)
 
     for (u, v), edge_info in record.monomer_bonds.items():
         G.add_edge(u, v, bond_type=edge_info.bondType)
