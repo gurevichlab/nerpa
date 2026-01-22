@@ -61,6 +61,10 @@ def unknown_tag(loader, tag_suffix, node):
         return loader.construct_mapping(node)
 
 IgnoreTagsLoader.add_multi_constructor("!", unknown_tag)
+IgnoreTagsLoader.add_constructor(
+    "tag:yaml.org,2002:python/tuple",
+    lambda loader, node: loader.construct_sequence(node),
+)
 
 def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
