@@ -131,9 +131,12 @@ def main():
 
     with open(output_path, 'w') as f:
         csv_writer = csv.DictWriter(f, fieldnames=['nrp1_id', 'nrp2_id']
-                                                  + [k for k in rows[0] if k not in ('nrp1_id', 'nrp2_id')])
+                                                  + [k for k in rows[0] if k not in ('nrp1_id', 'nrp2_id')],
+                                    delimiter='\t')
         csv_writer.writeheader()
         csv_writer.writerows(rows)
+
+    print(f'Wrote comparison results to {output_path}')
 
 
 if __name__ == '__main__':
