@@ -52,6 +52,11 @@ class MonomerInfo(NamedTuple):
                    chirality=Chirality[data['chirality']],
                    is_pks_hybrid=data.get('is_pks_hybrid', False))
 
+    def to_dict(self) -> dict:
+        d = self._asdict()
+        d['chirality'] = self.chirality.name
+        return d
+
 
 class MonomerEdgeInfo(NamedTuple):
     monomer_to_atom: Dict[MonomerIdx, AtomId]
@@ -156,7 +161,7 @@ class Parsed_rBAN_Record:
 
     def to_dict(self) -> dict:
         return {'compound_id': self.compound_id,
-                'monomers': {mon_idx: mon_info._asdict()
+                'monomers': {mon_idx: mon_info.to_dict()
                              for mon_idx, mon_info in self.monomers.items()},
                 'monomer_bonds': [[[u, v], edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
                                   for (u, v), edge_info in self.monomer_bonds.items()],

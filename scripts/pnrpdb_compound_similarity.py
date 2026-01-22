@@ -49,6 +49,18 @@ def parsed_record_to_graph(record: Parsed_rBAN_Record,
 
     return G
 
+class IgnoreTagsLoader(yaml.SafeLoader):
+    pass
+
+def unknown_tag(loader, tag_suffix, node):
+    if isinstance(node, yaml.ScalarNode):
+        return loader.construct_scalar(node)
+    elif isinstance(node, yaml.SequenceNode):
+        return loader.construct_sequence(node)
+    elif isinstance(node, yaml.MappingNode):
+        return loader.construct_mapping(node)
+
+IgnoreTagsLoader.add_multi_constructor("!", unknown_tag)
 
 def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
@@ -63,7 +75,7 @@ def main():
     rban_records = [
         Parsed_rBAN_Record.from_dict(record)
         for record in yaml.load(open(pnrpdb_parsed_rban_records, 'r'),
-                                Loader=yaml.FullLoader)
+                                Loader=IgnoreTagsLoader)
     ]
     nrp_variants = [
         NRP_Variant.from_yaml_dict(nrp_dict)
