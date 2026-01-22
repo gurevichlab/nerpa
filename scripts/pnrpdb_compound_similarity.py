@@ -117,7 +117,7 @@ def main():
                 row[f'{graph_type}_one_sub_away_{mon_cmp_name}'] = graphs_one_substitution_away(g1, g2,
                                                                                                 nodes_comparator=_mon_cmp,
                                                                                                 label_key='monomer')
-        if any(row.values()):
+        if any(row.values()) or True:
             row['nrp1_id'] = nrp1_id
             row['nrp2_id'] = nrp2_id
             rows.append(row)
