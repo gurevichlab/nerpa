@@ -9,6 +9,7 @@ import polars as pl
 
 from matplotlib import pyplot as plt
 
+from src.benchmarking.data_frames import PNRPDB_Compound_Similarity
 from src.benchmarking.data_helper_external_methods import interval_str_to_tuple
 from src.benchmarking.plot_num_correct import _plot_num_correct_matches
 from src.benchmarking.plot_precision_recall import plot_precision_recall_curve
@@ -246,9 +247,6 @@ class PlotsHelper:
         return out_file
 
 
-
-
-
     def plot_num_identified(self,
                             nerpa_reports: List[NerpaReport],
                             id_column: str,
@@ -269,6 +267,7 @@ class PlotsHelper:
                 top_k: self.data_helper.compute_num_identified(
                     report,
                     id_column,
+                    PNRPDB_Compound_Similarity.rBAN_ISO_ALLOW_UNK_CHR,
                     top_k
                 )
                 for top_k in top_ks

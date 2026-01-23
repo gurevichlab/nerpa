@@ -5,7 +5,7 @@ from typing import Literal, Sequence, TYPE_CHECKING, NamedTuple, List, Optional
 
 import polars as pl
 
-from src.benchmarking.data_frames import MIBiG_BGCs_Info
+from src.benchmarking.data_frames import MIBiG_BGCs_Info, PNRPDB_Compound_Similarity
 from src.benchmarking.nerpa_report import NerpaReport
 
 if TYPE_CHECKING:
@@ -71,14 +71,27 @@ def compute_score_correctness(data_helper: 'PlotsDataHelper',
 
     return result
 
+PCS = PNRPDB_Compound_Similarity
 
 def compute_num_identified(data_helper: 'PlotsDataHelper',
                            nerpa_report: NerpaReport,
                            id_column: str,
+                           cmp_mode: str = PCS.rBAN_ISO_ALLOW_UNK_CHR,
                            top_k: int = 1) -> pl.Series:
     """Count cumulative identified BGCs/NRPs."""
     assert id_column in (NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS), \
         f"Wrong id_column: {id_column}. Must be either BGC_ID or NRP_ID"
+
+    nerpa_report = nerpa_report.with_columns(
+        pl.struct([
+            pl.col(NerpaReport.NRP_ISO_CLASS),
+            pl.col(NerpaReport.BGC_ID)])
+        .map_elements(lambda row: data_helper.match_is_correct(bgc_id=row[NerpaReport.BGC_ID],
+                                                               nrp_iso_class=row[NerpaReport.NRP_ISO_CLASS],
+                                                               cmp_mode=cmp_mode))
+        .alias(cmp_mode)
+    )
+    IS_CORRECT_COL = cmp_mode
 
     # Compute table (ID -> best score)
     best_scores = (
@@ -98,7 +111,7 @@ def compute_num_identified(data_helper: 'PlotsDataHelper',
         .sort(NerpaReport.SCORE, descending=True)
         .group_by(id_column)
         .agg(
-            pl.col(NerpaReport.IS_CORRECT)
+            pl.col(IS_CORRECT_COL)
             .head(top_k)
             .any()
             .alias('identified')

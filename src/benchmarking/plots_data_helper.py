@@ -6,7 +6,7 @@ from typing import Literal, Dict, Sequence, List, Optional
 import polars as pl
 from collections import defaultdict
 
-from src.benchmarking.data_frames import MIBiG_BGCs_Info, PNRPDB_Info
+from src.benchmarking.data_frames import MIBiG_BGCs_Info, PNRPDB_Info, PNRPDB_Compound_Similarity
 from src.benchmarking.data_helper_external_methods import (
     compute_num_correct_matches, compute_score_correctness,
     compute_num_identified, compute_total_identified, get_identified_ids,
@@ -18,10 +18,27 @@ from src.benchmarking.nerpa_report import (
     OutputSizeConfig, check_reports_discrepancy
 )
 
+PCS = PNRPDB_Compound_Similarity
+
+def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity,
+                                  nrp_id_to_iso_class: Dict[str, str]) -> None:
+    for nrp_id, repr_id in nrp_id_to_iso_class.items():
+        similarity_info = (
+            pnrpdb_compound_similarity
+            .filter(
+                ((pl.col(PCS.FST_COMPOUND_ID) == nrp_id) & (pl.col(PCS.SND_COMPOUND_ID) == repr_id)) |
+                ((pl.col(PCS.FST_COMPOUND_ID) == repr_id) & (pl.col(PCS.SND_COMPOUND_ID) == nrp_id))
+            )
+            .select(pl.col(PCS.rBAN_ISO_ALLOW_UNK_CHR))
+        )
+        assert not similarity_info.is_empty() and similarity_info[PCS.rBAN_ISO_ALLOW_UNK_CHR][0], \
+            f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.'
+
 
 class PlotsDataHelper:
     mibig_bgcs_info: MIBiG_BGCs_Info
     pnrpdb_info: PNRPDB_Info
+    pnrpdb_compound_similarity: PNRPDB_Compound_Similarity
 
     test_nrp_classes: set[str]
     bgc_to_nrp_iso_classes: defaultdict[str, set[str]]
@@ -39,6 +56,9 @@ class PlotsDataHelper:
         self.pnrpdb_info = PNRPDB_Info.from_csv(
             nerpa_dir / 'data/for_training_and_testing/pnrpdb2_info.tsv'
         )
+        self.pnrpdb_compound_similarity = PNRPDB_Compound_Similarity.from_csv(
+            nerpa_dir / 'data/for_training_and_testing/pnrpdb2_compound_similarity.tsv'
+        )
 
         bgc_to_nrps = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
@@ -48,6 +68,8 @@ class PlotsDataHelper:
             row[PNRPDB_Info.COMPOUND_ID]: row[PNRPDB_Info.ISO_CLASS_ID]
             for row in self.pnrpdb_info.iter_rows(named=True)
         }
+        sanity_check_similarity_table(self.pnrpdb_compound_similarity,
+                                      self.nrp_id_to_iso_class)
 
         self.bgc_to_nrp_iso_classes = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
@@ -104,9 +126,21 @@ class PlotsDataHelper:
             )
         )
 
-    def match_is_correct(self, nrp_iso_class: str, bgc_id: str) -> bool:
+    def match_is_correct(self, nrp_iso_class: str, bgc_id: str,
+                         cmp_mode: str = PCS.rBAN_ISO_ALLOW_UNK_CHR) -> bool:
         """Check if a match between NRP iso-class and BGC is correct."""
-        return nrp_iso_class in self.bgc_to_nrp_iso_classes[bgc_id]
+        for bgc_iso_class in self.bgc_to_nrp_iso_classes[bgc_id]:
+            similarity_info = (
+                self.pnrpdb_compound_similarity
+                .filter(
+                    ((pl.col(PCS.FST_COMPOUND_ID) == nrp_iso_class) & (pl.col(PCS.SND_COMPOUND_ID) == bgc_iso_class)) |
+                    ((pl.col(PCS.FST_COMPOUND_ID) == bgc_iso_class) & (pl.col(PCS.SND_COMPOUND_ID) == nrp_iso_class))
+                )
+                .select(pl.col(cmp_mode))
+            )
+            if not similarity_info.is_empty() and similarity_info[cmp_mode][0]:
+                return True
+        return False
 
     def compute_num_correct_matches(self, nerpa_report: NerpaReport) -> pl.Series:
         return compute_num_correct_matches(self, nerpa_report)
@@ -118,8 +152,9 @@ class PlotsDataHelper:
 
     def compute_num_identified(self, nerpa_report: NerpaReport,
                                id_column: str,
+                               cmp_mode: str,
                                top_k: int = 1) -> pl.Series:
-        return compute_num_identified(self, nerpa_report, id_column, top_k)
+        return compute_num_identified(self, nerpa_report, id_column, cmp_mode, top_k)
 
     def compute_total_identified(self, nerpa_report: NerpaReport,
                                  id_column: str,
