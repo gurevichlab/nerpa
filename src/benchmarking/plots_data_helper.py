@@ -23,6 +23,8 @@ PCS = PNRPDB_Compound_Similarity
 def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity,
                                   nrp_id_to_iso_class: Dict[str, str]) -> None:
     for nrp_id, repr_id in nrp_id_to_iso_class.items():
+        if nrp_id == repr_id:
+            continue
         similarity_info = (
             pnrpdb_compound_similarity
             .filter(
