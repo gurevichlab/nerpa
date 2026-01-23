@@ -31,9 +31,9 @@ def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Si
                 ((pl.col(PCS.FST_COMPOUND_ID) == nrp_id) & (pl.col(PCS.SND_COMPOUND_ID) == repr_id)) |
                 ((pl.col(PCS.FST_COMPOUND_ID) == repr_id) & (pl.col(PCS.SND_COMPOUND_ID) == nrp_id))
             )
-            .select(pl.col(PCS.rBAN_ISO_ALLOW_UNK_CHR))
+            .select(pl.col(PCS.NERPA_ISO_ALLOW_UNK_CHR))
         )
-        assert not similarity_info.is_empty() and similarity_info[PCS.rBAN_ISO_ALLOW_UNK_CHR][0], \
+        assert not similarity_info.is_empty() and similarity_info[PCS.NERPA_ISO_ALLOW_UNK_CHR][0], \
             f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.'
 
 
@@ -129,7 +129,7 @@ class PlotsDataHelper:
         )
 
     def match_is_correct(self, nrp_iso_class: str, bgc_id: str,
-                         cmp_mode: str = PCS.rBAN_ISO_ALLOW_UNK_CHR) -> bool:
+                         cmp_mode: str = PCS.NERPA_ISO_ALLOW_UNK_CHR) -> bool:
         """Check if a match between NRP iso-class and BGC is correct."""
         for bgc_iso_class in self.bgc_to_nrp_iso_classes[bgc_id]:
             if bgc_iso_class == nrp_iso_class:

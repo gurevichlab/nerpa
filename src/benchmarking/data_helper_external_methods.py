@@ -76,7 +76,7 @@ PCS = PNRPDB_Compound_Similarity
 def compute_num_identified(data_helper: 'PlotsDataHelper',
                            nerpa_report: NerpaReport,
                            id_column: str,
-                           cmp_mode: str = PCS.rBAN_ISO_ALLOW_UNK_CHR,
+                           cmp_mode: str = PCS.NERPA_ISO_ALLOW_UNK_CHR,
                            top_k: int = 1) -> pl.Series:
     """Count cumulative identified BGCs/NRPs."""
     assert id_column in (NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS), \
