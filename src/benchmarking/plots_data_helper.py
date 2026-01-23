@@ -130,6 +130,8 @@ class PlotsDataHelper:
                          cmp_mode: str = PCS.rBAN_ISO_ALLOW_UNK_CHR) -> bool:
         """Check if a match between NRP iso-class and BGC is correct."""
         for bgc_iso_class in self.bgc_to_nrp_iso_classes[bgc_id]:
+            if bgc_iso_class == nrp_iso_class:
+                return True
             similarity_info = (
                 self.pnrpdb_compound_similarity
                 .filter(
