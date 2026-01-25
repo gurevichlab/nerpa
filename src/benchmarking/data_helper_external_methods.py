@@ -148,7 +148,7 @@ def compute_total_identified(data_helper: 'PlotsDataHelper',
 
     results = []
     for top_k in range(1, max_top_k + 1):
-        num_identified = compute_num_identified(data_helper, nerpa_report, id_column, top_k)
+        num_identified = compute_num_identified(data_helper, nerpa_report, id_column, top_k=top_k)
         value = num_identified[-1]
         if y_axis == 'Percentage':
             value = 100 * value / total_ids
