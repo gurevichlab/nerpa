@@ -6,7 +6,7 @@ from typing import (
     Optional,
     TypeVar,
     Tuple,
-    Union, Callable
+    Union, Callable, Hashable, Generic
 )
 import networkx as nx
 import copy
@@ -173,3 +173,37 @@ def graphs_one_substitution_away(G1: nx.DiGraph,
             for u1, u2 in mapping.items()) == 1
         for mapping in matcher.isomorphisms_iter()
     )
+
+T = TypeVar("T", bound=Hashable)
+
+class DSU(Generic[T]):
+    def __init__(self) -> None:
+        self.parent: Dict[T, T] = {}
+
+    def find(self, x: T) -> T:
+        if x not in self.parent:
+            self.parent[x] = x
+            return x
+
+        p = self.parent[x]
+        if p != x:
+            self.parent[x] = self.find(p)
+        return self.parent[x]
+
+    def union(self, a: T, b: T) -> T:
+        ra, rb = self.find(a), self.find(b)
+        if ra == rb:
+            return ra
+
+        root = min(ra, rb)   # requires orderable T
+        self.parent[ra] = root
+        self.parent[rb] = root
+        return root
+
+    # Iterate over all elements ever seen
+    def __iter__(self) -> Iterable[T]:
+        return iter(self.parent)
+
+    # Optional convenience
+    def items(self) -> Dict[T, T]:
+        return {x: self.find(x) for x in self.parent}

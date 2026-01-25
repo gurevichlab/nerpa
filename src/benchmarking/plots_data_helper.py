@@ -1,11 +1,12 @@
 from __future__ import annotations
 from itertools import chain
 from pathlib import Path
-from typing import Literal, Dict, Sequence, List, Optional
+from typing import Literal, Dict, Sequence, List, Optional, Set, Tuple
 
 import polars as pl
 from collections import defaultdict
 
+from scripts.build_mibig_info_table.create_final_table import nrp_id_to_bgc_id
 from src.benchmarking.data_frames import MIBiG_BGCs_Info, PNRPDB_Info, PNRPDB_Compound_Similarity
 from src.benchmarking.data_helper_external_methods import (
     compute_num_correct_matches, compute_score_correctness,
@@ -17,6 +18,7 @@ from src.benchmarking.nerpa_report import (
     NerpaReport, load_nerpa_report, is_bgc_or_norine_nrp,
     OutputSizeConfig, check_reports_discrepancy
 )
+from src.generic.graphs import DSU
 
 PCS = PNRPDB_Compound_Similarity
 
@@ -35,6 +37,70 @@ def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Si
         )
         if similarity_info.is_empty() or not similarity_info[PCS.NERPA_ISO_ALLOW_UNK_CHR][0]:
             print(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.')
+
+BGC_ID = str
+NRP_ID = str
+COMPARISION_METHOD = str
+
+def get_similarity_dict(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity)\
+        -> Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]]:
+    '''
+    comparison_method -> set of (nrp1_id, nrp2_id) tuples that are similar according to this method
+    '''
+    similarity_dict = defaultdict(set)
+    for row in pnrpdb_compound_similarity.iter_rows(named=True):
+        for cmp_method in [
+            PCS.rBAN_ISO_ALLOW_UNK_CHR,
+            PCS.NERPA_ISO_ALLOW_UNK_CHR,
+            PCS.rBAN_ONE_SUB_ALLOW_UNK_CHR,
+            PCS.NERPA_ONE_SUB_ALLOW_UNK_CHR,
+        ]:
+            if row[cmp_method]:
+                similarity_dict[cmp_method].add(
+                    (row[PCS.FST_COMPOUND_ID], row[PCS.SND_COMPOUND_ID])
+                )
+                similarity_dict[cmp_method].add(
+                    (row[PCS.SND_COMPOUND_ID], row[PCS.FST_COMPOUND_ID])
+                )
+
+    return similarity_dict
+
+
+def get_match_correct_dict(bgc_to_nrps: Dict[BGC_ID, Set[NRP_ID]],
+                           similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]]) \
+    -> Dict[COMPARISION_METHOD, Set[Tuple[BGC_ID, NRP_ID]]]:
+    '''
+    comparison_method -> set of (bgc_id, nrp_id) tuples that are correct matches according to this method
+    '''
+    match_correct_dict = defaultdict(set)
+    nrp_id_to_bgc_id = {
+        nrp_id: bgc_id
+        for bgc_id, nrp_ids in bgc_to_nrps.items()
+        for nrp_id in nrp_ids
+    }
+
+    for cmp_method, similar_nrp_pairs in similarity_dict.items():
+        for nrp1_id, nrp2_id in similar_nrp_pairs:
+            if nrp1_id in nrp_id_to_bgc_id:  # similarity_dict is symmetric so no need to check the reverse
+                bgc_id = nrp_id_to_bgc_id[nrp1_id]
+                match_correct_dict[cmp_method].add((bgc_id, nrp2_id))
+
+    # Because reflexivity is not included in similarity_dict, add (bgc_id, nrp_id) for each known correct match
+    for nrp_id, bgc_id in nrp_id_to_bgc_id.items():
+        for cmp_method in match_correct_dict:
+            match_correct_dict[cmp_method].add((bgc_id, nrp_id))
+
+    return match_correct_dict
+
+
+def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
+                            cmp: str = PCS.NERPA_ISO_ALLOW_UNK_CHR) \
+    -> Dict[NRP_ID, NRP_ID]:
+    dsu = DSU()
+    for nrp1_id, nrp2_id in similarity_dict[cmp]:
+        dsu.union(nrp1_id, nrp2_id)
+
+    return {nrp_id: repr_id for nrp_id, repr_id in dsu.items()}
 
 
 class PlotsDataHelper:
@@ -61,15 +127,13 @@ class PlotsDataHelper:
         self.pnrpdb_compound_similarity = PNRPDB_Compound_Similarity.from_csv(
             nerpa_dir / 'data/for_training_and_testing/pnrpdb2_compound_similarity.tsv'
         )
+        self.similarity_dict = get_similarity_dict(self.pnrpdb_compound_similarity)
+        self.nrp_id_to_iso_class = get_nrp_id_to_iso_class(self.similarity_dict)
 
         bgc_to_nrps = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
             bgc_to_nrps[row[MIBiG_BGCs_Info.BGC_ID]].add(row[MIBiG_BGCs_Info.NRP_ID])
 
-        self.nrp_id_to_iso_class = {
-            row[PNRPDB_Info.COMPOUND_ID]: row[PNRPDB_Info.ISO_CLASS_ID]
-            for row in self.pnrpdb_info.iter_rows(named=True)
-        }
         sanity_check_similarity_table(self.pnrpdb_compound_similarity,
                                       self.nrp_id_to_iso_class)
 
@@ -80,6 +144,7 @@ class PlotsDataHelper:
             nrp_class = self.nrp_id_to_iso_class[nrp_id]
             self.bgc_to_nrp_iso_classes[bgc_id].add(nrp_class)
 
+        self.match_correct_dict = get_match_correct_dict(bgc_to_nrps, self.similarity_dict)
         training_bgcs_info = self.mibig_bgcs_info.filter(pl.col(MIBiG_BGCs_Info.IN_APPROVED_MATCHES))
         training_bgcs_fams = set(training_bgcs_info[MIBiG_BGCs_Info.BIGSCAPE_FAMILIES])
 
@@ -131,20 +196,7 @@ class PlotsDataHelper:
     def match_is_correct(self, nrp_iso_class: str, bgc_id: str,
                          cmp_mode: str = PCS.NERPA_ISO_ALLOW_UNK_CHR) -> bool:
         """Check if a match between NRP iso-class and BGC is correct."""
-        for bgc_iso_class in self.bgc_to_nrp_iso_classes[bgc_id]:
-            if bgc_iso_class == nrp_iso_class:
-                return True
-            similarity_info = (
-                self.pnrpdb_compound_similarity
-                .filter(
-                    ((pl.col(PCS.FST_COMPOUND_ID) == nrp_iso_class) & (pl.col(PCS.SND_COMPOUND_ID) == bgc_iso_class)) |
-                    ((pl.col(PCS.FST_COMPOUND_ID) == bgc_iso_class) & (pl.col(PCS.SND_COMPOUND_ID) == nrp_iso_class))
-                )
-                .select(pl.col(cmp_mode))
-            )
-            if not similarity_info.is_empty() and similarity_info[cmp_mode][0]:
-                return True
-        return False
+        return (bgc_id, nrp_iso_class) in self.match_correct_dict[cmp_mode]
 
     def compute_num_correct_matches(self, nerpa_report: NerpaReport) -> pl.Series:
         return compute_num_correct_matches(self, nerpa_report)
