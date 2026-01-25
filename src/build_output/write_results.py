@@ -183,8 +183,8 @@ def write_results(matches: List[Match],
         bgc_ids_to_write = {match.bgc_variant_id for match in matches}
         nrp_ids_to_write = {match.nrp_variant_id for match in matches}
     else:
-        bgc_ids_to_write = bgc_variants_info.bgc_id_to_repr_id.values()
-        nrp_ids_to_write = nrp_variants_info.nrp_id_to_repr_id.values()
+        bgc_ids_to_write = bgc_variants_info.bgc_id_to_repr_id.keys()
+        nrp_ids_to_write = nrp_variants_info.nrp_id_to_repr_id.keys()
 
     output_cfg.bgc_variants.parent.mkdir(exist_ok=True, parents=True)
     write_bgc_variants(bgc_variants_info,
