@@ -9,7 +9,6 @@ import networkx as nx
 import yaml
 from networkx.algorithms.isomorphism.isomorph import is_isomorphic
 
-from src.benchmarking.plots_data_helper import COMPARISION_METHOD
 from src.config import load_config, load_monomer_names_helper
 from src.generic.graphs import graphs_one_substitution_away
 from src.monomer_names_helper import NRP_Monomer, Chirality, MonomerNamesHelper
