@@ -30,13 +30,8 @@ NerpaMonomerGraph = nx.DiGraph
 
 def build_monomer(mon_info: MonomerInfo,
                   idx: int,
-                  backbone_sequence: BackboneSequence,
                   monomer_names_helper: MonomerNamesHelper) -> rBAN_Monomer:
     parsed_name = monomer_names_helper.parsed_name(mon_info.name, name_format='rBAN/Norine')
-    monomer_features = get_monomer_features(monomer_idx=idx,
-                                            monomer_info=mon_info,
-                                            backbone_sequence=backbone_sequence,
-                                            names_helper=monomer_names_helper)
     return rBAN_Monomer(residue=parsed_name.residue,
                         methylated=parsed_name.methylated,
                         chirality=mon_info.chirality,
@@ -70,7 +65,6 @@ def backbone_sequence_to_fragment(backbone_sequence: BackboneSequence,
     return NRP_Fragment(is_cyclic=backbone_sequence.is_cyclic,
                         monomers=[build_monomer(mon_info=G.nodes[idx]['data'],
                                                 idx=idx,
-                                                backbone_sequence=backbone_sequence,
                                                 monomer_names_helper=monomer_names_helper)
                                   for idx in backbone_sequence.node_idxs])
 

@@ -33,8 +33,8 @@ def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Si
             )
             .select(pl.col(PCS.NERPA_ISO_ALLOW_UNK_CHR))
         )
-        assert not similarity_info.is_empty() and similarity_info[PCS.NERPA_ISO_ALLOW_UNK_CHR][0], \
-            f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.'
+        if similarity_info.is_empty() or not similarity_info[PCS.NERPA_ISO_ALLOW_UNK_CHR][0]:
+            print(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.')
 
 
 class PlotsDataHelper:

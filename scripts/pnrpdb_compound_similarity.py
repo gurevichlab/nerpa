@@ -1,4 +1,5 @@
 import csv
+import os
 from itertools import combinations
 from pathlib import Path
 from typing import Callable
@@ -11,18 +12,24 @@ from src.config import load_config, load_monomer_names_helper
 from src.generic.graphs import graphs_one_substitution_away
 from src.monomer_names_helper import NRP_Monomer, Chirality, MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variant
+from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.rban_parsing.retrieve_nrp_variants import build_monomer
+from functools import partial
+from itertools import combinations, islice
+from joblib import Parallel, delayed
 
-def mon_cmp(mon1: NRP_Monomer, mon2: NRP_Monomer) -> bool:
-    return all([mon1.residue == mon2.residue,
+
+def rban_mon_cmp(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
+    return all([mon1.rban_name == mon2.rban_name,
                 mon1.methylated == mon2.methylated,
                 mon1.chirality == mon2.chirality,
                 mon1.is_pks_hybrid == mon2.is_pks_hybrid])
 
-def mon_cmp_only_residues(mon1: NRP_Monomer, mon2: NRP_Monomer) -> bool:
+def mon_cmp_only_residues(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
     return mon1.residue == mon2.residue
 
-def mon_cmp_unknown_chr_equal_known(mon1: NRP_Monomer, mon2: NRP_Monomer) -> bool:
+def mon_cmp_unknown_chr_equal_known(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
     chr_equal = any([mon1.chirality == mon2.chirality,
                      mon1.chirality == Chirality.UNKNOWN,
                      mon2.chirality == Chirality.UNKNOWN])
@@ -35,13 +42,7 @@ def parsed_record_to_graph(record: Parsed_rBAN_Record,
                            monomer_names_helper: MonomerNamesHelper) -> nx.DiGraph:
     G = nx.DiGraph()
     for mon_idx, mon_info in record.monomers.items():
-        mon = monomer_names_helper.parsed_name(name=mon_info.name,
-                                               name_format='rBAN/Norine')
-        if mon_info.chirality != Chirality.UNKNOWN:
-            mon.chirality = mon_info.chirality
-        if mon_info.is_pks_hybrid:
-            mon.is_pks_hybrid = mon_info.is_pks_hybrid
-
+        mon = build_monomer(mon_info, mon_idx, monomer_names_helper)
         G.add_node(mon_idx, monomer=mon)
 
     for (u, v), edge_info in record.monomer_bonds.items():
@@ -66,6 +67,58 @@ IgnoreTagsLoader.add_constructor(
     lambda loader, node: loader.construct_sequence(node),
 )
 
+
+def _node_match(n1, n2, *, cmp):
+    return cmp(n1["monomer"], n2["monomer"])
+
+
+def compare_pair(
+    nrp1_id: str,
+    nrp2_id: str,
+    rban_graphs_by_id,
+    nerpa_graphs_by_id,
+):
+    g1_rban = rban_graphs_by_id[nrp1_id]
+    g2_rban = rban_graphs_by_id[nrp2_id]
+    g1_nerpa = nerpa_graphs_by_id[nrp1_id]
+    g2_nerpa = nerpa_graphs_by_id[nrp2_id]
+
+    row = {}
+
+    for graph_type, (g1, g2) in [
+        ("rban", (g1_rban, g2_rban)),
+        ("nerpa", (g1_nerpa, g2_nerpa)),
+    ]:
+        for mon_cmp_name, mon_cmp in [
+            ("rban_mon_cmp", rban_mon_cmp),
+            ("unknown_chr_equal_known_cmp", mon_cmp_unknown_chr_equal_known),
+        ]:
+            nm = partial(_node_match, cmp=mon_cmp)
+
+            row[f"{graph_type}_isomorphic_{mon_cmp_name}"] = is_isomorphic(
+                g1, g2, node_match=nm
+            )
+            row[f"{graph_type}_one_sub_away_{mon_cmp_name}"] = graphs_one_substitution_away(
+                g1, g2, nodes_comparator=mon_cmp, label_key="monomer"
+            )
+
+    if any(row.values()):
+        row["nrp1_id"] = nrp1_id
+        row["nrp2_id"] = nrp2_id
+        return row
+
+    return None
+
+
+def batched(iterable, batch_size: int):
+    it = iter(iterable)
+    while True:
+        batch = list(islice(it, batch_size))
+        if not batch:
+            return
+        yield batch
+
+
 def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
     nerpa_cfg = load_config()
@@ -85,58 +138,73 @@ def main():
         NRP_Variant.from_yaml_dict(nrp_dict)
         for nrp_dict in yaml.safe_load(open(pnrpdb_nrp_variants, 'r'))
     ]
+    # Keep the original if you still need it elsewhere; otherwise this is enough:
+    nerpa_graphs_by_id = {
+        variant.nrp_variant_id.nrp_id: variant.to_nx_digraph()
+        for variant in nrp_variants
+    }
 
     rban_graphs_by_id = {
         record.compound_id: parsed_record_to_graph(record, monomer_names_helper)
         for record in rban_records
     }
-    nrp_variants_by_id = {
-        variant.nrp_variant_id.nrp_id: variant
-        for variant in nrp_variants
-    }
 
     print(f'Comparing {len(rban_graphs_by_id)} compounds...')
+    ids = list(rban_graphs_by_id.keys())
+    num_pairs = len(ids) * (len(ids) - 1) // 2
 
+    output_path = (
+            nerpa_dir
+            / "data"
+            / "for_training_and_testing"
+            / "pnrpdb2_compound_similarity.tsv"
+    )
 
-    num_pairs = len(rban_graphs_by_id) * (len(rban_graphs_by_id) - 1) // 2
-    rows = []
-    for i, (nrp1_id, nrp2_id) in enumerate(combinations(rban_graphs_by_id.keys(), 2)):
-        if i % 1000 == 0:
-            print(f'{i}/{num_pairs}. Comparing {nrp1_id} vs {nrp2_id}')
+    # Stable header (don’t depend on rows[0])
+    fieldnames = [
+        "nrp1_id",
+        "nrp2_id",
+        "rban_isomorphic_rban_mon_cmp",
+        "rban_one_sub_away_rban_mon_cmp",
+        "rban_isomorphic_unknown_chr_equal_known_cmp",
+        "rban_one_sub_away_unknown_chr_equal_known_cmp",
+        "nerpa_isomorphic_rban_mon_cmp",
+        "nerpa_one_sub_away_rban_mon_cmp",
+        "nerpa_isomorphic_unknown_chr_equal_known_cmp",
+        "nerpa_one_sub_away_unknown_chr_equal_known_cmp",
+    ]
 
-        nrp1_rban_graph = rban_graphs_by_id[nrp1_id]
-        nrp2_rban_graph = rban_graphs_by_id[nrp2_id]
-        nrp1_nerpa_graph = nrp_variants_by_id[nrp1_id]
-        nrp2_nerpa_graph = nrp_variants_by_id[nrp2_id]
+    pairs_iter = combinations(ids, 2)
 
-        row = {}
-        for graph_type, (g1, g2) in [('rban', (nrp1_rban_graph, nrp2_rban_graph)),
-                                     ('nerpa', (nrp1_nerpa_graph.to_nx_digraph(), nrp2_nerpa_graph.to_nx_digraph()))]:
-            for (mon_cmp_name, _mon_cmp) in [('residue_only_cmp', mon_cmp_only_residues),
-                                             ('unknown_chr_equal_known_cmp', mon_cmp_unknown_chr_equal_known)]:
-                row[f'{graph_type}_isomorphic_{mon_cmp_name}'] = is_isomorphic(g1, g2,
-                                                                               node_match=lambda n1, n2: _mon_cmp(n1['monomer'], n2['monomer']))
-                row[f'{graph_type}_one_sub_away_{mon_cmp_name}'] = graphs_one_substitution_away(g1, g2,
-                                                                                                nodes_comparator=_mon_cmp,
-                                                                                                label_key='monomer')
-        if any(row.values()):
-            row['nrp1_id'] = nrp1_id
-            row['nrp2_id'] = nrp2_id
-            rows.append(row)
+    # Tune this: larger batches reduce joblib overhead; smaller batches update progress more often.
+    batch_size = 10000
 
-    output_path = (nerpa_dir
-                   / 'data'
-                   / 'for_training_and_testing'
-                   / 'pnrpdb2_compound_similarity.tsv')
+    done = 0
+    with open(output_path, "w") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
+        writer.writeheader()
 
-    with open(output_path, 'w') as f:
-        csv_writer = csv.DictWriter(f, fieldnames=['nrp1_id', 'nrp2_id']
-                                                  + [k for k in rows[0] if k not in ('nrp1_id', 'nrp2_id')],
-                                    delimiter='\t')
-        csv_writer.writeheader()
-        csv_writer.writerows(rows)
+        for batch in batched(pairs_iter, batch_size):
+            # Progress (batch-level)
+            print(f"{done}/{num_pairs} pairs processed...")
 
-    print(f'Wrote comparison results to {output_path}')
+            results = Parallel(
+                n_jobs=os.cpu_count() // 2,
+                backend="multiprocessing",  # fork on Linux -> cheap sharing of big dicts/graphs
+                verbose=0,
+            )(
+                delayed(compare_pair)(a, b, rban_graphs_by_id, nerpa_graphs_by_id)
+                for (a, b) in batch
+            )
+
+            # Write only positives
+            for row in results:
+                if row is not None:
+                    writer.writerow(row)
+
+            done += len(batch)
+
+    print(f"Wrote comparison results to {output_path}")
 
 
 if __name__ == '__main__':

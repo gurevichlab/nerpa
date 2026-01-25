@@ -34,19 +34,19 @@ class NRP_Fragment:
 
     def is_isomorphic_to(self,
                          other: NRP_Fragment,
-                         monomers_comparator: Callable[[NRP_Monomer, NRP_Monomer], bool] = None) -> bool:
+                         monomers_comparator: Callable[[rBAN_Monomer, rBAN_Monomer], bool] = None) -> bool:
         if not isinstance(other, NRP_Fragment):
             return NotImplemented
         if len(self.monomers) != len(other.monomers) or self.is_cyclic != other.is_cyclic:
             return False
 
         if monomers_comparator is None:
-            monomers_comparator = lambda m1, m2: m1 == m2
+            monomers_comparator = lambda m1, m2: m1.to_base_mon() == m2.to_base_mon()
 
-        mons1 = [mon.to_base_mon() for mon in self.monomers]
-        mons2 = [mon.to_base_mon() for mon in other.monomers]
+        mons1 = [mon for mon in self.monomers]
+        mons2 = [mon for mon in other.monomers]
 
-        def mon_lists_equal(list1: List[NRP_Monomer], list2: List[NRP_Monomer]) -> bool:
+        def mon_lists_equal(list1: List[rBAN_Monomer], list2: List[rBAN_Monomer]) -> bool:
             return all(monomers_comparator(mon1, mon2) for mon1, mon2 in zip(list1, list2))
 
         if self.is_cyclic:
@@ -94,7 +94,7 @@ class NRP_Variant:
                    metadata=metadata)
 
     def is_isomorphic_to(self, other,
-                         monomers_comparator: Callable[[NRP_Monomer, NRP_Monomer], bool] = None) -> bool:
+                         monomers_comparator: Callable[[rBAN_Monomer, rBAN_Monomer], bool] = None) -> bool:
         if not isinstance(other, NRP_Variant):
             return NotImplemented
         if len(self.fragments) != len(other.fragments):
