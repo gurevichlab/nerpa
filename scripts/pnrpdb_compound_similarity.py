@@ -149,8 +149,8 @@ def main():
         for record in rban_records
     }
 
-    print(f'Comparing {len(rban_graphs_by_id)} compounds...')
-    ids = list(rban_graphs_by_id.keys())
+    print(f'Comparing {len(nerpa_graphs_by_id)} compounds...')
+    ids = list(nerpa_graphs_by_id.keys())
     num_pairs = len(ids) * (len(ids) - 1) // 2
 
     output_path = (
@@ -178,6 +178,7 @@ def main():
 
     # Tune this: larger batches reduce joblib overhead; smaller batches update progress more often.
     batch_size = 10000
+    num_cpus = 50 if os.cpu_count() > 60 else 8  # to work locally and on CI
 
     done = 0
     with open(output_path, "w") as f:
@@ -189,7 +190,7 @@ def main():
             print(f"{done}/{num_pairs} pairs processed...")
 
             results = Parallel(
-                n_jobs=os.cpu_count() // 2,
+                n_jobs=num_cpus,
                 backend="multiprocessing",  # fork on Linux -> cheap sharing of big dicts/graphs
                 verbose=0,
             )(
