@@ -40,7 +40,7 @@ def mon_cmp_wo_chr_key(mon: rBAN_Monomer) -> tuple:
             mon.methylated,
             mon.is_pks_hybrid)
 
-def mon_cmp_unknown_chr_equal_known(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
+def unknown_chr_equal_known_cmp(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
     chr_equal = any([mon1.chirality == mon2.chirality,
                      mon1.chirality == Chirality.UNKNOWN,
                      mon2.chirality == Chirality.UNKNOWN])
@@ -102,7 +102,7 @@ def compare_pair(
     ]:
         for mon_cmp_name, mon_cmp in [
             ("rban_mon_cmp", rban_mon_cmp),
-            ("unknown_chr_equal_known_cmp", mon_cmp_unknown_chr_equal_known),
+            ("unknown_chr_equal_known_cmp", unknown_chr_equal_known_cmp),
         ]:
             nm = partial(_node_match, cmp=mon_cmp)
 
@@ -144,7 +144,7 @@ def add_sim_info(graphs_by_id: Dict[str, nx.DiGraph],
     for i, (key, ids) in enumerate(graphs_by_key.items()):
         print(f'Processing cluster {i}/{unique_keys}')
         for nrp1_id, nrp2_id in combinations(ids, 2):
-            for mon_cmp in [rban_mon_cmp, mon_cmp_unknown_chr_equal_known]:
+            for mon_cmp in [rban_mon_cmp, unknown_chr_equal_known_cmp]:
                 g1 = graphs_by_id[nrp1_id]
                 g2 = graphs_by_id[nrp2_id]
 
@@ -210,6 +210,7 @@ def main():
             / "pnrpdb2_compound_similarity.tsv"
     )
     # Stable header (don’t depend on rows[0])
+    '''
     fieldnames = [
         "nrp1_id",
         "nrp2_id",
@@ -222,7 +223,10 @@ def main():
         "nerpa_isomorphic_unknown_chr_equal_known_cmp",
         "nerpa_one_sub_away_unknown_chr_equal_known_cmp",
     ]
+    '''
 
+    fieldnames = ['nrp1_id', 'nrp2_id'] + [k for k in rows[0].keys()
+                                           if k not in ('nrp1_id', 'nrp2_id')]
     with open(output_path, "w") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
