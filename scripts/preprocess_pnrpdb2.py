@@ -1,3 +1,4 @@
+import os
 import sys
 
 import pandas as pd
@@ -17,6 +18,7 @@ def run_nerpa_results_on_pnrpdb2(nerpa_dir: Path,
     output_dir.mkdir(parents=True, exist_ok=True)
     nerpa_script = nerpa_dir / "nerpa.py"
 
+    num_threads = 32 if os.cpu_count() >= 40 else 8  # to work on cluster and locally
     # Construct the command
     command = [
         "python3", str(nerpa_script),
@@ -29,7 +31,7 @@ def run_nerpa_results_on_pnrpdb2(nerpa_dir: Path,
         "--min-num-matches-per-nrp", '1',
         "--max-num-matches", '0',
         "--skip-molecule-drawing",
-        "--threads", "8",
+        "--threads", str(num_threads),
         "--fast-matching",
         "--dump-all-preprocessed",
         "--keep-intermediate-files",
