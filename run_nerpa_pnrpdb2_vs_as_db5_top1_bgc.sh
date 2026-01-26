@@ -1,0 +1,12 @@
+python nerpa.py \
+--antismash-paths-file ~/tools/nerpa2/input/as_db5_no_fungi_paths.txt \
+--parsed-rban-records ./data/input/preprocessed/pnrpdb2_parsed_rban_records.yaml \
+-o ./nerpa_results/pnrpdb2_vs_antismash_db5_top1_bgc_no_fungi \
+--force-output-dir \
+--fast-matching \
+--process-hybrids \
+--min-num-matches-per-bgc 1 \
+--max-num-matches-per-bgc 1 \
+--min-num-matches-per-nrp 0 \
+--max-num-matches 100 \
+--threads 32
