@@ -267,7 +267,7 @@ class PlotsHelper:
                 top_k: self.data_helper.compute_num_identified(
                     report,
                     id_column,
-                    PNRPDB_Compound_Similarity.NERPA_ISO_ALLOW_UNK_CHR,
+                    PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
                     top_k
                 )
                 for top_k in top_ks

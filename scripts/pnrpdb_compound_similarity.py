@@ -32,6 +32,12 @@ def rban_mon_cmp(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
                 mon1.chirality == mon2.chirality,
                 mon1.is_pks_hybrid == mon2.is_pks_hybrid])
 
+def nerpa_mon_cmp(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
+    return all([mon1.residue == mon2.residue,
+                mon1.methylated == mon2.methylated,
+                mon1.chirality == mon2.chirality,
+                mon1.is_pks_hybrid == mon2.is_pks_hybrid])
+
 def mon_cmp_only_residues(mon1: rBAN_Monomer, mon2: rBAN_Monomer) -> bool:
     return mon1.residue == mon2.residue
 
@@ -83,44 +89,6 @@ def _node_match(n1, n2, *, cmp):
     return cmp(n1["monomer"], n2["monomer"])
 
 
-def compare_pair(
-    nrp1_id: str,
-    nrp2_id: str,
-    rban_graphs_by_id,
-    nerpa_graphs_by_id,
-):
-    g1_rban = rban_graphs_by_id[nrp1_id]
-    g2_rban = rban_graphs_by_id[nrp2_id]
-    g1_nerpa = nerpa_graphs_by_id[nrp1_id]
-    g2_nerpa = nerpa_graphs_by_id[nrp2_id]
-
-    row = {}
-
-    for graph_type, (g1, g2) in [
-        ("rban", (g1_rban, g2_rban)),
-        ("nerpa", (g1_nerpa, g2_nerpa)),
-    ]:
-        for mon_cmp_name, mon_cmp in [
-            ("rban_mon_cmp", rban_mon_cmp),
-            ("unknown_chr_equal_known_cmp", unknown_chr_equal_known_cmp),
-        ]:
-            nm = partial(_node_match, cmp=mon_cmp)
-
-            row[f"{graph_type}_isomorphic_{mon_cmp_name}"] = is_isomorphic(
-                g1, g2, node_match=nm
-            )
-            row[f"{graph_type}_one_sub_away_{mon_cmp_name}"] = graphs_one_substitution_away(
-                g1, g2, nodes_comparator=mon_cmp, label_key="monomer"
-            )
-
-    if any(row.values()):
-        row["nrp1_id"] = nrp1_id
-        row["nrp2_id"] = nrp2_id
-        return row
-
-    return None
-
-
 def batched(iterable, batch_size: int):
     it = iter(iterable)
     while True:
@@ -144,7 +112,7 @@ def add_sim_info(graphs_by_id: Dict[str, nx.DiGraph],
     for i, (key, ids) in enumerate(graphs_by_key.items()):
         print(f'Processing cluster {i}/{unique_keys}')
         for nrp1_id, nrp2_id in combinations(ids, 2):
-            for mon_cmp in [rban_mon_cmp, unknown_chr_equal_known_cmp]:
+            for mon_cmp in [nerpa_mon_cmp, unknown_chr_equal_known_cmp]:
                 g1 = graphs_by_id[nrp1_id]
                 g2 = graphs_by_id[nrp2_id]
 
@@ -155,7 +123,7 @@ def add_sim_info(graphs_by_id: Dict[str, nx.DiGraph],
 
                 if (nrp1_id, nrp2_id) not in sim_dict:
                     sim_dict[(nrp1_id, nrp2_id)] = {}
-                sim_dict[(nrp1_id, nrp2_id)][f"{pref}_isomorphic_{mon_cmp.__name__}"] = isomorphic
+                sim_dict[(nrp1_id, nrp2_id)][f"{pref}_equal_{mon_cmp.__name__}"] = isomorphic
                 sim_dict[(nrp1_id, nrp2_id)][f"{pref}_one_sub_away_{mon_cmp.__name__}"] = one_sub_away
 
 
@@ -169,11 +137,11 @@ def main():
     pnrpdb_nrp_variants = preprocessed_dir / 'pnrpdb2_nrp_variants.yaml'
 
     print(f'Loading rBAN records and NRP variants from {preprocessed_dir}...')
-    rban_records = [
-        Parsed_rBAN_Record.from_dict(record)
-        for record in yaml.load(open(pnrpdb_parsed_rban_records, 'r'),
-                                Loader=IgnoreTagsLoader)
-    ]
+    # rban_records = [
+    #     Parsed_rBAN_Record.from_dict(record)
+    #     for record in yaml.load(open(pnrpdb_parsed_rban_records, 'r'),
+    #                             Loader=IgnoreTagsLoader)
+    # ]
     nrp_variants = [
         NRP_Variant.from_yaml_dict(nrp_dict)
         for nrp_dict in yaml.safe_load(open(pnrpdb_nrp_variants, 'r'))
@@ -184,15 +152,15 @@ def main():
         for variant in nrp_variants
     }
 
-    rban_graphs_by_id = {
-        record.compound_id: parsed_record_to_graph(record, monomer_names_helper)
-        for record in rban_records
-        if record.compound_id in nerpa_graphs_by_id
-    }
-
+    # rban_graphs_by_id = {
+    #     record.compound_id: parsed_record_to_graph(record, monomer_names_helper)
+    #     for record in rban_records
+    #     if record.compound_id in nerpa_graphs_by_id
+    # }
+    #
     print(f'Comparing {len(nerpa_graphs_by_id)} compounds...')
     sim_dict = {}
-    add_sim_info(rban_graphs_by_id, sim_dict, pref="rban")
+    # add_sim_info(rban_graphs_by_id, sim_dict, pref="rban")
     add_sim_info(nerpa_graphs_by_id, sim_dict, pref="nerpa")
 
     rows = [

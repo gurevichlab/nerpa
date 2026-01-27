@@ -33,9 +33,9 @@ def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Si
                 ((pl.col(PCS.FST_COMPOUND_ID) == nrp_id) & (pl.col(PCS.SND_COMPOUND_ID) == repr_id)) |
                 ((pl.col(PCS.FST_COMPOUND_ID) == repr_id) & (pl.col(PCS.SND_COMPOUND_ID) == nrp_id))
             )
-            .select(pl.col(PCS.NERPA_ISO_ALLOW_UNK_CHR))
+            .select(pl.col(PCS.NERPA_EQUAL_ALLOW_UNK_CHR))
         )
-        if similarity_info.is_empty() or not similarity_info[PCS.NERPA_ISO_ALLOW_UNK_CHR][0]:
+        if similarity_info.is_empty() or not similarity_info[PCS.NERPA_EQUAL_ALLOW_UNK_CHR][0]:
             print(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.')
 
 BGC_ID = str
@@ -51,7 +51,7 @@ def get_similarity_dict(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity)\
     for row in pnrpdb_compound_similarity.iter_rows(named=True):
         for cmp_method in [
             PCS.rBAN_ISO_ALLOW_UNK_CHR,
-            PCS.NERPA_ISO_ALLOW_UNK_CHR,
+            PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
             PCS.rBAN_ONE_SUB_ALLOW_UNK_CHR,
             PCS.NERPA_ONE_SUB_ALLOW_UNK_CHR,
         ]:
@@ -94,7 +94,7 @@ def get_match_correct_dict(bgc_to_nrps: Dict[BGC_ID, Set[NRP_ID]],
 
 
 def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
-                            cmp: str = PCS.NERPA_ISO_ALLOW_UNK_CHR) \
+                            cmp: str = PCS.NERPA_EQUAL) \
     -> Dict[NRP_ID, NRP_ID]:
     dsu = DSU()
     for nrp1_id, nrp2_id in similarity_dict[cmp]:
@@ -194,7 +194,7 @@ class PlotsDataHelper:
         )
 
     def match_is_correct(self, nrp_iso_class: str, bgc_id: str,
-                         cmp_mode: str = PCS.NERPA_ISO_ALLOW_UNK_CHR) -> bool:
+                         cmp_mode: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> bool:
         """Check if a match between NRP iso-class and BGC is correct."""
         return (bgc_id, nrp_iso_class) in self.match_correct_dict[cmp_mode]
 
