@@ -22,21 +22,33 @@ from src.generic.graphs import DSU
 
 PCS = PNRPDB_Compound_Similarity
 
-def sanity_check_similarity_table(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity,
-                                  nrp_id_to_iso_class: Dict[str, str]) -> None:
-    for nrp_id, repr_id in nrp_id_to_iso_class.items():
-        if nrp_id == repr_id:
-            continue
-        similarity_info = (
-            pnrpdb_compound_similarity
-            .filter(
-                ((pl.col(PCS.FST_COMPOUND_ID) == nrp_id) & (pl.col(PCS.SND_COMPOUND_ID) == repr_id)) |
-                ((pl.col(PCS.FST_COMPOUND_ID) == repr_id) & (pl.col(PCS.SND_COMPOUND_ID) == nrp_id))
-            )
-            .select(pl.col(PCS.NERPA_EQUAL_ALLOW_UNK_CHR))
+def sanity_check_similarity_table(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
+                                  pnrpdb_info: PNRPDB_Info) -> None:
+    nrp_id_to_iso_class = {
+        row[PNRPDB_Info.COMPOUND_ID]: row[PNRPDB_Info.ISO_CLASS_ID]
+        for row in pnrpdb_info.iter_rows(named=True)
+    }
+    ids_in_similarity_table = set(
+        chain.from_iterable(
+            (nrp1_id, nrp2_id)
+            for cmp_mode, similar_nrp_pairs in similarity_dict.items()
+            for nrp1_id, nrp2_id in similar_nrp_pairs
         )
-        if similarity_info.is_empty() or not similarity_info[PCS.NERPA_EQUAL_ALLOW_UNK_CHR][0]:
+    )
+    for nrp_id, repr_id in nrp_id_to_iso_class.items():
+        if nrp_id == repr_id or nrp_id not in ids_in_similarity_table:
+            continue
+        if (nrp_id, repr_id) not in similarity_dict[PCS.NERPA_EQUAL] or \
+                (repr_id, nrp_id) not in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR]:
             print(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.')
+
+    for similar_nrp_pairs in similarity_dict[PCS.NERPA_EQUAL]:
+        for nrp1_id, nrp2_id in similar_nrp_pairs:
+            if nrp_id_to_iso_class[nrp1_id] != nrp_id_to_iso_class[nrp2_id]:
+                print(f'Similarity table inconsistency: {nrp1_id} and {nrp2_id} are similar but belong to different iso-classes.')
+
+    print('Sanity check of similarity table successful.')
+
 
 BGC_ID = str
 NRP_ID = str
@@ -50,9 +62,7 @@ def get_similarity_dict(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity)\
     similarity_dict = defaultdict(set)
     for row in pnrpdb_compound_similarity.iter_rows(named=True):
         for cmp_method in [
-            PCS.rBAN_ISO_ALLOW_UNK_CHR,
             PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
-            PCS.rBAN_ONE_SUB_ALLOW_UNK_CHR,
             PCS.NERPA_ONE_SUB_ALLOW_UNK_CHR,
         ]:
             if row[cmp_method]:
@@ -134,8 +144,8 @@ class PlotsDataHelper:
         for row in self.mibig_bgcs_info.iter_rows(named=True):
             bgc_to_nrps[row[MIBiG_BGCs_Info.BGC_ID]].add(row[MIBiG_BGCs_Info.NRP_ID])
 
-        sanity_check_similarity_table(self.pnrpdb_compound_similarity,
-                                      self.nrp_id_to_iso_class)
+        sanity_check_similarity_table(self.similarity_dict,
+                                      self.pnrpdb_info)
 
         self.bgc_to_nrp_iso_classes = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
