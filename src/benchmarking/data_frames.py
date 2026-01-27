@@ -6,7 +6,7 @@ class PNRPDB_Compound_Similarity(pl.DataFrame):
     FST_COMPOUND_ID = 'nrp1_id'
     SND_COMPOUND_ID = 'nrp2_id'
     # rBAN_ISO_ALLOW_UNK_CHR = 'rban_isomorphic_unknown_chr_equal_known_cmp'
-    NERPA_EQUAL_ALLOW_UNK_CHR = 'nerpa_isomorphic_unknown_chr_equal_known_cmp'
+    NERPA_EQUAL_ALLOW_UNK_CHR = 'nerpa_equal_unknown_chr_equal_known_cmp'
     # rBAN_ONE_SUB_ALLOW_UNK_CHR = 'rban_one_sub_away_unknown_chr_equal_known_cmp'
     NERPA_ONE_SUB_ALLOW_UNK_CHR = 'nerpa_one_sub_away_unknown_chr_equal_known_cmp'
     NERPA_EQUAL = 'nerpa_equal_nerpa_mon_cmp'
