@@ -43,15 +43,17 @@ def sanity_check_similarity_table(similarity_dict: Dict[COMPARISION_METHOD, Set[
         for nrp_id, repr_id in nrp_id_to_iso_class.items():
             if nrp_id == repr_id or nrp_id not in ids_in_similarity_table:
                 continue
-            if (nrp_id, repr_id) not in similarity_dict[PCS.NERPA_EQUAL] or \
-                    (repr_id, nrp_id) not in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR]:
-                f.write(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.\n')
+            if (nrp_id, repr_id) not in similarity_dict[PCS.NERPA_EQUAL]:
+                f.write(f'{(nrp_id, repr_id)} is absent in similarity_dict[PCS.NERPA_EQUAL].\n')
+                check_successful = False
+            if (repr_id, nrp_id) not in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR]:
+                f.write(f'{(nrp_id, repr_id)} is absent in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].\n')
                 check_successful = False
 
         for similar_nrp_pairs in similarity_dict[PCS.NERPA_EQUAL]:
             for nrp1_id, nrp2_id in similar_nrp_pairs:
                 if nrp_id_to_iso_class[nrp1_id] != nrp_id_to_iso_class[nrp2_id]:
-                    f.write(f'Similarity table inconsistency: {nrp1_id} and {nrp2_id} are similar but belong to different iso-classes.\n')
+                    f.write(f'{(nrp1_id, nrp2_id)} from similarity_dict are in different iso-classes in pnrpdb_info.\n')
                     check_successful = False
 
     if check_successful:
