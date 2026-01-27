@@ -6,6 +6,7 @@ from typing import Literal, Dict, Sequence, List, Optional, Set, Tuple
 import polars as pl
 from collections import defaultdict
 
+from scripts.extract_norine_monomers_info import out_file
 from src.benchmarking.data_frames import MIBiG_BGCs_Info, PNRPDB_Info, PNRPDB_Compound_Similarity
 from src.benchmarking.data_helper_external_methods import (
     compute_num_correct_matches, compute_score_correctness,
@@ -23,6 +24,7 @@ PCS = PNRPDB_Compound_Similarity
 
 def sanity_check_similarity_table(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
                                   pnrpdb_info: PNRPDB_Info) -> None:
+
     nrp_id_to_iso_class = {
         row[PNRPDB_Info.COMPOUND_ID]: row[PNRPDB_Info.ISO_CLASS_ID]
         for row in pnrpdb_info.iter_rows(named=True)
@@ -34,19 +36,30 @@ def sanity_check_similarity_table(similarity_dict: Dict[COMPARISION_METHOD, Set[
             for nrp1_id, nrp2_id in similar_nrp_pairs
         )
     )
-    for nrp_id, repr_id in nrp_id_to_iso_class.items():
-        if nrp_id == repr_id or nrp_id not in ids_in_similarity_table:
-            continue
-        if (nrp_id, repr_id) not in similarity_dict[PCS.NERPA_EQUAL] or \
-                (repr_id, nrp_id) not in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR]:
-            print(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.')
+    check_successful = True
+    out_file = Path('./similarity_table_inconsistencies.txt')
+    out_file.parent.mkdir(parents=True, exist_ok=True)
 
-    for similar_nrp_pairs in similarity_dict[PCS.NERPA_EQUAL]:
-        for nrp1_id, nrp2_id in similar_nrp_pairs:
-            if nrp_id_to_iso_class[nrp1_id] != nrp_id_to_iso_class[nrp2_id]:
-                print(f'Similarity table inconsistency: {nrp1_id} and {nrp2_id} are similar but belong to different iso-classes.')
+    with open(out_file, 'w') as f:
+        for nrp_id, repr_id in nrp_id_to_iso_class.items():
+            if nrp_id == repr_id or nrp_id not in ids_in_similarity_table:
+                continue
+            if (nrp_id, repr_id) not in similarity_dict[PCS.NERPA_EQUAL] or \
+                    (repr_id, nrp_id) not in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR]:
+                f.write(f'Similarity table inconsistency for NRP {nrp_id} and its iso-class representative {repr_id}.\n')
+                check_successful = False
 
-    print('Sanity check of similarity table successful.')
+        for similar_nrp_pairs in similarity_dict[PCS.NERPA_EQUAL]:
+            for nrp1_id, nrp2_id in similar_nrp_pairs:
+                if nrp_id_to_iso_class[nrp1_id] != nrp_id_to_iso_class[nrp2_id]:
+                    f.write(f'Similarity table inconsistency: {nrp1_id} and {nrp2_id} are similar but belong to different iso-classes.\n')
+                    check_successful = False
+
+    if check_successful:
+        print('Sanity check of similarity table successful.')
+    else:
+        print(f'Sanity check of similarity table failed. See {out_file} for details.')
+
 
 
 BGC_ID = str
