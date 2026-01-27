@@ -6,7 +6,6 @@ from typing import Literal, Dict, Sequence, List, Optional, Set, Tuple
 import polars as pl
 from collections import defaultdict
 
-from scripts.build_mibig_info_table.create_final_table import nrp_id_to_bgc_id
 from src.benchmarking.data_frames import MIBiG_BGCs_Info, PNRPDB_Info, PNRPDB_Compound_Similarity
 from src.benchmarking.data_helper_external_methods import (
     compute_num_correct_matches, compute_score_correctness,
