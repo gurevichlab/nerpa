@@ -110,7 +110,8 @@ def add_sim_info(graphs_by_id: Dict[str, nx.DiGraph],
 
     unique_keys = len(graphs_by_key)
     for i, (key, ids) in enumerate(graphs_by_key.items()):
-        print(f'Processing cluster {i}/{unique_keys}')
+        print(f'Processing cluster {i}/{unique_keys}:')
+        print(ids)
         for nrp1_id, nrp2_id in combinations(ids, 2):
             for mon_cmp in [nerpa_mon_cmp, unknown_chr_equal_known_cmp]:
                 g1 = graphs_by_id[nrp1_id]
@@ -145,6 +146,7 @@ def main():
     nrp_variants = [
         NRP_Variant.from_yaml_dict(nrp_dict)
         for nrp_dict in yaml.safe_load(open(pnrpdb_nrp_variants, 'r'))
+        if nrp_dict['nrp_variant_id']['nrp_id'] in ('NPA027460', 'NPA028876')
     ]
     # Keep the original if you still need it elsewhere; otherwise this is enough:
     nerpa_graphs_by_id = {
