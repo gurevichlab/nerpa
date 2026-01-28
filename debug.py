@@ -23,7 +23,7 @@ from joblib import Parallel, delayed
 from scripts.pnrpdb_compound_similarity import nerpa_mon_cmp
 
 def main():
-    nerpa_dir = Path(__file__).resolve().parent.parent
+    nerpa_dir = Path(__file__).resolve().parent
     nerpa_cfg = load_config()
     # preprocessed_dir = Path('/home/ilianolhin/git/nerpa2/nerpa_results/parsed_compounds/nerpa_results/preprocessed_input')
     # pnrpdb_nrp_variants = preprocessed_dir / 'NRP_variants.yaml'
