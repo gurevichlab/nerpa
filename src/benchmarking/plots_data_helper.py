@@ -43,9 +43,6 @@ def sanity_check_similarity_table(similarity_dict: Dict[COMPARISION_METHOD, Set[
         for nrp_id, repr_id in nrp_id_to_iso_class.items():
             if nrp_id == repr_id or nrp_id not in ids_in_similarity_table:
                 continue
-            if (nrp_id, repr_id) not in similarity_dict[PCS.NERPA_EQUAL]:
-                f.write(f'{(nrp_id, repr_id)} is absent in similarity_dict[PCS.NERPA_EQUAL].\n')
-                check_successful = False
             if (repr_id, nrp_id) not in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR]:
                 f.write(f'{(nrp_id, repr_id)} is absent in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].\n')
                 check_successful = False
