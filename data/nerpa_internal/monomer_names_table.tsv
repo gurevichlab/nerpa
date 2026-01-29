@@ -71,7 +71,7 @@ MonomerName	NameFormat	NerpaResidue	Modifications	Type	Comment
 5OH-Cap	rBAN/Norine	Cap	['OH']	NRPS	
 5S-mePro	antiSMASH_short	Pro	['MT']	NRPS	
 6-clTrp	antiSMASH_short	Trp	['Cl']	NRPS	
-ADMAdda	rBAN/Norine	ADMAdda	[]	PKS_Hybrid	The attracted residue by A-domain is phenylacetate, then it's modified by PKS. The origin of the transferred amino group is unknown, although glutamate is implicated.
+ADMAdda	rBAN/Norine	phenylacetate	[]	PKS_Hybrid	The attracted residue by A-domain is phenylacetate, then it's modified by PKS. The origin of the transferred amino group is unknown, although glutamate is implicated.
 Aad	rBAN/Norine	Aad	[]	NRPS	
 Aad	antiSMASH_short	Aad	[]	NRPS	
 Abu	antiSMASH_short	Abu	[]	NRPS	
@@ -86,7 +86,7 @@ Ac-Ser	rBAN/Norine	Ser	['Ac']	NRPS
 Ac-Trp	rBAN/Norine	Trp	['Ac']	NRPS	
 Ac-Val	rBAN/Norine	Val	['Ac']	NRPS	
 Acc	antiSMASH_short	Acc	[]	NRPS	
-Adda	rBAN/Norine	Adda	[]	PKS	Warning: core and modifications are not human-verified!
+Adda	rBAN/Norine	phenylacetate	[]	PKS_Hybrid	The attracted residue by A-domain is phenylacetate, then it's modified by PKS. The origin of the transferred amino group is unknown, although glutamate is implicated.
 Ahp	antiSMASH_short	Ahp	[]	NRPS	
 Ahp	rBAN/Norine	Ahp	[]	NRPS	
 Aib	antiSMASH_short	Aib	[]	NRPS	
@@ -217,7 +217,7 @@ D-bPhe	rBAN/Norine	bPhe	['E']	NRPS
 D-ph-Gly	rBAN/Norine	Gly	['E', 'unknown']	NRPS	
 D-pheLac	antiSMASH_short	Lac	['E', 'unknown']	NRPS	
 D-t-Leu	rBAN/Norine	Leu	['E', 'unknown']	NRPS	
-DMAdda	rBAN/Norine	DMAdda	[]	PKS	Warning: core and modifications are not human-verified!
+DMAdda	rBAN/Norine	phenylacetate	[]	PKS_Hybrid	The attracted residue by A-domain is phenylacetate, then it's modified by PKS. The origin of the transferred amino group is unknown, although glutamate is implicated.
 Dab	rBAN/Norine	Dab	[]	NRPS	
 Dab	antiSMASH_short	Dab	[]	NRPS	
 Dbu	rBAN/Norine	Dbu	[]	NRPS	

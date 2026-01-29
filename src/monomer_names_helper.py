@@ -249,6 +249,7 @@ class MonomerNamesHelper:
                          & (pl.col('NameFormat') == name_format)))
 
         if rows.is_empty():  # monomer name not found
+            # print(f'WARNING: Entry {(name, name_format)} not found in the names table. Parsing as UNKNOWN_MONOMER')
             '''
             if log is not None:
                 log.error(f'Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')

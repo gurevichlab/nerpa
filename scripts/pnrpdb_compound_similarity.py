@@ -1,6 +1,6 @@
 import csv
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 from itertools import combinations
 from pathlib import Path
 from typing import Callable, Dict, List, Tuple
@@ -98,17 +98,46 @@ def batched(iterable, batch_size: int):
         yield batch
 
 
+def graph_key(g: nx.DiGraph) -> tuple:
+    counts = Counter(
+        mon_cmp_wo_chr_key(g.nodes[node_idx]['monomer'])
+        for node_idx in g.nodes
+    )
+    return tuple(sorted(counts.items()))
+
+
+def counters_one_substitution_apart(graph_key1: tuple, graph_key2: tuple) -> bool:
+    c1 = Counter(dict(graph_key1))
+    c2 = Counter(dict(graph_key2))
+
+    # same total size
+    if sum(c1.values()) != sum(c2.values()):
+        return False
+
+    diffs = 0
+    for k in c1.keys() | c2.keys():
+        if c1.get(k, 0) != c2.get(k, 0):
+            if abs(c1.get(k, 0) - c2.get(k, 0)) != 1:
+                return False
+            diffs += 1
+
+    return diffs == 2
+
+
 def add_sim_info(graphs_by_id: Dict[str, nx.DiGraph],
                  sim_dict: Dict[Tuple[str, str], Dict[str, bool]],
                  pref: str):
+
     print(f'Adding similarity info for {len(graphs_by_id)} {pref} graphs...')
     graphs_by_key = defaultdict(list)
+    key_by_id = dict()
     for nrp_id, g in graphs_by_id.items():
-        key = tuple(sorted(mon_cmp_wo_chr_key(g.nodes[node_idx]['monomer'])
-                           for node_idx in g.nodes))
+        key = graph_key(g)
+        key_by_id[nrp_id] = key
         graphs_by_key[key].append(nrp_id)
 
     unique_keys = len(graphs_by_key)
+    print('Computing isomorphism...')
     for i, (key, ids) in enumerate(graphs_by_key.items()):
         print(f'Processing cluster {i}/{unique_keys}:')
         #print(ids)
@@ -118,14 +147,22 @@ def add_sim_info(graphs_by_id: Dict[str, nx.DiGraph],
                 g2 = graphs_by_id[nrp2_id]
 
                 isomorphic = is_isomorphic(g1, g2, node_match=lambda m1, m2: mon_cmp(m1['monomer'], m2['monomer']))
-                one_sub_away = graphs_one_substitution_away(
-                    g1, g2, nodes_comparator=mon_cmp, label_key="monomer"
-                )
-
-                if (nrp1_id, nrp2_id) not in sim_dict:
-                    sim_dict[(nrp1_id, nrp2_id)] = {}
                 sim_dict[(nrp1_id, nrp2_id)][f"{pref}_equal_{mon_cmp.__name__}"] = isomorphic
-                sim_dict[(nrp1_id, nrp2_id)][f"{pref}_one_sub_away_{mon_cmp.__name__}"] = one_sub_away
+
+    num_pairs = len(graphs_by_id) * (len(graphs_by_id) - 1) // 2
+    print(f'Computing one substitution away similarity for {num_pairs} pairs...')
+    for i, ((nrp1_id, g1), (nrp2_id, g2)) in enumerate(combinations(graphs_by_id.items(), 2)):
+        if not counters_one_substitution_apart(key_by_id[nrp1_id], key_by_id[nrp2_id]):
+            continue
+
+        for mon_cmp in [nerpa_mon_cmp, unknown_chr_equal_known_cmp]:
+            one_sub_away = graphs_one_substitution_away(
+                g1, g2, nodes_comparator=mon_cmp, label_key="monomer"
+            )
+            sim_dict[(nrp1_id, nrp2_id)][f"{pref}_one_sub_away_{mon_cmp.__name__}"] = one_sub_away
+
+        if i % 1000 == 0:
+            print(f'Processed {i}/{num_pairs} pairs...')
 
 
 def main():
@@ -160,7 +197,7 @@ def main():
     # }
     #
     print(f'Comparing {len(nerpa_graphs_by_id)} compounds...')
-    sim_dict = {}
+    sim_dict = defaultdict(dict)
     # add_sim_info(rban_graphs_by_id, sim_dict, pref="rban")
     add_sim_info(nerpa_graphs_by_id, sim_dict, pref="nerpa")
 
