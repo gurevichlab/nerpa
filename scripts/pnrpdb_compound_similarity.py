@@ -231,8 +231,16 @@ def main():
     ]
     '''
 
-    fieldnames = ['nrp1_id', 'nrp2_id'] + [k for k in rows[0].keys()
-                                           if k not in ('nrp1_id', 'nrp2_id')]
+    cmp_fieldnames = {k
+                      for row in rows
+                      for k in row.keys()
+                      if k not in ('nrp1_id', 'nrp2_id')}
+    fieldnames = ['nrp1_id', 'nrp2_id'] + list(cmp_fieldnames)
+    for row in rows:
+        for field in fieldnames:
+            if field not in row:
+                row[field] = False
+
     with open(output_path, "w") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
