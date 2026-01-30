@@ -205,5 +205,5 @@ class DSU(Generic[T]):
         return iter(self.parent)
 
     # Optional convenience
-    def items(self) -> Dict[T, T]:
-        return {x: self.find(x) for x in self.parent}
+    def items(self) -> Iterable[Tuple[T, T]]:
+        return ((x, self.find(x)) for x in self.parent)
