@@ -114,13 +114,33 @@ def get_match_correct_dict(bgc_to_nrps: Dict[BGC_ID, Set[NRP_ID]],
 
 
 def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
-                            cmp: str = PCS.NERPA_EQUAL) \
+                            pnrpdb_info: PNRPDB_Info,
+                            cmp: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) \
     -> Dict[NRP_ID, NRP_ID]:
     dsu = DSU()
     for nrp1_id, nrp2_id in similarity_dict[cmp]:
         dsu.union(nrp1_id, nrp2_id)
 
-    return {nrp_id: repr_id for nrp_id, repr_id in dsu.items()}
+    nrp_id_to_iso_class = {nrp_id: repr_id for nrp_id, repr_id in dsu.items()}
+    for nrp_id in pnrpdb_info[PNRPDB_Info.COMPOUND_ID]:
+        if nrp_id not in nrp_id_to_iso_class:
+            nrp_id_to_iso_class[nrp_id] = nrp_id  # singleton iso-class
+
+    return nrp_id_to_iso_class
+
+
+def add_similarities_from_pnrpdb_info(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
+                                      pnrpdb_info: PNRPDB_Info) -> None:
+    iso_class_to_nrp_ids = defaultdict(set)
+    for row in pnrpdb_info.iter_rows(named=True):
+        iso_class_to_nrp_ids[row[PNRPDB_Info.ISO_CLASS_ID]].add(row[PNRPDB_Info.COMPOUND_ID])
+
+    for nrp_ids in iso_class_to_nrp_ids.values():
+        for nrp1_id in nrp_ids:
+            for nrp2_id in nrp_ids:
+                if nrp1_id != nrp2_id:
+                    similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].add((nrp1_id, nrp2_id))
+                    similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].add((nrp2_id, nrp1_id))
 
 
 class PlotsDataHelper:
@@ -148,14 +168,18 @@ class PlotsDataHelper:
             nerpa_dir / 'data/for_training_and_testing/pnrpdb2_compound_similarity.tsv'
         )
         self.similarity_dict = get_similarity_dict(self.pnrpdb_compound_similarity)
-        self.nrp_id_to_iso_class = get_nrp_id_to_iso_class(self.similarity_dict)
+        sanity_check_similarity_table(self.similarity_dict,
+                                      self.pnrpdb_info)
+        # right now similarity table is not complete, so I update it from pnrpdb_info
+        # to ensure that all compounds in the same iso-class are similar
+        add_similarities_from_pnrpdb_info(self.similarity_dict, self.pnrpdb_info)
+        self.nrp_id_to_iso_class = get_nrp_id_to_iso_class(self.similarity_dict,
+                                                           self.pnrpdb_info)
 
         bgc_to_nrps = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
             bgc_to_nrps[row[MIBiG_BGCs_Info.BGC_ID]].add(row[MIBiG_BGCs_Info.NRP_ID])
 
-        sanity_check_similarity_table(self.similarity_dict,
-                                      self.pnrpdb_info)
 
         self.bgc_to_nrp_iso_classes = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
