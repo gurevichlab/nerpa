@@ -82,7 +82,7 @@ def nerpa1_vs_nerpa2_vs_biocat():
 def plots_for_paper():
     nerpa_dir = Path(__file__).parent
     
-    # nerpa1_vs_nerpa2_vs_biocat()
+    nerpa1_vs_nerpa2_vs_biocat()
     # nerpa1_vs_nerpa2_alignment()
     plots_for_paper_dir = nerpa_dir / 'benchmarking' / 'plots_for_paper'
     plots_for_paper_dir.mkdir(exist_ok=True)
@@ -95,7 +95,7 @@ def plots_for_paper():
         nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.png',
         nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'Percentage_identified_Genome_ID_top10.png',
         nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'precision_recall_curve_top_10.png',
-        nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png',
+     #   nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png',
     ]
     for file_path in files_to_copy:
         dest_path = plots_for_paper_dir / file_path.name
@@ -107,8 +107,8 @@ def plots_for_paper():
 
 if __name__ == "__main__":
     # Example usage
-    # plots_for_paper()
-    nerpa1_vs_nerpa2()
+    plots_for_paper()
+    # nerpa1_vs_nerpa2()
     #nerpa1_vs_nerpa2_vs_biocat()
     #nerpa1_vs_nerpa2_vs_nerpa2new()
     #cross_validation()

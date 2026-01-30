@@ -1,5 +1,5 @@
 from __future__ import annotations
-from itertools import chain
+from itertools import chain, combinations
 from pathlib import Path
 from typing import Literal, Dict, Sequence, List, Optional, Set, Tuple
 
@@ -115,7 +115,7 @@ def get_match_correct_dict(bgc_to_nrps: Dict[BGC_ID, Set[NRP_ID]],
 
 def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[NRP_ID, NRP_ID]]],
                             pnrpdb_info: PNRPDB_Info,
-                            cmp: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) \
+                            cmp: str = PCS.NERPA_EQUAL) \
     -> Dict[NRP_ID, NRP_ID]:
     dsu = DSU()
     for nrp1_id, nrp2_id in similarity_dict[cmp]:
@@ -136,11 +136,11 @@ def add_similarities_from_pnrpdb_info(similarity_dict: Dict[COMPARISION_METHOD, 
         iso_class_to_nrp_ids[row[PNRPDB_Info.ISO_CLASS_ID]].add(row[PNRPDB_Info.COMPOUND_ID])
 
     for nrp_ids in iso_class_to_nrp_ids.values():
-        for nrp1_id in nrp_ids:
-            for nrp2_id in nrp_ids:
-                if nrp1_id != nrp2_id:
-                    similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].add((nrp1_id, nrp2_id))
-                    similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].add((nrp2_id, nrp1_id))
+        for nrp1_id, nrp2_id in combinations(nrp_ids, 2):
+                similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].add((nrp1_id, nrp2_id))
+                similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].add((nrp2_id, nrp1_id))
+                similarity_dict[PCS.NERPA_EQUAL].add((nrp1_id, nrp2_id))
+                similarity_dict[PCS.NERPA_EQUAL].add((nrp2_id, nrp1_id))
 
 
 class PlotsDataHelper:
