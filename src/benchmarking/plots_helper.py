@@ -296,7 +296,7 @@ class PlotsHelper:
 
                     xs = range(len(values))
                     ax.plot(xs, values,
-                            label=f"top-{top_k}({cmp_method.name})",
+                            label=f"top-{top_k}({cmp_method})",
                             color=color,
                             linestyle=linestyle)
             ax.set_title(f"Num Identified by {id_column}: {report_name}")
