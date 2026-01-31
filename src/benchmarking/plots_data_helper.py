@@ -107,7 +107,12 @@ def get_match_correct_dict(bgc_to_nrps: Dict[BGC_ID, Set[NRP_ID]],
 
     # Because reflexivity is not included in similarity_dict, add (bgc_id, nrp_id) for each known correct match
     for nrp_id, bgc_id in nrp_id_to_bgc_id.items():
-        for cmp_method in (PCS.NERPA_EQUAL, PCS.NERPA_EQUAL_ALLOW_UNK_CHR):
+        for cmp_method in (
+            PCS.NERPA_EQUAL,
+            PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+            PCS.NERPA_NO_MORE_ONE_SUB,
+            PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,
+        ):
             match_correct_dict[cmp_method].add((bgc_id, nrp_id))
 
     return match_correct_dict
