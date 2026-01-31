@@ -312,8 +312,8 @@ class PlotsHelper:
         for top_k in top_ks:
             fig, ax = plt.subplots(figsize=(10, 6))
             for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
-                for cmp_method, _values in topk_results.items():
-                    _values = topk_results[top_k]
+                for cmp_method in topk_results:
+                    _values = topk_results[top_k][cmp_method]
                     values = (cnts_to_percentages(_values)
                               if y_axis == 'Percentage'
                               else _values)
