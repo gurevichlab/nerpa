@@ -262,30 +262,43 @@ class PlotsHelper:
         out_files_per_id = {report.name: output_dir / f'{y_axis}_identified_{id_column}_{report.name}.png'
                             for report in nerpa_reports}
 
-        graphs = {
+        num_identified_graphs = {
             report.name: {
-                top_k: self.data_helper.compute_num_identified(
-                    report,
-                    id_column,
-                    PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
-                    top_k
-                )
+                top_k: {
+                    cmp_method:
+                        self.data_helper.compute_num_identified(
+                            report,
+                            id_column,
+                            PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
+                            top_k
+                        )
+                    for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
+                                       PNRPDB_Compound_Similarity.NERPA_ONE_SUB_ALLOW_UNK_CHR,]
+                }
                 for top_k in top_ks
             }
             for report in nerpa_reports
         }
 
+        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         # Plot per report (all top_ks)
-        for report_name, topk_results in graphs.items():
+        for report_name, topk_results in num_identified_graphs.items():
             fig, ax = plt.subplots(figsize=(10, 6))
-            for top_k, _values in topk_results.items():
-                if y_axis == 'Percentage':
-                    values = cnts_to_percentages(_values)
-                else:
-                    values = _values
+            for (top_k, cmp_methods), color in zip(topk_results.items(), colors):
+                for cmp_method, _values in cmp_methods.items():
+                    values = (cnts_to_percentages(_values)
+                              if y_axis == 'Percentage'
+                              else _values)
+                    linestyle = ('-'
+                                  if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
+                                  else '--')
 
-                xs = range(len(values))
-                ax.plot(xs, values, label=f"top-{top_k}")
+
+                    xs = range(len(values))
+                    ax.plot(xs, values,
+                            label=f"top-{top_k}({cmp_method.name})",
+                            color=color,
+                            linestyle=linestyle)
             ax.set_title(f"Num Identified by {id_column}: {report_name}")
             ax.set_xlabel(f"Num top {id_column}")
             ax.set_ylabel(f"{y_axis} identified")
@@ -298,14 +311,20 @@ class PlotsHelper:
         # Plot per top_k (all reports)
         for top_k in top_ks:
             fig, ax = plt.subplots(figsize=(10, 6))
-            for report_name, topk_results in graphs.items():
-                _values = topk_results[top_k]
-                if y_axis == 'Percentage':
-                    values = cnts_to_percentages(_values)
-                else:
-                    values = _values
-                xs = range(len(values))
-                ax.plot(xs, values, label=f'{report_name}')
+            for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
+                for cmp_method, _values in topk_results.items():
+                    _values = topk_results[top_k]
+                    values = (cnts_to_percentages(_values)
+                              if y_axis == 'Percentage'
+                              else _values)
+                    xs = range(len(values))
+                    linestyle = ('-'
+                                  if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
+                                  else '--')
+                    ax.plot(xs, values,
+                            label=f'{report_name}',
+                            color=color,
+                            linestyle=linestyle)
             ax.set_title(f"{y_axis} Identified {id_column}: top-{top_k}")
             ax.set_xlabel("Identifier")
             ax.set_ylabel(y_axis)
