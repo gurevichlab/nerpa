@@ -173,6 +173,10 @@ class PlotsDataHelper:
         # right now similarity table is not complete, so I update it from pnrpdb_info
         # to ensure that all compounds in the same iso-class are similar
         add_similarities_from_pnrpdb_info(self.similarity_dict, self.pnrpdb_info)
+        self.similarity_dict[PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR] = (
+            self.similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR] |
+            self.similarity_dict[PCS.NERPA_ONE_SUB_ALLOW_UNK_CHR]
+        )
         self.nrp_id_to_iso_class = get_nrp_id_to_iso_class(self.similarity_dict,
                                                            self.pnrpdb_info)
 

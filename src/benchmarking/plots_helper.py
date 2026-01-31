@@ -273,7 +273,7 @@ class PlotsHelper:
                             top_k
                         )
                     for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
-                                       PNRPDB_Compound_Similarity.NERPA_ONE_SUB_ALLOW_UNK_CHR,]
+                                       PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
                 }
                 for top_k in top_ks
             }

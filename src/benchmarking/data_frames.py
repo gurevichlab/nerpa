@@ -9,8 +9,10 @@ class PNRPDB_Compound_Similarity(pl.DataFrame):
     NERPA_EQUAL_ALLOW_UNK_CHR = 'nerpa_equal_unknown_chr_equal_known_cmp'
     # rBAN_ONE_SUB_ALLOW_UNK_CHR = 'rban_one_sub_away_unknown_chr_equal_known_cmp'
     NERPA_ONE_SUB_ALLOW_UNK_CHR = 'nerpa_one_sub_away_unknown_chr_equal_known_cmp'
+    NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR = 'nerpa_no_more_one_sub_away_unknown_chr_equal_known_cmp'
     NERPA_EQUAL = 'nerpa_equal_nerpa_mon_cmp'
     NERPA_ONE_SUB = 'nerpa_one_sub_away_nerpa_mon_cmp'
+    NERPA_NO_MORE_ONE_SUB = 'nerpa_no_more_one_sub_away_nerpa_mon_cmp'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
