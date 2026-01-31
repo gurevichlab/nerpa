@@ -322,7 +322,7 @@ class PlotsHelper:
                                   if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
                                   else '--')
                     ax.plot(xs, values,
-                            label=f'{report_name}',
+                            label=f'{report_name}({cmp_method})',
                             color=color,
                             linestyle=linestyle)
             ax.set_title(f"{y_axis} Identified {id_column}: top-{top_k}")
