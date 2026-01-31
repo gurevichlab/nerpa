@@ -269,7 +269,7 @@ class PlotsHelper:
                         self.data_helper.compute_num_identified(
                             report,
                             id_column,
-                            PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
+                            cmp_method,
                             top_k
                         )
                     for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
