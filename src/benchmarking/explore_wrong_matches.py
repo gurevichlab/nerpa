@@ -48,7 +48,7 @@ def main():
     print(f'The incorrect matches are written to in {out_file.resolve()}')
 
     # paths
-    nerpa_dir = Path(__file__).parent.parent
+    nerpa_dir = Path(__file__).parent.parent.parent
     debug_root = nerpa_dir / "debug" / "incorrect_matches"
     molecules_dir = nerpa_dir / "nerpa_results" / "pnrpdb2_vs_antismash_db5" / "NRP_images" / "molecules"
 
