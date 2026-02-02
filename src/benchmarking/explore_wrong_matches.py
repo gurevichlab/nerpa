@@ -79,7 +79,8 @@ def main():
         wrong_graph_src = graphs_dir / f"{wrong_nrp_id}.png"
         wrong_mol_dst = folder / f"{wrong_nrp_id}_molecule_wrong.png"
         wrong_graph_dst = folder / f"{wrong_nrp_id}_graph_wrong.png"
-        copy_png(wrong_src, wrong_dst)
+        copy_png(wrong_mol_src, wrong_mol_dst)
+        copy_png(wrong_graph_src, wrong_graph_dst)
 
         # ---- true (possibly multiple) ----
         for true_id in true_nrp_ids:
