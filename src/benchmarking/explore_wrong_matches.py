@@ -3,6 +3,7 @@ from src.benchmarking.nerpa_report import NerpaReport
 from src.benchmarking.data_frames import PNRPDB_Compound_Similarity
 from pathlib import Path
 import polars as pl
+import shutil
 
 
 def main():
