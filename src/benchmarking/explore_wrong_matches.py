@@ -23,7 +23,12 @@ def main():
             nrp_iso_class=s[NerpaReport.NRP_ID],
             cmp_mode=PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,
         ))
-        .alias("is_correct_tmp")
+        .alias("is_correct_tmp"),
+        
+        # iso classes for each bgc
+        pl.col(NerpaReport.BGC_ID)
+        .map_elements(lambda bgc_id: data_helper.bgc_to_nrp_iso_classes.get(bgc_id))
+        .alias("true_nrp_ids"),
     )
 
     incorrect_matches = (
@@ -34,8 +39,7 @@ def main():
             NerpaReport.BGC_ID,
             NerpaReport.NRP_ID,
             NerpaReport.MATCH_RANK,
-            NerpaReport.MATCH_RANK_FOR_BGC,
-            NerpaReport.MATCH_RANK_FOR_NRP,
+            'true_nrp_ids'
         ])
     )
 
