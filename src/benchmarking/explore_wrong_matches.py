@@ -52,6 +52,7 @@ def main():
     nerpa_dir = Path(__file__).parent.parent.parent
     debug_root = nerpa_dir / "debug" / "incorrect_matches"
     molecules_dir = nerpa_dir / "nerpa_results" / "pnrpdb2_vs_antismash_db5" / "NRP_images" / "molecules"
+    graphs_dir = nerpa_dir / "nerpa_results" / "pnrpdb2_vs_antismash_db5" / "NRP_images" / "graphs"
 
     debug_root.mkdir(parents=True, exist_ok=True)
 
@@ -74,15 +75,19 @@ def main():
         folder.mkdir(parents=True, exist_ok=True)
 
         # ---- wrong ----
-        wrong_src = molecules_dir / f"{wrong_nrp_id}.png"
-        wrong_dst = folder / f"{wrong_nrp_id}_wrong.png"
+        wrong_mol_src = molecules_dir / f"{wrong_nrp_id}.png"
+        wrong_graph_src = graph_dir / f"{wrong_nrp_id}.png"
+        wrong_mol_dst = folder / f"{wrong_nrp_id}_molecule_wrong.png"
+        wrong_graph_dst = folder / f"{wrong_nrp_id}_graph_wrong.png"
         copy_png(wrong_src, wrong_dst)
 
         # ---- true (possibly multiple) ----
         for true_id in true_nrp_ids:
             true_id = true_id.strip()
-            true_src = molecules_dir / f"{true_id}.png"
-            true_dst = folder / f"{true_id}_true.png"
+            true_mol_src = molecules_dir / f"{true_id}.png"
+            true_graph_src = graphs_dir / f"{true_id}.png"
+            true_mol_dst = folder / f"{true_id}_molecule_true.png"
+            true_graph_dst = folder / f"{true_id}_graph_true.png"
             copy_png(true_src, true_dst)
 
     print(f"True and wrong NRP molecules for top {num_rows_to_inspect} are saved to {debug_root}")
