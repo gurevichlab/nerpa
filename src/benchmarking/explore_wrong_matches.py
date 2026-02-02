@@ -14,7 +14,6 @@ def main():
     nerpa2_report = data_helper.load_nerpa_report(Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
                                                   report_name='Nerpa 2.1',
                                                   score_column='LogOdds_vs_avg_BGC')
-    print(nerpa2_report.head())
 
     nerpa2_report = nerpa2_report.with_columns(
         pl.struct([NerpaReport.BGC_ID, NerpaReport.NRP_ID])
@@ -44,7 +43,9 @@ def main():
     )
 
     # q: write incorrect matches to tsv
-    incorrect_matches.write_csv('incorrect_matches.tsv', separator='\t')
+    out_file = Path('incorrect_matches.tsv')
+    incorrect_matches.write_csv(out_file, separator='\t')
+    print(f'The output is in {out_file.resolve()}')
 
 
 if __name__ == "__main__":
