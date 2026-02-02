@@ -26,7 +26,7 @@ def main():
         
         # iso classes for each bgc
         pl.col(NerpaReport.BGC_ID)
-        .map_elements(lambda bgc_id: data_helper.bgc_to_nrp_iso_classes.get(bgc_id))
+        .map_elements(lambda bgc_id: ','.join(data_helper.bgc_to_nrp_iso_classes.get(bgc_id)))
         .alias("true_nrp_ids"),
     )
 
