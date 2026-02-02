@@ -11,7 +11,7 @@ def main():
     # nerpa1_report = data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
     #                                                      tool_version='Nerpa 1',
     #                                                      report_name='Nerpa 1')
-    nerpa2_report = data_helper.load_nerpa_report(Path('/nerpa_results/approved_vs_mibig_norine_all/report.tsv'),
+    nerpa2_report = data_helper.load_nerpa_report(Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
                                                   report_name='Nerpa 2.1',
                                                   score_column='LogOdds_vs_avg_BGC')
     print(nerpa2_report.head())
