@@ -89,7 +89,7 @@ def main():
             true_graph_src = graphs_dir / f"{true_id}.png"
             true_mol_dst = folder / f"{true_id}_molecule_true.png"
             true_graph_dst = folder / f"{true_id}_graph_true.png"
-            copy_png(true_mol_dst, true_mol_dst)
+            copy_png(true_mol_src, true_mol_dst)
             copy_png(true_graph_src, true_graph_dst)
 
     print(f"True and wrong NRP molecules for top {num_rows_to_inspect} are saved to {debug_root}")
