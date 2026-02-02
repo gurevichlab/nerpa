@@ -45,7 +45,46 @@ def main():
     # q: write incorrect matches to tsv
     out_file = Path('incorrect_matches.tsv')
     incorrect_matches.write_csv(out_file, separator='\t')
-    print(f'The output is in {out_file.resolve()}')
+    print(f'The incorrect matches are written to in {out_file.resolve()}')
+
+    # paths
+    nerpa_dir = Path(__file__).parent.parent
+    debug_root = nerpa_dir / "debug" / "incorrect_matches"
+    molecules_dir = nerpa_dir / "nerpa_results" / "pnrpdb2_vs_antismash_db5" / "NRP_images" / "molecules"
+
+    debug_root.mkdir(parents=True, exist_ok=True)
+
+    # take first 10 incorrect rows
+    num_rows_to_inspect = 10
+    rows = incorrect_matches.head(num_rows_to_inspect).to_dicts()
+
+    def copy_png(src: Path, dst: Path):
+        if not src.exists():
+            print(f"[WARN] Missing image: {src}")
+            return
+        shutil.copy2(src, dst)
+
+    for i, r in enumerate(rows):
+        wrong_nrp_id = r[NerpaReport.NRP_ID]
+        true_nrp_ids = r["true_nrp_ids"].split(",")
+
+        # folder per incorrect match
+        folder = debug_root / f"{i}"
+        folder.mkdir(parents=True, exist_ok=True)
+
+        # ---- wrong ----
+        wrong_src = molecules_dir / f"{wrong_nrp_id}.png"
+        wrong_dst = folder / f"{wrong_nrp_id}_wrong.png"
+        copy_png(wrong_src, wrong_dst)
+
+        # ---- true (possibly multiple) ----
+        for true_id in true_nrp_ids:
+            true_id = true_id.strip()
+            true_src = molecules_dir / f"{true_id}.png"
+            true_dst = folder / f"{true_id}_true.png"
+            copy_png(true_src, true_dst)
+
+    print(f"True and wrong NRP molecules for top {num_rows_to_inspect} are saved to {debug_root}")
 
 
 if __name__ == "__main__":
