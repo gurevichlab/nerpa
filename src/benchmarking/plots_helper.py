@@ -348,22 +348,34 @@ class PlotsHelper:
 
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'total_{y_axis}_identified_{id_column}.png'
-        graphs = {report.name: self.data_helper.compute_total_identified(
-            report,
-            id_column,
-            max_top_k=max_top_k,
-            y_axis=y_axis
-        ) for report in nerpa_reports}
+        total_identified_graphs = {
+            report.name: {
+                cmp_method: self.data_helper.compute_total_identified(report,
+                                                                      id_column,
+                                                                      max_top_k=max_top_k,
+                                                                      y_axis=y_axis,
+                                                                      cmp_method=cmp_method)
+                for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
+                                   PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
+            }
+            for report in nerpa_reports
+        }
 
         fig, ax = plt.subplots(figsize=(10, 6))
-        for report_name, total_identified in graphs.items():
-            ax.step(
-                range(len(total_identified)),
-                total_identified,
-                where="post",  # "mid" makes the step flat across each x interval
-                label=report_name
-            )
-            ax.set_xticks(range(len(total_identified)))
+        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
+        for report_name, color in zip(total_identified_graphs.keys(), colors):
+            for cmp_method, total_identified in total_identified_graphs[report_name]:
+                linestyle = ('-'
+                              if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
+                              else '--')
+                ax.step(
+                    range(len(total_identified)),
+                    total_identified,
+                    where="post",  # "mid" makes the step flat across each x interval
+                    label=report_name,
+                    linestyle=linestyle,
+                )
+                ax.set_xticks(range(len(total_identified)))
 
         ax.set_title(f'{y_axis} of identified {id_column}',
                      fontsize=22)

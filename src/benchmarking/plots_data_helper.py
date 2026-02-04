@@ -268,8 +268,9 @@ class PlotsDataHelper:
     def compute_total_identified(self, nerpa_report: NerpaReport,
                                  id_column: str,
                                  max_top_k: int = 10,
-                                 y_axis: Literal['Count', 'Percentage'] = 'Count') -> pl.Series:
-        return compute_total_identified(self, nerpa_report, id_column, max_top_k, y_axis)
+                                 y_axis: Literal['Count', 'Percentage'] = 'Count',
+                                 cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> pl.Series:
+        return compute_total_identified(self, nerpa_report, id_column, max_top_k, y_axis, cmp_method)
 
     def get_identified_ids(self, report: NerpaReport, id_column: str) -> Sequence[str]:
         return get_identified_ids(self, report, id_column)

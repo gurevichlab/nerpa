@@ -138,7 +138,8 @@ def compute_total_identified(data_helper: 'PlotsDataHelper',
                              nerpa_report: NerpaReport,
                              id_column: str,
                              max_top_k: int = 10,
-                             y_axis: Literal['Count', 'Percentage'] = 'Count') -> pl.Series:
+                             y_axis: Literal['Count', 'Percentage'] = 'Count',
+                             cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> pl.Series:
     """Compute total identified for various top_k values."""
     total_ids = (
         len(data_helper.test_bgcs)
@@ -148,7 +149,7 @@ def compute_total_identified(data_helper: 'PlotsDataHelper',
 
     results = []
     for top_k in range(1, max_top_k + 1):
-        num_identified = compute_num_identified(data_helper, nerpa_report, id_column, top_k=top_k)
+        num_identified = compute_num_identified(data_helper, nerpa_report, id_column, top_k=top_k, cmp_mode=cmp_method)
         value = num_identified[-1]
         if y_axis == 'Percentage':
             value = 100 * value / total_ids

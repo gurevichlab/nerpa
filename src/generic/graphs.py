@@ -145,34 +145,55 @@ def shortest_path_through(G: nx.DiGraph,
 
 NodeLabel = TypeVar('NodeLabel')
 
-def graphs_one_substitution_away(G1: nx.DiGraph,
-                                 G2: nx.DiGraph,
-                                 nodes_comparator: Callable[[NodeLabel, NodeLabel], bool],
-                                 label_key: str = 'label') -> bool:
-    ''' checks if G1 can be transformed into G2 by substituting a single node '''
-    
-    # Quick structural filters
+def graphs_one_substitution_away(
+    G1: nx.DiGraph,
+    G2: nx.DiGraph,
+    nodes_comparator: Callable[[NodeLabel, NodeLabel], bool],
+    label_key: str = "label",
+    allow_isomorphic: bool = False
+) -> bool:
+    # Structural filters
     if G1.number_of_nodes() != G2.number_of_nodes():
         return False
     if G1.number_of_edges() != G2.number_of_edges():
         return False
 
-    # Optional: cheap degree-sequence filter (often helps a lot)
-    if sorted(dict(G1.in_degree()).values()) != sorted(dict(G2.in_degree()).values()):
+    if sorted(d for _, d in G1.in_degree()) != sorted(d for _, d in G2.in_degree()):
         return False
-    if sorted(dict(G1.out_degree()).values()) != sorted(dict(G2.out_degree()).values()):
+    if sorted(d for _, d in G1.out_degree()) != sorted(d for _, d in G2.out_degree()):
         return False
 
-    # Enumerate all directed graph isomorphisms, ignoring labels
+    # Fail loudly if labels missing
+    for n in G1:
+        if label_key not in G1.nodes[n]:
+            raise KeyError(f"G1 node {n!r} missing '{label_key}'")
+    for n in G2:
+        if label_key not in G2.nodes[n]:
+            raise KeyError(f"G2 node {n!r} missing '{label_key}'")
+
     matcher = DiGraphMatcher(G1, G2)
 
-    # If there are no isomorphisms structurally, we're done
-    return any(
-        sum(not nodes_comparator(G1.nodes[u1].get(label_key),
-                                 G2.nodes[u2].get(label_key))
-            for u1, u2 in mapping.items()) == 1
-        for mapping in matcher.isomorphisms_iter()
-    )
+    best = None
+    best_mismatches = None
+    for mapping in matcher.isomorphisms_iter():
+        G1_labels = [G1.nodes[u][label_key] for u in mapping.keys()]
+        G2_labels = [G2.nodes[u][label_key] for u in mapping.values()]
+        mismatches = [(tuple(l1), tuple(l2)) for l1, l2 in zip(G1_labels, G2_labels)
+                      if not nodes_comparator(l1, l2)]
+
+        # debug:
+        # print('G1 labels:', G1_labels)
+        # print('G2 labels:', G2_labels)
+        if best_mismatches is None or len(mismatches) < len(best_mismatches):
+            best_mismatches = mismatches
+
+        if len(mismatches) == 1 or (allow_isomorphic and len(mismatches) == 0):
+            return True
+
+    # If you want, temporarily print/log best to see what's happening:
+    print('BEST MISMATCHES\n: ', '\n\n'.join(f'{l1}\n{l2}' for l1, l2 in best_mismatches))
+
+    return False
 
 T = TypeVar("T", bound=Hashable)
 
