@@ -374,6 +374,7 @@ class PlotsHelper:
                     where="post",  # "mid" makes the step flat across each x interval
                     label=report_name,
                     linestyle=linestyle,
+                    color=color,
                 )
                 ax.set_xticks(range(len(total_identified)))
 
