@@ -347,8 +347,9 @@ class PlotsDataHelper:
 
     def compute_precision_recall_curve(self,
                                        nerpa_report: NerpaReport,
-                                       top_matches_per_bgc: Optional[int],) -> List[PrecisionRecallPoint]:
-        return compute_precision_recall_curve(self, nerpa_report, top_matches_per_bgc)
+                                       top_matches_per_bgc: Optional[int],
+                                       cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> List[PrecisionRecallPoint]:
+        return compute_precision_recall_curve(self, nerpa_report, top_matches_per_bgc, cmp_method)
 
     def extra_false_positives(self,
                               report1: NerpaReport,

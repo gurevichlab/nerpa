@@ -5,14 +5,15 @@ import numpy as np
 
 from matplotlib.axes import Axes
 
-from src.benchmarking.plots_data_helper import PlotsDataHelper, NerpaReport
+from src.benchmarking.plots_data_helper import PlotsDataHelper, NerpaReport, PCS
 from src.benchmarking.plots_utils import highlight_point
 
 
 def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                                 ax: Axes,
                                 data_helper: PlotsDataHelper,
-                                top_matches_per_bgc: Optional[int] = None):
+                                top_matches_per_bgc: Optional[int] = None,
+                                cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,):
     """
     Plot Precision-Recall curves for all reports.
 
@@ -22,7 +23,8 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
     for report in nerpa_reports:
         pr_points = data_helper.compute_precision_recall_curve(
             report,
-            top_matches_per_bgc=top_matches_per_bgc
+            top_matches_per_bgc=top_matches_per_bgc,
+            cmp_method=cmp_method,
         )
         precision_list, recall_list, score_list = zip(*[
             (point.precision, point.recall, point.score)

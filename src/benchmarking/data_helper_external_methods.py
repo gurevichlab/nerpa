@@ -284,7 +284,8 @@ class PrecisionRecallPoint(NamedTuple):
 
 def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
                                    nerpa_report: NerpaReport,
-                                   top_matches_per_bgc: Optional[int] = None) -> List[PrecisionRecallPoint]:
+                                   top_matches_per_bgc: Optional[int] = None,
+                                   cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> List[PrecisionRecallPoint]:
     """
     Compute precision and recall at various score thresholds.
     Assuming each BGC-NRP pair is scored, for each score threshold T
@@ -307,6 +308,16 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
         _report = _report.filter(
             pl.col(NerpaReport.MATCH_RANK_FOR_BGC) <= top_matches_per_bgc
         )
+    _report = _report.with_columns(
+        pl.struct([
+            pl.col(NerpaReport.NRP_ISO_CLASS),
+            pl.col(NerpaReport.BGC_ID)])
+        .map_elements(lambda row: data_helper.match_is_correct(bgc_id=row[NerpaReport.BGC_ID],
+                                                               nrp_iso_class=row[NerpaReport.NRP_ISO_CLASS],
+                                                               cmp_mode=cmp_method))
+        .alias(cmp_method)
+    )
+    IS_CORRECT_COL = cmp_method
 
     # Total number of true pairs (all correct matches that exist)
     total_true_pairs = sum(len(data_helper.bgc_to_nrp_iso_classes[bgc_id])
@@ -321,7 +332,7 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
     for score_threshold in thresholds:
         _report_positive = _report.filter(pl.col(NerpaReport.SCORE) >= score_threshold)
         num_positive = _report_positive.height
-        num_true_positives = _report_positive.filter(pl.col(NerpaReport.IS_CORRECT)).height
+        num_true_positives = _report_positive.filter(pl.col(cmp_method)).height
         num_false_negatives = total_true_pairs - num_true_positives
 
         precision = num_true_positives / num_positive

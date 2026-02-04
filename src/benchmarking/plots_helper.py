@@ -364,7 +364,7 @@ class PlotsHelper:
         fig, ax = plt.subplots(figsize=(10, 6))
         colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         for report_name, color in zip(total_identified_graphs.keys(), colors):
-            for cmp_method, total_identified in total_identified_graphs[report_name]:
+            for cmp_method, total_identified in total_identified_graphs[report_name].items():
                 linestyle = ('-'
                               if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
                               else '--')
