@@ -191,7 +191,7 @@ def graphs_one_substitution_away(
             return True
 
     # If you want, temporarily print/log best to see what's happening:
-    print('BEST MISMATCHES\n: ', '\n\n'.join(f'{l1}\n{l2}' for l1, l2 in best_mismatches))
+    # print('BEST MISMATCHES\n: ', '\n\n'.join(f'{l1}\n{l2}' for l1, l2 in best_mismatches))
 
     return False
 
