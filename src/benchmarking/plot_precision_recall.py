@@ -20,51 +20,57 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
     Starting from top-scoring pairs, gradually lower the score threshold
     and compute precision and recall at each threshold.
     """
-    for report in nerpa_reports:
-        pr_points = data_helper.compute_precision_recall_curve(
-            report,
-            top_matches_per_bgc=top_matches_per_bgc,
-            cmp_method=cmp_method,
-        )
-        precision_list, recall_list, score_list = zip(*[
-            (point.precision, point.recall, point.score)
-            for point in pr_points
-        ])
+    colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
+    for report, color in zip(nerpa_reports, colors):
+        for cmp_method in [PCS.NERPA_EQUAL_ALLOW_UNK_CHR, PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR]:
+            pr_points = data_helper.compute_precision_recall_curve(
+                report,
+                top_matches_per_bgc=top_matches_per_bgc,
+                cmp_method=cmp_method,
+            )
+            precision_list, recall_list, score_list = zip(*[
+                (point.precision, point.recall, point.score)
+                for point in pr_points
+            ])
 
-        # Plot precision vs recall
-        ax.plot(
-            recall_list,
-            precision_list,
-            label=report.name,
-            marker='o',
-            markersize=3,
-            linewidth=2
-        )
+            linestyle = '-' if cmp_method == PCS.NERPA_EQUAL_ALLOW_UNK_CHR else '--'
 
-        # Highlight points at recall intervals of 0.1
-        recall_thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-        for recall_threshold in recall_thresholds:
-            # Only highlight if the recall threshold is within the curve's range
-            if min(recall_list) <= recall_threshold <= max(recall_list):
-                # Interpolate to find precision and score at this recall value
-                precision_at_threshold = np.interp(
-                    recall_threshold,
-                    recall_list,
-                    precision_list
-                )
-                score_at_threshold = np.interp(
-                    recall_threshold,
-                    recall_list,
-                    score_list
-                )
-                
-                highlight_point(
-                    ax,
-                    x=recall_threshold,
-                    y=precision_at_threshold,
-                    label=f'{score_at_threshold:.2f}',
-                    color='red'
-                )
+            # Plot precision vs recall
+            ax.plot(
+                recall_list,
+                precision_list,
+                label=report.name,
+                marker='o',
+                markersize=3,
+                linewidth=2,
+                color=color,
+                linestyle=linestyle
+            )
+
+            # Highlight points at recall intervals of 0.1
+            recall_thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+            for recall_threshold in recall_thresholds:
+                # Only highlight if the recall threshold is within the curve's range
+                if min(recall_list) <= recall_threshold <= max(recall_list):
+                    # Interpolate to find precision and score at this recall value
+                    precision_at_threshold = np.interp(
+                        recall_threshold,
+                        recall_list,
+                        precision_list
+                    )
+                    score_at_threshold = np.interp(
+                        recall_threshold,
+                        recall_list,
+                        score_list
+                    )
+
+                    highlight_point(
+                        ax,
+                        x=recall_threshold,
+                        y=precision_at_threshold,
+                        label=f'{score_at_threshold:.2f}',
+                        color='red'
+                    )
 
     ax.set_xlabel('Recall (TP / (TP + FN))', fontsize=14)
     ax.set_ylabel('Precision (TP / (TP + FP))', fontsize=14)
