@@ -93,6 +93,17 @@ def compute_num_identified(data_helper: 'PlotsDataHelper',
     )
     IS_CORRECT_COL = cmp_mode
 
+    # check that if NerpaReport.IS_CORRECT is true, then IS_CORRECT_COL is also true
+    incorrect_matches = nerpa_report.filter(
+        pl.col(NerpaReport.IS_CORRECT) & ~pl.col(IS_CORRECT_COL)
+    )
+    if incorrect_matches.height > 0:
+        row = incorrect_matches.row(0, named=True)
+        raise ValueError(f"Inconsistent correctness columns: some matches are marked correct in "
+                         f"{NerpaReport.IS_CORRECT} but incorrect in {IS_CORRECT_COL}.\n"
+                         f"Example: BGC_ID={row[NerpaReport.BGC_ID]}, "
+                         f"NRP_ISO_CLASS={row[NerpaReport.NRP_ISO_CLASS]}")
+
     # Compute table (ID -> best score)
     best_scores = (
         nerpa_report
