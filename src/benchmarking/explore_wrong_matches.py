@@ -40,6 +40,14 @@ def main():
         )
     )
 
+    # print number of not identified
+    num_not_identified = (
+        identified
+        .filter(pl.col('identified') == False)
+        .height
+    )
+    print(f"Number of not identified BGCs: {num_not_identified}")
+
     # get top 10 not identified bgc ids
     num_not_identified_to_inspect = 10
     not_identified_bgc_ids = (
