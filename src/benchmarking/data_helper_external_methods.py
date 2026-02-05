@@ -76,33 +76,13 @@ PCS = PNRPDB_Compound_Similarity
 def compute_num_identified(data_helper: 'PlotsDataHelper',
                            nerpa_report: NerpaReport,
                            id_column: str,
-                           cmp_mode: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+                           cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
                            top_k: int = 1) -> pl.Series:
     """Count cumulative identified BGCs/NRPs."""
     assert id_column in (NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS), \
         f"Wrong id_column: {id_column}. Must be either BGC_ID or NRP_ID"
 
-    nerpa_report = nerpa_report.with_columns(
-        pl.struct([
-            pl.col(NerpaReport.NRP_ISO_CLASS),
-            pl.col(NerpaReport.BGC_ID)])
-        .map_elements(lambda row: data_helper.match_is_correct(bgc_id=row[NerpaReport.BGC_ID],
-                                                               nrp_iso_class=row[NerpaReport.NRP_ISO_CLASS],
-                                                               cmp_mode=cmp_mode))
-        .alias(cmp_mode)
-    )
-    IS_CORRECT_COL = cmp_mode
-
-    # check that if NerpaReport.IS_CORRECT is true, then IS_CORRECT_COL is also true
-    incorrect_matches = nerpa_report.filter(
-        pl.col(NerpaReport.IS_CORRECT) & ~pl.col(IS_CORRECT_COL)
-    )
-    if incorrect_matches.height > 0:
-        row = incorrect_matches.row(0, named=True)
-        raise ValueError(f"Inconsistent correctness columns: some matches are marked correct in "
-                         f"{NerpaReport.IS_CORRECT} but incorrect in {IS_CORRECT_COL}.\n"
-                         f"Example: BGC_ID={row[NerpaReport.BGC_ID]}, "
-                         f"NRP_ISO_CLASS={row[NerpaReport.NRP_ISO_CLASS]}")
+    IS_CORRECT_COL = NerpaReport.is_correct_col(cmp_method)
 
     # Compute table (ID -> best score)
     best_scores = (
@@ -160,7 +140,7 @@ def compute_total_identified(data_helper: 'PlotsDataHelper',
 
     results = []
     for top_k in range(1, max_top_k + 1):
-        num_identified = compute_num_identified(data_helper, nerpa_report, id_column, top_k=top_k, cmp_mode=cmp_method)
+        num_identified = compute_num_identified(data_helper, nerpa_report, id_column, top_k=top_k, cmp_method=cmp_method)
         value = num_identified[-1]
         if y_axis == 'Percentage':
             value = 100 * value / total_ids
@@ -319,16 +299,7 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
         _report = _report.filter(
             pl.col(NerpaReport.MATCH_RANK_FOR_BGC) <= top_matches_per_bgc
         )
-    _report = _report.with_columns(
-        pl.struct([
-            pl.col(NerpaReport.NRP_ISO_CLASS),
-            pl.col(NerpaReport.BGC_ID)])
-        .map_elements(lambda row: data_helper.match_is_correct(bgc_id=row[NerpaReport.BGC_ID],
-                                                               nrp_iso_class=row[NerpaReport.NRP_ISO_CLASS],
-                                                               cmp_mode=cmp_method))
-        .alias(cmp_method)
-    )
-    IS_CORRECT_COL = cmp_method
+    IS_CORRECT_COL = NerpaReport.is_correct_col(cmp_method)
 
     # Total number of true pairs (all correct matches that exist)
     total_true_pairs = sum(len(data_helper.bgc_to_nrp_iso_classes[bgc_id])
@@ -343,7 +314,7 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
     for score_threshold in thresholds:
         _report_positive = _report.filter(pl.col(NerpaReport.SCORE) >= score_threshold)
         num_positive = _report_positive.height
-        num_true_positives = _report_positive.filter(pl.col(cmp_method)).height
+        num_true_positives = _report_positive.filter(pl.col(IS_CORRECT_COL)).height
         num_false_negatives = total_true_pairs - num_true_positives
 
         precision = num_true_positives / num_positive

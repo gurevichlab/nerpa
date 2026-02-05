@@ -340,6 +340,30 @@ class PlotsDataHelper:
         ]
         )
 
+        for cmp_method in [
+            PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+            PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,
+        ]:
+            report = report.with_columns(
+                pl.struct([NerpaReport.NRP_ISO_CLASS, NerpaReport.BGC_ID])
+                .map_elements(lambda row: self.match_is_correct(row[NerpaReport.NRP_ISO_CLASS],
+                                                                row[NerpaReport.BGC_ID],
+                                                                cmp_method),
+                             return_dtype=pl.Boolean)
+                .alias(NerpaReport.is_correct_col(cmp_method))
+            )
+
+        # check that if NerpaReport.IS_CORRECT is true, then IS_CORRECT_COL is also true
+        incorrect_matches = report.filter(
+            pl.col(NerpaReport.is_correct_col(PCS.NERPA_EQUAL_ALLOW_UNK_CHR))
+            &
+            ~pl.col(NerpaReport.is_correct_col(PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR))
+        )
+        if incorrect_matches.height > 0:
+            row = incorrect_matches.row(0, named=True)
+            raise ValueError(f"Inconsistent correctness columns\n"
+                             f"Row: {row}\n")
+
         # add row index
         report = report.with_row_count(name=NerpaReport.MATCH_RANK)
 

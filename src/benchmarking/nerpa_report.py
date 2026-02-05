@@ -4,8 +4,9 @@ from typing import Literal, Dict, NamedTuple, Set
 
 import polars as pl
 
-from src.benchmarking.data_frames import PNRPDB_Info
+from src.benchmarking.data_frames import PNRPDB_Info, PNRPDB_Compound_Similarity
 
+PCS = PNRPDB_Compound_Similarity
 
 class NerpaReport(pl.DataFrame):
     NRP_ISO_CLASS = 'nrp_iso_class_representative'
@@ -27,6 +28,14 @@ class NerpaReport(pl.DataFrame):
         else:
             super().__init__(*args, **kwargs)
         self.name = report_name
+
+    @classmethod
+    def is_correct_col(cls, cmp_method: str) -> str:
+        assert cmp_method in [PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+                              PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR], \
+            f"Unsupported comparison method: {cmp_method}"
+
+        return f'{cls.IS_CORRECT}_{cmp_method}'
 
 
 class OutputSizeConfig(NamedTuple):
