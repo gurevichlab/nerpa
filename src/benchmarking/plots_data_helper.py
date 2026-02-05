@@ -238,6 +238,8 @@ class PlotsDataHelper:
                           if any(nrp_class in self.test_nrp_classes
                                  for nrp_class in self.bgc_to_nrp_iso_classes[bgc])}
 
+        print(f'Number of test BGCs: {len(self.test_bgcs)}')
+
 
         self.nrp_classes_with_matches = set(
             chain.from_iterable(
