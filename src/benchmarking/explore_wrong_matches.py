@@ -21,7 +21,7 @@ def main():
         .map_elements(lambda s: data_helper.match_is_correct(
             bgc_id=s[NerpaReport.BGC_ID],
             nrp_iso_class=s[NerpaReport.NRP_ID],
-            cmp_mode=PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,
+            cmp_mode=PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
         ))
         .alias("is_correct_tmp"),
         
