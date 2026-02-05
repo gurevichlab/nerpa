@@ -15,6 +15,46 @@ def main():
     nerpa2_report = data_helper.load_nerpa_report(Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
                                                   report_name='Nerpa 2.1',
                                                   score_column='LogOdds_vs_avg_BGC')
+    # Compute table (ID -> best score)
+    best_scores = (
+        nerpa2_report
+        .group_by(NerpaReport.BGC_ID)
+        .agg(
+            pl.col(NerpaReport.SCORE)
+            .max()
+            .alias('max_score')
+        )
+        .sort('max_score', descending=True)
+    )
+
+    # Compute table (ID -> identified) (if any of top_k matches is correct)
+    identified = (
+        nerpa2_report
+        .sort(NerpaReport.SCORE, descending=True)
+        .group_by(NerpaReport.BGC_ID)
+        .agg(
+            pl.col(NerpaReport.is_correct_col(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR))
+            .head(10)
+            .any()
+            .alias('identified')
+        )
+    )
+
+    # get top 10 not identified bgc ids
+    num_not_identified_to_inspect = 10
+    not_identified_bgc_ids = (
+        identified
+        .filter(pl.col('identified') == False)
+        .join(best_scores, on=NerpaReport.BGC_ID)
+        .sort('max_score', descending=True)
+        .select(NerpaReport.BGC_ID)
+        .head(num_not_identified_to_inspect)
+        .to_series()
+    ).to_list()
+
+    print(f"Top {num_not_identified_to_inspect} not identified BGC IDs:\n"
+          '\n'.join(not_identified_bgc_ids))
+    exit(0)
 
     nerpa2_report = nerpa2_report.with_columns(
         pl.struct([NerpaReport.BGC_ID, NerpaReport.NRP_ID])
