@@ -312,8 +312,8 @@ class PlotsHelper:
         for top_k in top_ks:
             fig, ax = plt.subplots(figsize=(10, 6))
             for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
-                for cmp_method, linestyle in [(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR, '-'),
-                                              (PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR, '--')]:
+                for cmp_method, linestyle in [(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR, '-'),]
+                                              #(PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR, '--')]:
                     _values = topk_results[top_k][cmp_method]
                     values = (cnts_to_percentages(_values)
                               if y_axis == 'Percentage'
