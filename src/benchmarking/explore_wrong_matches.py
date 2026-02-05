@@ -7,7 +7,7 @@ import shutil
 
 
 def main():
-    data_helper = PlotsDataHelper()
+    data_helper = PlotsDataHelper(bgc_test_set='mibig4_wo_training_bgcs')
 
     # nerpa1_report = data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
     #                                                      tool_version='Nerpa 1',
@@ -63,8 +63,8 @@ def main():
         .to_series()
     ).to_list()
 
-    print(f"Top {num_not_identified_to_inspect} not identified BGC IDs:\n"
-          '\n'.join(not_identified_bgc_ids))
+    print(f"Top {num_not_identified_to_inspect} not identified BGC IDs:")
+    print('\n'.join(not_identified_bgc_ids))
     exit(0)
 
     nerpa2_report = nerpa2_report.with_columns(
