@@ -22,7 +22,7 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
     """
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
     for report, color in zip(nerpa_reports, colors):
-        for cmp_method in [PCS.NERPA_EQUAL_ALLOW_UNK_CHR, PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR]:
+        for cmp_method in [PCS.NERPA_EQUAL_ALLOW_UNK_CHR,]:  # PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR]:
             pr_points = data_helper.compute_precision_recall_curve(
                 report,
                 top_matches_per_bgc=top_matches_per_bgc,

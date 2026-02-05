@@ -272,8 +272,8 @@ class PlotsHelper:
                             cmp_method,
                             top_k
                         )
-                    for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
-                                       PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
+                    for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,]
+                                       #PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
                 }
                 for top_k in top_ks
             }
@@ -355,8 +355,8 @@ class PlotsHelper:
                                                                       max_top_k=max_top_k,
                                                                       y_axis=y_axis,
                                                                       cmp_method=cmp_method)
-                for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,
-                                   PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
+                for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,]
+                                   #PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
             }
             for report in nerpa_reports
         }
