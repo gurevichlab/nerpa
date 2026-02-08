@@ -50,28 +50,6 @@ def calculate_error_counts(matches: List[SimplifiedMatch],
     return error_counts
 
 
-def plot_error_boxplots(error_counts_dict: Dict[str, List[int]],
-                        filename: Path):
-    """
-    Plot box plots for multiple sets of error counts.
-
-    Args:
-        error_counts_dict: Dictionary mapping match set names to lists of error counts
-        filename: Path to save the boxplot image
-    """
-    plt.figure(figsize=(10, 6))
-
-    data = list(error_counts_dict.values())
-    labels = list(error_counts_dict.keys())
-
-    plt.boxplot(data, vert=True, patch_artist=True)
-    plt.title('Box Plot of Alignment Errors')
-    plt.ylabel('Number of Errors')
-    plt.xticks(range(1, len(labels) + 1), labels)
-    plt.grid(True)
-    plt.savefig(filename, bbox_inches='tight')
-    plt.close()
-
 
 def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
                          filename: Path):
@@ -140,21 +118,16 @@ def load_nerpa2_matches(results_dir: Path) -> List[SimplifiedMatch]:
     return simplified_matches
 
 
-def nerpa1_vs_nerpa2():
-    nerpa_dir = Path('/')
-    nerpa1_results = nerpa_dir / 'data/for_training_and_testing/nerpa1_results'
-    nerpa2_results = nerpa_dir / 'test_results/nerpa_results'
-    approved_matches_yaml = nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml'
-    plots_dir = nerpa_dir / 'benchmarking/nerpa1_vs_nerpa2_plots'
-
+def nerpa1_vs_nerpa2(nerpa_dir: Path,
+                     args: argparse.Namespace) -> None:
     # Load nerpa1 matches
-    nerpa1_matches = load_nerpa1_matches(nerpa1_results)
+    nerpa1_matches = load_nerpa1_matches(args.nerpa1_results)
 
     # Load nerpa2 matches
-    nerpa2_matches = load_nerpa2_matches(nerpa2_results)
+    nerpa2_matches = load_nerpa2_matches(args.nerpa2_results)
 
     test_matches = [TestMatch.from_yaml_dict(item)
-                    for item in yaml.safe_load(approved_matches_yaml.read_text())]
+                    for item in yaml.safe_load(args.approved_matches_yaml.read_text())]
 
     # Create a dictionary of match sets
     match_sets = {
@@ -163,8 +136,50 @@ def nerpa1_vs_nerpa2():
     }
 
     # Benchmark and plot
-    benchmark_alignments(match_sets, test_matches, plots_dir)
+    benchmark_alignments(match_sets, test_matches, args.plots_dir)
 
+def parse_args() -> argparse.Namespace:
+    """
+    Parse CLI arguments for nerpa paths.
+
+    - You can provide a single --nerpa-dir to derive the original defaults, or
+      override any path individually with the specific flags.
+    - Returns an argparse.Namespace with attributes:
+      nerpa1_results, nerpa2_results, approved_matches_yaml, plots_dir
+    """
+    parser = argparse.ArgumentParser(description="Override nerpa paths")
+    parser.add_argument(
+        "--nerpa1-results",
+        type=Path,
+        default=None,
+        help="path to nerpa1 results",
+    )
+    parser.add_argument(
+        "--nerpa2-results",
+        type=Path,
+        default=None,
+        help="path to nerpa2 results",
+    )
+    parser.add_argument(
+        "--approved-matches-yaml",
+        type=Path,
+        default=None,
+        help="path to approved_matches.yaml",
+    )
+    parser.add_argument(
+        "--plots-dir",
+        type=Path,
+        default=None,
+        help="path to output plots dir",
+    )
+
+    ns = parser.parse_args()
+    return ns
 
 if __name__ == '__main__':
-    nerpa1_vs_nerpa2()
+    args = parse_args()
+    nerpa_dir = Path(__file__).resolve().parent.parent
+    assert nerpa_dir.name.startswith('nerpa'), "Script must be located in the 'nerpa' directory"
+
+    nerpa1_vs_nerpa2(nerpa_dir=nerpa_dir,
+                     args=args)

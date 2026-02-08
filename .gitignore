@@ -5,5 +5,5 @@
 *.deb
 .DS_Store
 nerpa_results
-*.~undo-tree~
+*~
 external_tools/paras/model.paras
