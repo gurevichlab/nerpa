@@ -4,9 +4,18 @@
 *db.sqlite3
 *.deb
 .DS_Store
-nerpa_results
+/nerpa_results
 *~
-external_tools/paras/model.paras
+external_tools
+training_results
+input
+debug
+results
+benchmarking
+build
+tmp
+test_results
+data/for_training_and_testing/nerpa1_results
 
 # generated preprocessed data
-/data/input/preprocessed/
+data/input/preprocessed/
