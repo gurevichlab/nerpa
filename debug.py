@@ -20,7 +20,7 @@ from functools import partial
 from itertools import combinations, islice
 from joblib import Parallel, delayed
 
-from scripts.pnrpdb_compound_similarity import nerpa_mon_cmp
+from scripts.pnrpdb_compound_similarity import nerpa_mon_cmp, unknown_chr_equal_known_cmp
 
 def main():
     nerpa_dir = Path(__file__).resolve().parent
@@ -34,7 +34,7 @@ def main():
     nrp_variants = [
         NRP_Variant.from_yaml_dict(nrp_dict)
         for nrp_dict in yaml.safe_load(open(pnrpdb_nrp_variants, 'r'))
-        if nrp_dict['nrp_variant_id']['nrp_id'] in ('NPA028802', 'NPA028880')
+        if nrp_dict['nrp_variant_id']['nrp_id'] in ('PNPdb04158', 'BGC0001358.0')
     ]
 
     nerpa_graphs_by_id = {
@@ -44,7 +44,7 @@ def main():
 
     for (nrp1_id, graph1), (nrp2_id, graph2) in combinations(nerpa_graphs_by_id.items(), 2):
         are_isomorphic = is_isomorphic(graph1, graph2,
-                                       node_match=lambda n1, n2: nerpa_mon_cmp(n1['monomer'], n2['monomer']))
+                                       node_match=lambda n1, n2: unknown_chr_equal_known_cmp(n1['monomer'], n2['monomer']))
         if are_isomorphic:
             print(f'Graphs for {nrp1_id} and {nrp2_id} are isomorphic!')
 

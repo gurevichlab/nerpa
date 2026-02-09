@@ -7,3 +7,6 @@
 nerpa_results
 *~
 external_tools/paras/model.paras
+
+# generated preprocessed data
+/data/input/preprocessed/
