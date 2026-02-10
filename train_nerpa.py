@@ -148,7 +148,7 @@ def get_bgc_variants(bgc_ids: Set[str],
 
 def get_nrp_variants(nerpa_dir: Path) -> Dict[NRP_ID, NRP_Variant]:
     parsed_rban_records_yaml = (nerpa_dir / 'data/input/preprocessed/'
-                                       'pnrpdb2_parsed_rban_records.yaml')
+                                       'pnrpdb2_mibig_norine_parsed_rban_records.yaml')
     with open (parsed_rban_records_yaml, 'r') as f:
         parsed_rban_records = [Parsed_rBAN_Record.from_dict(record)
                                for record in yaml.safe_load(f)]
