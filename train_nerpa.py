@@ -150,7 +150,7 @@ def get_nrp_variants(nerpa_dir: Path) -> Dict[NRP_ID, NRP_Variant]:
     parsed_rban_records_yaml = (nerpa_dir / 'data/input/preprocessed/'
                                        'pnrpdb2_parsed_rban_records.yaml')
     with open (parsed_rban_records_yaml, 'r') as f:
-        parsed_rban_records = [Parsed_rBAN_Record.fom_dict(record)
+        parsed_rban_records = [Parsed_rBAN_Record.from_dict(record)
                                for record in yaml.safe_load(f)]
 
     nrp_variants = rban_records_to_nrp_variants(parsed_rban_records)
