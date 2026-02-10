@@ -119,11 +119,13 @@ def rban_records_to_nrp_variants(rban_records: List[Parsed_rBAN_Record],
                                  config: Optional[rBAN_Processing_Config] = None,
                                  log: Optional[NerpaLogger] = None) -> List[NRP_Variant]:
     # For usage outside the main pipeline -- load default configs if not provided as arguments
-    if config is None:
-        config = load_config()
-    if monomer_names_helper is None:
-        load_monomer_names_helper(monomers_cfg_file=config.monomers_config,
-                                  nerpa_dir=config.nerpa_dir,)
+    if config is None or monomer_names_helper is None:
+        main_config = load_config()
+        if config is None:
+            config = main_config.rban_processing_config
+        if monomer_names_helper is None:
+            load_monomer_names_helper(monomers_cfg_file=main_config.monomers_config,
+                                      nerpa_dir=main_config.nerpa_dir,)
 
     nrp_variants = []
     for rban_record in rban_records:
