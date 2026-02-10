@@ -1,6 +1,6 @@
 from functools import partial
 from typing import (
-    List
+    List, Optional
 )
 
 import networkx as nx
@@ -22,7 +22,7 @@ from src.generic.graphs import (
 )
 from src.pipeline.logging.logger import NerpaLogger
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
-from src.config import rBAN_Processing_Config
+from src.config import rBAN_Processing_Config, load_config, load_monomer_names_helper
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 NerpaMonomerGraph = nx.DiGraph
@@ -114,10 +114,16 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
                        metadata=rban_record.metadata)
 
 
-def retrieve_nrp_variants(rban_records: List[Parsed_rBAN_Record],
-                          monomer_names_helper: MonomerNamesHelper,
-                          config: rBAN_Processing_Config,
-                          log: NerpaLogger) -> List[NRP_Variant]:
+def rban_records_to_nrp_variants(rban_records: List[Parsed_rBAN_Record],
+                                 monomer_names_helper: Optional[MonomerNamesHelper] = None,
+                                 config: Optional[rBAN_Processing_Config] = None,
+                                 log: Optional[NerpaLogger] = None) -> List[NRP_Variant]:
+    # For usage outside the main pipeline -- load default configs if not provided as arguments
+    if config is None:
+        config = load_config()
+    if monomer_names_helper is None:
+        load_monomer_names_helper(monomers_cfg_file=config.monomers_config,
+                                  nerpa_dir=config.nerpa_dir,)
 
     nrp_variants = []
     for rban_record in rban_records:
@@ -128,7 +134,8 @@ def retrieve_nrp_variants(rban_records: List[Parsed_rBAN_Record],
         if new_variant.fragments:
             nrp_variants.append(new_variant)
         else:
-            log.warning(f'Structure "{rban_record.compound_id}": unable to determine backbone sequence. '
-                        f'Skipping "{rban_record.compound_id}".')
+            if log is not None:
+                log.warning(f'Structure "{rban_record.compound_id}": unable to determine backbone sequence. '
+                            f'Skipping "{rban_record.compound_id}".')
 
     return nrp_variants

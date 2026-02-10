@@ -7,7 +7,7 @@ from src.config import Config
 from src.monomer_names_helper import Chirality
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 
-from src.rban_parsing.retrieve_nrp_variants import retrieve_nrp_variants
+from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record,
     parsed_chiralities,
@@ -120,9 +120,9 @@ class PipelineHelper_rBAN:
                               parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
         self.log.info(f'results will be in {self.config.output_config.nrp_variants}')
-        nrp_variants = retrieve_nrp_variants(parsed_rban_records,
-                                             self.monomer_names_helper,
-                                             self.config.rban_processing_config,
-                                             self.log)
+        nrp_variants = rban_records_to_nrp_variants(parsed_rban_records,
+                                                    self.monomer_names_helper,
+                                                    self.config.rban_processing_config,
+                                                    self.log)
         self.log.info('\n======= Done with Processing rBAN output')
         return nrp_variants
