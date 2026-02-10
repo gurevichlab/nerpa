@@ -1,4 +1,4 @@
-from typing import List, Dict, Set
+from typing import List, Dict, Set, NamedTuple
 from pathlib import Path
 from collections import defaultdict
 import argparse
@@ -91,8 +91,7 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
                                                  "based on Nerpa results on approved matches")
     parser.add_argument("--approved-matches", type=Path,
                         default=nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml')
-    parser.add_argument("--bgc-variants", type=Path)
-    parser.add_argument("--nrp-variants", type=Path)
+    #parser.add_argument("--bgc-variants", type=Path)
 
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'training_results')

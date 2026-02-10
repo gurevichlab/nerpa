@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from __future__ import annotations
 from collections import Counter
 
@@ -118,19 +120,31 @@ def split_train_test(
 
 
 def run_training(
-    antismash_results_dir: Path,
+    nerpa_dir: Path,
     approved_matches_train_yaml: Path,
+    output_dir: Path,
 ) -> Path:
-    """
+   """
     Step 2:
     - Run another script on the training subset to generate configs / model artifacts.
-
-    TODO:
-    - Which training script? Provide a CLI path (maybe as an arg later).
-    - Decide where artifacts are written.
-    - Return path to directory containing generated configs.
     """
-    raise NotImplementedError
+    train_script: Path = nerpa_dir / 'train_nerpa.py'
+    training_results_dir: Path = output_dir / 'training_results'
+
+    cmd: list[str] = [
+        sys.executable,
+        str(train_script),
+        '--approved-matches',
+        str(approved_matches_train_yaml),
+        '--output-dir',
+        str(training_results_dir),
+    ]
+    print('===== Running training:', ' '.join(cmd))
+    subprocess.run(cmd, check=True)
+
+    new_configs_dir: Path = training_results_dir / 'new_configs'
+    print(f'===== Training done. Expecting new configs in: {new_configs_dir}')
+    return new_configs_dir
 
 
 def fetch_configs(training_output_dir: Path) -> list[Path]:
@@ -163,6 +177,8 @@ def run_nerpa(
 
 def main() -> None:
     args = parse_args()
+    nerpa_dir: Path = Path(__file__).resolve().parent.parent
+    assert nerpa_dir.name.startswith('nerpa'), f"Expected nerpa_dir to be the nerpa repo, got {nerpa_dir}"
 
     # Step 1: split approved matches into training/testing subsets
     train_yaml, test_yaml = split_train_test(
@@ -170,13 +186,14 @@ def main() -> None:
         approved_matches_yaml=args.approved_matches_yaml,
         output_dir=args.output_dir,
     )
-    exit(0)  # debugging
 
     # Step 2: run training on training subset
     training_output_dir = run_training(
-        antismash_results_dir=args.antismash_results_dir,
+        nerpa_dir=nerpa_dir,
+        output_dir=args.output_dir,
         approved_matches_train_yaml=train_yaml,
     )
+    exit(0)  # debugging
 
     # Step 3: fetch produced configs and run nerpa.py on them
     configs = fetch_configs(training_output_dir=training_output_dir)
