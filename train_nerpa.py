@@ -14,6 +14,7 @@ from src.antismash_parsing.bgc_variant_types import BGC_Variant
 from src.build_output.write_results import write_yaml
 from src.config import load_monomer_names_helper, load_config, Config
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import MATCHING_STATE_TYPES
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 from src.training.logging_config import configure_logging
 from src.hmm.hmm_scoring_config import load_hmm_scoring_config
@@ -149,7 +150,8 @@ def get_nrp_variants(nerpa_dir: Path) -> Dict[NRP_ID, NRP_Variant]:
     parsed_rban_records_yaml = (nerpa_dir / 'data/input/preprocessed/'
                                        'pnrpdb2_parsed_rban_records.yaml')
     with open (parsed_rban_records_yaml, 'r') as f:
-        parsed_rban_records = yaml.safe_load(f)
+        parsed_rban_records = [Parsed_rBAN_Record.fom_dict(record)
+                               for record in yaml.safe_load(f)]
 
     nrp_variants = rban_records_to_nrp_variants(parsed_rban_records)
     return {variant.nrp_variant_id.nrp_id: variant
