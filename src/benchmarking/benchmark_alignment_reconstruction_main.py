@@ -177,7 +177,7 @@ def run_nerpa(
 
 def main() -> None:
     args = parse_args()
-    nerpa_dir: Path = Path(__file__).resolve().parent.parent
+    nerpa_dir: Path = Path(__file__).resolve().parent.parent.parent
     assert nerpa_dir.name.startswith('nerpa'), f"Expected nerpa_dir to be the nerpa repo, got {nerpa_dir}"
 
     # Step 1: split approved matches into training/testing subsets
