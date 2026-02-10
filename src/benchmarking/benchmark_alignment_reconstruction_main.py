@@ -1,6 +1,6 @@
+from __future__ import annotations
 import subprocess
 import sys
-from __future__ import annotations
 from collections import Counter
 
 import argparse
@@ -124,7 +124,7 @@ def run_training(
     approved_matches_train_yaml: Path,
     output_dir: Path,
 ) -> Path:
-   """
+    """
     Step 2:
     - Run another script on the training subset to generate configs / model artifacts.
     """
