@@ -6,6 +6,7 @@ import json
 import subprocess
 from pathlib import Path
 from typing import Dict
+import argparse
 
 import yaml
 
@@ -58,19 +59,40 @@ def load_nrp_to_representative(nerpa_results: Path) -> Dict[str, str]:
     return nrp_id_to_repr_id
 
 
+def parse_args(nerpa_dir: Path) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Preprocess pnrpdb2 for nerpa results and input tables.")
+    parser.add_argument(
+        "--use-existing-results",
+        action='store_true',
+        help="Skip running nerpa on pnrpdb2 and use existing results (for debugging)."
+    )
+    parser.add_argument(
+        "--pnrpdb2-path",
+        type=Path,
+        help="Path to pnrpdb2 TSV file (if not provided, will use data/input/pnrpdb2.tsv)."
+    )
+
+    args = parser.parse_args()
+    if args.pnrpdb2_path is None:
+        args.pnrpdb2_path = (nerpa_dir
+                             / 'data'
+                             / 'input'
+                             / 'pnrpdb2.tsv')
+    return args
+
 def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
-    pnrpdb2_path = (nerpa_dir
-                    / 'data'
-                    / 'input'
-                    / 'pnrpdb2.tsv')
+    args = parse_args(nerpa_dir)
+    pnrpdb2_path = args.pnrpdb2_path
+    pnrpdb_pref = pnrpdb2_path.stem
+    print(f'Using pnrpdb2 path: {pnrpdb2_path}, prefix for output tables: {pnrpdb_pref}')
     pnrpdb2_df = pd.read_csv(pnrpdb2_path, sep='\t')
 
     nerpa_results = (nerpa_dir
                      / 'nerpa_results'
                      / 'preprocess_pnrpdb2')
 
-    if '--use-existing-results' not in sys.argv:  # for debugging purposes
+    if not args.use_existing_results:
         run_nerpa_results_on_pnrpdb2(nerpa_dir=nerpa_dir,
                                      pnrpdb2_path=pnrpdb2_path,
                                      output_dir=nerpa_results)
@@ -91,7 +113,7 @@ def main():
     pnrpdb2_mibig_norine_path = (nerpa_dir
                                  / 'data'
                                  / 'input'
-                                 / 'pnrpdb2_mibig_norine.tsv')
+                                 / f'{pnrpdb_pref}_mibig_norine.tsv')
     is_mibig_norine_col = pnrpdb2_df['ID'].apply(is_mibig_norine)
     df_mibig_norine = pnrpdb2_df[is_mibig_norine_col]
     df_mibig_norine.to_csv(pnrpdb2_mibig_norine_path, sep='\t', index=False)
@@ -100,7 +122,7 @@ def main():
     pnrpdb2_deduplicated_path = (nerpa_dir
                                  / 'data'
                                  / 'input'
-                                 / 'pnrpdb2_deduplicated.tsv')
+                                 / f'{pnrpdb_pref}_deduplicated.tsv')
     is_representative_col = pnrpdb2_df['ID'].apply(is_representative)
     df_representatives = pnrpdb2_df[is_representative_col]
     df_representatives.to_csv(pnrpdb2_deduplicated_path, sep='\t', index=False)
@@ -117,10 +139,10 @@ def main():
     preprocessed_dir = nerpa_dir / 'data' / 'input' / 'preprocessed'
     preprocessed_dir.mkdir(exist_ok=True, parents=True)
     for table_name in (
-            'pnrpdb2',
-            'pnrpdb2_mibig_norine',
-            'pnrpdb2_deduplicated',
-            'pnrpdb2_mibig_norine_deduplicated',
+            f'{pnrpdb_pref}',
+            f'{pnrpdb_pref}_mibig_norine',
+            f'{pnrpdb_pref}_deduplicated',
+            f'{pnrpdb_pref}_mibig_norine_deduplicated',
     ):
         table = nerpa_dir / 'data' / 'input' / f'{table_name}.tsv'
         table_df = pd.read_csv(table, sep='\t')
