@@ -83,9 +83,6 @@ def split_train_test(
     fams = list(bigscape_family_to_matches.keys())
     rng.shuffle(fams)
 
-    matches_for_training = []
-    matches_for_testing = []
-
     total_matches = len(approved_matches)
     target_train_matches = int(total_matches * split_fraction)
 
@@ -160,19 +157,78 @@ def fetch_configs(training_output_dir: Path) -> list[Path]:
 
 
 def run_nerpa(
-    configs: list[Path],
-    antismash_results_dir: Path,
-) -> None:
-    """
-    Step 3b:
-    - Run nerpa.py for each config.
+        nerpa_dir: Path,
+        configs: Path,
+        bgc_ids: set[str],
+        smiles_tsv: Path,
+        antismash_results_dir: Path,
+        output_dir: Path,
+) -> Path:
+    # 1. Prepare antismash-paths-file
+    antismash_paths_file: Path = output_dir / 'antismash_paths.txt'
+    with antismash_paths_file.open('w', encoding='utf-8') as f:
+        for bgc_id in bgc_ids:
+            antismash_result_path = antismash_results_dir / bgc_id
+            if not antismash_result_path.exists():
+                print(f'Warning: antiSMASH result for {bgc_id} not found at {antismash_result_path}')
+                continue
+            f.write(str(antismash_result_path) + '\n')
 
-    TODO:
-    - Where is nerpa.py (within repo? need an arg)?
-    - Output dir / logging.
-    - Parallelism or sequential.
-    """
-    raise NotImplementedError
+    nerpa_script = nerpa_dir / 'nerpa.py'
+    cmd: list[str] = [
+        sys.executable, str(nerpa_script),
+        '--antismash-paths-file', str(antismash_paths_file),
+        '--smiles-tsv', str(smiles_tsv),
+        '--col-id', 'ID',
+        '--output-dir', str(output_dir / 'nerpa_results'),
+        '--configs-dir', str(configs),
+        '--min-num-matches-per-bgc', '50',
+        '--max-num-matches', '0',
+        '--force-output-dir',
+        '--fast-matching',
+        '--let-it-crash',
+        '--dump-all-preprocessed',
+        '--skip-molecule-drawing',
+        '--threads', '8',
+    ]
+
+    print('===== Running nerpa.py on test set with configs from training:', ' '.join(cmd))
+    subprocess.run(cmd, check=True)
+
+    return output_dir / 'nerpa_results'
+
+
+def benchmark_nerpa1_vs_2(
+    nerpa_dir: Path,
+    approved_matches_yaml: Path,
+    nerpa2_results: Path,
+    plots_dir: Path,
+) -> Path:
+    nerpa1_results = (
+            nerpa_dir
+            / 'data'
+            / 'for_training_and_testing'
+            / 'nerpa1_results'
+    )
+    benchmark_script = (
+            nerpa_dir
+            / 'src'
+            / 'benchmarking'
+            / 'benchmark_alignment_reconstruction.py'
+    )
+
+    cmd: list[str] = [
+        sys.executable, str(benchmark_script),
+        '--approved-matches-yaml', str(approved_matches_yaml),
+        '--nerpa1-results', str(nerpa1_results),
+        '--nerpa2-results', str(nerpa2_results),
+        '--plots-dir', str(plots_dir),
+    ]
+    print('===== Benchmarking Nerpa 1 vs Nerpa 2 on test set:', ' '.join(cmd))
+    subprocess.run(cmd, check=True)
+
+    return plots_dir
+
 
 
 def main() -> None:
@@ -188,18 +244,32 @@ def main() -> None:
     )
 
     # Step 2: run training on training subset
-    training_output_dir = run_training(
+    # new_configs = run_training(
+    #     nerpa_dir=nerpa_dir,
+    #     output_dir=args.output_dir,
+    #     approved_matches_train_yaml=train_yaml,
+    # )
+    new_configs = (args.output_dir
+                   / 'training_results'
+                   / 'new_configs')
+
+    # Step 3: run nerpa.py on test subset using configs/artifacts from training
+    bgc_ids = set(match["bgc_id"]
+                  for match in yaml.safe_load(test_yaml.read_text(encoding="utf-8")))
+    run_nerpa(nerpa_dir=nerpa_dir,
+              configs=new_configs,
+              bgc_ids=bgc_ids,
+              smiles_tsv=nerpa_dir / 'data/input/pnrpdb2_mibig_norine.tsv',
+              antismash_results_dir=args.antismash_results_dir,
+              output_dir=args.output_dir)
+
+    # Step 4: benchmark Nerpa 1 vs Nerpa 2 performance on test set
+    benchmark_nerpa1_vs_2(
         nerpa_dir=nerpa_dir,
-        output_dir=args.output_dir,
-        approved_matches_train_yaml=train_yaml,
+        approved_matches_yaml=test_yaml,
+        nerpa2_results=args.output_dir / 'nerpa_results',
+        plots_dir=args.output_dir / 'plots',
     )
-    exit(0)  # debugging
-
-    # Step 3: fetch produced configs and run nerpa.py on them
-    configs = fetch_configs(training_output_dir=training_output_dir)
-    run_nerpa(configs=configs, antismash_results_dir=args.antismash_results_dir)
-
-    # Note: test_yaml is produced but unused for now; we’ll wire it in later.
 
 
 if __name__ == "__main__":

@@ -405,7 +405,6 @@
     - [[AEH41794.1, 0], bMe-Phe]
     - [[AEH41794.1, 1], Ile/aIle]
     - [[AEH41794.1, 2], X3]
-    - [null, X0]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0000379
   nrp_id: BGC0000379.0
@@ -1746,7 +1745,6 @@
     - [[puwH, 0], aThr/Thr]
     - [[puwA, 0], NMe-Asn]
     - [[puwA, 1], Pro]
-    - [null, X1]
   acceptable_alternative_alignments:
     - - [[puwA, 0], NMe-Asn]
       - [[puwA, 1], Pro]

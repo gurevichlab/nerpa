@@ -90,6 +90,10 @@ class A_Domain_ID(NamedTuple):
             return False
         return (self.gene_id, self.a_domain_idx) < (other.gene_id, other.a_domain_idx)
 
+    def __gt__(self, other: 'A_Domain_ID | None') -> bool:
+        if other is None:
+            return True  # makes None < self be True
+        return (self.gene_id, self.a_domain_idx) > (other.gene_id, other.a_domain_idx)
 
 BGC_MODULE_DUMMY = BGC_Module(gene_id=GeneId(''), fragment_idx=-1, genomic_context=(), a_domain_idx=-1,
                               residue_score={}, modifications=(), iterative_module=False, iterative_gene=False)
@@ -112,6 +116,9 @@ class BGC_Variant_ID(NamedTuple):
     def to_dict(self) -> dict:
         return {'bgc_id': self.bgc_id.to_dict(),
                 'variant_idx': self.variant_idx}
+
+    def _genome_id(self) -> str:
+        return self.bgc_id._genome_id()
 
 
 @dataclass

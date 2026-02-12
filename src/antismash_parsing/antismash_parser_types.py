@@ -137,6 +137,9 @@ class BGC_ID(NamedTuple):
     def to_str_short(self):
         return f'{self.antiSMASH_file.stem}_{self.contig_idx}_{self.bgc_idx}'
 
+    def _genome_id(self) -> str:
+        return self.antiSMASH_file.stem
+
 
 @dataclass
 class antiSMASH_metadata:

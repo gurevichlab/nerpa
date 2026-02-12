@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import yaml
 from itertools import chain, product, permutations
 from typing import Optional, Tuple, List, NamedTuple, Iterable
@@ -17,6 +19,8 @@ from src.monomer_names_helper import NorineMonomerName
 from src.rban_parsing.get_linearizations import generate_linearizations_uniq
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rban_name_no_unk_idx
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 
 
 # SimplifiedAlignmentStep = Tuple[Optional[A_Domain_ID], Optional[NorineMonomerName]]
@@ -281,6 +285,7 @@ def simplified_alignment_to_light_alignment_one_iter(
         simplified_alignment: SimplifiedAlignment,
         bgc_variant: BGC_Variant,
         rban_monomers: List[rBAN_Monomer],
+        debug: bool = False
 ) -> Iterable[AlignmentLight]:
     assert len(split_into_bgc_iterations(simplified_alignment)) == 1, \
         "The provided simplified alignment contains multiple BGC iterations."
@@ -296,11 +301,20 @@ def simplified_alignment_to_light_alignment_one_iter(
                                for _, rban_name in simplified_alignment
                                if rban_name is not None]
 
+    if debug:
+        print("BGC A domain IDs:\n", '\n'.join(f'{bgc_id.gene_id}-{bgc_id.a_domain_idx}' for bgc_id in bgc_aids))
+        print("NRP monomer names:", nrp_monomer_names)
+        print("Alignment:\n", simplified_alignment_to_str(simplified_alignment))
+
     if not is_subsequence(list(filter_unique(alignment_aids)),
                           bgc_aids):
+        if debug:
+            print("Alignment A domain IDs are not a subsequence of BGC A domain IDs. No light alignments can be generated.")
         return
     if not is_subsequence(list(alignment_monomer_names),
                           nrp_monomer_names):
+        if debug:
+            print("Alignment monomer names are not a subsequence of NRP monomer names. No light alignments can be generated.")
         return
 
     module_idxs_in_bgc = {a_id: i for i, a_id in enumerate(bgc_aids)}
@@ -349,9 +363,10 @@ def simplified_alignment_to_light_alignment_one_iter(
 
 def _simplified_alignment_to_light_alignments(
         simplified_alignment: SimplifiedAlignment,
-        hmm: DetailedHMM,
+        bgc_variant: BGC_Variant,
         nrp_variant: NRP_Variant,
         #ambiguity_handling: Literal['any', 'max', 'crash'] = 'crash',
+        debug: bool = False
 ) -> Iterable[Tuple[AlignmentLight, ...]]:
 
     if nrp_variant.nrp_variant_id.nrp_id == 'BGC0000985.4':
@@ -366,8 +381,9 @@ def _simplified_alignment_to_light_alignments(
             alignments_per_linearizations: Tuple[Iterable[AlignmentLight], ...] = tuple(
                 simplified_alignment_to_light_alignment_one_iter(
                     alignment,
-                    hmm.bgc_variant,
-                    linearization
+                    bgc_variant,
+                    linearization,
+                    debug=debug
                 )
                 for alignment, linearization in zip(alignments, perm_linearizations)
             )
@@ -377,8 +393,9 @@ def _simplified_alignment_to_light_alignments(
 
 def simplified_alignment_to_light_alignments(
         simplified_alignment: SimplifiedAlignment,
-        hmm: DetailedHMM,
+        bgc_variant: BGC_Variant,
         nrp_variant: NRP_Variant,
+        debug: bool = False
         #ambiguity_handling: Literal['any', 'max', 'crash'] = 'crash',
 ) -> Iterable[Tuple[AlignmentLight, ...]]:
     def al_step_key(step: AlignmentStepLight) -> tuple:
@@ -398,12 +415,12 @@ def simplified_alignment_to_light_alignments(
     return filter_unique(
         _simplified_alignment_to_light_alignments(
             simplified_alignment,
-            hmm,
-            nrp_variant
+            bgc_variant,
+            nrp_variant,
+            debug=debug
         ),
         key=alignments_key
     )
-
 
 
 

@@ -8,7 +8,7 @@ from typing import Optional
 from src.hmm.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
 from itertools import pairwise
 import pulp
-
+import shutil
 from multiprocessing import Process
 from pathlib import Path
 from graphviz import Digraph
@@ -85,7 +85,11 @@ def create_nodes_layout(
             prob += x[v] >= x[u] + sep
 
     # Solve
-    status = prob.solve(pulp.PULP_CBC_CMD(msg=False))
+    # In conda envs, CBC is usually provided as the `cbc` executable (coin-or-cbc).
+    # PuLP's PULP_CBC_CMD expects a bundled CBC and may report "Not Available".
+    cbc_path: str | None = shutil.which('cbc')
+    status = prob.solve(pulp.COIN_CMD(path=cbc_path, msg=False))
+    # status = prob.solve(pulp.PULP_CBC_CMD(msg=False))
     if pulp.LpStatus[status] != "Optimal":
         raise RuntimeError(f"LP did not solve optimally: {pulp.LpStatus[status]}")
 

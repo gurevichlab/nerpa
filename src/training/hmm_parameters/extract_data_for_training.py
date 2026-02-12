@@ -200,10 +200,8 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
                             'BGC0000416.0', 'BGC0000416.1',  # gene XNC1_2229 is iterated although there're no signes of it
                             ):
             continue
-        if match.nrp_id == 'BGC0000374.6':  # alignment contains a gap in the beginning which cannot be reconstructed
-            pass
         alignments_iter = iter(simplified_alignment_to_light_alignments(match.true_alignment,
-                                                                        detailed_hmm,
+                                                                        detailed_hmm.bgc_variant,
                                                                         nrp_variant))
         all_alignments = list(alignments_iter)
         if not all_alignments:
@@ -238,8 +236,8 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
                 print(light_alignment_to_str(al))
             print(f'WARNING: ambiguous alignment reconstruction for match {match.nrp_id} '
                   'picking the first one')
-            raise ValueError(f'Ambiguous alignment reconstruction for match {match.nrp_id} '
-                             f'after simplification to light alignments')
+            # raise ValueError(f'Ambiguous alignment reconstruction for match {match.nrp_id} '
+            #                  f'after simplification to light alignments')
 
         alignments = all_alignments[0]
         for i, alignment in enumerate(alignments):

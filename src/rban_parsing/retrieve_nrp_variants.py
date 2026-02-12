@@ -98,7 +98,8 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
     backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, monomer_names_helper=monomer_names_helper)
 
     all_fragments = [backbone_to_fragment(backbone)
-                     for backbone in putative_backbones(graph)]
+                     for backbone in putative_backbones(graph,
+                                                        compound_id=rban_record.compound_id,)]
     proper_fragments = [fragment
                         for fragment in all_fragments
                         if len(fragment.monomers) > 1 or fragment.monomers[0].residue != UNKNOWN_RESIDUE]

@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,6 +80,7 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
     plt.xticks(range(len(bins) - 1), range(max_errors + 1))
     plt.legend()
     plt.grid(True, alpha=0.3, axis='y')
+    filename.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
 
@@ -103,7 +105,6 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
     histogram_file = plots_dir / 'alignment_reconstruction_histogram.png'
     boxplots_file = plots_dir / 'alignment_reconstruction_boxplots.png'
 
-    plot_error_boxplots(error_counts_dict, boxplots_file)
     plot_error_histograms(error_counts_dict, histogram_file)
 
 
@@ -178,8 +179,8 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == '__main__':
     args = parse_args()
-    nerpa_dir = Path(__file__).resolve().parent.parent
-    assert nerpa_dir.name.startswith('nerpa'), "Script must be located in the 'nerpa' directory"
+    nerpa_dir = Path(__file__).resolve().parent.parent.parent
+    assert nerpa_dir.name.startswith('nerpa'), f'Wrong nerpa_dir: {nerpa_dir}'
 
     nerpa1_vs_nerpa2(nerpa_dir=nerpa_dir,
                      args=args)

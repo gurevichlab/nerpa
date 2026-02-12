@@ -111,21 +111,29 @@ def get_log_probs(edge_choices_per_gc: Dict[GenomicContext, Dict[DetailedHMMEdge
             min_default_probability
         )
 
-    logger.warning(f'Too few data for {state_type.name} and {[f.name for f in gc]} ')
+    logger.warning(f'Too few data for {state_type.name} and {[f.name for f in gc]}:\n'
+                   f'{edge_type_cnts}\n')
 
     # Find a close genomic context with enough data
-    try:
-        gc_wo_feature = next(_gc
-                             for _gc, _edge_cnts in edge_choices_per_gc.items()
-                             if len(_gc) == len(gc) - 1 and sum(_edge_cnts.values()) >= min_num_cnts)
-    except StopIteration:
-        logger.error(f'No close genomic context with enough data for {state_type.name} and {[f.name for f in gc]} ')
-        raise
+    alt_gc = max((_gc
+                  for _gc, _edge_cnts in edge_choices_per_gc.items()
+                  if len(_gc) == len(gc) - 1),
+                 key=lambda _gc: sum(edge_choices_per_gc[_gc].values()),
+                 default=None)
+    if alt_gc is None or sum(edge_choices_per_gc[alt_gc].values()) < min_num_cnts:
+        logger.warning(f'No close genomic context with enough data for {state_type.name} and {[f.name for f in gc]}\n'
+                     f'Best candidate: {[f.name for f in alt_gc] if alt_gc else None}\n'
+                     f'{edge_choices_per_gc[alt_gc] if alt_gc else None}')
+        alt_gc = (
+            gc if alt_gc is None
+            else max((alt_gc, gc), key=lambda _gc: sum(edge_choices_per_gc[_gc].values()))
+        )
+        logger.info(f'Using {tuple(f.name for f in alt_gc)} as the closest genomic context with enough data.')
 
-    edge_type_cnts_wo_feature = edge_choices_per_gc.get(gc_wo_feature, {})
+    edge_type_cnts_alt_gc = edge_choices_per_gc.get(alt_gc, {})
 
-    log_probs_wo_feature = get_log_probs_from_cnts(
-        edge_type_cnts_wo_feature,
+    log_probs_alt_gc = get_log_probs_from_cnts(
+        edge_type_cnts_alt_gc,
         min_default_probability
     )
 
@@ -139,17 +147,17 @@ def get_log_probs(edge_choices_per_gc: Dict[GenomicContext, Dict[DetailedHMMEdge
 
     if edge_type_cnts[other_edge] == 0:
         logger.info(f'{other_edge.name} never chosen -> '
-                    f'asssigning probability from {tuple(f.name for f in gc_wo_feature)}.')
-        return log_probs_wo_feature
+                    f'asssigning probability from {tuple(f.name for f in alt_gc)}.')
+        return log_probs_alt_gc
 
-    if log_probs_fict_cnts[other_edge] > log_probs_wo_feature[other_edge]:
+    if log_probs_fict_cnts[other_edge] > log_probs_alt_gc[other_edge]:
         logger.info(f'Enough {other_edge.name} events -> '
                     f'adding fictional {normal_flow_edge.name}.')
         return log_probs_fict_cnts
     else:
         logger.info(f'Too few {other_edge.name} events -> '
-                    f'using probabilities from {tuple(f.name for f in gc_wo_feature)}')
-        return log_probs_wo_feature
+                    f'using probabilities from {tuple(f.name for f in alt_gc)}')
+        return log_probs_alt_gc
 
 
 ECS = EdgeChoicesSchema

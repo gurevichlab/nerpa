@@ -118,10 +118,12 @@ def get_bgc_variants(bgc_ids: Set[str],
                      nerpa_dir: Path,
                      output_dir: Path) -> Path:
     local_paths = load_local_paths(nerpa_dir)
-    antismash_results_dir = local_paths['as_results_mibig4_nrps']
+    antismash_results_dir = Path(local_paths['as_results_mibig4_nrps']).resolve()
 
-    assert all((antismash_results_dir / bgc_id).exists()
-               for bgc_id in bgc_ids), "Some BGC IDs do not have antismash results"
+    missing_bgcs = {bgc_id for bgc_id in bgc_ids if not (antismash_results_dir / bgc_id).exists()}
+    if missing_bgcs:
+        raise ValueError(f"The following BGC IDs do not have corresponding antiSMASH results in {antismash_results_dir}:\n"
+                         f"{missing_bgcs}\nPlease ensure that the antiSMASH results for these BGCs are present in the specified directory.")
 
     as_results_file = output_dir / 'antismash_results_paths.txt'
     with open(as_results_file, 'w') as f:
@@ -148,7 +150,7 @@ def get_bgc_variants(bgc_ids: Set[str],
 
 def get_nrp_variants(nerpa_dir: Path) -> Dict[NRP_ID, NRP_Variant]:
     parsed_rban_records_yaml = (nerpa_dir / 'data/input/preprocessed/'
-                                       'pnrpdb2_mibig_norine_parsed_rban_records.yaml')
+                                       'pnrpdb2_expanded_mibig_norine_parsed_rban_records.yaml')
     with open (parsed_rban_records_yaml, 'r') as f:
         parsed_rban_records = [Parsed_rBAN_Record.from_dict(record)
                                for record in yaml.safe_load(f)]
@@ -197,7 +199,7 @@ def check_bgcs_with_many_variants(bgc_variants: List[BGC_Variant]):
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
-    assert nerpa_dir.stem == 'nerpa2', "quick sanity check that nerpa_dir is correct"
+    assert nerpa_dir.stem == 'nerpa', "quick sanity check that nerpa_dir is correct"
 
     args = load_command_line_args(nerpa_dir)
 

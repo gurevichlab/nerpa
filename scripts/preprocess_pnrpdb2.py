@@ -131,7 +131,7 @@ def main():
     pnrpdb2_mibig_norine_deduplicated_path = (nerpa_dir
                                               / 'data'
                                               / 'input'
-                                              / 'pnrpdb2_mibig_norine_deduplicated.tsv')
+                                              / f'{pnrpdb_pref}_mibig_norine_deduplicated.tsv')
     df_mibig_norine_deduplicated = pnrpdb2_df[is_mibig_norine_col & is_representative_col]
     df_mibig_norine_deduplicated.to_csv(pnrpdb2_mibig_norine_deduplicated_path, sep='\t', index=False)
 
