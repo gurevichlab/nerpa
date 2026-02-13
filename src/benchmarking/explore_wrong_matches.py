@@ -1,3 +1,7 @@
+import subprocess
+
+import yaml
+
 from src.benchmarking.plots_data_helper import PlotsDataHelper
 from src.benchmarking.nerpa_report import NerpaReport
 from src.benchmarking.data_frames import PNRPDB_Compound_Similarity
@@ -7,12 +11,15 @@ import shutil
 
 
 def main():
+    nerpa_dir = Path(__file__).parent.parent.parent
+    assert nerpa_dir.name.startswith('nerpa'), f"Expected nerpa_dir to be the nerpa repo, got {nerpa_dir}"
+
     data_helper = PlotsDataHelper(bgc_test_set='mibig4_wo_training_bgcs')
 
     # nerpa1_report = data_helper.load_nerpa_report(Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
     #                                                      tool_version='Nerpa 1',
     #                                                      report_name='Nerpa 1')
-    nerpa2_report = data_helper.load_nerpa_report(Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
+    nerpa2_report = data_helper.load_nerpa_report(nerpa_dir / 'nerpa_results/mibig4_vs_mibig_norine/report.tsv',
                                                   report_name='Nerpa 2.1',
                                                   score_column='LogOdds_vs_avg_BGC')
     # Compute table (ID -> best score)
@@ -65,7 +72,36 @@ def main():
 
     print(f"Top {num_not_identified_to_inspect} not identified BGC IDs:")
     print('\n'.join(not_identified_bgc_ids))
-    exit(0)
+    with open(nerpa_dir / 'local_paths.yaml', 'r') as f:
+        local_paths = yaml.safe_load(f)
+
+    antismash_results = Path(local_paths['as_results_mibig4_nrps'])
+
+    antismash_path_file = nerpa_dir / 'tmp/antismash_paths_for_top_not_identified_bgcs.txt'
+    with open(antismash_path_file, 'w') as f:
+        for bgc_id in not_identified_bgc_ids:
+            f.write(str(antismash_results / bgc_id) + '\n')
+
+    # run nerpa on these bgcs against mibig_norine
+    command = [
+        "python3", "nerpa.py",
+        "--antismash-paths-file", str(antismash_path_file),
+        "--smiles-tsv", "data/input/pnrpdb2_expanded_mibig_norine.tsv",
+        "--col-id", "ID",
+        "--output-dir", "nerpa_results/debug_not_identified",
+        "--force-output-dir",
+        "--fast-matching",
+        '--max-num-matches-per-bgc', '10',
+        '--min-num-matches-per-bgc', '10',
+        '--max-num-matches', '0',
+    ]
+
+    print(f"Running nerpa on top not identified BGCs: {' '.join(command)}")
+    subprocess.run(command, check=True)
+    print(f'The results are in {(nerpa_dir / "nerpa_results/debug_not_identified").resolve()}')
+
+
+    '''
 
     nerpa2_report = nerpa2_report.with_columns(
         pl.struct([NerpaReport.BGC_ID, NerpaReport.NRP_ID])
@@ -144,6 +180,7 @@ def main():
             copy_png(true_graph_src, true_graph_dst)
 
     print(f"True and wrong NRP molecules for top {num_rows_to_inspect} are saved to {debug_root}")
+    '''
 
 
 if __name__ == "__main__":

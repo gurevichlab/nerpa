@@ -124,6 +124,8 @@ def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[
     -> Dict[NRP_ID, NRP_ID]:
     dsu = DSU()
     for nrp1_id, nrp2_id in similarity_dict[cmp]:
+        # if nrp1_id == 'BGC0001692.0' or nrp2_id == 'BGC0001692.0':
+        #     print('Similarity dict item: ', nrp1_id, nrp2_id)
         dsu.union(nrp1_id, nrp2_id)
 
     nrp_id_to_iso_class = {nrp_id: repr_id for nrp_id, repr_id in dsu.items()}
@@ -177,13 +179,16 @@ class PlotsDataHelper:
                                       self.pnrpdb_info)
         # right now similarity table is not complete, so I update it from pnrpdb_info
         # to ensure that all compounds in the same iso-class are similar
-        add_similarities_from_pnrpdb_info(self.similarity_dict, self.pnrpdb_info)
+        # add_similarities_from_pnrpdb_info(self.similarity_dict, self.pnrpdb_info)
         self.similarity_dict[PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR] = (
             self.similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR] |
             self.similarity_dict[PCS.NERPA_ONE_SUB_ALLOW_UNK_CHR]
         )
         self.nrp_id_to_iso_class = get_nrp_id_to_iso_class(self.similarity_dict,
                                                            self.pnrpdb_info)
+        with open(nerpa_dir / 'tmp/nrp_id_to_iso_class.txt', 'w') as f:
+            for nrp_id, iso_class in sorted(self.nrp_id_to_iso_class.items()):
+                f.write(f'{nrp_id}: {iso_class}' + '\n')
 
         bgc_to_nrps = defaultdict(set)
         for row in self.mibig_bgcs_info.iter_rows(named=True):
@@ -221,6 +226,9 @@ class PlotsDataHelper:
                     (pl.col(PNRPDB_Info.NUM_NRPS_MONOMERS) >= 3))
             [PNRPDB_Info.COMPOUND_ID]
         )
+        with open(nerpa_dir / 'tmp/test_nrps.txt', 'w') as f:
+            for nrp in sorted(test_nrps):
+                f.write(f'{nrp}: {self.nrp_id_to_iso_class[nrp]}' + '\n')
 
         self.test_nrp_classes = set(
             self.nrp_id_to_iso_class[nrp_id]
@@ -229,7 +237,7 @@ class PlotsDataHelper:
 
         _test_bgcs = set(
             test_bgcs_info
-            .filter(pl.col(MIBiG_BGCs_Info.NUM_A_DOMAINS) >= 2)
+            .filter(pl.col(MIBiG_BGCs_Info.NUM_A_DOMAINS) >= 3)
             [MIBiG_BGCs_Info.BGC_ID]
         )
 
@@ -237,8 +245,13 @@ class PlotsDataHelper:
         self.test_bgcs = {bgc for bgc in _test_bgcs
                           if any(nrp_class in self.test_nrp_classes
                                  for nrp_class in self.bgc_to_nrp_iso_classes[bgc])}
+        self.test_bgcs -= {'BGC0001561'}  # a mistake in MIBiG
 
         print(f'Number of test BGCs: {len(self.test_bgcs)}')
+
+        with open(nerpa_dir / 'tmp/test_bgcs.txt', 'w') as f:
+            for bgc_id in sorted(self.test_bgcs):
+                f.write(f'{bgc_id}: {",".join(self.bgc_to_nrp_iso_classes[bgc_id])}' + '\n')
 
 
         self.nrp_classes_with_matches = set(

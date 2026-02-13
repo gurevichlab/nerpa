@@ -266,17 +266,22 @@ class MonomerNamesHelper:
         if mon_type == 'PKS':
             return PKS_MONOMER
 
-        if mon_type == 'NOT_NRPS':
-            return NOT_NRPS_MONOMER
+        # if mon_type == 'NOT_NRPS':  # Dil and Dap were erroneously marked as NOT_NRPS. As a quick fix -- treat all monomers as NRPS
+        #     return NOT_NRPS_MONOMER
 
-        assert mon_type in ('NRPS', 'NA', 'PKS_Hybrid'), \
+        assert mon_type in ('NRPS', 'NA', 'PKS_Hybrid', 'NOT_NRPS'), \
             f'Unexpected monomer type: {name} -- {mon_type}'
 
         residue = NerpaResidue(row['NerpaResidue'])
         if residue not in self.supported_residues:
             residue = UNKNOWN_RESIDUE
-        methylated = 'MT' in eval(row['Modifications'])
-        chirality = Chirality.D if 'E' in eval(row['Modifications']) else Chirality.L   # TODO: make a separate column for chirality
+        try:
+            methylated = 'MT' in eval(row['Modifications'])
+            chirality = Chirality.D if 'E' in eval(row['Modifications']) else Chirality.L   # TODO: make a separate column for chirality
+        except:
+            print(f'Error parsing modifications for {name}\n'
+                  f'Table row: {row}\n')
+            raise  # debug
 
         self._cache[(name, name_format)] = NRP_Monomer(residue=residue,
                                                        methylated=methylated,

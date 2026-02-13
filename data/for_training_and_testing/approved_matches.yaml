@@ -2945,8 +2945,6 @@
     - [[FNZ07_17565, 3], Nva]
     - [[FNZ07_17565, 4], Ala]
     - [[FNZ07_17570, 0], Nva]
-    - [null, X0]
-    - [null, X0]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002564
   nrp_id: BGC0002564.1
@@ -2958,8 +2956,6 @@
     - [[FNZ07_17565, 3], Nva]
     - [[FNZ07_17565, 4], Ala]
     - [[FNZ07_17570, 0], Nva]
-    - [null, X0]
-    - [null, X0]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002564
   nrp_id: BGC0002564.4
@@ -2975,7 +2971,6 @@
 - bgc_id: BGC0002564
   nrp_id: BGC0002564.6
   true_alignment:
-    - [null, X0]
     - [[FNZ07_17560, 0], Gly]
     - [[FNZ07_17565, 0], OH-Asp]
     - [[FNZ07_17565, 1], Ser]
@@ -2983,7 +2978,6 @@
     - [[FNZ07_17565, 3], Nva]
     - [[FNZ07_17565, 4], Ser]
     - [[FNZ07_17570, 0], Nva]
-    - [null, X0]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002564
   nrp_id: BGC0002564.7
@@ -2995,8 +2989,6 @@
     - [[FNZ07_17565, 3], Nva]
     - [[FNZ07_17565, 4], Ser]
     - [[FNZ07_17570, 0], Nva]
-    - [null, X0]
-    - [null, X0]
   acceptable_alternative_alignments: []
 - bgc_id: BGC0002569
   nrp_id: BGC0002569.2

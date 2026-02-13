@@ -103,6 +103,10 @@ def split_train_test(
         for match in bigscape_family_to_matches[fam]
     ]
 
+    matches_for_testing, matches_for_training = (
+        matches_for_training, matches_for_testing
+    )  # debug
+
     train_yaml: Path = output_dir / "approved_matches.train.yaml"
     test_yaml: Path = output_dir / "approved_matches.test.yaml"
 
@@ -144,18 +148,6 @@ def run_training(
     return new_configs_dir
 
 
-def fetch_configs(training_output_dir: Path) -> list[Path]:
-    """
-    Step 3a:
-    - Locate configs created by the training script.
-
-    TODO:
-    - Define what a "config" file is (YAML/JSON?) and filename pattern.
-    - Decide ordering/dedup behavior.
-    """
-    raise NotImplementedError
-
-
 def run_nerpa(
         nerpa_dir: Path,
         configs: Path,
@@ -183,12 +175,14 @@ def run_nerpa(
         '--output-dir', str(output_dir / 'nerpa_results'),
         '--configs-dir', str(configs),
         '--min-num-matches-per-bgc', '50',
+        '--max-num-matches-per-bgc', '50',
         '--max-num-matches', '0',
         '--force-output-dir',
         '--fast-matching',
         '--let-it-crash',
         '--dump-all-preprocessed',
         '--skip-molecule-drawing',
+        '--disable-deduplication',
         '--threads', '8',
     ]
 
@@ -244,14 +238,11 @@ def main() -> None:
     )
 
     # Step 2: run training on training subset
-    # new_configs = run_training(
-    #     nerpa_dir=nerpa_dir,
-    #     output_dir=args.output_dir,
-    #     approved_matches_train_yaml=train_yaml,
-    # )
-    new_configs = (args.output_dir
-                   / 'training_results'
-                   / 'new_configs')
+    new_configs = run_training(
+        nerpa_dir=nerpa_dir,
+        output_dir=args.output_dir,
+        approved_matches_train_yaml=train_yaml,
+    )
 
     # Step 3: run nerpa.py on test subset using configs/artifacts from training
     bgc_ids = set(match["bgc_id"]

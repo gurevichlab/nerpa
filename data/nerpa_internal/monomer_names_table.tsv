@@ -1102,7 +1102,7 @@ Hiv	rBAN/Norine	Hiv	['']	NRPS
 Hmp	rBAN/Norine	Hmp	['OH', 'MT']	NRPS	
 Hpoe	rBAN/Norine	Hpoe	['unknown']	NRPS	
 Hpr	rBAN/Norine	Hpr	['']	NRPS	
-Hva	rBAN/Norine	Hva		NOT_NRPS	
+Hva	rBAN/Norine	Hva	['']	NOT_NRPS	
 Hysp	rBAN/Norine	Hysp	['unknown']	NOT_NRPS	
 iC10:0	rBAN/Norine	iC10:0	['unknown']	NOT_NRPS	
 iC10:2(2.t4)	rBAN/Norine	iC10:2(2.t4)	['unknown']	NOT_NRPS	
@@ -1155,7 +1155,7 @@ Nst	rBAN/Norine	Nst	['unknown']	NOT_NRPS
 Nva	rBAN/Norine	Nva	['unknown']	NRPS	
 OAc-Leuol	rBAN/Norine	OAc-Leuol	['unknown']	NRPS	
 Oli	rBAN/Norine	Oli	['unknown']	NOT_NRPS	
-oxoDec	rBAN/Norine	oxoDec		NOT_NRPS	
+oxoDec	rBAN/Norine	oxoDec	['']	NOT_NRPS	
 PALOA	rBAN/Norine	PALOA	['unknown']	NOT_NRPS	
 PAOA	rBAN/Norine	PAOA	['unknown']	NOT_NRPS	
 Pda	rBAN/Norine	Pda	['unknown']	NOT_NRPS	

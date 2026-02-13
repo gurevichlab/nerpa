@@ -87,7 +87,8 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
 
 def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
                          tests: List[TestMatch],
-                         plots_dir: Path) -> None:
+                         plots_dir: Path,
+                         take_only_tests_processed_by_all: bool = False) -> None:
     """
     Benchmark multiple sets of matches against true alignments and visualize the results.
 
@@ -96,6 +97,13 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
         tests: List of TestMatch objects containing true alignments
         plots_dir: Path to save the plots
     """
+    if take_only_tests_processed_by_all:
+        test_keys = {(test.bgc_id, test.nrp_id) for test in tests}
+        for name, matches in match_sets.items():
+            match_keys = {(m.bgc_id, m.nrp_id) for m in matches}
+            test_keys = test_keys.intersection(match_keys)
+        tests = [test for test in tests if (test.bgc_id, test.nrp_id) in test_keys]
+
     error_counts_dict = {}
     for name, matches in match_sets.items():
         error_counts = calculate_error_counts(matches, name, tests,
@@ -103,7 +111,6 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
         error_counts_dict[name] = error_counts
 
     histogram_file = plots_dir / 'alignment_reconstruction_histogram.png'
-    boxplots_file = plots_dir / 'alignment_reconstruction_boxplots.png'
 
     plot_error_histograms(error_counts_dict, histogram_file)
 

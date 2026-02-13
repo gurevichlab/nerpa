@@ -1,8 +1,10 @@
 from __future__ import annotations
 from pathlib import Path
+from typing import Literal
 
 from src.benchmarking.plots_helper import PlotsHelper
 from PIL import Image
+import argparse
 
 
 def join_pngs_side_by_side(output_path, *image_paths):
@@ -57,34 +59,48 @@ def nerpa1_vs_nerpa2():
     helper.plot_all([nerpa1_report, nerpa2_report],
                      output_dir=output_dir)
 
-def nerpa1_vs_nerpa2_vs_biocat():
+def nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path: Path,
+                               nerpa2_report_path: Path,
+                               biocat_report_path: Path,
+                               output_dir: Path,
+                               bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs']):
     #helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
     helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
-    nerpa_dir = Path(__file__).parent
 
-    nerpa1_report = helper.data_helper.load_nerpa_report(Path(
-        nerpa_dir / 'data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
+    # Path( nerpa_dir / 'data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
+    nerpa1_report = helper.data_helper.load_nerpa_report(report_path=nerpa1_report_path,
                                                          tool_version='Nerpa 1',
                                                          report_name='Nerpa 1')
-    nerpa2_report = helper.data_helper.load_nerpa_report(nerpa_dir / Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
+    # nerpa_dir / Path('nerpa_results/mibig4_vs_mibig_norine/report.tsv'),
+    nerpa2_report = helper.data_helper.load_nerpa_report(report_path=nerpa2_report_path,
                                                          report_name='Nerpa 2',
                                                          score_column='LogOdds_vs_avg_BGC')
-    biocat_report = helper.data_helper.load_nerpa_report(nerpa_dir / Path('data/for_training_and_testing/biocat_results.txt'),
+    # nerpa_dir / Path('data/for_training_and_testing/biocat_results.txt'),
+    biocat_report = helper.data_helper.load_nerpa_report(report_path=biocat_report_path,
                                                          report_name='BioCAT',
                                                          tool_version='BioCAT')
 
 
-    output_dir = nerpa_dir / Path('benchmarking/nerpa1_vs_nerpa2_vs_biocat_plots')
+    # output_dir = nerpa_dir / Path('benchmarking/nerpa1_vs_nerpa2_vs_biocat_plots')
     helper.plot_all([nerpa1_report, nerpa2_report, biocat_report],
                     output_dir=output_dir)
 
 
-def plots_for_paper():
+def plots_for_paper(nerpa1_report_path: Path,
+                    nerpa2_report_path: Path,
+                    biocat_report_path: Path,
+                    output_dir: Path,
+                    bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs']) -> Path:
     nerpa_dir = Path(__file__).parent
     
-    nerpa1_vs_nerpa2_vs_biocat()
+    nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path=nerpa1_report_path,
+                               nerpa2_report_path=nerpa2_report_path,
+                               biocat_report_path=biocat_report_path,
+                               output_dir=output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots',
+                               bgc_test_set=bgc_test_set)
+
     # nerpa1_vs_nerpa2_alignment()
-    plots_for_paper_dir = nerpa_dir / 'benchmarking' / 'plots_for_paper'
+    plots_for_paper_dir = output_dir / 'plots_for_paper'
     plots_for_paper_dir.mkdir(exist_ok=True)
 
     # copy the following files to plots_for_paper_dir:
@@ -92,9 +108,9 @@ def plots_for_paper():
     # nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.png'
     # nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png'
     files_to_copy = [
-        nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.png',
-        nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'Percentage_identified_Genome_ID_top10.png',
-        nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'precision_recall_curve_top_10.png',
+        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.png',
+        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'Percentage_identified_Genome_ID_top10.png',
+        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'precision_recall_curve_top_10.png',
      #   nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png',
     ]
     for file_path in files_to_copy:
@@ -104,10 +120,26 @@ def plots_for_paper():
     join_pngs_side_by_side(plots_for_paper_dir / 'combined_figure.png',
                            *files_to_copy)
 
+    return plots_for_paper_dir / 'combined_figure.png'
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Generate benchmarking plots comparing Nerpa 1, Nerpa 2, and BioCAT.")
+    parser.add_argument("--nerpa1-report", type=Path, required=True, help="Path to Nerpa 1 report CSV file")
+    parser.add_argument("--nerpa2-report", type=Path, required=True, help="Path to Nerpa 2 report TSV file")
+    parser.add_argument("--biocat-report", type=Path, required=True, help="Path to BioCAT report file")
+    parser.add_argument("--output-dir", type=Path, required=True, help="Directory to save the generated plots")
+    parser.add_argument("--bgc-test-set", type=str, choices=['mibig4_wo_training_bgcs', 'training_bgcs'], default='mibig4_wo_training_bgcs', help="Which BGC test set to use for plotting")
+    return parser.parse_args()
 
 if __name__ == "__main__":
     # Example usage
-    plots_for_paper()
+    args = parse_args()
+    figure_path = plots_for_paper(nerpa1_report_path=args.nerpa1_report,
+                                  nerpa2_report_path=args.nerpa2_report,
+                                  biocat_report_path=args.biocat_report,
+                                  output_dir=args.output_dir,
+                                  bgc_test_set=args.bgc_test_set)
+    print(f"Combined figure saved at: {figure_path}")
     # nerpa1_vs_nerpa2()
     #nerpa1_vs_nerpa2_vs_biocat()
     #nerpa1_vs_nerpa2_vs_nerpa2new()
