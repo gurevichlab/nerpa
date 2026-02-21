@@ -111,16 +111,17 @@ def truncate_output(report: NerpaReport,
     # Filter based on configuration
     filtered = report.filter(
         (
-            (pl.col('_match_rank_for_bgc') <= out_size_cfg.max_num_matches_per_bgc)
+            (pl.col('_match_rank_for_bgc') < out_size_cfg.max_num_matches_per_bgc)  # < because match_rank starts from 0
             &
-            (pl.col('_match_rank_for_nrp') <= out_size_cfg.max_num_matches_per_nrp)
+            (pl.col('_match_rank_for_nrp') < out_size_cfg.max_num_matches_per_nrp)
         )
         |
-        (pl.col('_match_rank_for_bgc') <= out_size_cfg.min_num_matches_per_bgc)
+        (pl.col('_match_rank_for_bgc') < out_size_cfg.min_num_matches_per_bgc)
         |
-        (pl.col('_match_rank_for_nrp') <= out_size_cfg.min_num_matches_per_nrp)
+        (pl.col('_match_rank_for_nrp') < out_size_cfg.min_num_matches_per_nrp)
     ).head(max_num_matches)
 
+    print(f"Truncated report {name} from {len(report)} matches to {len(filtered)} matches based on output size configuration")
     return NerpaReport(filtered.drop(['_match_rank_for_bgc', '_match_rank_for_nrp']),
                        report_name=name)
 
@@ -140,6 +141,8 @@ def prepare_data_for_benchmarking(_report: pl.DataFrame,
     if missing_bgcs:
         print(f"Warning! Some BGC IDs are missing in the report {report_name}")
         print(f"Missing BGC IDs: {sorted(missing_bgcs)}")
+    else:
+        print(f'All {len(bgc_ids_to_keep)} BGC IDs are present in the report {report_name}')
 
     # Add NRP iso-class column
     report = report.with_columns(
@@ -152,11 +155,13 @@ def prepare_data_for_benchmarking(_report: pl.DataFrame,
         pl.col(NerpaReport.NRP_ISO_CLASS).is_in(nrp_classes_to_keep)
     )
 
-    # Remove duplicates
-    report = report.unique(subset=[NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS])
-
     # Sort by score
     report = report.sort(NerpaReport.SCORE, descending=True)
+
+    # Remove duplicates
+    report = report.unique(subset=[NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS],
+                           keep='first')
+
 
     return truncate_output(NerpaReport(report, report_name=report_name), out_size_cfg)
 
@@ -169,6 +174,7 @@ def load_nerpa_report(report_path: Path,
                       report_name: str = 'REPORT_NAME_MISSING',
                       score_column: str = NerpaReport.SCORE,
                       tool_version: Literal['Nerpa 1', 'Nerpa 2', 'BioCAT'] = 'Nerpa 2') -> NerpaReport:
+    print(f"Loading report from {report_path} with tool version {tool_version}...")
     match tool_version:
         case 'Nerpa 2':
             report = pl.read_csv(report_path, separator='\t')

@@ -218,7 +218,8 @@ class PipelineHelper:
                                     self.config.output_config,
                                     write_only_what_is_matched=write_only_what_is_matched,
                                     matches_details=matches_details,
-                                    log=self.log)
+                                    log=self.log,
+                                    monomer_names_helper=self.monomer_names_helper)
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
         self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)

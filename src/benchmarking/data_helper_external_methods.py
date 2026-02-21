@@ -302,7 +302,16 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
     IS_CORRECT_COL = NerpaReport.is_correct_col(cmp_method)
 
     # Total number of true pairs (all correct matches that exist)
-    total_true_pairs = sum(len(data_helper.bgc_to_nrp_iso_classes[bgc_id])
+    test_bgc_to_test_nrp_classes = {
+        bgc_id: {
+            nrp_class
+            for nrp_class in data_helper.bgc_to_nrp_iso_classes[bgc_id]
+            if nrp_class in data_helper.test_nrp_classes
+        }
+        for bgc_id in data_helper.test_bgcs
+    }
+
+    total_true_pairs = sum(len(test_bgc_to_test_nrp_classes[bgc_id])
                            for bgc_id in data_helper.test_bgcs)
 
     thresholds = (

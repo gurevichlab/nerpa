@@ -18,7 +18,7 @@ PARAMS: dict[str, Any] = {
     # Key inside local_paths.yaml
     "antismash_results_key": "as_results_mibig4_nrps",
     # Other CLI params
-    "split_fraction": 0.5,
+    "num_groups": 5,
     # Main script filename (assumed next to this helper script)
     "benchmark_script": "src/benchmarking/benchmark_alignment_reconstruction_main.py",
 }

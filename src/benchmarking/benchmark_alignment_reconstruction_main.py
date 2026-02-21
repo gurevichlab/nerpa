@@ -1,10 +1,13 @@
 from __future__ import annotations
+
+import math
 import subprocess
 import sys
 from collections import Counter
 
 import argparse
-from typing import Any
+from itertools import chain
+from typing import Any, List
 from pathlib import Path
 import polars as pl
 from src.benchmarking.data_frames import MIBiG_BGCs_Info
@@ -37,6 +40,10 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="YAML file with approved matches (input set to split into train/test).",
     )
+    parser.add_argument("--num-groups",
+                        type=int,
+                        default=5,
+                        help="Number of groups to split into (default: 5)")
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -53,9 +60,9 @@ def split_train_test(
     mibig_bgcs_tsv: Path,
     approved_matches_yaml: Path,
     output_dir: Path,
-    split_fraction: float = 0.5,
-) -> tuple[Path, Path]:
-    print(f"===== Splitting approved matches into train/test with split_fraction={split_fraction}...")
+    num_groups: int = 5,
+) -> List[List[dict]]:
+    print(f"===== Splitting approved matches into {num_groups} equal sized dissimilar...")
     
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -84,40 +91,26 @@ def split_train_test(
     rng.shuffle(fams)
 
     total_matches = len(approved_matches)
-    target_train_matches = int(total_matches * split_fraction)
+    group_size = math.ceil(total_matches / num_groups)
+    groups = [[] for _ in range(num_groups)]
+    cur_group_idx = 0
 
-    cur_cnt_for_training = 0
-    fams_split_idx = 0
-    for i, fam in enumerate(fams):
-        if cur_cnt_for_training >= target_train_matches:
-            fams_split_idx = i
-            break
-        cur_cnt_for_training += len(bigscape_family_to_matches[fam])
+    for fam in fams:
+        groups[cur_group_idx].extend(bigscape_family_to_matches[fam])
+        if len(groups[cur_group_idx]) >= group_size:
+            cur_group_idx += 1
 
-    matches_for_training = [
-        match for fam in fams[:fams_split_idx]
-        for match in bigscape_family_to_matches[fam]
-    ]
-    matches_for_testing = [
-        match for fam in fams[fams_split_idx:]
-        for match in bigscape_family_to_matches[fam]
-    ]
+    print('Group sizes:', [len(group) for group in groups])  # print group sizes for debugging
 
-    matches_for_testing, matches_for_training = (
-        matches_for_training, matches_for_testing
-    )  # debug
+    # group_yamls = [
+    #     output_dir / f"approved_matches.group{idx+1}.yaml"
+    #     for idx in range(num_groups)
+    # ]
+    # for group, group_yaml in zip(groups, group_yamls):
+    #     with group_yaml.open("w", encoding="utf-8") as f:
+    #         yaml.safe_dump(group, f, sort_keys=False)
 
-    train_yaml: Path = output_dir / "approved_matches.train.yaml"
-    test_yaml: Path = output_dir / "approved_matches.test.yaml"
-
-    with train_yaml.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(matches_for_training, f, sort_keys=False)
-    with test_yaml.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(matches_for_testing, f, sort_keys=False)
-
-    print(f'Wrote {len(matches_for_training)} approved matches to {train_yaml} and {len(matches_for_testing)} to {test_yaml}.')
-
-    return train_yaml, test_yaml
+    return groups
 
 
 def run_training(
@@ -195,7 +188,7 @@ def run_nerpa(
 def benchmark_nerpa1_vs_2(
     nerpa_dir: Path,
     approved_matches_yaml: Path,
-    nerpa2_results: Path,
+    nerpa2_matches: Path,
     plots_dir: Path,
 ) -> Path:
     nerpa1_results = (
@@ -215,7 +208,7 @@ def benchmark_nerpa1_vs_2(
         sys.executable, str(benchmark_script),
         '--approved-matches-yaml', str(approved_matches_yaml),
         '--nerpa1-results', str(nerpa1_results),
-        '--nerpa2-results', str(nerpa2_results),
+        '--nerpa2-matches', str(nerpa2_matches),
         '--plots-dir', str(plots_dir),
     ]
     print('===== Benchmarking Nerpa 1 vs Nerpa 2 on test set:', ' '.join(cmd))
@@ -231,36 +224,74 @@ def main() -> None:
     assert nerpa_dir.name.startswith('nerpa'), f"Expected nerpa_dir to be the nerpa repo, got {nerpa_dir}"
 
     # Step 1: split approved matches into training/testing subsets
-    train_yaml, test_yaml = split_train_test(
+    groups = split_train_test(
         mibig_bgcs_tsv=args.mibig_bgcs_tsv,
         approved_matches_yaml=args.approved_matches_yaml,
         output_dir=args.output_dir,
     )
 
     # Step 2: run training on training subset
-    new_configs = run_training(
-        nerpa_dir=nerpa_dir,
-        output_dir=args.output_dir,
-        approved_matches_train_yaml=train_yaml,
-    )
+    for i, test_group in enumerate(groups):
+        print(f"===== Processing group {i+1}/{len(groups)}: {len(test_group)} matches in test set, {sum(len(g) for j,g in enumerate(groups) if j!=i)} matches in train set")
+        train_group = list(chain(
+            *[groups[j] for j in range(len(groups)) if j != i]
+        ))
 
-    # Step 3: run nerpa.py on test subset using configs/artifacts from training
-    bgc_ids = set(match["bgc_id"]
-                  for match in yaml.safe_load(test_yaml.read_text(encoding="utf-8")))
-    run_nerpa(nerpa_dir=nerpa_dir,
-              configs=new_configs,
-              bgc_ids=bgc_ids,
-              smiles_tsv=nerpa_dir / 'data/input/pnrpdb2_mibig_norine.tsv',
-              antismash_results_dir=args.antismash_results_dir,
-              output_dir=args.output_dir)
+        test_yaml = args.output_dir / f"approved_matches_test_{i+1}.yaml"
+        train_yaml = args.output_dir / f"approved_matches_train_{i+1}.yaml"
+        with test_yaml.open("w", encoding="utf-8") as f:
+            yaml.safe_dump(test_group, f, sort_keys=False)
+        with train_yaml.open("w", encoding="utf-8") as f:
+            yaml.safe_dump(list(train_group), f, sort_keys=False)
 
+        print("Train/test YAMLs written. Running training on train set...")
+        new_configs = run_training(
+            nerpa_dir=nerpa_dir,
+            output_dir=args.output_dir / f"{i+1}",
+            approved_matches_train_yaml=train_yaml,
+        )
+        print(f"Training completed. New configs should be in {new_configs}. Now running nerpa.py on test set with these configs...")
+
+        # Step 3: run nerpa.py on test subset using configs/artifacts from training
+        bgc_ids = set(match["bgc_id"]
+                      for match in yaml.safe_load(test_yaml.read_text(encoding="utf-8")))
+        run_nerpa(nerpa_dir=nerpa_dir,
+                  configs=new_configs,
+                  bgc_ids=bgc_ids,
+                  smiles_tsv=nerpa_dir / 'data/input/pnrpdb2_mibig_norine.tsv',
+                  antismash_results_dir=args.antismash_results_dir,
+                  output_dir=args.output_dir / f"{i+1}",)
+        print("Done.")
+
+    # q: collect Nerpa 2 matches from all test groups into a single file for benchmarking
+    print('Collecting Nerpa 2 matches from all test groups into a single file for benchmarking...')
+    nerpa2_matches = []
+    for i in range(len(groups)):
+        nerpa2_matches_file = (
+                args.output_dir
+                / f"{i+1}"
+                / 'nerpa_results'
+                / 'matches_details'
+                / 'matches.yaml'
+        )
+        with nerpa2_matches_file.open("r", encoding="utf-8") as f:
+            new_matches = yaml.safe_load(f)
+            nerpa2_matches.extend(new_matches)
+
+    with (args.output_dir / 'nerpa2_joined_matches.yaml').open("w", encoding="utf-8") as f:
+        yaml.safe_dump(nerpa2_matches, f, sort_keys=False)
+
+    print('Nerpa 2 matches collected and written to:', args.output_dir / 'nerpa2_joined_matches.yaml')
+
+    print("All groups processed. Now benchmarking Nerpa 1 vs Nerpa 2 on test set...")
     # Step 4: benchmark Nerpa 1 vs Nerpa 2 performance on test set
     benchmark_nerpa1_vs_2(
         nerpa_dir=nerpa_dir,
-        approved_matches_yaml=test_yaml,
-        nerpa2_results=args.output_dir / 'nerpa_results',
+        approved_matches_yaml=args.approved_matches_yaml,
+        nerpa2_matches=args.output_dir / 'nerpa2_joined_matches.yaml',
         plots_dir=args.output_dir / 'plots',
     )
+    print("Done.")
 
 
 if __name__ == "__main__":

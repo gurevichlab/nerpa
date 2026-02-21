@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
 
 import yaml
-from itertools import chain, product, permutations
+from itertools import chain, product, permutations, zip_longest
 from typing import Optional, Tuple, List, NamedTuple, Iterable
 
 from more_itertools import peekable
@@ -162,35 +163,33 @@ def get_mismatched_steps(
         true_alignment: SimplifiedAlignment,
         other_alignment: SimplifiedAlignment
 ) -> List[Tuple[Optional[SimplifiedAlignmentStep], Optional[SimplifiedAlignmentStep]]]:
-    true_dict = {
-        a_domain_id: monomer_name
-        for a_domain_id, monomer_name in true_alignment
-        if a_domain_id is not None and monomer_name is not None
-    }
-    other_dict = {
-        a_domain_id: monomer_name
-        for a_domain_id, monomer_name in other_alignment
-        if a_domain_id is not None and monomer_name is not None
-    }
+    def parsed_name(monomer_name: str) -> str:
+        return 'X' if monomer_name.startswith('X') else monomer_name
 
-    all_a_domain_ids = set(true_dict.keys()) | set(other_dict.keys())
+    true_mons_by_a_domain_id = defaultdict(set)
+    for a_domain_id, monomer_name in true_alignment:
+        if a_domain_id is not None and monomer_name is not None:
+            true_mons_by_a_domain_id[a_domain_id].add(parsed_name(monomer_name))
+
+    other_mons_by_a_domain_id = defaultdict(set)
+    for a_domain_id, monomer_name in other_alignment:
+        if a_domain_id is not None and monomer_name is not None:
+            other_mons_by_a_domain_id[a_domain_id].add(parsed_name(monomer_name))
+
+    all_a_domain_ids = set(true_mons_by_a_domain_id.keys()) | set(other_mons_by_a_domain_id.keys())
     discrepancies = []
 
     for a_domain_id in all_a_domain_ids:
-        true_monomer = true_dict.get(a_domain_id)
-        other_monomer = other_dict.get(a_domain_id)
+        true_monomers = true_mons_by_a_domain_id[a_domain_id]
+        other_monomers = other_mons_by_a_domain_id[a_domain_id]
 
-        if true_monomer is not None and other_monomer is not None:
-            # Both have mappings; check if they coincide
-            monomers_coincide = (true_monomer == other_monomer) or (true_monomer[0] == 'X' and other_monomer[0] == 'X')
-            if not monomers_coincide:
-                discrepancies.append(((a_domain_id, true_monomer), (a_domain_id, other_monomer)))
-        elif true_monomer is not None:
-            # Only in true
-            discrepancies.append(((a_domain_id, true_monomer), None))
-        else:
-            # Only in other
-            discrepancies.append((None, (a_domain_id, other_monomer)))
+        common_monomers = true_monomers & other_monomers
+        true_only_monomers = true_monomers - common_monomers
+        other_only_monomers = other_monomers - common_monomers
+        for mon1, mon2 in zip_longest(true_only_monomers, other_only_monomers):
+            discrepancies.append((SimplifiedAlignmentStep(a_domain_id, mon1),
+                                  SimplifiedAlignmentStep(a_domain_id, mon2)))
+
 
     return discrepancies
 

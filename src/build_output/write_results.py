@@ -9,6 +9,7 @@ from src.matching.hmm_match import HMM_Match
 from src.matching.match_type import Match
 from src.config import OutputConfig
 from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info, BGC_Variant_ID
+from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info, NRP_Variant_ID
 from src.generic.combinatorics import sort_groupby
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
@@ -83,7 +84,8 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                        nrp_ids_to_write: Set[NRP_Variant_ID],
                        output_cfg: OutputConfig,
                        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
-                       log: Optional[NerpaLogger] = None):
+                       log: Optional[NerpaLogger] = None,
+                       monomer_names_helper: Optional[MonomerNamesHelper] = None,):
     if rban_records is None:
         rban_records = []
 
@@ -121,9 +123,14 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                 #print(f'Drawing {rban_record.compound_id}', flush=True)
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.png')
+                                   with_rban_indexes=True,
+                                   output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
+                                   monomer_names_helper=monomer_names_helper)
                 try:
-                    draw_molecule(monomer_graph, output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.png')
+                    draw_molecule(monomer_graph,
+                                  rban_indexes=True,
+                                  output_file=output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.svg',
+                                  monomer_names_helper=monomer_names_helper)
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
@@ -176,7 +183,8 @@ def write_results(matches: List[Match],
                   html_report: bool = True,
                   debug_output: bool = False,
                   write_only_what_is_matched: bool = True,
-                  log: Optional[NerpaLogger] = None):
+                  log: Optional[NerpaLogger] = None,
+                  monomer_names_helper: Optional[MonomerNamesHelper] = None,):
     output_cfg.report.write_text(build_report(matches))
 
     if write_only_what_is_matched:
@@ -196,7 +204,8 @@ def write_results(matches: List[Match],
                        nrp_ids_to_write,
                        rban_records=nrp_variants_info.rban_records,
                        output_cfg=output_cfg,
-                       log=log)
+                       log=log,
+                       monomer_names_helper=monomer_names_helper)
 
     if matches_details:
         write_matches_details(matches, output_cfg.matches_details)

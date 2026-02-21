@@ -115,8 +115,11 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
     plot_error_histograms(error_counts_dict, histogram_file)
 
 
-def load_nerpa2_matches(results_dir: Path) -> List[SimplifiedMatch]:
-    matches_file = results_dir / 'matches_details' / 'matches.yaml'
+def load_nerpa2_matches(args: argparse.Namespace) -> List[SimplifiedMatch]:
+    if args.nerpa2_matches is not None:
+        matches_file = args.nerpa2_matches
+    else:
+        matches_file = args.nerpa2_results / 'matches_details' / 'matches.yaml'
     match_dicts = yaml.safe_load(matches_file.read_text())
     simplified_matches = [
         nerpa2_match_to_simplified_match(Match.from_dict(match_dict))
@@ -126,13 +129,12 @@ def load_nerpa2_matches(results_dir: Path) -> List[SimplifiedMatch]:
     return simplified_matches
 
 
-def nerpa1_vs_nerpa2(nerpa_dir: Path,
-                     args: argparse.Namespace) -> None:
+def nerpa1_vs_nerpa2(args: argparse.Namespace) -> None:
     # Load nerpa1 matches
     nerpa1_matches = load_nerpa1_matches(args.nerpa1_results)
 
     # Load nerpa2 matches
-    nerpa2_matches = load_nerpa2_matches(args.nerpa2_results)
+    nerpa2_matches = load_nerpa2_matches(args)
 
     test_matches = [TestMatch.from_yaml_dict(item)
                     for item in yaml.safe_load(args.approved_matches_yaml.read_text())]
@@ -169,6 +171,12 @@ def parse_args() -> argparse.Namespace:
         help="path to nerpa2 results",
     )
     parser.add_argument(
+        "--nerpa2-matches",
+        type=Path,
+        default=None,
+        help="path to nerpa2 matches.yaml (overrides --nerpa2-results)",
+    )
+    parser.add_argument(
         "--approved-matches-yaml",
         type=Path,
         default=None,
@@ -189,5 +197,4 @@ if __name__ == '__main__':
     nerpa_dir = Path(__file__).resolve().parent.parent.parent
     assert nerpa_dir.name.startswith('nerpa'), f'Wrong nerpa_dir: {nerpa_dir}'
 
-    nerpa1_vs_nerpa2(nerpa_dir=nerpa_dir,
-                     args=args)
+    nerpa1_vs_nerpa2(args=args)

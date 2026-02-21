@@ -47,11 +47,10 @@ def sanity_check_similarity_table(similarity_dict: Dict[COMPARISION_METHOD, Set[
                 f.write(f'{(nrp_id, repr_id)} is absent in similarity_dict[PCS.NERPA_EQUAL_ALLOW_UNK_CHR].\n')
                 check_successful = False
 
-        for similar_nrp_pairs in similarity_dict[PCS.NERPA_EQUAL]:
-            for nrp1_id, nrp2_id in similar_nrp_pairs:
-                if nrp_id_to_iso_class[nrp1_id] != nrp_id_to_iso_class[nrp2_id]:
-                    f.write(f'{(nrp1_id, nrp2_id)} from similarity_dict are in different iso-classes in pnrpdb_info.\n')
-                    check_successful = False
+        for nrp1_id, nrp2_id in similarity_dict[PCS.NERPA_EQUAL]:
+            if nrp_id_to_iso_class[nrp1_id] != nrp_id_to_iso_class[nrp2_id]:
+                f.write(f'{(nrp1_id, nrp2_id)} from similarity_dict are in different iso-classes in pnrpdb_info.\n')
+                check_successful = False
 
     if check_successful:
         print('Sanity check of similarity table successful.')
@@ -74,6 +73,7 @@ def get_similarity_dict(pnrpdb_compound_similarity: PNRPDB_Compound_Similarity)\
         for cmp_method in [
             PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
             PCS.NERPA_ONE_SUB_ALLOW_UNK_CHR,
+            PCS.NERPA_EQUAL,
         ]:
             if row[cmp_method]:
                 similarity_dict[cmp_method].add(
@@ -122,6 +122,10 @@ def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[
                             pnrpdb_info: PNRPDB_Info,
                             cmp: str = PCS.NERPA_EQUAL) \
     -> Dict[NRP_ID, NRP_ID]:
+    with open('tmp/similarity_dict_for_iso_classes.txt', 'w') as f:
+        for nrp1_id, nrp2_id in similarity_dict[cmp]:
+            f.write(f'{nrp1_id}\t{nrp2_id}\n')
+
     dsu = DSU()
     for nrp1_id, nrp2_id in similarity_dict[cmp]:
         # if nrp1_id == 'BGC0001692.0' or nrp2_id == 'BGC0001692.0':
@@ -129,6 +133,11 @@ def get_nrp_id_to_iso_class(similarity_dict: Dict[COMPARISION_METHOD, Set[Tuple[
         dsu.union(nrp1_id, nrp2_id)
 
     nrp_id_to_iso_class = {nrp_id: repr_id for nrp_id, repr_id in dsu.items()}
+    with open('tmp/nrp_id_to_iso_class_from_similarity_dict.txt', 'w') as f:
+        for nrp_id, iso_class in sorted(nrp_id_to_iso_class.items()):
+            f.write(f'{nrp_id}: {iso_class}' + '\n')
+
+
     for nrp_id in pnrpdb_info[PNRPDB_Info.COMPOUND_ID]:
         if nrp_id not in nrp_id_to_iso_class:
             nrp_id_to_iso_class[nrp_id] = nrp_id  # singleton iso-class
@@ -307,24 +316,13 @@ class PlotsDataHelper:
         nrp_classes_to_keep = self.test_nrp_classes
         bgc_ids_to_keep = self.test_bgcs
 
-        #
-        '''
-        out_cfg = OutputSizeConfig(
-            max_num_matches=float('inf'),  # no limit on total matches
-            max_num_matches_per_bgc=10,
-            max_num_matches_per_nrp=10,
-            min_num_matches_per_bgc=10,
-            min_num_matches_per_nrp=10,
-        )
-        '''
 
-        # No limits
         out_cfg = OutputSizeConfig(
-            max_num_matches=float('inf'),  # no limit on total matches
-            max_num_matches_per_bgc=float('inf'),#10,
-            max_num_matches_per_nrp=float('inf'),#10,
-            min_num_matches_per_bgc=0,#10,
-            min_num_matches_per_nrp=0,#10,
+            max_num_matches=10000,  # no limit on total matches
+            max_num_matches_per_bgc=10,
+            max_num_matches_per_nrp=10000,  # no limit
+            min_num_matches_per_bgc=10,
+            min_num_matches_per_nrp=0,
         )
 
         report = load_nerpa_report(report_path=report_path,
@@ -355,29 +353,43 @@ class PlotsDataHelper:
         ]
         )
 
+        # q: take first five BGCs in the report and write all the corresponding rows to a tsv
+        first_bgcs = (
+            report.select(NerpaReport.BGC_ID)
+            .unique(maintain_order=True)
+            .head(5)[NerpaReport.BGC_ID]
+            .to_list()
+        )
+        if first_bgcs:
+            safe_report_name = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in report_name)
+            out_path = Path(f"{safe_report_name}_first5_bgcs.tsv")
+            # report.filter(pl.col(NerpaReport.BGC_ID).is_in(first_bgcs)).write_csv(out_path, separator="\t")
+            # q: write the report to out_path. Sort the rows by BGC_ID
+            report.filter(pl.col(NerpaReport.BGC_ID).is_in(first_bgcs)).sort(by=NerpaReport.BGC_ID).write_csv(out_path, separator="\t")
+
         for cmp_method in [
             PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
-            PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,
+            #PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,
         ]:
             report = report.with_columns(
                 pl.struct([NerpaReport.NRP_ISO_CLASS, NerpaReport.BGC_ID])
-                .map_elements(lambda row: self.match_is_correct(row[NerpaReport.NRP_ISO_CLASS],
-                                                                row[NerpaReport.BGC_ID],
-                                                                cmp_method),
+                .map_elements(lambda row: self.match_is_correct(nrp_iso_class=row[NerpaReport.NRP_ISO_CLASS],
+                                                                bgc_id=row[NerpaReport.BGC_ID],
+                                                                cmp_mode=cmp_method),
                              return_dtype=pl.Boolean)
                 .alias(NerpaReport.is_correct_col(cmp_method))
             )
 
-        # check that if NerpaReport.IS_CORRECT is true, then IS_CORRECT_COL is also true
-        incorrect_matches = report.filter(
-            pl.col(NerpaReport.is_correct_col(PCS.NERPA_EQUAL_ALLOW_UNK_CHR))
-            &
-            ~pl.col(NerpaReport.is_correct_col(PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR))
-        )
-        if incorrect_matches.height > 0:
-            row = incorrect_matches.row(0, named=True)
-            raise ValueError(f"Inconsistent correctness columns\n"
-                             f"Row: {row}\n")
+        # # check that if NerpaReport.IS_CORRECT is true, then IS_CORRECT_COL is also true
+        # incorrect_matches = report.filter(
+        #     pl.col(NerpaReport.is_correct_col(PCS.NERPA_EQUAL_ALLOW_UNK_CHR))
+        #     &
+        #     ~pl.col(NerpaReport.is_correct_col(PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR))
+        # )
+        # if incorrect_matches.height > 0:
+        #     row = incorrect_matches.row(0, named=True)
+        #     raise ValueError(f"Inconsistent correctness columns\n"
+        #                      f"Row: {row}\n")
 
         # add row index
         report = report.with_row_count(name=NerpaReport.MATCH_RANK)
