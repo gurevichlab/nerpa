@@ -13,7 +13,10 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                                 ax: Axes,
                                 data_helper: PlotsDataHelper,
                                 top_matches_per_bgc: Optional[int] = None,
-                                cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,):
+                                cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+                                axis_fontsize: int = 12,
+                                title_fontsize: int = 14,
+                                legend_fontsize: int = 12) -> None:
     """
     Plot Precision-Recall curves for all reports.
 
@@ -47,35 +50,38 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                 linestyle=linestyle
             )
 
-            # Highlight points at recall intervals of 0.1
-            recall_thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-            for recall_threshold in recall_thresholds:
-                # Only highlight if the recall threshold is within the curve's range
-                if min(recall_list) <= recall_threshold <= max(recall_list):
-                    # Interpolate to find precision and score at this recall value
-                    precision_at_threshold = np.interp(
-                        recall_threshold,
-                        recall_list,
-                        precision_list
-                    )
-                    score_at_threshold = np.interp(
-                        recall_threshold,
-                        recall_list,
-                        score_list
-                    )
+            if report.name == 'Nerpa 2':
+                # Highlight points at recall intervals of 0.1
+                recall_thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+                for recall_threshold in recall_thresholds:
+                    # Only highlight if the recall threshold is within the curve's range
+                    if min(recall_list) <= recall_threshold <= max(recall_list):
+                        # Interpolate to find precision and score at this recall value
+                        precision_at_threshold = np.interp(
+                            recall_threshold,
+                            recall_list,
+                            precision_list
+                        )
+                        score_at_threshold = np.interp(
+                            recall_threshold,
+                            recall_list,
+                            score_list
+                        )
 
-                    highlight_point(
-                        ax,
-                        x=recall_threshold,
-                        y=precision_at_threshold,
-                        label=f'{score_at_threshold:.2f}',
-                        color='red'
-                    )
+                        highlight_point(
+                            ax,
+                            x=recall_threshold,
+                            y=precision_at_threshold,
+                            label=f'{score_at_threshold:.2f}',
+                            color='red'
+                        )
 
-    ax.set_xlabel('Recall (TP / (TP + FN))', fontsize=14)
-    ax.set_ylabel('Precision (TP / (TP + FP))', fontsize=14)
-    ax.set_title(f'Precision-Recall Curve (top {top_matches_per_bgc} matches per BGC)', fontsize=16)
+    ax.set_xlabel('Recall (TP / (TP + FN))', fontsize=axis_fontsize)
+    ax.set_ylabel('Precision (TP / (TP + FP))', fontsize=axis_fontsize)
+    ax.set_title(f'Precision-Recall Curve (top {top_matches_per_bgc} matches kept per BGC)',
+                 fontsize=title_fontsize)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=12)
+    ax.legend(fontsize=legend_fontsize,
+              loc='upper right')

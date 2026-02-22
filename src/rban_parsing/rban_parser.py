@@ -57,11 +57,18 @@ class MonomerInfo(NamedTuple):
         d['chirality'] = self.chirality.name
         return d
 
+# awkward design because I am retroactively adding support for multiple bonds
+# between the same monomers, and I don't want to change the existing code too much.
+class _MonomerEdgeInfo(NamedTuple):
+    monomer_to_atom: Dict[MonomerIdx, AtomId]
+    arity: int  # I heard that there exist fractional arities (e.g. 1.5)
+    bondType: str
 
 class MonomerEdgeInfo(NamedTuple):
     monomer_to_atom: Dict[MonomerIdx, AtomId]
     arity: int  # I heard that there exist fractional arities (e.g. 1.5)
     bondType: str
+    all_edges: List[_MonomerEdgeInfo]  # in case of multiple bonds between the same monomers, we need to store all of them
 
 
 def parsed_chiralities(chiralities: Dict[MonomerIdx, Union[bool, None]]) -> Dict[MonomerIdx, Chirality]:
@@ -139,18 +146,25 @@ class Parsed_rBAN_Record:
                                                 bondType=bond['bondType'])
                              for bond in rban_record['atomicGraph']['atomicGraph']['bonds']}
 
+        atom_to_monomer = {
+            atom_id: mon_idx
+            for mon_idx, mon_info in self.monomers.items()
+            for atom_id in mon_info.atoms
+        }
+
         self.monomer_bonds = {}
-        rban_atomic_bonds = rban_record['atomicGraph']['atomicGraph']['bonds']
-        for bond in rban_record['monomericGraph']['monomericGraph']['bonds']:
-            bond = bond['bond']
-            mon1, mon2 = bond['monomers']
-            atomic_bond_idx = bond['atomicIndexes'][0]
-            atom1, atom2 = rban_atomic_bonds[atomic_bond_idx]['atoms']
-            monomer_to_atom = {mon1: atom1, mon2: atom2} if atom1 in self.monomers[mon1].atoms \
-                else {mon1: atom2, mon2: atom1}
-            self.monomer_bonds[(mon1, mon2)] = MonomerEdgeInfo(monomer_to_atom=monomer_to_atom,
-                                                               arity=self.atomic_bonds[(atom1, atom2)].arity,
-                                                               bondType=self.atomic_bonds[(atom1, atom2)].bondType)
+        for (atom1, atom2), bond_info in self.atomic_bonds.items():
+            mon1, mon2 = atom_to_monomer[atom1], atom_to_monomer[atom2]
+            if mon1 == mon2:
+                continue  # internal bond, not a monomer bond
+
+            _monomer_edge_info = _MonomerEdgeInfo(monomer_to_atom={mon1: atom1, mon2: atom2},
+                                                  arity=bond_info.arity,
+                                                  bondType=bond_info.bondType)
+            if (mon1, mon2) not in self.monomer_bonds:
+                self.monomer_bonds[(mon1, mon2)] = MonomerEdgeInfo(**{'all_edges': [],
+                                                                   **_monomer_edge_info._asdict()})
+            self.monomer_bonds[(mon1, mon2)].all_edges.append(_monomer_edge_info)
 
     def to_compact_dict(self) -> dict:
         return {'compound_id': self.compound_id,

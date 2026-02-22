@@ -65,6 +65,8 @@ class Monomer:
     def from_rban(cls,
                   rban_idx: MonomerIdx,
                   rban_record: Parsed_rBAN_Record) -> Monomer:
+        if rban_record.monomers[rban_idx].name == 'dhCys':
+            pass
 
         monomer_atoms_idxs = rban_record.monomers[rban_idx].atoms
         monomer_edges = get_interior_edges(monomer_atoms_idxs,

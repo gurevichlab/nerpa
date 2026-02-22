@@ -160,6 +160,8 @@ def draw_molecule(G: MonomerGraph,
         for atom1_id, atom2_id in monomer.atomic_graph.edges:  # set bonds to highlight (color is deduced automatically)
             index1, index2 = [atom_id_to_index[(monomer_id, atom_id)]
                               for atom_id in (atom1_id, atom2_id)]
+            # if monomer_id == 1:
+            #     print(f'Highlighting bond between atom {atom1_id} and {atom2_id} in monomer {monomer_id} ({monomer.name})')
             bond_idx = mol.GetBondBetweenAtoms(index1, index2).GetIdx()
             bonds_to_highlight.append(bond_idx)
 

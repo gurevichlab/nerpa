@@ -38,6 +38,12 @@ class PlotsHelper:
     def __init__(self,
                  bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'):
         self.data_helper = PlotsDataHelper(bgc_test_set)
+        self.dpi = 300
+        self.height_px = 1000
+        self.width_px = 1600
+        self.axis_fontsize = 14
+        self.title_fontsize = 15
+        self.legend_fontsize = 14
 
     def plot_num_correct_matches(self,
                                  nerpa_reports: List[NerpaReport],
@@ -283,7 +289,7 @@ class PlotsHelper:
         colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         # Plot per report (all top_ks)
         for report_name, topk_results in num_identified_graphs.items():
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig, ax = plt.subplots()
             for (top_k, cmp_methods), color in zip(topk_results.items(), colors):
                 for cmp_method, _values in cmp_methods.items():
                     values = (cnts_to_percentages(_values)
@@ -303,14 +309,14 @@ class PlotsHelper:
             ax.set_xlabel(f"Num top {id_column}")
             ax.set_ylabel(f"{y_axis} identified")
             ax.grid()
-            ax.legend()
+            ax.legend(fontsize=self.legend_fontsize)
             fig.tight_layout()
             fig.savefig(out_files_per_id[report_name])
             plt.close(fig)
 
         # Plot per top_k (all reports)
         for top_k in top_ks:
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig, ax = plt.subplots()
             for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
                 for cmp_method, linestyle in [(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR, '-'),]:
                                               #(PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR, '--')]:
@@ -320,16 +326,22 @@ class PlotsHelper:
                               else _values)
                     xs = range(len(values))
                     ax.plot(xs, values,
-                            label=f'{report_name}({cmp_method})',
+                            label=f'{report_name}',
+                            #label=f'{report_name}({cmp_method})',
                             color=color,
                             linestyle=linestyle)
-            ax.set_title(f"{y_axis} Identified {id_column}: top-{top_k}")
-            ax.set_xlabel("Identifier")
-            ax.set_ylabel(y_axis)
+
+            name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
+            ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
+                         fontsize=self.title_fontsize)
+            ax.set_xlabel(f"Num top {name_identified}", fontsize=self.axis_fontsize)
+            ax.set_ylabel(y_axis, fontsize=self.axis_fontsize)
             ax.grid()
-            ax.legend()
+            ax.legend(fontsize=self.legend_fontsize,
+                      loc='lower right')
+            fig.set_figheight(self.height_px / self.dpi)
             fig.tight_layout()
-            fig.savefig(out_files_per_top_k[top_k])
+            fig.savefig(out_files_per_top_k[top_k], dpi=self.dpi)
             plt.close(fig)
 
         return list(chain(out_files_per_top_k.values(), out_files_per_id.values()))
@@ -361,7 +373,7 @@ class PlotsHelper:
             for report in nerpa_reports
         }
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots()
         colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         for report_name, color in zip(total_identified_graphs.keys(), colors):
             for cmp_method, total_identified in total_identified_graphs[report_name].items():
@@ -378,17 +390,20 @@ class PlotsHelper:
                 )
                 ax.set_xticks(range(len(total_identified)))
 
-        ax.set_title(f'{y_axis} of identified {id_column}',
-                     fontsize=22)
-        ax.set_xlabel(f'Num top matches considered for each {id_column}',
-                      fontsize=18)
-        ax.set_ylabel(f'{y_axis} Identified', fontsize=18)
+        name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
+        ax.set_title(f'{y_axis} of true hits present',
+                     fontsize=self.title_fontsize)
+        ax.set_xlabel(f'Num top matches considered for each {name_identified}',
+                      fontsize=self.axis_fontsize)
+        ax.set_ylabel(f'{y_axis}', fontsize=self.axis_fontsize)
         ax.set_ylim(bottom=0)
 
         ax.grid()
-        ax.legend(fontsize=18)
+        ax.legend(fontsize=self.legend_fontsize,
+                  loc='lower right')
+        fig.set_figheight(self.height_px / self.dpi)
         fig.tight_layout()
-        fig.savefig(out_file)
+        fig.savefig(out_file, dpi=self.dpi)
         plt.close(fig)
 
         return [out_file]
@@ -406,7 +421,8 @@ class PlotsHelper:
         plot_promiscuity_handling(reports, self.data_helper, ax)
         ax.set_title("Mean fraction of identified variants by num_nrp_classes")
         fig.tight_layout()
-        fig.savefig(out_file, dpi=200)
+        fig.set_figheight(self.height_px / self.dpi)
+        fig.savefig(out_file, dpi=self.dpi)
         plt.close(fig)
         return out_file
 
@@ -424,16 +440,20 @@ class PlotsHelper:
         out_files = []
 
         for top_matches_per_bgc in top_matches_per_bgc_vals:
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig, ax = plt.subplots()
 
             plot_precision_recall_curve(nerpa_reports,
                                         ax,
                                         self.data_helper,
-                                        top_matches_per_bgc=top_matches_per_bgc)
+                                        top_matches_per_bgc=top_matches_per_bgc,
+                                        axis_fontsize=self.axis_fontsize,
+                                        title_fontsize=self.title_fontsize,
+                                        legend_fontsize=self.legend_fontsize)
 
-            fig.tight_layout()
             out_file = output_dir / f'precision_recall_curve_top_{top_matches_per_bgc}.png'
-            fig.savefig(out_file, dpi=200)
+            fig.set_figheight(self.height_px / self.dpi)
+            fig.tight_layout()
+            fig.savefig(out_file, dpi=self.dpi)
             plt.close(fig)
             out_files.append(out_file)
 

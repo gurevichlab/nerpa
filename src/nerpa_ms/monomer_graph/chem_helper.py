@@ -5,12 +5,12 @@ from typing import (
     NamedTuple,
     NewType,
     Tuple,
-    Union
+    Union, List
 )
 from src.generic.functional import compose
 from src.nerpa_ms.monomer_graph.monomer import Monomer
 from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph, MonomerId
-from src.rban_parsing.rban_parser import AtomId
+from src.rban_parsing.rban_parser import AtomId, MonomerEdgeInfo
 
 from rdkit import Chem
 from itertools import chain
@@ -29,8 +29,8 @@ SMILES = NewType('SMILES', str)
 
 
 class AtomicGraphRecord(NamedTuple):
-    atoms: Dict[AtomAnyId, AtomInfoDict]  # AtomInfoDict should have 'name' attribute
-    bonds: Dict[AtomicEdge, AtomicEdgeInfoDict]  # AtmoicEdgeInfoDict should have 'arity' attribute
+    atoms: List[Tuple[AtomAnyId, AtomInfoDict]]  # AtomInfoDict should have 'name' attribute
+    bonds: List[Tuple[AtomicEdge, AtomicEdgeInfoDict]]  # AtmoicEdgeInfoDict should have 'arity' attribute
 
 
 class ChemWrap(NamedTuple):
@@ -55,11 +55,11 @@ def get_monomer_ext_edges(G: MonomerGraph,
             for edge_ends, edge_info in atomic_graph.edges.items()}
 
 
-def monomer_edge_to_ext_atomic_edge(edge_info: MonomerEdgeInfoDict) -> Tuple[AtomicEdgeExt,
+def monomer_edge_to_ext_atomic_edge(edge_info: MonomerEdgeInfo) -> Tuple[AtomicEdgeExt,
                                                                              AtomicEdgeInfoDict]:
-    atomic_edge_ends_ext = tuple(edge_info['monomer_to_atom'].items())
+    atomic_edge_ends_ext = tuple(edge_info.monomer_to_atom.items())
     atomic_edge_info = {key: value
-                        for key, value in edge_info.items()
+                        for key, value in edge_info._asdict().items()
                         if key != 'monomer_to_atom'}
     return (atomic_edge_ends_ext, atomic_edge_info)
 
@@ -69,15 +69,22 @@ def to_atomic_graph(G: MonomerGraph) -> AtomicGraphRecord:
     def join_dicts(dicts: Iterable[dict]) -> dict:
         return dict(chain(*(d.items() for d in dicts)))
 
-    atoms = join_dicts(get_monomer_ext_atoms(G, monomer_idx)
-                       for monomer_idx in G.nodes)
-    interior_edges = join_dicts(get_monomer_ext_edges(G, monomer_idx)
-                                for monomer_idx in G.nodes)
+    atoms = list(
+        join_dicts(get_monomer_ext_atoms(G, monomer_idx)
+                   for monomer_idx in G.nodes).items()
+    )
+    interior_edges = list(
+        join_dicts(get_monomer_ext_edges(G, monomer_idx)
+                                for monomer_idx in G.nodes).items()
+    )
 
-    boundary_edges = dict(monomer_edge_to_ext_atomic_edge(edge_info)
-                          for (u, v), edge_info in G.edges.items())
+    boundary_edges = [
+        monomer_edge_to_ext_atomic_edge(edge_info)
+        for (u, v), edge_info_all in G.edges.items()
+        for edge_info in edge_info_all['all_edges']
+    ]
     return AtomicGraphRecord(atoms=atoms,
-                             bonds=join_dicts([interior_edges, boundary_edges]))
+                             bonds=interior_edges + boundary_edges)
 
 
 def atomic_graph_to_chem(graph_record: AtomicGraphRecord) -> ChemWrap:
@@ -86,11 +93,11 @@ def atomic_graph_to_chem(graph_record: AtomicGraphRecord) -> ChemWrap:
 
     # add atoms to mol and keep track of index
     atom_id_to_index = {}
-    for atom_id, atom_info in graph_record.atoms.items():
+    for atom_id, atom_info in graph_record.atoms:
         atom_id_to_index[atom_id] = mol.AddAtom(Chem.Atom(atom_info['name']))
 
     # add bonds between adjacent atoms
-    for (u, v), edge_attr in graph_record.bonds.items():
+    for (u, v), edge_attr in graph_record.bonds:
         # add relevant bond type (there are many more of these)
         if edge_attr['arity'] == 1:
             bond_type = Chem.rdchem.BondType.SINGLE

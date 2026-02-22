@@ -134,6 +134,7 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
+                    raise
     else:
         if log is not None:
             log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')
