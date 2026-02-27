@@ -171,7 +171,7 @@ def main():
     alpha=0.8,
     label=f"Random pair prob = {random_pair_same_genus_prob:.3f}",
 )
-plt.legend(loc="best")
+    plt.legend(loc="best")
 
     plot_path = args.output / "cumulative_fraction_genus_match.png"
     plt.tight_layout()
