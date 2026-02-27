@@ -110,16 +110,35 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
                                               remove_outliers=True)
         error_counts_dict[name] = error_counts
 
-    histogram_file = plots_dir / 'alignment_reconstruction_histogram.png'
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    error_cnts_tsv = plots_dir / 'alignment_reconstruction_error_counts.tsv'
+    # q: calculate error count freqs per match set: 1. use Counter to count how many matches have 0 errors, 1 error, 2 errors, etc. 2. write this to a TSV -- one column per match_set. Row i contains the count of matches with i errors for each match set.
+    from collections import Counter
 
+    counters_by_set = {name: Counter(error_counts) for name, error_counts in error_counts_dict.items()}
+    max_errors_overall = max((max(error_counts) if error_counts else 0) for error_counts in error_counts_dict.values())
+
+    with error_cnts_tsv.open('w', encoding='utf-8') as fh:
+        set_names = list(error_counts_dict.keys())
+        fh.write("errors\t" + "\t".join(set_names) + "\n")
+        for i in range(max_errors_overall + 1):
+            row = [str(i)]
+            for name in set_names:
+                row.append(str(counters_by_set[name].get(i, 0)))
+            fh.write("\t".join(row) + "\n")
+
+    histogram_file = plots_dir / 'alignment_reconstruction_histogram.png'
     plot_error_histograms(error_counts_dict, histogram_file)
 
 
 def load_nerpa2_matches(args: argparse.Namespace) -> List[SimplifiedMatch]:
     if args.nerpa2_matches is not None:
+        print(f"Loading Nerpa 2 matches from {args.nerpa2_matches}")
         matches_file = args.nerpa2_matches
     else:
+        print(f"Loading Nerpa 2 matches from {args.nerpa2_results / 'matches_details' / 'matches.yaml'}")
         matches_file = args.nerpa2_results / 'matches_details' / 'matches.yaml'
+
     match_dicts = yaml.safe_load(matches_file.read_text())
     simplified_matches = [
         nerpa2_match_to_simplified_match(Match.from_dict(match_dict))
@@ -131,11 +150,14 @@ def load_nerpa2_matches(args: argparse.Namespace) -> List[SimplifiedMatch]:
 
 def nerpa1_vs_nerpa2(args: argparse.Namespace) -> None:
     # Load nerpa1 matches
+    print('Loading Nerpa 1 matches...')
     nerpa1_matches = load_nerpa1_matches(args.nerpa1_results)
 
     # Load nerpa2 matches
+    print('Loading Nerpa 2 matches...')
     nerpa2_matches = load_nerpa2_matches(args)
 
+    print('Loading approved test matches...')
     test_matches = [TestMatch.from_yaml_dict(item)
                     for item in yaml.safe_load(args.approved_matches_yaml.read_text())]
 
@@ -146,7 +168,11 @@ def nerpa1_vs_nerpa2(args: argparse.Namespace) -> None:
     }
 
     # Benchmark and plot
-    benchmark_alignments(match_sets, test_matches, args.plots_dir)
+    print('Benchmarking alignments and generating plots...')
+    benchmark_alignments(match_sets=match_sets,
+                         tests=test_matches,
+                         plots_dir=args.plots_dir,
+                         take_only_tests_processed_by_all=True)
 
 def parse_args() -> argparse.Namespace:
     """
@@ -192,9 +218,32 @@ def parse_args() -> argparse.Namespace:
     ns = parser.parse_args()
     return ns
 
+
+def filter_matches_for_testing(matches_yaml: Path,
+                               approved_matches_yaml: Path,
+                               output_yaml: Path) -> None:
+    def match_key_from_match_dict(match_dict: dict) -> tuple[str, str]:
+        return (Path(match_dict['bgc_variant_id']['bgc_id']['antiSMASH_file']).stem,
+                match_dict['nrp_variant_id']['nrp_id'])
+
+    approved_matches = [
+        TestMatch.from_yaml_dict(match_dict)
+        for match_dict in yaml.safe_load(approved_matches_yaml.read_text())
+    ]
+    approved_keys = {(tm.bgc_id, tm.nrp_id) for tm in approved_matches}
+
+    matches = yaml.safe_load(matches_yaml.read_text())
+    filtered_matches = [match_dict for match_dict in matches
+                        if match_key_from_match_dict(match_dict) in approved_keys]
+    output_yaml.write_text(yaml.dump(filtered_matches, default_flow_style=False, sort_keys=False))
+
+
 if __name__ == '__main__':
     args = parse_args()
     nerpa_dir = Path(__file__).resolve().parent.parent.parent
     assert nerpa_dir.name.startswith('nerpa'), f'Wrong nerpa_dir: {nerpa_dir}'
 
     nerpa1_vs_nerpa2(args=args)
+    # filter_matches_for_testing(args.nerpa2_matches,
+    #                            args.approved_matches_yaml,
+    #                            nerpa_dir / 'benchmarking/alignment_reconstruction/nerpa2_matches_filtered_for_testing.yaml')

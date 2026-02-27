@@ -6,6 +6,8 @@ from src.benchmarking.plots_helper import PlotsHelper
 from PIL import Image
 import argparse
 
+from src.generic.svg import join_svgs_side_by_side
+
 
 def join_pngs_side_by_side(output_path, *image_paths):
     # Load all images
@@ -86,6 +88,7 @@ def nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path: Path,
                     output_dir=output_dir)
 
 
+
 def plots_for_paper(nerpa1_report_path: Path,
                     nerpa2_report_path: Path,
                     biocat_report_path: Path,
@@ -108,19 +111,19 @@ def plots_for_paper(nerpa1_report_path: Path,
     # nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.png'
     # nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png'
     files_to_copy = [
-        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.png',
-        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'Percentage_identified_Genome_ID_top10.png',
-        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'precision_recall_curve_top_10.png',
+        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.svg',
+        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'Percentage_identified_Genome_ID_top10.svg',
+        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'precision_recall_curve_top_10.svg',
      #   nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png',
     ]
     for file_path in files_to_copy:
         dest_path = plots_for_paper_dir / file_path.name
         dest_path.write_bytes(file_path.read_bytes())
         
-    join_pngs_side_by_side(plots_for_paper_dir / 'combined_figure.png',
-                           *files_to_copy)
+    join_svgs_side_by_side(svg_paths=files_to_copy,
+                           output_path=plots_for_paper_dir / 'combined_figure.svg')
 
-    return plots_for_paper_dir / 'combined_figure.png'
+    return plots_for_paper_dir / 'combined_figure.svg'
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Generate benchmarking plots comparing Nerpa 1, Nerpa 2, and BioCAT.")

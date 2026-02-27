@@ -120,6 +120,7 @@ class PipelineHelper_antiSMASH:
             return self.load_bgc_variants()
 
         as_json_paths = self.get_antismash_results()
+        self.log.info(f'Found {len(as_json_paths)} antiSMASH json files to process')
         if not as_json_paths:
             self.log.error('No antiSMASH results provided, aborting')
             raise ValueError('No antiSMASH results provided')
@@ -140,7 +141,9 @@ class PipelineHelper_antiSMASH:
 
 
         self.log.info('\n======= Done with Predicting BGC variants')
-        return list(chain(*bgc_variants_batches))
+        bgc_variants_all = list(chain(*bgc_variants_batches))
+        self.log.info(f'Extracted {len(bgc_variants_all)} BGC variants from antiSMASH results')
+        return bgc_variants_all
 
     def run_antismash(self, dna_sequences: Path,
                       threads: int, output_dir: Path,

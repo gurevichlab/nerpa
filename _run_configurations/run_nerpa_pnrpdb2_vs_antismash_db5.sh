@@ -1,12 +1,12 @@
 python nerpa.py \
--a ~/data/antismash_db5/jsons \
+-a /home/ilya/data/asdb5_beta2_fixed_records/jsons \
 --smiles-tsv ./data/input/pnrpdb2.tsv \
 --col-id ID \
--o ./nerpa_results/pnrpdb2_vs_antismash_db5 \
+-o ./nerpa_results/pnrpdb2_vs_antismash_db5_fixed_records_new \
 --force-output-dir \
 --fast-matching \
 --process-hybrids \
---min-num-matches-per-nrp 10 \
+--max-num-matches-per-bgc 10 \
 --max-num-matches-per-nrp 10 \
 --max-num-matches 10000 \
---threads 32
+--threads 50

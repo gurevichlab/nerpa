@@ -154,7 +154,7 @@ def write_bgc_variants(bgc_variants_info: BGC_Variants_Info,
     write_yaml([
         {
             'bgc_id': bgc_id.to_dict(),
-            'represetative_id': repr_id.to_dict()
+            'representative_id': repr_id.to_dict()
         }
         for bgc_id, repr_id in bgc_variants_info.bgc_id_to_repr_id.items()
         if repr_id in bgc_ids_to_write

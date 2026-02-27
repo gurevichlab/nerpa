@@ -263,9 +263,9 @@ class PlotsHelper:
             f'id_column should be one of {NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS}'
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        out_files_per_top_k = {top_k: output_dir / f'{y_axis}_identified_{id_column}_top{top_k}.png'
+        out_files_per_top_k = {top_k: output_dir / f'{y_axis}_identified_{id_column}_top{top_k}.svg'
                                for top_k in top_ks}
-        out_files_per_id = {report.name: output_dir / f'{y_axis}_identified_{id_column}_{report.name}.png'
+        out_files_per_id = {report.name: output_dir / f'{y_axis}_identified_{id_column}_{report.name}.svg'
                             for report in nerpa_reports}
 
         num_identified_graphs = {
@@ -315,6 +315,8 @@ class PlotsHelper:
             plt.close(fig)
 
         # Plot per top_k (all reports)
+        df = pl.DataFrame()
+        max_len = len(num_identified_graphs['Nerpa 2'][max(top_ks)][PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR])
         for top_k in top_ks:
             fig, ax = plt.subplots()
             for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
@@ -330,6 +332,8 @@ class PlotsHelper:
                             #label=f'{report_name}({cmp_method})',
                             color=color,
                             linestyle=linestyle)
+                    df = df.with_columns(pl.Series(name=f'{report_name}',
+                                                   values=values.to_list() + [None] * (max_len - len(values))))
 
             name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
             ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
@@ -343,6 +347,8 @@ class PlotsHelper:
             fig.tight_layout()
             fig.savefig(out_files_per_top_k[top_k], dpi=self.dpi)
             plt.close(fig)
+
+        df.write_csv(output_dir / f'num_identified.tsv', separator='\t')
 
         return list(chain(out_files_per_top_k.values(), out_files_per_id.values()))
 
@@ -359,7 +365,7 @@ class PlotsHelper:
             f'id_column should be one of {NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS}'
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        out_file = output_dir / f'total_{y_axis}_identified_{id_column}.png'
+        out_file = output_dir / f'total_{y_axis}_identified_{id_column}.svg'
         total_identified_graphs = {
             report.name: {
                 cmp_method: self.data_helper.compute_total_identified(report,
@@ -374,6 +380,7 @@ class PlotsHelper:
         }
 
         fig, ax = plt.subplots()
+        df = pl.DataFrame()
         colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         for report_name, color in zip(total_identified_graphs.keys(), colors):
             for cmp_method, total_identified in total_identified_graphs[report_name].items():
@@ -381,14 +388,17 @@ class PlotsHelper:
                               if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
                               else '--')
                 ax.step(
-                    range(len(total_identified)),
+                    range(1, len(total_identified) + 1),
                     total_identified,
                     where="post",  # "mid" makes the step flat across each x interval
                     label=report_name,
                     linestyle=linestyle,
                     color=color,
                 )
-                ax.set_xticks(range(len(total_identified)))
+                ax.set_xticks(range(1, len(total_identified) + 1))
+                #print(cmp_method, id_column)
+                #print(report_name, total_identified.to_list())
+                df = df.with_columns(pl.Series(name=report_name, values=total_identified))
 
         name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
         ax.set_title(f'{y_axis} of true hits present',
@@ -405,6 +415,10 @@ class PlotsHelper:
         fig.tight_layout()
         fig.savefig(out_file, dpi=self.dpi)
         plt.close(fig)
+
+        if y_axis == 'Percentage' \
+            and id_column == NerpaReport.BGC_ID:
+            df.write_csv(output_dir / f'total_identified.tsv', separator='\t')
 
         return [out_file]
 
@@ -450,7 +464,7 @@ class PlotsHelper:
                                         title_fontsize=self.title_fontsize,
                                         legend_fontsize=self.legend_fontsize)
 
-            out_file = output_dir / f'precision_recall_curve_top_{top_matches_per_bgc}.png'
+            out_file = output_dir / f'precision_recall_curve_top_{top_matches_per_bgc}.svg'
             fig.set_figheight(self.height_px / self.dpi)
             fig.tight_layout()
             fig.savefig(out_file, dpi=self.dpi)

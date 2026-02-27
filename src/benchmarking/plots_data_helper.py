@@ -211,8 +211,11 @@ class PlotsDataHelper:
             nrp_class = self.nrp_id_to_iso_class[nrp_id]
             self.bgc_to_nrp_iso_classes[bgc_id].add(nrp_class)
 
+        print(f'{len(self.bgc_to_nrp_iso_classes)} BGCs in total (MIBiG 3+4)')
+
         self.match_correct_dict = get_match_correct_dict(bgc_to_nrps, self.similarity_dict)
         training_bgcs_info = self.mibig_bgcs_info.filter(pl.col(MIBiG_BGCs_Info.IN_APPROVED_MATCHES))
+        print(f'{len(set(training_bgcs_info[MIBiG_BGCs_Info.BGC_ID].to_list()))} training BGCs (MIBiG 3+4)')
         training_bgcs_fams = set(training_bgcs_info[MIBiG_BGCs_Info.BIGSCAPE_FAMILIES])
 
         dissimilar_to_training_bgcs_info = (
