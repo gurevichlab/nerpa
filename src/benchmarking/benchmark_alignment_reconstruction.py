@@ -61,6 +61,17 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
         error_counts_dict: Dictionary mapping match set names to lists of error counts
         filename: Path to save the histogram image
     """
+    base_font_size = 22
+    plt.rcParams.update({
+        'font.size': base_font_size,  # base size
+        'axes.titlesize': base_font_size + 2,
+        'axes.labelsize': base_font_size - 2,
+        'xtick.labelsize': base_font_size - 4,
+        'ytick.labelsize': base_font_size - 4,
+        'legend.fontsize': base_font_size - 4,
+        'figure.titlesize': base_font_size,
+    })
+
     plt.figure(figsize=(12, 6))
 
     max_errors = max(max(error_counts) for error_counts in error_counts_dict.values())
@@ -69,14 +80,22 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
     num_sets = len(error_counts_dict)
     bar_width = 0.8 / num_sets
 
+    colors = {
+        'Nerpa 1': 'orange',
+        'Nerpa 2': 'blue',
+    }
     for idx, (name, error_counts) in enumerate(error_counts_dict.items()):
         counts, _ = np.histogram(error_counts, bins=bins)
         x_positions = [x + idx * bar_width for x in range(len(bins) - 1)]
-        plt.bar(x_positions, counts, width=bar_width, label=name, alpha=0.8)
+        plt.bar(x_positions, counts,
+                width=bar_width,
+                label=name,
+                alpha=0.8,
+                color=colors[name])
 
-    plt.title('Histogram of Alignment Errors')
+    # plt.title('Histogram of Alignment Errors')
     plt.xlabel('Number of Errors')
-    plt.ylabel('Frequency')
+    plt.ylabel('Number of alignments')
     plt.xticks(range(len(bins) - 1), range(max_errors + 1))
     plt.legend()
     plt.grid(True, alpha=0.3, axis='y')
@@ -163,8 +182,8 @@ def nerpa1_vs_nerpa2(args: argparse.Namespace) -> None:
 
     # Create a dictionary of match sets
     match_sets = {
-        'Nerpa1': nerpa1_matches,
-        'Nerpa2': nerpa2_matches,
+        'Nerpa 1': nerpa1_matches,
+        'Nerpa 2': nerpa2_matches,
     }
 
     # Benchmark and plot
