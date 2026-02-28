@@ -90,8 +90,8 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
                 alpha=0.8,)
 
     # plt.title('Histogram of Alignment Errors')
-    plt.xlabel('Number of Errors')
-    plt.ylabel('Number of alignments')
+    plt.xlabel('# alignment errors')
+    plt.ylabel('# BGC-NRP alignments')
     plt.xticks(range(len(bins) - 1), range(max_errors + 1))
     plt.legend()
     plt.grid(True, alpha=0.3, axis='y')

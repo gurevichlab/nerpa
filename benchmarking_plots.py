@@ -84,7 +84,7 @@ def nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path: Path,
 
 
     # output_dir = nerpa_dir / Path('benchmarking/nerpa1_vs_nerpa2_vs_biocat_plots')
-    helper.plot_all([nerpa1_report, nerpa2_report, biocat_report],
+    helper.plot_all([nerpa2_report, nerpa1_report, biocat_report],
                     output_dir=output_dir)
 
 

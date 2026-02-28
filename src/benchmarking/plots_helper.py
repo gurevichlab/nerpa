@@ -286,7 +286,7 @@ class PlotsHelper:
             for report in nerpa_reports
         }
 
-        colors = ['orange', 'blue', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
+        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         # Plot per report (all top_ks)
         for report_name, topk_results in num_identified_graphs.items():
             fig, ax = plt.subplots()
@@ -327,7 +327,8 @@ class PlotsHelper:
                               if y_axis == 'Percentage'
                               else _values)
                     xs = range(len(values))
-                    ax.plot(xs, values,
+                    ax.plot(xs,
+                            [p / 100 for p in values],
                             label=f'{report_name}',
                             #label=f'{report_name}({cmp_method})',
                             color=color,
@@ -338,9 +339,12 @@ class PlotsHelper:
             name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
             # ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
             #              fontsize=self.title_fontsize)
-            ax.set_xlabel(f"Num top {name_identified}", fontsize=self.axis_fontsize)
-            ax.set_ylabel(y_axis, fontsize=self.axis_fontsize)
-            ax.grid()
+            ax.set_xlabel(f"Ranked {name_identified}", fontsize=self.axis_fontsize)
+            ax.set_ylabel('Fraction of BGCs identified', fontsize=self.axis_fontsize)
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+
+            ax.grid(alpha=0.3)
             ax.legend(fontsize=self.legend_fontsize,
                       loc='lower right')
             fig.set_figheight(self.height_px / self.dpi)
@@ -381,7 +385,7 @@ class PlotsHelper:
 
         fig, ax = plt.subplots()
         df = pl.DataFrame()
-        colors = ['orange', 'blue', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
+        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         for report_name, color in zip(total_identified_graphs.keys(), colors):
             for cmp_method, total_identified in total_identified_graphs[report_name].items():
                 linestyle = ('-'
@@ -389,7 +393,7 @@ class PlotsHelper:
                               else '--')
                 ax.step(
                     range(1, len(total_identified) + 1),
-                    total_identified,
+                    [p / 100 for p in total_identified],
                     where="post",  # "mid" makes the step flat across each x interval
                     label=report_name,
                     linestyle=linestyle,
@@ -403,12 +407,15 @@ class PlotsHelper:
         name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
         # ax.set_title(f'{y_axis} of true hits present',
         #              fontsize=self.title_fontsize)
-        ax.set_xlabel(f'Num top matches considered for each {name_identified}',
+        ax.set_xlabel(f'Top-k rank',
                       fontsize=self.axis_fontsize)
-        ax.set_ylabel(f'{y_axis}', fontsize=self.axis_fontsize)
-        ax.set_ylim(bottom=0)
+        ax.set_ylabel(f'Fraction of BGCs identified', fontsize=self.axis_fontsize)
+        ax.set_ylim(bottom=0, top=1)
 
-        ax.grid()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        ax.grid(alpha=0.3)
         ax.legend(fontsize=self.legend_fontsize,
                   loc='lower right')
         fig.set_figheight(self.height_px / self.dpi)

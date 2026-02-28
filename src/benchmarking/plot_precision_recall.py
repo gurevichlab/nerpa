@@ -50,7 +50,7 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                 linestyle=linestyle
             )
 
-            if report.name == 'Nerpa 2':
+            if report.name == 'Nerpa 2' and False:  # disabled for now
                 # Highlight points at recall intervals of 0.1
                 recall_thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
                 for recall_threshold in recall_thresholds:
@@ -76,12 +76,15 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                             color='red'
                         )
 
-    ax.set_xlabel('Recall (TP / (TP + FN))', fontsize=axis_fontsize)
-    ax.set_ylabel('Precision (TP / (TP + FP))', fontsize=axis_fontsize)
-    ax.set_title(f'Precision-Recall Curve (top {top_matches_per_bgc} matches kept per BGC)',
-                 fontsize=title_fontsize)
+    ax.set_xlabel('Recall', fontsize=axis_fontsize)
+    ax.set_ylabel('Precision', fontsize=axis_fontsize)
+    # ax.set_title(f'Precision-Recall Curve (top {top_matches_per_bgc} matches kept per BGC)',
+    #              fontsize=title_fontsize)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
     ax.grid(True, alpha=0.3)
     ax.legend(fontsize=legend_fontsize,
               loc='upper right')

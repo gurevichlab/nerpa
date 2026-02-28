@@ -166,9 +166,10 @@ def main():
     y = report["cumulative_fraction_genus_match"].to_list()
 
     plt.figure(figsize=(8, 5), dpi=150)
-    plt.plot(ranks, y, linewidth=2)
-    plt.xlabel("Num matches")
-    plt.ylabel("Genus match fraction")
+    plt.plot(ranks, y, linewidth=2,
+             label="Nerpa 2")
+    plt.xlabel("Ranked BGC-NRP pairs")
+    plt.ylabel("Fraction of genus matches")
     plt.ylim(0, 1)
     plt.xlim(1, max(1, n_rows))
     plt.grid(True, alpha=0.3)
