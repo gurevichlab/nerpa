@@ -156,8 +156,8 @@ def main():
 
     plt.figure(figsize=(8, 5), dpi=150)
     plt.plot(ranks, y, linewidth=2)
-    plt.xlabel("Rank (row number)")
-    plt.ylabel("Cumulative fraction genus match")
+    plt.xlabel("Num matches")
+    plt.ylabel("Genus match fraction")
     plt.ylim(0, 1)
     plt.xlim(1, max(1, n_rows))
     plt.grid(True, alpha=0.3)
@@ -169,9 +169,14 @@ def main():
     linewidth=2,
     color="red",
     alpha=0.8,
-    label=f"Random pair prob = {random_pair_same_genus_prob:.3f}",
+    label="Random pairing",
 )
     plt.legend(loc="best")
+
+    # add a y-tick at the reference value (keep existing ticks)
+    yticks = list(ax.get_yticks())
+    yticks.append(random_pair_same_genus_prob)
+    ax.set_yticks(sorted(set(yticks)))
 
     plot_path = args.output / "cumulative_fraction_genus_match.png"
     plt.tight_layout()
