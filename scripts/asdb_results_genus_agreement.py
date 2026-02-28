@@ -185,9 +185,9 @@ def main():
     plt.legend(loc="best")
 
     # add a y-tick at the reference value (keep existing ticks)
-    yticks = list(ax.get_yticks())
+    yticks = list(plt.yticks()[0])
     yticks.append(random_pair_same_genus_prob)
-    ax.set_yticks(sorted(set(yticks)))
+    plt.yticks(sorted(set(yticks)))
 
     plot_path = args.output / "cumulative_fraction_genus_match.png"
     plt.tight_layout()

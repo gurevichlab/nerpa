@@ -80,18 +80,14 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
     num_sets = len(error_counts_dict)
     bar_width = 0.8 / num_sets
 
-    colors = {
-        'Nerpa 1': 'orange',
-        'Nerpa 2': 'blue',
-    }
-    for idx, (name, error_counts) in enumerate(error_counts_dict.items()):
+    for idx, name in enumerate(('Nerpa 2', 'Nerpa 1')):
+        error_counts = error_counts_dict[name]
         counts, _ = np.histogram(error_counts, bins=bins)
         x_positions = [x + idx * bar_width for x in range(len(bins) - 1)]
         plt.bar(x_positions, counts,
                 width=bar_width,
                 label=name,
-                alpha=0.8,
-                color=colors[name])
+                alpha=0.8,)
 
     # plt.title('Histogram of Alignment Errors')
     plt.xlabel('Number of Errors')

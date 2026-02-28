@@ -286,7 +286,7 @@ class PlotsHelper:
             for report in nerpa_reports
         }
 
-        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
+        colors = ['orange', 'blue', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         # Plot per report (all top_ks)
         for report_name, topk_results in num_identified_graphs.items():
             fig, ax = plt.subplots()
@@ -336,8 +336,8 @@ class PlotsHelper:
                                                    values=values.to_list() + [None] * (max_len - len(values))))
 
             name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
-            ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
-                         fontsize=self.title_fontsize)
+            # ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
+            #              fontsize=self.title_fontsize)
             ax.set_xlabel(f"Num top {name_identified}", fontsize=self.axis_fontsize)
             ax.set_ylabel(y_axis, fontsize=self.axis_fontsize)
             ax.grid()
@@ -381,7 +381,7 @@ class PlotsHelper:
 
         fig, ax = plt.subplots()
         df = pl.DataFrame()
-        colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
+        colors = ['orange', 'blue', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         for report_name, color in zip(total_identified_graphs.keys(), colors):
             for cmp_method, total_identified in total_identified_graphs[report_name].items():
                 linestyle = ('-'
@@ -401,8 +401,8 @@ class PlotsHelper:
                 df = df.with_columns(pl.Series(name=report_name, values=total_identified))
 
         name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
-        ax.set_title(f'{y_axis} of true hits present',
-                     fontsize=self.title_fontsize)
+        # ax.set_title(f'{y_axis} of true hits present',
+        #              fontsize=self.title_fontsize)
         ax.set_xlabel(f'Num top matches considered for each {name_identified}',
                       fontsize=self.axis_fontsize)
         ax.set_ylabel(f'{y_axis}', fontsize=self.axis_fontsize)
