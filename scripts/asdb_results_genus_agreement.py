@@ -192,6 +192,7 @@ def main():
 
     plot_path = args.output / "cumulative_fraction_genus_match.svg"
     plt.tight_layout()
+    print(f'Saving plot to: {plot_path}')
     plt.savefig(plot_path)
     plt.close()
 
