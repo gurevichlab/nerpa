@@ -44,9 +44,9 @@ def main():
     # 985.1
     # 1035.0
     # 1214.4
-    # 1230.3
-    # 1462.0
-    # 1953.1 !
-    # 2170.0
+    # 1230.3 -- nerpa didn't reconstruct the right alignment
+    # 1462.0 -- no confirmed alignment
+    # 1953.1 ! -- to many modules
+    # 2170.0 == no as results
 if __name__ == '__main__':
     main()

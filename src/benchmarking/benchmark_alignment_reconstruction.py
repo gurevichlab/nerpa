@@ -72,7 +72,7 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
         'figure.titlesize': base_font_size,
     })
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 10), dpi=300)
 
     max_errors = max(max(error_counts) for error_counts in error_counts_dict.values())
     bins = range(0, max_errors + 2)
@@ -142,7 +142,7 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
                 row.append(str(counters_by_set[name].get(i, 0)))
             fh.write("\t".join(row) + "\n")
 
-    histogram_file = plots_dir / 'alignment_reconstruction_histogram.png'
+    histogram_file = plots_dir / 'alignment_reconstruction_histogram.svg'
     plot_error_histograms(error_counts_dict, histogram_file)
 
 

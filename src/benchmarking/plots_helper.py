@@ -40,7 +40,7 @@ class PlotsHelper:
         self.data_helper = PlotsDataHelper(bgc_test_set)
         self.dpi = 300
         self.height_px = 1000
-        self.width_px = 1600
+        self.width_px = 1200
         self.axis_fontsize = 14
         self.title_fontsize = 15
         self.legend_fontsize = 14
@@ -348,6 +348,7 @@ class PlotsHelper:
             ax.legend(fontsize=self.legend_fontsize,
                       loc='lower right')
             fig.set_figheight(self.height_px / self.dpi)
+            fig.set_figwidth(self.width_px / self.dpi)
             fig.tight_layout()
             fig.savefig(out_files_per_top_k[top_k], dpi=self.dpi)
             plt.close(fig)
@@ -419,6 +420,7 @@ class PlotsHelper:
         ax.legend(fontsize=self.legend_fontsize,
                   loc='lower right')
         fig.set_figheight(self.height_px / self.dpi)
+        fig.set_figwidth(self.width_px / self.dpi)
         fig.tight_layout()
         fig.savefig(out_file, dpi=self.dpi)
         plt.close(fig)
@@ -473,6 +475,7 @@ class PlotsHelper:
 
             out_file = output_dir / f'precision_recall_curve_top_{top_matches_per_bgc}.svg'
             fig.set_figheight(self.height_px / self.dpi)
+            fig.set_figwidth(self.width_px / self.dpi)
             fig.tight_layout()
             fig.savefig(out_file, dpi=self.dpi)
             plt.close(fig)

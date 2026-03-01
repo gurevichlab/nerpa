@@ -165,7 +165,7 @@ def main():
     ranks = list(range(1, n_rows + 1))
     y = report["cumulative_fraction_genus_match"].to_list()
 
-    plt.figure(figsize=(8, 5), dpi=150)
+    plt.figure(figsize=(12, 10), dpi=300)
     plt.plot(ranks, y, linewidth=2,
              label="Nerpa 2")
     plt.xlabel("Ranked BGC-NRP pairs")
@@ -190,7 +190,7 @@ def main():
     yticks.append(random_pair_same_genus_prob)
     plt.yticks(sorted(set(yticks)))
 
-    plot_path = args.output / "cumulative_fraction_genus_match.png"
+    plot_path = args.output / "cumulative_fraction_genus_match.svg"
     plt.tight_layout()
     plt.savefig(plot_path)
     plt.close()
