@@ -180,6 +180,8 @@ def main():
     yticks = list(ax.get_yticks())
     yticks.append(random_pair_same_genus_prob)
     ax.set_yticks(sorted(set(yticks)))
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     plot_path = args.output / 'cumulative_fraction_genus_match.svg'
     print(f'Saving plot to: {plot_path}')

@@ -88,6 +88,8 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
     ax.set_ylabel('# BGC-NRP alignments')
     ax.set_xticks(range(len(bins) - 1), labels=range(max_errors + 1))
     ax.legend()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     ax.grid(True, alpha=0.3, axis='y')
     print(f"Saving histogram plot to {filename}")
 
