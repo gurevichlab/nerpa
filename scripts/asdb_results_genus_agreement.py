@@ -157,34 +157,34 @@ def main():
 
     fig, ax = my_new_figure()
 
-    plt.plot(ranks, y, linewidth=2,
-             label="Nerpa 2")
-    plt.xlabel("Ranked BGC-NRP pairs")
-    plt.ylabel("Fraction of genus matches")
-    plt.ylim(0, 1)
-    plt.xlim(1, max(1, n_rows))
-    plt.grid(True, alpha=0.3)
+    ax.plot(ranks, y, linewidth=2, label='Nerpa 2')
+    ax.set_xlabel('Ranked BGC-NRP pairs')
+    ax.set_ylabel('Fraction of genus matches')
+    ax.set_ylim(0, 1)
+    ax.set_xlim(1, max(1, n_rows))
+    ax.grid(True, alpha=0.3)
 
-    # q: add horizontal dashed line for random_pair_same_genus_prob
-    plt.axhline(
-    y=random_pair_same_genus_prob,
-    linestyle="--",
-    linewidth=2,
-    color="red",
-    alpha=0.8,
-    label="Random pairing",
-)
-    plt.legend(loc="best")
+    # add horizontal dashed line for random_pair_same_genus_prob
+    ax.axhline(
+        y=random_pair_same_genus_prob,
+        linestyle='--',
+        linewidth=2,
+        color='red',
+        alpha=0.8,
+        label='Random pairing',
+    )
+
+    ax.legend(loc='best')
 
     # add a y-tick at the reference value (keep existing ticks)
-    yticks = list(plt.yticks()[0])
+    yticks = list(ax.get_yticks())
     yticks.append(random_pair_same_genus_prob)
-    plt.yticks(sorted(set(yticks)))
+    ax.set_yticks(sorted(set(yticks)))
 
-    plot_path = args.output / "cumulative_fraction_genus_match.svg"
+    plot_path = args.output / 'cumulative_fraction_genus_match.svg'
     print(f'Saving plot to: {plot_path}')
-    plt.savefig(plot_path)
-    plt.close()
+    fig.savefig(plot_path)
+    plt.close(fig)
 
     # q: print to the stdout cumulative fractions for row numbers 100, 500, 1000, 5000, 10000
     print("Cumulative fractions at specified row numbers:")
