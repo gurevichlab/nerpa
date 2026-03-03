@@ -19,6 +19,8 @@ from src.benchmarking.score_correctness_per_bgc_length import (
     score_correctness_per_bgc_length,
     plot_compare_score_correctness,
 )
+from src.generic.plots import my_new_figure
+
 
 def cnts_to_percentages(cnts: pl.Series) -> pl.Series:
         """
@@ -350,7 +352,8 @@ class PlotsHelper:
             fig.set_figheight(self.height_px / self.dpi)
             fig.set_figwidth(self.width_px / self.dpi)
             fig.tight_layout()
-            fig.savefig(out_files_per_top_k[top_k], dpi=self.dpi)
+            #fig = apply_figure_style(fig)
+            fig.savefig(out_files_per_top_k[top_k])
             plt.close(fig)
 
         df.write_csv(output_dir / f'num_identified.tsv', separator='\t')
@@ -384,7 +387,7 @@ class PlotsHelper:
             for report in nerpa_reports
         }
 
-        fig, ax = plt.subplots()
+        fig, ax = my_new_figure()
         df = pl.DataFrame()
         colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
         for report_name, color in zip(total_identified_graphs.keys(), colors):
@@ -408,9 +411,10 @@ class PlotsHelper:
         name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
         # ax.set_title(f'{y_axis} of true hits present',
         #              fontsize=self.title_fontsize)
-        ax.set_xlabel(f'Top-k rank',
-                      fontsize=self.axis_fontsize)
-        ax.set_ylabel(f'Fraction of BGCs identified', fontsize=self.axis_fontsize)
+        ax.set_xlabel(f'Top-k rank',)
+                      # fontsize=self.axis_fontsize)
+        ax.set_ylabel(f'Fraction of BGCs identified',)
+                      #fontsize=self.axis_fontsize)
         ax.set_ylim(bottom=0, top=1)
 
         ax.spines['top'].set_visible(False)
@@ -419,9 +423,10 @@ class PlotsHelper:
         ax.grid(alpha=0.3)
         ax.legend(fontsize=self.legend_fontsize,
                   loc='lower right')
-        fig.set_figheight(self.height_px / self.dpi)
-        fig.set_figwidth(self.width_px / self.dpi)
-        fig.tight_layout()
+        # fig.set_figheight(self.height_px / self.dpi)
+        # fig.set_figwidth(self.width_px / self.dpi)
+        # fig.tight_layout()
+        # my_save_figure(fig, out_file)
         fig.savefig(out_file, dpi=self.dpi)
         plt.close(fig)
 
@@ -463,20 +468,14 @@ class PlotsHelper:
         out_files = []
 
         for top_matches_per_bgc in top_matches_per_bgc_vals:
-            fig, ax = plt.subplots()
+            fig, ax = my_new_figure()
 
             plot_precision_recall_curve(nerpa_reports,
                                         ax,
                                         self.data_helper,
-                                        top_matches_per_bgc=top_matches_per_bgc,
-                                        axis_fontsize=self.axis_fontsize,
-                                        title_fontsize=self.title_fontsize,
-                                        legend_fontsize=self.legend_fontsize)
+                                        top_matches_per_bgc=top_matches_per_bgc,)
 
             out_file = output_dir / f'precision_recall_curve_top_{top_matches_per_bgc}.svg'
-            fig.set_figheight(self.height_px / self.dpi)
-            fig.set_figwidth(self.width_px / self.dpi)
-            fig.tight_layout()
             fig.savefig(out_file, dpi=self.dpi)
             plt.close(fig)
             out_files.append(out_file)

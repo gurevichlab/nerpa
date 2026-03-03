@@ -121,7 +121,8 @@ def plots_for_paper(nerpa1_report_path: Path,
         dest_path.write_bytes(file_path.read_bytes())
         
     join_svgs_side_by_side(svg_paths=files_to_copy,
-                           output_path=plots_for_paper_dir / 'combined_figure.svg')
+                           output_path=plots_for_paper_dir / 'combined_figure.svg',
+                           force_same_heights=True)
 
     return plots_for_paper_dir / 'combined_figure.svg'
 

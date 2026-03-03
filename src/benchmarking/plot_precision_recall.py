@@ -14,9 +14,7 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                                 data_helper: PlotsDataHelper,
                                 top_matches_per_bgc: Optional[int] = None,
                                 cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
-                                axis_fontsize: int = 12,
-                                title_fontsize: int = 14,
-                                legend_fontsize: int = 12) -> None:
+                                ) -> None:
     """
     Plot Precision-Recall curves for all reports.
 
@@ -76,8 +74,8 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                             color='red'
                         )
 
-    ax.set_xlabel('Recall', fontsize=axis_fontsize)
-    ax.set_ylabel('Precision', fontsize=axis_fontsize)
+    ax.set_xlabel('Recall')
+    ax.set_ylabel('Precision')
     # ax.set_title(f'Precision-Recall Curve (top {top_matches_per_bgc} matches kept per BGC)',
     #              fontsize=title_fontsize)
     ax.set_xlim(0, 1)
@@ -86,5 +84,4 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
     ax.spines['right'].set_visible(False)
 
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=legend_fontsize,
-              loc='upper right')
+    ax.legend(loc='upper right')

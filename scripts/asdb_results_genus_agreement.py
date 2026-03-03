@@ -4,6 +4,7 @@ import argparse
 import yaml
 
 from src.antismash_parsing.bgc_variant_types import BGC_Variant
+from src.generic.plots import my_new_figure
 
 
 def parse_args() -> argparse.Namespace:
@@ -150,22 +151,12 @@ def main():
     # q: plot cumulative_fraction_genus_match vs rank (row number) and save as "cumulative_fraction_genus_match.png" in the output directory
     import matplotlib.pyplot as plt
 
-    base_font_size = 22
-    plt.rcParams.update({
-        'font.size': base_font_size,  # base size
-        'axes.titlesize': base_font_size + 2,
-        'axes.labelsize': base_font_size - 2,
-        'xtick.labelsize': base_font_size - 4,
-        'ytick.labelsize': base_font_size - 4,
-        'legend.fontsize': base_font_size - 4,
-        'figure.titlesize': base_font_size,
-    })
-
     n_rows = report.height
     ranks = list(range(1, n_rows + 1))
     y = report["cumulative_fraction_genus_match"].to_list()
 
-    plt.figure(figsize=(12, 10), dpi=300)
+    fig, ax = my_new_figure()
+
     plt.plot(ranks, y, linewidth=2,
              label="Nerpa 2")
     plt.xlabel("Ranked BGC-NRP pairs")
@@ -191,7 +182,6 @@ def main():
     plt.yticks(sorted(set(yticks)))
 
     plot_path = args.output / "cumulative_fraction_genus_match.svg"
-    plt.tight_layout()
     print(f'Saving plot to: {plot_path}')
     plt.savefig(plot_path)
     plt.close()

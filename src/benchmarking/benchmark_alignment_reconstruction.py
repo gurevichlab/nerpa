@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 from typing import List, Dict
+
+from src.generic.plots import my_new_figure
 from src.testing.testing_nerpa1 import SimplifiedMatch, load_nerpa1_matches
 from src.testing.testing_types import TestMatch
 from src.testing.simplified_alignment import get_mismatched_steps, simplified_alignment_from_match
@@ -61,19 +63,8 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
         error_counts_dict: Dictionary mapping match set names to lists of error counts
         filename: Path to save the histogram image
     """
-    base_font_size = 22
-    plt.rcParams.update({
-        'font.size': base_font_size,  # base size
-        'axes.titlesize': base_font_size + 2,
-        'axes.labelsize': base_font_size - 2,
-        'xtick.labelsize': base_font_size - 4,
-        'ytick.labelsize': base_font_size - 4,
-        'legend.fontsize': base_font_size - 4,
-        'figure.titlesize': base_font_size,
-    })
 
-    plt.figure(figsize=(12, 10), dpi=300)
-
+    fig, ax = my_new_figure()
     max_errors = max(max(error_counts) for error_counts in error_counts_dict.values())
     bins = range(0, max_errors + 2)
 
@@ -84,20 +75,29 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
         error_counts = error_counts_dict[name]
         counts, _ = np.histogram(error_counts, bins=bins)
         x_positions = [x + idx * bar_width for x in range(len(bins) - 1)]
-        plt.bar(x_positions, counts,
-                width=bar_width,
-                label=name,
-                alpha=0.8,)
+        ax.bar(
+            x_positions,
+            counts,
+            width=bar_width,
+            label=name,
+            alpha=0.8,
+        )
 
     # plt.title('Histogram of Alignment Errors')
-    plt.xlabel('# alignment errors')
-    plt.ylabel('# BGC-NRP alignments')
-    plt.xticks(range(len(bins) - 1), range(max_errors + 1))
-    plt.legend()
-    plt.grid(True, alpha=0.3, axis='y')
+    ax.set_xlabel('# alignment errors')
+    ax.set_ylabel('# BGC-NRP alignments')
+    ax.set_xticks(range(len(bins) - 1), labels=range(max_errors + 1))
+    ax.legend()
+    ax.grid(True, alpha=0.3, axis='y')
+    print(f"Saving histogram plot to {filename}")
+
     filename.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(filename, bbox_inches='tight')
-    plt.close()
+    # IMPORTANT: bbox_inches='tight' will change the output size.
+    fig.savefig(filename, format='svg')
+    plt.close(fig)
+
+# q: tell me a joke about ducks
+# Why do ducks have feathers? To cover their butt-quacks.
 
 
 def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
@@ -167,14 +167,17 @@ def nerpa1_vs_nerpa2(args: argparse.Namespace) -> None:
     # Load nerpa1 matches
     print('Loading Nerpa 1 matches...')
     nerpa1_matches = load_nerpa1_matches(args.nerpa1_results)
+    print(f'Loaded {len(nerpa1_matches)} Nerpa 1 matches.')
 
     # Load nerpa2 matches
     print('Loading Nerpa 2 matches...')
     nerpa2_matches = load_nerpa2_matches(args)
+    print(f'Loaded {len(nerpa2_matches)} Nerpa 2 matches.')
 
     print('Loading approved test matches...')
     test_matches = [TestMatch.from_yaml_dict(item)
                     for item in yaml.safe_load(args.approved_matches_yaml.read_text())]
+    print(f'Loaded {len(test_matches)} approved test matches.')
 
     # Create a dictionary of match sets
     match_sets = {
@@ -250,7 +253,9 @@ def filter_matches_for_testing(matches_yaml: Path,
     matches = yaml.safe_load(matches_yaml.read_text())
     filtered_matches = [match_dict for match_dict in matches
                         if match_key_from_match_dict(match_dict) in approved_keys]
+    print(f"Filtered matches: {len(filtered_matches)} out of {len(matches)}")
     output_yaml.write_text(yaml.dump(filtered_matches, default_flow_style=False, sort_keys=False))
+
 
 
 if __name__ == '__main__':

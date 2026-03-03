@@ -39,28 +39,52 @@ def _svg_dims(root: ET.Element) -> tuple[float, float]:
     raise ValueError('SVG is missing width/height and has no usable viewBox')
 
 
-def join_svgs_side_by_side(svg_paths: list[Path], output_path: Path) -> None:
+def join_svgs_side_by_side(
+    svg_paths: list[Path],
+    output_path: Path,
+    force_same_heights: bool = False,
+) -> None:
     """
     Join multiple SVGs into a single SVG laid out left-to-right.
 
-    Assumptions:
-      - All SVGs have the same height (within a tiny tolerance).
-      - Each SVG has width/height, or at least a viewBox.
+    If force_same_heights=True, each SVG is scaled (by width/height) so its height
+    matches the first SVG's height before joining. Widths are adjusted accordingly.
     """
+    from typing import NamedTuple
+
     if not svg_paths:
         raise ValueError('No SVG paths provided')
 
-    parsed: list[tuple[ET.Element, float, float]] = []
+    class ParsedSvg(NamedTuple):
+        root: ET.Element
+        w: float          # original width
+        h: float          # original height
+        scaled_w: float   # width after optional scaling to base height
+
+    parsed: list[ParsedSvg] = []
     for p in svg_paths:
         root = ET.parse(p).getroot()
         w, h = _svg_dims(root)
-        parsed.append((root, w, h))
+        parsed.append(ParsedSvg(root=root, w=w, h=h, scaled_w=w))
 
-    base_h = parsed[0][2]
-    if any(abs(h - base_h) > 1e-6 for _, _, h in parsed[1:]):
-        raise ValueError('SVG heights do not match')
+    base_h: float = parsed[0].h
 
-    total_w = sum(w for _, w, _ in parsed)
+    if force_same_heights:
+        # Scale each SVG so its height becomes base_h; adjust width proportionally.
+        parsed = [
+            ParsedSvg(
+                root=ps.root,
+                w=ps.w,
+                h=ps.h,
+                scaled_w=ps.w * (base_h / ps.h),
+            )
+            for ps in parsed
+        ]
+    else:
+        if any(abs(ps.h - base_h) > 1e-6 for ps in parsed[1:]):
+            raise ValueError('SVG heights do not match')
+
+    total_w: float = sum(ps.scaled_w for ps in parsed)
 
     out_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
         'width': f'{total_w}',
@@ -68,30 +92,74 @@ def join_svgs_side_by_side(svg_paths: list[Path], output_path: Path) -> None:
         'viewBox': f'0 0 {total_w} {base_h}',
     })
 
-    x = 0.0
-    for root, w, h in parsed:
+    x: float = 0.0
+    for ps in parsed:
         nested_attrib: dict[str, str] = {
             'x': f'{x}',
             'y': '0',
-            'width': f'{w}',
+            'width': f'{ps.scaled_w}',
             'height': f'{base_h}',
         }
 
+        # Ensure there's a viewBox so changing width/height actually scales the content.
+        vb: str | None = ps.root.get('viewBox')
+        if vb is None:
+            vb = f'0 0 {ps.w} {ps.h}'
+        nested_attrib['viewBox'] = vb
+
         # Preserve viewBox + aspect ratio behavior if present.
-        vb = root.get('viewBox')
-        if vb:
-            nested_attrib['viewBox'] = vb
-        par = root.get('preserveAspectRatio')
+        par: str | None = ps.root.get('preserveAspectRatio')
         if par:
             nested_attrib['preserveAspectRatio'] = par
 
         nested = ET.SubElement(out_root, f'{{{_SVG_NS}}}svg', attrib=nested_attrib)
 
         # Copy over children (defs, g, paths, etc.) into the nested SVG.
-        for child in list(root):
+        for child in list(ps.root):
             nested.append(copy.deepcopy(child))
 
-        x += w
+        x += ps.scaled_w
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(out_root).write(output_path, encoding='utf-8', xml_declaration=True)
+
+
+# q: make this script runnable from the command line, accepting multiple SVG paths and an output path. Use argparse
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Join multiple SVGs side-by-side into a single SVG.')
+    parser.add_argument(
+        'svgs',
+        nargs='+',
+        type=Path,
+        help='Input SVG paths (one or more).',
+    )
+    parser.add_argument(
+        '-o',
+        '--output',
+        required=True,
+        type=Path,
+        help='Output SVG path.',
+    )
+
+    # q: add an optional flag --force-same-heights that forces all SVGs to be scaled to the same height as the first one before joining
+    parser.add_argument(
+        '--force-same-heights',
+        action='store_true',
+        help='Scale all SVGs so their height matches the first SVG before joining.',
+    )
+
+    args = parser.parse_args(argv)
+
+    join_svgs_side_by_side(args.svgs, args.output, force_same_heights=args.force_same_heights)
+    return 0
+
+    args = parser.parse_args(argv)
+
+    join_svgs_side_by_side(args.svgs, args.output, force_same_heights=args.force_same_heights)
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
