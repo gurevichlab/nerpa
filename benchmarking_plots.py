@@ -112,9 +112,9 @@ def plots_for_paper(nerpa1_report_path: Path,
     # nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png'
     files_to_copy = [
         output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'total_Percentage_identified_Genome_ID.svg',
-        output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'Percentage_identified_Genome_ID_top10.svg',
         output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots' / 'precision_recall_curve_top_10.svg',
-     #   nerpa_dir / 'benchmarking' / 'nerpa1_vs_nerpa2_plots' / 'alignment_reconstruction_histogram.png',
+        nerpa_dir / 'benchmarking' / 'alignment_reconstruction' / 'plots' / 'alignment_reconstruction_histogram.svg',
+        Path('/home/ilianolhin/uds_server/tools/nerpa2/tmp/cumulative_fraction_genus_match.svg')
     ]
     for file_path in files_to_copy:
         dest_path = plots_for_paper_dir / file_path.name
