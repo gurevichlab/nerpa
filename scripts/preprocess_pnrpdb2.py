@@ -77,14 +77,14 @@ def parse_args(nerpa_dir: Path) -> argparse.Namespace:
         args.pnrpdb2_path = (nerpa_dir
                              / 'data'
                              / 'input'
-                             / 'pnrpdb2.tsv')
+                             / 'pnrpdb2_raw.tsv')
     return args
 
 def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
     args = parse_args(nerpa_dir)
     pnrpdb2_path = args.pnrpdb2_path
-    pnrpdb_pref = pnrpdb2_path.stem
+    pnrpdb_pref = 'pnrpdb2'
     print(f'Using pnrpdb2 path: {pnrpdb2_path}, prefix for output tables: {pnrpdb_pref}')
     pnrpdb2_df = pd.read_csv(pnrpdb2_path, sep='\t')
 
@@ -102,12 +102,21 @@ def main():
         Parsed_rBAN_Record.from_dict(record)
         for record in yaml.safe_load((nerpa_results / 'preprocessed_input' / 'parsed_rban_records.yaml').open())
     ]
+    processed_ids = set(nrp_id_to_repr_id.keys())
+    pnrpdb2_df = pnrpdb2_df[pnrpdb2_df['ID'].isin(processed_ids)]
 
     def is_mibig_norine(nrp_id: str) -> bool:
         return nrp_id.startswith('BGC') or nrp_id.startswith('NOR')
 
     def is_representative(nrp_id: str) -> bool:
         return nrp_id in nrp_id_to_repr_id.values()
+
+    # 0. Dump the filtered pnrpdb2 table with only records that were processed by nerpa
+    pnrpdb2_filtered_path = (nerpa_dir
+                            / 'data'
+                            / 'input'
+                            / f'{pnrpdb_pref}.tsv')
+    pnrpdb2_df.to_csv(pnrpdb2_filtered_path, sep='\t', index=False)
 
     # 1. pnrpdb2_mibig_norine.tsv
     pnrpdb2_mibig_norine_path = (nerpa_dir
