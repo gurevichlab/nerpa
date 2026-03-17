@@ -1,6 +1,6 @@
 # Nerpa 2.1 Manual
 
-<img src="docs/img/logo.png" align="right" width="220" />
+<img src="docs/img/logo.png" align="right" width="400" />
 
 1. [About Nerpa](#sec_about) <br>
    1.1 [Nerpa pipeline](#sec_about_pipeline) <br>
