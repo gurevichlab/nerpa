@@ -111,6 +111,7 @@ def monomer_color_dict(monomers: Optional[List[str]] = None,
 def draw_molecule(G: MonomerGraph,
                   output_file: Path,
                   rban_indexes: bool = True,
+                  monomer_labels: bool = True,
                   size: Tuple[int, int] = (1000, 1000),
                   monomer_names_helper: Optional[MonomerNamesHelper] = None) -> None:
     format = output_file.suffix[1:].lower()
@@ -146,7 +147,7 @@ def draw_molecule(G: MonomerGraph,
                              atom_id not in chain(*monomer.binding_sites.values())),
                             None)
 
-        if monomer_repr:
+        if monomer_repr and monomer_labels:
             atom_labels[monomer_repr] = (
                 f'{monomer.name}_{monomer_id}'
                 if rban_indexes else

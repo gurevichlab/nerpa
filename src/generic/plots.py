@@ -13,7 +13,7 @@ def my_new_figure(
     base_font_size: int = 18,
     inner_w_px: int = 360,
     inner_h_px: int = 300,
-    outer_w_px: int = 450,
+    outer_w_px: int = 480,
     outer_h_px: int = 370,
     margin_x_px: int = 15,
     margin_y_px: int = 10,

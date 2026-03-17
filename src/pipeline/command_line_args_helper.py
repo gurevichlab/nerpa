@@ -119,7 +119,7 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                     "(faster and saves space but they will be missing in the HTML report)")
 
     configs_group.add_argument("--fast-matching",
-                               action="store_true", default=False,
+                               action="store_true", default=True,
                                help="use C++ executable to perform matching (requires compilation)")
 
     configs_group.add_argument("--keep-intermediate-files",

@@ -123,12 +123,13 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                 #print(f'Drawing {rban_record.compound_id}', flush=True)
                 monomer_graph = MonomerGraph.from_rban_record(rban_record)
                 draw_monomer_graph(monomer_graph,
-                                   with_rban_indexes=False,
+                                   with_rban_indexes=True,
                                    output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
                                    monomer_names_helper=monomer_names_helper)
                 try:
                     draw_molecule(monomer_graph,
-                                  rban_indexes=False,
+                                  rban_indexes=True,
+                                  monomer_labels=True,
                                   output_file=output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.svg',
                                   monomer_names_helper=monomer_names_helper)
                 except Exception as e:

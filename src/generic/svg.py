@@ -43,12 +43,15 @@ def join_svgs_side_by_side(
     svg_paths: list[Path],
     output_path: Path,
     force_same_heights: bool = False,
+    padding: float = 0.0,
 ) -> None:
     """
     Join multiple SVGs into a single SVG laid out left-to-right.
 
     If force_same_heights=True, each SVG is scaled (by width/height) so its height
     matches the first SVG's height before joining. Widths are adjusted accordingly.
+
+    padding is an optional horizontal gap (in SVG user units) inserted between figures.
     """
     from typing import NamedTuple
 
@@ -84,7 +87,7 @@ def join_svgs_side_by_side(
         if any(abs(ps.h - base_h) > 1e-6 for ps in parsed[1:]):
             raise ValueError('SVG heights do not match')
 
-    total_w: float = sum(ps.scaled_w for ps in parsed)
+    total_w: float = sum(ps.scaled_w for ps in parsed) + padding * max(0, len(parsed) - 1)
 
     out_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
         'width': f'{total_w}',
@@ -93,7 +96,7 @@ def join_svgs_side_by_side(
     })
 
     x: float = 0.0
-    for ps in parsed:
+    for i, ps in enumerate(parsed):
         nested_attrib: dict[str, str] = {
             'x': f'{x}',
             'y': '0',
@@ -119,6 +122,8 @@ def join_svgs_side_by_side(
             nested.append(copy.deepcopy(child))
 
         x += ps.scaled_w
+        if i != len(parsed) - 1:
+            x += padding
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(out_root).write(output_path, encoding='utf-8', xml_declaration=True)
@@ -149,15 +154,19 @@ def main(argv: list[str] | None = None) -> int:
         action='store_true',
         help='Scale all SVGs so their height matches the first SVG before joining.',
     )
+    parser.add_argument(
+        '--padding',
+        type=float,
+        default=0.0,
+        help='Horizontal padding (gap) between SVGs, in user units. Default: 0.',
+    )
 
     args = parser.parse_args(argv)
 
-    join_svgs_side_by_side(args.svgs, args.output, force_same_heights=args.force_same_heights)
-    return 0
-
-    args = parser.parse_args(argv)
-
-    join_svgs_side_by_side(args.svgs, args.output, force_same_heights=args.force_same_heights)
+    join_svgs_side_by_side(args.svgs,
+                           args.output,
+                           force_same_heights=args.force_same_heights,
+                           padding=args.padding)
     return 0
 
 

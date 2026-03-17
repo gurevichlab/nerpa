@@ -1,18 +1,21 @@
 # Nerpa 2.1 Manual
 
-1. [About Nerpa](#sec_about) </br>
-   1.1 [Nerpa pipeline](#sec_about_pipeline)</br>
-   1.2 [Supported data types](#sec_about_data)</br>
-2. [Installation](#sec_install)</br>
-    2.1. [Prerequisites](#sec_install_prereq)</br>
-    2.2. [Installation from tarball](#sec_install_source)</br>
-    2.3. [Verifying your installation](#sec_install_verify)</br>
-3. [Running Nerpa](#sec_run)</br>
-    3.1. [Quick start](#sec_run_quick)</br>
-    3.2. [Command-line options](#sec_run_options)</br>
-    3.3. [Output files](#sec_run_results)</br>
-4. [Citation](#sec_cite)</br>
-5. [Feedback and bug reports](#sec_feedback)</br>
+<img src="docs/img/logo.png" align="right" width="220" />
+
+1. [About Nerpa](#sec_about) <br>
+   1.1 [Nerpa pipeline](#sec_about_pipeline) <br>
+   1.2 [Supported data types](#sec_about_data) <br>
+2. [Installation](#sec_install) <br>
+    2.1. [Prerequisites](#sec_install_prereq) <br>
+    2.2. [Installation from tarball](#sec_install_source) <br>
+    2.3. [Verifying your installation](#sec_install_verify) <br>
+3. [Running Nerpa](#sec_run) <br>
+    3.1. [Quick start](#sec_run_quick) <br>
+    3.2. [Command-line options](#sec_run_options) <br>
+    3.3. [Output files](#sec_run_results) <br>
+4. [Citation](#sec_cite) <br>
+5. [Feedback and bug reports](#sec_feedback) <br>
+<br clear="right" />
 
 <a name="sec_about"></a>
 # About Nerpa
@@ -23,24 +26,24 @@ Nerpa is currently developed and maintained by [Gurevich Lab](https://helmholtz-
 at the [Helmholtz Institute for Pharmaceutical Research Saarland (HIPS)](https://helmholtz-hips.de/en/) 
 and the [Center for Bioinformatics Saar (CBI)](https://zbi-www.bioinf.uni-sb.de/en/).
 
-This manual will help you to install and run the tool. Nerpa version 2.0.0 was released on 19.03.2025. 
+This manual will help you to install and run the tool. Nerpa version 2.1.0 was released on 16.03.2026. 
 The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt).
 
 <a name="sec_about_pipeline"></a>
 ## Nerpa pipeline
 The simplified Nerpa pipeline is depicted in the figure below.
 
-![Nerpa pipeline](docs/img/pipeline.png "Nerpa 2 pipeline")
+![Nerpa pipeline](docs/img/pipeline_wide-2.png "Nerpa 2 pipeline")
 
 Nerpa takes as input an NRP structure database and genome sequences.
 The pipeline goes as follows:  
 1. Construct tentative NRP synthetase assembly lines 
 along with respective sequences of genome-predicted residues
-(using [antiSMASH](https://academic.oup.com/nar/article/51/W1/W46/7151336)).  
+(using [antiSMASH](https://academic.oup.com/nar/article/51/W1/W46/7151336) for BGC annotation and [PARAS](https://www.biorxiv.org/content/early/2025/01/10/2025.01.08.631717) for A domain specificity prediction).  
 2. Construct representations of the database structures as monomer graphs
 (using [rBAN](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-019-0335-x)).  
 3. Build HMMs for genome-predicted NRP synthetase assembly lines
-as described in [the Nerpa 2 paper](https://doi.org/10.1101/2024.11.19.624380).
+as described in [the Nerpa 2 paper](https://doi.org/10.1101/2024.11.19.624380).  
 4. Extract NRP linearizations from the monomer graphs.  
 5. Score the NRP linearizations against the HMMs all-vs-all manner 
 (using the [Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm)).  
@@ -77,22 +80,21 @@ e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). A
 * **(Required)** Nerpa relies on **Java** (to run the embedded rBAN), **Python v3.10 or higher**, and a number of **Python dependencies specified in the [environment.yml](environment.yml)** file.  
   We highly recommend installing [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to easily set up all dependencies, as demonstrated below.
 
+* **(Required)** Nerpa's core scoring algorithm is implemented in C++ implementation. 
+Please install a **[C++20 compiler](https://isocpp.org/get-started)** and **[CMake v3.10](https://cmake.org/)** or higher.  
+
 * **(Optional)** If you plan to use Nerpa with raw genome sequences (FASTA or GenBank) rather than antiSMASH-processed files, 
 you will also need to [install antiSMASH locally](https://docs.antismash.secondarymetabolites.org/install/).  
 Alternatively, you can use the [antiSMASH web server](https://antismash.secondarymetabolites.org/).
 
-* **(Optional)** Nerpa is quite fast by default, but we provide an even faster C++ implementation. 
-To use it, you will need a **[C++20 compiler](https://isocpp.org/get-started)** and **[CMake v3.10](https://cmake.org/)** or higher.  
 
 <a name="sec_install_source"></a>
 ## Installation from tarball
-
 First, download and unpack the release tarball:
 
 ```commandline
-wget https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.0.0/nerpa-2.0.0.tar.gz
-tar -xzf nerpa-2.0.0.tar.gz
-cd nerpa-2.0.0
+git clone git@github.com:gurevichlab/nerpa.git
+cd nerpa
 ```
 Next, install all required dependencies. We recommend creating and activating a Conda environment:  
 
@@ -100,7 +102,7 @@ Next, install all required dependencies. We recommend creating and activating a 
 conda env create -f environment.yml
 conda activate nerpa-env
 ```
-Finally, if you want to use the fast C++ version (optional), compile it by running:
+Finally, download PARAS prediction model and compile the C++ code by running:
 
 ```commandline
 bash install.sh
@@ -189,7 +191,7 @@ In the latter case, the default column separator (`\t`), names of the SMILES col
 The Nerpa release package comes with a set of NRP databases in the SMILES format:  
 
 - Compounds from [MIBiG 4.0](https://mibig.secondarymetabolites.org/) and [Norine](https://bioinfo.cristal.univ-lille.fr/norine/index.jsp), available in [data/mibig_norine.tsv](data/mibig_norine.tsv).  
-- Our own database of putative NRP structures, pNRPdb, available in [data/pnrpdb2rc1_summary.tsv](data/input/pnrpdb2rc1_summary.tsv).  
+- Our own database of putative NRP structures, pNRPdb, available in [data/pnrpdb2.tsv](data/input/pnrpdb2.tsv).  
 
 ### Advanced Input
 
@@ -205,7 +207,7 @@ To reuse them, provide the corresponding paths via the `--bgc-variants` and `--p
 
 ### Pipeline Options
 
-- `--output_dir <DIR>, -o <DIR>`  
+- `--output-dir <DIR>, -o <DIR>`  
   Path to the output directory.  
   If the directory already exists, Nerpa will exit with an error unless `--force-output-dir` is specified.  
   If not set, Nerpa will create the directory `nerpa_results/{CURRENT_TIME}` and symlink it to `nerpa_results/latest`.
@@ -218,9 +220,6 @@ To reuse them, provide the corresponding paths via the `--bgc-variants` and `--p
 
 - `--skip-molecule-drawing`  
   Disable drawing of NRP compounds (they will not appear in the HTML report). Enabling this option speeds up the run and reduces output size.
-
-- `--fast-matching`  
-  Enable the fast C++-based matching (requires pre-compilation; see the [Installation](#sec_install) section).
 
 
 <a name="sec_run_results"></a>
@@ -254,5 +253,5 @@ Your comments, bug reports, and suggestions are **very welcomed**.
 They will help us to improve Nerpa further.
 In particular, we would love to hear your thought on desired features of the future Nerpa web service.
 
-If you have any troubles running Nerpa, please attach `nerpa.log` from the output directory.
+If you have any troubles running Nerpa, please attach `nerpa.log` and `warnings.log` from the output directory.
 

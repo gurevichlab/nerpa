@@ -31,12 +31,22 @@ def main():
             if step.a_domain_id is not None
         }
 
+    def get_non_match_steps(match: TestMatch) -> List[SimplifiedAlignmentStep]:
+        return [
+            step
+            for step in match.true_alignment
+            if step.a_domain_id is None or step.rban_name is None
+        ]
+
     total_match_steps = sum(len(get_match_steps(match))
                             for match in approved_matches)
+    total_non_match_steps = sum(len(get_non_match_steps(match))
+                                for match in approved_matches)
     total_a_domain_ids = sum(len(get_a_domain_ids(match))
                             for match in approved_matches)
     print(f"Total approved alignments: {len(approved_matches)}")
     print(f"Total match steps: {total_match_steps}")
+    print(f"Total non-match steps: {total_non_match_steps}")
     print(f"Total unique A-domain IDs: {total_a_domain_ids}")
 
     # BGC0000395.0 -- 1 skip in the beginning
