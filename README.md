@@ -33,7 +33,7 @@ The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC
 ## Nerpa pipeline
 The simplified Nerpa pipeline is depicted in the figure below.
 
-![Nerpa pipeline](docs/img/pipeline_wide-2.png "Nerpa 2 pipeline")
+![Nerpa pipeline](docs/img/pipeline_wide.png "Nerpa 2 pipeline")
 
 Nerpa takes as input an NRP structure database and genome sequences.
 The pipeline goes as follows:  
