@@ -50,11 +50,14 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
                          for monomer_idx, monomer_info in rban_record.monomers.items()
                          if monomer_idx not in lipid_monomers)
 
-    graph.add_edges_from((end, start, {'data': edge_info})
-                         for (start, end), edge_info in rban_record.monomer_bonds.items()
-                         if all([start not in lipid_monomers,
-                                 end not in lipid_monomers,
-                                 edge_info.bondType in backbone_bonds]))
+    for (start, end), edge_info in rban_record.monomer_bonds.items():
+        if all([start not in lipid_monomers,
+                end not in lipid_monomers,
+                edge_info.bondType in backbone_bonds]):
+
+            graph.add_edge(start, end, data=edge_info)
+            if edge_info.bondType != 'AMINO':
+                graph.add_edge(end, start, data=edge_info)
 
     return graph
 

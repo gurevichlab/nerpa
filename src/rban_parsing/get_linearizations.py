@@ -58,7 +58,7 @@ def fragment_linearizations(fragment: NRP_Fragment) -> List[Linearization]:
 
 
 def joined_linearizations(fragments: List[NRP_Fragment],
-                          max_num_fragments_to_permute: int = 3) -> Iterable[Linearization]:
+                          max_num_fragments_to_permute: int = 5) -> Iterable[Linearization]:
 
     fragments_permutations = permutations(fragments) \
         if len(fragments) <= max_num_fragments_to_permute else [fragments]

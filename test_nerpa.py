@@ -83,7 +83,7 @@ def load_command_line_args(nerpa_dir: Path,
                         default=nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml',
                         help="Path to the approved matches file.")
     parser.add_argument("--smiles-tsv", type=Path,
-                        default=nerpa_dir / 'data/input/pnrpdb2_mibig_norine.tsv')
+                        default=nerpa_dir / 'data/input/pnrpdb2_expanded_mibig_norine.tsv')
     parser.add_argument("--antismash-results", type=Path,
                         default=local_paths['as_results_mibig4_nrps'])
     parser.add_argument("--output-dir", type=Path,

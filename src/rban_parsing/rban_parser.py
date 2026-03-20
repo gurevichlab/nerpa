@@ -161,6 +161,10 @@ class Parsed_rBAN_Record:
             _monomer_edge_info = _MonomerEdgeInfo(monomer_to_atom={mon1: atom1, mon2: atom2},
                                                   arity=bond_info.arity,
                                                   bondType=bond_info.bondType)
+            if (bond_info.bondType == 'AMINO' and self.atoms[atom1].name == 'N') \
+               or (mon2, mon1) in self.monomer_bonds:
+                mon1, mon2 = mon2, mon1  # ensure that the amino bond is always directed from C to N
+
             if (mon1, mon2) not in self.monomer_bonds:
                 self.monomer_bonds[(mon1, mon2)] = MonomerEdgeInfo(**{'all_edges': [],
                                                                    **_monomer_edge_info._asdict()})

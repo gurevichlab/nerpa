@@ -397,6 +397,9 @@ def simplified_alignment_to_light_alignments(
         debug: bool = False
         #ambiguity_handling: Literal['any', 'max', 'crash'] = 'crash',
 ) -> Iterable[Tuple[AlignmentLight, ...]]:
+    if nrp_variant.nrp_variant_id.nrp_id == 'BGC0001620.2':
+        debug = True
+
     def al_step_key(step: AlignmentStepLight) -> tuple:
         return (
             step.a_domain_id,
