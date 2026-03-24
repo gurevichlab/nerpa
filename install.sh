@@ -1,7 +1,8 @@
 #!/bin/bash
-# q: if CWD is not the root directory of the project (this script's parent), exit with an error message
-if [ "$(pwd)" != "$(dirname "$0")" ]; then
+# q: if CWD is not the root directory of the project (this script dir), exit with an error message
+if [ "$(pwd -P)" != "$(cd "$(dirname "$0")"; pwd -P)" ]; then
     echo "Error: The current working directory is not Nerpa root directory." >&2
+    echo "Please run this script from $(cd "$(dirname "$0")"; pwd -P)" >&2
     exit 1
 fi
 
