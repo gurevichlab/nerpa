@@ -3,6 +3,7 @@ import argparse
 from argparse import Namespace as CommandLineArgs
 from src.config import Config
 from io import StringIO
+from src.pipeline.nerpa_utils import get_path_to_program
 import csv
 
 def add_genomic_arguments(parser: argparse.ArgumentParser):
@@ -193,6 +194,18 @@ def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I t
                 args.antismash_job_ids,
                 args.seqs]):
         raise ValidationError(f'at least one genome/BGC input is required')
+    if args.seqs and not any([
+            get_path_to_program('run_antismash.py',
+                                dirpath=args.antismash_path,
+                                min_version='5.0'),
+            get_path_to_program('antismash',
+                                dirpath=args.antismash_path,
+                                min_version='5.0'),
+    ]):
+            raise ValidationError(f'antiSMASH executable is not found, which is required for processing genome sequences. '
+                                f'Please provide a valid path to antiSMASH installation with --antismash-installation-dir or make sure antiSMASH is in PATH.')
+            
+
     if args.bgc_variants and (args.antismash or args.antismash_outpaths_file or args.antismash_job_ids or args.seqs):
         # TODO: what's wrong with having both?
         raise ValidationError(f'argument --bgc-variants is not compatible with other genome/BGC input options')
