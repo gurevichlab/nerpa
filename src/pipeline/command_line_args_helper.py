@@ -56,17 +56,17 @@ def add_debug(parser: argparse.ArgumentParser):
     debug_input_group.add_argument('--disable-calibration', action='store_true',
                                    help='specificity predictions will be used as is, without calibration')
     debug_input_group.add_argument('--disable-dictionary-lookup', action='store_true',
-                                   help='do not use dictionary of known A domain specificities')
+                                   help='do not use the dictionary of known A domain specificities')
     debug_input_group.add_argument('--draw-hmms', action='store_true',
                                    help='draw HMMs with optimal paths for all matches')
     debug_input_group.add_argument('--let-it-crash', action='store_true',
                                    help='crash on first error instead of logging it and continuing')
     debug_input_group.add_argument('--disable-deduplication', action='store_true',
-                                   help='do not deduplicate isomorphis BGC and NRP variants')
+                                   help='do not deduplicate isomorphic BGC and NRP variants')
     debug_input_group.add_argument('--disable-bgc-deduplication', action='store_true',
-                                   help='do not deduplicate isomorphis BGC variants')
+                                   help='do not deduplicate isomorphic BGC variants')
     debug_input_group.add_argument('--disable-nrp-deduplication', action='store_true',
-                                   help='do not deduplicate isomorphis NRP variants')
+                                   help='do not deduplicate isomorphic NRP variants')
 
 
 
@@ -119,10 +119,6 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                help="do not draw NRP molecules and monomer graphs "
                                     "(faster and saves space but they will be missing in the HTML report)")
 
-    configs_group.add_argument("--fast-matching",
-                               action="store_true", default=True,
-                               help="use C++ executable to perform matching (requires compilation)")
-
     configs_group.add_argument("--keep-intermediate-files",
                                action="store_true", default=False,
                                help="keep all intermediate files (rBAN results, HMMs, etc) "
@@ -153,6 +149,7 @@ def post_parsing(args: CommandLineArgs):
     if args.disable_deduplication:
         args.disable_bgc_deduplication = True
         args.disable_nrp_deduplication = True
+    args.fast_matching = True  # quick fix for backward compatibility
 
 
 def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
