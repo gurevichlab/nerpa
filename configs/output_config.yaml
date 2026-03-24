@@ -1,4 +1,4 @@
-symlink_to_latest: latest
+symlink_to_latest: nerpa_results/latest
 configs_output: configs
 antismash_out_dir: antismash_output
 bgc_variants: preprocessed_input/BGC_variants.yaml

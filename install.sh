@@ -1,4 +1,9 @@
 #!/bin/bash
+# q: if CWD is not the root directory of the project (this script's parent), exit with an error message
+if [ "$(pwd)" != "$(dirname "$0")" ]; then
+    echo "Error: The current working directory is not Nerpa root directory." >&2
+    exit 1
+fi
 
 # Exit immediately if a command fails
 set -e

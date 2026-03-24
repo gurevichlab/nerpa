@@ -198,7 +198,7 @@ def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGC
             raise
         if match.nrp_id in ('BGC0000395.0',   # Abu is trimmed as an isolated unknown monomer; however, it should be aligned
                             'BGC0000416.0', 'BGC0000416.1',  # gene XNC1_2229 is iterated although there're no signes of it
-                            ):
+                            'BGC0001620.2'):  # nerpa can't parse the NRP as cyclic because of a non-AMINO bond
             continue
         alignments_iter = iter(simplified_alignment_to_light_alignments(match.true_alignment,
                                                                         detailed_hmm.bgc_variant,

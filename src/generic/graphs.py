@@ -41,8 +41,13 @@ def hamiltonian_path(G: nx.DiGraph,
 def parse_as_simple_cycle(G: nx.DiGraph) -> Union[List[int], None]:
     try:
         cycle_edges = nx.find_cycle(G)
-        if len(cycle_edges) == len(G.edges()):  # since all edges are different, this implies the sets are equal as well
-            return [u for u, v in cycle_edges]
+        cycle_uv = [(e[0], e[1]) for e in cycle_edges]  # tolerate possible 3-tuples from NetworkX
+        cycle_set = set(cycle_uv)
+
+        # Allow extra edges only if they're the reverse of an edge on the cycle (bidirectional edges).
+        if all(((u, v) in cycle_set) or ((v, u) in cycle_set)
+               for u, v in G.edges()):
+            return [u for u, v in cycle_uv]
     except nx.NetworkXNoCycle:
         return None
 

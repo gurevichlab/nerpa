@@ -12,7 +12,11 @@ from src.pipeline.command_line_args_helper import (
     get_command_line_args,
     ValidationError
 )
-from src.pipeline.logging.logger import NerpaLogger, PreliminaryLogger
+from src.pipeline.logging.logger import (
+    NerpaLogger,
+    PreliminaryLogger,
+    UNRECOVERABLE_ERROR_MSG,
+)
 from src.config import (
     Config,
     load_config,
@@ -64,7 +68,7 @@ class PipelineHelper:
         try:
             self.args = get_command_line_args(default_cfg)
         except ValidationError as e:
-            raise
+            self.unrecoverable_error(e)
 
         try:
             self.config = load_config(self.args)
@@ -235,5 +239,9 @@ class PipelineHelper:
             self.config.output_config.cpp_io_config.nrp_linearizations_json.unlink(missing_ok=True)
 
         self.log.finish()
+
+    def unrecoverable_error(self, error_message: str):
+        print(f"{error_message}\n\n{UNRECOVERABLE_ERROR_MSG}")
+        exit(1)
 
 
