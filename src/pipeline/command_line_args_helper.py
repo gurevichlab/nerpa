@@ -57,8 +57,8 @@ def add_debug(parser: argparse.ArgumentParser):
                                    help='specificity predictions will be used as is, without calibration')
     debug_input_group.add_argument('--disable-dictionary-lookup', action='store_true',
                                    help='do not use the dictionary of known A domain specificities')
-    debug_input_group.add_argument('--draw-hmms', action='store_true',
-                                   help='draw HMMs with optimal paths for all matches')
+    # debug_input_group.add_argument('--draw-hmms', action='store_true',
+    #                                help='draw HMMs with optimal paths for all matches')
     debug_input_group.add_argument('--let-it-crash', action='store_true',
                                    help='crash on first error instead of logging it and continuing')
     debug_input_group.add_argument('--disable-deduplication', action='store_true',
@@ -131,8 +131,8 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
 
     # configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
     #                            help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
-    configs_group.add_argument("--debug", action="store_true", default=False,
-                               help="run in the debug mode and keep all intermediate files")
+    # configs_group.add_argument("--debug", action="store_true", default=False,
+    #                            help="run in the debug mode and keep all intermediate files")
 
 
 def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
@@ -150,7 +150,8 @@ def post_parsing(args: CommandLineArgs):
         args.disable_bgc_deduplication = True
         args.disable_nrp_deduplication = True
     args.fast_matching = True  # quick fix for backward compatibility
-
+    args.draw_hmms = False  # drawing is unreliable, disable it for release
+    args.debug = False  # I don't remember what it does, disable for release to be safe
 
 def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
     parser = build_cmdline_args_parser(default_cfg)
