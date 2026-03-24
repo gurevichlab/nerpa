@@ -93,7 +93,8 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-git clone git@github.com:gurevichlab/nerpa.git
+curl -L -o nerpa-2.1.0.tar.gz <TARBALL_URL>
+tar -xzf nerpa-2.1.0.tar.gz
 cd nerpa
 ```
 Next, install all required dependencies. We recommend creating and activating a Conda environment:  
@@ -137,10 +138,9 @@ Alternatively, you can download it from [here](https://github.com/gurevichlab/ne
 To run Nerpa on the test data, execute:
 
 ```commandline
-nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv --col-id ID --output-dir nerpa_results/test_run
+nerpa.py -a test_data/example/antismash --smiles-tsv test_data/example/smiles.tsv --col-id ID --output-dir nerpa_results/test_run
 ```
 
-The output will be saved in the `nerpa_results/{CURRENT_TIME}` directory and symlinked to `nerpa_results/latest` for your convenience.  
 For details on the output directory contents and their interpretation refer to the [corresponding section](#sec_run_results).
 
 <a name="sec_run_options"></a>
