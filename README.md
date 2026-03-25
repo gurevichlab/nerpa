@@ -26,7 +26,7 @@ Nerpa is currently developed and maintained by [Gurevich Lab](https://helmholtz-
 at the [Helmholtz Institute for Pharmaceutical Research Saarland (HIPS)](https://helmholtz-hips.de/en/) 
 and the [Center for Bioinformatics Saar (CBI)](https://zbi-www.bioinf.uni-sb.de/en/).
 
-This manual will help you to install and run the tool. Nerpa version 2.1.0 was released on 16.03.2026. 
+This manual will help you to install and run the tool. Nerpa version 2.1.0 was released on 25.03.2026. 
 The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt).
 
 <a name="sec_about_pipeline"></a>
@@ -93,9 +93,9 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-curl -L -o nerpa-2.1.0.tar.gz <TARBALL_URL>
+curl -L -o nerpa-2.1.0.tar.gz https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.1.0/nerpa-2.1.0.tar.gz
 tar -xzf nerpa-2.1.0.tar.gz
-cd nerpa
+cd nerpa-2.1.0
 ```
 Next, install all required dependencies. We recommend creating and activating a Conda environment:  
 
@@ -103,7 +103,7 @@ Next, install all required dependencies. We recommend creating and activating a 
 conda env create -f environment.yml
 conda activate nerpa-env
 ```
-Finally, download PARAS prediction model and compile the C++ code by running:
+Finally, download the PARAS prediction model and compile the C++ code by running:
 
 ```commandline
 bash install.sh
@@ -112,8 +112,7 @@ bash install.sh
 <a name="sec_install_verify"></a>
 ## Verifying your installation
 
-We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere;
-otherwise, you would need to specify path from the current directory to `./nerpa.py`.
+We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere; otherwise, you would need to specify the path from the current directory to `./nerpa.py`.
 All running examples below assume that Nerpa is in `PATH`.
 
 To test your installation, first, try to get the list of the Nerpa command-line options:  
