@@ -1,5 +1,5 @@
+use clap::Parser;
 use std::path::PathBuf;
-use clap::{Parser};
 
 /// NRP Matching Tool
 #[derive(Parser, Debug)]

@@ -13,6 +13,9 @@ from src.general_type_aliases import (
 from src.monomer_names_helper import (
     Chirality,
     NorineMonomerName,
+    NerpaResidue,
+    MonCode,
+    MonomerNamesHelper
 )
 from networkx import DiGraph, is_isomorphic
 
@@ -32,7 +35,7 @@ class AtomInfo(NamedTuple):
 
 class AtomicEdgeInfo(NamedTuple):
     arity: int
-    bondType: str
+    bond_type: str
 
 
 MonomerIdx = int
@@ -44,16 +47,28 @@ class MonomerInfo(NamedTuple):
     atoms: List[AtomId]
     chirality: Chirality
     is_pks_hybrid: bool = False
+    nerpa_core: Optional[NerpaResidue] = None
+    methylated: Optional[bool] = None
+    mon_code: Optional[MonCode] = None
+
 
     @classmethod
     def from_dict(cls, data: dict) -> MonomerInfo:
         return cls(name=NorineMonomerName(data['name']),
                    atoms=[AtomId(atom_id) for atom_id in data['atoms']],
                    chirality=Chirality[data['chirality']],
-                   is_pks_hybrid=data.get('is_pks_hybrid', False))
+                   is_pks_hybrid=data.get('is_pks_hybrid', False),
+                   nerpa_core=NerpaResidue(data['nerpa_core']) if data.get('nerpa_core') else None,
+                   methylated=data.get('methylated'),
+                   mon_code=MonCode(data['mon_code']) if data.get('mon_code') else None)
 
-    def to_dict(self) -> dict:
+    def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         d = self._asdict()
+        if monomer_names_helper is not None:
+            parsed_name = monomer_names_helper.parsed_name(self.name, name_format='rBAN/Norine')
+            d['nerpa_core'] = parsed_name.residue
+            d['methylated'] = parsed_name.methylated
+            d['mon_code'] = monomer_names_helper.mon_to_int[parsed_name]
         d['chirality'] = self.chirality.name
         return d
 
@@ -62,12 +77,12 @@ class MonomerInfo(NamedTuple):
 class _MonomerEdgeInfo(NamedTuple):
     monomer_to_atom: Dict[MonomerIdx, AtomId]
     arity: int  # I heard that there exist fractional arities (e.g. 1.5)
-    bondType: str
+    bond_type: str
 
 class MonomerEdgeInfo(NamedTuple):
     monomer_to_atom: Dict[MonomerIdx, AtomId]
     arity: int  # I heard that there exist fractional arities (e.g. 1.5)
-    bondType: str
+    bond_type: str
     all_edges: List[_MonomerEdgeInfo]  # in case of multiple bonds between the same monomers, we need to store all of them
 
 
@@ -143,7 +158,7 @@ class Parsed_rBAN_Record:
 
         self.atomic_bonds = {(AtomId(bond['atoms'][0]), AtomId(bond['atoms'][1])):
                                  AtomicEdgeInfo(arity=bond['arity'],
-                                                bondType=bond['bondType'])
+                                                bond_type=bond['bondType'])
                              for bond in rban_record['atomicGraph']['atomicGraph']['bonds']}
 
         atom_to_monomer = {
@@ -160,8 +175,8 @@ class Parsed_rBAN_Record:
 
             _monomer_edge_info = _MonomerEdgeInfo(monomer_to_atom={mon1: atom1, mon2: atom2},
                                                   arity=bond_info.arity,
-                                                  bondType=bond_info.bondType)
-            if (bond_info.bondType == 'AMINO' and self.atoms[atom1].name == 'N') \
+                                                  bond_type=bond_info.bond_type)
+            if (bond_info.bond_type == 'AMINO' and self.atoms[atom1].name == 'N') \
                or (mon2, mon1) in self.monomer_bonds:
                 mon1, mon2 = mon2, mon1  # ensure that the amino bond is always directed from C to N
 
@@ -174,12 +189,12 @@ class Parsed_rBAN_Record:
         return {'compound_id': self.compound_id,
                 'nodes': {mon_idx: mon_info.name
                           for mon_idx, mon_info in self.monomers.items()},
-                'edges': [(u, v, edge_info.bondType)
+                'edges': [(u, v, edge_info.bond_type)
                           for (u, v), edge_info in self.monomer_bonds.items()]}
 
-    def to_dict(self) -> dict:
+    def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         return {'compound_id': self.compound_id,
-                'monomers': {mon_idx: mon_info.to_dict()
+                'monomers': {mon_idx: mon_info.to_dict(monomer_names_helper)
                              for mon_idx, mon_info in self.monomers.items()},
                 'monomer_bonds': [[[u, v], edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
                                   for (u, v), edge_info in self.monomer_bonds.items()],
@@ -210,7 +225,7 @@ class Parsed_rBAN_Record:
         for mon_idx, mon_info in self.monomers.items():
             G.add_node(mon_idx, name=f'{mon_info.name}_{mon_info.chirality.name}_{mon_info.is_pks_hybrid}')
         for (u, v), edge_info in self.monomer_bonds.items():
-            G.add_edge(u, v, bond_type=edge_info.bondType)
+            G.add_edge(u, v, bond_type=edge_info.bond_type)
         return G
 
     @classmethod
@@ -240,3 +255,4 @@ def get_hybrid_monomers_smiles(rban_record: Raw_rBAN_Record) -> List[Tuple[Monom
                 pass  # it's okay
 
     return hybrid_monomers
+

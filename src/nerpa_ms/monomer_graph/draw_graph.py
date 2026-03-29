@@ -197,7 +197,7 @@ def make_graph_to_draw(G: MonomerGraph) -> nx.DiGraph:
     H.add_nodes_from([(u, {'name': f'{G.nodes[u]["monomer"].name}_{u}'}) for u in G.nodes])
     for u, v in G.edges:
         edge_attr = G.edges[u, v]
-        if edge_attr['bondType'] == 'AMINO':
+        if edge_attr['bond_type'] == 'AMINO':
             u_atom_idx = edge_attr['monomer_to_atom'][u]
             u_atom = G.nodes[u]['monomer'].atomic_graph.nodes[u_atom_idx]['name']
             if u_atom == 'C':

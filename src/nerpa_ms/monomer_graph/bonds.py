@@ -78,7 +78,8 @@ def get_binding_sites(monomer_atoms_idxs: List[AtomId],
             u, v = v, u  # u is inside monomer, v is outside
 
         bond_type = next((bond_type for bond_type in BONDS
-                          if bond_type.name == bond_info.bondType), None)
+                          if bond_type.name == bond_info.bond_type),
+                         None)
         if bond_type is not None:
             site_type = bond_type.binding_sites[0] if atoms[u].name == bond_type.binding_sites[0].atom() else \
                 bond_type.binding_sites[1]

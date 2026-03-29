@@ -161,10 +161,10 @@ def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
     try:
         validate_arguments(parsed_args, default_cfg)
     except ValidationError as e:
-        help_message = StringIO()
-        parser.print_help(help_message)
+        # help_message = StringIO()
+        # parser.print_help(help_message)
         error_message = str(e) if str(e) else 'Options validation failed!'
-        raise ValidationError(error_message + '\n' + help_message.getvalue()) from None
+        raise ValidationError(error_message) from None
     return parsed_args
 
 

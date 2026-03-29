@@ -113,7 +113,7 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                     for rban_record in rban_records
                     if rban_record.compound_id in compound_ids_to_write],
                    output_cfg.rban_graphs)
-        write_yaml([rban_record.to_dict()
+        write_yaml([rban_record.to_dict(monomer_names_helper=monomer_names_helper)
                     for rban_record in rban_records
                     if rban_record.compound_id in compound_ids_to_write],
                    output_cfg.parsed_rban_records)
