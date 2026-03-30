@@ -16,6 +16,7 @@ build
 tmp
 test_results
 data/for_training_and_testing/nerpa1_results
+src/rust/target
 
 # generated preprocessed data
 data/input/preprocessed/
