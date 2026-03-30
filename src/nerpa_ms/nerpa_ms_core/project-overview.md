@@ -62,15 +62,6 @@ pub struct Parsed_rBAN_Record {
 
 ## 3) Core intermediate representations
 
-### 3.1 MonomerGraph (internal)
-An internal, manipulation-friendly monomer-level graph derived from `Parsed_rBAN_Record`.
-
-Purpose:
-- monomer-level traversal
-- representing and applying surgical edits (substitute/insert/delete)
-- serving as the basis for building the DAG
-- converting edited graphs back to `Parsed_rBAN_Record`
-
 ### 3.2 DAG (internal)
 A directed acyclic graph with:
 - vertex labels: `Option<MonomerCode>`
@@ -189,8 +180,8 @@ nerpa_ms_core/
 
 ## 9) Plan and milestones
 
-### Milestone 1 — Skeleton CLI + JSON I/O (end-to-end “plumbing”)
-**Goal:** program builds, reads input JSON, writes output JSON with empty results.
+### Milestone 1 — Skeleton CLI + JSON input
+**Goal:** program builds, reads input JSON.
 
 - CLI flags:
   - `--input PATH` (input JSON with the list of (HMM, Parsed_rBAN_Record, NRP_Linearization) triplets)
@@ -200,28 +191,25 @@ nerpa_ms_core/
 - Implement input structs for the top-level JSON container.
 - Parse and basic validation; print/emit a minimal per-item header in output.
 
-**Deliverable:** `cargo run -- --input X.json --max-edits 3 --num-variants-per-num-edits 10` produces valid JSON output.
+**Deliverable:** `cargo run -- --input X.json --max-edits 3 --num-variants-per-num-edits 10` parses the input and prints a header for each item.
 
 ---
 
-### Milestone 2 — HMM + rBAN validation and internal MonomerGraph
-**Goal:** fail early on bad inputs; have a reliable internal molecule representation.
+### Milestone 2 — Monomers database
+**Goal:** implement a database of monomers (from the rBAN monomer library) that can be used for surgical edits.
 
-- HMM validation:
-  - consistent sizes; infer `M`; check transition indices
-- rBAN validation (prototype-level):
-  - referenced monomers/atoms exist; basic consistency checks needed for safe conversion
-- Implement `MonomerGraph::from_rban(record)` (or `TryFrom`).
-- Validate linearization: unique, subset of monomers.
+- Gather the rBAN monomers database: take parsed records from pnrpdb2 and take the most important monomers -- only supported residues + optional methylation.
+- Identify a monomer's binding sites
+- Function that, given a monomer, determines which other monomers it can be substituted for (based on binding site compatibility).
 
-**Deliverable:** can load items and construct `MonomerGraph` + basic summary stats.
+**Deliverable:** a monomer database module with a function `compatible_monomers(monomer) -> Vec<MonomerCode>` that can be used in the DAG construction step.
 
 ---
 
-### Milestone 3 — DAG construction from (MonomerGraph, linearization)
+### Milestone 3 — DAG construction from (Parsed_rBAN_Record, linearization)
 **Goal:** build the deviation DAG with correct labels and 0/1 edge weights.
 
-- Implement `build_dag(monomer_graph, linearization) -> DAG`.
+- Implement `build_dag(rban_record, linearization) -> DAG`.
 - Ensure DAG vertex labels are `Option<MonomerCode>` and compatible with HMM’s `M`.
 - Ensure DAG is acyclic (by construction or by check).
 
@@ -245,7 +233,7 @@ nerpa_ms_core/
 ### Milestone 5 — Apply candidates to produce Altered_NRP_Variant
 **Goal:** turn candidates into edited molecules + mapping.
 
-- Implement `apply_candidate(monomer_graph, candidate) -> Altered_NRP_Variant`.
+- Implement `apply_candidate(rban_record, candidate) -> Altered_NRP_Variant`.
 - Keep the edits “surgical” and localized (prototype scope).
 - Produce `old_to_new_mon_map`.
 

@@ -104,13 +104,20 @@ impl<'de> Deserialize<'de> for MonomerEdgeInfoSingle {
     {
         #[derive(Deserialize)]
         #[serde(untagged)]
+        enum ArityRepr {
+            Num(f64),
+            Str(String),
+        }
+
+        #[derive(Deserialize)]
+        #[serde(untagged)]
         enum Repr {
             Obj {
                 monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-                arity: f64,
+                arity: ArityRepr,
                 bond_type: BondType,
             },
-            Tup(HashMap<MonomerIdx, AtomId>, f64, BondType),
+            Tup(HashMap<MonomerIdx, AtomId>, ArityRepr, BondType),
         }
 
         match Repr::deserialize(deserializer)? {
@@ -118,16 +125,28 @@ impl<'de> Deserialize<'de> for MonomerEdgeInfoSingle {
                 monomer_to_atom,
                 arity,
                 bond_type,
-            } => Ok(MonomerEdgeInfoSingle {
-                monomer_to_atom,
-                arity,
-                bond_type,
-            }),
-            Repr::Tup(monomer_to_atom, arity, bond_type) => Ok(MonomerEdgeInfoSingle {
-                monomer_to_atom,
-                arity,
-                bond_type,
-            }),
+            } => {
+                let arity = match arity {
+                    ArityRepr::Num(n) => n.to_string(),
+                    ArityRepr::Str(s) => s,
+                };
+                Ok(MonomerEdgeInfoSingle {
+                    monomer_to_atom,
+                    arity,
+                    bond_type,
+                })
+            }
+            Repr::Tup(monomer_to_atom, arity, bond_type) => {
+                let arity = match arity {
+                    ArityRepr::Num(n) => n.to_string(),
+                    ArityRepr::Str(s) => s,
+                };
+                Ok(MonomerEdgeInfoSingle {
+                    monomer_to_atom,
+                    arity,
+                    bond_type,
+                })
+            }
         }
     }
 }
@@ -148,4 +167,22 @@ where
 {
     let pairs: Vec<(K, V)> = Vec::deserialize(deserializer)?;
     Ok(pairs.into_iter().collect())
+}
+
+// q: a function that takes a json value which is either a string or a number, and returns a string
+pub fn de_str_or_num_to_str<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Repr {
+        Str(String),
+        Num(f64),
+    }
+
+    match Repr::deserialize(deserializer)? {
+        Repr::Str(s) => Ok(s),
+        Repr::Num(n) => Ok(n.to_string()),
+    }
 }

@@ -63,7 +63,7 @@ def parsed_record_to_graph(record: Parsed_rBAN_Record,
         G.add_node(mon_idx, monomer=mon)
 
     for (u, v), edge_info in record.monomer_bonds.items():
-        G.add_edge(u, v, bond_type=edge_info.bondType)
+        G.add_edge(u, v, bond_type=edge_info.bond_type)
 
     return G
 

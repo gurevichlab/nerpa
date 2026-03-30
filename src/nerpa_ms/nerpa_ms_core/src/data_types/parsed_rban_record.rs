@@ -4,9 +4,8 @@ use serde::{Deserialize};
 
 use crate::data_types::common_types::{MonomerIdx, MonomerCode};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AtomId(pub u32);
-
 
 pub type AtomicEdge = (AtomId, AtomId);
 
@@ -31,7 +30,7 @@ pub struct AtomInfo {
     pub hydrogens: u32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
 pub struct BondType(pub Option<String>);
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -51,17 +50,22 @@ pub struct MonomerInfo {
     pub atoms: Vec<AtomId>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MonomerEdgeInfoSingle {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-    pub arity: f64,
+    
+    pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
+
     pub bond_type: BondType,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct MonomerEdgeInfo {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-    pub arity: f64,
+
+    #[serde(deserialize_with = "crate::data_types::json_helpers::de_str_or_num_to_str")]
+    pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
+
     pub bond_type: BondType,
     pub all_edges: Vec<MonomerEdgeInfoSingle>,
 }

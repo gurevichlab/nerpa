@@ -18,5 +18,12 @@ fn main() -> Result<()> {
     println!("HMM: {:?}", fst_item.hmm.bgc_variant_id);
     println!("Parsed_rBAN_Record: {:?}", fst_item.rban_record.compound_id);
     println!("Linearization: {:?}", fst_item.linearization);
+
+    for mon_idx in fst_item.rban_record.monomers.keys() {
+	println!("monomer idx: {:?}", mon_idx);
+	println!("Bonds:");
+	println!("{:#?}", fst_item.rban_record.bonds_for_monomer(*mon_idx));
+	}
+	
     Ok(())
 }
