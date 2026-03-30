@@ -3,6 +3,7 @@ import argparse
 from argparse import Namespace as CommandLineArgs
 from src.config import Config
 from io import StringIO
+from src.pipeline.nerpa_utils import get_path_to_program
 import csv
 
 def add_genomic_arguments(parser: argparse.ArgumentParser):
@@ -55,17 +56,17 @@ def add_debug(parser: argparse.ArgumentParser):
     debug_input_group.add_argument('--disable-calibration', action='store_true',
                                    help='specificity predictions will be used as is, without calibration')
     debug_input_group.add_argument('--disable-dictionary-lookup', action='store_true',
-                                   help='do not use dictionary of known A domain specificities')
-    debug_input_group.add_argument('--draw-hmms', action='store_true',
-                                   help='draw HMMs with optimal paths for all matches')
+                                   help='do not use the dictionary of known A domain specificities')
+    # debug_input_group.add_argument('--draw-hmms', action='store_true',
+    #                                help='draw HMMs with optimal paths for all matches')
     debug_input_group.add_argument('--let-it-crash', action='store_true',
                                    help='crash on first error instead of logging it and continuing')
     debug_input_group.add_argument('--disable-deduplication', action='store_true',
-                                   help='do not deduplicate isomorphis BGC and NRP variants')
+                                   help='do not deduplicate isomorphic BGC and NRP variants')
     debug_input_group.add_argument('--disable-bgc-deduplication', action='store_true',
-                                   help='do not deduplicate isomorphis BGC variants')
+                                   help='do not deduplicate isomorphic BGC variants')
     debug_input_group.add_argument('--disable-nrp-deduplication', action='store_true',
-                                   help='do not deduplicate isomorphis NRP variants')
+                                   help='do not deduplicate isomorphic NRP variants')
 
 
 
@@ -118,10 +119,6 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                help="do not draw NRP molecules and monomer graphs "
                                     "(faster and saves space but they will be missing in the HTML report)")
 
-    configs_group.add_argument("--fast-matching",
-                               action="store_true", default=True,
-                               help="use C++ executable to perform matching (requires compilation)")
-
     configs_group.add_argument("--keep-intermediate-files",
                                action="store_true", default=False,
                                help="keep all intermediate files (rBAN results, HMMs, etc) "
@@ -134,8 +131,8 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
 
     # configs_group.add_argument("--only-preprocessing", action="store_true", default=False,
     #                            help="only generate NRP and BGC variants, do not perform matching (useful for debugging)")
-    configs_group.add_argument("--debug", action="store_true", default=False,
-                               help="run in the debug mode and keep all intermediate files")
+    # configs_group.add_argument("--debug", action="store_true", default=False,
+    #                            help="run in the debug mode and keep all intermediate files")
 
 
 def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
@@ -152,7 +149,9 @@ def post_parsing(args: CommandLineArgs):
     if args.disable_deduplication:
         args.disable_bgc_deduplication = True
         args.disable_nrp_deduplication = True
-
+    args.fast_matching = True  # quick fix for backward compatibility
+    args.draw_hmms = False  # drawing is unreliable, disable it for release
+    args.debug = False  # I don't remember what it does, disable for release to be safe
 
 def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
     parser = build_cmdline_args_parser(default_cfg)
@@ -193,6 +192,18 @@ def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I t
                 args.antismash_job_ids,
                 args.seqs]):
         raise ValidationError(f'at least one genome/BGC input is required')
+    if args.seqs and not any([
+            get_path_to_program('run_antismash.py',
+                                dirpath=args.antismash_path,
+                                min_version='5.0'),
+            get_path_to_program('antismash',
+                                dirpath=args.antismash_path,
+                                min_version='5.0'),
+    ]):
+            raise ValidationError(f'antiSMASH executable is not found, which is required for processing genome sequences. '
+                                f'Please provide a valid path to antiSMASH installation with --antismash-installation-dir or make sure antiSMASH is in PATH.')
+            
+
     if args.bgc_variants and (args.antismash or args.antismash_outpaths_file or args.antismash_job_ids or args.seqs):
         # TODO: what's wrong with having both?
         raise ValidationError(f'argument --bgc-variants is not compatible with other genome/BGC input options')

@@ -1,1 +1,43 @@
 Nerpa: a tool for discovering biosynthetic gene clusters of nonribosomal peptides
+<<<<<<< HEAD
+=======
+Copyright (c) 2022-2026 Helmholtz Institute for Pharmaceutical Research Saarland (HIPS), HZI
+Copyright (c) 2018-2021 Saint Petersburg State University
+
+Nerpa is dual-licensed and is available under GPLv3 or
+Creative Commons BY-NC-SA 4.0 licenses.
+
+Nerpa is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License, Version 3,
+dated June 2007, as published by the Free Software Foundation:
+https://www.gnu.org/licenses/gpl-3.0.en.html
+Nerpa is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+Nerpa is free software; you can redistribute it and/or modify
+it under the terms of Creative Commons BY-NC-SA 4.0 license.
+See https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode for
+more details.
+
+-------------------------------------------------------------------------------
+
+Main authors:
+    Ilia Olkhovskii (key maintainer)
+    Azat Tagirdzhanov
+    Olga Kunyavskaya (original version)
+    Alexey Gurevich
+
+Other contributors:
+    Aleksandra Kushnareva
+    Hosein Mohimani (original idea)
+
+Contact:
+    alexey.gurevich@helmholtz-hips.de
+    https://github.com/gurevichlab/nerpa
+
+References:
+    Olkhovskii et al., bioRxiv 2024. doi: 10.1101/2024.11.19.624380
+    Kunyavskaya, Tagirdzhanov et al., Metabolites 2021. doi: 10.3390/metabo11100693
+>>>>>>> origin/nerpa_2.1_release

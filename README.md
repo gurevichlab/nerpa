@@ -26,14 +26,14 @@ Nerpa is currently developed and maintained by [Gurevich Lab](https://helmholtz-
 at the [Helmholtz Institute for Pharmaceutical Research Saarland (HIPS)](https://helmholtz-hips.de/en/) 
 and the [Center for Bioinformatics Saar (CBI)](https://zbi-www.bioinf.uni-sb.de/en/).
 
-This manual will help you to install and run the tool. Nerpa version 2.1.0 was released on 16.03.2026. 
+This manual will help you to install and run the tool. Nerpa version 2.1.0 was released on 25.03.2026. 
 The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt).
 
 <a name="sec_about_pipeline"></a>
 ## Nerpa pipeline
 The simplified Nerpa pipeline is depicted in the figure below.
 
-![Nerpa pipeline](docs/img/pipeline_wide-2.png "Nerpa 2 pipeline")
+![Nerpa pipeline](docs/img/pipeline_wide.png "Nerpa 2 pipeline")
 
 Nerpa takes as input an NRP structure database and genome sequences.
 The pipeline goes as follows:  
@@ -93,8 +93,9 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-git clone git@github.com:gurevichlab/nerpa.git
-cd nerpa
+curl -L -o nerpa-2.1.0.tar.gz https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.1.0/nerpa-2.1.0.tar.gz
+tar -xzf nerpa-2.1.0.tar.gz
+cd nerpa-2.1.0
 ```
 Next, install all required dependencies. We recommend creating and activating a Conda environment:  
 
@@ -102,7 +103,7 @@ Next, install all required dependencies. We recommend creating and activating a 
 conda env create -f environment.yml
 conda activate nerpa-env
 ```
-Finally, download PARAS prediction model and compile the C++ code by running:
+Finally, download the PARAS prediction model and compile the C++ code by running:
 
 ```commandline
 bash install.sh
@@ -111,8 +112,7 @@ bash install.sh
 <a name="sec_install_verify"></a>
 ## Verifying your installation
 
-We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere;
-otherwise, you would need to specify path from the current directory to `./nerpa.py`.
+We recommend adding the `nerpa` directory to `PATH`. In this case, you can run Nerpa simply as `nerpa.py` from anywhere; otherwise, you would need to specify the path from the current directory to `./nerpa.py`.
 All running examples below assume that Nerpa is in `PATH`.
 
 To test your installation, first, try to get the list of the Nerpa command-line options:  
@@ -140,7 +140,6 @@ To run Nerpa on the test data, execute:
 nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv --col-id ID --output-dir nerpa_results/test_run
 ```
 
-The output will be saved in the `nerpa_results/{CURRENT_TIME}` directory and symlinked to `nerpa_results/latest` for your convenience.  
 For details on the output directory contents and their interpretation refer to the [corresponding section](#sec_run_results).
 
 <a name="sec_run_options"></a>

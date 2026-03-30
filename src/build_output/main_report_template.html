@@ -408,11 +408,15 @@
 
     // Helper to extract stem from a filepath (e.g., "test_data/antismash/BGC0000985/BGC0000985.json" --> "BGC0000985"
     // Works with Windows paths as well ("\" instead of "/") and with filenames containing dots
-    function getStem(path) {
+    function getStemAndFolder(path) {
         const parts = path.split(/[/\\]+/);
         const filename = parts.pop();
+        const folder = parts.pop(); // parent folder
+
         const idx = filename.lastIndexOf('.');
-        return idx !== -1 ? filename.slice(0, idx) : filename;
+        const stem = idx !== -1 ? filename.slice(0, idx) : filename;
+
+        return [stem, folder];
     }
 
     // Column indices for main table (filled after headers exist)
@@ -648,7 +652,7 @@
     function buildMainTableRow({ item, nrp_id, bgc_id, isRepresentative }) {
         const row = document.createElement('tr');
 
-        const genome_id = getStem(bgc_id.antiSMASH_file);
+        const [genome_id, genome_folder] = getStemAndFolder(bgc_id.antiSMASH_file);
         if (!isRepresentative) row.classList.add('not-repr-row'); // so we can show/hide all duplicates as a group
 
         // Match ID cell: clickable for representative, plain text for duplicates
@@ -670,8 +674,8 @@
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="">${genome_id}</a></td>
-            <td><a href="#" class="genome-link" data-genome="${genome_id}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
         `);
@@ -870,18 +874,18 @@
                 "Genome identifier",
                 "antiSMASH region identifier (contig.region)"
             ];
-            const genome_id = getStem(bgc_id.antiSMASH_file);
+            const [genome_id, genome_folder] = getStemAndFolder(bgc_id.antiSMASH_file);
             const genomeLink = document.createElement('a');
             genomeLink.href = '#';
             genomeLink.className = 'genome-link';
-            genomeLink.dataset.genome = genome_id;
+            genomeLink.dataset.genome = genome_folder;
             genomeLink.dataset.bgc = '';
             genomeLink.textContent = genome_id;
 
             const regionLink = document.createElement('a');
             regionLink.href = '#';
             regionLink.className = 'genome-link';
-            regionLink.dataset.genome = genome_id;
+            regionLink.dataset.genome = genome_folder;
             regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
             regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
 
@@ -934,13 +938,13 @@
             label.style.display = 'none';
             hideBtn.style.display = 'block';
 
-            toggleGenomeViewer(false, genome_id, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
+            toggleGenomeViewer(false, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
             toggleNrpViewer(false, nrp_id);
         }
     }
 
     // Toggle function for antiSMASH viewer
-    function toggleGenomeViewer(hide, genomeID, bgcID) {
+    function toggleGenomeViewer(hide, genomeFolderID, bgcID) {
         const iframe = document.getElementById('genomeViewer');
         const hideBtn = document.getElementById('hideGenomeViewerBtn');
         const label = document.getElementById('genomeViewerLabel');
@@ -950,7 +954,7 @@
             label.style.display = 'block';
             hideBtn.style.display = 'none';
         } else {
-            iframe.src = `antismash_output/${genomeID}/index.html?timestamp=${Date.now()}#${bgcID}`;
+            iframe.src = `antismash_output/${genomeFolderID}/index.html?timestamp=${Date.now()}#${bgcID}`;
             iframe.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
