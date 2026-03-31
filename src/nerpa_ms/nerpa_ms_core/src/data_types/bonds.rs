@@ -18,7 +18,7 @@ pub struct AtomicBondTemplate {
     pub atoms: (BondAtomLabel, BondAtomLabel),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BondTemplate(Vec<AtomicBondTemplate>);
 
 impl BondTemplate {
@@ -69,7 +69,7 @@ pub struct Bond {
 }
 
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BondSide {
     Left = 0,
     Right = 1,
@@ -81,8 +81,19 @@ impl From<BondSide> for u8 {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BindingSiteType {
     pub bond_templ: BondTemplate,
     pub side: BondSide,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct BindingSitesProfile(Vec<BindingSiteType>);
+
+impl BindingSitesProfile {
+	pub fn new(binding_site_types: Vec<BindingSiteType>) -> Self {
+	    let mut bs_types: Vec<BindingSiteType> = binding_site_types;
+	    bs_types.sort();
+	    BindingSitesProfile(bs_types)
+	}
 }

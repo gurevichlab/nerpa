@@ -14,6 +14,7 @@ pub type MonomerEdge = (MonomerIdx, MonomerIdx);
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub struct NorineMonomerName(pub String);
 
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub struct NerpaCoreResidue(pub String);
 
