@@ -1,4 +1,9 @@
-use nerpa_ms_core::data_types::parsed_rban_record::{MonomerInfo, Parsed_rBAN_Record};
+#![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
+
+use nerpa_ms_core::data_types::parsed_rban_record::{
+    MonomerInfo, NerpaCoreResidue, NorineMonomerName, Parsed_rBAN_Record,
+};
+use std::cmp::Reverse;
 use std::path::PathBuf;
 
 use clap::Parser;
@@ -18,15 +23,16 @@ pub struct Cli {
 use anyhow::Result;
 
 use nerpa_ms_core::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond};
+use serde::Serialize;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Mon_DB_Entry {
     pub monomer: MonomerInfo,
     pub bonds_by_bs: Vec<(BindingSiteType, Bond)>,
 }
 
-fn collect_tentative_db_entries(
+fn create_monomers_db_unfiltered(
     rban_records: &[Parsed_rBAN_Record],
 ) -> HashMap<BindingSitesProfile, Vec<Mon_DB_Entry>> {
     let mut entries_by_bs: HashMap<BindingSitesProfile, Vec<Mon_DB_Entry>> = HashMap::new();
@@ -36,7 +42,7 @@ fn collect_tentative_db_entries(
             let bs_profile = BindingSitesProfile::new(
                 bonds_by_bs
                     .iter()
-                    .map(|(bs, bond)| bs.clone())
+                    .map(|(bs, _bond)| bs.clone())
                     .collect::<Vec<BindingSiteType>>(),
             );
             let entry = Mon_DB_Entry {
@@ -49,27 +55,58 @@ fn collect_tentative_db_entries(
     entries_by_bs
 }
 
-use std::collections::HashSet;
+use itertools::Itertools;
 
 fn filter_db_entries(entries: &[Mon_DB_Entry]) -> Vec<Mon_DB_Entry> {
-    // keep only monomers, such that name==nerpa_core an is_pks_hybird==false
-    // also, keep no more than one monomer with the same (nerpa_core, methylated) pair
-    let mut seen_cores_and_methylation: HashSet<(&String, bool)> = HashSet::new();
-    let mut filtered_entries = Vec::new();
-    for entry in entries {
-        let name = &entry.monomer.name.0;
-        let core = &entry.monomer.nerpa_core.0;
-        let methylated = entry.monomer.methylated;
+    // q: 1. Discard all entries with is_pks_hybrid==true
+    // 2. Group entries by (monomer.nerpa_core, monomer.methylated) pair
+    // 3. For each group, keep only the entry with the most common monomer.name. In case of ties, keep any one with the shortest name.
+    let mut groups: HashMap<(NerpaCoreResidue, bool), Vec<&Mon_DB_Entry>> = HashMap::new();
+    entries
+        .iter()
+        .filter(|entry| {
+	    !entry.monomer.is_pks_hybrid
+		&& !entry.monomer.nerpa_core.is_unknown()
+	})
+        .for_each(|entry| {
+            let key = (entry.monomer.nerpa_core.clone(), entry.monomer.methylated);
+            groups.entry(key).or_default().push(entry);
+        });
 
-        if name == core
-            && !entry.monomer.is_pks_hybrid
-            && !seen_cores_and_methylation.contains(&(core, methylated))
-        {
-            filtered_entries.push((*entry).clone());
-            seen_cores_and_methylation.insert((core, methylated));
-        }
+    let mut result: Vec<Mon_DB_Entry> = Vec::new();
+
+    // 2. For each group (by nerpa_core, methylated), pick the entry whose monomer.name is most common,
+    //    breaking ties by choosing an entry with the shortest name.
+    for (_key, group_entries) in groups {
+        // Count name frequencies
+	let name_freq = group_entries
+	    .iter()
+	    .map(|e| &e.monomer.name)
+	    .counts();
+
+	let group_repr = group_entries
+	    .iter()
+	    .sorted_by_key(|e| {
+		let name = &e.monomer.name;
+		(Reverse(name_freq.get(name).unwrap()), name.0.len())
+	    })
+	    .next()
+	    .unwrap();
+
+	result.push((*group_repr).clone());
     }
-    filtered_entries
+
+    result
+}
+
+fn create_monomers_db(
+    rban_records: &[Parsed_rBAN_Record],
+) -> HashMap<BindingSitesProfile, Vec<Mon_DB_Entry>> {
+    let unfiltered_db = create_monomers_db_unfiltered(rban_records);
+    unfiltered_db
+        .into_iter()
+        .map(|(bs_profile, entries)| (bs_profile, filter_db_entries(&entries)))
+        .collect()
 }
 
 fn main() -> Result<()> {
@@ -81,6 +118,15 @@ fn main() -> Result<()> {
         let err_msg = format!("Failed to open file {}", filename);
         serde_json::from_reader(file).expect(&err_msg)
     };
+
+    let monomers_db = create_monomers_db(&parsed_rban_records);
+    let mon_db_str_keys: HashMap<String, Vec<Mon_DB_Entry>> = monomers_db
+        .into_iter()
+        .map(|(bs_profile, entries)| (bs_profile.to_string_key(), entries))
+        .collect();
+
+    let out_file = std::fs::File::create(&cli.out)?;
+    serde_json::to_writer_pretty(out_file, &mon_db_str_keys)?;
 
     Ok(())
 }

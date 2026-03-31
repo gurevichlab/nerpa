@@ -3,22 +3,29 @@ use std::hash::Hash;
 use serde::{Deserialize};
 
 use crate::data_types::common_types::{MonomerIdx, MonomerCode};
+use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct AtomId(pub u32);
 
 pub type AtomicEdge = (AtomId, AtomId);
 
 pub type MonomerEdge = (MonomerIdx, MonomerIdx);
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct NorineMonomerName(pub String);
 
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct NerpaCoreResidue(pub String);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+impl NerpaCoreResidue {
+    pub fn is_unknown(&self) -> bool {
+		self.0 == "_UNKNOWN"
+	}
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Chirality {
     D,
     L,
@@ -31,7 +38,7 @@ pub struct AtomInfo {
     pub hydrogens: u32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct BondType(pub Option<String>);
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -40,7 +47,7 @@ pub struct AtomicEdgeInfo {
     pub bond_type: BondType,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomerInfo {
     pub name: NorineMonomerName,
     pub nerpa_core: NerpaCoreResidue,
@@ -51,7 +58,7 @@ pub struct MonomerInfo {
     pub atoms: Vec<AtomId>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct MonomerEdgeInfoSingle {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
     
@@ -60,7 +67,7 @@ pub struct MonomerEdgeInfoSingle {
     pub bond_type: BondType,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct MonomerEdgeInfo {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
 
@@ -97,5 +104,3 @@ pub struct Parsed_rBAN_Record {
 
     pub metadata: NRP_Metadata,
 }
-
-

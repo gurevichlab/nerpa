@@ -69,4 +69,3 @@ pub fn parse_input(json_path: &Path) -> Result<Vec<InputItem>> {
 
     Ok(out)
  }
-
