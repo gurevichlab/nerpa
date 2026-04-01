@@ -9,7 +9,7 @@ impl Parsed_rBAN_Record {
     /// (it depends on IDs)
     fn labels_for_atoms(&self, atom_ids: &[AtomId]) -> HashMap<AtomId, BondAtomLabel> {
         let mut labels = HashMap::new();
-        let mut counts = HashMap::<char, usize>::new();
+        let mut counts = HashMap::<&String, usize>::new();
 
         // Not needed for correctness, but makes the output deterministic and easier to read.
         let sorted_ids = {
@@ -19,7 +19,7 @@ impl Parsed_rBAN_Record {
         };
 
         for atom_id in sorted_ids.iter() {
-            let atom_name = self.atoms.get(atom_id).unwrap().name;
+            let atom_name = &self.atoms.get(atom_id).unwrap().name;
             let count = counts.entry(atom_name).or_insert(0);
             *count += 1;
             let label = BondAtomLabel::new(format!("{}{}", atom_name, count));

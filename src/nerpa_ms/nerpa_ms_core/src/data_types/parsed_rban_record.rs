@@ -29,12 +29,12 @@ impl NerpaCoreResidue {
 pub enum Chirality {
     D,
     L,
-    Unknown,
+    UNKNOWN,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AtomInfo {
-    pub name: char, // e.g. 'C', 'N', 'O'
+    pub name: String, // e.g. 'C', 'N', 'O', 'Cl'
     pub hydrogens: u32,
 }
 
