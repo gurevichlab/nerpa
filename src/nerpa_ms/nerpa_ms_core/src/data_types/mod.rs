@@ -6,3 +6,5 @@ pub mod parsed_rban_record;
 pub mod json_helpers;
 pub mod bonds;
 pub mod rban_record_bonds;
+pub mod graph_modifications;
+pub mod monomers_db;
