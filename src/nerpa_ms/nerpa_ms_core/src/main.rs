@@ -5,6 +5,7 @@ mod io;
 
 use clap::Parser;
 use anyhow::Result;
+use data_types::monomers_db::load_monomers_db;
 
 fn main() -> Result<()> {
     let cli = cli::Cli::parse();
@@ -13,17 +14,12 @@ fn main() -> Result<()> {
 	.unwrap_or_else(|err| panic!("Failed to load (HMM, Parsed_rBAN_Record, Linearization) triplets from {}: {}",
 				     cli.input.display(), err));
     println!("loaded {} input items", input_items.len());
-    let fst_item = &input_items[0];
-    println!("first item:");
-    println!("HMM: {:?}", fst_item.hmm.bgc_variant_id);
-    println!("Parsed_rBAN_Record: {:?}", fst_item.rban_record.compound_id);
-    println!("Linearization: {:?}", fst_item.linearization);
 
-    for mon_idx in fst_item.rban_record.monomers.keys() {
-	println!("monomer idx: {:?}", mon_idx);
-	println!("Bonds:");
-	println!("{:#?}", fst_item.rban_record.bonds_for_monomer(*mon_idx));
-	}
+    let rban_record = &input_items[0].rban_record;
+    let monomers_db = load_monomers_db(&cli.monomers_db_json);
+    let dag = algo::graph_to_dag::create_dag(rban_record, &monomers_db);
+    let out_path = cli.out.join("dag.svg");
+    dag.draw_svg(&out_path)?;
 	
     Ok(())
 }

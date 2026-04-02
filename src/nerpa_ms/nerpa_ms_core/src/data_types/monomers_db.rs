@@ -1,10 +1,10 @@
 use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond};
 use itertools::Itertools;
-use nerpa_ms_core::data_types::parsed_rban_record::{
+use crate::data_types::parsed_rban_record::{
     MonomerInfo, NerpaCoreResidue, NorineMonomerName, Parsed_rBAN_Record,
 };
 use serde::Serialize;
-use std::{collections::HashMap, path::PathBuf};
+use std::{cmp::Reverse, collections::HashMap, path::{Path, PathBuf}};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct MonomersDB_Entry {
@@ -81,9 +81,9 @@ pub fn create_monomers_db(
         .collect()
 }
 
-pub fn load_monomers_db(rban_records_json: PathBuf) -> MonomersDB {
+pub fn load_monomers_db(rban_records_json: &Path) -> MonomersDB {
     let rban_records: Vec<Parsed_rBAN_Record> = {
-        let json_str = std::fs::read_to_string(&rban_records_json).unwrap_or_else(|e| {
+        let json_str = std::fs::read_to_string(rban_records_json).unwrap_or_else(|e| {
             panic!(
                 "Failed to read rBAN records JSON file {:?}: {}",
                 rban_records_json, e

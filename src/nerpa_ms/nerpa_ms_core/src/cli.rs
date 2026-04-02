@@ -20,4 +20,8 @@ pub struct Cli {
     /// Output JSON path
     #[arg(long)]
     pub out: PathBuf,
+
+    /// Path to a JSON file with the monomers database
+    #[arg(long)]
+    pub monomers_db_json: PathBuf,
 }
