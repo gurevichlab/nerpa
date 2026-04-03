@@ -8,22 +8,28 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::data_types::dag::{VertexId, DAG};
 
+pub struct Draw_DAG_Config {
+	pub node_indexes: bool,
+}
+
 impl DAG<'_> {
-    pub fn to_dot(&self) -> String {
+    pub fn to_dot(&self, cfg: &Draw_DAG_Config) -> String {
         // Prefer labels.len(), but fall back safely if you ever forget to fill it.
         let mut out = String::new();
         out.push_str("digraph G {\n");
         out.push_str("  rankdir=LR;\n");
-        out.push_str("  node [shape=circle, fontname=\"monospace\"];\n");
+        out.push_str("  node [shape=ellipse, fontname=\"monospace\"];\n");
         out.push_str("  edge [fontname=\"monospace\"];\n\n");
 
         // Nodes
         for v in 0..self.num_nodes() {
             let label = {
                 if let Some(label) = &self.labels[v] {
-                    v.to_string() + ". " + label
+		    if cfg.node_indexes {v.to_string() + "." + label}
+		    else { label.clone() }
                 } else {
-                    v.to_string()
+		    if cfg.node_indexes {v.to_string() }
+		    else { String::new() }
                 }
             };
 
@@ -45,23 +51,22 @@ impl DAG<'_> {
         out
     }
 
-    pub fn draw_svg(&self, out: &Path) -> Result<()> {
+    pub fn draw_svg(&self, out: &Path, cfg: &Draw_DAG_Config) -> Result<()> {
         // Ensure output directory exists
         if let Some(parent) = out.parent() {
             fs::create_dir_all(parent).expect("create output directory");
         }
 
         // Write DOT to a temp file
-        let dot = self.to_dot();
+        let dot = self.to_dot(cfg);
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("time went backwards")
             .as_nanos();
 
-        let mut dot_path = env::temp_dir();
-        dot_path.push(format!("dag_{nonce}.dot"));
+	let dot_path = out.parent().unwrap().join(self.nrp_variant_id.clone() + ".dot");
 
-        fs::write(&dot_path, dot).expect("write temporary .dot file");
+        fs::write(&dot_path, dot).expect("write .dot file");
 
         // Render SVG using Graphviz
         let status = Command::new("dot")

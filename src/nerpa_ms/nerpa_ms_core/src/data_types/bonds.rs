@@ -1,6 +1,6 @@
 use crate::data_types::common_types::MonomerIdx;
 use crate::data_types::parsed_rban_record::{AtomId, BondType};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Symbolic atom label used inside a bond template, e.g. "C1", "N1".
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -49,12 +49,12 @@ impl BondTemplate {
         }
         BondTemplate(v)
     }
-      pub fn as_slice(&self) -> &[AtomicBondTemplate] {
-          &self.0
-      }
-      pub fn into_vec(self) -> Vec<AtomicBondTemplate> {
-          self.0
-      }
+    pub fn as_slice(&self) -> &[AtomicBondTemplate] {
+        &self.0
+    }
+    pub fn into_vec(self) -> Vec<AtomicBondTemplate> {
+        self.0
+    }
 }
 
 use std::collections::HashMap;
@@ -91,50 +91,75 @@ pub struct BindingSiteType {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct BindingSitesProfile(Vec<BindingSiteType>);
 
-// q: implement converting and loading BindingSitesProfile to/from a string, for easier use as a key in the monomers DB
+impl BindingSitesProfile {
+    pub fn new(binding_site_types: Vec<BindingSiteType>) -> Self {
+        let mut bs_types: Vec<BindingSiteType> = binding_site_types;
+        bs_types.sort();
+        BindingSitesProfile(bs_types)
+    }
+
+    /// Produce a stable string form suitable for using as a JSON object key.
+    /// (It is JSON text representing the inner Vec.)
+    pub fn to_string_key(&self) -> String {
+        serde_json::to_string(&self.0).unwrap()
+    }
+
+    /// Parse a string key produced by `to_string_key()`.
+    pub fn from_string_key(s: &str) -> Result<Self, serde_json::Error> {
+        let v = serde_json::from_str::<Vec<BindingSiteType>>(s)?;
+        Ok(BindingSitesProfile::new(v))
+    }
+}
+
+// Custom Deserialize:
+// - standard form: a JSON array (the usual newtype Vec representation)
+// - string form: a JSON string containing that array (useful for JSON map keys)
 impl<'de> Deserialize<'de> for BindingSitesProfile {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        let v = Vec::<BindingSiteType>::deserialize(deserializer)?;
-        Ok(BindingSitesProfile::new(v))
-    }
-}
+        use serde::de::{Error as _, SeqAccess, Visitor};
+        use std::fmt;
 
-impl std::fmt::Display for BindingSitesProfile {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match serde_json::to_string(self) {
-            Ok(s) => write!(f, "{}", s),
-            Err(_) => Err(std::fmt::Error),
+        struct BindingSitesProfileVisitor;
+
+        impl<'de> Visitor<'de> for BindingSitesProfileVisitor {
+            type Value = BindingSitesProfile;
+
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(
+                    f,
+                    "either a sequence of BindingSiteType or a string containing JSON for that sequence"
+                )
+            }
+
+            fn visit_seq<A>(self, seq: A) -> Result<Self::Value, A::Error>
+            where
+                A: SeqAccess<'de>,
+            {
+                // Deserialize the sequence into Vec<BindingSiteType>
+                let v = Vec::<BindingSiteType>::deserialize(
+                    serde::de::value::SeqAccessDeserializer::new(seq),
+                )?;
+                Ok(BindingSitesProfile(v))
+            }
+
+            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                BindingSitesProfile::from_string_key(s).map_err(E::custom)
+            }
+
+            fn visit_string<E>(self, s: String) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                self.visit_str(&s)
+            }
         }
+
+        deserializer.deserialize_any(BindingSitesProfileVisitor)
     }
-}
-
-impl std::str::FromStr for BindingSitesProfile {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
-    }
-}
-
-impl BindingSitesProfile {
-    /// Serialize to a compact JSON string suitable for use as a key.
-    pub fn to_string_key(&self) -> String {
-        serde_json::to_string(self).expect("Serialization of BindingSitesProfile should not fail")
-    }
-
-    /// Parse from the compact JSON string produced by to_string_key.
-    pub fn from_string_key(s: &str) -> Result<Self, String> {
-        s.parse()
-    }
-}
-
-impl BindingSitesProfile {
-	pub fn new(binding_site_types: Vec<BindingSiteType>) -> Self {
-	    let mut bs_types: Vec<BindingSiteType> = binding_site_types;
-	    bs_types.sort();
-	    BindingSitesProfile(bs_types)
-	}
 }
