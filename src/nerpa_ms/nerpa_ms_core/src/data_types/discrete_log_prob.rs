@@ -81,10 +81,10 @@ impl DiscreteLogProbSet {
     pub fn add_to_all(&self, lp: LogProb) -> DiscreteLogProbSet {
         let delta: i32 = DiscreteLogProb::logprob_to_centered_discrete_lp(lp);
         assert!(delta < 0, "add_to_all: positive log prob not allowed");
-        self.shift_left(delta.unsigned_abs() as usize)
+        self.shift_towards_zero(delta.unsigned_abs() as usize)
     }
 
-    fn shift_left(&self, delta: usize) -> DiscreteLogProbSet {
+    fn shift_towards_zero(&self, delta: usize) -> DiscreteLogProbSet {
         if delta == 0 {
             return self.clone();
         }
@@ -127,4 +127,52 @@ impl DiscreteLogProbSet {
         }
         out
     }
+    
+    /// Iterate over contained values from largest to smallest.
+    pub fn iter_desc(&self) -> DiscreteLogProbSetIterDesc<'_> {
+        let mut it = DiscreteLogProbSetIterDesc {
+            set: self,
+            word_idx: N_WORDS as isize - 1,
+            cur_word: 0,
+        };
+
+        if it.word_idx >= 0 {
+            it.cur_word = self.words[it.word_idx as usize];
+        }
+        it
+    }
+}
+
+pub struct DiscreteLogProbSetIterDesc<'a> {
+    set: &'a DiscreteLogProbSet,
+    word_idx: isize,
+    cur_word: u64,
+}
+
+impl<'a> Iterator for DiscreteLogProbSetIterDesc<'a> {
+    type Item = DiscreteLogProb;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if self.word_idx < 0 {
+                return None;
+            }
+
+            if self.cur_word != 0 {
+                // Take the highest set bit in the current word.
+                let bit = 63usize - (self.cur_word.leading_zeros() as usize);
+                self.cur_word &= !(1u64 << bit);
+
+                let idx: usize = (self.word_idx as usize) * 64 + bit;
+                return Some(DiscreteLogProb(idx));
+            }
+
+            // Move to the next lower word.
+            self.word_idx -= 1;
+            if self.word_idx >= 0 {
+                self.cur_word = self.set.words[self.word_idx as usize];
+            }
+        }
+    }
+
 }
