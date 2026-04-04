@@ -1,19 +1,22 @@
 use crate::data_types::common_types::MonomerIdx;
-use crate::data_types::dag::{DAG, Edge};
+use crate::data_types::dag::{DAG, Edge, VertexLabel};
 use crate::data_types::graph_modifications::{get_possible_subs, GraphModification};
 use crate::data_types::{monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record};
 
 pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'a MonomersDB) -> DAG<'a> {
-    let mut labels: Vec<Option<String>> = Vec::new();
+    let mut labels: Vec<VertexLabel> = Vec::new();
     let mut out_edges: Vec<Vec<Edge>> = Vec::new();
     let mut subgraph_root = 0;
 
     for monomer_idx in linearization.iter() {
 	let monomer_info = rban_record.monomers.get(monomer_idx)
 	    .expect("linearization contains monomer index that is not present in rban_record.monomers");
-	labels.push(Some(monomer_idx.0.to_string()));
+	labels.push(VertexLabel{
+	    monomer_code: None,
+	    name: monomer_idx.0.to_string()
+	});
 	out_edges.push(Vec::new());
 
         let subs = {
@@ -36,7 +39,10 @@ pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
         };
         let next_subgraph_root = subgraph_root + subs.len() + 2;
 
-        labels.push(Some(monomer_info.name.0.clone() + "*"));
+        labels.push(VertexLabel{
+	    monomer_code: Some(monomer_info.mon_code.clone()),
+	    name: monomer_info.name.0.clone() + "*"
+	});
         out_edges[subgraph_root].push(Edge {
             to: subgraph_root + 1,
             weight: 0,
@@ -53,7 +59,10 @@ pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
         for (i, gm) in subs.into_iter().enumerate() {
             match &gm {
                 GraphModification::Substitute { mon_db_entry, .. } => {
-                    labels.push(Some(mon_db_entry.monomer.name.0.clone()));
+                    labels.push(VertexLabel{
+			monomer_code: Some(mon_db_entry.monomer.mon_code.clone()),
+			name: mon_db_entry.monomer.name.0.clone()
+		    });
                 }
                 _ => unreachable!("expected Substitute"),
             }
@@ -73,7 +82,10 @@ pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
         subgraph_root = next_subgraph_root;
     }
 
-    labels.push(Some("FINAL".to_string()));
+    labels.push(VertexLabel{
+	monomer_code: None,
+	name: "FINAL".to_string()
+    });
     out_edges.push(Vec::new());
 
     let labels_len = labels.len();

@@ -9,7 +9,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::data_types::dag::{VertexId, DAG};
 
 pub struct Draw_DAG_Config {
-	pub node_indexes: bool,
+    pub node_indexes: bool,
 }
 
 impl DAG<'_> {
@@ -24,12 +24,11 @@ impl DAG<'_> {
         // Nodes
         for v in 0..self.num_nodes() {
             let label = {
-                if let Some(label) = &self.labels[v] {
-		    if cfg.node_indexes {v.to_string() + "." + label}
-		    else { label.clone() }
+                let name = &self.labels[v].name;
+                if cfg.node_indexes {
+                    v.to_string() + "." + name
                 } else {
-		    if cfg.node_indexes {v.to_string() }
-		    else { String::new() }
+                    name.clone()
                 }
             };
 
@@ -64,7 +63,10 @@ impl DAG<'_> {
             .expect("time went backwards")
             .as_nanos();
 
-	let dot_path = out.parent().unwrap().join(self.nrp_variant_id.clone() + ".dot");
+        let dot_path = out
+            .parent()
+            .unwrap()
+            .join(self.nrp_variant_id.clone() + ".dot");
 
         fs::write(&dot_path, dot).expect("write .dot file");
 

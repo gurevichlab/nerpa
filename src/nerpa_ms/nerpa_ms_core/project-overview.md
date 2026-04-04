@@ -60,16 +60,45 @@ pub struct Parsed_rBAN_Record {
 
 ---
 
-## 3) Core intermediate representations
+## 3) Core internal types
 
-### 3.2 DAG (internal)
+### 3.1 DAG
 A directed acyclic graph with:
-- vertex labels: `Option<MonomerCode>`
-  - `None` for START/FINISH
-  - otherwise `Some(code)` where `MonomerCode` is in the same alphabet as HMM emissions
-- edges weighted in `{0,1}`
+- edges edges labeled with graph modifications
+- vertices labeled with `Option<MonomerCode>` (the code of the monomer at that position, or `None` if it’s a non-emitting step)
 
 A `START→FINISH` path in this DAG represents a candidate monomer sequence near the template/linearization, potentially involving edits.
+
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Edge<'a> {
+    pub to: VertexId,
+    pub weight: u8, // 0 or 1
+    pub modification: Option<GraphModification<'a>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct VertexLabel {
+	pub monomer_code: Option<MonomerCode>,
+	pub name: String,  // used only for graph drawing
+}
+
+#[derive(Debug, Clone)]
+pub struct DAG<'a> {
+    pub nrp_variant_id: String,
+    pub labels: Vec<VertexLabel>, // labels[v] = label of vertex v
+    pub out_edges: Vec<Vec<Edge<'a>>>, // out_edges[v] = list of edges from vertex v
+    pub start: VertexId,               // 0
+    pub finish: VertexId,              // labels.len() - 1
+}
+```
+
+### 3.2 Digitalized LogProb
+
+To allow for a dynamic programming approach, I convert log probabilities to a discrete range -- integers from 0 to `MAX_DISCRETE_LOG_PROB` (e.g., 10000). The conversion is linear (except for rounding), mapping the smallest log-prob in the HMM to 0 and the largest to `MAX_DISCRETE_LOG_PROB`. I need an efficient bit-array like data structure with the following properties:
+- Stores a set of `DISCRETE_LOG_PROB` values (integers in [0, `MAX_DISCRETE_LOG_PROB`])
+- Supports bitwise shift and bitwise OR operations (for dynamic programming state updates)
+
 
 ---
 
@@ -124,7 +153,7 @@ For each input item:
 
 ---
 
-## 8) Tentative file structure
+## 8) Tentative file structure (outdated, to be updated)
 
 nerpa_ms_core/
 ├── Cargo.toml
@@ -180,7 +209,7 @@ nerpa_ms_core/
 
 ## 9) Plan and milestones
 
-### Milestone 1 — Skeleton CLI + JSON input
+### Milestone 1 — Skeleton CLI + JSON input [DONE]
 **Goal:** program builds, reads input JSON.
 
 - CLI flags:
@@ -195,7 +224,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 2 — Monomers database
+### Milestone 2 — Monomers database [DONE]
 **Goal:** implement a database of monomers (from the rBAN monomer library) that can be used for surgical edits.
 
 - Gather the rBAN monomers database: take parsed records from pnrpdb2 and take the most important monomers -- only supported residues + optional methylation.
@@ -206,7 +235,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 3 — DAG construction from (Parsed_rBAN_Record, linearization)
+### Milestone 3 — DAG construction from (Parsed_rBAN_Record, linearization) [DONE]
 **Goal:** build the deviation DAG with correct labels and 0/1 edge weights.
 
 - Implement `build_dag(rban_record, linearization) -> DAG`.
@@ -217,7 +246,17 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 4 — HMM × DAG solver returning top‑N candidates (per weight)
+### Milestone 4 -- Discrete LogProb structure
+
+**Goal:** implement the discrete log-probability structure and conversion function.
+
+- Implement `DiscreteLogProb` data type with convertions to and from `LogProb`.
+- Implement `DiscreteLogProbSet` (bit-array-like structure) with the operations: shift and OR operations.
+   - `shift_left(&self, lp: LogProb) -> DiscreteLogProbSet` -- adds lp to all log probs values represented in the set. Values that go out of bounds are erased (like in usual bitwise shift of a bit-array)
+   - `union(&self, other: DiscreteLogProbSet) -> DiscreteLogProbSet`
+
+
+### Milestone 5 — HMM × DAG solver returning top‑N candidates (per weight)
 **Goal:** compute ranked solutions *in the DAG/HMM world* (still no molecule edits).
 
 - Implement `solve(hmm, dag, n, weights={1,2,3}) -> Vec<CandidatePerWeight>`.
@@ -230,7 +269,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 5 — Apply candidates to produce Altered_NRP_Variant
+### Milestone 6 — Apply candidates to produce Altered_NRP_Variant
 **Goal:** turn candidates into edited molecules + mapping.
 
 - Implement `apply_candidate(rban_record, candidate) -> Altered_NRP_Variant`.
@@ -241,7 +280,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 6 — Tests and fixtures
+### Milestone 7 — Tests and fixtures
 **Goal:** keep regressions from sneaking in.
 
 - Unit tests:
@@ -256,7 +295,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 7 (optional) — Debuggability and performance niceties
+### Milestone 8 (optional) — Debuggability and performance niceties
 **Goal:** make it easier to trust and iterate.
 
 - Optional `--debug` output fields (hmm_states, dag_vertices, emitted codes).

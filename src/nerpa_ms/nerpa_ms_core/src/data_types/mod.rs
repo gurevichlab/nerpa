@@ -8,3 +8,4 @@ pub mod bonds;
 pub mod rban_record_bonds;
 pub mod graph_modifications;
 pub mod monomers_db;
+pub mod discrete_log_prob;
