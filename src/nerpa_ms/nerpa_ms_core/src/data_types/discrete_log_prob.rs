@@ -61,17 +61,21 @@ impl DiscreteLogProbSet {
         }
     }
 
-    pub fn singleton_from_dlp(dlp: DiscreteLogProb) -> Self {
-        let mut s = Self::empty();
-        let i: usize = dlp.into();
-        if i <= MAX_DISCRETE_LOG_PROB {
-            s.words[i / 64] |= 1u64 << (i % 64);
-        }
-        s
+    pub fn from_dlp_vec(dlps: Vec<DiscreteLogProb>) -> Self {
+	let mut s = Self::empty();
+	for dlp in dlps {
+	    let i: usize = dlp.into();
+	    s.words[i / 64] |= 1u64 << (i % 64);
+	}
+	s
     }
 
-    pub fn singleton_from_lp(lp: LogProb) -> Self {
-	Self::singleton_from_dlp(DiscreteLogProb::from_logprob(lp))
+    pub fn from_logprob_vec(lps: Vec<LogProb>) -> Self {
+	let dlps: Vec<DiscreteLogProb> =
+	    lps.into_iter()
+	    .map(DiscreteLogProb::from_logprob)
+	    .collect();
+	Self::from_dlp_vec(dlps)
     }
 
     /// Adds `lp` to all discrete log-prob values represented in this set.
@@ -98,7 +102,7 @@ impl DiscreteLogProbSet {
             // `dst + word_shift` bits [bit_shift .. 63] map to src[0: 64 - bit_shift], and
             // `dst + word_shift + 1` bits [0 .. bit_shift-1] map to src[64 - bit_shift : 64]
             let src1 = self.words[dst + word_shift];
-            let shifted_src1 = src1 << bit_shift;
+            let shifted_src1 = src1 >> bit_shift;
 
             let src2: u64 = if dst + word_shift + 1 < N_WORDS {
                 self.words[dst + word_shift + 1]
@@ -108,7 +112,7 @@ impl DiscreteLogProbSet {
 
             // shifting by 64 or more is UB in Rust
             let shifted_src2 = if bit_shift > 0 {
-                src2 >> (64 - bit_shift)
+                src2 << (64 - bit_shift)
             } else {
                 0
             };
@@ -175,4 +179,156 @@ impl<'a> Iterator for DiscreteLogProbSetIterDesc<'a> {
         }
     }
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn approx_eq(a: LogProb, b: LogProb, eps: LogProb) -> bool {
+        (a - b).abs() <= eps
+    }
+
+    #[test]
+    fn dlp_from_logprob_clamps_endpoints() {
+        assert_eq!(DiscreteLogProb::from_logprob(MIN_LOG_PROB - 1.0), DiscreteLogProb(0));
+        assert_eq!(DiscreteLogProb::from_logprob(MIN_LOG_PROB), DiscreteLogProb(0));
+
+        assert_eq!(
+            DiscreteLogProb::from_logprob(MAX_LOG_PROB),
+            DiscreteLogProb(MAX_DISCRETE_LOG_PROB)
+        );
+        assert_eq!(
+            DiscreteLogProb::from_logprob(MAX_LOG_PROB + 1.0),
+            DiscreteLogProb(MAX_DISCRETE_LOG_PROB)
+        );
+    }
+
+    #[test]
+    fn dlp_roundtrip_is_reasonable() {
+        // Not exact because of rounding, but should be within about half a bin.
+        let half_bin = 0.5 / SCALING_FACTOR;
+
+        let samples = [
+            MIN_LOG_PROB,
+            -49.9,
+            -25.0,
+            -12.345,
+            -1.0,
+            -0.001,
+            MAX_LOG_PROB,
+        ];
+
+        for &lp in &samples {
+            let d = DiscreteLogProb::from_logprob(lp);
+            let lp2 = d.to_logprob();
+
+            // For endpoints, to_logprob returns MIN_LOG_PROB + d/scale, so it matches exactly.
+            assert!(
+                approx_eq(lp, lp2, half_bin + 1e-12),
+                "lp={lp} d={d:?} lp2={lp2} half_bin={half_bin}"
+            );
+
+            // Always in range.
+            assert!(d.0 <= MAX_DISCRETE_LOG_PROB);
+        }
+    }
+
+    #[test]
+    fn set_union_works() {
+        let a = DiscreteLogProbSet::from_dlp_vec(vec![
+            DiscreteLogProb(0),
+            DiscreteLogProb(10),
+            DiscreteLogProb(1000),
+        ]);
+        let b = DiscreteLogProbSet::from_dlp_vec(vec![
+            DiscreteLogProb(10),
+            DiscreteLogProb(11),
+            DiscreteLogProb(MAX_DISCRETE_LOG_PROB),
+        ]);
+
+        let u = a.union(&b);
+
+        // We don't have a `contains` method, so check via iter_desc output.
+        let got: Vec<usize> = u.iter_desc().map(|d| d.0).collect();
+
+        // Should contain 0,10,11,1000,MAX.
+        assert!(got.contains(&0));
+        assert!(got.contains(&10));
+        assert!(got.contains(&11));
+        assert!(got.contains(&1000));
+        assert!(got.contains(&MAX_DISCRETE_LOG_PROB));
+        assert_eq!(got.len(), 5);
+    }
+
+    #[test]
+    fn shift_towards_zero_bitshift_0_is_safe_and_correct() {
+        // Use values that make delta a multiple of 64 (bit_shift == 0).
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(0), DiscreteLogProb(64), DiscreteLogProb(128)]);
+        let shifted = s.shift_towards_zero(64);
+
+        // Expected: 64->0, 128->64, 0 falls off
+        let got: Vec<usize> = shifted.iter_desc().map(|d| d.0).collect();
+        assert_eq!(got, vec![64, 0]);
+    }
+
+    #[test]
+    fn shift_towards_zero_nontrivial_bitshift() {
+        // Delta = 1 crosses within a word; easy to sanity check.
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(1), DiscreteLogProb(63), DiscreteLogProb(64)]);
+        let shifted = s.shift_towards_zero(1);
+
+        // Expected: 1->0, 63->62, 64->63
+        let got: Vec<usize> = shifted.iter_desc().map(|d| d.0).collect();
+        assert_eq!(got, vec![63, 62, 0]);
+    }
+
+    #[test]
+    fn shift_towards_zero_large_delta_erases_all() {
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(0), DiscreteLogProb(123), DiscreteLogProb(MAX_DISCRETE_LOG_PROB)]);
+        let shifted = s.shift_towards_zero(MAX_DISCRETE_LOG_PROB + 1);
+        assert_eq!(shifted.iter_desc().next(), None);
+    }
+
+    #[test]
+    fn iter_desc_is_descending_and_unique() {
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![
+            DiscreteLogProb(5),
+            DiscreteLogProb(5), // duplicate on purpose
+            DiscreteLogProb(6),
+            DiscreteLogProb(100),
+            DiscreteLogProb(64),
+        ]);
+
+        let got: Vec<usize> = s.iter_desc().map(|d| d.0).collect();
+
+        // Descending order.
+        assert_eq!(got, vec![100, 64, 6, 5]);
+
+        // Also implicitly checks no duplicates in iteration result.
+    }
+
+    #[test]
+    fn add_to_all_panics_on_non_negative_delta() {
+        // lp = 0 => delta = 0, which violates assert!(delta < 0)
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(123)]);
+
+        let result = std::panic::catch_unwind(|| {
+            let _ = s.add_to_all(0.0);
+        });
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn from_logprob_vec_matches_from_dlp_vec() {
+        // Pick a few logprobs and compare to explicit discretization.
+        let lps = vec![-50.0, -25.0, -1.0, 0.0];
+        let a = DiscreteLogProbSet::from_logprob_vec(lps.clone());
+
+        let dlps: Vec<DiscreteLogProb> = lps.into_iter().map(DiscreteLogProb::from_logprob).collect();
+        let b = DiscreteLogProbSet::from_dlp_vec(dlps);
+
+        assert_eq!(a, b);
+    }
 }

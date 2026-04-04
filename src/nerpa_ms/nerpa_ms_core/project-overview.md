@@ -246,7 +246,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 4 -- Discrete LogProb structure
+### Milestone 4 -- Discrete LogProb structure [DONE]
 
 **Goal:** implement the discrete log-probability structure and conversion function.
 
