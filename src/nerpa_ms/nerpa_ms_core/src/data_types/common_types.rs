@@ -9,4 +9,10 @@ pub struct MonomerIdx(pub u32);
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct MonomerCode(pub u32);
 
+impl MonomerCode {
+	pub fn as_usize(&self) -> usize {
+		self.0 as usize
+	}
+}
+
 pub type LogProb = f64;

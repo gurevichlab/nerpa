@@ -47,7 +47,7 @@ const _: [(); 0] = [(); (MAX_DISCRETE_LOG_PROB + 1) % 64];
 /// Bit-array-like set of discrete log-prob values in `0..=MAX_DISCRETE_LOG_PROB`.
 ///
 /// Only supports what you asked for:
-/// - shift_left(lp): add `lp` to all represented values (dropping out-of-range)
+/// - shift_towards_zero(lp): add `lp` to all represented values (dropping out-of-range)
 /// - union(other): bitwise OR
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiscreteLogProbSet {
@@ -61,21 +61,23 @@ impl DiscreteLogProbSet {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+	self.words.iter().all(|&w| w == 0)
+    }
+
     pub fn from_dlp_vec(dlps: Vec<DiscreteLogProb>) -> Self {
-	let mut s = Self::empty();
-	for dlp in dlps {
-	    let i: usize = dlp.into();
-	    s.words[i / 64] |= 1u64 << (i % 64);
-	}
-	s
+        let mut s = Self::empty();
+        for dlp in dlps {
+            let i: usize = dlp.into();
+            s.words[i / 64] |= 1u64 << (i % 64);
+        }
+        s
     }
 
     pub fn from_logprob_vec(lps: Vec<LogProb>) -> Self {
-	let dlps: Vec<DiscreteLogProb> =
-	    lps.into_iter()
-	    .map(DiscreteLogProb::from_logprob)
-	    .collect();
-	Self::from_dlp_vec(dlps)
+        let dlps: Vec<DiscreteLogProb> =
+            lps.into_iter().map(DiscreteLogProb::from_logprob).collect();
+        Self::from_dlp_vec(dlps)
     }
 
     /// Adds `lp` to all discrete log-prob values represented in this set.
@@ -88,7 +90,7 @@ impl DiscreteLogProbSet {
         self.shift_towards_zero(delta.unsigned_abs() as usize)
     }
 
-    fn shift_towards_zero(&self, delta: usize) -> DiscreteLogProbSet {
+    pub fn shift_towards_zero(&self, delta: usize) -> DiscreteLogProbSet {
         if delta == 0 {
             return self.clone();
         }
@@ -131,7 +133,14 @@ impl DiscreteLogProbSet {
         }
         out
     }
-    
+
+    /// Bitwise OR union.
+    pub fn union_inplace(&mut self, other: &DiscreteLogProbSet) -> () {
+        for i in 0..N_WORDS {
+            self.words[i] |= other.words[i];
+        }
+    }
+
     /// Iterate over contained values from largest to smallest.
     pub fn iter_desc(&self) -> DiscreteLogProbSetIterDesc<'_> {
         let mut it = DiscreteLogProbSetIterDesc {
@@ -178,12 +187,12 @@ impl<'a> Iterator for DiscreteLogProbSetIterDesc<'a> {
             }
         }
     }
-
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
 
     fn approx_eq(a: LogProb, b: LogProb, eps: LogProb) -> bool {
         (a - b).abs() <= eps
@@ -191,8 +200,14 @@ mod tests {
 
     #[test]
     fn dlp_from_logprob_clamps_endpoints() {
-        assert_eq!(DiscreteLogProb::from_logprob(MIN_LOG_PROB - 1.0), DiscreteLogProb(0));
-        assert_eq!(DiscreteLogProb::from_logprob(MIN_LOG_PROB), DiscreteLogProb(0));
+        assert_eq!(
+            DiscreteLogProb::from_logprob(MIN_LOG_PROB - 1.0),
+            DiscreteLogProb(0)
+        );
+        assert_eq!(
+            DiscreteLogProb::from_logprob(MIN_LOG_PROB),
+            DiscreteLogProb(0)
+        );
 
         assert_eq!(
             DiscreteLogProb::from_logprob(MAX_LOG_PROB),
@@ -264,7 +279,11 @@ mod tests {
     #[test]
     fn shift_towards_zero_bitshift_0_is_safe_and_correct() {
         // Use values that make delta a multiple of 64 (bit_shift == 0).
-        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(0), DiscreteLogProb(64), DiscreteLogProb(128)]);
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![
+            DiscreteLogProb(0),
+            DiscreteLogProb(64),
+            DiscreteLogProb(128),
+        ]);
         let shifted = s.shift_towards_zero(64);
 
         // Expected: 64->0, 128->64, 0 falls off
@@ -275,7 +294,11 @@ mod tests {
     #[test]
     fn shift_towards_zero_nontrivial_bitshift() {
         // Delta = 1 crosses within a word; easy to sanity check.
-        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(1), DiscreteLogProb(63), DiscreteLogProb(64)]);
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![
+            DiscreteLogProb(1),
+            DiscreteLogProb(63),
+            DiscreteLogProb(64),
+        ]);
         let shifted = s.shift_towards_zero(1);
 
         // Expected: 1->0, 63->62, 64->63
@@ -285,7 +308,11 @@ mod tests {
 
     #[test]
     fn shift_towards_zero_large_delta_erases_all() {
-        let s = DiscreteLogProbSet::from_dlp_vec(vec![DiscreteLogProb(0), DiscreteLogProb(123), DiscreteLogProb(MAX_DISCRETE_LOG_PROB)]);
+        let s = DiscreteLogProbSet::from_dlp_vec(vec![
+            DiscreteLogProb(0),
+            DiscreteLogProb(123),
+            DiscreteLogProb(MAX_DISCRETE_LOG_PROB),
+        ]);
         let shifted = s.shift_towards_zero(MAX_DISCRETE_LOG_PROB + 1);
         assert_eq!(shifted.iter_desc().next(), None);
     }
@@ -326,9 +353,51 @@ mod tests {
         let lps = vec![-50.0, -25.0, -1.0, 0.0];
         let a = DiscreteLogProbSet::from_logprob_vec(lps.clone());
 
-        let dlps: Vec<DiscreteLogProb> = lps.into_iter().map(DiscreteLogProb::from_logprob).collect();
+        let dlps: Vec<DiscreteLogProb> =
+            lps.into_iter().map(DiscreteLogProb::from_logprob).collect();
         let b = DiscreteLogProbSet::from_dlp_vec(dlps);
 
         assert_eq!(a, b);
+    }
+    #[test]
+    fn shift_towards_zero_matches_naive_hashset_many_values_many_shifts() {
+        // Build a fairly dense set: every 5th value, plus some "interesting" boundaries.
+        let mut src_vals: HashSet<usize> = (0..=MAX_DISCRETE_LOG_PROB).step_by(5).collect();
+        src_vals.extend([1, 2, 3, 4, 63, 64, 65, 127, 128, 129, MAX_DISCRETE_LOG_PROB]);
+
+        let s = DiscreteLogProbSet::from_dlp_vec(
+            src_vals.iter().copied().map(DiscreteLogProb).collect(),
+        );
+
+        // Try lots of deltas, including word-boundary-ish ones and very large ones.
+        let mut deltas: Vec<usize> = (0..=300).collect();
+        deltas.extend([
+            63, 64, 65, 127, 128, 129, 255, 256, 257, 511, 512, 513, 1000, 4096,
+        ]);
+        deltas.extend([
+            MAX_DISCRETE_LOG_PROB - 1,
+            MAX_DISCRETE_LOG_PROB,
+            MAX_DISCRETE_LOG_PROB + 1,
+            MAX_DISCRETE_LOG_PROB + 1000,
+        ]);
+
+        for delta in deltas {
+            // Naive expected behavior:
+            // shifting "towards zero" by delta maps v -> v - delta, dropping anything < 0.
+            let mut expected: HashSet<usize> = HashSet::new();
+            for &v in &src_vals {
+                if v >= delta {
+                    expected.insert(v - delta);
+                }
+            }
+
+            let got: HashSet<usize> = s
+                .shift_towards_zero(delta)
+                .iter_desc()
+                .map(|d| d.0)
+                .collect();
+
+            assert_eq!(got, expected, "mismatch for delta={delta}");
+        }
     }
 }

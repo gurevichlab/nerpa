@@ -99,7 +99,20 @@ To allow for a dynamic programming approach, I convert log probabilities to a di
 - Stores a set of `DISCRETE_LOG_PROB` values (integers in [0, `MAX_DISCRETE_LOG_PROB`])
 - Supports bitwise shift and bitwise OR operations (for dynamic programming state updates)
 
+```rust
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiscreteLogProbSet {
+    words: [u64; N_WORDS],
+}
 
+impl DiscreteLogProbSet {
+    pub fn from_logprob_vec(lps: Vec<LogProb>) -> Self {...}
+	pub fn add_to_all(&self, lp: LogProb) -> DiscreteLogProbSet {...}
+	pub fn union(&self, other: &DiscreteLogProbSet) -> DiscreteLogProbSet {...}
+	pub fn iter_desc(&self) -> impl Iterator<Item=LogProb> {...}
+	...
+}
+```
 ---
 
 ## 4) DAG semantics: “nearby” sequences and deviation weights
@@ -126,7 +139,17 @@ For each requested `w`:
    - HMM non-emitting states are epsilon steps (consume no DAG label).
 4. Keep enough reconstruction info (internally) to later apply the solution back onto the template molecule.
 
----
+### 5.1 Compute dynamic programming table
+
+`dp[vertex][weight][state]: DiscreteLogProbSet`, where
+lp \in `dp[vertex][weight][state]` means that there exist paths $P=s1, s2, ..., state$ the HMM, 
+and $Q=v1, v2, ..., vertex$ in DAG, with labels of vertices in Q corresponding to emissions $E=e1, e2, ...en", such that:
+- The weight of Q equals `weight`
+- The log-probability of P given the emissions E is `lp`.
+Note that so that E lists all the emissions on the path up to `vertex` but NOT the emission of `vertex` itself (if any).
+
+The vertices in DAG are topologically ordered.
+The vertices in HMM are "almost" topologically ordered -- there're occasional edges u->v with u > v. However, between any two such edges there must be an emission present, so it's enough to iterative through states just twice for every given vertex and weight.
 
 ## 6) Applying a solution back to the template molecule
 Each selected solution implies surgical edits to the template monomer graph:
@@ -266,6 +289,16 @@ nerpa_ms_core/
 - Implement simple top‑N keeper (`Vec`, insert, sort, truncate).
 
 **Deliverable:** on a tiny fixture, solver returns non-empty candidates for some `w`.
+
+#### Milestone 5.1 — DP table computation
+- Implement the DP table computation as described in section 5.1:
+```
+fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> Vec<Vec<Vec<DiscreteLogProbSet>>> {
+	// dp[vertex][weight][state] = DiscreteLogProbSet
+	...
+}
+```
+
 
 ---
 
