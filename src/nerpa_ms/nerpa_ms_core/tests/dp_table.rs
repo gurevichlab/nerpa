@@ -1,4 +1,3 @@
-use nerpa_ms_core::data_types::common_types::LogProb;
 use nerpa_ms_core::data_types::discrete_log_prob::DiscreteLogProbSet;
 use nerpa_ms_core::data_types::dp_table::DP_Table;
 

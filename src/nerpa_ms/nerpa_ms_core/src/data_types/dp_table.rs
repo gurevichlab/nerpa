@@ -1,4 +1,4 @@
-use super::discrete_log_prob::DiscreteLogProbSet;
+use super::{common_types::LogProb, discrete_log_prob::DiscreteLogProbSet};
 
 
 // A small wrapper around a flat Vec
@@ -9,6 +9,7 @@ pub struct DP_Table {
     n_weights: usize, // = max_weight + 1
     n_states: usize,
     data: Vec<DiscreteLogProbSet>,
+    parents: Vec<Vec<(usize, Option<LogProb>)>>, // parallel to data, stores parent indices and optional shift for each cell
 }
 
 impl DP_Table {
@@ -16,15 +17,18 @@ impl DP_Table {
         let n_weights = max_weight + 1;
         let len = n_vertices * n_weights * n_states;
 
-        // Assumes DiscreteLogProbSet::empty() exists.
-        // If your type uses Default instead, replace with `DiscreteLogProbSet::default()`.
-        let data = vec![DiscreteLogProbSet::empty(); len];
+        let mut data = vec![DiscreteLogProbSet::empty(); len];
+	// start state has probability 1
+	data[0] = DiscreteLogProbSet::from_logprob_vec(vec![0.0]);
+
+	let parents = vec![Vec::new(); len];
 
         Self {
             n_vertices,
             n_weights,
             n_states,
             data,
+	    parents
         }
     }
 
@@ -44,14 +48,9 @@ impl DP_Table {
     }
 
     #[inline]
-    pub fn get_mut(
-        &mut self,
-        vertex: usize,
-        weight: usize,
-        state: usize,
-    ) -> &mut DiscreteLogProbSet {
+    pub fn get_parents(&self, vertex: usize, weight: usize, state: usize) -> &Vec<(usize, Option<LogProb>)> {
         let i = self.idx(vertex, weight, state);
-        &mut self.data[i]
+        &self.parents[i]
     }
 
     pub fn n_vertices(&self) -> usize {
@@ -67,7 +66,7 @@ impl DP_Table {
     }
 
     #[inline]
-    pub fn union_cell_into_cell(&mut self, src: usize, dst: usize) {
+    fn update_cell_with_cell(&mut self, dst: usize, src: usize) {
         if dst == src {
             return; // union with itself does nothing
         }
@@ -84,6 +83,32 @@ impl DP_Table {
             let src_ref = &right[0];
             dst_ref.union_inplace(src_ref);
         }
+    }
+
+    fn update_from_idx(&mut self, dst: usize, src: usize, shift: Option<LogProb>) {
+	match shift {
+	    Some(s) => {
+		// Shift src by s and union into dst.
+		let shifted_src = self.data[src].add_to_all(s);
+		self.data[dst].union_inplace(&shifted_src);
+	    },
+	    None => {
+		// No shift, just union src into dst.
+		self.update_cell_with_cell(dst, src);
+	    }
+	}
+
+	self.parents[dst].push((src, shift));
+    }
+
+    pub fn update(&mut self,
+		  dst: (usize, usize, usize),
+		  src: (usize, usize, usize),
+		  shift: Option<LogProb>) {
+	let src_idx = self.idx(src.0, src.1, src.2);
+	let dst_idx = self.idx(dst.0, dst.1, dst.2);
+	
+	self.update_from_idx(src_idx, dst_idx, shift);
     }
 }
 
