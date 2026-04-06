@@ -101,6 +101,7 @@ impl DP_Table {
 	self.parents[dst].push((src, shift));
     }
 
+    // Update dst cell by unioning in src cell, optionally applying a shift to all log-probabilities from src before unioning.
     pub fn update(&mut self,
 		  dst: (usize, usize, usize),
 		  src: (usize, usize, usize),

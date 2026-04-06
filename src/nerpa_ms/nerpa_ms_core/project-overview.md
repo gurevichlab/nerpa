@@ -139,7 +139,7 @@ For each requested `w`:
    - HMM non-emitting states are epsilon steps (consume no DAG label).
 4. Keep enough reconstruction info (internally) to later apply the solution back onto the template molecule.
 
-### 5.1 Compute dynamic programming table
+### 5.1 Computing dynamic programming table
 
 `dp[vertex][weight][state]: DiscreteLogProbSet`, where
 lp \in `dp[vertex][weight][state]` means that there exist paths $P=s1, s2, ..., state$ the HMM, 
@@ -150,6 +150,31 @@ Note that so that E lists all the emissions on the path up to `vertex` but NOT t
 
 The vertices in DAG are topologically ordered.
 The vertices in HMM are "almost" topologically ordered -- there're occasional edges u->v with u > v. However, between any two such edges there must be an emission present, so it's enough to iterative through states just twice for every given vertex and weight.
+
+### 5.2 Dynamic programming struct
+```rust
+// A small wrapper around a flat Vec
+// Logical layout: dp[vertex][weight][state]
+#[derive(Debug, Clone)]
+pub struct DP_Table {
+    n_vertices: usize,
+    n_weights: usize, // = max_weight + 1
+    n_states: usize,
+    data: Vec<DiscreteLogProbSet>,
+    parents: Vec<Vec<(usize, Option<LogProb>)>>, // parallel to data, stores parent indices and optional shift for each cell
+}
+
+impl DP_Table {
+    pub fn new(n_vertices: usize, max_weight: usize, n_states: usize) -> Self {...}
+    pub fn get(&self, vertex: usize, weight: usize, state: usize) -> &DiscreteLogProbSet {...}
+    pub fn get_parents(&self, vertex: usize, weight: usize, state: usize) -> &Vec<(usize, Option<LogProb>)> {...}
+    pub fn update(&mut self,
+		  dst: (usize, usize, usize),
+		  src: (usize, usize, usize),
+		  shift: Option<LogProb>) {...}
+	...
+}
+```
 
 ## 6) Applying a solution back to the template molecule
 Each selected solution implies surgical edits to the template monomer graph:
@@ -275,7 +300,7 @@ nerpa_ms_core/
 
 - Implement `DiscreteLogProb` data type with convertions to and from `LogProb`.
 - Implement `DiscreteLogProbSet` (bit-array-like structure) with the operations: shift and OR operations.
-   - `shift_left(&self, lp: LogProb) -> DiscreteLogProbSet` -- adds lp to all log probs values represented in the set. Values that go out of bounds are erased (like in usual bitwise shift of a bit-array)
+   - `shift_towards_zero(&self, lp: LogProb) -> DiscreteLogProbSet` -- adds lp to all log probs values represented in the set. Values that go out of bounds are erased (like in usual bitwise shift of a bit-array)
    - `union(&self, other: DiscreteLogProbSet) -> DiscreteLogProbSet`
 
 
@@ -292,11 +317,8 @@ nerpa_ms_core/
 
 #### Milestone 5.1 — DP table computation
 - Implement the DP table computation as described in section 5.1:
-```
-fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> Vec<Vec<Vec<DiscreteLogProbSet>>> {
-	// dp[vertex][weight][state] = DiscreteLogProbSet
-	...
-}
+```rust
+fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> DP_Table
 ```
 
 
