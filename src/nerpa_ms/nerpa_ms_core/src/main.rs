@@ -24,7 +24,8 @@ fn main() -> Result<()> {
 					     &monomers_db,);
     let out_path = cli.out.join("dag.svg");
     dag.draw_svg(&out_path,
-		 &Draw_DAG_Config{node_indexes: false})?;
+		 &Draw_DAG_Config{node_indexes: false},
+		 None)?;
 	
     Ok(())
 }

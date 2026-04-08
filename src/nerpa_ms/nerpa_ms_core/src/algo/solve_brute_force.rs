@@ -3,6 +3,7 @@ use std::collections::{HashMap, HashSet};
 use crate::data_types::common_types::{LogProb, MonomerCode};
 use crate::data_types::dag::{Edge, DAG};
 use crate::data_types::discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet};
+use crate::data_types::dp_table::DP_Coords;
 use crate::data_types::hmm::HMM;
 
 pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &DAG<'a>) -> Vec<Vec<Edge<'a>>> {
@@ -57,7 +58,7 @@ pub fn compute_dp_brute_force(
     hmm: &HMM,
     dag: &DAG<'_>,
     max_weight: usize,
-) -> HashMap<(usize, usize, usize), HashSet<DiscreteLogProb>> {
+) -> HashMap<DP_Coords, HashSet<DiscreteLogProb>> {
     let mut results = HashMap::new();
     for v in 0..dag.num_nodes() {
 	for w in 0..=max_weight {
@@ -88,7 +89,9 @@ pub fn compute_dp_brute_force(
 			    .map(|(&state, &mon_code)| hmm.emissions[state][mon_code.as_usize()])
 			    .sum();
 
-			results.entry((v, w, s))
+			results.entry(DP_Coords{vertex: v,
+						weight: w,
+						state: s})
 			    .or_insert_with(HashSet::new)
 			    .insert(DiscreteLogProb::from_logprob(total_transition_lp + total_emission_lp));
 		    }

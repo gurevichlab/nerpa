@@ -1,8 +1,10 @@
 use std::collections::{HashMap, HashSet};
+use std::path::Path;
 
 use nerpa_ms_core::data_types::common_types::{LogProb, MonomerCode};
 use nerpa_ms_core::data_types::dag::{DAG, Edge, VertexLabel};
 use nerpa_ms_core::data_types::discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet};
+use nerpa_ms_core::data_types::dp_table::DP_Coords;
 use nerpa_ms_core::data_types::hmm::{BGC_ID, BGC_Variant_ID, HMM};
 
 use nerpa_ms_core::algo::dp::compute_dp_table;
@@ -130,44 +132,140 @@ fn sets_almost_equal(set1: &HashSet<DiscreteLogProb>, set2: &HashSet<DiscreteLog
     true
 }
 
-fn assert_dp_matches_bruteforce(hmm: &HMM, dag: &DAG<'_>, max_weight: usize) {
+use nerpa_ms_core::io::draw_hmm::Draw_HMM_Config;
+use nerpa_ms_core::io::draw_dag::Draw_DAG_Config;
+use nerpa_ms_core::io::join_svgs::join_svgs_vertical;
+
+fn draw_hmm_and_dag(hmm: &HMM, dag: &DAG<'_>) {
+    let hmm_svg_path = Path::new("debug_hmm.svg");
+    let dag_svg_path = Path::new("debug_dag.svg");
+    let joined_svg_path = Path::new("debug_joined.svg");
+    let _ = hmm.draw_svg(Path::new("debug_hmm.svg"),
+			 &Draw_HMM_Config {
+			     state_indexes: true,
+			 },
+			 None);
+    let _ = dag.draw_svg(Path::new("debug_dag.svg"),
+    			 &Draw_DAG_Config {
+			     node_indexes: true,
+			 },
+			 None);
+    let _ = join_svgs_vertical(&[hmm_svg_path, dag_svg_path], joined_svg_path);
+}
+
+fn assert_dp_matches_bruteforce(hmm: &HMM, dag: &DAG<'_>, max_weight: usize, tol: f64) {
+    let tol_dlp = DiscreteLogProb::logprob_to_centered_discrete_lp(tol) as usize;
     let brute = compute_dp_brute_force(hmm, dag, max_weight);
     let dp = compute_dp_table(hmm, dag, max_weight);
 
     let n_vertices = dag.labels.len();
     let n_states = hmm.num_states();
 
+    let get_cell_sets = |c: &DP_Coords| {
+        let brute_set = brute
+            .get(c)
+            .cloned()
+            .unwrap_or_default();
+        let dp_set = dp_cell_to_hashset(dp.get(c));
+        (dp_set, brute_set)
+    };
+
+    // Precompute which cells match (so parent checks are cheap).
+    let total = n_vertices * (max_weight + 1) * n_states;
+    let mut matches = vec![true; total];
+
     for v in 0..n_vertices {
         for w in 0..=max_weight {
             for s in 0..n_states {
-                let brute_set = brute.get(&(v, w, s)).cloned().unwrap_or_default();
-                let dp_set = dp_cell_to_hashset(dp.get(v, w, s));
-                assert!(
-                    sets_almost_equal(&dp_set, &brute_set, 1),
-                    "Mismatch at cell (v={}, w={}, s={})\nDP: {:?}\nBrute: {:?}",
-                    v, w, s, dp_set, brute_set
-                );
+                let c = DP_Coords {
+		    vertex: v,
+		    weight: w,
+		    state: s,
+		};
+                let (dp_set, brute_set) = get_cell_sets(&c);
+                let ok = sets_almost_equal(&dp_set, &brute_set, tol_dlp);
+                matches[dp.idx(&c)] = ok;
             }
         }
+    }
+
+    if matches.iter().all(|&x| x) {
+        return;
+    }
+
+    // Find a "frontier" mismatch: mismatching cell whose all parents match.
+    for idx in 0..total {
+        if matches[idx] {
+            continue;
+        }
+
+        let c = dp.idx_to_coordinates(idx);
+        let parents = dp.get_parents(&c);
+
+        let all_parents_match = parents
+            .iter()
+            .all(|p| matches[dp.idx(p)]);
+
+        if !all_parents_match {
+            continue;
+        }
+
+        let (dp_set, brute_set) = get_cell_sets(&c);
+	draw_hmm_and_dag(hmm, dag);
+        let dp_only_no_near: Vec<LogProb> = dp_set
+            .iter()
+            .filter(|lp1| !brute_set.iter().any(|lp2| lp1.0.abs_diff(lp2.0) <= tol_dlp))
+            .map(|lp| lp.to_logprob())
+            .collect();
+        let brute_only_no_near: Vec<LogProb> = brute_set
+            .iter()
+            .filter(|lp2| !dp_set.iter().any(|lp1| lp2.0.abs_diff(lp1.0) <= tol_dlp))
+	    .map(|lp| lp.to_logprob())
+            .collect();
+
+        panic!(
+            "Frontier mismatch at cell (v={}, w={}, s={})\n\
+             In DP but no near match in Brute (tol={}): {:?}\n\
+             In Brute but no near match in DP (tol={}): {:?}",
+            c.vertex,
+            c.weight,
+            c.state,
+            tol,
+            dp_only_no_near,
+            tol,
+            brute_only_no_near,
+        );
+    }
+
+    // Fallback: no frontier mismatch found (e.g. parent links missing); report first mismatch.
+    for idx in 0..total {
+        if !matches[idx] {
+	    let c = dp.idx_to_coordinates(idx);
+	    panic!(
+		"Mismatch at cell (v={}, w={}, s={})\nNo frontier mismatch found, so likely parent links are missing in DP_Table.",
+		c.vertex, c.weight, c.state,
+	    );
+	}
     }
 }
 
 #[test]
 fn dp_matches_bruteforce_on_tiny_cases() {
     // Case 1: simplest possible DAG + HMM
+    let tol = 0.01; // small tolerance for floating point differences
     let hmm = make_tiny_hmm();
     let dag = make_tiny_dag();
-    assert_dp_matches_bruteforce(&hmm, &dag, 0);
+    assert_dp_matches_bruteforce(&hmm, &dag, 0, tol);
 
     // Case 2: DAG has a deviation edge (weight=1), test max_weight=1
     let hmm = make_tiny_hmm();
     let dag = make_tiny_dag_with_deviation();
-    assert_dp_matches_bruteforce(&hmm, &dag, 1);
+    assert_dp_matches_bruteforce(&hmm, &dag, 1, tol);
 
     // Case 3: HMM has a silent middle state
     let hmm = make_hmm_with_silent_middle();
     let dag = make_tiny_dag_with_deviation();
-    assert_dp_matches_bruteforce(&hmm, &dag, 1);
+    assert_dp_matches_bruteforce(&hmm, &dag, 1, tol);
 }
 
 fn make_medium_dag<'a>() -> DAG<'a> {
@@ -289,7 +387,8 @@ fn dp_matches_bruteforce_on_medium_cases() {
     // (Still small enough that brute force shouldn't melt your laptop.)
     let dag = make_medium_dag();
     let hmm = make_medium_hmm_abc();
-    assert_dp_matches_bruteforce(&hmm, &dag, 2);
+    let tol = 0.01; // small tolerance for floating point differences
+    assert_dp_matches_bruteforce(&hmm, &dag, 2, tol);
 }
 
 #[test]
@@ -298,7 +397,8 @@ fn dp_matches_bruteforce_with_hmm_back_edge() {
     // This specifically tests the "iterate states twice" assumption.
     let dag = make_medium_dag();
     let hmm = make_hmm_with_back_edge();
-    assert_dp_matches_bruteforce(&hmm, &dag, 2);
+    let tol = 0.01; // small tolerance for floating point differences
+    assert_dp_matches_bruteforce(&hmm, &dag, 2, tol);
 }
 
 fn make_bigger_dag<'a>() -> DAG<'a> {
@@ -436,7 +536,8 @@ fn make_bigger_hmm_emit_on_leave() -> HMM {
 fn dp_matches_bruteforce_on_bigger_case() {
     let dag = make_bigger_dag();
     let hmm = make_bigger_hmm_emit_on_leave();
+    let tol = 0.01; // small tolerance for floating point differences
 
     // Keep this at 2; with brute force, 3 can get annoying depending on branching.
-    assert_dp_matches_bruteforce(&hmm, &dag, 2);
+    assert_dp_matches_bruteforce(&hmm, &dag, 2, tol);
 }

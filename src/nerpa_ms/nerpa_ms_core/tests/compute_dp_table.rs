@@ -1,6 +1,7 @@
 use nerpa_ms_core::data_types::common_types::LogProb;
 use nerpa_ms_core::data_types::dag::{DAG, Edge, VertexLabel};
 use nerpa_ms_core::data_types::discrete_log_prob::DiscreteLogProbSet;
+use nerpa_ms_core::data_types::dp_table::DP_Coords;
 use nerpa_ms_core::data_types::hmm::{HMM, BGC_Variant_ID, BGC_ID};
 use nerpa_ms_core::algo::dp::compute_dp_table;
 
@@ -45,8 +46,9 @@ fn dp_propagates_on_unlabeled_dag() {
 
     let dp = compute_dp_table(&hmm, &dag, 0);
 
+    let end_coords = DP_Coords{vertex: dag.finish, weight: 0, state: 1};
     assert_eq!(
-        dp.get(dag.finish, 0, 1),
+        dp.get(&end_coords),
         &DiscreteLogProbSet::from_logprob_vec(vec![0.0])
     );
 }
@@ -57,8 +59,10 @@ fn dp_respects_weight_budget() {
     let hmm = make_non_emitting_hmm();
 
     let dp0 = compute_dp_table(&hmm, &dag, 0);
-    assert!(dp0.get(dag.finish, 0, 1).is_empty());
+    let end_coords0 = DP_Coords{vertex: dag.finish, weight: 0, state: 1};
+    assert!(dp0.get(&end_coords0).is_empty());
 
     let dp1 = compute_dp_table(&hmm, &dag, 1);
-    assert!(!dp1.get(dag.finish, 1, 1).is_empty());
+    let end_coords1 = DP_Coords{vertex: dag.finish, weight: 1, state: 1};
+    assert!(!dp1.get(&end_coords1).is_empty());
 }

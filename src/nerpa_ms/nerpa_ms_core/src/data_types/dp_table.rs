@@ -20,7 +20,7 @@ pub struct DP_Table <'a>{
     parents: Vec<Vec<BacktrackPointer<'a>>>, // parallel to data, stores parent indices and optional shift for each cell
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DP_Coords {
     pub vertex: usize,
     pub weight: usize,
@@ -77,6 +77,16 @@ impl <'a> DP_Table<'a>{
     pub fn get_by_idx(&self, idx: DP_Idx) -> &DiscreteLogProbSet {
 	debug_assert!(idx < self.data.len());
         &self.data[idx]
+    }
+
+    #[inline]
+    pub fn get_parents(&self, coords: &DP_Coords) -> Vec<DP_Coords> {
+	let idx = self.idx(coords);
+	debug_assert!(idx < self.data.len());
+	self.parents[idx]
+	    .iter()
+	    .map(|ptr| ptr.parent)
+	    .collect()
     }
 
     #[inline]

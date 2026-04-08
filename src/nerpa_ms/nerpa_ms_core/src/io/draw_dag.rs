@@ -1,4 +1,5 @@
 use anyhow::Result;
+use std::collections::HashSet;
 use std::env;
 use std::fmt::Write as _;
 use std::fs;
@@ -13,7 +14,13 @@ pub struct Draw_DAG_Config {
 }
 
 impl DAG<'_> {
-    pub fn to_dot(&self, cfg: &Draw_DAG_Config) -> String {
+    pub fn to_dot(&self, cfg: &Draw_DAG_Config, highlight_path: Option<Vec<VertexId>>) -> String {
+        let highlight_edges: HashSet<(VertexId, VertexId)> = if let Some(path) = highlight_path {
+            path.windows(2).map(|w| (w[0], w[1])).collect()
+        } else {
+            HashSet::new()
+        };
+
         // Prefer labels.len(), but fall back safely if you ever forget to fill it.
         let mut out = String::new();
         out.push_str("digraph G {\n");
@@ -32,7 +39,14 @@ impl DAG<'_> {
                 }
             };
 
-            let _ = writeln!(&mut out, "  v{v} [label=\"{label}\"];");
+            if self.labels[v].monomer_code.is_some() {
+                let _ = writeln!(
+                    &mut out,
+                    "  v{v} [label=\"{label}\", style=filled, fillcolor=\"lightblue\"];"
+                );
+            } else {
+                let _ = writeln!(&mut out, "  v{v} [label=\"{label}\"];");
+            }
         }
 
         out.push('\n');
@@ -42,7 +56,19 @@ impl DAG<'_> {
             for e in edges {
                 let to: VertexId = e.to;
                 // Ignore e.modification for drawing, as requested.
-                let _ = writeln!(&mut out, "  v{from} -> v{to} [label=\"{}\"];\n", e.weight);
+                if highlight_edges.contains(&(from, to)) {
+                    let _ = writeln!(
+                        &mut out,
+                        "  v{from} -> v{to} [label=\"{}\", color=\"red\", fontcolor=\"red\", penwidth=2];\n",
+                        e.weight
+                    );
+                } else {
+                    let _ = writeln!(
+                        &mut out,
+                        "  v{from} -> v{to} [label=\"{}\"];\n",
+                        e.weight
+                    );
+                }
             }
         }
 
@@ -50,14 +76,19 @@ impl DAG<'_> {
         out
     }
 
-    pub fn draw_svg(&self, out: &Path, cfg: &Draw_DAG_Config) -> Result<()> {
+    pub fn draw_svg(
+        &self,
+        out: &Path,
+        cfg: &Draw_DAG_Config,
+        highlight_path: Option<Vec<VertexId>>,
+    ) -> Result<()> {
         // Ensure output directory exists
         if let Some(parent) = out.parent() {
             fs::create_dir_all(parent).expect("create output directory");
         }
 
         // Write DOT to a temp file
-        let dot = self.to_dot(cfg);
+        let dot = self.to_dot(cfg, highlight_path);
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("time went backwards")
