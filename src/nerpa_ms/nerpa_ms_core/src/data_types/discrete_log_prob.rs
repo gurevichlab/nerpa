@@ -11,8 +11,8 @@ pub const SCALING_FACTOR: f64 = (MAX_DISCRETE_LOG_PROB as f64) / (MAX_LOG_PROB -
 pub struct DiscreteLogProb(pub usize);
 
 impl DiscreteLogProb {
-    pub fn logprob_to_centered_discrete_lp(lp: LogProb) -> i32 {
-        (lp * SCALING_FACTOR).round() as i32
+    pub fn logprob_to_centered_discrete_lp(lp: LogProb) -> i64 {
+        (lp * SCALING_FACTOR).round() as i64
     }
 
     pub fn from_logprob(lp: LogProb) -> Self {
@@ -28,6 +28,15 @@ impl DiscreteLogProb {
 
     pub fn to_logprob(self) -> LogProb {
         MIN_LOG_PROB + (self.0 as f64) / SCALING_FACTOR
+    }
+
+    pub fn shift(self, delta: i64) -> DiscreteLogProb {
+	let new_d = (self.0 as i64) + delta;
+	if new_d < 0 || new_d > MAX_DISCRETE_LOG_PROB as i64 {
+	    panic!("shift: resulting discrete log prob out of range: new_d={new_d}");
+	} else {
+	    DiscreteLogProb(new_d as usize)
+	}
     }
 }
 
@@ -65,6 +74,11 @@ impl DiscreteLogProbSet {
 	self.words.iter().all(|&w| w == 0)
     }
 
+    pub fn contains(&self, dlp: DiscreteLogProb) -> bool {
+	let i: usize = dlp.into();
+	(self.words[i / 64] & (1u64 << (i % 64))) != 0
+    }
+
     pub fn from_dlp_vec(dlps: Vec<DiscreteLogProb>) -> Self {
         let mut s = Self::empty();
         for dlp in dlps {
@@ -80,14 +94,19 @@ impl DiscreteLogProbSet {
         Self::from_dlp_vec(dlps)
     }
 
+    pub fn get_abs_shift(lp: LogProb) -> usize {
+	let delta: i64 = DiscreteLogProb::logprob_to_centered_discrete_lp(lp);
+	assert!(delta <= 0, "get_abs_shift: positive log prob not allowed");
+	delta.unsigned_abs() as usize
+    }
+
     /// Adds `lp` to all discrete log-prob values represented in this set.
     ///
     /// This is implemented as a bit shift by `round(lp * SCALING_FACTOR)`.
     /// Negative shifts move bits to *lower* indices (dropping anything < 0).
     pub fn add_to_all(&self, lp: LogProb) -> DiscreteLogProbSet {
-        let delta: i32 = DiscreteLogProb::logprob_to_centered_discrete_lp(lp);
-        assert!(delta <= 0, "add_to_all: positive log prob not allowed");
-        self.shift_towards_zero(delta.unsigned_abs() as usize)
+        let delta = DiscreteLogProbSet::get_abs_shift(lp);
+        self.shift_towards_zero(delta)
     }
 
     pub fn shift_towards_zero(&self, delta: usize) -> DiscreteLogProbSet {

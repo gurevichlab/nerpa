@@ -93,7 +93,7 @@ pub struct DAG<'a> {
 }
 ```
 
-### 3.2 Digitalized LogProb
+### 3.2 Discretized LogProb
 
 To allow for a dynamic programming approach, I convert log probabilities to a discrete range -- integers from 0 to `MAX_DISCRETE_LOG_PROB` (e.g., 10000). The conversion is linear (except for rounding), mapping the smallest log-prob in the HMM to 0 and the largest to `MAX_DISCRETE_LOG_PROB`. I need an efficient bit-array like data structure with the following properties:
 - Stores a set of `DISCRETE_LOG_PROB` values (integers in [0, `MAX_DISCRETE_LOG_PROB`])

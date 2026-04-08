@@ -5,7 +5,7 @@ use crate::data_types::dag::{Edge, DAG};
 use crate::data_types::discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet};
 use crate::data_types::hmm::HMM;
 
-pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &DAG<'a>, max_weight: usize) -> Vec<Vec<Edge<'a>>> {
+pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &DAG<'a>) -> Vec<Vec<Edge<'a>>> {
     let mut paths = Vec::new();
     let mut stack = vec![(dag.start, 0, Vec::new())]; // (vertex, weight, path)
     while let Some((current_vertex, current_weight, current_path)) = stack.pop() {
@@ -15,10 +15,11 @@ pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &DAG<'a>, max_weight: us
         }
         for edge in &dag.out_edges[current_vertex] {
             let new_weight = current_weight + edge.weight as usize;
-            if new_weight <= max_weight {
+            // For "paths until (v,w)" we only need to explore up to w, not max_weight.
+            if new_weight <= w {
                 let mut new_path = current_path.clone();
                 new_path.push((*edge).clone());
-                stack.push((edge.to, current_weight + edge.weight as usize, new_path));
+                stack.push((edge.to, new_weight, new_path));
             }
         }
     }
@@ -60,19 +61,24 @@ pub fn compute_dp_brute_force(
     let mut results = HashMap::new();
     for v in 0..dag.num_nodes() {
 	for w in 0..=max_weight {
-	    let dag_paths = all_dag_paths_until(v, w, dag, max_weight);
+	    let dag_paths = all_dag_paths_until(v, w, dag);
 	    for dag_path in &dag_paths {
-		let emissions: Vec<MonomerCode> = {
-		    dag_path.iter()
-			.filter_map(|edge| dag.labels[edge.to].monomer_code)
-			.collect()
-		};
+                // DP semantics: emissions are labels of vertices along the DAG path
+                // EXCLUDING the final vertex `v`.
+		let emissions: Vec<MonomerCode> = dag_path
+                    .iter()
+                    .take(dag_path.len().saturating_sub(1))
+                    .filter_map(|edge| dag.labels[edge.to].monomer_code)
+                    .collect();
 
 		for s in 0..hmm.num_states() {
 		    let hmm_paths = all_hmm_paths_until(s, emissions.len(), hmm);
 
 		    for hmm_path in &hmm_paths {
-			let emitting_states: Vec<usize> = hmm_path.iter()
+                        // Mirror the same convention: don't include emission of the final state `s`.
+			let emitting_states: Vec<usize> = hmm_path
+                            .iter()
+                            .take(hmm_path.len().saturating_sub(1))
 			    .filter(|&&(state, _)| !hmm.emissions[state].is_empty())
 			    .map(|&(state, _)| state)
 			    .collect();
