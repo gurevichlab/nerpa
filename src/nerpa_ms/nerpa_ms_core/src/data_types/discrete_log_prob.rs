@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::data_types::common_types::LogProb;
 
 pub const MAX_LOG_PROB: LogProb = 0.0; // probability 1
@@ -207,4 +209,3 @@ impl<'a> Iterator for DiscreteLogProbSetIterDesc<'a> {
         }
     }
 }
-
