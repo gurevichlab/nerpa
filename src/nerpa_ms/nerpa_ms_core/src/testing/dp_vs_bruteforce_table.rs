@@ -70,14 +70,15 @@ fn find_frontier_mismatch<'a>(
             .map(|lp| lp.to_logprob())
             .collect();
 
+	let message = format!(
+                "Mismatch at coords {:?}\n\nDP-only {:?}\nBrute-only {:?}",
+                c, dp_only_no_near, brute_only_no_near
+            );
         return DP_Table_Mismatch {
             coords: c,
             dp_only_no_near,
             brute_only_no_near,
-            message: format!(
-                "Mismatch at coords {:?}\n\nDP-only {:?}\nBrute-only {:?}",
-                dp_only_no_near, brute_only_no_near
-            ),
+            message,
         };
     }
     panic!("No frontier mismatch found, so likely parent links are missing in DP_Table.");
@@ -91,6 +92,7 @@ pub fn find_dp_table_mismatch<'a>(
     brute_results: &HashMap<DP_Coords, Vec<PathsToCoords<'a>>>,
     tol: f64,
 ) -> Option<DP_Table_Mismatch> {
+    let empty_set: HashSet<DiscreteLogProb> = HashSet::new();
     let tol_dlp = DiscreteLogProb::logprob_to_centered_discrete_lp(tol) as usize;
     let brute = compute_dp_table_brute_force(brute_results);
 
@@ -109,7 +111,7 @@ pub fn find_dp_table_mismatch<'a>(
                     weight: w,
                     state: s,
                 };
-                let brute_set = paths_to_dlp_set(brute_results.get(&c).unwrap_or(&Vec::new()));
+                let brute_set = brute.get(&c).unwrap_or(&empty_set);
                 let dp_set: HashSet<DiscreteLogProb> = dp_results.get(&c).iter_desc().collect();
                 let ok = sets_almost_equal(&dp_set, &brute_set, tol_dlp);
                 matches[dp_results.idx(&c)] = ok;

@@ -1,0 +1,278 @@
+[
+  {
+    "description": "0_trivial_no_emissions",
+    "max_weight": 0,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 0 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, 0.0]],
+        []
+      ],
+      "emissions": [
+        [],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_0",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [{ "to": 1, "weight": 0, "modification": null }],
+        []
+      ],
+      "start": 0,
+      "finish": 1
+    }
+  },
+
+  {
+    "description": "1_single_emission_linear",
+    "max_weight": 0,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 1 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, -0.1]],
+        [[2, -0.2]],
+        []
+      ],
+      "emissions": [
+        [],
+        [-2.0, -1.0, -0.1, -3.0],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_1",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": 2, "name": "m2" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [{ "to": 1, "weight": 0, "modification": null }],
+        [{ "to": 2, "weight": 0, "modification": null }],
+        []
+      ],
+      "start": 0,
+      "finish": 2
+    }
+  },
+
+  {
+    "description": "2_dag_none_label_in_middle",
+    "max_weight": 0,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 2 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, -0.05]],
+        [[2, -0.05]],
+        [[3, -0.05]],
+        []
+      ],
+      "emissions": [
+        [],
+        [],
+        [-1.0, -2.0, -3.0, -0.05],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_2",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": null, "name": "none" },
+        { "monomer_code": 3, "name": "m3" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [{ "to": 1, "weight": 0, "modification": null }],
+        [{ "to": 2, "weight": 0, "modification": null }],
+        [{ "to": 3, "weight": 0, "modification": null }],
+        []
+      ],
+      "start": 0,
+      "finish": 3
+    }
+  },
+
+  {
+    "description": "3_hmm_epsilon_chain_with_skip",
+    "max_weight": 0,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 3 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, -0.1], [2, -0.3]],
+        [[2, -0.1], [3, -2.0]],
+        [[3, -0.1]],
+        []
+      ],
+      "emissions": [
+        [],
+        [],
+        [-0.5, -0.1, -2.0, -3.0],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_3",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": 1, "name": "m1" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [{ "to": 1, "weight": 0, "modification": null }],
+        [{ "to": 2, "weight": 0, "modification": null }],
+        []
+      ],
+      "start": 0,
+      "finish": 2
+    }
+  },
+
+  {
+    "description": "4_hmm_back_edge_from_emitting_state",
+    "max_weight": 0,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 4 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, -0.1]],
+        [[2, -0.1], [3, -1.0]],
+        [[1, -0.5], [3, -0.1]],
+        []
+      ],
+      "emissions": [
+        [],
+        [-0.1, -2.0, -3.0, -4.0],
+        [-2.0, -0.1, -3.0, -4.0],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_4",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": 0, "name": "m0" },
+        { "monomer_code": 1, "name": "m1" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [{ "to": 1, "weight": 0, "modification": null }],
+        [{ "to": 2, "weight": 0, "modification": null }],
+        [{ "to": 3, "weight": 0, "modification": null }],
+        []
+      ],
+      "start": 0,
+      "finish": 3
+    }
+  },
+
+  {
+    "description": "5_dag_weight1_back_edge_and_self_loop",
+    "max_weight": 2,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 5 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, -0.1]],
+        [[2, -0.1]],
+        [[3, -0.1], [2, -0.5]],
+        [[4, -0.1], [3, -0.5]],
+        []
+      ],
+      "emissions": [
+        [],
+        [-0.1, -2.0, -3.0, -4.0],
+        [-2.0, -0.1, -3.0, -4.0],
+        [-3.0, -2.0, -0.1, -4.0],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_5",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": 0, "name": "m0" },
+        { "monomer_code": 1, "name": "m1" },
+        { "monomer_code": 2, "name": "m2" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [{ "to": 1, "weight": 0, "modification": null }],
+        [{ "to": 2, "weight": 0, "modification": null }],
+        [
+          { "to": 3, "weight": 0, "modification": null },
+          { "to": 2, "weight": 1, "modification": null }
+        ],
+        [
+          { "to": 4, "weight": 0, "modification": null },
+          { "to": 2, "weight": 1, "modification": null }
+        ],
+        []
+      ],
+      "start": 0,
+      "finish": 4
+    }
+  },
+
+  {
+    "description": "6_dag_branching_two_paths_one_emission",
+    "max_weight": 0,
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": { "antiSMASH_file": "test", "contig_idx": 0, "bgc_idx": 6 },
+        "variant_idx": 0
+      },
+      "transitions": [
+        [[1, -0.1]],
+        [[2, -0.1]],
+        []
+      ],
+      "emissions": [
+        [],
+        [-0.1, -0.1, -3.0, -3.0],
+        []
+      ]
+    },
+    "dag": {
+      "nrp_variant_id": "dag_test_6",
+      "labels": [
+        { "monomer_code": null, "name": "start" },
+        { "monomer_code": 0, "name": "m0" },
+        { "monomer_code": 1, "name": "m1" },
+        { "monomer_code": null, "name": "finish" }
+      ],
+      "out_edges": [
+        [
+          { "to": 1, "weight": 0, "modification": null },
+          { "to": 2, "weight": 0, "modification": null }
+        ],
+        [{ "to": 3, "weight": 0, "modification": null }],
+        [{ "to": 3, "weight": 0, "modification": null }],
+        []
+      ],
+      "start": 0,
+      "finish": 3
+    }
+  }
+]

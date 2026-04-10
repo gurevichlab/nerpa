@@ -4,7 +4,6 @@ use std::fmt::Write as _;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 // Adjust this import path to wherever your HMM types live.
 use crate::data_types::hmm::{HMM, StateIdx};

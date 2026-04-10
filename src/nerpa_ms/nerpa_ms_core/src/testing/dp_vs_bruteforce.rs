@@ -95,15 +95,9 @@ pub fn test_dp_vs_bruteforce(tests_json: &Path, out_dir: &Path) {
             );
 
             // dump SVG next to help debugging
-            let svg = draw_hmm_and_dag(&tc.hmm, &tc.dag, out_dir);
+            let _ = draw_hmm_and_dag(&tc.hmm, &tc.dag, out_dir);
             panic!("dp_vs_bruteforce failed; wrote SVG to {out_dir:?}");
         }
     }
 }
 
-#[test]
-fn dp_vs_bruteforce_suite() {
-    let tests_json = Path::new("fixtures/dp_vs_bruteforce_tests.json");
-    let out_dir = Path::new("test_output/dp_vs_bruteforce_svgs"); 
-    test_dp_vs_bruteforce(tests_json, out_dir);
-}

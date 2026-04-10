@@ -98,9 +98,7 @@ impl <'a> DP_Table<'a>{
 	self.parents[idx]
 	    .iter()
 	    .filter_map(|&ptr| {
-		let BacktrackPointer{parent: parent,
-				     dlp_shift: dlp_shift,
-				     dag_edge: dag_edge} = ptr;
+		let BacktrackPointer{parent, dlp_shift, dag_edge} = ptr;
 		let parent_idx = self.idx(&parent);
 		let parent_dlp = dlp.shift(dlp_shift as i64);
 		if self.data[parent_idx].contains(parent_dlp) {

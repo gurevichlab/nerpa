@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::data_types::common_types::{LogProb};
 
@@ -6,14 +6,14 @@ pub type StateIdx = usize;
 
 use anyhow::{anyhow, bail};
 
-#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BGC_ID {
     pub antiSMASH_file: String,
     pub contig_idx: usize,
     pub bgc_idx: usize,
 }
 
-#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BGC_Variant_ID {
     pub bgc_id: BGC_ID,
     pub variant_idx: usize,

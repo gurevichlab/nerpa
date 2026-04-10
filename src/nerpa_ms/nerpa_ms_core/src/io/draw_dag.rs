@@ -89,10 +89,6 @@ impl DAG<'_> {
 
         // Write DOT to a temp file
         let dot = self.to_dot(cfg, highlight_path);
-        let nonce = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("time went backwards")
-            .as_nanos();
 
         let dot_path = out
             .parent()

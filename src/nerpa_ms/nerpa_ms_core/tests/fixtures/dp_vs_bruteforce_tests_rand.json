@@ -1,0 +1,8829 @@
+[
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_0",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_0_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 0,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.7,
+          -0.8,
+          -1.2,
+          -2.4
+        ],
+        [
+          -1.1,
+          -1.3,
+          -1.7,
+          -1.5
+        ],
+        [
+          -2.4,
+          -1.4,
+          -0.9,
+          -1.4
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -1.6
+          ],
+          [
+            2,
+            -0.2
+          ]
+        ],
+        [
+          [
+            1,
+            -1.1
+          ],
+          [
+            3,
+            -2.7
+          ],
+          [
+            4,
+            -0.5
+          ]
+        ],
+        [
+          [
+            0,
+            -1.8
+          ],
+          [
+            3,
+            -0.3
+          ],
+          [
+            4,
+            -2.3
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_1",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_1_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 1,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -3.1,
+          -2.8,
+          -0.7,
+          -1.0
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -0.4
+          ],
+          [
+            2,
+            -1.2
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 8,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v7"
+        },
+        {
+          "monomer_code": null,
+          "name": "v8"
+        }
+      ],
+      "nrp_variant_id": "test_dag_2",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_2_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 2,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [],
+        [
+          -3.6,
+          -1.3,
+          -1.7,
+          -0.7
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.6
+          ],
+          [
+            4,
+            -0.8
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_3",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_3_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 3,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -0.7,
+          -2.4,
+          -2.1,
+          -1.3
+        ],
+        [
+          -1.0,
+          -1.7,
+          -1.3,
+          -1.7
+        ],
+        [
+          -1.0,
+          -1.7,
+          -1.5,
+          -1.5
+        ],
+        [
+          -1.2,
+          -1.7,
+          -1.2,
+          -1.4
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -4.5
+          ],
+          [
+            5,
+            -0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -1.3
+          ],
+          [
+            2,
+            -1.1
+          ],
+          [
+            5,
+            -0.9
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 2,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        }
+      ],
+      "nrp_variant_id": "test_dag_4",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_4_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 4,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.4,
+          -1.7,
+          -0.6,
+          -3.4
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.1
+          ],
+          [
+            2,
+            -2.1
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            -1.5
+          ],
+          [
+            5,
+            -0.3
+          ]
+        ],
+        [
+          [
+            5,
+            -1.1
+          ],
+          [
+            6,
+            -0.4
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 8,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v6"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v7"
+        },
+        {
+          "monomer_code": null,
+          "name": "v8"
+        }
+      ],
+      "nrp_variant_id": "test_dag_5",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_5_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 5,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.6,
+          -1.8,
+          -2.2,
+          -0.6
+        ],
+        [
+          -1.3,
+          -2.5,
+          -0.9,
+          -1.4
+        ],
+        [
+          -1.2,
+          -1.6,
+          -1.1,
+          -1.8
+        ],
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            -2.4
+          ],
+          [
+            5,
+            -0.1
+          ]
+        ],
+        [
+          [
+            5,
+            -1.1
+          ],
+          [
+            6,
+            -0.4
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_6",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_6_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 6,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -1.2,
+          -1.0,
+          -1.5,
+          -2.0
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.3
+          ],
+          [
+            3,
+            -0.3
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -2.0
+          ],
+          [
+            3,
+            -0.1
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 2,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        }
+      ],
+      "nrp_variant_id": "test_dag_7",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_7_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 7,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.8,
+          -1.7,
+          -1.4,
+          -0.9
+        ],
+        [
+          -1.2,
+          -1.4,
+          -1.0,
+          -2.3
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -1.4
+          ],
+          [
+            3,
+            -0.3
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_8",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_8_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 8,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.8,
+          -4.2,
+          -1.2,
+          -0.6
+        ],
+        [
+          -1.4,
+          -1.4,
+          -1.3,
+          -1.5
+        ],
+        [],
+        [
+          -1.2,
+          -1.2,
+          -2.7,
+          -1.1
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            -0.8
+          ],
+          [
+            5,
+            -0.6
+          ]
+        ],
+        [
+          [
+            4,
+            -0.5
+          ],
+          [
+            5,
+            -0.9
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_9",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_9_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 9,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [],
+        [
+          -3.4,
+          -1.4,
+          -0.4,
+          -2.4
+        ],
+        [
+          -1.6,
+          -2.9,
+          -1.0,
+          -1.0
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.9
+          ],
+          [
+            2,
+            -1.2
+          ],
+          [
+            4,
+            -1.2
+          ]
+        ],
+        [
+          [
+            2,
+            -0.5
+          ],
+          [
+            4,
+            -1.0
+          ]
+        ],
+        [
+          [
+            3,
+            -1.7
+          ],
+          [
+            4,
+            -0.2
+          ]
+        ],
+        [
+          [
+            2,
+            -0.8
+          ],
+          [
+            4,
+            -0.9
+          ],
+          [
+            5,
+            -2.0
+          ]
+        ],
+        [
+          [
+            1,
+            -1.1
+          ],
+          [
+            4,
+            -0.7
+          ],
+          [
+            5,
+            -1.6
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_10",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_10_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 10,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -0.6,
+          -3.1,
+          -1.5,
+          -1.6
+        ],
+        [
+          -1.5,
+          -1.3,
+          -1.5,
+          -1.2
+        ],
+        [
+          -1.3,
+          -1.3,
+          -1.5,
+          -1.4
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -0.1
+          ],
+          [
+            3,
+            -2.6
+          ]
+        ],
+        [
+          [
+            1,
+            -0.6
+          ],
+          [
+            4,
+            -0.8
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_11",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_11_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 11,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.7
+          ],
+          [
+            2,
+            -0.7
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 2,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        }
+      ],
+      "nrp_variant_id": "test_dag_12",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_12_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 12,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -0.7,
+          -2.1,
+          -2.1,
+          -1.3
+        ],
+        [
+          -1.4,
+          -1.5,
+          -1.8,
+          -1.0
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.0
+          ],
+          [
+            3,
+            -0.5
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_13",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_13_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 13,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.6,
+          -1.9,
+          -1.6,
+          -0.8
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.2
+          ],
+          [
+            2,
+            -1.9
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 2,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        }
+      ],
+      "nrp_variant_id": "test_dag_14",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_14_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 14,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.1,
+          -1.5,
+          -1.7,
+          -1.3
+        ],
+        [
+          -1.4,
+          -1.4,
+          -1.4,
+          -1.3
+        ],
+        [
+          -1.6,
+          -1.4,
+          -1.3,
+          -1.3
+        ],
+        [
+          -1.1,
+          -1.2,
+          -2.7,
+          -1.2
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.2
+          ],
+          [
+            3,
+            -1.8
+          ],
+          [
+            5,
+            -0.7
+          ]
+        ],
+        [
+          [
+            0,
+            -0.5
+          ],
+          [
+            1,
+            -3.5
+          ],
+          [
+            2,
+            -0.9
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -0.6
+          ],
+          [
+            4,
+            -0.8
+          ]
+        ],
+        [
+          [
+            2,
+            -1.7
+          ],
+          [
+            4,
+            -1.0
+          ],
+          [
+            5,
+            -0.8
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 2,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        }
+      ],
+      "nrp_variant_id": "test_dag_15",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_15_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 15,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -1.0,
+          -2.6,
+          -1.9,
+          -0.9
+        ],
+        [
+          -0.9,
+          -2.0,
+          -1.1,
+          -2.2
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.6
+          ],
+          [
+            4,
+            -0.8
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -0.9
+          ],
+          [
+            1,
+            -1.9
+          ],
+          [
+            4,
+            -0.8
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_16",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_16_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 16,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -3.0,
+          -1.1,
+          -0.9,
+          -1.5
+        ],
+        [
+          -1.0,
+          -2.3,
+          -0.9,
+          -2.4
+        ],
+        [
+          -2.5,
+          -1.3,
+          -0.7,
+          -2.0
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -0.6
+          ],
+          [
+            2,
+            -0.8
+          ]
+        ],
+        [
+          [
+            0,
+            -0.2
+          ],
+          [
+            3,
+            -1.5
+          ]
+        ],
+        [
+          [
+            0,
+            -0.7
+          ],
+          [
+            2,
+            -2.1
+          ],
+          [
+            4,
+            -0.9
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_17",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_17_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 17,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -1.1,
+          -1.6,
+          -1.9,
+          -1.2
+        ],
+        [
+          -1.1,
+          -1.7,
+          -1.5,
+          -1.3
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.3
+          ],
+          [
+            4,
+            -1.3
+          ]
+        ],
+        [
+          [
+            2,
+            -0.6
+          ],
+          [
+            3,
+            -0.8
+          ]
+        ],
+        [
+          [
+            2,
+            -2.3
+          ],
+          [
+            4,
+            -0.1
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_18",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_18_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 18,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_19",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_19_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 19,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.6,
+          -1.2,
+          -0.8,
+          -1.8
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 8,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v6"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v7"
+        },
+        {
+          "monomer_code": null,
+          "name": "v8"
+        }
+      ],
+      "nrp_variant_id": "test_dag_20",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_20_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 20,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.3,
+          -1.5,
+          -1.3,
+          -1.0
+        ],
+        [
+          -1.0,
+          -2.2,
+          -1.2,
+          -1.5
+        ],
+        [
+          -1.6,
+          -1.3,
+          -1.3,
+          -1.4
+        ],
+        [
+          -2.0,
+          -5.0,
+          -0.9,
+          -0.8
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.8
+          ],
+          [
+            4,
+            -0.6
+          ]
+        ],
+        [
+          [
+            1,
+            -0.5
+          ],
+          [
+            2,
+            -1.3
+          ],
+          [
+            4,
+            -2.3
+          ]
+        ],
+        [
+          [
+            0,
+            -1.9
+          ],
+          [
+            3,
+            -0.3
+          ],
+          [
+            5,
+            -2.2
+          ]
+        ],
+        [
+          [
+            1,
+            -0.6
+          ],
+          [
+            4,
+            -0.8
+          ]
+        ],
+        [
+          [
+            3,
+            -0.5
+          ],
+          [
+            5,
+            -0.9
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 4,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        }
+      ],
+      "nrp_variant_id": "test_dag_21",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_21_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 21,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.3,
+          -2.2,
+          -1.3,
+          -0.7
+        ],
+        [
+          -1.5,
+          -1.2,
+          -1.2,
+          -1.7
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.3
+          ],
+          [
+            2,
+            -0.4
+          ],
+          [
+            3,
+            -3.4
+          ]
+        ],
+        [
+          [
+            1,
+            -0.5
+          ],
+          [
+            2,
+            -1.0
+          ],
+          [
+            3,
+            -2.9
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_22",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_22_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 22,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.9,
+          -3.6,
+          -1.0,
+          -0.6
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_23",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_23_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 23,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.1,
+          -3.8,
+          -1.3,
+          -1.0
+        ],
+        [],
+        [
+          -1.3,
+          -2.3,
+          -1.0,
+          -1.3
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.0
+          ],
+          [
+            5,
+            -3.6
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_24",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_24_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 24,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_25",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_25_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 25,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.4,
+          -1.5,
+          -1.0,
+          -1.8
+        ],
+        [
+          -1.3,
+          -1.4,
+          -1.6,
+          -1.3
+        ],
+        [
+          -0.9,
+          -4.4,
+          -2.8,
+          -0.7
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.2
+          ],
+          [
+            3,
+            -1.2
+          ],
+          [
+            4,
+            -1.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.5
+          ],
+          [
+            4,
+            -0.9
+          ]
+        ],
+        [
+          [
+            1,
+            -0.6
+          ],
+          [
+            3,
+            -0.8
+          ]
+        ],
+        [
+          [
+            2,
+            -1.3
+          ],
+          [
+            3,
+            -2.1
+          ],
+          [
+            4,
+            -0.5
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_26",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_26_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 26,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_27",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_27_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 27,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -2.6,
+          -3.7,
+          -1.4,
+          -0.4
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.5
+          ],
+          [
+            3,
+            -0.9
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_28",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_28_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 28,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -3.7,
+          -1.2,
+          -1.2,
+          -1.0
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.9
+          ],
+          [
+            3,
+            -0.5
+          ]
+        ],
+        [
+          [
+            0,
+            -1.5
+          ],
+          [
+            2,
+            -1.0
+          ],
+          [
+            3,
+            -0.9
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 6,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        }
+      ],
+      "nrp_variant_id": "test_dag_29",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_29_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 29,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.7,
+          -0.3,
+          -2.6,
+          -3.5
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -0.2
+          ],
+          [
+            2,
+            -1.8
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 4,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        }
+      ],
+      "nrp_variant_id": "test_dag_30",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_30_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 30,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.1,
+          -0.8,
+          -3.6,
+          -1.6
+        ],
+        [
+          -3.0,
+          -1.4,
+          -1.3,
+          -0.9
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.8
+          ],
+          [
+            3,
+            -0.6
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_31",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_31_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 31,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.4,
+          -1.5,
+          -1.3,
+          -1.4
+        ],
+        [],
+        [
+          -1.5,
+          -1.5,
+          -0.6,
+          -4.1
+        ],
+        [
+          -1.5,
+          -1.4,
+          -1.5,
+          -1.1
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.8
+          ],
+          [
+            2,
+            -1.6
+          ],
+          [
+            4,
+            -1.0
+          ]
+        ],
+        [
+          [
+            0,
+            -0.7
+          ],
+          [
+            2,
+            -1.7
+          ],
+          [
+            5,
+            -1.1
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -2.9
+          ],
+          [
+            1,
+            -0.5
+          ],
+          [
+            4,
+            -1.2
+          ]
+        ],
+        [
+          [
+            3,
+            -1.5
+          ],
+          [
+            5,
+            -0.3
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_32",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_32_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 32,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -0.6,
+          -1.4,
+          -4.2,
+          -1.7
+        ],
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_33",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_33_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 33,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.1,
+          -3.4,
+          -1.3,
+          -1.0
+        ],
+        [
+          -2.4,
+          -2.4,
+          -0.7,
+          -1.1
+        ],
+        [
+          -1.0,
+          -1.7,
+          -1.1,
+          -2.2
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -0.8
+          ],
+          [
+            3,
+            -0.6
+          ]
+        ],
+        [
+          [
+            0,
+            -0.9
+          ],
+          [
+            2,
+            -1.3
+          ],
+          [
+            4,
+            -1.1
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 8,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        },
+        {
+          "monomer_code": null,
+          "name": "v8"
+        }
+      ],
+      "nrp_variant_id": "test_dag_34",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_34_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 34,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.9,
+          -1.3,
+          -0.5,
+          -2.5
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_35",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_35_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 35,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.9,
+          -1.1,
+          -1.1,
+          -1.6
+        ],
+        [
+          -1.4,
+          -1.4,
+          -1.4,
+          -1.3
+        ],
+        [
+          -1.1,
+          -2.0,
+          -2.0,
+          -1.0
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.3
+          ],
+          [
+            3,
+            -1.0
+          ],
+          [
+            4,
+            -1.0
+          ]
+        ],
+        [
+          [
+            1,
+            -0.8
+          ],
+          [
+            2,
+            -0.9
+          ],
+          [
+            4,
+            -1.7
+          ]
+        ],
+        [
+          [
+            2,
+            -1.0
+          ],
+          [
+            3,
+            -0.5
+          ],
+          [
+            4,
+            -3.7
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_36",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_36_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 36,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.3,
+          -1.1,
+          -2.1,
+          -1.3
+        ],
+        [
+          -1.1,
+          -0.9,
+          -3.3,
+          -1.5
+        ],
+        [
+          -4.6,
+          -0.8,
+          -2.6,
+          -0.8
+        ],
+        [
+          -1.3,
+          -1.2,
+          -1.5,
+          -1.6
+        ],
+        [
+          -1.7,
+          -1.6,
+          -1.2,
+          -1.2
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.9
+          ],
+          [
+            2,
+            -1.1
+          ],
+          [
+            4,
+            -1.3
+          ]
+        ],
+        [
+          [
+            0,
+            -0.1
+          ],
+          [
+            2,
+            -2.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.0
+          ],
+          [
+            3,
+            -4.3
+          ]
+        ],
+        [
+          [
+            1,
+            -0.8
+          ],
+          [
+            4,
+            -1.1
+          ],
+          [
+            6,
+            -1.5
+          ]
+        ],
+        [
+          [
+            5,
+            -0.6
+          ],
+          [
+            6,
+            -0.8
+          ]
+        ],
+        [
+          [
+            4,
+            -0.2
+          ],
+          [
+            6,
+            -1.6
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 8,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        },
+        {
+          "monomer_code": null,
+          "name": "v8"
+        }
+      ],
+      "nrp_variant_id": "test_dag_37",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 8,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_37_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 37,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.7,
+          -0.5,
+          -2.2,
+          -1.5
+        ],
+        [
+          -1.4,
+          -1.0,
+          -2.3,
+          -1.2
+        ],
+        [
+          -2.0,
+          -2.1,
+          -1.2,
+          -0.8
+        ],
+        [
+          -2.2,
+          -0.9,
+          -1.0,
+          -2.1
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.4
+          ],
+          [
+            2,
+            -1.1
+          ]
+        ],
+        [
+          [
+            0,
+            -1.4
+          ],
+          [
+            2,
+            -1.0
+          ],
+          [
+            6,
+            -1.0
+          ]
+        ],
+        [
+          [
+            3,
+            -0.7
+          ],
+          [
+            4,
+            -0.7
+          ]
+        ],
+        [
+          [
+            3,
+            -1.2
+          ],
+          [
+            4,
+            -0.4
+          ]
+        ],
+        [
+          [
+            1,
+            -0.7
+          ],
+          [
+            5,
+            -0.7
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 2,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        }
+      ],
+      "nrp_variant_id": "test_dag_38",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_38_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 38,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.7,
+          -0.9,
+          -2.4,
+          -0.8
+        ],
+        [
+          -1.8,
+          -1.4,
+          -1.3,
+          -1.1
+        ],
+        [],
+        [
+          -0.9,
+          -1.2,
+          -2.1,
+          -1.8
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.3
+          ],
+          [
+            5,
+            -1.5
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            -0.4
+          ],
+          [
+            5,
+            -1.2
+          ]
+        ],
+        [
+          [
+            4,
+            -0.8
+          ],
+          [
+            5,
+            -0.6
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_39",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_39_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 39,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -1.5,
+          -2.3,
+          -0.9,
+          -1.3
+        ],
+        [
+          -0.6,
+          -2.7,
+          -1.8,
+          -1.6
+        ],
+        [
+          -1.0,
+          -2.7,
+          -1.6,
+          -1.0
+        ],
+        [
+          -1.0,
+          -2.5,
+          -0.7,
+          -2.9
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.5
+          ],
+          [
+            4,
+            -1.0
+          ]
+        ],
+        [
+          [
+            2,
+            -0.7
+          ],
+          [
+            3,
+            -0.7
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            4,
+            -1.4
+          ],
+          [
+            6,
+            -0.3
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 3,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        }
+      ],
+      "nrp_variant_id": "test_dag_40",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_40_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 40,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.9,
+          -1.1,
+          -1.8,
+          -1.1
+        ],
+        [
+          -2.1,
+          -3.2,
+          -1.0,
+          -0.8
+        ],
+        [
+          -1.6,
+          -1.6,
+          -1.1,
+          -1.4
+        ],
+        [
+          -1.4,
+          -1.1,
+          -1.1,
+          -2.7
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.7
+          ],
+          [
+            4,
+            -0.7
+          ]
+        ],
+        [
+          [
+            0,
+            -0.2
+          ],
+          [
+            2,
+            -1.8
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -0.9
+          ],
+          [
+            1,
+            -1.6
+          ],
+          [
+            4,
+            -0.9
+          ]
+        ],
+        [
+          [
+            3,
+            -1.5
+          ],
+          [
+            5,
+            -0.2
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v5"
+        },
+        {
+          "monomer_code": null,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_41",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_41_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 41,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -0.2,
+          -2.4,
+          -2.8,
+          -3.4
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.5
+          ],
+          [
+            2,
+            -0.3
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_42",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_42_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 42,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -0.9,
+          -3.2,
+          -1.4,
+          -1.1
+        ],
+        [],
+        [],
+        [
+          -0.8,
+          -1.1,
+          -1.5,
+          -3.5
+        ],
+        [
+          -1.4,
+          -3.4,
+          -1.9,
+          -0.6
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -3.0
+          ],
+          [
+            2,
+            -0.1
+          ]
+        ],
+        [
+          [
+            0,
+            -3.3
+          ],
+          [
+            2,
+            -0.0
+          ]
+        ],
+        [
+          [
+            3,
+            -1.8
+          ],
+          [
+            4,
+            -1.1
+          ],
+          [
+            6,
+            -0.7
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            -0.3
+          ],
+          [
+            5,
+            -1.3
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_43",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_43_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 43,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.2,
+          -1.2,
+          -1.3,
+          -2.1
+        ],
+        [
+          -2.3,
+          -1.0,
+          -1.1,
+          -1.8
+        ],
+        [
+          -1.5,
+          -2.7,
+          -1.5,
+          -0.7
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.3
+          ],
+          [
+            2,
+            -1.5
+          ],
+          [
+            4,
+            -2.7
+          ]
+        ],
+        [
+          [
+            2,
+            -0.6
+          ],
+          [
+            3,
+            -0.8
+          ]
+        ],
+        [
+          [
+            2,
+            -3.8
+          ],
+          [
+            3,
+            -0.9
+          ],
+          [
+            4,
+            -0.6
+          ]
+        ],
+        [
+          [
+            0,
+            -0.1
+          ],
+          [
+            4,
+            -2.6
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": null,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_44",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_44_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 44,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.2,
+          -0.7,
+          -1.0,
+          -3.6
+        ],
+        [
+          -2.5,
+          -1.5,
+          -0.9,
+          -1.3
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -1.2
+          ],
+          [
+            2,
+            -1.1
+          ],
+          [
+            4,
+            -1.0
+          ]
+        ],
+        [
+          [
+            3,
+            -1.2
+          ],
+          [
+            4,
+            -0.4
+          ]
+        ],
+        [
+          [
+            4,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_45",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 0,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_45_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 45,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.4,
+          -1.7,
+          -1.3,
+          -1.2
+        ],
+        [],
+        [
+          -2.1,
+          -4.5,
+          -0.8,
+          -0.9
+        ],
+        [
+          -0.6,
+          -4.5,
+          -1.1,
+          -2.0
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.6
+          ],
+          [
+            4,
+            -0.2
+          ]
+        ],
+        [
+          [
+            2,
+            -4.6
+          ],
+          [
+            5,
+            -1.6
+          ],
+          [
+            6,
+            -0.2
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            -0.0
+          ],
+          [
+            4,
+            -3.2
+          ]
+        ],
+        [
+          [
+            1,
+            -0.9
+          ],
+          [
+            5,
+            -0.5
+          ]
+        ],
+        [
+          [
+            6,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_46",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_46_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 46,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.6,
+          -2.7,
+          -0.6,
+          -1.6
+        ],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -0.9
+          ],
+          [
+            2,
+            -0.5
+          ]
+        ],
+        [
+          [
+            3,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": null,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v2"
+        },
+        {
+          "monomer_code": null,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_47",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_47_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 47,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -2.9,
+          -2.2,
+          -0.8,
+          -0.9
+        ],
+        [
+          -1.0,
+          -2.3,
+          -1.1,
+          -1.5
+        ],
+        [
+          -2.0,
+          -1.0,
+          -1.6,
+          -1.2
+        ],
+        [
+          -3.4,
+          -1.0,
+          -1.1,
+          -1.3
+        ],
+        [
+          -0.7,
+          -1.4,
+          -3.4,
+          -1.4
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -1.4
+          ],
+          [
+            5,
+            -1.0
+          ],
+          [
+            6,
+            -1.0
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            1,
+            -1.4
+          ],
+          [
+            3,
+            -0.3
+          ]
+        ],
+        [
+          [
+            0,
+            -0.7
+          ],
+          [
+            4,
+            -0.7
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        [
+          [
+            2,
+            -1.0
+          ],
+          [
+            6,
+            -0.4
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 7,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 2,
+          "name": "v3"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v4"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v5"
+        },
+        {
+          "monomer_code": 0,
+          "name": "v6"
+        },
+        {
+          "monomer_code": null,
+          "name": "v7"
+        }
+      ],
+      "nrp_variant_id": "test_dag_48",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 1
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 6,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 7,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_48_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 48,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [
+          -1.0,
+          -1.5,
+          -1.4,
+          -1.7
+        ],
+        [
+          -1.2,
+          -2.3,
+          -3.0,
+          -0.6
+        ],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            0.0
+          ]
+        ],
+        [
+          [
+            0,
+            -0.3
+          ],
+          [
+            2,
+            -2.8
+          ],
+          [
+            3,
+            -1.6
+          ]
+        ],
+        [
+          [
+            0,
+            -0.7
+          ],
+          [
+            1,
+            -1.8
+          ],
+          [
+            3,
+            -1.1
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  },
+  {
+    "dag": {
+      "finish": 5,
+      "labels": [
+        {
+          "monomer_code": null,
+          "name": "v0"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v1"
+        },
+        {
+          "monomer_code": 1,
+          "name": "v2"
+        },
+        {
+          "monomer_code": 3,
+          "name": "v3"
+        },
+        {
+          "monomer_code": null,
+          "name": "v4"
+        },
+        {
+          "monomer_code": null,
+          "name": "v5"
+        }
+      ],
+      "nrp_variant_id": "test_dag_49",
+      "out_edges": [
+        [
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 2,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 1,
+            "weight": 1
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 3,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 4,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          },
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        [
+          {
+            "modification": null,
+            "to": 5,
+            "weight": 0
+          }
+        ],
+        []
+      ],
+      "start": 0
+    },
+    "description": "random_49_seed1_mw2",
+    "hmm": {
+      "bgc_variant_id": {
+        "bgc_id": {
+          "antiSMASH_file": "test",
+          "bgc_idx": 49,
+          "contig_idx": 0
+        },
+        "variant_idx": 0
+      },
+      "emissions": [
+        [],
+        [],
+        [
+          -2.1,
+          -1.4,
+          -1.2,
+          -1.1
+        ],
+        [],
+        [],
+        []
+      ],
+      "transitions": [
+        [
+          [
+            1,
+            -0.5
+          ],
+          [
+            3,
+            -0.9
+          ]
+        ],
+        [
+          [
+            2,
+            0.0
+          ]
+        ],
+        [
+          [
+            3,
+            -0.4
+          ],
+          [
+            4,
+            -1.2
+          ]
+        ],
+        [
+          [
+            4,
+            -0.9
+          ],
+          [
+            5,
+            -0.5
+          ]
+        ],
+        [
+          [
+            5,
+            0.0
+          ]
+        ],
+        []
+      ]
+    },
+    "max_weight": 2
+  }
+]

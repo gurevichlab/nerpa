@@ -26,7 +26,7 @@ pub fn parse_input(json_path: &Path) -> Result<Vec<InputItem>> {
 	// Expect a top-level JSON array: [ {hmm, rban_record, linearization}, ... ]
     let items = match root {
 	Value::Array(arr) => arr,
-	other => bail!("top-level JSON is not an array"),
+	_ => bail!("top-level JSON is not an array"),
     };
 
     let mut out = Vec::with_capacity(items.len());
