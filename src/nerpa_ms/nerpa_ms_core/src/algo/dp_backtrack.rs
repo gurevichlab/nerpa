@@ -59,16 +59,21 @@ impl<'a> BacktrackSolutionsIter<'a> {
     }
 
     fn expand_one(&mut self, frame: Frame<'a>) {
-        for (parent, parent_dlp, dag_edge) in self.dp.get_backtrack_parents(&frame.coords, frame.dlp) {
+	//println!("Expanding frame: coords={:?}, states_rev={:?}, dag_edges_rev={:?}", frame.coords, frame.states_rev, frame.dag_edges_rev);
+	// println!("Number of backtracking pointers: {}", self.dp.get_backtrack_pointers(&frame.coords, frame.dlp).len());
+        for ptr in self.dp.get_backtrack_pointers(&frame.coords, frame.dlp) {
+	    // println!("Backtracking pointer: parent={:?}, dlp_shift={:?}, dag_edge={:?}", ptr.parent, ptr.dlp_shift, ptr.dag_edge);
             let mut next = frame.clone();
-            next.coords = parent;
-            next.dlp = parent_dlp;
+            next.coords = ptr.parent;
+            next.dlp = frame.dlp.shift(ptr.dlp_shift.unwrap_or(0) as i64);
 
             // we moved to the parent -> record parent's state
-            next.states_rev.push(parent.state);
+	    if ptr.dlp_shift.is_some() {
+		next.states_rev.push(ptr.parent.state);
+	    }
 
             // record DAG edge if this DP transition corresponds to a DAG step
-            if let Some(e) = dag_edge {
+            if let Some(e) = ptr.dag_edge {
                 next.dag_edges_rev.push(e);
             }
 
@@ -83,6 +88,7 @@ impl<'a> Iterator for BacktrackSolutionsIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             if let Some(frame) = self.stack.pop() {
+		//println!("Backtracking frame: coords={:?}, states_rev={:?}, dag_edges_rev={:?}", frame.coords, frame.states_rev, frame.dag_edges_rev);
                 if is_dp_start(&frame.coords) {
                     return Some(frame.into_solution(self.weight));
                 }

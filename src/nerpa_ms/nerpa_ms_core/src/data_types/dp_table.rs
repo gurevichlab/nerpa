@@ -2,11 +2,11 @@ use super::{common_types::LogProb, dag::Edge, discrete_log_prob::{DiscreteLogPro
 
 pub type DP_Idx = usize;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BacktrackPointer<'a>{
-    parent: DP_Coords,
-    dlp_shift: usize, // shift to apply to all log-probs from parent cell when backtracking
-    dag_edge: Option<Edge<'a>>,
+    pub parent: DP_Coords,
+    pub dlp_shift: Option<usize>, // shift to apply to all log-probs from parent cell when backtracking
+    pub dag_edge: Option<Edge<'a>>,
 }
 
 // A small wrapper around a flat Vec
@@ -26,6 +26,7 @@ pub struct DP_Coords {
     pub weight: usize,
     pub state: usize,
 }
+
 
 impl <'a> DP_Table<'a>{
     pub fn new(n_vertices: usize, max_weight: usize, n_states: usize) -> Self {
@@ -90,22 +91,12 @@ impl <'a> DP_Table<'a>{
     }
 
     #[inline]
-    pub fn get_backtrack_parents(&self, coords: &DP_Coords, dlp: DiscreteLogProb) -> Vec<(DP_Coords, DiscreteLogProb, Option<Edge<'a>>)> {
+    pub fn get_backtrack_pointers(&self, coords: &DP_Coords, dlp: DiscreteLogProb) -> &Vec<BacktrackPointer<'a>> {
 	let idx = self.idx(&coords);
 	debug_assert!(idx < self.data.len());
 	debug_assert!(self.data[idx].contains(dlp), "get_backtrack_parents: requested dlp not in cell");
 
-	self.parents[idx]
-	    .iter()
-	    .filter_map(|&ptr| {
-		let BacktrackPointer{parent, dlp_shift, dag_edge} = ptr;
-		let parent_idx = self.idx(&parent);
-		let parent_dlp = dlp.shift(dlp_shift as i64);
-		if self.data[parent_idx].contains(parent_dlp) {
-		    Some((parent, parent_dlp, dag_edge))
-		} else {None}
-	    })
-	    .collect()
+	&self.parents[idx]
     }
 
 
@@ -155,16 +146,17 @@ impl <'a> DP_Table<'a>{
 	    }
 	}
 
-	let dlp_shift = if let Some(lp) = shift {
-	    DiscreteLogProbSet::get_abs_shift(lp)
-	} else {0};
+	let dlp_shift = shift.map(|lp| DiscreteLogProbSet::get_abs_shift(lp));
 
 	let parent = self.idx_to_coordinates(src);
-	self.parents[dst].push(BacktrackPointer{
+	let ptr = BacktrackPointer{
 	    parent,
 	    dlp_shift,
 	    dag_edge,
-	});
+	};
+	if !self.parents[dst].iter().any(|existing_ptr| *existing_ptr == ptr) {
+	    self.parents[dst].push(ptr);
+	}
     }
 
     // Update dst cell by unioning in src cell, optionally applying a shift to all log-probabilities from src before unioning.

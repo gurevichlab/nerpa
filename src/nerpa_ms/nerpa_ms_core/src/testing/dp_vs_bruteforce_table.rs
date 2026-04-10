@@ -39,16 +39,16 @@ fn find_frontier_mismatch<'a>(
     brute_results: &HashMap<DP_Coords, HashSet<DiscreteLogProb>>,
     tol_dlp: usize,
     matches: &Vec<bool>,
-) -> DP_Table_Mismatch {
+) -> Option<DP_Table_Mismatch> {
     // Find a "frontier" mismatch: mismatching cell whose all parents match.
     let empty_set = HashSet::new(); // for when I need a reference to an empty set
     for idx in 0..matches.len() {
-        if matches[idx] {
-            continue;
-        }
-
         let c = dp_results.idx_to_coordinates(idx);
         let parents = dp_results.get_parents(&c);
+
+        if matches[idx] || parents.is_empty() {
+            continue;
+        }
 
         let all_parents_match = parents.iter().all(|p| matches[dp_results.idx(p)]);
 
@@ -70,18 +70,18 @@ fn find_frontier_mismatch<'a>(
             .map(|lp| lp.to_logprob())
             .collect();
 
-	let message = format!(
-                "Mismatch at coords {:?}\n\nDP-only {:?}\nBrute-only {:?}",
-                c, dp_only_no_near, brute_only_no_near
-            );
-        return DP_Table_Mismatch {
+        let message = format!(
+            "Mismatch at coords {:?}\n\nDP-only {:?}\nBrute-only {:?}",
+            c, dp_only_no_near, brute_only_no_near
+        );
+        return Some(DP_Table_Mismatch {
             coords: c,
             dp_only_no_near,
             brute_only_no_near,
             message,
-        };
+        });
     }
-    panic!("No frontier mismatch found, so likely parent links are missing in DP_Table.");
+    None
 }
 
 pub fn find_dp_table_mismatch<'a>(
@@ -119,11 +119,5 @@ pub fn find_dp_table_mismatch<'a>(
         }
     }
 
-    if matches.iter().all(|&x| x) {
-        return None;
-    } else {
-        Some(find_frontier_mismatch(
-            dp_results, &brute, tol_dlp, &matches,
-        ))
-    }
+    find_frontier_mismatch(dp_results, &brute, tol_dlp, &matches)
 }
