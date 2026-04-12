@@ -69,9 +69,16 @@ class PipelineHelper_rBAN:
                                     delimiter=self.args.sep, quoting=csv.QUOTE_NONE)
             for i, row in enumerate(reader):
                 compound_id = row[self.args.col_id] if self.args.col_id else default_id(i)
-                metadata[compound_id] = NRP_metadata.from_dict(row)
+                smiles = row[self.args.col_smiles]
+
+                try:
+                    metadata[compound_id] = NRP_metadata.from_dict(row)
+                except ValueError as e:
+                    self.log.warning(f'Structure "{compound_id}": {e}. Metadata will be omitted.')
+                    metadata[compound_id] = NRP_metadata.from_dict({'smiles': smiles})
+
                 rows.append({'id': compound_id,
-                             'smiles': row[self.args.col_smiles]})
+                             'smiles': smiles})
         elif self.args.smiles:
             for i, smiles in enumerate(self.args.smiles):
                 compound_id = default_id(i)

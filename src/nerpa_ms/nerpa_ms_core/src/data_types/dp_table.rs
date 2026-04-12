@@ -13,8 +13,8 @@ pub struct BacktrackPointer<'a>{
 // Logical layout: dp[vertex][weight][state]
 #[derive(Debug, Clone)]
 pub struct DP_Table <'a>{
-    n_vertices: usize,
     n_weights: usize, // = max_weight + 1
+    n_vertices: usize,
     n_states: usize,
     data: Vec<DiscreteLogProbSet>,
     parents: Vec<Vec<BacktrackPointer<'a>>>, // parallel to data, stores parent indices and optional shift for each cell
@@ -22,14 +22,14 @@ pub struct DP_Table <'a>{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DP_Coords {
-    pub vertex: usize,
     pub weight: usize,
+    pub vertex: usize,
     pub state: usize,
 }
 
 
 impl <'a> DP_Table<'a>{
-    pub fn new(n_vertices: usize, max_weight: usize, n_states: usize) -> Self {
+    pub fn new(max_weight: usize, n_vertices: usize, n_states: usize) -> Self {
         let n_weights = max_weight + 1;
         let len = n_vertices * n_weights * n_states;
 
@@ -40,8 +40,8 @@ impl <'a> DP_Table<'a>{
 	let parents = vec![Vec::new(); len];
 
         Self {
-            n_vertices,
             n_weights,
+            n_vertices,
             n_states,
             data,
 	    parents
@@ -50,22 +50,23 @@ impl <'a> DP_Table<'a>{
 
     #[inline]
     pub fn idx(&self, coords: &DP_Coords) -> DP_Idx {
-	let &DP_Coords { vertex, weight, state } = coords;
+	let &DP_Coords { weight, vertex, state } = coords;
         debug_assert!(vertex < self.n_vertices);
         debug_assert!(weight < self.n_weights);
         debug_assert!(state < self.n_states);
+	// println!("n_vertices: {}, n_weights: {}, n_states: {}, vertex: {}, weight: {}, state: {}, idx: {}", self.n_vertices, self.n_weights, self.n_states, vertex, weight, state, (vertex * self.n_weights + weight) * self.n_states + state);
 
-        (vertex * self.n_weights + weight) * self.n_states + state
+        (weight * self.n_vertices + vertex) * self.n_states + state
     }
 
     #[inline]
     pub fn idx_to_coordinates(&self, idx: DP_Idx) -> DP_Coords {
 	debug_assert!(idx < self.data.len());
 
-	let vertex = idx / (self.n_weights * self.n_states);
-	let weight = (idx / self.n_states) % self.n_weights;
+	let weight = idx / (self.n_vertices * self.n_states);
+	let vertex = (idx / self.n_states) % self.n_vertices;
 	let state = idx % self.n_states;
-	DP_Coords{vertex, weight, state}
+	DP_Coords{weight, vertex, state}
     }
 
     #[inline]
@@ -91,10 +92,9 @@ impl <'a> DP_Table<'a>{
     }
 
     #[inline]
-    pub fn get_backtrack_pointers(&self, coords: &DP_Coords, dlp: DiscreteLogProb) -> &Vec<BacktrackPointer<'a>> {
+    pub fn get_backtrack_pointers(&self, coords: &DP_Coords) -> &Vec<BacktrackPointer<'a>> {
 	let idx = self.idx(&coords);
 	debug_assert!(idx < self.data.len());
-	debug_assert!(self.data[idx].contains(dlp), "get_backtrack_parents: requested dlp not in cell");
 
 	&self.parents[idx]
     }

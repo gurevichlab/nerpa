@@ -11,8 +11,8 @@ fn relax_non_emitting_states(dp: &mut DP_Table, hmm: &HMM, v: usize, w: usize) {
     for _pass in 0..2 {
         for s in (0..hmm.num_states()).filter(|&s| hmm.emissions[s].is_empty()) {
             let cur_coords = DP_Coords {
-                vertex: v,
                 weight: w,
+                vertex: v,
                 state: s,
             };
             if dp.get(&cur_coords).is_empty() {
@@ -22,8 +22,8 @@ fn relax_non_emitting_states(dp: &mut DP_Table, hmm: &HMM, v: usize, w: usize) {
 
             for &(to, edge_lp) in &hmm.transitions[s] {
                 let new_coords = DP_Coords {
-                    vertex: v,
                     weight: w,
+                    vertex: v,
                     state: to,
                 };
                 dp.update(&new_coords, &cur_coords, Some(edge_lp), None);
@@ -48,8 +48,8 @@ fn advance_dag_unlabeled<'a>(
     );
     for s in 0..hmm.num_states() {
         let cur_coords = DP_Coords {
-            vertex: v,
             weight: w,
+            vertex: v,
             state: s,
         };
         if dp.get(&cur_coords).is_empty() {
@@ -61,8 +61,8 @@ fn advance_dag_unlabeled<'a>(
             let new_weight = w + dag_edge.weight as usize;
             if new_weight <= max_weight {
                 let new_coords = DP_Coords {
-                    vertex: dag_edge.to,
                     weight: new_weight,
+                    vertex: dag_edge.to,
                     state: s,
                 };
                 dp.update(&new_coords, &cur_coords, None, Some(dag_edge.clone()));
@@ -86,8 +86,8 @@ fn advance_dag_labeled<'a>(
         .expect("advance_dag_labeled should be called on vertex with a monomer code");
     for s in (0..hmm.num_states()).filter(|&s| !hmm.emissions[s].is_empty()) {
         let cur_coords = DP_Coords {
-            vertex: v,
             weight: w,
+            vertex: v,
             state: s,
         };
         if dp.get(&cur_coords).is_empty() {
@@ -104,8 +104,8 @@ fn advance_dag_labeled<'a>(
                     // shifted (v, w, s) is recomputed here but that's
                     // fine as most of the time there's just one dag edge
                     let new_coords = DP_Coords {
-                        vertex: dag_edge.to,
                         weight: new_weight,
+                        vertex: dag_edge.to,
                         state: new_state,
                     };
                     dp.update(
@@ -128,10 +128,10 @@ pub fn compute_dp_table<'a>(hmm: &HMM, dag: &DAG<'a>, max_weight: usize) -> DP_T
 
     // Base: DAG START, 0 edits, HMM START, log(1)=0.
     // is set in DP_Table::new()
-    let mut dp = DP_Table::new(n_vertices, max_weight, n_states);
+    let mut dp = DP_Table::new(max_weight, n_vertices, n_states);
 
-    for v in 0..n_vertices {
-        for w in 0..=max_weight {
+    for w in 0..=max_weight {
+	for v in 0..n_vertices {
             if dag.labels[v].monomer_code.is_some() || v == dag.finish {
                 relax_non_emitting_states(&mut dp, hmm, v, w);
             }

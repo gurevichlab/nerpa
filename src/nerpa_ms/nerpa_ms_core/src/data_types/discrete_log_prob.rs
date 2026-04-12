@@ -32,12 +32,12 @@ impl DiscreteLogProb {
         MIN_LOG_PROB + (self.0 as f64) / SCALING_FACTOR
     }
 
-    pub fn shift(self, delta: i64) -> DiscreteLogProb {
+    pub fn shift(self, delta: i64) -> Option<DiscreteLogProb> {
 	let new_d = (self.0 as i64) + delta;
 	if new_d < 0 || new_d > MAX_DISCRETE_LOG_PROB as i64 {
-	    panic!("shift: resulting discrete log prob out of range: new_d={new_d}");
+	    None
 	} else {
-	    DiscreteLogProb(new_d as usize)
+	    Some(DiscreteLogProb(new_d as usize))
 	}
     }
 }

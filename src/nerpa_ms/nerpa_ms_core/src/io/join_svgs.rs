@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
+use anyhow::{anyhow, Result};
 
 #[derive(Debug)]
 struct SvgInfo {
@@ -92,22 +92,22 @@ fn parse_attrs(opening_tag: &str) -> std::collections::HashMap<String, String> {
     attrs
 }
 
-fn parse_svg_info(svg_text: &str) -> Result<SvgInfo, Box<dyn Error>> {
+fn parse_svg_info(svg_text: &str) -> Result<SvgInfo> {
     let svg_start = svg_text
         .find("<svg")
-        .ok_or("No <svg ...> start tag found")?;
+        .ok_or_else(|| anyhow!("No <svg ...> start tag found"))?;
 
     let tag_end = svg_text[svg_start..]
         .find('>')
         .map(|idx| svg_start + idx)
-        .ok_or("No closing '>' for <svg ...> tag")?;
+        .ok_or_else(|| anyhow!("No closing '>' for <svg ...> tag"))?;
 
     let opening_tag = &svg_text[svg_start..=tag_end];
 
     let close_tag = "</svg>";
     let svg_end = svg_text
         .rfind(close_tag)
-        .ok_or("No </svg> end tag found")?;
+        .ok_or_else(|| anyhow!("No </svg> end tag found"))?;
 
     let inner = svg_text[tag_end + 1..svg_end].to_string();
 
@@ -135,7 +135,7 @@ fn parse_svg_info(svg_text: &str) -> Result<SvgInfo, Box<dyn Error>> {
         attrs
             .get("width")
             .and_then(|s| parse_leading_f32(s))
-            .ok_or("Missing/invalid width (and no usable viewBox)")?
+            .ok_or_else(|| anyhow!("Missing/invalid width (and no usable viewBox)"))?
     };
 
     let height = if let (Some(_w), Some(h)) = (vb_w, vb_h) {
@@ -144,7 +144,7 @@ fn parse_svg_info(svg_text: &str) -> Result<SvgInfo, Box<dyn Error>> {
         attrs
             .get("height")
             .and_then(|s| parse_leading_f32(s))
-            .ok_or("Missing/invalid height (and no usable viewBox)")?
+            .ok_or_else(|| anyhow!("Missing/invalid height (and no usable viewBox)"))?
     };
 
     Ok(SvgInfo {
@@ -156,14 +156,15 @@ fn parse_svg_info(svg_text: &str) -> Result<SvgInfo, Box<dyn Error>> {
     })
 }
 
+
 /// Stacks multiple SVG files vertically (one on top of another), scaling each
 /// so they all match the widest SVG's logical width, and writes the result.
 ///
 /// - `input_paths`: SVGs to stack, in order (top to bottom)
 /// - `output_path`: where to write the combined SVG
-pub fn join_svgs_vertical(input_paths: &[&Path], output_path: &Path) -> Result<(), Box<dyn Error>> {
+pub fn join_svgs_vertical(input_paths: &[&Path], output_path: &Path) -> Result<()> {
     if input_paths.is_empty() {
-        return Err("input_paths is empty".into());
+        return Err(anyhow!("input_paths is empty"));
     }
 
     let mut svgs = Vec::with_capacity(input_paths.len());
@@ -179,7 +180,7 @@ pub fn join_svgs_vertical(input_paths: &[&Path], output_path: &Path) -> Result<(
         .fold(0.0f32, |a, b| a.max(b));
 
     if max_width <= 0.0 {
-        return Err("Computed max width is <= 0".into());
+        return Err(anyhow!("Computed max width is <= 0"));
     }
 
     // Compute total height after scaling each to max_width

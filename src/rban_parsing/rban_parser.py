@@ -112,7 +112,7 @@ class NRP_metadata:
         try:
             for key, value in data.items():
                 if key.lower() in fields:
-                    class_data[key.lower()] = data[key]
+                    class_data[key.lower()] = value
         except:
             raise ValueError(f"Error parsing metadata:\n {data}") from None
         return cls(**class_data)

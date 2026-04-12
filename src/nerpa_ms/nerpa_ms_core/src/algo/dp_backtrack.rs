@@ -22,14 +22,14 @@ struct Frame<'a> {
 }
 
 impl<'a> Frame<'a> {
-    fn into_solution(mut self, weight: usize) -> Solution<'a> {
+    fn into_solution(mut self, weight: usize, dlp: DiscreteLogProb) -> Solution<'a> {
         self.states_rev.reverse();
         self.dag_edges_rev.reverse();
 
         Solution {
             states: self.states_rev,
             dag_edges: self.dag_edges_rev,
-            dlp: self.dlp,
+            dlp,
             weight,
         }
     }
@@ -42,9 +42,26 @@ pub struct BacktrackSolutionsIter<'a> {
 
     // Discrete log-probs available at (DAG_FINISH, weight, HMM_FINISH), descending.
     end_dlp_iter: Box<dyn Iterator<Item = DiscreteLogProb> + 'a>,
+    cur_dlp: DiscreteLogProb,
 
     // DFS stack for the current end_dlp
     stack: Vec<Frame<'a>>,
+}
+
+use crate::data_types::discrete_log_prob::SCALING_FACTOR;
+
+pub fn rounded(f: f64, digits: usize) -> f64 {
+    if !f.is_finite() {
+	return f;
+    }
+    if digits == 0 {
+	return f.round();
+    }
+    let factor = 10f64.powf(digits as f64);
+    if !factor.is_finite() || factor == 0.0 {
+	return f;
+    }
+    (f * factor).round() / factor
 }
 
 impl<'a> BacktrackSolutionsIter<'a> {
@@ -56,16 +73,45 @@ impl<'a> BacktrackSolutionsIter<'a> {
             states_rev: vec![self.end_coords.state],
             dag_edges_rev: Vec::new(),
         });
+	self.cur_dlp = end_dlp;
     }
 
     fn expand_one(&mut self, frame: Frame<'a>) {
-	//println!("Expanding frame: coords={:?}, states_rev={:?}, dag_edges_rev={:?}", frame.coords, frame.states_rev, frame.dag_edges_rev);
-	// println!("Number of backtracking pointers: {}", self.dp.get_backtrack_pointers(&frame.coords, frame.dlp).len());
-        for ptr in self.dp.get_backtrack_pointers(&frame.coords, frame.dlp) {
-	    // println!("Backtracking pointer: parent={:?}, dlp_shift={:?}, dag_edge={:?}", ptr.parent, ptr.dlp_shift, ptr.dag_edge);
+	let debug = true;
+	if debug {
+	    let lp_rounded = rounded(frame.dlp.to_logprob(), 2);
+	    println!("Expanding frame:\n\tcoords={:?}\n\tdlp={},\tlp={}\n\tstates_rev={:?}\n\tdag_edges_rev={:?}", frame.coords, frame.dlp.0, lp_rounded, frame.states_rev, frame.dag_edges_rev);
+	    println!("Number of backtracking pointers: {}", self.dp.get_backtrack_pointers(&frame.coords).len());
+	}
+
+	let ptrs = self.dp
+	    .get_backtrack_pointers(&frame.coords) 
+	    .iter()
+	    .filter(|ptr| {
+		let parent_dlp = match ptr.dlp_shift {
+		    Some(shift) => frame.dlp.shift(shift as i64),
+		    None => Some(frame.dlp),
+		};
+		if let Some(dlp) = parent_dlp {
+		    self.dp.get(&ptr.parent).contains(dlp)
+		}
+		else { false }
+	    });
+        for ptr in self.dp.get_backtrack_pointers(&frame.coords) {
+	    let parent_dlp = match ptr.dlp_shift {
+		Some(shift) => frame.dlp.shift(shift as i64),
+		None => Some(frame.dlp),
+	    };
+	    if parent_dlp.is_none() || !self.dp.get(&ptr.parent).contains(parent_dlp.unwrap()) { continue }
+
+	    if debug {
+		let lp_shift = ptr.dlp_shift
+		    .map(|lp| rounded((lp as f64) / SCALING_FACTOR, 2));
+		println!("Backtracking pointer:\n\tparent={:?}\n\tdlp_shift={:?}\tlp={:?}\n\tdag_edge={:?}", ptr.parent, ptr.dlp_shift, lp_shift, ptr.dag_edge);
+	    }
             let mut next = frame.clone();
             next.coords = ptr.parent;
-            next.dlp = frame.dlp.shift(ptr.dlp_shift.unwrap_or(0) as i64);
+            next.dlp = parent_dlp.unwrap();
 
             // we moved to the parent -> record parent's state
 	    if ptr.dlp_shift.is_some() {
@@ -90,14 +136,14 @@ impl<'a> Iterator for BacktrackSolutionsIter<'a> {
             if let Some(frame) = self.stack.pop() {
 		//println!("Backtracking frame: coords={:?}, states_rev={:?}, dag_edges_rev={:?}", frame.coords, frame.states_rev, frame.dag_edges_rev);
                 if is_dp_start(&frame.coords) {
-                    return Some(frame.into_solution(self.weight));
+                    return Some(frame.into_solution(self.weight, self.cur_dlp));
                 }
                 self.expand_one(frame);
-                continue;
             }
-
-            let next_end_dlp = self.end_dlp_iter.next()?;
-            self.start_new_dlp(next_end_dlp);
+	    else {
+		let next_end_dlp = self.end_dlp_iter.next()?;
+		self.start_new_dlp(next_end_dlp);
+	    }
         }
     }
 }
@@ -122,6 +168,7 @@ pub fn backtrack_solutions<'a>(
         weight,
         end_coords,
         end_dlp_iter: Box::new(end_dlp_set.iter_desc()),
+	cur_dlp: DiscreteLogProb::from_logprob(0.0),  // doesn't matter
         stack: Vec::new(),
     }
 }
