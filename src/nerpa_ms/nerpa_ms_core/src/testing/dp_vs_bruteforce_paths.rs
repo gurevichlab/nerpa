@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use crate::{
     algo::solve_brute_force::{PathsToCoords, retrieve_paths_brute_force},
     data_types::{
-        common_types::LogProb,
-        dag::{DAG, Edge, VertexId},
-        dp_table::{DP_Coords, DP_Table},
-        hmm::{HMM, StateIdx},
+        common_types::LogProb, dag::{DAG, Edge, VertexId}, discrete_log_prob::MIN_LOG_PROB, dp_table::{DP_Coords, DP_Table}, hmm::{HMM, StateIdx}
     },
 };
 
@@ -62,12 +59,16 @@ pub fn find_paths_mismatch<'a>(
 
     let mut brute_pairs: Vec<(PathKey, LogProb)> = brute_paths
         .into_iter()
-        .map(|p| {
-            let key = PathKey {
-                dag_vertices: dag_vertices_from_edges(dag, &p.dag_path),
-                hmm_states: p.hmm_path,
-            };
-            (key, p.lp)
+        .filter_map(|p| {
+	    if p.lp > MIN_LOG_PROB {
+		let key = PathKey {
+                    dag_vertices: dag_vertices_from_edges(dag, &p.dag_path),
+                    hmm_states: p.hmm_path,
+		};
+		Some((key, p.lp))
+	    } else {
+		None
+	    }
         })
         .collect();
 

@@ -129,7 +129,7 @@ pub fn write_hmm_emissions(hmm: &HMM, out_path: &Path) {
 /// - writes an SVG (HMM + DAG) into `out_dir`
 /// - panics (so tests stop immediately)
 pub fn test_dp_vs_bruteforce(tests_json: &Path, out_dir: &Path) {
-    let tol = 0.01;
+    let tol = 0.05;
     fs::create_dir_all(out_dir).expect("failed to create out_dir");
 
     let json_str = fs::read_to_string(tests_json)

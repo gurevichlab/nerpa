@@ -122,7 +122,11 @@ fn gen_dag(rng: &mut impl Rng, alphabet: usize, test_idx: usize) -> serde_json::
 
             json!({
                 "monomer_code": monomer_code,
-                "name": format!("v{v}"),
+                "name": if monomer_code == serde_json::Value::Null {
+		    "".to_string()
+		} else {
+		    format!("m{monomer_code}")
+		},
             })
         })
         .collect();
@@ -139,30 +143,23 @@ fn gen_dag(rng: &mut impl Rng, alphabet: usize, test_idx: usize) -> serde_json::
     }
 
     // Extra edges
-    for from in 0..n_vertices {
-        let k = rng.gen_range(0..=3);
-        for _ in 0..k {
-            let mut to = rng.gen_range(0..n_vertices);
-            if from == finish {
-                continue; // no outgoing from finish usually
-            }
+    for from in 0..(n_vertices - 1) {
+        let num_extra = rng.gen_range(0..=3);
+        for _ in 0..num_extra {
+	    let weight: u8 = if rng.gen_bool(0.5) { 0 } else { 1 };
+	    let to = if weight == 0 {
+		rng.gen_range((from + 1)..n_vertices) // enforce forward for weight=0
+	    } else {
+		rng.gen_range(0..n_vertices)
+	    };
 
-            // choose weight; enforce: weight=0 edges must be forward (to > from)
-            let mut weight: u8 = if rng.gen_bool(0.5) { 0 } else { 1 };
-
-            if weight == 0 {
-                if from + 1 >= n_vertices {
-                    weight = 1;
-                } else {
-                    to = rng.gen_range((from + 1)..n_vertices);
-                }
-            }
-
-            out_edges[from].push(json!({
-                "to": to,
-                "weight": weight,
-                "modification": null
-            }));
+	    if !out_edges[from].iter().any(|e| e["to"] == to) {
+		out_edges[from].push(json!({
+                    "to": to,
+                    "weight": weight,
+                    "modification": null
+		}));
+	    }
         }
     }
 

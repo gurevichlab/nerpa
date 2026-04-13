@@ -77,7 +77,7 @@ impl<'a> BacktrackSolutionsIter<'a> {
     }
 
     fn expand_one(&mut self, frame: Frame<'a>) {
-	let debug = true;
+	let debug = false;
 	if debug {
 	    let lp_rounded = rounded(frame.dlp.to_logprob(), 2);
 	    println!("Expanding frame:\n\tcoords={:?}\n\tdlp={},\tlp={}\n\tstates_rev={:?}\n\tdag_edges_rev={:?}", frame.coords, frame.dlp.0, lp_rounded, frame.states_rev, frame.dag_edges_rev);
