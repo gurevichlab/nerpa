@@ -65,8 +65,8 @@ class PipelineHelper_rBAN:
         rows = []
         metadata = {}
         if self.args.smiles_tsv:
-            reader = csv.DictReader(self.args.smiles_tsv.open('r'),
-                                    delimiter=self.args.sep, quoting=csv.QUOTE_NONE)
+            reader = csv.DictReader(self.args.smiles_tsv.open('r', newline=''),
+                                    delimiter=self.args.sep)
             for i, row in enumerate(reader):
                 compound_id = row[self.args.col_id] if self.args.col_id else default_id(i)
                 smiles = row[self.args.col_smiles]
