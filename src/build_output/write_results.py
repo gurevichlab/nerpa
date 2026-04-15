@@ -59,15 +59,12 @@ def build_report(matches: List[Match]) -> str:
                                             'Genome_ID', 'antiSMASH_input', 'BGC_idx', 'BGC_Variant_Idx'),
                                 delimiter='\t')
     csv_writer.writeheader()
-    csv_writer.writerows({'LogOdds_vs_avg_NRP': match.log_odds_vs_avg_nrp,
-                          'LogOdds_vs_avg_BGC': match.log_odds_vs_avg_bgc,
-                          'Raw_score': match.raw_score,
-                          'p_value': match.p_value,
+    csv_writer.writerows({'Score': match.log_odds_vs_avg_bgc,
                           'NRP_ID': match.nrp_variant_id.nrp_id,
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
-                          'Genome_ID': match.genome_id,
                           'antiSMASH_input': match.bgc_variant_id.bgc_id.antiSMASH_file,
                           'BGC_idx': match.bgc_variant_id.bgc_id.bgc_idx,
+                          'Contid_idx': match.bgc_variant_id.bgc_id.contig_idx,
                           'BGC_Variant_Idx': match.bgc_variant_id.variant_idx}
                          for match in matches)
     return result.getvalue()

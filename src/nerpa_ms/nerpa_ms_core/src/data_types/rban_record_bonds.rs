@@ -33,12 +33,12 @@ impl Parsed_rBAN_Record {
     /// # Panics
     /// Panics if `edge` is not present in `self.monomer_bonds` (in either direction),
     /// or if the stored bond info does not contain atom IDs for both monomers.
-    pub fn edge_to_bond(&self, edge: (MonomerIdx, MonomerIdx)) -> Bond {
-        let (left_mon, right_mon) = edge;
+    pub fn edge_to_bond(&self, edge: &(MonomerIdx, MonomerIdx)) -> Bond {
+        let (left_mon, right_mon) = edge.clone();
 
         let mon_edge_info: &MonomerEdgeInfo = self
             .monomer_bonds
-            .get(&edge)
+            .get(edge)
             .or_else(|| self.monomer_bonds.get(&(right_mon, left_mon)))
             .unwrap_or_else(|| {
 		panic!(

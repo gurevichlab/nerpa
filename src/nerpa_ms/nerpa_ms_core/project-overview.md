@@ -71,6 +71,21 @@ A `START→FINISH` path in this DAG represents a candidate monomer sequence near
 
 ```rust
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GraphModification<'a> {
+    Insert {
+        edge: MonomerEdge,
+        mon_db_entry: &'a MonomersDB_Entry,
+    },
+    Remove {
+        monomer_idx: MonomerIdx,
+    },
+    Substitute {
+        monomer_idx: MonomerIdx,
+        mon_db_entry: &'a MonomersDB_Entry,
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Edge<'a> {
     pub to: VertexId,
     pub weight: u8, // 0 or 1
@@ -186,9 +201,8 @@ Each selected solution implies surgical edits to the template monomer graph:
 ### Result struct (internal / output)
 ```rust
 pub struct Altered_NRP_Variant {
-    pub score: LogProb,
     pub new_molecule: Parsed_rBAN_Record,
-    pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>,
+    pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>
 }
 ```
 
@@ -281,6 +295,16 @@ nerpa_ms_core/
 
 **Deliverable:** a monomer database module with a function `compatible_monomers(monomer) -> Vec<MonomerCode>` that can be used in the DAG construction step.
 
+```rust
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub struct MonomersDB_Entry {
+    pub monomer: MonomerInfo,
+    pub bonds_by_bs: Vec<(BindingSiteType, Bond)>,
+}
+
+pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
+```
+
 ---
 
 ### Milestone 3 — DAG construction from (Parsed_rBAN_Record, linearization) [DONE]
@@ -304,7 +328,7 @@ nerpa_ms_core/
    - `union(&self, other: DiscreteLogProbSet) -> DiscreteLogProbSet`
 
 
-### Milestone 5 — HMM × DAG solver returning top‑N candidates (per weight)
+### Milestone 5 — HMM × DAG solver returning top‑N candidates (per weight) [DONE]
 **Goal:** compute ranked solutions *in the DAG/HMM world* (still no molecule edits).
 
 - Implement `solve(hmm, dag, n, weights={1,2,3}) -> Vec<CandidatePerWeight>`.
@@ -315,7 +339,7 @@ nerpa_ms_core/
 
 **Deliverable:** on a tiny fixture, solver returns non-empty candidates for some `w`.
 
-#### Milestone 5.1 — DP table computation
+#### Milestone 5.1 — DP table computation [DONE]
 - Implement the DP table computation as described in section 5.1:
 ```rust
 fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> DP_Table
@@ -327,15 +351,17 @@ fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> DP_Table
 ### Milestone 6 — Apply candidates to produce Altered_NRP_Variant
 **Goal:** turn candidates into edited molecules + mapping.
 
-- Implement `apply_candidate(rban_record, candidate) -> Altered_NRP_Variant`.
-- Keep the edits “surgical” and localized (prototype scope).
-- Produce `old_to_new_mon_map`.
-
-**Deliverable:** end-to-end run produces actual `new_molecule` records for returned candidates.
+- Implement 
+```rust
+pub fn apply_modifications(rban_record: &Parsed_rBAN_Record,
+modifications: &[GraphModification]) -> Altered_NRP_Variant
+```
 
 ---
 
-### Milestone 7 — Tests and fixtures
+### Milestone 7 — End-to-end pipeline for one item
+
+### Milestone 8 — Tests and fixtures
 **Goal:** keep regressions from sneaking in.
 
 - Unit tests:
@@ -350,7 +376,7 @@ fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> DP_Table
 
 ---
 
-### Milestone 8 (optional) — Debuggability and performance niceties
+### Milestone 9 (optional) — Debuggability and performance niceties
 **Goal:** make it easier to trust and iterate.
 
 - Optional `--debug` output fields (hmm_states, dag_vertices, emitted codes).

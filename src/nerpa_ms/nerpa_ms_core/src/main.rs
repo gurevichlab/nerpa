@@ -7,6 +7,7 @@ use clap::Parser;
 use anyhow::Result;
 use data_types::monomers_db::load_monomers_db;
 use io::draw_dag::Draw_DAG_Config;
+use data_types::monomer_graph::MonomerGraphh;
 
 fn main() -> Result<()> {
     let cli = cli::Cli::parse();
@@ -26,6 +27,8 @@ fn main() -> Result<()> {
     dag.draw_svg(&out_path,
 		 &Draw_DAG_Config{node_indexes: false},
 		 None)?;
+    let monomer_graph = MonomerGraph::from(&rban_record);
+    let new_rban_record = Parsed_rBA_Record::from(&monomer_graph);
 	
     Ok(())
 }

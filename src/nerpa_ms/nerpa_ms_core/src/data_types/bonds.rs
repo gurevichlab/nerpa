@@ -69,6 +69,28 @@ pub struct Bond {
     ), // for each monomer, map from bond atom labels to actual atom IDs
 }
 
+impl Bond {
+    pub fn get_atomic_edges(&self) -> Vec<AtomicEdgeData> {
+	self.bond_templ.as_slice().iter()
+	    .map(|at_bond_templ| {
+		let atom_id_lft = self.label_to_atom.0
+		    .get(&at_bond_templ.atoms.0)
+		    .unwrap()
+		    .clone();
+		let atom_id_rgt = self.label_to_atom.1
+		    .get(&at_bond_templ.atoms.1)
+		    .unwrap()
+		    .clone();
+		AtomicEdgeData {
+		    atom_ids: (atom_id_lft, atom_id_rgt),
+		    arity: at_bond_templ.arity.clone(),
+		    bond_type: at_bond_templ.bond_type.clone(),
+		}
+	    })
+	    .collect()
+    }
+}
+
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub enum BondSide {
@@ -108,6 +130,24 @@ impl BindingSitesProfile {
     pub fn from_string_key(s: &str) -> Result<Self, serde_json::Error> {
         let v = serde_json::from_str::<Vec<BindingSiteType>>(s)?;
         Ok(BindingSitesProfile::new(v))
+    }
+}
+
+// A wrapper around Vec<(BindingSiteType, Bond)> to ensure that the vector is always sorted by BindingSiteType.
+pub struct BondsByBSType(Vec<(BindingSiteType, Bond)>);
+
+impl BondsByBSType {
+    pub fn new(mut v: Vec<(BindingSiteType, Bond)>) -> Self {
+	v.sort_by_key(|(bs_type, _bond)| bs_type.clone());
+	BondsByBSType(v)
+    }
+    pub fn get_profile(&self) -> BindingSitesProfile {
+	BindingSitesProfile::new(self.0.iter()
+				 .map(|(bs_type, _bond)| bs_type.clone())
+				 .collect())
+    }
+    pub fn compatible_with(&self, other: &BondsByBSType) -> bool {
+	self.get_profile() == other.get_profile()
     }
 }
 
@@ -162,4 +202,19 @@ impl<'de> Deserialize<'de> for BindingSitesProfile {
 
         deserializer.deserialize_any(BindingSitesProfileVisitor)
     }
+}
+
+impl Bond {
+    pub fn shift_atom_ids(&mut self,
+			  side: BondSide,
+			  shift: u32) {
+	let label_to_atom = match side {
+	    BondSide::Left => &mut self.label_to_atom.0,
+	    BondSide::Right => &mut self.label_to_atom.1,
+	};
+
+	label_to_atom
+	    .iter_mut()
+	    .for_each(|(_label, atom_id)| atom_id.0 += shift);
+	}
 }

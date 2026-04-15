@@ -8,7 +8,7 @@ use std::{cmp::Reverse, collections::HashMap, path::{Path, PathBuf}};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomersDB_Entry {
-    pub monomer: MonomerInfo,
+    pub monomer: Monomer,
     pub bonds_by_bs: Vec<(BindingSiteType, Bond)>,
 }
 
@@ -25,8 +25,14 @@ pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> Mon
                     .map(|(bs, _bond)| bs.clone())
                     .collect::<Vec<BindingSiteType>>(),
             );
+	    let atoms = monomer
+		.atoms
+		.iter()
+		.map(|atom_id| (atom_id.clone(), record.atoms[atom_id].clone()))
+		.collect();
             let entry = MonomersDB_Entry {
                 monomer: monomer.clone(),
+		atoms_info: atoms,
                 bonds_by_bs,
             };
             entries_by_bs.entry(bs_profile).or_default().push(entry);
@@ -89,4 +95,23 @@ pub fn load_monomers_db(monomers_db_json: &Path) -> MonomersDB {
         )
     });
     serde_json::from_str(&json_str).unwrap()
+}
+
+
+impl MonomersDB_Entry {
+    pub fn shift_atom_ids(&mut self, shift: u32) {
+	self.monomer
+	    .atoms
+	    .iter_mut()
+	    .for_each(|atom| atom.0 += shift);
+
+	self.atoms_info
+	    .iter_mut()
+	    .for_each(|(atom_id, _atom_info)| *atom_id = AtomId(atom_id.0 + shift));
+
+	self.bonds_by_bs
+	    .iter_mut()
+	    .for_each(|(bs, bond)| bond.shift_atom_ids(bs.side, shift));
+    }
+
 }
