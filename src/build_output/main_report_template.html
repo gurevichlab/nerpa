@@ -225,6 +225,10 @@
             overflow-wrap: anywhere;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
         }
+        .image-frame {
+            overflow: hidden;
+            position: relative; 
+        }
     </style>
 </head>
 <body>
@@ -381,12 +385,14 @@
                          src=""
                          alt="Molecule image is missing. Did you run the tool with '--skip-molecule-drawing'?"
                          style="width: 100%; height: auto;"/>
+                      <button  class="hide-button" id="zoomInMol" onclick="zooming('moleculeImage')" style="display: none;">Zoom into molecule</button>
                 </div>
                 <div style="flex: 1; padding-left: 5px;">
                     <img id="graphImage"
                          src=""
                          alt="Graph image is missing. Did you run the tool with '--skip-molecule-drawing'?"
                          style="width: 100%; height: auto;"/>
+                         <button  class="hide-button" id="zoomInGr" onclick="zooming('graphImage')" style="display: none;">Zoom into graph</button>
                 </div>
             </div>
         </div>
@@ -396,6 +402,22 @@
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
 
 <script>
+    // Function to zoom into image
+    function zooming(id){
+        const pic = document.getElementById(id);
+
+        let scalefactor = 1;
+
+        let zoom = e => {
+            scalefactor += e.deltaY * -0.01;
+            scalefactor = Math.max(scalefactor, 1);
+            pic.style.transition = "transform 0.01s";
+            pic.style.transform = `scale(${scalefactor})`;
+        }
+
+        pic.onwheel = zoom;
+    }
+
     // Function to detect if a value is numeric
     function isNumeric(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
@@ -948,6 +970,9 @@
         const iframe = document.getElementById('genomeViewer');
         const hideBtn = document.getElementById('hideGenomeViewerBtn');
         const label = document.getElementById('genomeViewerLabel');
+        const zoomBtnInMol = document.getElementById('zoomInMol');
+        const zoomBtnInGr = document.getElementById('zoomInGr');
+
 
         if (hide) {
             iframe.style.display = 'none';
@@ -958,6 +983,8 @@
             iframe.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
+            zoomBtnInMol.style.display = 'inline';
+            zoomBtnInGr.style.display = 'inline';
         }
     }
 
