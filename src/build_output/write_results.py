@@ -54,9 +54,9 @@ def draw_hmms_with_optimal_paths(hmms: List[DetailedHMM],
 def build_report(matches: List[Match]) -> str:
     result = StringIO()
     csv_writer = csv.DictWriter(result,
-                                fieldnames=('LogOdds_vs_avg_NRP', 'LogOdds_vs_avg_BGC', 'Raw_score', 'p_value',
-                                            'NRP_ID', 'NRP_Variant_Idx',
-                                            'Genome_ID', 'antiSMASH_input', 'BGC_idx', 'BGC_Variant_Idx'),
+                                fieldnames=('Score',
+                                            'antiSMASH_input', 'Contig_idx', 'BGC_idx', 'BGC_Variant_Idx',
+                                            'NRP_ID', 'NRP_Variant_Idx'),
                                 delimiter='\t')
     csv_writer.writeheader()
     csv_writer.writerows({'Score': match.log_odds_vs_avg_bgc,
@@ -64,7 +64,7 @@ def build_report(matches: List[Match]) -> str:
                           'NRP_Variant_Idx': match.nrp_variant_id.variant_idx,
                           'antiSMASH_input': match.bgc_variant_id.bgc_id.antiSMASH_file,
                           'BGC_idx': match.bgc_variant_id.bgc_id.bgc_idx,
-                          'Contid_idx': match.bgc_variant_id.bgc_id.contig_idx,
+                          'Contig_idx': match.bgc_variant_id.bgc_id.contig_idx,
                           'BGC_Variant_Idx': match.bgc_variant_id.variant_idx}
                          for match in matches)
     return result.getvalue()

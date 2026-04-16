@@ -71,9 +71,8 @@ impl From<&Parsed_rBAN_Record> for MonomerGraph {
 		let monomer = Monomer::from_rban_record(rban_record, idx);
 		(idx, monomer)
 	    })
-	    .collect();
+	    .collect()
 	};
-
 
         // Deterministic order is handy for tests/debugging.
         let edges: Vec<(MonomerIdx, MonomerIdx)> = {

@@ -59,6 +59,8 @@ impl BondTemplate {
 
 use std::collections::HashMap;
 
+use super::monomer_graph::AtomicEdgeData;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Bond {
     pub bond_templ: BondTemplate,

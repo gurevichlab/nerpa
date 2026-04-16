@@ -1,4 +1,4 @@
-use crate::{algo::dp_backtrack::backtrack_solutions, data_types::{common_types::{LogProb, MonomerIdx}, hmm::HMM, monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record}};
+use crate::{algo::dp_backtrack::backtrack_solutions, data_types::{common_types::{LogProb, MonomerIdx}, hmm::HMM, monomer_graph::MonomerGraph, monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record}};
 
 use crate::algo::graph_to_dag::create_dag;
 
@@ -20,6 +20,7 @@ pub fn generate_new_variants_per_weight(
     max_variants_per_weight: usize,
 ) -> Vec<Vec<NewVariantWithScore>> {
     let dag = create_dag(rban_record, linearization, monomers_db);
+    let monomer_graph = MonomerGraph::from(rban_record);
     let dp_table = compute_dp_table(hmm, &dag, max_weight);
     let mut variants_per_weight: Vec<Vec<Altered_NRP_Variant>> = vec![Vec::new(); max_weight + 1];
 
@@ -32,7 +33,7 @@ pub fn generate_new_variants_per_weight(
 		.dag_edges.iter()
 		.filter_map(|e| e.modification)
 		.collect::<Vec<_>>();
-	    let new_variant = apply_modifications(rban_record, mods);
+	    let new_monomer_graph = apply_modifications(monomer_graph, mods);
 	    let variant = NewVariantWithScore {
 		score: sol.dlp.to_logprob(),
 		new_variant.new_molecule,

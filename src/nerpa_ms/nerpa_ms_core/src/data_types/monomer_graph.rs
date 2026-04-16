@@ -1,3 +1,9 @@
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+use super::{bonds::{BindingSiteType, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
+
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomerFeatures {
@@ -30,6 +36,7 @@ pub struct Monomer {
     pub features: MonomerFeatures,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MonomerGraph {
     pub monomers: HashMap<MonomerIdx, Monomer>,
     pub monomer_bonds: Vec<Bond>,
