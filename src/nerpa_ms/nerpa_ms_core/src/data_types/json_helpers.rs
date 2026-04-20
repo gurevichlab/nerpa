@@ -169,6 +169,26 @@ where
     Ok(pairs.into_iter().collect())
 }
 
+use serde::ser::SerializeSeq;
+use serde::{Serialize, Serializer};
+
+pub fn ser_hashmap_as_vec_pairs<S, K, V>(
+    map: &HashMap<K, V>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+    K: Serialize + Eq + Hash,
+    V: Serialize,
+{
+    let mut seq = serializer.serialize_seq(Some(map.len()))?;
+    for (k, v) in map {
+        // serializes each entry as a 2-tuple: [key, value]
+        seq.serialize_element(&(k, v))?;
+    }
+    seq.end()
+}
+
 // q: a function that takes a json value which is either a string or a number, and returns a string
 pub fn de_str_or_num_to_str<'de, D>(deserializer: D) -> Result<String, D::Error>
 where

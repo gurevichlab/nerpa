@@ -8,9 +8,7 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct AtomId(pub u32);
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AtomicEdge(pub (AtomId, AtomId));
-
+pub type AtomicEdge = (AtomId, AtomId);
 pub type MonomerEdge = (MonomerIdx, MonomerIdx);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -82,14 +80,18 @@ pub struct Parsed_rBAN_Record {
     pub compound_id: String,
     pub monomers: HashMap<MonomerIdx, MonomerInfo>,
 
-    // JSON encodes this as an array of [key, value] pairs, not as an object.
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap")]
+    #[serde(
+        serialize_with = "crate::data_types::json_helpers::ser_hashmap_as_vec_pairs",
+	deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap"
+    )]
     pub monomer_bonds: HashMap<MonomerEdge, MonomerEdgeInfo>,
 
     pub atoms: HashMap<AtomId, AtomInfo>,
 
-    // JSON encodes this as an array of [key, value] pairs, not as an object.
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap")]
+    #[serde(
+        serialize_with = "crate::data_types::json_helpers::ser_hashmap_as_vec_pairs",
+	deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap"
+    )]
     pub atomic_bonds: HashMap<AtomicEdge, AtomicEdgeInfo>,
 
     pub metadata: NRP_Metadata,
