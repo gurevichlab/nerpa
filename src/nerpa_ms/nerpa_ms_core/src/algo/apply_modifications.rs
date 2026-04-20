@@ -14,7 +14,7 @@ pub fn apply_modifications(monomer_graph: &MonomerGraph,
     for modification in modifications {
 	match modification {
 	    GraphModification::Substitute { monomer_idx, mon_db_entry } => {
-		new_monomer_graph.substitute(monomer_idx, mon_db_entry);
+		new_monomer_graph.substitute(*monomer_idx, mon_db_entry);
 		old_to_new_mon_map.push((Some(*monomer_idx), Some(*monomer_idx)));
 	    },
 	    _ => unimplemented!("Only substitution modifications are supported for now"),

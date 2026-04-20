@@ -10,6 +10,7 @@ from src.rban_parsing import handle_monomers
 from src.general_type_aliases import (
     SMILES,
 )
+from src.generic.parsing import read_int_pair
 from src.monomer_names_helper import (
     Chirality,
     NorineMonomerName,
@@ -34,7 +35,7 @@ class AtomInfo(NamedTuple):
 
 
 class AtomicEdgeInfo(NamedTuple):
-    arity: int
+    arity: str  # I heard that there exist fractional arities (e.g. 1.5), so I use str to be safe
     bond_type: str
 
 
@@ -72,19 +73,7 @@ class MonomerInfo(NamedTuple):
         d['chirality'] = self.chirality.name
         return d
 
-# awkward design because I am retroactively adding support for multiple bonds
-# between the same monomers, and I don't want to change the existing code too much.
-class _MonomerEdgeInfo(NamedTuple):
-    monomer_to_atom: Dict[MonomerIdx, AtomId]
-    arity: int  # I heard that there exist fractional arities (e.g. 1.5)
-    bond_type: str
-
-class MonomerEdgeInfo(NamedTuple):
-    monomer_to_atom: Dict[MonomerIdx, AtomId]
-    arity: int  # I heard that there exist fractional arities (e.g. 1.5)
-    bond_type: str
-    all_edges: List[_MonomerEdgeInfo]  # in case of multiple bonds between the same monomers, we need to store all of them
-
+MonomerEdgeInfo = List[Dict[MonomerIdx, AtomId]]  # list of dicts because there can be multiple bonds between the same monomers
 
 def parsed_chiralities(chiralities: Dict[MonomerIdx, Union[bool, None]]) -> Dict[MonomerIdx, Chirality]:
     def parsed_chirality(ch: Union[bool, None]):
@@ -144,20 +133,22 @@ class Parsed_rBAN_Record:
             return NorineMonomerName(name)
 
         self.compound_id = rban_record['id']
-        self.metadata = metadata[self.compound_id] if self.compound_id in metadata else NRP_metadata(None, None, None, None, None)
+        self.metadata = metadata.get(self.compound_id, NRP_metadata(None, None, None, None, None))
         self.atoms = {atom['cdk_idx']: AtomInfo(name=atom['name'],
                                                 hydrogens=atom['hydrogens'])
                       for atom in rban_record['atomicGraph']['atomicGraph']['atoms']}
 
-        self.monomers = {MonomerIdx(idx := monomer['monomer']['index']):
-                             MonomerInfo(name=get_monomer_name(idx),
-                                         atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
-                                         chirality=chiralities[idx],
-                                         is_pks_hybrid=idx in hybrid_monomers)
-                         for monomer in rban_record['monomericGraph']['monomericGraph']['monomers']}
+        self.monomers = {
+            MonomerIdx(idx := monomer['monomer']['index']):
+            MonomerInfo(name=get_monomer_name(idx),
+                        atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
+                        chirality=chiralities[idx],
+                        is_pks_hybrid=idx in hybrid_monomers)
+            for monomer in rban_record['monomericGraph']['monomericGraph']['monomers']
+        }
 
         self.atomic_bonds = {(AtomId(bond['atoms'][0]), AtomId(bond['atoms'][1])):
-                                 AtomicEdgeInfo(arity=bond['arity'],
+                                 AtomicEdgeInfo(arity=str(bond['arity']),
                                                 bond_type=bond['bondType'])
                              for bond in rban_record['atomicGraph']['atomicGraph']['bonds']}
 
@@ -167,36 +158,22 @@ class Parsed_rBAN_Record:
             for atom_id in mon_info.atoms
         }
 
-        self.monomer_bonds = {}
+        self.monomer_bonds = defaultdict(list)
         for (atom1, atom2), bond_info in self.atomic_bonds.items():
             mon1, mon2 = atom_to_monomer[atom1], atom_to_monomer[atom2]
             if mon1 == mon2:
                 continue  # internal bond, not a monomer bond
 
-            _monomer_edge_info = _MonomerEdgeInfo(monomer_to_atom={mon1: atom1, mon2: atom2},
-                                                  arity=bond_info.arity,
-                                                  bond_type=bond_info.bond_type)
-            if (bond_info.bond_type == 'AMINO' and self.atoms[atom1].name == 'N') \
-               or (mon2, mon1) in self.monomer_bonds:
-                mon1, mon2 = mon2, mon1  # ensure that the amino bond is always directed from C to N
-
-            if (mon1, mon2) not in self.monomer_bonds:
-                self.monomer_bonds[(mon1, mon2)] = MonomerEdgeInfo(**{'all_edges': [],
-                                                                   **_monomer_edge_info._asdict()})
-            self.monomer_bonds[(mon1, mon2)].all_edges.append(_monomer_edge_info)
-
-    def to_compact_dict(self) -> dict:
-        return {'compound_id': self.compound_id,
-                'nodes': {mon_idx: mon_info.name
-                          for mon_idx, mon_info in self.monomers.items()},
-                'edges': [(u, v, edge_info.bond_type)
-                          for (u, v), edge_info in self.monomer_bonds.items()]}
+            if mon1 > mon2:
+                mon1, mon2 = mon2, mon1  # canonicalize order of monomers in the bond
+                atom1, atom2 = atom2, atom1  # swap atoms accordingly
+            self.monomer_bonds[(mon1, mon2)].append({mon1: atom1, mon2: atom2})
 
     def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         return {'compound_id': self.compound_id,
                 'monomers': {mon_idx: mon_info.to_dict(monomer_names_helper)
                              for mon_idx, mon_info in self.monomers.items()},
-                'monomer_bonds': [[[u, v], edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
+                'monomer_bonds': [[[u, v], edge_info]  # saving dict as list of pairs because YAML can't have tuple keys
                                   for (u, v), edge_info in self.monomer_bonds.items()],
                 'atoms': {atom_id: atom_info._asdict()
                           for atom_id, atom_info in self.atoms.items()},
@@ -207,39 +184,24 @@ class Parsed_rBAN_Record:
     @classmethod
     def from_dict(cls, data: dict) -> Parsed_rBAN_Record:
         metadata = NRP_metadata.from_dict(data['metadata'])
-        parsed_record = cls.__new__(cls)  # Create an uninitialized instance
-        parsed_record.compound_id = data['compound_id']
-        parsed_record.monomers = {int(mon_idx): MonomerInfo.from_dict(mon_info)
+        compound_id = data['compound_id']
+        monomers = {int(mon_idx): MonomerInfo.from_dict(mon_info)
                                   for mon_idx, mon_info in data['monomers'].items()}
-        parsed_record.monomer_bonds = {(int(u), int(v)): MonomerEdgeInfo(**edge_info)  # expecting dict as list of pairs because YAML can't have tuple keys
-                                       for (u, v), edge_info in data['monomer_bonds']}
-        parsed_record.atoms = {int(atom_id): AtomInfo(**atom_info)
+        atoms = {int(atom_id): AtomInfo(**atom_info)
                                for atom_id, atom_info in data['atoms'].items()}
-        parsed_record.atomic_bonds = {(int(u), int(v)): AtomicEdgeInfo(**edge_info)
-                                      for (u, v), edge_info in data['atomic_bonds']}  # expecting dict as list of pairs because YAML can't have tuple keys
+        monomer_bonds = {(int(u), int(v)): edge_info
+                            for (u, v), edge_info in data['monomer_bonds']}
+            
+        atomic_bonds = {(int(u), int(v)): AtomicEdgeInfo(**edge_info)
+                        for (u, v), edge_info in data['atomic_bonds']}
+        parsed_record = Parsed_rBAN_Record.__new__(cls)  # create an uninitialized instance
+        parsed_record.compound_id = compound_id
+        parsed_record.monomers = monomers
+        parsed_record.atoms = atoms
+        parsed_record.monomer_bonds = monomer_bonds
+        parsed_record.atomic_bonds = atomic_bonds
         parsed_record.metadata = metadata
-        return parsed_record
-
-    def to_nx_monomer_graph(self) -> DiGraph:
-        G = DiGraph()
-        for mon_idx, mon_info in self.monomers.items():
-            G.add_node(mon_idx, name=f'{mon_info.name}_{mon_info.chirality.name}_{mon_info.is_pks_hybrid}')
-        for (u, v), edge_info in self.monomer_bonds.items():
-            G.add_edge(u, v, bond_type=edge_info.bond_type)
-        return G
-
-    @classmethod
-    def graphs_isomorphic(cls, graph1: DiGraph, graph2: DiGraph) -> bool:
-        def node_match(n1, n2):
-            name1, name2 = n1.get('name'), n2.get('name')
-            return any([name1 == name2,  # same amino acid
-                        name1.startswith('X') and name2.startswith('X'),  # both unknown
-                        ':' in name1 and ':'])  # both lipid tails
-
-        def edge_match(e1, e2):
-            return e1.get('bond_type') == e2.get('bond_type')
-
-        return is_isomorphic(graph1, graph2, node_match=node_match, edge_match=edge_match)
+        return parsed_record    
 
 
 def get_hybrid_monomers_smiles(rban_record: Raw_rBAN_Record) -> List[Tuple[MonomerIdx, SMILES]]:

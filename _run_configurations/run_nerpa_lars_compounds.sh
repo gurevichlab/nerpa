@@ -1,0 +1,14 @@
+python nerpa.py \
+       -a ./test_data/antismash \
+       --smiles-tsv /home/ilianolhin/work/data/lars_project/gnps_mibig_match01.csv \
+       --col-id spectrum_id \
+       --col-smiles Smiles \
+       --sep , \
+       -o ./nerpa_results/test_lars_compounds \
+       --force-output-dir \
+       --process-hybrids \
+       --disable-deduplication \
+       --min-num-matches-per-bgc 0 \
+       --min-num-matches-per-nrp 1 \
+       --max-num-matches-per-nrp 1 \
+       --threads 8

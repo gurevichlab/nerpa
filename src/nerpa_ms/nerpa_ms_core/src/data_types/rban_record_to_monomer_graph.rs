@@ -1,4 +1,8 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+
+use crate::data_types::monomer_graph::AtomicEdgeData;
+
+use super::{common_types::MonomerIdx, monomer_graph::{AtomData, Monomer, MonomerFeatures, MonomerGraph}, parsed_rban_record::{AtomId, MonomerInfo, Parsed_rBAN_Record}};
 
 impl From<&MonomerInfo> for MonomerFeatures {
 	fn from(monomer_info: &MonomerInfo) -> Self {
@@ -19,7 +23,7 @@ impl Monomer {
 	idx: MonomerIdx,
     ) -> Self {
 	let monomer_info = rban_record.monomers.get(&idx)
-	    .expect("Missing MonomerInfo for monomer index {:?}", idx);
+	    .expect(&format!("Missing MonomerInfo for monomer index {:?}", idx));
 	let atoms_with_data = monomer_info
 	    .atoms
 	    .iter()
@@ -65,13 +69,13 @@ impl From<&Parsed_rBAN_Record> for MonomerGraph {
     fn from(rban_record: &Parsed_rBAN_Record) -> Self {
         let monomers: HashMap<MonomerIdx, Monomer> = {
 	    rban_record
-	    .monomers
-	    .iter()
-	    .map(|(&idx, monomer_info)| {
-		let monomer = Monomer::from_rban_record(rban_record, idx);
-		(idx, monomer)
-	    })
-	    .collect()
+		.monomers
+		.keys()
+		.map(|&idx| {
+		    let monomer = Monomer::from_rban_record(rban_record, idx);
+		    (idx, monomer)
+		})
+		.collect()
 	};
 
         // Deterministic order is handy for tests/debugging.

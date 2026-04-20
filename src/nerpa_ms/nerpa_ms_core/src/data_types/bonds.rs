@@ -136,6 +136,7 @@ impl BindingSitesProfile {
 }
 
 // A wrapper around Vec<(BindingSiteType, Bond)> to ensure that the vector is always sorted by BindingSiteType.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BondsByBSType(Vec<(BindingSiteType, Bond)>);
 
 impl BondsByBSType {
@@ -151,7 +152,18 @@ impl BondsByBSType {
     pub fn compatible_with(&self, other: &BondsByBSType) -> bool {
 	self.get_profile() == other.get_profile()
     }
+    pub fn iter(&self) -> std::slice::Iter<'_, (BindingSiteType, Bond)> {
+        self.0.iter()
+    }
+    pub fn len(&self) -> usize {
+	self.0.len()
+    }
+    pub fn get(&self, idx: usize) -> Option<&(BindingSiteType, Bond)> {
+	self.0.get(idx)
+    }
 }
+
+
 
 // Custom Deserialize:
 // - standard form: a JSON array (the usual newtype Vec representation)
@@ -208,15 +220,12 @@ impl<'de> Deserialize<'de> for BindingSitesProfile {
 
 impl Bond {
     pub fn shift_atom_ids(&mut self,
-			  side: BondSide,
 			  shift: u32) {
-	let label_to_atom = match side {
-	    BondSide::Left => &mut self.label_to_atom.0,
-	    BondSide::Right => &mut self.label_to_atom.1,
-	};
+	for label_to_atom in [&mut self.label_to_atom.0, &mut self.label_to_atom.1] {
 
 	label_to_atom
 	    .iter_mut()
 	    .for_each(|(_label, atom_id)| atom_id.0 += shift);
 	}
+    }
 }

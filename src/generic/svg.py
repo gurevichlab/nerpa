@@ -170,5 +170,51 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def force_svg_pixel_size(svg_bytes: bytes, width_px: int, height_px: int,
+                         stretch: bool = False) -> bytes:
+    """
+    Force SVG to have exact pixel width/height while preserving Graphviz output.
+    This edits only the opening <svg ...> tag and avoids XML reserialization.
+    """
+    svg = svg_bytes.decode("utf-8", errors="strict")
+
+    # Find opening <svg ...> tag
+    m = re.search(r"<svg\b[^>]*>", svg, flags=re.IGNORECASE)
+    if not m:
+        return svg_bytes  # not an SVG? leave it alone
+
+    tag = m.group(0)
+
+    # Replace or insert width/height
+    def upsert_attr(tag: str, name: str, value: str) -> str:
+        if re.search(rf"\b{name}\s*=", tag):
+            return re.sub(rf'\b{name}\s*=\s*"[^"]*"', f'{name}="{value}"', tag)
+        else:
+            # insert before the closing '>'
+            return tag[:-1] + f' {name}="{value}">'
+
+    tag2 = tag
+    tag2 = upsert_attr(tag2, "width", f"{width_px}px")
+    tag2 = upsert_attr(tag2, "height", f"{height_px}px")
+
+    par = "none" if stretch else "xMidYMid meet"
+    tag2 = upsert_attr(tag2, "preserveAspectRatio", par)
+
+    # Replace the tag in the document
+    svg2 = svg[:m.start()] + tag2 + svg[m.end():]
+    return svg2.encode("utf-8")
+
+
+def ensure_image_ext(p: Path, fmt: Literal['png', 'svg']) -> Path:
+    """Ensure path ends with .svg or .png without stripping mid-name parts like '.1'."""
+    s = str(p)
+    fmt = fmt.lower()
+    if s.lower().endswith('.png') or s.lower().endswith('.svg'):
+        s = s[:s.rfind('.')] + f'.{fmt}'
+    else:
+        s = s + f'.{fmt}'
+    return Path(s)
+
+
 if __name__ == '__main__':
     raise SystemExit(main())

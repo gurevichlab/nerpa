@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{bonds::{BindingSiteType, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
+use super::{bonds::{BindingSiteType, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, monomers_db::MonomersDB_Entry, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -61,12 +61,12 @@ impl MonomerGraph {
                 };
 
 		if let Some(side) = bs_side {
-                    (
-                        BindingSiteType {
+                    Some(
+                        (BindingSiteType {
                             bond_templ: bond.bond_templ.clone(),
                             side,
                         },
-                        bond,
+                        bond.clone())
                     )
                 }
 		else {
@@ -78,7 +78,7 @@ impl MonomerGraph {
 	BondsByBSType::new(bonds_by_bs)
     }
 
-    pub fn substitute(&mut self, monomer_idx: MonomerIdx, mon_db_entry: MonomersDB_Entry) {
+    pub fn substitute(&mut self, monomer_idx: MonomerIdx, mon_db_entry: &MonomersDB_Entry) {
 	let mon_bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
 	if !mon_bonds_by_bs.compatible_with(&mon_db_entry.bonds_by_bs) {
 	    panic!("Attempting to substitute monomer {} with a monomer that has an incompatible binding sites profile", monomer_idx);
@@ -87,26 +87,29 @@ impl MonomerGraph {
 	let new_bonds_by_mon_indices = {
 	    let mut new_bonds_by_mons = HashMap::new();
 	    for i in 0..mon_bonds_by_bs.len() {
-		let side = &mon_bonds_by_bs[i].0.side;
-		let mon_bond = &mon_bonds_by_bs[i].1;
-		let mon_db_bond = &mon_db_entry.bonds_by_bs[i].1;
+		let (mon_bs, mon_bond) =
+		    mon_bonds_by_bs.get(i).unwrap();
+		let (db_entry_bs, db_entry_bond) =
+		    mon_db_entry.bonds_by_bs.get(i).unwrap();
+		debug_assert_eq!(*mon_bs, *db_entry_bs);
+		let side = mon_bs.side;
 
 		let mut new_bond = mon_bond.clone();
 		match side {
 		    BondSide::Left => {
-			new_bond.label_to_atom.0 = mon_db_bond.label_to_atom.0.clone();
+			new_bond.label_to_atom.0 = db_entry_bond.label_to_atom.0.clone();
 		    },
 		    BondSide::Right => {
-			new_bond.label_to_atom.1 = mon_db_bond.label_to_atom.1.clone();
+			new_bond.label_to_atom.1 = db_entry_bond.label_to_atom.1.clone();
 		    }
 		}
 
-		new_bonds_by_mons.insert((mon_bond.monomers, new_bond));
+		new_bonds_by_mons.insert(mon_bond.monomers, new_bond);
 	    }
 	    new_bonds_by_mons
 	};
 
-	for old_bond in self.monomer_bonds {
+	for old_bond in self.monomer_bonds.iter_mut() {
 	    if let Some(new_bond) = new_bonds_by_mon_indices.get(&old_bond.monomers) {
 		*old_bond = new_bond.clone();
 	    }

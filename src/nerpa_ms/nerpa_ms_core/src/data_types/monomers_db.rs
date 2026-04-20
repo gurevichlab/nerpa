@@ -1,4 +1,4 @@
-use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond};
+use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond, BondsByBSType};
 use itertools::Itertools;
 use crate::data_types::parsed_rban_record::{
     MonomerInfo, NerpaCoreResidue, NorineMonomerName, Parsed_rBAN_Record,
@@ -6,10 +6,12 @@ use crate::data_types::parsed_rban_record::{
 use serde::{Deserialize, Serialize};
 use std::{cmp::Reverse, collections::HashMap, path::{Path, PathBuf}};
 
+use super::monomer_graph::Monomer;
+
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomersDB_Entry {
     pub monomer: Monomer,
-    pub bonds_by_bs: Vec<(BindingSiteType, Bond)>,
+    pub bonds_by_bs: BondsByBSType,
 }
 
 pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
@@ -17,7 +19,7 @@ pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
 pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> MonomersDB {
     let mut entries_by_bs: MonomersDB = HashMap::new();
     for record in rban_records {
-        for (mon_idx, monomer) in &record.monomers {
+        for mon_idx in record.monomers.keys() {
             let bonds_by_bs = record.bonds_for_monomer(*mon_idx);
             let bs_profile = BindingSitesProfile::new(
                 bonds_by_bs
@@ -25,15 +27,9 @@ pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> Mon
                     .map(|(bs, _bond)| bs.clone())
                     .collect::<Vec<BindingSiteType>>(),
             );
-	    let atoms = monomer
-		.atoms
-		.iter()
-		.map(|atom_id| (atom_id.clone(), record.atoms[atom_id].clone()))
-		.collect();
             let entry = MonomersDB_Entry {
-                monomer: monomer.clone(),
-		atoms_info: atoms,
-                bonds_by_bs,
+                monomer: Monomer::from_rban_record(record, *mon_idx),
+                bonds_by_bs: BondsByBSType::new(bonds_by_bs),
             };
             entries_by_bs.entry(bs_profile).or_default().push(entry);
         }
@@ -48,9 +44,9 @@ fn filter_db_entries(entries: &[MonomersDB_Entry]) -> Vec<MonomersDB_Entry> {
     let mut groups: HashMap<(NerpaCoreResidue, bool), Vec<&MonomersDB_Entry>> = HashMap::new();
     entries
         .iter()
-        .filter(|entry| !entry.monomer.is_pks_hybrid && !entry.monomer.nerpa_core.is_unknown())
+        .filter(|entry| !entry.monomer.features.is_pks_hybrid && !entry.monomer.features.nerpa_core.is_unknown())
         .for_each(|entry| {
-            let key = (entry.monomer.nerpa_core.clone(), entry.monomer.methylated);
+            let key = (entry.monomer.features.nerpa_core.clone(), entry.monomer.features.methylated);
             groups.entry(key).or_default().push(entry);
         });
 
@@ -60,12 +56,12 @@ fn filter_db_entries(entries: &[MonomersDB_Entry]) -> Vec<MonomersDB_Entry> {
     //    breaking ties by choosing an entry with the shortest name.
     for (_key, group_entries) in groups {
         // Count name frequencies
-        let name_freq = group_entries.iter().map(|e| &e.monomer.name).counts();
+        let name_freq = group_entries.iter().map(|e| &e.monomer.features.name).counts();
 
         let group_repr = group_entries
             .iter()
             .sorted_by_key(|e| {
-                let name = &e.monomer.name;
+                let name = &e.monomer.features.name;
                 (Reverse(name_freq.get(name).unwrap()), name.0.len())
             })
             .next()
@@ -97,21 +93,28 @@ pub fn load_monomers_db(monomers_db_json: &Path) -> MonomersDB {
     serde_json::from_str(&json_str).unwrap()
 }
 
+impl Monomer {
+    pub fn shift_atom_ids(&mut self, shift: u32) {
+	self.atoms.iter_mut().for_each(|atom| atom.id.0 += shift);
+	self.atomic_bonds.iter_mut().for_each(|edge| {
+	    edge.atom_ids.0 .0 += shift;
+	    edge.atom_ids.1 .0 += shift;
+	});
+    }
+}
 
 impl MonomersDB_Entry {
     pub fn shift_atom_ids(&mut self, shift: u32) {
-	self.monomer
-	    .atoms
-	    .iter_mut()
-	    .for_each(|atom| atom.0 += shift);
-
-	self.atoms_info
-	    .iter_mut()
-	    .for_each(|(atom_id, _atom_info)| *atom_id = AtomId(atom_id.0 + shift));
-
-	self.bonds_by_bs
-	    .iter_mut()
-	    .for_each(|(bs, bond)| bond.shift_atom_ids(bs.side, shift));
+	self.monomer.shift_atom_ids(shift);
+	self.bonds_by_bs = {
+	    let mut shifted_bonds = Vec::new();
+		for (bs, bond) in self.bonds_by_bs.iter() {
+		    let mut shifted_bond = bond.clone();
+		    shifted_bond.shift_atom_ids(shift);
+		    shifted_bonds.push((bs.clone(), shifted_bond));
+		}
+	    BondsByBSType::new(shifted_bonds)
+	};
     }
 
 }

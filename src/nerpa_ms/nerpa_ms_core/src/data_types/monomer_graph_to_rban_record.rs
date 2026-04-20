@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+
+use crate::data_types::{bonds::Bond, common_types::MonomerIdx, monomer_graph::{AtomData, AtomicEdgeData, Monomer, MonomerGraph}, parsed_rban_record::{AtomId, AtomInfo, AtomicEdgeInfo, MonomerEdgeInfo, MonomerEdgeInfoSingle, MonomerInfo, Parsed_rBAN_Record}};
+
 impl From<&Monomer> for MonomerInfo {
     fn from(monomer: &Monomer) -> Self {
 		let atoms: Vec<AtomId> = monomer
@@ -37,25 +41,25 @@ impl From<&AtomicEdgeData> for AtomicEdgeInfo {
 
 impl From<&Bond> for MonomerEdgeInfo{
     fn from(bond: &Bond) -> Self {
-        let (mon_idx1, mon_idx2) = b.monomers;
+        let (mon_idx1, mon_idx2) = bond.monomers;
 
         // Build the per-atomic-edge info from the bond template.
         let atomic_edges = bond.get_atomic_edges();
-	let monomer_edges_single = {
+	let monomer_edges_single: Vec<MonomerEdgeInfoSingle> = {
 	    atomic_edges
 		.iter()
 		.map(|atomic_edge| {
-		    let (atom_id1, atom_id2) = atomic_edge.atom_ids;
-		    let monomer_to_atom = vec![(mon_idx1, atom_id1), (mon_idx2, atom_id2)]
-			.into_iter()
-			.collect();
+		    let (atom_id1, atom_id2) = &atomic_edge.atom_ids;
+		    let mut monomer_to_atom: HashMap<MonomerIdx, AtomId> = HashMap::new();
+		    monomer_to_atom.insert(mon_idx1, atom_id1.clone());
+		    monomer_to_atom.insert(mon_idx2, atom_id2.clone());
 		    MonomerEdgeInfoSingle {
 			monomer_to_atom,
 			arity: atomic_edge.arity.clone(),
 			bond_type: atomic_edge.bond_type.clone(),
 		    }
 		})
-		.collect();
+		.collect()
 	};
 	let fst_edge = monomer_edges_single.first().unwrap().clone();
 	MonomerEdgeInfo {
@@ -74,7 +78,7 @@ impl From<&MonomerGraph> for Parsed_rBAN_Record {
 		.monomers
 		.iter()
 		.map(|(idx, monomer)| (*idx, MonomerInfo::from(monomer)))
-		.collect();
+		.collect()
 	};
 
 	let monomer_bonds: HashMap<(MonomerIdx, MonomerIdx), MonomerEdgeInfo> = {
@@ -82,7 +86,7 @@ impl From<&MonomerGraph> for Parsed_rBAN_Record {
 	    .monomer_bonds
 	    .iter()
 	    .map(|bond| (bond.monomers.clone(), MonomerEdgeInfo::from(bond)))
-	    .collect();
+	    .collect()
 	};
 
 	let atoms: HashMap<AtomId, AtomInfo> = {
@@ -91,7 +95,7 @@ impl From<&MonomerGraph> for Parsed_rBAN_Record {
 	    .values()
 	    .flat_map(|monomer| &monomer.atoms)
 	    .map(|atom_data| (atom_data.id.clone(), AtomInfo::from(atom_data)))
-	    .collect();
+	    .collect()
 	};
 
 	let atomic_bonds: HashMap<(AtomId, AtomId), AtomicEdgeInfo> = {

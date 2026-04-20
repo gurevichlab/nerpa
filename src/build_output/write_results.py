@@ -14,8 +14,7 @@ from src.rban_parsing.nrp_variant_types import NRP_Variants_Info, NRP_Variant_ID
 from src.generic.combinatorics import sort_groupby
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.build_output.html_reporter import create_html_report
-from src.nerpa_ms.monomer_graph.draw_graph import draw_molecule, draw_monomer_graph
-from src.nerpa_ms.monomer_graph.monomer_graph import MonomerGraph
+from src.build_output.draw_graph import draw_molecule, draw_monomer_graph
 from src.pipeline.logging.logger import NerpaLogger
 from pathlib import Path
 from io import StringIO
@@ -106,10 +105,6 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
         output_cfg.nrp_representatives)
 
     if rban_records:
-        write_yaml([rban_record.to_compact_dict()
-                    for rban_record in rban_records
-                    if rban_record.compound_id in compound_ids_to_write],
-                   output_cfg.rban_graphs)
         write_yaml([rban_record.to_dict(monomer_names_helper=monomer_names_helper)
                     for rban_record in rban_records
                     if rban_record.compound_id in compound_ids_to_write],
@@ -117,14 +112,17 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
         if output_cfg.draw_molecules:
             for rban_record in filter(lambda r: r.compound_id in compound_ids_to_write,
                                       rban_records):
-                #print(f'Drawing {rban_record.compound_id}', flush=True)
-                monomer_graph = MonomerGraph.from_rban_record(rban_record)
-                draw_monomer_graph(monomer_graph,
-                                   with_rban_indexes=True,
-                                   output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
-                                   monomer_names_helper=monomer_names_helper)
                 try:
-                    draw_molecule(monomer_graph,
+                    draw_monomer_graph(rban_record,
+                                       with_rban_indexes=True,
+                                       output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
+                                       monomer_names_helper=monomer_names_helper)
+                except Exception as e:
+                    if log is not None:
+                        log.info(f'Failed to draw monomer graph for {rban_record.compound_id}: {e}')
+
+                try:
+                    draw_molecule(rban_record,
                                   rban_indexes=True,
                                   monomer_labels=True,
                                   output_file=output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.svg',
@@ -132,7 +130,6 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
-                    raise
     else:
         if log is not None:
             log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')

@@ -8,7 +8,8 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct AtomId(pub u32);
 
-pub type AtomicEdge = (AtomId, AtomId);
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AtomicEdge(pub (AtomId, AtomId));
 
 pub type MonomerEdge = (MonomerIdx, MonomerIdx);
 
@@ -21,8 +22,8 @@ pub struct NerpaCoreResidue(pub String);
 
 impl NerpaCoreResidue {
     pub fn is_unknown(&self) -> bool {
-		self.0 == "_UNKNOWN"
-	}
+	self.0 == "_UNKNOWN"
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -32,7 +33,7 @@ pub enum Chirality {
     UNKNOWN,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct AtomInfo {
     pub name: String, // e.g. 'C', 'N', 'O', 'Cl'
     pub hydrogens: u32,
@@ -41,9 +42,10 @@ pub struct AtomInfo {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct BondType(pub Option<String>);
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct AtomicEdgeInfo {
-    pub arity: f64, // usually 1.0, but can be fractional for aromatic bonds
+    #[serde(deserialize_with = "crate::data_types::json_helpers::de_str_or_num_to_str")]
+    pub arity: String, // usually 1.0, but can be fractional for aromatic bonds
     pub bond_type: BondType,
 }
 
@@ -61,24 +63,12 @@ pub struct MonomerInfo {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct MonomerEdgeInfoSingle {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-    
-    pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
-
-    pub bond_type: BondType,
+    pub atomic_edge: AtomicEdgeInfo,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct MonomerEdgeInfo {
-    pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
+pub type MonomerEdgeInfo = Vec<MonomerEdgeInfoSingle>;
 
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_str_or_num_to_str")]
-    pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
-
-    pub bond_type: BondType,
-    pub all_edges: Vec<MonomerEdgeInfoSingle>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
 pub struct NRP_Metadata {
     pub name: Option<String>,
     pub smiles: Option<String>,
@@ -87,7 +77,7 @@ pub struct NRP_Metadata {
     pub source: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Parsed_rBAN_Record {
     pub compound_id: String,
     pub monomers: HashMap<MonomerIdx, MonomerInfo>,
