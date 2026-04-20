@@ -190,6 +190,11 @@
             margin-top: 15px;
             margin-bottom: 5px;
         }
+        
+        .zoom{
+            margin-top: 15px;
+            margin-bottom: 0990px;
+        }
 
         .matchDetailedInfoLabel {
             font-weight: bold;
@@ -225,10 +230,13 @@
             overflow-wrap: anywhere;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
         }
+        
         .image-frame {
             overflow: hidden;
             position: relative; 
         }
+
+
     </style>
 </head>
 <body>
@@ -380,20 +388,24 @@
         </div>
         <div id="nrpViewerContainer" class="viewer" style="display: none;">
             <div style="display: flex; justify-content: space-between;">
-                <div style="flex: 1; padding-right: 5px;">
+                <div class="image-frame" style="flex: 1; padding-right: 5px;">
                     <img id="moleculeImage"
                          src=""
                          alt="Molecule image is missing. Did you run the tool with '--skip-molecule-drawing'?"
                          style="width: 100%; height: auto;"/>
-                      <button  class="hide-button" id="zoomInMol" onclick="zooming('moleculeImage')" style="display: none;">Zoom into molecule</button>
-                </div>
-                <div style="flex: 1; padding-left: 5px;">
+               </div>
+                <div class="image-frame" style="flex: 1; padding-left: 5px;">
                     <img id="graphImage"
                          src=""
                          alt="Graph image is missing. Did you run the tool with '--skip-molecule-drawing'?"
                          style="width: 100%; height: auto;"/>
-                         <button  class="hide-button" id="zoomInGr" onclick="zooming('graphImage')" style="display: none;">Zoom into graph</button>
                 </div>
+            </div>
+            <div style="display: flex; justify-content: space-between;">    
+                    <button  class="hide-button" id="zoomInMol" onclick="zooming('moleculeImage', 'stopZoomMol', 'zoomInMol')" style="display: none;">Zoom into molecule</button>
+                    <button  class="hide-button" id="stopZoomMol" onclick="stopZooming('moleculeImage', 'zoomInMol','stopZoomMol')" style="display: none;">stop zoom</button>
+                    <button  class="hide-button" id="zoomInGr" onclick="zooming('graphImage', 'stopZoomGr', 'zoomInGr')" style="display: none;">Zoom into graph</button>
+                    <button  class="hide-button" id="stopZoomGr" onclick="stopZooming('graphImage', 'zoomInGr', 'stopZoomGr')" style="display: none;">stop zoom</button>
             </div>
         </div>
     </div>
@@ -403,19 +415,42 @@
 
 <script>
     // Function to zoom into image
-    function zooming(id){
+       function zooming(id, btnStopId, btnStartId){
+        switchBtn(btnStopId, btnStartId);
+        
         const pic = document.getElementById(id);
 
+        // to block zooming into/scrolling up the page while zooming into the picture 
+        pic.addEventListener('wheel', e => e.preventDefault(), {passive: false}); 
+       
         let scalefactor = 1;
 
         let zoom = e => {
             scalefactor += e.deltaY * -0.01;
             scalefactor = Math.max(scalefactor, 1);
-            pic.style.transition = "transform 0.01s";
+            pic.style.transition = "transform 0.1s";
             pic.style.transform = `scale(${scalefactor})`;
         }
 
         pic.onwheel = zoom;
+    }
+
+    function stopZooming(id, btnStartId, btnStopId){
+        switchBtn(btnStartId, btnStopId);
+        const pic = document.getElementById(id);
+        pic.onwheel = e => {};
+        pic.style.transform = `scale(${1})`;
+
+        // to enable zooming into/scrolling up the page while zooming into the picture  !!does not work !!
+        pic.removeEventListener('wheel', e => e.preventDefault(), {passive: false});
+    }
+
+    function switchBtn(btn1Id, btn2Id){
+        const btn1 = document.getElementById(btn1Id);
+        const btn2 = document.getElementById(btn2Id);
+     
+        btn1.style.display = 'inline';
+        btn2.style.display = 'none';
     }
 
     // Function to detect if a value is numeric
@@ -970,9 +1005,6 @@
         const iframe = document.getElementById('genomeViewer');
         const hideBtn = document.getElementById('hideGenomeViewerBtn');
         const label = document.getElementById('genomeViewerLabel');
-        const zoomBtnInMol = document.getElementById('zoomInMol');
-        const zoomBtnInGr = document.getElementById('zoomInGr');
-
 
         if (hide) {
             iframe.style.display = 'none';
@@ -983,8 +1015,6 @@
             iframe.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            zoomBtnInMol.style.display = 'inline';
-            zoomBtnInGr.style.display = 'inline';
         }
     }
 
@@ -993,6 +1023,8 @@
         const frame = document.getElementById('nrpViewerContainer');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
         const label = document.getElementById('nrpViewerLabel');
+        const zoomBtnInMol = document.getElementById('zoomInMol');
+        const zoomBtnInGr = document.getElementById('zoomInGr');
 
         if (hide) {
             frame.style.display = 'none';
@@ -1006,6 +1038,8 @@
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
+            zoomBtnInMol.style.display = 'block';
+            zoomBtnInGr.style.display = 'inline';
         }
     }
 
