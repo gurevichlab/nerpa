@@ -30,7 +30,7 @@ pub fn generate_new_variants_per_weight(
 	let max_solutions = if weight > 0 {max_variants_per_weight} else {1}; // for weight 0, we only want the original molecule, so we take 1 solution
 	let solutions = backtrack_solutions(weight, &dp_table, &dag);
 
-	for sol in solutions.into_iter().take(max_variants_per_weight) {
+	for sol in solutions.into_iter().take(max_solutions) {
 	    let mods = sol
 		.dag_edges.iter()
 		.filter_map(|e| e.modification)

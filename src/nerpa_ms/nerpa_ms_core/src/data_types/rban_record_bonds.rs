@@ -3,6 +3,8 @@ use crate::data_types::common_types::MonomerIdx;
 use crate::data_types::parsed_rban_record::{AtomId, MonomerEdgeInfo, Parsed_rBAN_Record};
 use std::collections::HashMap;
 
+use super::parsed_rban_record::MonomerEdgeInfoSingle;
+
 impl Parsed_rBAN_Record {
     /// Generate symbolic bond atom labels for a given set of atom IDs.
     /// In case of multiple atoms with the same element, the assignment is non-deterministic
@@ -36,7 +38,7 @@ impl Parsed_rBAN_Record {
     pub fn edge_to_bond(&self, edge: &(MonomerIdx, MonomerIdx)) -> Bond {
         let (left_mon, right_mon) = edge.clone();
 
-        let mon_edge_info: &MonomerEdgeInfo = self
+        let atomic_edges: &Vec<MonomerEdgeInfoSingle> = self
             .monomer_bonds
             .get(edge)
             .or_else(|| self.monomer_bonds.get(&(right_mon, left_mon)))
@@ -47,13 +49,12 @@ impl Parsed_rBAN_Record {
 		)
             });
 
-        let atomic_bonds = &mon_edge_info.all_edges;
-        let left_atoms: Vec<AtomId> = atomic_bonds
+        let left_atoms: Vec<AtomId> = atomic_edges
             .iter()
             .map(|e| e.monomer_to_atom.get(&left_mon).unwrap())
             .cloned()
             .collect();
-        let right_atoms: Vec<AtomId> = atomic_bonds
+        let right_atoms: Vec<AtomId> = atomic_edges
             .iter()
             .map(|e| e.monomer_to_atom.get(&right_mon).unwrap())
             .cloned()
@@ -63,11 +64,11 @@ impl Parsed_rBAN_Record {
 
         let atomic_bond_templates_unflipped: Vec<AtomicBondTemplate> = {
 	    let mut _atomic_bond_templates: Vec<AtomicBondTemplate> =
-		atomic_bonds
+		atomic_edges
 		.iter()
 		.map(|e| AtomicBondTemplate {
-		    bond_type: e.bond_type.clone(),
-		    arity: e.arity.clone(),
+		    bond_type: e.atomic_edge.bond_type.clone(),
+		    arity: e.atomic_edge.arity.clone(),
 		    atoms: (
 			left_labels
 			    .get(e.monomer_to_atom.get(&left_mon).unwrap())
@@ -136,7 +137,7 @@ impl Parsed_rBAN_Record {
 	    .monomer_bonds
 	    .iter()
 	    .filter(|(edge, _)| edge.0 == mon_idx || edge.1 == mon_idx)
-	    .map(|(edge, _)| self.edge_to_bond(*edge))
+	    .map(|(edge, _)| self.edge_to_bond(edge))
 	    .collect();
 
 	let binding_sites: Vec<BindingSiteType> = bonds

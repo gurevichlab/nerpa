@@ -37,35 +37,35 @@ void write_output_to_json(const std::vector<MatchInfo>& matches,
                 {"nrp_id", match.nrp_id},
                 {"nrp_linearizations", linearizations_json},
                 {"optimal_paths", optimal_paths_json}
-        }; // <-- Removed the extra semicolon here
+        };
     });
 
-    // 2. Convert p-values to JSON format
-    json p_values_json = json::array();
-    for (const auto& [bgc_variant_id, pvals] : p_values_vec) {
-        json bgc_variant_info = {
-                {"bgc_id", {
-                                   {"antiSMASH_file", genome_id(bgc_id(bgc_variant_id))},
-                                   {"contig_idx", contig_idx(bgc_id(bgc_variant_id))},
-                                   {"bgc_idx", bgc_idx(bgc_id(bgc_variant_id))}}},
-                {"variant_idx", variant_idx(bgc_variant_id)}
-        };
-        p_values_json.push_back({
-                                        {"bgc_variant_info", bgc_variant_info},
-                                        {"p_values", pvals}
-                                });
-    }
+    // // 2. Convert p-values to JSON format
+    // json p_values_json = json::array();
+    // for (const auto& [bgc_variant_id, pvals] : p_values_vec) {
+    //     json bgc_variant_info = {
+    //             {"bgc_id", {
+    //                                {"antiSMASH_file", genome_id(bgc_id(bgc_variant_id))},
+    //                                {"contig_idx", contig_idx(bgc_id(bgc_variant_id))},
+    //                                {"bgc_idx", bgc_idx(bgc_id(bgc_variant_id))}}},
+    //             {"variant_idx", variant_idx(bgc_variant_id)}
+    //     };
+    //     p_values_json.push_back({
+    //                                     {"bgc_variant_info", bgc_variant_info},
+    //                                     {"p_values", pvals}
+    //                             });
+    // }
 
     // 3. Combine matches and p-values into a single JSON object
-    json j_out = {
-            {"matches", matches_json},
-            {"p_values", p_values_json}
-    };
+    // json j_out = {
+    //         {"matches", matches_json},
+    //         {"p_values", p_values_json}
+    // };
 
     // 4. Write the JSON object to the output file
     std::ofstream ofs(output_path);
     if (!ofs.is_open()) {
         throw std::runtime_error("Failed to open output file: " + output_path);
     }
-    ofs << j_out.dump(2) << std::endl;
+    ofs << matches_json.dump(2) << std::endl;
 }

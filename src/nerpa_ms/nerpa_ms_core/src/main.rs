@@ -6,29 +6,38 @@ mod io;
 use clap::Parser;
 use anyhow::Result;
 use data_types::monomers_db::load_monomers_db;
-use io::draw_dag::Draw_DAG_Config;
-use data_types::monomer_graph::MonomerGraphh;
+use io::output::{OutputItem, write_output};
+use algo::algo_main::generate_new_variants_per_weight;
 
 fn main() -> Result<()> {
+    println!("Nerpa-MS variant generation has started...");
     let cli = cli::Cli::parse();
     println!("cli received: {:#?}", cli);
-    let input_items = io::input::parse_input(&cli.input)
-	.unwrap_or_else(|err| panic!("Failed to load (HMM, Parsed_rBAN_Record, Linearization) triplets from {}: {}",
-				     cli.input.display(), err));
-    println!("loaded {} input items", input_items.len());
+    let input_items = io::input::get_input(&cli)
+	.map_err(|e| anyhow::anyhow!("Failed to load input:\n{e}"))?;
+    println!("Loaded {} input items", input_items.len());
 
-    let rban_record = &input_items[0].rban_record;
-    let linearization = &input_items[0].linearization;
+    println!("Loading monomers database from {}", cli.monomers_db_json.display());
     let monomers_db = load_monomers_db(&cli.monomers_db_json);
-    let dag = algo::graph_to_dag::create_dag(rban_record,
-					     linearization,
-					     &monomers_db,);
-    let out_path = cli.out.join("dag.svg");
-    dag.draw_svg(&out_path,
-		 &Draw_DAG_Config{node_indexes: false},
-		 None)?;
-    let monomer_graph = MonomerGraph::from(&rban_record);
-    let new_rban_record = Parsed_rBA_Record::from(&monomer_graph);
+
+    println!("Generating variants...");
+    let mut output_items: Vec<OutputItem> = Vec::with_capacity(input_items.len());
+    for item in input_items {
+	let variants_by_weight = generate_new_variants_per_weight(
+	    &item.hmm,
+	    &item.rban_record,
+	    &item.linearization,
+	    &monomers_db,
+	    cli.max_edits,
+	    cli.num_variants_per_num_edits
+	);
+	output_items.push(OutputItem {
+	    bgc_variant_id: item.hmm.bgc_variant_id.clone(),
+	    compound_id: item.rban_record.compound_id.clone(),
+	    variants_by_weight,
+	});
+    }
 	
+    write_output(&output_items, &cli.out);
     Ok(())
 }

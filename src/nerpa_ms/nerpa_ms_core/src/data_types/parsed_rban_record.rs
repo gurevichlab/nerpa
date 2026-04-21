@@ -58,7 +58,7 @@ pub struct MonomerInfo {
     pub atoms: Vec<AtomId>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomerEdgeInfoSingle {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
     pub atomic_edge: AtomicEdgeInfo,

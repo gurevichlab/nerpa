@@ -3,3 +3,4 @@ pub mod data_types;
 pub mod algo;
 pub mod io;
 pub mod testing;
+pub mod cli;

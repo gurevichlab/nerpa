@@ -33,7 +33,7 @@ impl From<&AtomData> for AtomInfo {
 impl From<&AtomicEdgeData> for AtomicEdgeInfo {
     fn from(edge_data: &AtomicEdgeData) -> Self {
 	AtomicEdgeInfo {
-	    arity: edge_data.arity.parse::<f64>().unwrap(),
+	    arity: edge_data.arity.clone(),
 	    bond_type: edge_data.bond_type.clone(),
 	}
     }
@@ -45,29 +45,19 @@ impl From<&Bond> for MonomerEdgeInfo{
 
         // Build the per-atomic-edge info from the bond template.
         let atomic_edges = bond.get_atomic_edges();
-	let monomer_edges_single: Vec<MonomerEdgeInfoSingle> = {
-	    atomic_edges
-		.iter()
-		.map(|atomic_edge| {
-		    let (atom_id1, atom_id2) = &atomic_edge.atom_ids;
-		    let mut monomer_to_atom: HashMap<MonomerIdx, AtomId> = HashMap::new();
-		    monomer_to_atom.insert(mon_idx1, atom_id1.clone());
-		    monomer_to_atom.insert(mon_idx2, atom_id2.clone());
-		    MonomerEdgeInfoSingle {
-			monomer_to_atom,
-			arity: atomic_edge.arity.clone(),
-			bond_type: atomic_edge.bond_type.clone(),
-		    }
-		})
-		.collect()
-	};
-	let fst_edge = monomer_edges_single.first().unwrap().clone();
-	MonomerEdgeInfo {
-	    monomer_to_atom: fst_edge.monomer_to_atom,
-	    arity: fst_edge.arity,
-	    bond_type: fst_edge.bond_type,
-	    all_edges: monomer_edges_single,
-	}
+	atomic_edges
+	    .iter()
+	    .map(|atomic_edge| {
+		let (atom_id1, atom_id2) = &atomic_edge.atom_ids;
+		let mut monomer_to_atom: HashMap<MonomerIdx, AtomId> = HashMap::new();
+		monomer_to_atom.insert(mon_idx1, atom_id1.clone());
+		monomer_to_atom.insert(mon_idx2, atom_id2.clone());
+		MonomerEdgeInfoSingle {
+		    monomer_to_atom,
+		    atomic_edge: AtomicEdgeInfo::from(atomic_edge),
+		}
+	    })
+	    .collect()
     }
 }
 

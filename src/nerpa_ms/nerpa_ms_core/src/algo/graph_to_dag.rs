@@ -30,7 +30,7 @@ pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
                         mon_db_entry,
                     } = gm
                     {
-                        mon_db_entry.monomer.name != monomer_info.name
+                        mon_db_entry.monomer.features.name != monomer_info.name
                     } else {
                         true
                     }
@@ -60,8 +60,8 @@ pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
             match &gm {
                 GraphModification::Substitute { mon_db_entry, .. } => {
                     labels.push(VertexLabel{
-			monomer_code: Some(mon_db_entry.monomer.mon_code.clone()),
-			name: mon_db_entry.monomer.name.0.clone()
+			monomer_code: Some(mon_db_entry.monomer.features.mon_code.clone()),
+			name: mon_db_entry.monomer.features.name.0.clone()
 		    });
                 }
                 _ => unreachable!("expected Substitute"),

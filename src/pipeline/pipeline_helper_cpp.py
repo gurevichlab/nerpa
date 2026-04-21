@@ -81,7 +81,7 @@ class PipelineHelperCpp:
 
     def run_cpp_matcher(self,
                         hmms_json: Path,
-                        nrp_linearizations_json: Path) -> CppOutput:
+                        nrp_linearizations_json: Path) -> List[HMM_Match]:
         # Prepare the command
         cmd = list(map(str,
                           [
@@ -118,18 +118,14 @@ class PipelineHelperCpp:
         with open(self.config.output_config.cpp_io_config.cpp_output_json, 'r') as f:
             json_data = json.load(f)
             hmm_matches = [HMM_Match.from_json(match_dict)
-                           for match_dict in json_data["matches"]]
-            p_values_by_bgc_variant = {BGC_Variant_ID.from_dict(p_values_dict["bgc_variant_info"]):
-                                           p_values_dict["p_values"]
-                                        for p_values_dict in json_data["p_values"]}
-        return CppOutput(matches=hmm_matches,
-                         p_values_by_bgc_variant=p_values_by_bgc_variant)
+                           for match_dict in json_data]
+        return hmm_matches
 
-    def get_hmm_matches_and_p_values(self,
-                                     detailed_hmms: List[DetailedHMM],
-                                     nrp_linearizations: List[NRP_Linearizations]) -> CppOutput:
+    def get_hmm_matches(self,
+                        detailed_hmms: List[DetailedHMM],
+                        nrp_linearizations: List[NRP_Linearizations]) -> List[HMM_Match]:
         if not detailed_hmms or not nrp_linearizations:
-            return CppOutput(matches=[], p_values_by_bgc_variant={})
+            return []
         
         hmms_json = self.dump_hmms(detailed_hmms)
         nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations, detailed_hmms[0])

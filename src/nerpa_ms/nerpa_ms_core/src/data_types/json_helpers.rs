@@ -94,62 +94,6 @@ impl<'de> Deserialize<'de> for AtomId {
 
 use crate::data_types::parsed_rban_record::{BondType, MonomerEdgeInfoSingle};
 
-// In the JSON, `all_edges` entries are tuples like:
-//   [ { "4": 6, "5": 7 }, 1, "AMINO" ]
-// (not objects with named fields). Accept both representations.
-impl<'de> Deserialize<'de> for MonomerEdgeInfoSingle {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum ArityRepr {
-            Num(f64),
-            Str(String),
-        }
-
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum Repr {
-            Obj {
-                monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-                arity: ArityRepr,
-                bond_type: BondType,
-            },
-            Tup(HashMap<MonomerIdx, AtomId>, ArityRepr, BondType),
-        }
-
-        match Repr::deserialize(deserializer)? {
-            Repr::Obj {
-                monomer_to_atom,
-                arity,
-                bond_type,
-            } => {
-                let arity = match arity {
-                    ArityRepr::Num(n) => n.to_string(),
-                    ArityRepr::Str(s) => s,
-                };
-                Ok(MonomerEdgeInfoSingle {
-                    monomer_to_atom,
-                    arity,
-                    bond_type,
-                })
-            }
-            Repr::Tup(monomer_to_atom, arity, bond_type) => {
-                let arity = match arity {
-                    ArityRepr::Num(n) => n.to_string(),
-                    ArityRepr::Str(s) => s,
-                };
-                Ok(MonomerEdgeInfoSingle {
-                    monomer_to_atom,
-                    arity,
-                    bond_type,
-                })
-            }
-        }
-    }
-}
 
 use std::collections::HashMap;
 use std::hash::Hash;

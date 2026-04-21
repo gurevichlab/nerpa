@@ -5,15 +5,18 @@ use crate::data_types::common_types::{LogProb};
 pub type StateIdx = usize;
 
 use anyhow::{anyhow, bail};
+use derive_more::Display;
 
-#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Display, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[display("{antiSMASH_file}:{contig_idx}:{bgc_idx}")]
 pub struct BGC_ID {
     pub antiSMASH_file: String,
     pub contig_idx: usize,
     pub bgc_idx: usize,
 }
 
-#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Display, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[display("{bgc_id}:{variant_idx}")]
 pub struct BGC_Variant_ID {
     pub bgc_id: BGC_ID,
     pub variant_idx: usize,

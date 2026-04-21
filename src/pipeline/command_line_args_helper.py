@@ -119,10 +119,10 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
                                help="do not draw NRP molecules and monomer graphs "
                                     "(faster and saves space but they will be missing in the HTML report)")
 
-    configs_group.add_argument("--keep-intermediate-files",
-                               action="store_true", default=False,
-                               help="keep all intermediate files (rBAN results, HMMs, etc) "
-                                    "in the output directory")
+    # configs_group.add_argument("--keep-intermediate-files",
+    #                            action="store_true", default=False,
+    #                            help="keep all intermediate files (rBAN results, HMMs, etc) "
+    #                                 "in the output directory")
 
     configs_group.add_argument("--dump-all-preprocessed",
                                action="store_true", default=False,
@@ -150,6 +150,7 @@ def post_parsing(args: CommandLineArgs):
         args.disable_bgc_deduplication = True
         args.disable_nrp_deduplication = True
     args.fast_matching = True  # quick fix for backward compatibility
+    args.keep_intermediate_files = True  # intermediate files are needed for Nerpa-MS
     args.draw_hmms = False  # drawing is unreliable, disable it for release
     args.debug = False  # I don't remember what it does, disable for release to be safe
 
