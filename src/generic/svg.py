@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import copy
+import io
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Iterable
+from typing import Literal, NamedTuple
 
 
 _SVG_NS = 'http://www.w3.org/2000/svg'
@@ -12,6 +13,14 @@ _XLINK_NS = 'http://www.w3.org/1999/xlink'
 
 ET.register_namespace('', _SVG_NS)
 ET.register_namespace('xlink', _XLINK_NS)
+
+
+class _ParsedSvg(NamedTuple):
+    root: ET.Element
+    w: float
+    h: float
+    view_box: str
+    preserve_aspect_ratio: str | None
 
 
 def _parse_length(value: str) -> float:
@@ -36,7 +45,135 @@ def _svg_dims(root: ET.Element) -> tuple[float, float]:
             _, _, vw, vh = (float(p) for p in parts)
             return (vw, vh)
 
-    raise ValueError('SVG is missing width/height and has no usable viewBox')
+    raise ValueError("SVG is missing width/height and has no usable viewBox")
+
+
+def _parse_svg_root(root: ET.Element) -> _ParsedSvg:
+    w, h = _svg_dims(root)
+
+    vb: str | None = root.get('viewBox')
+    if vb is None:
+        # Without a viewBox, setting width/height on a nested <svg> won't scale its contents.
+        vb = f'0 0 {w} {h}'
+
+    par: str | None = root.get('preserveAspectRatio')
+    return _ParsedSvg(root=root, w=w, h=h, view_box=vb, preserve_aspect_ratio=par)
+
+
+def _append_nested_svg(
+    parent: ET.Element,
+    *,
+    parsed: _ParsedSvg,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+) -> None:
+    # Intent: embed an SVG under another SVG while scaling it using width/height + viewBox.
+    nested_attrib: dict[str, str] = {
+        'x': f'{x}',
+        'y': f'{y}',
+        'width': f'{width}',
+        'height': f'{height}',
+        'viewBox': parsed.view_box,
+    }
+    if parsed.preserve_aspect_ratio:
+        nested_attrib['preserveAspectRatio'] = parsed.preserve_aspect_ratio
+
+    nested = ET.SubElement(parent, f'{{{_SVG_NS}}}svg', attrib=nested_attrib)
+
+    # Copy over children (defs, g, paths, etc.) into the nested SVG.
+    for child in list(parsed.root):
+        nested.append(copy.deepcopy(child))
+
+
+def _svg_to_string(root: ET.Element) -> str:
+    # ElementTree.tostring() doesn't support xml_declaration=True; write() does.
+    buf = io.StringIO()
+    ET.ElementTree(root).write(buf, encoding='unicode', xml_declaration=True)
+    return buf.getvalue()
+
+
+def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
+    """
+    Given a rectangle of SVG strings [row][col], produce one SVG:
+      1) In each row, scale all SVGS to match the first SVG's height (row base height).
+      2) Join each row horizontally.
+      3) Scale rows so they all have the same total width (max row width).
+      4) Join rows vertically.
+    """
+    if not svgs:
+        raise ValueError('No rows provided')
+    if any(not row for row in svgs):
+        raise ValueError('All rows must be non-empty')
+
+    # Build each row as its own SVG first.
+    row_svgs: list[_ParsedSvg] = []
+    row_widths: list[float] = []
+    row_heights: list[float] = []
+
+    for row in svgs:
+        parsed_items: list[_ParsedSvg] = [_parse_svg_root(ET.fromstring(s)) for s in row]
+        base_h: float = parsed_items[0].h
+
+        # Intent: normalize all images in the row to the first image's height.
+        scaled_ws: list[float] = [p.w * (base_h / p.h) for p in parsed_items]
+        row_w: float = sum(scaled_ws)
+        row_h: float = base_h
+
+        row_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
+            'width': f'{row_w}',
+            'height': f'{row_h}',
+            'viewBox': f'0 0 {row_w} {row_h}',
+        })
+
+        # Intent: lay out the normalized row left-to-right.
+        x: float = 0.0
+        for p, scaled_w in zip(parsed_items, scaled_ws, strict=True):
+            _append_nested_svg(
+                row_root,
+                parsed=p,
+                x=x,
+                y=0.0,
+                width=scaled_w,
+                height=base_h,
+            )
+            x += scaled_w
+
+        row_svgs.append(_parse_svg_root(row_root))
+        row_widths.append(row_w)
+        row_heights.append(row_h)
+
+    # Intent: make all rows the same width by scaling them up to the widest row.
+    target_w: float = max(row_widths)
+
+    scaled_row_heights: list[float] = []
+    for row_w, row_h in zip(row_widths, row_heights, strict=True):
+        scale: float = (target_w / row_w) if row_w else 1.0
+        scaled_row_heights.append(row_h * scale)
+
+    # Intent: vertically stack the scaled rows.
+    total_h: float = sum(scaled_row_heights)
+
+    out_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
+        'width': f'{target_w}',
+        'height': f'{total_h}',
+        'viewBox': f'0 0 {target_w} {total_h}',
+    })
+
+    y: float = 0.0
+    for row_svg, scaled_h in zip(row_svgs, scaled_row_heights, strict=True):
+        _append_nested_svg(
+            out_root,
+            parsed=row_svg,
+            x=0.0,
+            y=y,
+            width=target_w,
+            height=scaled_h,
+        )
+        y += scaled_h
+
+    return _svg_to_string(out_root)
 
 
 def join_svgs_side_by_side(
@@ -53,41 +190,23 @@ def join_svgs_side_by_side(
 
     padding is an optional horizontal gap (in SVG user units) inserted between figures.
     """
-    from typing import NamedTuple
-
     if not svg_paths:
         raise ValueError('No SVG paths provided')
 
-    class ParsedSvg(NamedTuple):
-        root: ET.Element
-        w: float          # original width
-        h: float          # original height
-        scaled_w: float   # width after optional scaling to base height
-
-    parsed: list[ParsedSvg] = []
-    for p in svg_paths:
-        root = ET.parse(p).getroot()
-        w, h = _svg_dims(root)
-        parsed.append(ParsedSvg(root=root, w=w, h=h, scaled_w=w))
+    parsed: list[_ParsedSvg] = [_parse_svg_root(ET.parse(p).getroot()) for p in svg_paths]
 
     base_h: float = parsed[0].h
 
-    if force_same_heights:
-        # Scale each SVG so its height becomes base_h; adjust width proportionally.
-        parsed = [
-            ParsedSvg(
-                root=ps.root,
-                w=ps.w,
-                h=ps.h,
-                scaled_w=ps.w * (base_h / ps.h),
-            )
-            for ps in parsed
-        ]
-    else:
-        if any(abs(ps.h - base_h) > 1e-6 for ps in parsed[1:]):
-            raise ValueError('SVG heights do not match')
+    if (not force_same_heights) and any(abs(ps.h - base_h) > 1e-6 for ps in parsed[1:]):
+        raise ValueError('SVG heights do not match')
 
-    total_w: float = sum(ps.scaled_w for ps in parsed) + padding * max(0, len(parsed) - 1)
+    # Intent: optionally normalize heights to base_h so they can be tiled cleanly.
+    scaled_ws: list[float] = [
+        (ps.w * (base_h / ps.h)) if force_same_heights else ps.w
+        for ps in parsed
+    ]
+
+    total_w: float = sum(scaled_ws) + padding * max(0, len(parsed) - 1)
 
     out_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
         'width': f'{total_w}',
@@ -96,32 +215,17 @@ def join_svgs_side_by_side(
     })
 
     x: float = 0.0
-    for i, ps in enumerate(parsed):
-        nested_attrib: dict[str, str] = {
-            'x': f'{x}',
-            'y': '0',
-            'width': f'{ps.scaled_w}',
-            'height': f'{base_h}',
-        }
+    for i, (ps, scaled_w) in enumerate(zip(parsed, scaled_ws, strict=True)):
+        _append_nested_svg(
+            out_root,
+            parsed=ps,
+            x=x,
+            y=0.0,
+            width=scaled_w,
+            height=base_h,
+        )
 
-        # Ensure there's a viewBox so changing width/height actually scales the content.
-        vb: str | None = ps.root.get('viewBox')
-        if vb is None:
-            vb = f'0 0 {ps.w} {ps.h}'
-        nested_attrib['viewBox'] = vb
-
-        # Preserve viewBox + aspect ratio behavior if present.
-        par: str | None = ps.root.get('preserveAspectRatio')
-        if par:
-            nested_attrib['preserveAspectRatio'] = par
-
-        nested = ET.SubElement(out_root, f'{{{_SVG_NS}}}svg', attrib=nested_attrib)
-
-        # Copy over children (defs, g, paths, etc.) into the nested SVG.
-        for child in list(ps.root):
-            nested.append(copy.deepcopy(child))
-
-        x += ps.scaled_w
+        x += scaled_w
         if i != len(parsed) - 1:
             x += padding
 
@@ -129,7 +233,6 @@ def join_svgs_side_by_side(
     ET.ElementTree(out_root).write(output_path, encoding='utf-8', xml_declaration=True)
 
 
-# q: make this script runnable from the command line, accepting multiple SVG paths and an output path. Use argparse
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
@@ -147,12 +250,10 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         help='Output SVG path.',
     )
-
-    # q: add an optional flag --force-same-heights that forces all SVGs to be scaled to the same height as the first one before joining
     parser.add_argument(
         '--force-same-heights',
         action='store_true',
-        help='Scale all SVGs so their height matches the first SVG before joining.',
+        help="Scale all SVGs so their height matches the first SVG before joining.",
     )
     parser.add_argument(
         '--padding',
@@ -163,23 +264,29 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    join_svgs_side_by_side(args.svgs,
-                           args.output,
-                           force_same_heights=args.force_same_heights,
-                           padding=args.padding)
+    join_svgs_side_by_side(
+        args.svgs,
+        args.output,
+        force_same_heights=args.force_same_heights,
+        padding=args.padding,
+    )
     return 0
 
 
-def force_svg_pixel_size(svg_bytes: bytes, width_px: int, height_px: int,
-                         stretch: bool = False) -> bytes:
+def force_svg_pixel_size(
+    svg_bytes: bytes,
+    width_px: int,
+    height_px: int,
+    stretch: bool = False,
+) -> bytes:
     """
     Force SVG to have exact pixel width/height while preserving Graphviz output.
     This edits only the opening <svg ...> tag and avoids XML reserialization.
     """
-    svg = svg_bytes.decode("utf-8", errors="strict")
+    svg = svg_bytes.decode('utf-8', errors='strict')
 
     # Find opening <svg ...> tag
-    m = re.search(r"<svg\b[^>]*>", svg, flags=re.IGNORECASE)
+    m = re.search(r'<svg\b[^>]*>', svg, flags=re.IGNORECASE)
     if not m:
         return svg_bytes  # not an SVG? leave it alone
 
@@ -187,32 +294,31 @@ def force_svg_pixel_size(svg_bytes: bytes, width_px: int, height_px: int,
 
     # Replace or insert width/height
     def upsert_attr(tag: str, name: str, value: str) -> str:
-        if re.search(rf"\b{name}\s*=", tag):
+        if re.search(rf'\b{name}\s*=', tag):
             return re.sub(rf'\b{name}\s*=\s*"[^"]*"', f'{name}="{value}"', tag)
-        else:
-            # insert before the closing '>'
-            return tag[:-1] + f' {name}="{value}">'
+        # insert before the closing '>'
+        return tag[:-1] + f' {name}="{value}">'
 
     tag2 = tag
-    tag2 = upsert_attr(tag2, "width", f"{width_px}px")
-    tag2 = upsert_attr(tag2, "height", f"{height_px}px")
+    tag2 = upsert_attr(tag2, 'width', f'{width_px}px')
+    tag2 = upsert_attr(tag2, 'height', f'{height_px}px')
 
-    par = "none" if stretch else "xMidYMid meet"
-    tag2 = upsert_attr(tag2, "preserveAspectRatio", par)
+    par = 'none' if stretch else 'xMidYMid meet'
+    tag2 = upsert_attr(tag2, 'preserveAspectRatio', par)
 
     # Replace the tag in the document
     svg2 = svg[:m.start()] + tag2 + svg[m.end():]
-    return svg2.encode("utf-8")
+    return svg2.encode('utf-8')
 
 
 def ensure_image_ext(p: Path, fmt: Literal['png', 'svg']) -> Path:
     """Ensure path ends with .svg or .png without stripping mid-name parts like '.1'."""
     s = str(p)
-    fmt = fmt.lower()
+    fmt2 = fmt.lower()
     if s.lower().endswith('.png') or s.lower().endswith('.svg'):
-        s = s[:s.rfind('.')] + f'.{fmt}'
+        s = s[:s.rfind('.')] + f'.{fmt2}'
     else:
-        s = s + f'.{fmt}'
+        s = s + f'.{fmt2}'
     return Path(s)
 
 

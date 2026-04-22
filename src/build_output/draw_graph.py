@@ -16,6 +16,7 @@ from src.rban_parsing.rban_parser import (
 from src.generic.svg import (
     ensure_image_ext,
     force_svg_pixel_size,
+    join_svgs_in_rectangle,
 )
 import colorsys
 from PIL import Image
@@ -83,8 +84,7 @@ def get_atom_id_to_display_name(record: Parsed_rBAN_Record,
         # Fallback: just choose any atom
         return record.monomers[mon_idx].atoms[0]
 
-def get_node_colors(record: Parsed_rBAN_Record,
-                    monomer_names_helper: Optional[MonomerNamesHelper] = None) -> Dict[MonomerIdx, RGB]:
+def get_node_colors(record: Parsed_rBAN_Record, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> Dict[MonomerIdx, RGB]:
     residues_with_colors = (
         monomer_names_helper.supported_residues
         if monomer_names_helper else
@@ -93,14 +93,7 @@ def get_node_colors(record: Parsed_rBAN_Record,
     aa_color = make_color_dict(labels=residues_with_colors)
     monomer_colors = dict()
     for mon_idx, mon_info in record.monomers.items():
-        name = mon_info.name
-        residue = (
-           monomer_names_helper.parsed_name(name=name,
-                                            name_format='rBAN/Norine').residue
-            if monomer_names_helper else
-            name.split('-')[-1].lower()  # e.g. 'ala' from 'NMe-Ala'
-        )
- 
+        residue = mon_info.nerpa_core
         monomer_colors[mon_idx] = aa_color[residue]
 
     return monomer_colors
@@ -116,16 +109,14 @@ def get_node_labels(record: Parsed_rBAN_Record,
         )
     return labels
 
+                         
 
-def draw_molecule(record: Parsed_rBAN_Record,
-                  output_file: Path,
-                  rban_indexes: bool = True,
-                  monomer_labels: bool = True,
-                  size: Tuple[int, int] = (1000, 1000),
-                  monomer_names_helper: Optional[MonomerNamesHelper] = None) -> None:
-    format = output_file.suffix[1:].lower()
-
-    mon_colors = get_node_colors(record, monomer_names_helper)
+def draw_molecule_colors(record: Parsed_rBAN_Record,
+                         ext: Literal['svg', 'png'],
+                         mon_colors: Dict[MonomerIdx, RGB],
+                         rban_indexes: bool = True,
+                         monomer_labels: bool = True,
+                         size: Tuple[int, int] = (1000, 1000)) -> str | bytes:
     mon_labels = get_node_labels(record, with_rban_indexes=rban_indexes)
     mol, atom_id_to_index = MolRecord.from_rban_record(record)
 
@@ -153,12 +144,12 @@ def draw_molecule(record: Parsed_rBAN_Record,
             bonds_to_highlight.append(bond_idx)
 
     w, h = size
-    if format == "svg":
+    if ext == "svg":
         drawer = rdMolDraw2D.MolDraw2DSVG(w, h)
-    elif format == "png":
+    elif ext == "png":
         drawer = rdMolDraw2D.MolDraw2DCairo(w, h)
     else:
-        raise ValueError(f"Unsupported format: {format}. Use 'svg' or 'png'.")
+        raise ValueError(f"Unsupported format: {ext}. Use 'svg' or 'png'.")
 
     opts = drawer.drawOptions()
     for atom_index, label in atom_labels.items():  # write names of monomers
@@ -170,13 +161,7 @@ def draw_molecule(record: Parsed_rBAN_Record,
                         highlightBonds=bonds_to_highlight)
 
     drawer.FinishDrawing()
-    data = drawer.GetDrawingText()
-    if isinstance(data, str):  # SVG is text
-        data = data.encode("utf-8")
-
-    output_file = ensure_image_ext(output_file, format)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_bytes(data)
+    return drawer.GetDrawingText()
 
 
 def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
@@ -207,15 +192,12 @@ def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
         raise ValueError(f'Unexpected atom names for amino bond between atoms {atom_id1} and {atom_id2}: {record.atoms[atom_id1].name}, {record.atoms[atom_id2].name}')
     
 
-def draw_monomer_graph(record: Parsed_rBAN_Record,
-                       output_path: Path,
-                       with_rban_indexes: bool = True,
-                       size: Tuple[int, int] = (1000, 1000),
-                       dpi: int = 300,
-                       monomer_names_helper: Optional[MonomerNamesHelper] = None) -> graphviz.Digraph:
-    format = output_path.suffix[1:].lower()
+def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
+                              mon_colors: Dict[MonomerIdx, RGB],
+                              with_rban_indexes: bool = True,
+                              size: Tuple[int, int] = (1000, 1000),
+                              dpi: int = 300) -> graphviz.Digraph:
     mon_labels = get_node_labels(record, with_rban_indexes=with_rban_indexes)
-    mon_colors = get_node_colors(record, monomer_names_helper)
 
     w_inches, h_inches = size[0] / dpi, size[1] / dpi
     fig = graphviz.Digraph(format=format,
@@ -255,14 +237,59 @@ def draw_monomer_graph(record: Parsed_rBAN_Record,
         else:
             fig.edge(str(u), str(v), color='red', dir='none', arrowhead='none')
 
-    output_path = ensure_image_ext(output_path, format)
+
+    return fig
+
+
+def draw_molecule(record: Parsed_rBAN_Record,
+                  output_file: Path,
+                  rban_indexes: bool = True,
+                  monomer_labels: bool = True,
+                  size: Tuple[int, int] = (1000, 1000),
+                  monomer_names_helper: Optional[MonomerNamesHelper] = None) -> None:
+    ext = output_file.suffix[1:].lower()
+    if ext not in ['svg', 'png']:
+        raise ValueError(f'Unsupported file extension: {ext}. Use .svg or .png.')
+
+    mon_colors = get_node_colors(record, monomer_names_helper)
+
+    # str for SVG, bytes for PNG
+    data = draw_molecule_colors(record=record,
+                                ext=ext,
+                                mon_colors=mon_colors,
+                                rban_indexes=rban_indexes,
+                                monomer_labels=monomer_labels,
+                                size=size)
+    if isinstance(data, str):  # SVG is text
+        data = data.encode("utf-8")
+
+    output_file = ensure_image_ext(output_file, ext)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_bytes(data)
+
+
+def draw_monomer_graph(record: Parsed_rBAN_Record,
+                       output_path: Path,
+                       with_rban_indexes: bool = True,
+                       size: Tuple[int, int] = (1000, 1000),
+                       dpi: int = 300,
+                       monomer_names_helper: Optional[MonomerNamesHelper] = None):
+    mon_colors = get_node_colors(record, monomer_names_helper)
+    fig = draw_monomer_graph_colors(record=record,
+                                    mon_colors=mon_colors,
+                                    with_rban_indexes=with_rban_indexes,
+                                    size=size,
+                                    dpi=dpi)
+
+    ext = output_path.suffix[1:].lower()
+    output_path = ensure_image_ext(output_path, ext)
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
-    if format == 'svg':
+    if ext == 'svg':
         svg_bytes = fig.pipe(format='svg')
         svg_bytes = force_svg_pixel_size(svg_bytes, size[0], size[1], stretch=False)
         output_path.write_bytes(svg_bytes)
-    else:  # PNG path stays identical to your original (center onto exact canvas)
+    elif ext == 'png':  # PNG path stays identical to your original (center onto exact canvas)
         png_bytes = fig.pipe(format='png')
         img = Image.open(io.BytesIO(png_bytes))
         w_tgt, h_tgt = size
@@ -272,5 +299,247 @@ def draw_monomer_graph(record: Parsed_rBAN_Record,
         y_off = max((h_tgt - h_cur) // 2, 0)
         canvas.paste(img, (x_off, y_off))
         canvas.save(output_path, format='PNG')
+    else:
+        raise ValueError(f'Unsupported format: {ext}. Use "svg" or "png".')
 
-    return fig
+
+class GraphDiffColors:
+    SAME = RGB((0.8, 0.8, 0.8))  # light gray
+    DELETED = RGB((1.0, 0.6, 0.6))  # light red
+    INSERTED = RGB((0.6, 1.0, 0.6))  # light green
+    SUBSTITUTED = RGB((1.0, 1.0, 0.6))  # light yellow
+
+    original: Dict[MonomerIdx, RGB]
+    modified: Dict[MonomerIdx, RGB]
+
+def get_diff_colors(
+        original: Parsed_rBAN_Record,
+        modified: Parsed_rBAN_Record,
+        old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]]
+) -> GraphDiffColors:
+    # default: everything same unless proven otherwise
+    original_colors: Dict[MonomerIdx, RGB] = {
+        mon_idx: GraphDiffColors.SAME for mon_idx in original.monomers.keys()
+    }
+    modified_colors: Dict[MonomerIdx, RGB] = {
+        mon_idx: GraphDiffColors.SAME for mon_idx in modified.monomers.keys()
+    }
+
+    for old_idx, new_idx in old_to_new_map:
+        if old_idx is None and new_idx is None:
+            continue
+
+        if old_idx is None:
+            # inserted in modified
+            if new_idx in modified_colors:
+                modified_colors[new_idx] = GraphDiffColors.INSERTED
+            continue
+
+        if new_idx is None:
+            # deleted from original
+            if old_idx in original_colors:
+                original_colors[old_idx] = GraphDiffColors.DELETED
+            continue
+
+        # matched: substituted
+        original_colors[old_idx] = GraphDiffColors.SUBSTITUTED
+        modified_colors[new_idx] = GraphDiffColors.SUBSTITUTED
+
+    out = GraphDiffColors()
+    out.original = original_colors
+    out.modified = modified_colors
+    return out
+
+
+class GraphDiffOut:
+    original_diff_fig: graphviz.Digraph
+    modified_diff_fig: graphviz.Digraph
+
+
+def get_monomer_graph_diff(
+        original: Parsed_rBAN_Record,
+        modified: Parsed_rBAN_Record,
+        old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
+        with_rban_indexes: bool = True,
+        size: Tuple[int, int] = (1000, 1000),
+        dpi: int = 300,
+) -> GraphDiffOut:
+    colors = get_diff_colors(original, modified, old_to_new_map)
+
+    original_fig = draw_monomer_graph_colors(
+        record=original,
+        mon_colors=colors.original,
+        with_rban_indexes=with_rban_indexes,
+        size=size,
+        dpi=dpi,
+    )
+
+    modified_fig = draw_monomer_graph_colors(
+        record=modified,
+        mon_colors=colors.modified,
+        with_rban_indexes=with_rban_indexes,
+        size=size,
+        dpi=dpi,
+    )
+
+    out = GraphDiffOut()
+    out.original_diff_fig = original_fig
+    out.modified_diff_fig = modified_fig
+    return out
+
+class MoleculeDiffOut:
+    ext: Literal['svg', 'png']
+    original_diff_data: str | bytes
+    modified_diff_data: str | bytes
+
+
+def get_molecule_diff(
+        original: Parsed_rBAN_Record,
+        modified: Parsed_rBAN_Record,
+        old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
+        rban_indexes: bool = True,
+        monomer_labels: bool = True,
+        size: Tuple[int, int] = (1000, 1000),
+        ext: Literal['svg', 'png'] = 'svg',
+) -> MoleculeDiffOut:
+    colors = get_diff_colors(original, modified, old_to_new_map)
+
+    original_diff_data = draw_molecule_colors(
+        record=original,
+        ext=ext,
+        mon_colors=colors.original,
+        rban_indexes=rban_indexes,
+        monomer_labels=monomer_labels,
+        size=size,
+    )
+
+    modified_diff_data = draw_molecule_colors(
+        record=modified,
+        ext=ext,
+        mon_colors=colors.modified,
+        rban_indexes=rban_indexes,
+        monomer_labels=monomer_labels,
+        size=size,
+    )
+
+    out = MoleculeDiffOut()
+    out.ext = ext
+    out.original_diff_data = original_diff_data
+    out.modified_diff_data = modified_diff_data
+    return out
+
+
+def draw_molecule_diff(
+        original: Parsed_rBAN_Record,
+        modified: Parsed_rBAN_Record,
+        old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
+        output: Path,
+        monomer_names_helper: Optional[MonomerNamesHelper] = None,
+        rban_indexes: bool = True,
+        monomer_labels: bool = True,
+        size: Tuple[int, int] = (4000, 4000),
+) -> None:
+    diff_out = get_molecule_diff(
+        original=original,
+        modified=modified,
+        old_to_new_map=old_to_new_map,
+        rban_indexes=rban_indexes,
+        monomer_labels=monomer_labels,
+        size=(size[0]//2, size[1]//2),  # each molecule gets half of the total size
+        ext='svg',
+    )
+    orig_colors = get_node_colors(original, monomer_names_helper)
+    original_fig = draw_molecule_colors(
+        record=original,
+        ext='svg',
+        mon_colors=orig_colors,
+        rban_indexes=rban_indexes,
+        monomer_labels=monomer_labels,
+        size=(size[0]//2, size[1]//2),
+    )
+    modified_colors = get_node_colors(modified, monomer_names_helper)
+    modified_fig = draw_molecule_colors(
+        record=modified,
+        ext='svg',
+        mon_colors=modified_colors,
+        rban_indexes=rban_indexes,
+        monomer_labels=monomer_labels,
+        size=(size[0]//2, size[1]//2),
+    )
+    joined_svg = join_svgs_in_rectangle(
+        [[original_fig, diff_out.original_diff_data],
+         [modified_fig, diff_out.modified_diff_data]],
+    )
+    output.write_bytes(joined_svg.encode('utf-8'))
+
+
+def draw_monomer_graph_diff(
+        original: Parsed_rBAN_Record,
+        modified: Parsed_rBAN_Record,
+        old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
+        output: Path,
+        monomer_names_helper: Optional[MonomerNamesHelper] = None,
+        with_rban_indexes: bool = True,
+        size: Tuple[int, int] = (4000, 4000),
+        dpi: int = 300,
+) -> None:
+    cell_size = (size[0] // 2, size[1] // 2)
+
+    diff_out = get_monomer_graph_diff(
+        original=original,
+        modified=modified,
+        old_to_new_map=old_to_new_map,
+        with_rban_indexes=with_rban_indexes,
+        size=cell_size,
+        dpi=dpi,
+    )
+
+    orig_colors = get_node_colors(original, monomer_names_helper)
+    original_fig = draw_monomer_graph_colors(
+        record=original,
+        mon_colors=orig_colors,
+        with_rban_indexes=with_rban_indexes,
+        size=cell_size,
+        dpi=dpi,
+    )
+    original_svg = force_svg_pixel_size(
+        original_fig.pipe(format='svg'),
+        cell_size[0],
+        cell_size[1],
+        stretch=False
+    ).decode('utf-8')
+
+    modified_colors = get_node_colors(modified, monomer_names_helper)
+    modified_fig = draw_monomer_graph_colors(
+        record=modified,
+        mon_colors=modified_colors,
+        with_rban_indexes=with_rban_indexes,
+        size=cell_size,
+        dpi=dpi,
+    )
+    modified_svg = force_svg_pixel_size(
+        modified_fig.pipe(format='svg'),
+        cell_size[0],
+        cell_size[1],
+        stretch=False
+    ).decode('utf-8')
+
+    original_diff_svg = force_svg_pixel_size(
+        diff_out.original_diff_fig.pipe(format='svg'),
+        cell_size[0],
+        cell_size[1],
+        stretch=False
+    ).decode('utf-8')
+
+    modified_diff_svg = force_svg_pixel_size(
+        diff_out.modified_diff_fig.pipe(format='svg'),
+        cell_size[0],
+        cell_size[1],
+        stretch=False
+    ).decode('utf-8')
+
+    joined_svg = join_svgs_in_rectangle(
+        [[original_svg, original_diff_svg],
+         [modified_svg, modified_diff_svg]],
+    )
+    output.write_bytes(joined_svg.encode('utf-8'))
