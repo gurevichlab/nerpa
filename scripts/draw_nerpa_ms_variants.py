@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 from typing import List, Optional, Tuple, Any, NamedTuple
+from src.antismash_parsing.bgc_variant_types import BGC_ID
 from src.rban_parsing.rban_parser import (
     Parsed_rBAN_Record,
     MonomerIdx,
@@ -59,6 +60,7 @@ class Altered_rBAN_Record(NamedTuple):
         )
 
 class ItemForDrawing(NamedTuple):
+    bgc_id: BGC_ID
     original: Parsed_rBAN_Record
     new_variant: Altered_rBAN_Record
 
@@ -66,7 +68,10 @@ class ItemForDrawing(NamedTuple):
     def from_dict(cls, d: dict) -> ItemForDrawing:
         original = Parsed_rBAN_Record.from_dict(d["original"])
         new_variant = Altered_rBAN_Record.from_dict(d["new_variant"])
-        return cls(original=original, new_variant=new_variant)
+        bgc_id = BGC_ID.from_dict(d["bgc_id"])
+        return cls(original=original,
+                   new_variant=new_variant,
+                   bgc_id=bgc_id)
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -93,29 +98,34 @@ def main() -> None:
     data = json.loads(args.input_json.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError("Expected input JSON to be a list")
-    items_for_drawing = [ItemForDrawing.from_dict(item) for item in data]
+    items_for_drawing = [ItemForDrawing.from_dict(item)
+                         for item in data]
 
-    items_by_compound_id = defaultdict(list)
+    def get_label(item: ItemForDrawing) -> str:
+        return f'{item.bgc_id.to_str_short()}_{item.original.compound_id}'
+
+    items_by_label = defaultdict(list)
     for item in items_for_drawing:
-        items_by_compound_id[item.original.compound_id].append(item)
+        items_by_label[get_label(item)].append(item)
 
-    for compound_id, items in items_by_compound_id.items():
-        out_dir = args.output_dir / compound_id
+    for label, items in items_by_label.items():
+        out_dir = args.output_dir / label
         out_dir.mkdir(parents=True, exist_ok=True)
 
         for i, item in enumerate(items):
             draw_monomer_graph_diff(
                 original=item.original,
                 modified=item.new_variant.new_record,
-                old_to_new_mon_map=item.new_variant.old_to_new_mon_map,
+                old_to_new_map=item.new_variant.old_to_new_mon_map,
                 monomer_names_helper=monomer_names_helper,
-                output=out_dir / f"monomer_graph_diff_{compound_id}_{i:03d}.svg",)
+                output=out_dir / f"monomer_graph_diff_{i:03d}.svg",)
+
             draw_molecule_diff(
                 original=item.original,
                 modified=item.new_variant.new_record,
-                old_to_new_mon_map=item.new_variant.old_to_new_mon_map,
+                old_to_new_map=item.new_variant.old_to_new_mon_map,
                 monomer_names_helper=monomer_names_helper,
-                output=out_dir / f"monomer_graph_diff_{compound_id}_{i:03d}.svg",)
+                output=out_dir / f"molecule_diff_{i:03d}.svg",)
 
 
 if __name__ == "__main__":

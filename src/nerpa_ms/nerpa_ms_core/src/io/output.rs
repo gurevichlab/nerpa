@@ -11,11 +11,12 @@ pub struct OutputItem {
 
 use std::path::Path;
 
-pub fn write_output(output_items: &[OutputItem], output_path: &Path) {
-	// For simplicity, we will write the output as a JSON file containing a list of OutputItem
-	let json_output = serde_json::to_string_pretty(output_items)
-		.expect("Failed to serialize output items to JSON");
-	std::fs::write(output_path, json_output)
-		.expect("Failed to write output to file");
+pub fn write_output(
+    output_items: &[OutputItem],
+    output_path: &Path
+) -> anyhow::Result<()> {
+    let json_output = serde_json::to_string_pretty(output_items)?;
+    std::fs::write(output_path, json_output)?;
+    Ok(())
 }
     

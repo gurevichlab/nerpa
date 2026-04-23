@@ -69,6 +69,20 @@ fn main() -> Result<()> {
 	});
     }
 	
-    write_output(&output_items, &cli.out);
+    write_output(&output_items,
+		 &cli.out.join("new_variants.json"))?;
+
+    let original_records: Vec<&Parsed_rBAN_Record> = input_items
+	.iter()
+	.map(|item| &item.rban_record)
+	.collect;
+    let new_variants_figures_dir = cli.out
+	.join("figures")
+	.join("new_variants");
+    draw_output_variants(&output_items,
+			 &original_records,
+			 &cli.nerpa_root,
+    			 &new_variants_figures_dir)?;
+
     Ok(())
 }
