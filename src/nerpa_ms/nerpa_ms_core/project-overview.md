@@ -31,6 +31,7 @@ pub struct HMM {
     pub bgc_variant_id: BGC_Variant_ID,
     pub transitions: Vec<Vec<(StateIdx, LogProb)>>,
     pub emissions: Vec<Vec<LogProb>>,
+	pub state_labels: Vec<String>, // for debugging, not used in logic
 }
 ```
 

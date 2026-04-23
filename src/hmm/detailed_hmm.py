@@ -26,7 +26,10 @@ from src.hmm.hmm_auxiliary_types import (
 )
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.alignment_type import AlignmentLight, alignment_to_light_alignment
-from src.build_output.draw_hmm import draw_hmm
+from src.build_output.draw_hmm import (
+    draw_hmm,
+    state_idx_to_label,
+)
 from src._not_used.p_values_estimation import PValueEstimator
 from src.monomer_names_helper import Chirality
 from src.rban_parsing.rban_monomer import rBAN_Monomer
@@ -149,6 +152,7 @@ class DetailedHMM:
                 emissions=emission_scores,
                 module_start_states=self._module_idx_to_state_idx,
                 module_match_states=self._module_idx_to_match_state_idx,
+                state_labels=[state_idx_to_label(state_idx, self) for state_idx in range(len(self.states))],
                 bgc_variant_id=self.bgc_variant.bgc_variant_id)
         return self._hmms[(emission_weights_type, unknown_chirality_allowed)]
 

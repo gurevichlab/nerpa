@@ -6,7 +6,7 @@ use crate::{algo::algo_main::Altered_rBAN_Record, data_types::hmm::BGC_Variant_I
 pub struct OutputItem {
     pub bgc_variant_id: BGC_Variant_ID,
     pub compound_id: String,
-    pub variants_by_weight: Vec<Vec<Altered_rBAN_Record>>
+    pub new_variants: Vec<Altered_rBAN_Record>
 }
 
 use std::path::Path;

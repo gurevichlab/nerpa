@@ -34,6 +34,7 @@ class HMM(NamedTuple):
     bgc_variant_id: BGC_Variant_ID
     transitions: List[List[Tuple[StateIdx, LogProb]]]  # u -> [(v, log_prob(u -> v))]
     emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
+    state_labels: List[str]
     module_start_states: List[StateIdx]
     module_match_states: List[StateIdx]
 
@@ -45,6 +46,7 @@ class HMM(NamedTuple):
             'bgc_variant_id': self.bgc_variant_id.to_dict(),
             'transitions': self.transitions,
             'emissions': _emissions,
+            'state_labels': self.state_labels,
             'module_start_states': self.module_start_states,
             'module_match_states': self.module_match_states
         }

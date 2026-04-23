@@ -1,9 +1,11 @@
-use crate::{algo::{apply_modifications::apply_modifications, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogProb, MonomerIdx}, hmm::HMM, monomer_graph::MonomerGraph, monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record}};
+use crate::{algo::{apply_modifications::apply_modifications, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogProb, MonomerIdx}, dag::{DAG, VertexId}, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record}};
 
 use crate::algo::graph_to_dag::create_dag;
 use serde::Serialize;
 
 use crate::algo::dp::compute_dp_table;
+
+use super::dp_backtrack::Solution;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Altered_rBAN_Record {
@@ -12,19 +14,22 @@ pub struct Altered_rBAN_Record {
 	pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>,
 }
 
+pub struct NewVariantWithOptPaths {
+    pub new_variant: Altered_rBAN_Record,
+    pub hmm_path: Vec<StateIdx>,
+    pub dag_path: Vec<VertexId>,
+}
 
-pub fn generate_new_variants_per_weight(
+
+pub fn generate_new_variants_with_opt_paths<'mon_db>(
     hmm: &HMM,
-    rban_record: &Parsed_rBAN_Record,
-    linearization: &Vec<MonomerIdx>,
-    monomers_db: &MonomersDB,
+    monomer_graph: &MonomerGraph,
+    dag: &DAG<'mon_db>,
     max_weight: usize,
     max_variants_per_weight: usize,
-) -> Vec<Vec<Altered_rBAN_Record>> {
-    let dag = create_dag(rban_record, linearization, monomers_db);
-    let monomer_graph = MonomerGraph::from(rban_record);
+) -> Vec<NewVariantWithOptPaths> {
     let dp_table = compute_dp_table(hmm, &dag, max_weight);
-    let mut variants_per_weight: Vec<Vec<Altered_rBAN_Record>> = vec![Vec::new(); max_weight + 1];
+    let mut new_variant_with_opt_paths: Vec<NewVariantWithOptPaths> = Vec::new();
 
     for weight in 0..=max_weight {
 	let max_solutions = if weight > 0 {max_variants_per_weight} else {1}; // for weight 0, we only want the original molecule, so we take 1 solution
@@ -41,10 +46,21 @@ pub fn generate_new_variants_per_weight(
 		new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
 		old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
 	    };
-	    variants_per_weight[weight].push(variant);
+
+	    new_variant_with_opt_paths.push(NewVariantWithOptPaths {
+		new_variant: variant,
+		hmm_path: sol.states.clone(),
+		dag_path: {
+		    let mut path = vec![dag.start];
+		    for edge in &sol.dag_edges {
+			path.push(edge.to);
+		    }
+		    path
+		}
+	    });
 	}
     }
 
-    variants_per_weight
+    new_variant_with_opt_paths
 }
 

@@ -15,6 +15,19 @@ pub struct BGC_ID {
     pub bgc_idx: usize,
 }
 
+impl BGC_ID {
+    pub fn to_str_short(&self) -> String {
+	let genome_id = self.antiSMASH_file
+	    .split('/')
+	    .last()
+	    .unwrap_or(&self.antiSMASH_file);
+	format!("{}:{}:{}",
+		genome_id,
+		self.contig_idx,
+		self.bgc_idx)
+    }
+}
+
 #[derive(Debug, Clone, Display, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
 #[display("{bgc_id}:{variant_idx}")]
 pub struct BGC_Variant_ID {
@@ -34,6 +47,9 @@ pub struct HMM {
     // emissions[i][j]: log probability of emitting monomer j from state i
     #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_vec_logprob_null_as_neg_inf")]
     pub emissions: Vec<Vec<LogProb>>,
+
+    // Labels for states, for debugging and interpretability.
+    pub state_labels: Vec<String>,
 }
 
 // Basic helpers

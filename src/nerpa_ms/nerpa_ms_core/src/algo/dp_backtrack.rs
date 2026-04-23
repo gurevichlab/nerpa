@@ -1,28 +1,27 @@
-use crate::data_types::{dag::{DAG, Edge}, discrete_log_prob::DiscreteLogProb, dp_table::{BacktrackPointer, DP_Coords, DP_Table}, hmm::StateIdx};
+use crate::data_types::{dag::{DAG, Edge, VertexId}, discrete_log_prob::DiscreteLogProb, dp_table::{BacktrackPointer, DP_Coords, DP_Table}, hmm::StateIdx};
 
-pub struct Solution <'a>{
+pub struct Solution <'mon_db>{
     pub states: Vec<StateIdx>,
-    pub dag_edges: Vec<Edge<'a>>,
+    pub dag_edges: Vec<Edge<'mon_db>>,
     pub dlp: DiscreteLogProb,
     pub weight: usize,
 }
-
 
 fn is_dp_start(coords: &DP_Coords) -> bool {
     coords.vertex == 0 && coords.weight == 0 && coords.state == 0
 }
 
 #[derive(Debug, Clone)]
-struct Frame<'a> {
+struct Frame<'mon_db> {
     coords: DP_Coords,
     dlp: DiscreteLogProb,
     // built backwards (finish -> start)
     states_rev: Vec<StateIdx>,
-    dag_edges_rev: Vec<Edge<'a>>,
+    dag_edges_rev: Vec<Edge<'mon_db>>,
 }
 
-impl<'a> Frame<'a> {
-    fn into_solution(mut self, weight: usize, dlp: DiscreteLogProb) -> Solution<'a> {
+impl<'mon_db> Frame<'mon_db> {
+    fn into_solution(mut self, weight: usize, dlp: DiscreteLogProb) -> Solution<'mon_db> {
         self.states_rev.reverse();
         self.dag_edges_rev.reverse();
 
@@ -35,17 +34,17 @@ impl<'a> Frame<'a> {
     }
 }
 
-pub struct BacktrackSolutionsIter<'a> {
-    dp: &'a DP_Table<'a>,
+pub struct BacktrackSolutionsIter<'mon_db: 'iter, 'iter> {
+    dp: &'iter DP_Table<'mon_db>,
     weight: usize,
     end_coords: DP_Coords,
 
     // Discrete log-probs available at (DAG_FINISH, weight, HMM_FINISH), descending.
-    end_dlp_iter: Box<dyn Iterator<Item = DiscreteLogProb> + 'a>,
+    end_dlp_iter: Box<dyn Iterator<Item = DiscreteLogProb> + 'iter>,
     cur_dlp: DiscreteLogProb,
 
     // DFS stack for the current end_dlp
-    stack: Vec<Frame<'a>>,
+    stack: Vec<Frame<'mon_db>>,
 }
 
 use crate::data_types::discrete_log_prob::SCALING_FACTOR;
@@ -64,7 +63,7 @@ pub fn rounded(f: f64, digits: usize) -> f64 {
     (f * factor).round() / factor
 }
 
-impl<'a> BacktrackSolutionsIter<'a> {
+impl<'mon_db, 'iter> BacktrackSolutionsIter<'mon_db, 'iter> {
     fn start_new_dlp(&mut self, end_dlp: DiscreteLogProb) {
         self.stack.clear();
         self.stack.push(Frame {
@@ -76,7 +75,7 @@ impl<'a> BacktrackSolutionsIter<'a> {
 	self.cur_dlp = end_dlp;
     }
 
-    fn expand_one(&mut self, frame: Frame<'a>) {
+    fn expand_one(&mut self, frame: Frame<'mon_db>) {
 	let debug = false;
 	if debug {
 	    let lp_rounded = rounded(frame.dlp.to_logprob(), 2);
@@ -128,8 +127,8 @@ impl<'a> BacktrackSolutionsIter<'a> {
     }
 }
 
-impl<'a> Iterator for BacktrackSolutionsIter<'a> {
-    type Item = Solution<'a>;
+impl<'mon_db, 'iter> Iterator for BacktrackSolutionsIter<'mon_db, 'iter> {
+    type Item = Solution<'mon_db>;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -148,11 +147,11 @@ impl<'a> Iterator for BacktrackSolutionsIter<'a> {
     }
 }
 
-pub fn backtrack_solutions<'a>(
+pub fn backtrack_solutions<'mon_db: 'iter, 'iter>(
     weight: usize,
-    dp: &'a DP_Table<'a>,
-    dag: &'a DAG<'a>,
-) -> BacktrackSolutionsIter<'a> {
+    dp: &'iter DP_Table<'mon_db>,
+    dag: &'iter DAG<'mon_db>,
+) -> BacktrackSolutionsIter<'mon_db, 'iter> {
     debug_assert!(weight <= dp.max_weight());
 
     let end_coords = DP_Coords {

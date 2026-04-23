@@ -56,7 +56,7 @@ pub fn draw_output_variants(
 ) {
     let new_variants: Vec<&Altered_rBAN_Record> = output_items
 	.iter()
-	.flat_map(|item| item.variants_by_weight.iter().flatten())
+	.flat_map(|item| item.new_variants.iter().flatten())
 	.collect();
     let records_by_id: HashMap<String, &Parsed_rBAN_Record> = original_records
 	.iter()
