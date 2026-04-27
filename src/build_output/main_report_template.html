@@ -190,11 +190,6 @@
             margin-top: 15px;
             margin-bottom: 5px;
         }
-        
-        .zoom{
-            margin-top: 15px;
-            margin-bottom: 0990px;
-        }
 
         .matchDetailedInfoLabel {
             font-weight: bold;
@@ -395,62 +390,66 @@
                          style="width: 100%; height: auto;"/>
                </div>
                 <div class="image-frame" style="flex: 1; padding-left: 5px;">
-                    <img id="graphImage"
-                         src=""
-                         alt="Graph image is missing. Did you run the tool with '--skip-molecule-drawing'?"
-                         style="width: 100%; height: auto;"/>
+                    <div id="graphImage" style="background: #ffffff; 
+                        width: 100%; 
+                        height: 70vh; 
+                        border: 1px;">
+                    </div>
                 </div>
-            </div>
-            <div style="display: flex; justify-content: space-between;">    
-                    <button  class="hide-button" id="zoomInMol" onclick="zooming('moleculeImage', 'stopZoomMol', 'zoomInMol')" style="display: none;">Zoom into molecule</button>
-                    <button  class="hide-button" id="stopZoomMol" onclick="stopZooming('moleculeImage', 'zoomInMol','stopZoomMol')" style="display: none;">stop zoom</button>
-                    <button  class="hide-button" id="zoomInGr" onclick="zooming('graphImage', 'stopZoomGr', 'zoomInGr')" style="display: none;">Zoom into graph</button>
-                    <button  class="hide-button" id="stopZoomGr" onclick="stopZooming('graphImage', 'zoomInGr', 'stopZoomGr')" style="display: none;">stop zoom</button>
             </div>
         </div>
     </div>
 </div>
 
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
+ <!-- vis-network for graph -->
+<script src="https://unpkg.com/vis-network@10.0.2/standalone/umd/vis-network.min.js"></script>
+
 
 <script>
-    // Function to zoom into image
-       function zooming(id, btnStopId, btnStartId){
-        switchBtn(btnStopId, btnStartId);
+    async function drawGraph(nrpID) {
+        const path = `NRP_images/graphs/${nrpID}.json`;
+    
+        const graph = await fetch(path).then(file => file.json());
+    
+        const edgesMapped = graph.edges.map(({tail, head, color, penwidth}) => ({
+                from: tail,
+                to: head, 
+                color: color, 
+                width: penwidth,
+                selectionWidth: penwidth, 
+                hoverWidth: penwidth,
+        }));
+
+        const nodesMapped = graph.objects.map(({_gvid, color, fontsize, label}) => ({
+                id: _gvid,
+                label: label, 
+                color: color, 
+                font: fontsize,
+        }));
+
+
+        const nodes = new vis.DataSet(nodesMapped);
+        const edges = new vis.DataSet(edgesMapped);
+
+        const graph_div = document.getElementById("graphImage");
+        const graph_data = { nodes: nodes, edges: edges };
+        const graph_options = { 
+            physics: { enabled: false},
+            edges: {
+                arrows: {
+                    to: {enabled: true, scaleFactor: 1.5, type: 'arrow'},
+                    from: {enabled: false},
+                    middle: {enabled: false}
+                },
+            },
+            layout: {
+                randomSeed: 42,
+                improvedLayout: true,
+            }
+        };
         
-        const pic = document.getElementById(id);
-
-        // to block zooming into/scrolling up the page while zooming into the picture 
-        pic.addEventListener('wheel', e => e.preventDefault(), {passive: false}); 
-       
-        let scalefactor = 1;
-
-        let zoom = e => {
-            scalefactor += e.deltaY * -0.01;
-            scalefactor = Math.max(scalefactor, 1);
-            pic.style.transition = "transform 0.1s";
-            pic.style.transform = `scale(${scalefactor})`;
-        }
-
-        pic.onwheel = zoom;
-    }
-
-    function stopZooming(id, btnStartId, btnStopId){
-        switchBtn(btnStartId, btnStopId);
-        const pic = document.getElementById(id);
-        pic.onwheel = e => {};
-        pic.style.transform = `scale(${1})`;
-
-        // to enable zooming into/scrolling up the page while zooming into the picture  !!does not work !!
-        pic.removeEventListener('wheel', e => e.preventDefault(), {passive: false});
-    }
-
-    function switchBtn(btn1Id, btn2Id){
-        const btn1 = document.getElementById(btn1Id);
-        const btn2 = document.getElementById(btn2Id);
-     
-        btn1.style.display = 'inline';
-        btn2.style.display = 'none';
+        new vis.Network( graph_div, graph_data, graph_options);
     }
 
     // Function to detect if a value is numeric
@@ -1023,23 +1022,18 @@
         const frame = document.getElementById('nrpViewerContainer');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
         const label = document.getElementById('nrpViewerLabel');
-        const zoomBtnInMol = document.getElementById('zoomInMol');
-        const zoomBtnInGr = document.getElementById('zoomInGr');
-
+    
         if (hide) {
             frame.style.display = 'none';
             label.style.display = 'block';
             hideBtn.style.display = 'none';
         } else {
             const moleculeImage = document.getElementById('moleculeImage');
-            const graphImage = document.getElementById('graphImage');
             moleculeImage.src = `NRP_images/molecules/${nrpID}.svg`;
-            graphImage.src = `NRP_images/graphs/${nrpID}.svg`;
+            drawGraph(nrpID);
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            zoomBtnInMol.style.display = 'block';
-            zoomBtnInGr.style.display = 'inline';
         }
     }
 

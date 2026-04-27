@@ -21,6 +21,7 @@ import cairosvg
 from PIL import Image
 
 import re
+import json
 
 def force_svg_pixel_size(svg_bytes: bytes, width_px: int, height_px: int,
                          stretch: bool = False) -> bytes:
@@ -296,6 +297,11 @@ def draw_monomer_graph(G: MonomerGraph,
         y_off = max((h_tgt - h_cur) // 2, 0)
         canvas.paste(img, (x_off, y_off))
         canvas.save(output_path, format='PNG')
+
+
+    json_output = fig.pipe(format='dot_json').decode('utf-8')
+    with open( output_path.with_suffix('.json'), 'w') as f: 
+       f.write(json_output)
 
     return fig
 
