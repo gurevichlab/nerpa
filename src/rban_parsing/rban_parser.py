@@ -73,7 +73,22 @@ class MonomerInfo(NamedTuple):
         d['chirality'] = self.chirality.name
         return d
 
-MonomerEdgeInfo = List[Dict[MonomerIdx, AtomId]]  # list of dicts because there can be multiple bonds between the same monomers
+class MonomerEdgeInfoSingle(NamedTuple):
+    monomer_to_atom: Dict[MonomerIdx, AtomId]  # should have exactly 2 items, but I use dict for convenience of accessing the atoms by monomer id
+    atomic_edge: AtomicEdgeInfo
+
+    @classmethod
+    def from_dict(cls, data: dict) -> MonomerEdgeInfoSingle:
+        return cls(monomer_to_atom={int(mon_id): AtomId(atom_id)
+                                    for mon_id, atom_id in data['monomer_to_atom'].items()},
+                   atomic_edge=AtomicEdgeInfo(**data['atomic_edge']))
+
+    def to_dict(self) -> dict:
+        return {'monomer_to_atom': self.monomer_to_atom,
+                'atomic_edge': self.atomic_edge._asdict()}
+
+
+MonomerEdgeInfo = List[MonomerEdgeInfoSingle]  # list of dicts because there can be multiple bonds between the same monomers
 
 def parsed_chiralities(chiralities: Dict[MonomerIdx, Union[bool, None]]) -> Dict[MonomerIdx, Chirality]:
     def parsed_chirality(ch: Union[bool, None]):
@@ -167,14 +182,23 @@ class Parsed_rBAN_Record:
             if mon1 > mon2:
                 mon1, mon2 = mon2, mon1  # canonicalize order of monomers in the bond
                 atom1, atom2 = atom2, atom1  # swap atoms accordingly
-            self.monomer_bonds[(mon1, mon2)].append({mon1: atom1, mon2: atom2})
+
+            self.monomer_bonds[(mon1, mon2)].append(
+                MonomerEdgeInfoSingle(monomer_to_atom={mon1: atom1, mon2: atom2},
+                                      atomic_edge=bond_info)
+            )
 
     def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         return {'compound_id': self.compound_id,
                 'monomers': {mon_idx: mon_info.to_dict(monomer_names_helper)
                              for mon_idx, mon_info in self.monomers.items()},
-                'monomer_bonds': [[[u, v], edge_info]  # saving dict as list of pairs because YAML can't have tuple keys
-                                  for (u, v), edge_info in self.monomer_bonds.items()],
+                'monomer_bonds': [
+                    [
+                        [u, v],
+                        [edge_info.to_dict() for edge_info in edge_info_list] 
+                    ]
+                    for (u, v), edge_info_list in self.monomer_bonds.items()
+                ],
                 'atoms': {atom_id: atom_info._asdict()
                           for atom_id, atom_info in self.atoms.items()},
                 'atomic_bonds': [[[u, v], edge_info._asdict()]  # saving dict as list of pairs because YAML can't have tuple keys
@@ -189,8 +213,14 @@ class Parsed_rBAN_Record:
                                   for mon_idx, mon_info in data['monomers'].items()}
         atoms = {int(atom_id): AtomInfo(**atom_info)
                                for atom_id, atom_info in data['atoms'].items()}
-        monomer_bonds = {(int(u), int(v)): edge_info
-                            for (u, v), edge_info in data['monomer_bonds']}
+        monomer_bonds = {
+            (int(u), int(v)):
+            [
+                MonomerEdgeInfoSingle.from_dict(edge_info)
+                for edge_info in edge_info_list
+            ]
+            for (u, v), edge_info_list in data['monomer_bonds']
+        }
             
         atomic_bonds = {(int(u), int(v)): AtomicEdgeInfo(**edge_info)
                         for (u, v), edge_info in data['atomic_bonds']}

@@ -61,15 +61,11 @@ HMM parse_hmm(const nlohmann::json& entry)
 }
 
 // 1. hmms for matching; 2. hmms for p-value estimation
-std::pair<
-        std::unordered_map<BGC_Variant_ID , HMM>,
-        std::unordered_map<BGC_Variant_ID , HMM>
-        >
+std::unordered_map<BGC_Variant_ID , HMM>
 parse_hmms_from_json(const std::string& hmm_json_path)
 {
     using json = nlohmann::json;
     std::unordered_map<BGC_Variant_ID, HMM> hmms_for_matching;
-    std::unordered_map<BGC_Variant_ID, HMM> hmms_for_p_value_estimation;
 
     std::ifstream ifs(hmm_json_path);
     if (!ifs.is_open()) {
@@ -84,18 +80,17 @@ parse_hmms_from_json(const std::string& hmm_json_path)
 
     for (auto& hmm_info : j) {
         // std::cout << "Parsing HMM for matching" << std::endl;
-        auto hmm_for_matching = parse_hmm(hmm_info["hmm_for_matching"]);
+        auto hmm_for_matching = parse_hmm(hmm_info);
         // std::cout << "Parsing HMM for p-value estimation" << std::endl;
-        auto hmm_for_p_value_estimation = parse_hmm(hmm_info["hmm_for_p_values_estimation"]);
+        // auto hmm_for_p_value_estimation = parse_hmm(hmm_info["hmm_for_p_values_estimation"]);
         auto bgc_variant_id = hmm_for_matching.bgc_variant_id;
-        assert (bgc_variant_id == hmm_for_p_value_estimation.bgc_variant_id &&
-               "BGC_Variant_IDs for matching and p-value estimation must match.");
+        // assert (bgc_variant_id == hmm_for_p_value_estimation.bgc_variant_id &&
+        //        "BGC_Variant_IDs for matching and p-value estimation must match.");
 
         // Insert into maps
         hmms_for_matching[bgc_variant_id] = std::move(hmm_for_matching);
-        hmms_for_p_value_estimation[bgc_variant_id] = std::move(hmm_for_p_value_estimation);
+        // hmms_for_p_value_estimation[bgc_variant_id] = std::move(hmm_for_p_value_estimation);
     }
 
-    return std::make_pair(hmms_for_matching,
-                          hmms_for_p_value_estimation);
+    return hmms_for_matching;
 }

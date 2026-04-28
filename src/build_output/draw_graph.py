@@ -93,7 +93,10 @@ def get_node_colors(record: Parsed_rBAN_Record, monomer_names_helper: Optional[M
     aa_color = make_color_dict(labels=residues_with_colors)
     monomer_colors = dict()
     for mon_idx, mon_info in record.monomers.items():
-        residue = mon_info.nerpa_core
+        residue = (
+            monomer_names_helper.parsed_name(mon_info.name, name_format='rBAN/Norine').residue            if monomer_names_helper else
+            mon_info.name.split('-')[-1].lower()
+        )
         monomer_colors[mon_idx] = aa_color[residue]
 
     return monomer_colors
@@ -169,17 +172,12 @@ def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
     if bond not in record.monomer_bonds:
         raise ValueError(f'Bond {bond} not found in record')
 
-    mon_to_atom_lst = record.monomer_bonds[bond]
-    if len(mon_to_atom_lst) != 1:
+    edge_info_list = record.monomer_bonds[bond]
+    if len(edge_info_list) != 1:
         return None  # if multiple atomic bonds between the same monomers, we can't be sure which one is the "main" bond, so we won't classify it as amino
 
-    atom_id1, atom_id2 = mon_to_atom_lst[0].values()
-    if (atom_id1, atom_id2) in record.atomic_bonds:
-        atomic_bond_info = record.atomic_bonds[(atom_id1, atom_id2)]
-    elif (atom_id2, atom_id1) in record.atomic_bonds:
-        atomic_bond_info = record.atomic_bonds[(atom_id2, atom_id1)]
-    else:
-        raise ValueError(f'No atomic bond found between atoms {atom_id1} and {atom_id2} for monomer bond {bond}')
+    atomic_bond_info = edge_info_list[0].atomic_edge
+    atom_id1, atom_id2 = (edge_info_list[0].monomer_to_atom[mon_idx] for mon_idx in bond)
 
     if atomic_bond_info.bond_type != 'AMINO':
         return None
@@ -194,13 +192,14 @@ def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
 
 def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
                               mon_colors: Dict[MonomerIdx, RGB],
+                              ext: Literal['svg', 'png'] = 'svg',
                               with_rban_indexes: bool = True,
                               size: Tuple[int, int] = (1000, 1000),
                               dpi: int = 300) -> graphviz.Digraph:
     mon_labels = get_node_labels(record, with_rban_indexes=with_rban_indexes)
 
     w_inches, h_inches = size[0] / dpi, size[1] / dpi
-    fig = graphviz.Digraph(format=format,
+    fig = graphviz.Digraph(format=ext,
                            #engine='neato',
                            engine='dot',
                            graph_attr={

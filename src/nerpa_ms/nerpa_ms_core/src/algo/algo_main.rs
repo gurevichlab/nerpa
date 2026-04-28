@@ -64,3 +64,4 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
     new_variant_with_opt_paths
 }
 
+

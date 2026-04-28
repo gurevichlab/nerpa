@@ -68,10 +68,8 @@ command = [
     "--col-id", "ID",
     "--output-dir", str(output_dir),
     "--force-output-dir",
-    "--fast-matching",
     "--let-it-crash",
     "--dump-all-preprocessed",
-    "--keep-intermediate-files",
     #"--draw-hmms"
 ]
 

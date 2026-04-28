@@ -114,8 +114,8 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                                       rban_records):
                 try:
                     draw_monomer_graph(rban_record,
+                                       output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
                                        with_rban_indexes=True,
-                                       output_path=output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
                                        monomer_names_helper=monomer_names_helper)
                 except Exception as e:
                     if log is not None:

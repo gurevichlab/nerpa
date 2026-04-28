@@ -34,7 +34,7 @@ def run_nerpa_results_on_pnrpdb2(nerpa_dir: Path,
         "--skip-molecule-drawing",
         "--threads", str(num_threads),
         "--dump-all-preprocessed",
-        "--keep-intermediate-files",
+        # "--keep-intermediate-files",
     ]
 
     # Execute the command and capture output

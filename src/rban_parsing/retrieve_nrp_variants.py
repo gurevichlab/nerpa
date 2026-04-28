@@ -26,7 +26,7 @@ from src.generic.graphs import (
     putative_backbones
 )
 from src.pipeline.logging.logger import NerpaLogger
-from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record, MonomerEdgeInfoSingle
 from src.config import rBAN_Processing_Config, load_config, load_monomer_names_helper
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
@@ -44,15 +44,12 @@ def build_monomer(mon_info: MonomerInfo,
                         rban_name=mon_info.name,
                         rban_idx=idx)
 
-def _get_bond_type(edge_info: List[Dict[MonomerIdx, AtomId]],
+def _get_bond_type(edge_info: List[MonomerEdgeInfoSingle],
                    rban_record: Parsed_rBAN_Record) -> str:
-    atom1, atom2 = edge_info[0].values()  # get the first
-    if (atom1, atom2) in rban_record.atomic_bonds:
-        return rban_record.atomic_bonds[(atom1, atom2)].bond_type
-    elif (atom2, atom1) in rban_record.atomic_bonds:
-        return rban_record.atomic_bonds[(atom2, atom1)].bond_type
-    else:
-        raise ValueError(f'No atomic bond found for monomer bond between atoms {atom1} and {atom2}')
+    if not edge_info:
+        raise ValueError(f'No atomic bond information for monomer bond in record {rban_record.compound_id}')
+    # return first
+    return edge_info[0].atomic_edge.bond_type
 
 def build_nx_graph(rban_record: Parsed_rBAN_Record,
                    backbone_bonds: List[str]) -> NerpaMonomerGraph:

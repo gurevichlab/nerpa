@@ -88,7 +88,7 @@ struct NerpaMatchInfo {
     bgc_variant_id: BGC_Variant_ID,
     nrp_id: String,
     nrp_linearizations: Vec<Vec<MonomerIdx>>,
-    _optimal_paths: Vec<Vec<MonomerIdx>>,
+    // _optimal_paths: Vec<Vec<MonomerIdx>>,
     score: f64,
 }
 

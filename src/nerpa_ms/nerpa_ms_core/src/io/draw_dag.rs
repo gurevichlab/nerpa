@@ -14,7 +14,8 @@ pub struct Draw_DAG_Config {
 }
 
 impl DAG<'_> {
-    pub fn to_dot(&self, cfg: &Draw_DAG_Config, highlight_path: Option<Vec<VertexId>>) -> String {
+    pub fn to_dot(&self, cfg: &Draw_DAG_Config,
+		  highlight_path: Option<&[VertexId]>) -> String {
         let highlight_edges: HashSet<(VertexId, VertexId)> = if let Some(path) = highlight_path {
             path.windows(2).map(|w| (w[0], w[1])).collect()
         } else {
@@ -80,7 +81,7 @@ impl DAG<'_> {
         &self,
         out: &Path,
         cfg: &Draw_DAG_Config,
-        highlight_path: Option<Vec<VertexId>>,
+        highlight_path: Option<&[VertexId]>,
     ) -> Result<()> {
         // Ensure output directory exists
         if let Some(parent) = out.parent() {

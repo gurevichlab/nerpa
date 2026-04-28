@@ -61,6 +61,7 @@ class PipelineHelper:
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     pipeline_helper_cpp: PipelineHelperCpp
+    specificity_prediction_helper: SpecificityPredictionHelper
 
     def __init__(self, pre_logger: PreliminaryLogger):
 
@@ -90,20 +91,20 @@ class PipelineHelper:
                                                                  self.monomer_names_helper,
                                                                  self.log) \
             if self.args.paras_results is not None else None
-        specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
+        self.specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
                                                                     self.monomer_names_helper,
                                                                     external_specificity_predictions)
 
         hmm_scoring_config = load_hmm_scoring_config(self.config.nerpa_dir,
                                                      self.config.hmm_scoring_config,
-                                                     specificity_prediction_helper,
+                                                     self.specificity_prediction_helper,
                                                      self.monomer_names_helper)
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args,
                                                                   self.monomer_names_helper,
-                                                                  specificity_prediction_helper,
+                                                                  self.specificity_prediction_helper,
                                                                   self.log)
         self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
 

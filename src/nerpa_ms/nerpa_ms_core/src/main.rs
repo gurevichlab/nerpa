@@ -4,17 +4,21 @@ mod data_types;
 mod io;
 
 use clap::Parser;
-use anyhow::Result;
+use anyhow::{Context, Result};
+use data_types::parsed_rban_record::Parsed_rBAN_Record;
 use data_types::{monomer_graph::MonomerGraph, monomers_db::load_monomers_db};
+use io::draw_molecules::draw_output_variants;
 use io::output::{OutputItem, write_output};
+use io::draw_hmm_dag::draw_hmm_dag_opt_paths;
 use algo::{algo_main::{generate_new_variants_with_opt_paths}, graph_to_dag::create_dag};
+
 
 fn main() -> Result<()> {
     println!("Nerpa-MS variant generation has started...");
     let cli = cli::Cli::parse();
     println!("cli received: {:#?}", cli);
     let input_items = io::input::get_input(&cli)
-	.map_err(|e| anyhow::anyhow!("Failed to load input:\n{e}"))?;
+	.context("Failed to load input")?;
     println!("Loaded {} input items", input_items.len());
 
     println!("Loading monomers database from {}", cli.monomers_db_json.display());
@@ -22,7 +26,7 @@ fn main() -> Result<()> {
 
     println!("Generating variants...");
     let mut output_items: Vec<OutputItem> = Vec::with_capacity(input_items.len());
-    for item in input_items {
+    for item in &input_items {
 	let dag = create_dag(&item.rban_record,
 			     &item.linearization,
 			     &monomers_db);
@@ -42,7 +46,7 @@ fn main() -> Result<()> {
 	let figs_dir = cli.out
 	    .join("figures")
 	    .join("opt_paths")
-	    .join(format!("{bgc_id_short}_{&item.rban_record.compound_id}"))
+	    .join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id));
 
 	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
 	    let res = draw_hmm_dag_opt_paths(
@@ -50,7 +54,7 @@ fn main() -> Result<()> {
 		&dag,
 		&new_variant_with_opt_paths.hmm_path,
 		&new_variant_with_opt_paths.dag_path,
-		&fig_dir.join(format!("{i}"))
+		&figs_dir.join(format!("{i}"))
 	    );
 	    if let Err(e) = res {
 		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
@@ -75,14 +79,18 @@ fn main() -> Result<()> {
     let original_records: Vec<&Parsed_rBAN_Record> = input_items
 	.iter()
 	.map(|item| &item.rban_record)
-	.collect;
+	.collect();
     let new_variants_figures_dir = cli.out
 	.join("figures")
 	.join("new_variants");
-    draw_output_variants(&output_items,
-			 &original_records,
-			 &cli.nerpa_root,
-    			 &new_variants_figures_dir)?;
+    if let Some(nerpa_root) = &cli.nerpa_root {
+	draw_output_variants(&output_items,
+			     &original_records,
+			     nerpa_root,
+    			     &new_variants_figures_dir)?;
+    } else {
+	eprintln!("Nerpa root not provided, skipping drawing new variants");
+    }
 
     Ok(())
 }
