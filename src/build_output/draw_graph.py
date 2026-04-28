@@ -195,14 +195,13 @@ def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
 
 def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
                               mon_colors: Dict[MonomerIdx, RGB],
-                              ext: Literal['svg', 'png', 'dot_json'] = 'svg',
                               with_rban_indexes: bool = True,
                               size: Tuple[int, int] = (1000, 1000),
                               dpi: int = 300) -> graphviz.Digraph:
     mon_labels = get_node_labels(record, with_rban_indexes=with_rban_indexes)
 
     w_inches, h_inches = size[0] / dpi, size[1] / dpi
-    fig = graphviz.Digraph(format=ext,
+    fig = graphviz.Digraph(format='svg',
                            #engine='neato',
                            engine='dot',
                            graph_attr={
