@@ -115,7 +115,7 @@ def get_node_labels(record: Parsed_rBAN_Record,
                          
 
 def draw_molecule_colors(record: Parsed_rBAN_Record,
-                         ext: Literal['svg', 'png'],
+                         ext: Literal['svg', 'png', 'dot_json'],
                          mon_colors: Dict[MonomerIdx, RGB],
                          rban_indexes: bool = True,
                          monomer_labels: bool = True,
@@ -147,12 +147,15 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
             bonds_to_highlight.append(bond_idx)
 
     w, h = size
-    if ext == "svg":
-        drawer = rdMolDraw2D.MolDraw2DSVG(w, h)
-    elif ext == "png":
-        drawer = rdMolDraw2D.MolDraw2DCairo(w, h)
-    else:
-        raise ValueError(f"Unsupported format: {ext}. Use 'svg' or 'png'.")
+    match ext:
+        case "svg":
+            drawer = rdMolDraw2D.MolDraw2DSVG(w, h)
+        case "png":
+            drawer = rdMolDraw2D.MolDraw2DCairo(w, h)
+        case "dot_json":
+            raise NotImplementedError("dot_json format is not implemented yet. Please use 'svg' or 'png'.")
+        case _:
+            raise ValueError(f"Unsupported format: {ext}. Use 'svg' or 'png'.")
 
     opts = drawer.drawOptions()
     for atom_index, label in atom_labels.items():  # write names of monomers
@@ -192,7 +195,7 @@ def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
 
 def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
                               mon_colors: Dict[MonomerIdx, RGB],
-                              ext: Literal['svg', 'png'] = 'svg',
+                              ext: Literal['svg', 'png', 'dot_json'] = 'svg',
                               with_rban_indexes: bool = True,
                               size: Tuple[int, int] = (1000, 1000),
                               dpi: int = 300) -> graphviz.Digraph:
@@ -281,25 +284,28 @@ def draw_monomer_graph(record: Parsed_rBAN_Record,
                                     dpi=dpi)
 
     ext = output_path.suffix[1:].lower()
-    output_path = ensure_image_ext(output_path, ext)
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
-    if ext == 'svg':
-        svg_bytes = fig.pipe(format='svg')
-        svg_bytes = force_svg_pixel_size(svg_bytes, size[0], size[1], stretch=False)
-        output_path.write_bytes(svg_bytes)
-    elif ext == 'png':  # PNG path stays identical to your original (center onto exact canvas)
-        png_bytes = fig.pipe(format='png')
-        img = Image.open(io.BytesIO(png_bytes))
-        w_tgt, h_tgt = size
-        canvas = Image.new('RGBA', (w_tgt, h_tgt), (255, 255, 255, 255))
-        w_cur, h_cur = img.size
-        x_off = max((w_tgt - w_cur) // 2, 0)
-        y_off = max((h_tgt - h_cur) // 2, 0)
-        canvas.paste(img, (x_off, y_off))
-        canvas.save(output_path, format='PNG')
-    else:
-        raise ValueError(f'Unsupported format: {ext}. Use "svg" or "png".')
+    match ext:
+        case 'svg':
+            svg_bytes = fig.pipe(format='svg')
+            svg_bytes = force_svg_pixel_size(svg_bytes, size[0], size[1], stretch=False)
+            output_path.write_bytes(svg_bytes)
+        case 'png':
+            png_bytes = fig.pipe(format='png')
+            img = Image.open(io.BytesIO(png_bytes))
+            w_tgt, h_tgt = size
+            canvas = Image.new('RGBA', (w_tgt, h_tgt), (255, 255, 255, 255))
+            w_cur, h_cur = img.size
+            x_off = max((w_tgt - w_cur) // 2, 0)
+            y_off = max((h_tgt - h_cur) // 2, 0)
+            canvas.paste(img, (x_off, y_off))
+            canvas.save(output_path, format='PNG')
+        case 'json':
+            output_path.write_text(fig.pipe(format='dot_json').decode('utf-8'),
+                                   encoding='utf-8')
+        case _:
+            raise ValueError(f'Unsupported format: {ext}. Use "svg", "png", or "json".')
 
 
 class GraphDiffColors:
