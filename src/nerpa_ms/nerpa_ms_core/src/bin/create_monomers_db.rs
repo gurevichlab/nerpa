@@ -1,8 +1,8 @@
 #![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 
-use nerpa_ms_core::data_types::parsed_rban_record::{
-    MonomerInfo, NerpaCoreResidue, NorineMonomerName, Parsed_rBAN_Record,
-};
+use nerpa_ms_core::data_types::{monomer_graph::Monomer, parsed_rban_record::{
+    MonomerInfo, NerpaCoreResidue, Parsed_rBAN_Record,
+}};
 use std::cmp::Reverse;
 use std::path::PathBuf;
 
@@ -11,9 +11,9 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 #[command(name = "create_monomers_db")]
 pub struct Cli {
-    /// Path to a JSON file with a list Parsed_rBAN_Record instances
+    /// Path to a YAML file with a list Parsed_rBAN_Record instances
     #[arg(long)]
-    pub parsed_rban_records_json: PathBuf,
+    pub parsed_rban_records: PathBuf,
 
     /// Path to the output JSON with the monomers database
     #[arg(long)]
@@ -28,7 +28,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Mon_DB_Entry {
-    pub monomer: MonomerInfo,
+    pub monomer: Monomer,
     pub bonds_by_bs: Vec<(BindingSiteType, Bond)>,
 }
 pub type MonomersDB = HashMap<BindingSitesProfile, Vec<Mon_DB_Entry>>;
@@ -38,7 +38,7 @@ fn create_monomers_db_unfiltered(
 ) -> HashMap<BindingSitesProfile, Vec<Mon_DB_Entry>> {
     let mut entries_by_bs: HashMap<BindingSitesProfile, Vec<Mon_DB_Entry>> = HashMap::new();
     for record in rban_records {
-        for (mon_idx, monomer) in &record.monomers {
+        for mon_idx in record.monomers.keys() {
             let bonds_by_bs = record.bonds_for_monomer(*mon_idx);
             let bs_profile = BindingSitesProfile::new(
                 bonds_by_bs
@@ -46,8 +46,9 @@ fn create_monomers_db_unfiltered(
                     .map(|(bs, _bond)| bs.clone())
                     .collect::<Vec<BindingSiteType>>(),
             );
+	    let monomer = Monomer::from_rban_record(record, *mon_idx);
             let entry = Mon_DB_Entry {
-                monomer: monomer.clone(),
+                monomer,
                 bonds_by_bs,
             };
             entries_by_bs.entry(bs_profile).or_default().push(entry);
@@ -66,11 +67,11 @@ fn filter_db_entries(entries: &[Mon_DB_Entry]) -> Vec<Mon_DB_Entry> {
     entries
         .iter()
         .filter(|entry| {
-	    !entry.monomer.is_pks_hybrid
-		&& !entry.monomer.nerpa_core.is_unknown()
+	    !entry.monomer.features.is_pks_hybrid
+		&& !entry.monomer.features.nerpa_core.is_unknown()
 	})
         .for_each(|entry| {
-            let key = (entry.monomer.nerpa_core.clone(), entry.monomer.methylated);
+            let key = (entry.monomer.features.nerpa_core.clone(), entry.monomer.features.methylated);
             groups.entry(key).or_default().push(entry);
         });
 
@@ -82,13 +83,13 @@ fn filter_db_entries(entries: &[Mon_DB_Entry]) -> Vec<Mon_DB_Entry> {
         // Count name frequencies
 	let name_freq = group_entries
 	    .iter()
-	    .map(|e| &e.monomer.name)
+	    .map(|e| &e.monomer.features.name)
 	    .counts();
 
 	let group_repr = group_entries
 	    .iter()
 	    .sorted_by_key(|e| {
-		let name = &e.monomer.name;
+		let name = &e.monomer.features.name;
 		(Reverse(name_freq.get(name).unwrap()), name.0.len())
 	    })
 	    .next()
@@ -114,10 +115,10 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     // q: load the Parsed_rBAN_Record instances from the input JSON. Parsed_rBAN_Record implements Deserialize
     let parsed_rban_records: Vec<Parsed_rBAN_Record> = {
-        let file = std::fs::File::open(&cli.parsed_rban_records_json)?;
-        let filename = cli.parsed_rban_records_json.display();
+        let file = std::fs::File::open(&cli.parsed_rban_records)?;
+        let filename = cli.parsed_rban_records.display();
         let err_msg = format!("Failed to open file {}", filename);
-        serde_json::from_reader(file).expect(&err_msg)
+        serde_yaml::from_reader(file).expect(&err_msg)
     };
 
     let monomers_db = create_monomers_db(&parsed_rban_records);

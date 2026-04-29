@@ -87,7 +87,7 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 def main() -> None:
-    nerpa_dir = Path(__file__).parent.parent.parent
+    nerpa_dir = Path(__file__).parent.parent
     assert (nerpa_dir / "nerpa.py").exists(), f"Invalid nerpa_dir: {nerpa_dir}"
     monomers_cfg_file = nerpa_dir / "configs/monomers_config.yaml"
     monomer_names_helper = load_monomer_names_helper(monomers_cfg_file, nerpa_dir)

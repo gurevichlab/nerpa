@@ -364,6 +364,10 @@ pub fn draw_nerpa_hmm(
 
     // Optionally render to SVG using graphviz
     if let Some(out) = output_path {
+	if let Some(parent) = out.parent() {
+            std::fs::create_dir_all(parent).context("Failed to create output directory")?;
+	}
+	
         let mut child = Command::new("dot")
             .arg("-Kneato")
             .arg("-n2")

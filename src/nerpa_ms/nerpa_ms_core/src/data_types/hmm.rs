@@ -17,10 +17,11 @@ pub struct BGC_ID {
 
 impl BGC_ID {
     pub fn to_str_short(&self) -> String {
-	let genome_id = self.antiSMASH_file
-	    .split('/')
-	    .last()
-	    .unwrap_or(&self.antiSMASH_file);
+	let path = std::path::Path::new(&self.antiSMASH_file);
+	let genome_id = path.file_name()
+	    .and_then(|s| s.to_str())
+	    .unwrap_or(&self.antiSMASH_file)
+	    .to_string();
 	format!("{}:{}:{}",
 		genome_id,
 		self.contig_idx,

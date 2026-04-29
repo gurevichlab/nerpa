@@ -13,6 +13,7 @@ struct ItemForDrawing {
 }
 
 use anyhow::{anyhow, bail, Context};
+use std::os::unix::fs::MetadataExt;
 
 
 pub fn draw_output_variants(
@@ -47,21 +48,37 @@ pub fn draw_output_variants(
 
     let json_output = serde_json::to_string(&items_for_drawing)
         .context("Failed to serialize items for drawing")?;
-    let json_output_path = output_dir.join("items_for_drawing.json");
+
+    let cwd = std::env::current_dir().context("Failed to get current directory")?;
+    let output_dir_abs = if output_dir.is_absolute() {
+	output_dir.to_path_buf()
+    } else {
+	cwd.join(output_dir)
+    };
+    let json_output_path = output_dir_abs.join("items_for_drawing.json");
+    if let Some(parent) = json_output_path.parent() {
+	std::fs::create_dir_all(parent)
+	    .with_context(|| format!("Failed to create parent directory for {}", json_output_path.display()))?;
+    }
     std::fs::write(&json_output_path, json_output)
 	.with_context(|| format!("Failed to write {}", json_output_path.display()))?;
 
     let drawing_script = nerpa_root
 	.join("scripts")
 	.join("draw_nerpa_ms_variants.py");
-    let output = std::process::Command::new("python")
-	.arg(drawing_script)
-	.arg("--input_json")
-	.arg(json_output_path)
-	.arg("--output_dir")
-	.arg(output_dir)
-	.output()
-	.context("Failed to execute drawing script")?;
+
+    let mut cmd = std::process::Command::new("python"); // keep this first
+    cmd.arg(&drawing_script)
+	.arg("--input_json").arg(&json_output_path)
+	.arg("--output_dir").arg(output_dir_abs);
+
+    cmd.current_dir(nerpa_root);
+    cmd.env("PYTHONPATH", nerpa_root);
+
+    let output = cmd.output()
+	.with_context(|| format!("Failed to execute drawing script at {}",
+				 drawing_script.display()))?;
+
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
