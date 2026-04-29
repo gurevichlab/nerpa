@@ -18,7 +18,7 @@ pub struct BGC_ID {
 impl BGC_ID {
     pub fn to_str_short(&self) -> String {
 	let path = std::path::Path::new(&self.antiSMASH_file);
-	let genome_id = path.file_name()
+	let genome_id = path.file_stem()
 	    .and_then(|s| s.to_str())
 	    .unwrap_or(&self.antiSMASH_file)
 	    .to_string();

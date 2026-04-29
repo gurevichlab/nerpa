@@ -15,7 +15,7 @@ pub fn create_dag<'a>(rban_record: &Parsed_rBAN_Record,
 	    .expect("linearization contains monomer index that is not present in rban_record.monomers");
 	labels.push(VertexLabel{
 	    monomer_code: None,
-	    name: monomer_idx.0.to_string()
+	    name: format!("mon{}", monomer_idx.0)
 	});
 	out_edges.push(Vec::new());
 

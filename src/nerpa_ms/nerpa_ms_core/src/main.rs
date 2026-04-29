@@ -12,7 +12,6 @@ use io::output::{OutputItem, write_output};
 use io::draw_hmm_dag::draw_hmm_dag_opt_paths;
 use algo::{algo_main::{generate_new_variants_with_opt_paths}, graph_to_dag::create_dag};
 
-
 fn main() -> Result<()> {
     println!("Nerpa-MS variant generation has started...");
     let cli = cli::Cli::parse();

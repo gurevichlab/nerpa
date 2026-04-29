@@ -40,9 +40,6 @@ impl StateType {
             .split_once(':')
             .ok_or_else(|| anyhow!("Invalid state label (no ':'): {label:?}"))?;
 
-        if rest.starts_with('F') {
-            return Ok(StateType::ModuleSubgraphRoot);
-        }
 
         let st = match rest {
             "SKIPPING_MODULES_AT_END" => StateType::SkippingModulesAtEnd,
@@ -61,7 +58,13 @@ impl StateType {
             "INSERT_AT_START" => StateType::InsertAtStart,
             "CHOOSE_IF_START_MATCHING" => StateType::ChooseIfStartMatching,
             "SKIPPING_MODULES_AT_START_FINISHED" => StateType::SkippingModulesAtStartFinished,
-            other => bail!("Unknown state type label suffix: {other:?} (full label: {label:?})"),
+            other => {
+		if rest.starts_with('F') {
+		    StateType::ModuleSubgraphRoot
+		} else {
+		bail!("Unknown state type label suffix: {other:?} (full label: {label:?})")
+		}
+	    }
         };
         Ok(st)
     }
@@ -293,6 +296,45 @@ pub fn draw_nerpa_hmm(
         5.0, // layer_y_gap
     )?;
 
+    // // DEBUG: inspect LP output range/spread
+    // {
+    //     let mut xs: Vec<f64> = pos.values().map(|(x, _y)| *x).collect();
+    //     xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
+
+    //     let x_min = xs.first().copied().unwrap_or(0.0);
+    //     let x_max = xs.last().copied().unwrap_or(0.0);
+
+    //     // Count "distinct" x values with a small tolerance
+    //     let mut distinct = 0usize;
+    //     let mut last_x: Option<f64> = None;
+    //     for &x in &xs {
+    //         if last_x.map_or(true, |lx| (x - lx).abs() > 1e-6) {
+    //             distinct += 1;
+    //             last_x = Some(x);
+    //         }
+    //     }
+
+    //     eprintln!(
+    //         "DEBUG layout: n_states={}, x_min={:.6}, x_max={:.6}, span={:.6}, distinct_x~={}",
+    //         n_states,
+    //         x_min,
+    //         x_max,
+    //         x_max - x_min,
+    //         distinct
+    //     );
+
+    //     // Print first 12 nodes by index with their positions
+    //     for i in 0..n_states.min(12) {
+    //         let (x, y) = pos[&i];
+    //         eprintln!(
+    //             "DEBUG node {i}: x={:.6}, y={:.6}, label={}",
+    //             x,
+    //             y,
+    //             hmm.state_labels[i]
+    //         );
+    //     }
+    // }
+
     // Pivot layer: the layer containing INITIAL/FINAL (for port direction rule)
     let pivot_layer_idx = layer_types
         .iter()
@@ -311,15 +353,19 @@ pub fn draw_nerpa_hmm(
     writeln!(&mut dot, "digraph HMM {{")?;
     writeln!(&mut dot, "  graph [")?;
     writeln!(&mut dot, r#"    overlap="false","#)?;
-    writeln!(&mut dot, r#"    splines="polyline","#)?;
+    writeln!(&mut dot, r#"    splines="curved","#)?;
     writeln!(&mut dot, r#"    esep="+1","#)?;
     writeln!(&mut dot, r#"    sep="+10""#)?;
     writeln!(&mut dot, "  ];")?;
     writeln!(&mut dot, r#"  node [shape="ellipse", style="filled"];"#)?;
     writeln!(&mut dot, r#"  edge [arrowhead="vee"];"#)?;
 
+    let gv_pos_scale = 21.0; // diagnostic: convert "inches-ish" to graphviz points
     for idx in 0..n_states {
         let (x, y) = *pos.get(&idx).ok_or_else(|| anyhow!("Missing pos for node {idx}"))?;
+        let x = x * gv_pos_scale;
+        let y = y * gv_pos_scale;
+
         let label = dot_escape(&hmm.state_labels[idx]);
         let fill = state_color(state_types[idx]);
         writeln!(
@@ -340,7 +386,12 @@ pub fn draw_nerpa_hmm(
         attrs.push(format!(r#"arrowsize="{arrowsize}""#));
 
         if edge_weights {
-            attrs.push(format!(r#"label="{:.2}""#, lp)); // raw logprob as requested
+            let label_text = if lp < -1000.0 {
+                "-inf".to_string()
+            } else {
+                format!("{:.2}", lp)
+            };
+            attrs.push(format!(r#"label="{label_text}""#));
         }
 
         // Simpler port rule (applied to self-loops only):
@@ -361,6 +412,11 @@ pub fn draw_nerpa_hmm(
     }
 
     writeln!(&mut dot, "}}")?;
+
+    // // DEBUG: dump DOT to a file so we can test graphviz commands manually
+    // std::fs::write("/tmp/hmm_debug.dot", &dot)
+    //     .context("Failed to write /tmp/hmm_debug.dot")?;
+    // eprintln!("DEBUG: wrote /tmp/hmm_debug.dot");
 
     // Optionally render to SVG using graphviz
     if let Some(out) = output_path {

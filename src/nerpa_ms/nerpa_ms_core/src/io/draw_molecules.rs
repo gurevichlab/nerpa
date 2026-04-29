@@ -1,19 +1,18 @@
 use std::collections::HashMap;
 use std::path::Path;
 use serde::Serialize;
-use crate::data_types::{hmm::BGC_Variant_ID, parsed_rban_record::Parsed_rBAN_Record};
+use crate::data_types::{hmm::BGC_ID, parsed_rban_record::Parsed_rBAN_Record};
 use crate::algo::algo_main::Altered_rBAN_Record;
 use crate::io::output::OutputItem;
 
 #[derive(Debug, Clone, Serialize)]
 struct ItemForDrawing {
-    bgc_variant_id: BGC_Variant_ID,
+    bgc_id: BGC_ID,
     original: Parsed_rBAN_Record,
     new_variant: Altered_rBAN_Record,
 }
 
 use anyhow::{anyhow, bail, Context};
-use std::os::unix::fs::MetadataExt;
 
 
 pub fn draw_output_variants(
@@ -39,7 +38,7 @@ pub fn draw_output_variants(
 		    )
 		})?;
 	    items_for_drawing.push(ItemForDrawing {
-		bgc_variant_id: output_item.bgc_variant_id.clone(),
+		bgc_id: output_item.bgc_variant_id.bgc_id.clone(),
 		original: (*original).clone(),
 		new_variant: (*new_variant).clone(),
 	    });
