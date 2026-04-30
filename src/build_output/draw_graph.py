@@ -271,6 +271,7 @@ def draw_molecule(record: Parsed_rBAN_Record,
 
 def draw_monomer_graph(record: Parsed_rBAN_Record,
                        output_path: Path,
+                       output_path_json: Path,
                        with_rban_indexes: bool = True,
                        size: Tuple[int, int] = (1000, 1000),
                        dpi: int = 300,
@@ -305,6 +306,8 @@ def draw_monomer_graph(record: Parsed_rBAN_Record,
                                    encoding='utf-8')
         case _:
             raise ValueError(f'Unsupported format: {ext}. Use "svg", "png", or "json".')
+    
+    return fig
 
 
 class GraphDiffColors:

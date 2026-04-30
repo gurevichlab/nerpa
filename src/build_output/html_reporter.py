@@ -134,8 +134,16 @@ def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
         template = template.replace(placeholder, value)
     return template
 
+def _create_graph_dicts(monomer_graph_data) -> Dict:
 
-def create_html_report(output_cfg: OutputConfig,
+    graph_dict = {}
+    for compID, graph in monomer_graph_data:
+        graph_dict[compID] = json.loads(graph.pipe(format='dot_json').decode('utf-8'))
+
+    return graph_dict
+
+def create_html_report(monomer_graph_data,
+                       output_cfg: OutputConfig,
                        matches: List[Match],
                        bgc_variants_info: BGC_Variants_Info,
                        nrp_variants_info: NRP_Variants_Info,
@@ -159,6 +167,7 @@ def create_html_report(output_cfg: OutputConfig,
     nrp_metadata = _create_serializable_nrp_metadata(nrp_variants_info)
     bgc_representatives = _create_serializable_bgc_representatives(bgc_variants_info)
     nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
+    monomer_graph = _create_graph_dicts(monomer_graph_data)
 
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:
@@ -180,6 +189,10 @@ def create_html_report(output_cfg: OutputConfig,
 
         json_file.write('var nrp_representatives = ')
         json.dump(nrp_representatives, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var monomer_graph = ')
+        json.dump(monomer_graph, json_file, indent=4)
         json_file.write(';\n')
 
     path_substitutions = {

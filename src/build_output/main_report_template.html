@@ -407,11 +407,9 @@
 
 
 <script>
-    async function drawGraph(nrpID) {
-        const path = `NRP_images/graphs/${nrpID}.json`;
-    
-        const graph = await fetch(path).then(file => file.json());
-    
+    function drawGraph(nrpID) {
+        const graph = monomer_graph[nrpID];
+ 
         const edgesMapped = graph.edges.map(({tail, head, color, penwidth}) => ({
                 from: tail,
                 to: head, 
@@ -450,7 +448,7 @@
             }
         };
         
-        new vis.Network( graph_div, graph_data, graph_options);
+        new vis.Network(graph_div, graph_data, graph_options);
     }
 
     // Function to detect if a value is numeric
@@ -1031,10 +1029,10 @@
         } else {
             const moleculeImage = document.getElementById('moleculeImage');
             moleculeImage.src = `NRP_images/molecules/${nrpID}.svg`;
-            drawGraph(nrpID);
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
+            drawGraph(nrpID);
         }
     }
 
