@@ -1,6 +1,8 @@
 from functools import partial
 from typing import (
-    List, Optional
+    Dict,
+    List,
+    Optional
 )
 
 import networkx as nx
@@ -14,14 +16,17 @@ from src.monomer_names_helper import (
     MonomerNamesHelper,
     UNKNOWN_RESIDUE
 )
-from src.rban_parsing.rban_parser import MonomerInfo
-from src.rban_parsing.monomer_features import get_monomer_features
+from src.rban_parsing.rban_parser import (
+    AtomId,
+    MonomerIdx,
+    MonomerInfo
+)
 from src.generic.graphs import (
     BackboneSequence,
     putative_backbones
 )
 from src.pipeline.logging.logger import NerpaLogger
-from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record, MonomerEdgeInfoSingle
 from src.config import rBAN_Processing_Config, load_config, load_monomer_names_helper
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
@@ -39,6 +44,12 @@ def build_monomer(mon_info: MonomerInfo,
                         rban_name=mon_info.name,
                         rban_idx=idx)
 
+def _get_bond_type(edge_info: List[MonomerEdgeInfoSingle],
+                   rban_record: Parsed_rBAN_Record) -> str:
+    if not edge_info:
+        raise ValueError(f'No atomic bond information for monomer bond in record {rban_record.compound_id}')
+    # return first
+    return edge_info[0].atomic_edge.bond_type
 
 def build_nx_graph(rban_record: Parsed_rBAN_Record,
                    backbone_bonds: List[str]) -> NerpaMonomerGraph:
@@ -51,13 +62,19 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
                          if monomer_idx not in lipid_monomers)
 
     for (start, end), edge_info in rban_record.monomer_bonds.items():
+        bond_type = _get_bond_type(edge_info, rban_record)
         if all([start not in lipid_monomers,
                 end not in lipid_monomers,
-                edge_info.bond_type in backbone_bonds]):
+                bond_type in backbone_bonds]):
 
-            graph.add_edge(start, end, data=edge_info)
-            if edge_info.bond_type != 'AMINO':
-                graph.add_edge(end, start, data=edge_info)
+            if all([bond_type == 'AMINO',
+                    rban_record.atoms[start].name == 'N',
+                    rban_record.atoms[end].name == 'C']):
+                start, end = end, start  # ensure the direction of amino bond to go from C to N
+
+            graph.add_edge(start, end, bond_type=bond_type)
+            if bond_type != 'AMINO':
+                graph.add_edge(end, start, bond_type=bond_type)  # non-amino bonds are bidirectional
 
     return graph
 

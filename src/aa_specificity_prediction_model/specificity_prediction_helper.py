@@ -90,8 +90,9 @@ class SpecificityPredictionHelper:
                 raw_predictions = self._predict_paras(a_domain)
                 calibration_function = self._calibration_step_function_paras
             else:
-                raw_predictions = self._predict_nerpa(a_domain)
-                calibration_function = self._calibration_step_function_nerpa
+                # raw_predictions = self._predict_nerpa(a_domain)
+                # calibration_function = self._calibration_step_function_nerpa
+                raise NotImplementedError("NERPA internal model is deprecated. Please provide a PARAS model or external predictions.")
 
         # assign probability 1 for known specificities
         if self.config.ENABLE_DICTIONARY_LOOKUP and a_domain.aa34 in self.KNOWN_SPECIFICITIES:
@@ -139,10 +140,12 @@ class SpecificityPredictionHelper:
         predictions = self.nerpa_model_wrapper(scoring_table, self.monomer_names_helper)
         return predictions
 
-    def _predict_paras(self, a_domain: A_Domain) -> Dict[NerpaResidue, Prob]:
-        paras_predictions = self.paras_model_wrapper.predict(a_domain.aa34)
+    def _predict_paras_a34(self, aa34: AA34) -> Dict[NerpaResidue, Prob]:
+        paras_predictions = self.paras_model_wrapper.predict(aa34)
         return self.paras_predictions_to_nerpa_predictions(paras_predictions)
 
+    def _predict_paras(self, a_domain: A_Domain) -> Dict[NerpaResidue, Prob]:
+        return self._predict_paras_a34(a_domain.aa34)
 
     def calibrate_scores(self,
                          predictions: Dict[NerpaResidue, Prob],

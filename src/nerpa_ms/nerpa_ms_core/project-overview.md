@@ -31,6 +31,7 @@ pub struct HMM {
     pub bgc_variant_id: BGC_Variant_ID,
     pub transitions: Vec<Vec<(StateIdx, LogProb)>>,
     pub emissions: Vec<Vec<LogProb>>,
+	pub state_labels: Vec<String>, // for debugging, not used in logic
 }
 ```
 
@@ -60,17 +61,74 @@ pub struct Parsed_rBAN_Record {
 
 ---
 
-## 3) Core intermediate representations
+## 3) Core internal types
 
-### 3.2 DAG (internal)
+### 3.1 DAG
 A directed acyclic graph with:
-- vertex labels: `Option<MonomerCode>`
-  - `None` for START/FINISH
-  - otherwise `Some(code)` where `MonomerCode` is in the same alphabet as HMM emissions
-- edges weighted in `{0,1}`
+- edges edges labeled with graph modifications
+- vertices labeled with `Option<MonomerCode>` (the code of the monomer at that position, or `None` if it’s a non-emitting step)
 
 A `START→FINISH` path in this DAG represents a candidate monomer sequence near the template/linearization, potentially involving edits.
 
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GraphModification<'a> {
+    Insert {
+        edge: MonomerEdge,
+        mon_db_entry: &'a MonomersDB_Entry,
+    },
+    Remove {
+        monomer_idx: MonomerIdx,
+    },
+    Substitute {
+        monomer_idx: MonomerIdx,
+        mon_db_entry: &'a MonomersDB_Entry,
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Edge<'a> {
+    pub to: VertexId,
+    pub weight: u8, // 0 or 1
+    pub modification: Option<GraphModification<'a>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct VertexLabel {
+	pub monomer_code: Option<MonomerCode>,
+	pub name: String,  // used only for graph drawing
+}
+
+#[derive(Debug, Clone)]
+pub struct DAG<'a> {
+    pub nrp_variant_id: String,
+    pub labels: Vec<VertexLabel>, // labels[v] = label of vertex v
+    pub out_edges: Vec<Vec<Edge<'a>>>, // out_edges[v] = list of edges from vertex v
+    pub start: VertexId,               // 0
+    pub finish: VertexId,              // labels.len() - 1
+}
+```
+
+### 3.2 Discretized LogProb
+
+To allow for a dynamic programming approach, I convert log probabilities to a discrete range -- integers from 0 to `MAX_DISCRETE_LOG_PROB` (e.g., 10000). The conversion is linear (except for rounding), mapping the smallest log-prob in the HMM to 0 and the largest to `MAX_DISCRETE_LOG_PROB`. I need an efficient bit-array like data structure with the following properties:
+- Stores a set of `DISCRETE_LOG_PROB` values (integers in [0, `MAX_DISCRETE_LOG_PROB`])
+- Supports bitwise shift and bitwise OR operations (for dynamic programming state updates)
+
+```rust
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiscreteLogProbSet {
+    words: [u64; N_WORDS],
+}
+
+impl DiscreteLogProbSet {
+    pub fn from_logprob_vec(lps: Vec<LogProb>) -> Self {...}
+	pub fn add_to_all(&self, lp: LogProb) -> DiscreteLogProbSet {...}
+	pub fn union(&self, other: &DiscreteLogProbSet) -> DiscreteLogProbSet {...}
+	pub fn iter_desc(&self) -> impl Iterator<Item=LogProb> {...}
+	...
+}
+```
 ---
 
 ## 4) DAG semantics: “nearby” sequences and deviation weights
@@ -97,7 +155,42 @@ For each requested `w`:
    - HMM non-emitting states are epsilon steps (consume no DAG label).
 4. Keep enough reconstruction info (internally) to later apply the solution back onto the template molecule.
 
----
+### 5.1 Computing dynamic programming table
+
+`dp[vertex][weight][state]: DiscreteLogProbSet`, where
+lp \in `dp[vertex][weight][state]` means that there exist paths $P=s1, s2, ..., state$ the HMM, 
+and $Q=v1, v2, ..., vertex$ in DAG, with labels of vertices in Q corresponding to emissions $E=e1, e2, ...en", such that:
+- The weight of Q equals `weight`
+- The log-probability of P given the emissions E is `lp`.
+Note that so that E lists all the emissions on the path up to `vertex` but NOT the emission of `vertex` itself (if any).
+
+The vertices in DAG are topologically ordered.
+The vertices in HMM are "almost" topologically ordered -- there're occasional edges u->v with u > v. However, between any two such edges there must be an emission present, so it's enough to iterative through states just twice for every given vertex and weight.
+
+### 5.2 Dynamic programming struct
+```rust
+// A small wrapper around a flat Vec
+// Logical layout: dp[vertex][weight][state]
+#[derive(Debug, Clone)]
+pub struct DP_Table {
+    n_vertices: usize,
+    n_weights: usize, // = max_weight + 1
+    n_states: usize,
+    data: Vec<DiscreteLogProbSet>,
+    parents: Vec<Vec<(usize, Option<LogProb>)>>, // parallel to data, stores parent indices and optional shift for each cell
+}
+
+impl DP_Table {
+    pub fn new(n_vertices: usize, max_weight: usize, n_states: usize) -> Self {...}
+    pub fn get(&self, vertex: usize, weight: usize, state: usize) -> &DiscreteLogProbSet {...}
+    pub fn get_parents(&self, vertex: usize, weight: usize, state: usize) -> &Vec<(usize, Option<LogProb>)> {...}
+    pub fn update(&mut self,
+		  dst: (usize, usize, usize),
+		  src: (usize, usize, usize),
+		  shift: Option<LogProb>) {...}
+	...
+}
+```
 
 ## 6) Applying a solution back to the template molecule
 Each selected solution implies surgical edits to the template monomer graph:
@@ -109,9 +202,8 @@ Each selected solution implies surgical edits to the template monomer graph:
 ### Result struct (internal / output)
 ```rust
 pub struct Altered_NRP_Variant {
-    pub score: LogProb,
     pub new_molecule: Parsed_rBAN_Record,
-    pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>,
+    pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>
 }
 ```
 
@@ -124,7 +216,7 @@ For each input item:
 
 ---
 
-## 8) Tentative file structure
+## 8) Tentative file structure (outdated, to be updated)
 
 nerpa_ms_core/
 ├── Cargo.toml
@@ -180,7 +272,7 @@ nerpa_ms_core/
 
 ## 9) Plan and milestones
 
-### Milestone 1 — Skeleton CLI + JSON input
+### Milestone 1 — Skeleton CLI + JSON input [DONE]
 **Goal:** program builds, reads input JSON.
 
 - CLI flags:
@@ -195,7 +287,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 2 — Monomers database
+### Milestone 2 — Monomers database [DONE]
 **Goal:** implement a database of monomers (from the rBAN monomer library) that can be used for surgical edits.
 
 - Gather the rBAN monomers database: take parsed records from pnrpdb2 and take the most important monomers -- only supported residues + optional methylation.
@@ -204,9 +296,19 @@ nerpa_ms_core/
 
 **Deliverable:** a monomer database module with a function `compatible_monomers(monomer) -> Vec<MonomerCode>` that can be used in the DAG construction step.
 
+```rust
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub struct MonomersDB_Entry {
+    pub monomer: MonomerInfo,
+    pub bonds_by_bs: Vec<(BindingSiteType, Bond)>,
+}
+
+pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
+```
+
 ---
 
-### Milestone 3 — DAG construction from (Parsed_rBAN_Record, linearization)
+### Milestone 3 — DAG construction from (Parsed_rBAN_Record, linearization) [DONE]
 **Goal:** build the deviation DAG with correct labels and 0/1 edge weights.
 
 - Implement `build_dag(rban_record, linearization) -> DAG`.
@@ -217,7 +319,17 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 4 — HMM × DAG solver returning top‑N candidates (per weight)
+### Milestone 4 -- Discrete LogProb structure [DONE]
+
+**Goal:** implement the discrete log-probability structure and conversion function.
+
+- Implement `DiscreteLogProb` data type with convertions to and from `LogProb`.
+- Implement `DiscreteLogProbSet` (bit-array-like structure) with the operations: shift and OR operations.
+   - `shift_towards_zero(&self, lp: LogProb) -> DiscreteLogProbSet` -- adds lp to all log probs values represented in the set. Values that go out of bounds are erased (like in usual bitwise shift of a bit-array)
+   - `union(&self, other: DiscreteLogProbSet) -> DiscreteLogProbSet`
+
+
+### Milestone 5 — HMM × DAG solver returning top‑N candidates (per weight) [DONE]
 **Goal:** compute ranked solutions *in the DAG/HMM world* (still no molecule edits).
 
 - Implement `solve(hmm, dag, n, weights={1,2,3}) -> Vec<CandidatePerWeight>`.
@@ -228,20 +340,29 @@ nerpa_ms_core/
 
 **Deliverable:** on a tiny fixture, solver returns non-empty candidates for some `w`.
 
+#### Milestone 5.1 — DP table computation [DONE]
+- Implement the DP table computation as described in section 5.1:
+```rust
+fn compute_dp_table(hmm: &HMM, dag: &DAG, max_weight: usize) -> DP_Table
+```
+
+
 ---
 
-### Milestone 5 — Apply candidates to produce Altered_NRP_Variant
+### Milestone 6 — Apply candidates to produce Altered_NRP_Variant
 **Goal:** turn candidates into edited molecules + mapping.
 
-- Implement `apply_candidate(rban_record, candidate) -> Altered_NRP_Variant`.
-- Keep the edits “surgical” and localized (prototype scope).
-- Produce `old_to_new_mon_map`.
-
-**Deliverable:** end-to-end run produces actual `new_molecule` records for returned candidates.
+- Implement 
+```rust
+pub fn apply_modifications(rban_record: &Parsed_rBAN_Record,
+modifications: &[GraphModification]) -> Altered_NRP_Variant
+```
 
 ---
 
-### Milestone 6 — Tests and fixtures
+### Milestone 7 — End-to-end pipeline for one item
+
+### Milestone 8 — Tests and fixtures
 **Goal:** keep regressions from sneaking in.
 
 - Unit tests:
@@ -256,7 +377,7 @@ nerpa_ms_core/
 
 ---
 
-### Milestone 7 (optional) — Debuggability and performance niceties
+### Milestone 9 (optional) — Debuggability and performance niceties
 **Goal:** make it easier to trust and iterate.
 
 - Optional `--debug` output fields (hmm_states, dag_vertices, emitted codes).

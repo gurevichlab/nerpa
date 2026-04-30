@@ -3,44 +3,51 @@ use std::hash::Hash;
 use serde::{Deserialize};
 
 use crate::data_types::common_types::{MonomerIdx, MonomerCode};
+use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct AtomId(pub u32);
 
 pub type AtomicEdge = (AtomId, AtomId);
-
 pub type MonomerEdge = (MonomerIdx, MonomerIdx);
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct NorineMonomerName(pub String);
 
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct NerpaCoreResidue(pub String);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+impl NerpaCoreResidue {
+    pub fn is_unknown(&self) -> bool {
+	self.0 == "_UNKNOWN"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Chirality {
     D,
     L,
-    Unknown,
+    UNKNOWN,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct AtomInfo {
-    pub name: char, // e.g. 'C', 'N', 'O'
+    pub name: String, // e.g. 'C', 'N', 'O', 'Cl'
     pub hydrogens: u32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct BondType(pub Option<String>);
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct AtomicEdgeInfo {
-    pub arity: f64, // usually 1.0, but can be fractional for aromatic bonds
+    #[serde(deserialize_with = "crate::data_types::json_helpers::de_str_or_num_to_str")]
+    pub arity: String, // usually 1.0, but can be fractional for aromatic bonds
     pub bond_type: BondType,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomerInfo {
     pub name: NorineMonomerName,
     pub nerpa_core: NerpaCoreResidue,
@@ -51,27 +58,15 @@ pub struct MonomerInfo {
     pub atoms: Vec<AtomId>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomerEdgeInfoSingle {
     pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-    
-    pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
-
-    pub bond_type: BondType,
+    pub atomic_edge: AtomicEdgeInfo,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-pub struct MonomerEdgeInfo {
-    pub monomer_to_atom: HashMap<MonomerIdx, AtomId>,
+pub type MonomerEdgeInfo = Vec<MonomerEdgeInfoSingle>;
 
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_str_or_num_to_str")]
-    pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
-
-    pub bond_type: BondType,
-    pub all_edges: Vec<MonomerEdgeInfoSingle>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
 pub struct NRP_Metadata {
     pub name: Option<String>,
     pub smiles: Option<String>,
@@ -80,22 +75,24 @@ pub struct NRP_Metadata {
     pub source: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Parsed_rBAN_Record {
     pub compound_id: String,
     pub monomers: HashMap<MonomerIdx, MonomerInfo>,
 
-    // JSON encodes this as an array of [key, value] pairs, not as an object.
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap")]
+    #[serde(
+        serialize_with = "crate::data_types::json_helpers::ser_hashmap_as_vec_pairs",
+	deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap"
+    )]
     pub monomer_bonds: HashMap<MonomerEdge, MonomerEdgeInfo>,
 
     pub atoms: HashMap<AtomId, AtomInfo>,
 
-    // JSON encodes this as an array of [key, value] pairs, not as an object.
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap")]
+    #[serde(
+        serialize_with = "crate::data_types::json_helpers::ser_hashmap_as_vec_pairs",
+	deserialize_with = "crate::data_types::json_helpers::de_vec_pairs_to_hashmap"
+    )]
     pub atomic_bonds: HashMap<AtomicEdge, AtomicEdgeInfo>,
 
     pub metadata: NRP_Metadata,
 }
-
-

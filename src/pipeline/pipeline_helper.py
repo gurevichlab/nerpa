@@ -61,6 +61,7 @@ class PipelineHelper:
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     pipeline_helper_cpp: PipelineHelperCpp
+    specificity_prediction_helper: SpecificityPredictionHelper
 
     def __init__(self, pre_logger: PreliminaryLogger):
 
@@ -90,20 +91,20 @@ class PipelineHelper:
                                                                  self.monomer_names_helper,
                                                                  self.log) \
             if self.args.paras_results is not None else None
-        specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
+        self.specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
                                                                     self.monomer_names_helper,
                                                                     external_specificity_predictions)
 
         hmm_scoring_config = load_hmm_scoring_config(self.config.nerpa_dir,
                                                      self.config.hmm_scoring_config,
-                                                     specificity_prediction_helper,
+                                                     self.specificity_prediction_helper,
                                                      self.monomer_names_helper)
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
         self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
         self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args,
                                                                   self.monomer_names_helper,
-                                                                  specificity_prediction_helper,
+                                                                  self.specificity_prediction_helper,
                                                                   self.log)
         self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
 
@@ -178,23 +179,10 @@ class PipelineHelper:
         #    hmm.draw(Path(f'{hmm.bgc_variant.genome_id}.png'))
         self.log.info("\n======= Nerpa matching")
         if self.args.fast_matching:
-            cpp_output = self.pipeline_helper_cpp.get_hmm_matches_and_p_values(hmms, nrp_linearizations)
-
-            # Set p-value estimators for hmms (TODO: that's ugly, it breaks encapsulation)
-            hmm_by_id = {hmm.bgc_variant.bgc_variant_id: hmm for hmm in hmms}
-            assert hmm_by_id.keys() == cpp_output.p_values_by_bgc_variant.keys(), \
-                "Mismatch in BGC variant IDs between HMMs and precomputed p-values"
-            '''
-            for bgc_variant_id, p_values in cpp_output.p_values_by_bgc_variant.items():
-                hmm_by_id[bgc_variant_id]._p_value_estimator = PValueEstimator._from_precomputed_p_values(p_values)
-            '''
-            return cpp_output.matches
+            return self.pipeline_helper_cpp.get_hmm_matches(hmms,
+                                                            nrp_linearizations)
         else:
-            return get_hmm_matches(hmms,
-                                   nrp_linearizations,
-                                   self.config.matching_config,
-                                   self.args.threads,
-                                   self.log)
+            raise NotImplementedError("Non-fast matching is deprecated and not implemented anymore")
 
     def get_matches(self,
                     hmms: List[DetailedHMM],

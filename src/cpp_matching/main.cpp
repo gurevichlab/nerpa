@@ -68,8 +68,7 @@ int main(int argc, char** argv)
         // 1. Parse input data (HMMs, BGC_Info)
         std::cout << "Parsing HMMs from " << hmms_json_path << std::endl;
         auto parsing_results = parse_hmms_from_json(hmms_json_path);
-        auto &hmms_for_matching = parsing_results.first;
-        auto &hmms_for_p_value_estimation = parsing_results.second;
+        auto &hmms_for_matching = parsing_results;
         //auto [hmms_for_matching, hmms_for_p_value_estimation] = parse_hmms_from_json(hmms_json_path);
 
         // 2. Parse NRP linearizations + NRP IDs
@@ -116,16 +115,7 @@ int main(int argc, char** argv)
             for (int i = 0; i < static_cast<int>(bgc_variant_ids.size()); ++i) {
                 const auto &bgc_variant_id = bgc_variant_ids[i];
                 const auto &hmm_lo = hmms_for_matching[bgc_variant_id];
-                const auto &hmm_lp = hmms_for_p_value_estimation.at(bgc_variant_id);
                 // auto p_values = compute_hmm_p_values(hmm_lo, hmm_lp);
-                auto p_values = std::vector<double>();
-                p_values_for_thread.emplace_back(bgc_variant_id, p_values);
-            }
-#pragma omp critical
-            {
-                for (const auto &[bgc_variant_id, p_values]: p_values_for_thread) {
-                    p_values_by_hmm[bgc_variant_id] = std::move(p_values);
-                }
             }
         }
 
@@ -137,7 +127,7 @@ int main(int argc, char** argv)
 
         // 6. Dump the resulting matches to an output JSON file
         std::cout << "Writing matches to " << output_json_path << std::endl;
-        write_output_to_json(matches, p_values_by_hmm, output_json_path);
+        write_output_to_json(matches, output_json_path);
 
         std::cout << "Done! Wrote " << matches.size() << " matches to "
                   << output_json_path << "\n";

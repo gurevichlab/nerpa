@@ -94,62 +94,6 @@ impl<'de> Deserialize<'de> for AtomId {
 
 use crate::data_types::parsed_rban_record::{BondType, MonomerEdgeInfoSingle};
 
-// In the JSON, `all_edges` entries are tuples like:
-//   [ { "4": 6, "5": 7 }, 1, "AMINO" ]
-// (not objects with named fields). Accept both representations.
-impl<'de> Deserialize<'de> for MonomerEdgeInfoSingle {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum ArityRepr {
-            Num(f64),
-            Str(String),
-        }
-
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum Repr {
-            Obj {
-                monomer_to_atom: HashMap<MonomerIdx, AtomId>,
-                arity: ArityRepr,
-                bond_type: BondType,
-            },
-            Tup(HashMap<MonomerIdx, AtomId>, ArityRepr, BondType),
-        }
-
-        match Repr::deserialize(deserializer)? {
-            Repr::Obj {
-                monomer_to_atom,
-                arity,
-                bond_type,
-            } => {
-                let arity = match arity {
-                    ArityRepr::Num(n) => n.to_string(),
-                    ArityRepr::Str(s) => s,
-                };
-                Ok(MonomerEdgeInfoSingle {
-                    monomer_to_atom,
-                    arity,
-                    bond_type,
-                })
-            }
-            Repr::Tup(monomer_to_atom, arity, bond_type) => {
-                let arity = match arity {
-                    ArityRepr::Num(n) => n.to_string(),
-                    ArityRepr::Str(s) => s,
-                };
-                Ok(MonomerEdgeInfoSingle {
-                    monomer_to_atom,
-                    arity,
-                    bond_type,
-                })
-            }
-        }
-    }
-}
 
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -167,6 +111,26 @@ where
 {
     let pairs: Vec<(K, V)> = Vec::deserialize(deserializer)?;
     Ok(pairs.into_iter().collect())
+}
+
+use serde::ser::SerializeSeq;
+use serde::{Serialize, Serializer};
+
+pub fn ser_hashmap_as_vec_pairs<S, K, V>(
+    map: &HashMap<K, V>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+    K: Serialize + Eq + Hash,
+    V: Serialize,
+{
+    let mut seq = serializer.serialize_seq(Some(map.len()))?;
+    for (k, v) in map {
+        // serializes each entry as a 2-tuple: [key, value]
+        seq.serialize_element(&(k, v))?;
+    }
+    seq.end()
 }
 
 // q: a function that takes a json value which is either a string or a number, and returns a string

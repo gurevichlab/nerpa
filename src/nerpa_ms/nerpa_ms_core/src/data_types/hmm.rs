@@ -1,19 +1,36 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::data_types::common_types::{LogProb};
 
 pub type StateIdx = usize;
 
 use anyhow::{anyhow, bail};
+use derive_more::Display;
 
-#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Display, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[display("{antiSMASH_file}:{contig_idx}:{bgc_idx}")]
 pub struct BGC_ID {
     pub antiSMASH_file: String,
     pub contig_idx: usize,
     pub bgc_idx: usize,
 }
 
-#[derive(Debug, Clone, Hash, Default, PartialEq, Eq, Deserialize)]
+impl BGC_ID {
+    pub fn to_str_short(&self) -> String {
+	let path = std::path::Path::new(&self.antiSMASH_file);
+	let genome_id = path.file_stem()
+	    .and_then(|s| s.to_str())
+	    .unwrap_or(&self.antiSMASH_file)
+	    .to_string();
+	format!("{}:{}:{}",
+		genome_id,
+		self.contig_idx,
+		self.bgc_idx)
+    }
+}
+
+#[derive(Debug, Clone, Display, Hash, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[display("{bgc_id}:{variant_idx}")]
 pub struct BGC_Variant_ID {
     pub bgc_id: BGC_ID,
     pub variant_idx: usize,
@@ -31,6 +48,9 @@ pub struct HMM {
     // emissions[i][j]: log probability of emitting monomer j from state i
     #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_vec_logprob_null_as_neg_inf")]
     pub emissions: Vec<Vec<LogProb>>,
+
+    // Labels for states, for debugging and interpretability.
+    pub state_labels: Vec<String>,
 }
 
 // Basic helpers

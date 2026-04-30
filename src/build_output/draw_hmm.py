@@ -101,6 +101,16 @@ def create_nodes_layout(
         pos[i] = (xi, yi)
     return pos
 
+def state_idx_to_label(idx: int,
+                       hmm: DetailedHMM,) -> str:
+    ST = DetailedHMMStateType
+    state = hmm.states[idx]
+    if state.state_type == ST.MODULE_SUBGRAPH_ROOT:
+        module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[idx]]
+        return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+    else:
+        return f'{idx}:{state.state_type.name}'
+
 
 def draw_hmm(hmm: DetailedHMM,
              output_path: Optional[Path] = None,
@@ -136,13 +146,6 @@ def draw_hmm(hmm: DetailedHMM,
 
     layers = [[] for _ in range(len(layer_types))]
 
-    def state_idx_to_label(idx: int) -> str:
-        state = hmm.states[idx]
-        if state.state_type == ST.MODULE_SUBGRAPH_ROOT:
-            module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[idx]]
-            return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
-        else:
-            return f'{idx}:{state.state_type.name}'
 
     def state_idx_to_color(idx: int) -> str:
         match hmm.states[idx].state_type:
@@ -161,7 +164,8 @@ def draw_hmm(hmm: DetailedHMM,
             if state.state_type in layer_state_types:
                 layers[layer_idx].append(idx)
 
-    labels = {i: state_idx_to_label(i) for i in range(len(hmm.states))}
+    labels = {i: state_idx_to_label(i, hmm)
+              for i in range(len(hmm.states))}
     forward_edges = [
         (from_idx, to_idx)
         for from_idx, edges_dict in hmm.transitions.items()
