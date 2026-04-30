@@ -419,6 +419,7 @@
                 width: penwidth,
                 selectionWidth: penwidth, 
                 hoverWidth: penwidth,
+                arrows: (color == "red") ? '' : 'to',
         }));
 
         const nodesMapped = graph.objects.map(({_gvid, color, fontsize, label}) => ({
