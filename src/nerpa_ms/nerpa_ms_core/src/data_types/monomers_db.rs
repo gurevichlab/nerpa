@@ -6,10 +6,18 @@ use crate::data_types::parsed_rban_record::{
 use serde::{Deserialize, Serialize};
 use std::{cmp::Reverse, collections::HashMap, path::{Path, PathBuf}};
 
-use super::monomer_graph::Monomer;
+use super::{common_types::MonomerIdx, monomer_graph::Monomer};
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub struct MonomerOrigin {
+    pub compound_id: String,
+    pub monomer_name: NorineMonomerName,
+    pub monomer_idx: MonomerIdx,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomersDB_Entry {
+    pub monomer_origin: MonomerOrigin,
     pub monomer: Monomer,
     pub bonds_by_bs: BondsByBSType,
 }
@@ -19,7 +27,7 @@ pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
 pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> MonomersDB {
     let mut entries_by_bs: MonomersDB = HashMap::new();
     for record in rban_records {
-        for mon_idx in record.monomers.keys() {
+        for (mon_idx, mon_info) in &record.monomers {
             let bonds_by_bs = record.bonds_for_monomer(*mon_idx);
             let bs_profile = BindingSitesProfile::new(
                 bonds_by_bs
@@ -30,6 +38,11 @@ pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> Mon
             let entry = MonomersDB_Entry {
                 monomer: Monomer::from_rban_record(record, *mon_idx),
                 bonds_by_bs: BondsByBSType::new(bonds_by_bs),
+		monomer_origin: MonomerOrigin {
+		    compound_id: record.compound_id.clone(),
+		    monomer_idx: *mon_idx,
+		    monomer_name: mon_info.name.clone(),
+		},
             };
             entries_by_bs.entry(bs_profile).or_default().push(entry);
         }
@@ -104,9 +117,10 @@ impl Monomer {
 }
 
 impl MonomersDB_Entry {
-    pub fn shift_atom_ids(&mut self, shift: u32) {
-	self.monomer.shift_atom_ids(shift);
-	self.bonds_by_bs = {
+    pub fn shift_atom_ids(&self, shift: u32) -> MonomersDB_Entry {
+	let mut shifted_entry = self.clone();
+	shifted_entry.monomer.shift_atom_ids(shift);
+	shifted_entry.bonds_by_bs = {
 	    let mut shifted_bonds = Vec::new();
 		for (bs, bond) in self.bonds_by_bs.iter() {
 		    let mut shifted_bond = bond.clone();
@@ -115,6 +129,6 @@ impl MonomersDB_Entry {
 		}
 	    BondsByBSType::new(shifted_bonds)
 	};
+	shifted_entry
     }
-
 }

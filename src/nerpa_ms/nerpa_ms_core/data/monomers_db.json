@@ -1,822 +1,13 @@
 {
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Left\"},{\"bond_templ\":[{\"bond_type\":\"THIAZOLE_CYCLE\",\"arity\":\"1\",\"atoms\":[\"C2\",\"S1\"]},{\"bond_type\":\"THIAZOLE_CYCLE\",\"arity\":\"2\",\"atoms\":[\"C2\",\"N1\"]}],\"side\":\"Right\"}]": [
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"}]": [],
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Left\"},{\"bond_templ\":[[\"C1\",\"O1\",\"ESTER\",\"1\"]],\"side\":\"Right\"}]": [],
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Left\"},{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"}]": [
     {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 36,
-            "name": "N",
-            "hydrogens": 0
-          },
-          {
-            "id": 37,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 38,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 69,
-            "name": "S",
-            "hydrogens": 0
-          },
-          {
-            "id": 68,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 39,
-            "name": "O",
-            "hydrogens": 0
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              36,
-              37
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              68,
-              69
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              37,
-              38
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              38,
-              39
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              37,
-              68
-            ],
-            "arity": "2",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "dhCys",
-          "nerpa_core": "Cys",
-          "chirality": "UNKNOWN",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 84
-        }
+      "monomer_origin": {
+        "compound_id": "BGC0000359.1",
+        "monomer_name": "Arg",
+        "monomer_idx": 4
       },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "1",
-                "atoms": [
-                  "C2",
-                  "S1"
-                ]
-              },
-              {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "2",
-                "atoms": [
-                  "C2",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "1",
-                "atoms": [
-                  "C2",
-                  "S1"
-                ]
-              },
-              {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "2",
-                "atoms": [
-                  "C2",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              2,
-              1
-            ],
-            "label_to_atom": [
-              {
-                "C2": 35
-              },
-              {
-                "N1": 36,
-                "S1": 69
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              1,
-              7
-            ],
-            "label_to_atom": [
-              {
-                "C1": 38
-              },
-              {
-                "N1": 40
-              }
-            ]
-          }
-        ]
-      ]
-    }
-  ],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Left\"},{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"},{\"bond_templ\":[{\"bond_type\":\"ESTER\",\"arity\":\"1\",\"atoms\":[\"C1\",\"O1\"]}],\"side\":\"Right\"}]": [
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 68,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 69,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 70,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 100,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 71,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 125,
-            "name": "C",
-            "hydrogens": 3
-          },
-          {
-            "id": 101,
-            "name": "O",
-            "hydrogens": 0
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              70,
-              125
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              69,
-              68
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              100,
-              101
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              69,
-              70
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              70,
-              71
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              69,
-              100
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "aThr/Thr",
-          "nerpa_core": "Thr",
-          "chirality": "L",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 264
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              6,
-              5
-            ],
-            "label_to_atom": [
-              {
-                "C1": 100
-              },
-              {
-                "N1": 99
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              7,
-              6
-            ],
-            "label_to_atom": [
-              {
-                "C1": 66
-              },
-              {
-                "N1": 68
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "ESTER",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "O1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "ESTER",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "O1"
-                ]
-              }
-            ],
-            "monomers": [
-              1,
-              6
-            ],
-            "label_to_atom": [
-              {
-                "C1": 72
-              },
-              {
-                "O1": 71
-              }
-            ]
-          }
-        ]
-      ]
-    }
-  ],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"}]": [],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"},{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"}]": [
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 29,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 30,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 31,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 71,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 32,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 72,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 73,
-            "name": "O",
-            "hydrogens": 1
-          },
-          {
-            "id": 33,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 34,
-            "name": "N",
-            "hydrogens": 0
-          },
-          {
-            "id": 70,
-            "name": "O",
-            "hydrogens": 1
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              30,
-              29
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              31,
-              32
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              32,
-              33
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              30,
-              71
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              34,
-              70
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              71,
-              72
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              30,
-              31
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              33,
-              34
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              71,
-              73
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "OH-Orn",
-          "nerpa_core": "Orn",
-          "chirality": "L",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 204
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              2,
-              1
-            ],
-            "label_to_atom": [
-              {
-                "C1": 27
-              },
-              {
-                "N1": 29
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              7,
-              1
-            ],
-            "label_to_atom": [
-              {
-                "C1": 35
-              },
-              {
-                "N1": 34
-              }
-            ]
-          }
-        ]
-      ]
-    }
-  ],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Left\"},{\"bond_templ\":[{\"bond_type\":\"ESTER\",\"arity\":\"1\",\"atoms\":[\"C1\",\"O1\"]}],\"side\":\"Right\"}]": [],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Left\"}]": [
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 60,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 61,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 62,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 63,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 67,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 64,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 69,
-            "name": "O",
-            "hydrogens": 1
-          },
-          {
-            "id": 66,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 65,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 68,
-            "name": "O",
-            "hydrogens": 1
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              63,
-              69
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              63,
-              64
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              60,
-              61
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              64,
-              65
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              65,
-              66
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              62,
-              67
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              64,
-              68
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              66,
-              67
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              62,
-              63
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              60,
-              62
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "diOH-Bz",
-          "nerpa_core": "Bza",
-          "chirality": "UNKNOWN",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 72
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              6,
-              5
-            ],
-            "label_to_atom": [
-              {
-                "C1": 60
-              },
-              {
-                "N1": 59
-              }
-            ]
-          }
-        ]
-      ]
-    }
-  ],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Left\"},{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"}]": [
-    {
       "monomer": {
         "atoms": [
           {
@@ -878,64 +69,16 @@
         "atomic_bonds": [
           {
             "atom_ids": [
-              11,
-              19
+              14,
+              15
             ],
             "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              19,
-              20
-            ],
-            "arity": "2",
             "bond_type": null
           },
           {
             "atom_ids": [
               16,
-              17
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              15,
-              16
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              13,
-              14
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              12,
-              13
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              11,
-              12
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              14,
-              15
+              18
             ],
             "arity": "1",
             "bond_type": null
@@ -950,10 +93,58 @@
           },
           {
             "atom_ids": [
-              16,
-              18
+              11,
+              12
             ],
             "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              11,
+              19
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              12,
+              13
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              13,
+              14
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              16,
+              17
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              19,
+              20
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              15,
+              16
+            ],
+            "arity": "2",
             "bond_type": null
           }
         ],
@@ -970,27 +161,23 @@
         [
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "side": "Left"
           },
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "monomers": [
               4,
@@ -1009,27 +196,23 @@
         [
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "side": "Right"
           },
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "monomers": [
               10,
@@ -1048,6 +231,1199 @@
       ]
     },
     {
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "Gln",
+        "monomer_idx": 4
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 11,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 12,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 13,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 18,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 14,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 19,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 15,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 16,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 17,
+            "name": "N",
+            "hydrogens": 2
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              13,
+              14
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              12,
+              18
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              14,
+              15
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              15,
+              16
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              18,
+              19
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              12,
+              11
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              15,
+              17
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              12,
+              13
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "Gln",
+          "nerpa_core": "Gln",
+          "chirality": "L",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 108
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              4,
+              3
+            ],
+            "label_to_atom": [
+              {
+                "C1": 18
+              },
+              {
+                "N1": 20
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              13,
+              4
+            ],
+            "label_to_atom": [
+              {
+                "C1": 9
+              },
+              {
+                "N1": 11
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0002107.0",
+        "monomer_name": "bAla",
+        "monomer_idx": 5
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 17,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 18,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 19,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 20,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 21,
+            "name": "O",
+            "hydrogens": 0
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              20,
+              21
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              19,
+              20
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              18,
+              19
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              17,
+              18
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "bAla",
+          "nerpa_core": "bAla",
+          "chirality": "UNKNOWN",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 312
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              5,
+              9
+            ],
+            "label_to_atom": [
+              {
+                "C1": 20
+              },
+              {
+                "N1": 22
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              6,
+              5
+            ],
+            "label_to_atom": [
+              {
+                "C1": 15
+              },
+              {
+                "N1": 17
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "Pro",
+        "monomer_idx": 2
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 76,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 77,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 78,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 79,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 82,
+            "name": "N",
+            "hydrogens": 0
+          },
+          {
+            "id": 80,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 81,
+            "name": "C",
+            "hydrogens": 2
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              78,
+              79
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              79,
+              80
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              80,
+              81
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              76,
+              78
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              81,
+              82
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              76,
+              77
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              78,
+              82
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "Pro",
+          "nerpa_core": "Pro",
+          "chirality": "L",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 240
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              2,
+              1
+            ],
+            "label_to_atom": [
+              {
+                "C1": 76
+              },
+              {
+                "N1": 75
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              11,
+              2
+            ],
+            "label_to_atom": [
+              {
+                "C1": 83
+              },
+              {
+                "N1": 82
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "NMe-Leu",
+        "monomer_idx": 7
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 59,
+            "name": "N",
+            "hydrogens": 0
+          },
+          {
+            "id": 60,
+            "name": "C",
+            "hydrogens": 3
+          },
+          {
+            "id": 61,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 62,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 66,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 63,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 67,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 64,
+            "name": "C",
+            "hydrogens": 3
+          },
+          {
+            "id": 65,
+            "name": "C",
+            "hydrogens": 3
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              62,
+              63
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              61,
+              59
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              66,
+              67
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              61,
+              66
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              63,
+              64
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              63,
+              65
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              59,
+              60
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              61,
+              62
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "NMe-Leu",
+          "nerpa_core": "Leu",
+          "chirality": "D",
+          "methylated": true,
+          "is_pks_hybrid": false,
+          "mon_code": 186
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              7,
+              6
+            ],
+            "label_to_atom": [
+              {
+                "C1": 66
+              },
+              {
+                "N1": 68
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              8,
+              7
+            ],
+            "label_to_atom": [
+              {
+                "C1": 57
+              },
+              {
+                "N1": 59
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000359.1",
+        "monomer_name": "Gly",
+        "monomer_idx": 3
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 21,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 22,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 23,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 24,
+            "name": "O",
+            "hydrogens": 0
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              23,
+              24
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              21,
+              22
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              22,
+              23
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "Gly",
+          "nerpa_core": "Gly",
+          "chirality": "UNKNOWN",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 132
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              3,
+              2
+            ],
+            "label_to_atom": [
+              {
+                "C1": 23
+              },
+              {
+                "N1": 25
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              4,
+              3
+            ],
+            "label_to_atom": [
+              {
+                "C1": 19
+              },
+              {
+                "N1": 21
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000359.1",
+        "monomer_name": "Ser",
+        "monomer_idx": 7
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 35,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 36,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 37,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 38,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 40,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 39,
+            "name": "O",
+            "hydrogens": 1
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              37,
+              40
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              38,
+              39
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              35,
+              37
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              37,
+              38
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              35,
+              36
+            ],
+            "arity": "2",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "Ser",
+          "nerpa_core": "Ser",
+          "chirality": "L",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 252
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              7,
+              1
+            ],
+            "label_to_atom": [
+              {
+                "C1": 35
+              },
+              {
+                "N1": 34
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              9,
+              7
+            ],
+            "label_to_atom": [
+              {
+                "C1": 41
+              },
+              {
+                "N1": 40
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0002107.0",
+        "monomer_name": "Ala",
+        "monomer_idx": 4
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 44,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 45,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 46,
+            "name": "C",
+            "hydrogens": 3
+          },
+          {
+            "id": 47,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 48,
+            "name": "O",
+            "hydrogens": 0
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              45,
+              47
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              44,
+              45
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              47,
+              48
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              45,
+              46
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "Ala",
+          "nerpa_core": "Ala",
+          "chirality": "UNKNOWN",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 24
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              4,
+              3
+            ],
+            "label_to_atom": [
+              {
+                "C1": 47
+              },
+              {
+                "N1": 49
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              7,
+              4
+            ],
+            "label_to_atom": [
+              {
+                "C1": 42
+              },
+              {
+                "N1": 44
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "Leu",
+        "monomer_idx": 11
+      },
       "monomer": {
         "atoms": [
           {
@@ -1102,16 +1478,8 @@
           },
           {
             "atom_ids": [
-              85,
-              111
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              85,
-              86
+              111,
+              112
             ],
             "arity": "1",
             "bond_type": null
@@ -1126,10 +1494,10 @@
           },
           {
             "atom_ids": [
-              83,
-              84
+              85,
+              111
             ],
-            "arity": "2",
+            "arity": "1",
             "bond_type": null
           },
           {
@@ -1142,8 +1510,16 @@
           },
           {
             "atom_ids": [
-              111,
-              112
+              83,
+              84
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              85,
+              86
             ],
             "arity": "1",
             "bond_type": null
@@ -1162,27 +1538,23 @@
         [
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "side": "Left"
           },
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "monomers": [
               11,
@@ -1201,27 +1573,23 @@
         [
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "side": "Right"
           },
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "monomers": [
               12,
@@ -1238,1424 +1606,15 @@
           }
         ]
       ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 35,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 36,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 37,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 38,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 40,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 39,
-            "name": "O",
-            "hydrogens": 1
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              35,
-              36
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              35,
-              37
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              37,
-              40
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              37,
-              38
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              38,
-              39
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "Ser",
-          "nerpa_core": "Ser",
-          "chirality": "L",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 252
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              7,
-              1
-            ],
-            "label_to_atom": [
-              {
-                "C1": 35
-              },
-              {
-                "N1": 34
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              9,
-              7
-            ],
-            "label_to_atom": [
-              {
-                "C1": 41
-              },
-              {
-                "N1": 40
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 52,
-            "name": "N",
-            "hydrogens": 0
-          },
-          {
-            "id": 53,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 56,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 54,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 55,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 57,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 58,
-            "name": "O",
-            "hydrogens": 0
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              52,
-              56
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              56,
-              57
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              52,
-              53
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              55,
-              56
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              57,
-              58
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              54,
-              55
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              53,
-              54
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "Pro",
-          "nerpa_core": "Pro",
-          "chirality": "L",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 240
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              9,
-              8
-            ],
-            "label_to_atom": [
-              {
-                "C1": 50
-              },
-              {
-                "N1": 52
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              8,
-              7
-            ],
-            "label_to_atom": [
-              {
-                "C1": 57
-              },
-              {
-                "N1": 59
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 21,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 22,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 23,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 24,
-            "name": "O",
-            "hydrogens": 0
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              23,
-              24
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              22,
-              23
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              21,
-              22
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "Gly",
-          "nerpa_core": "Gly",
-          "chirality": "UNKNOWN",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 132
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              4,
-              3
-            ],
-            "label_to_atom": [
-              {
-                "C1": 19
-              },
-              {
-                "N1": 21
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              3,
-              2
-            ],
-            "label_to_atom": [
-              {
-                "C1": 23
-              },
-              {
-                "N1": 25
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 44,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 45,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 46,
-            "name": "C",
-            "hydrogens": 3
-          },
-          {
-            "id": 47,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 48,
-            "name": "O",
-            "hydrogens": 0
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              44,
-              45
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              45,
-              46
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              45,
-              47
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              47,
-              48
-            ],
-            "arity": "2",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "Ala",
-          "nerpa_core": "Ala",
-          "chirality": "UNKNOWN",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 24
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              7,
-              4
-            ],
-            "label_to_atom": [
-              {
-                "C1": 42
-              },
-              {
-                "N1": 44
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              4,
-              3
-            ],
-            "label_to_atom": [
-              {
-                "C1": 47
-              },
-              {
-                "N1": 49
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 20,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 21,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 22,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 27,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 23,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 28,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 24,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 25,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 26,
-            "name": "N",
-            "hydrogens": 2
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              23,
-              24
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              24,
-              26
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              27,
-              28
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              22,
-              23
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              21,
-              20
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              24,
-              25
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              21,
-              22
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              21,
-              27
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "Gln",
-          "nerpa_core": "Gln",
-          "chirality": "L",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 108
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              4,
-              3
-            ],
-            "label_to_atom": [
-              {
-                "C1": 18
-              },
-              {
-                "N1": 20
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              3,
-              14
-            ],
-            "label_to_atom": [
-              {
-                "C1": 27
-              },
-              {
-                "N1": 29
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 17,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 18,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 19,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 20,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 21,
-            "name": "O",
-            "hydrogens": 0
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              17,
-              18
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              19,
-              20
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              18,
-              19
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              20,
-              21
-            ],
-            "arity": "2",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "bAla",
-          "nerpa_core": "bAla",
-          "chirality": "UNKNOWN",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 312
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              6,
-              5
-            ],
-            "label_to_atom": [
-              {
-                "C1": 15
-              },
-              {
-                "N1": 17
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              5,
-              9
-            ],
-            "label_to_atom": [
-              {
-                "C1": 20
-              },
-              {
-                "N1": 22
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 59,
-            "name": "N",
-            "hydrogens": 0
-          },
-          {
-            "id": 60,
-            "name": "C",
-            "hydrogens": 3
-          },
-          {
-            "id": 61,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 62,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 66,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 63,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 67,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 64,
-            "name": "C",
-            "hydrogens": 3
-          },
-          {
-            "id": 65,
-            "name": "C",
-            "hydrogens": 3
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              61,
-              62
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              62,
-              63
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              61,
-              59
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              63,
-              65
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              59,
-              60
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              63,
-              64
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              66,
-              67
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              61,
-              66
-            ],
-            "arity": "1",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "NMe-Leu",
-          "nerpa_core": "Leu",
-          "chirality": "D",
-          "methylated": true,
-          "is_pks_hybrid": false,
-          "mon_code": 186
-        }
-      },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              8,
-              7
-            ],
-            "label_to_atom": [
-              {
-                "C1": 57
-              },
-              {
-                "N1": 59
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              7,
-              6
-            ],
-            "label_to_atom": [
-              {
-                "C1": 66
-              },
-              {
-                "N1": 68
-              }
-            ]
-          }
-        ]
-      ]
     }
   ],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"},{\"bond_templ\":[{\"bond_type\":\"ESTER\",\"arity\":\"1\",\"atoms\":[\"C1\",\"O1\"]}],\"side\":\"Left\"}]": [
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"},{\"bond_templ\":[[\"C1\",\"O1\",\"ESTER\",\"1\"]],\"side\":\"Left\"}]": [
     {
-      "monomer": {
-        "atoms": [
-          {
-            "id": 38,
-            "name": "N",
-            "hydrogens": 1
-          },
-          {
-            "id": 39,
-            "name": "C",
-            "hydrogens": 1
-          },
-          {
-            "id": 40,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 45,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 41,
-            "name": "C",
-            "hydrogens": 2
-          },
-          {
-            "id": 46,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 42,
-            "name": "C",
-            "hydrogens": 0
-          },
-          {
-            "id": 43,
-            "name": "O",
-            "hydrogens": 0
-          },
-          {
-            "id": 44,
-            "name": "O",
-            "hydrogens": 1
-          }
-        ],
-        "atomic_bonds": [
-          {
-            "atom_ids": [
-              45,
-              46
-            ],
-            "arity": "2",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              42,
-              44
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              39,
-              40
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              39,
-              38
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              39,
-              45
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              40,
-              41
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              41,
-              42
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              42,
-              43
-            ],
-            "arity": "2",
-            "bond_type": null
-          }
-        ],
-        "features": {
-          "name": "Glu",
-          "nerpa_core": "Glu",
-          "chirality": "L",
-          "methylated": false,
-          "is_pks_hybrid": false,
-          "mon_code": 120
-        }
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "NMe-OMe-Tyr",
+        "monomer_idx": 1
       },
-      "bonds_by_bs": [
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              14,
-              10
-            ],
-            "label_to_atom": [
-              {
-                "C1": 36
-              },
-              {
-                "N1": 38
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "ESTER",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "O1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "ESTER",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "O1"
-                ]
-              }
-            ],
-            "monomers": [
-              10,
-              9
-            ],
-            "label_to_atom": [
-              {
-                "C1": 45
-              },
-              {
-                "O1": 47
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
       "monomer": {
         "atoms": [
           {
@@ -2732,56 +1691,24 @@
         "atomic_bonds": [
           {
             "atom_ids": [
-              74,
-              75
+              75,
+              115
             ],
             "arity": "1",
             "bond_type": null
           },
           {
             "atom_ids": [
-              118,
-              119
+              119,
+              120
             ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              116,
-              117
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              117,
-              122
-            ],
-            "arity": "1",
+            "arity": "2",
             "bond_type": null
           },
           {
             "atom_ids": [
               120,
               121
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              123,
-              124
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
-              75,
-              115
             ],
             "arity": "1",
             "bond_type": null
@@ -2796,8 +1723,8 @@
           },
           {
             "atom_ids": [
-              120,
-              123
+              72,
+              74
             ],
             "arity": "1",
             "bond_type": null
@@ -2812,14 +1739,6 @@
           },
           {
             "atom_ids": [
-              74,
-              116
-            ],
-            "arity": "1",
-            "bond_type": null
-          },
-          {
-            "atom_ids": [
               117,
               118
             ],
@@ -2828,16 +1747,56 @@
           },
           {
             "atom_ids": [
-              119,
-              120
+              74,
+              116
             ],
-            "arity": "2",
+            "arity": "1",
             "bond_type": null
           },
           {
             "atom_ids": [
-              72,
-              74
+              118,
+              119
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              123,
+              124
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              74,
+              75
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              117,
+              122
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              116,
+              117
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              120,
+              123
             ],
             "arity": "1",
             "bond_type": null
@@ -2856,66 +1815,23 @@
         [
           {
             "bond_templ": [
-              {
-                "bond_type": "ESTER",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "O1"
-                ]
-              }
-            ],
-            "side": "Left"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "ESTER",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "O1"
-                ]
-              }
-            ],
-            "monomers": [
-              1,
-              6
-            ],
-            "label_to_atom": [
-              {
-                "C1": 72
-              },
-              {
-                "O1": 71
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "side": "Right"
           },
           {
             "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
             ],
             "monomers": [
               2,
@@ -2930,12 +1846,1052 @@
               }
             ]
           }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "O1",
+                "ESTER",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "O1",
+                "ESTER",
+                "1"
+              ]
+            ],
+            "monomers": [
+              1,
+              6
+            ],
+            "label_to_atom": [
+              {
+                "C1": 72
+              },
+              {
+                "O1": 71
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "Glu",
+        "monomer_idx": 10
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 38,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 39,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 40,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 45,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 41,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 46,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 42,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 43,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 44,
+            "name": "O",
+            "hydrogens": 1
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              42,
+              44
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              45,
+              46
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              41,
+              42
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              39,
+              40
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              39,
+              45
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              40,
+              41
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              42,
+              43
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              39,
+              38
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "Glu",
+          "nerpa_core": "Glu",
+          "chirality": "L",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 120
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              14,
+              10
+            ],
+            "label_to_atom": [
+              {
+                "C1": 36
+              },
+              {
+                "N1": 38
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "O1",
+                "ESTER",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "O1",
+                "ESTER",
+                "1"
+              ]
+            ],
+            "monomers": [
+              10,
+              9
+            ],
+            "label_to_atom": [
+              {
+                "C1": 45
+              },
+              {
+                "O1": 47
+              }
+            ]
+          }
         ]
       ]
     }
   ],
-  "[{\"bond_templ\":[{\"bond_type\":\"AMINO\",\"arity\":\"1\",\"atoms\":[\"C1\",\"N1\"]}],\"side\":\"Right\"},{\"bond_templ\":[{\"bond_type\":\"THIAZOLE_CYCLE\",\"arity\":\"1\",\"atoms\":[\"C2\",\"S1\"]},{\"bond_type\":\"THIAZOLE_CYCLE\",\"arity\":\"2\",\"atoms\":[\"C2\",\"N1\"]}],\"side\":\"Left\"}]": [
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Left\"},{\"bond_templ\":[[\"C2\",\"S1\",\"THIAZOLE_CYCLE\",\"1\"],[\"C2\",\"N1\",\"THIAZOLE_CYCLE\",\"2\"]],\"side\":\"Right\"}]": [
     {
+      "monomer_origin": {
+        "compound_id": "BGC0002107.0",
+        "monomer_name": "dhCys",
+        "monomer_idx": 1
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 36,
+            "name": "N",
+            "hydrogens": 0
+          },
+          {
+            "id": 37,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 38,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 69,
+            "name": "S",
+            "hydrogens": 0
+          },
+          {
+            "id": 68,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 39,
+            "name": "O",
+            "hydrogens": 0
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              68,
+              69
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              38,
+              39
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              36,
+              37
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              37,
+              68
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              37,
+              38
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "dhCys",
+          "nerpa_core": "Cys",
+          "chirality": "UNKNOWN",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 84
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              1,
+              7
+            ],
+            "label_to_atom": [
+              {
+                "C1": 38
+              },
+              {
+                "N1": 40
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C2",
+                "S1",
+                "THIAZOLE_CYCLE",
+                "1"
+              ],
+              [
+                "C2",
+                "N1",
+                "THIAZOLE_CYCLE",
+                "2"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C2",
+                "S1",
+                "THIAZOLE_CYCLE",
+                "1"
+              ],
+              [
+                "C2",
+                "N1",
+                "THIAZOLE_CYCLE",
+                "2"
+              ]
+            ],
+            "monomers": [
+              2,
+              1
+            ],
+            "label_to_atom": [
+              {
+                "C2": 35
+              },
+              {
+                "S1": 69,
+                "N1": 36
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Left\"}]": [
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000359.1",
+        "monomer_name": "diOH-Bz",
+        "monomer_idx": 10
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 0,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 1,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 5,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 2,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 4,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 3,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 8,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 6,
+            "name": "O",
+            "hydrogens": 1
+          },
+          {
+            "id": 7,
+            "name": "O",
+            "hydrogens": 1
+          },
+          {
+            "id": 9,
+            "name": "O",
+            "hydrogens": 0
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              0,
+              1
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              1,
+              2
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              2,
+              8
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              4,
+              5
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              8,
+              9
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              2,
+              3
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              0,
+              5
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              3,
+              7
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              3,
+              4
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              4,
+              6
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "diOH-Bz",
+          "nerpa_core": "Bza",
+          "chirality": "UNKNOWN",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 72
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              10,
+              4
+            ],
+            "label_to_atom": [
+              {
+                "C1": 8
+              },
+              {
+                "N1": 10
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Left\"},{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"},{\"bond_templ\":[[\"C1\",\"O1\",\"ESTER\",\"1\"]],\"side\":\"Right\"}]": [
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000985.4",
+        "monomer_name": "aThr/Thr",
+        "monomer_idx": 6
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 68,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 69,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 70,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 100,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 71,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 125,
+            "name": "C",
+            "hydrogens": 3
+          },
+          {
+            "id": 101,
+            "name": "O",
+            "hydrogens": 0
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              70,
+              125
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              69,
+              70
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              100,
+              101
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              69,
+              68
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              69,
+              100
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              70,
+              71
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "aThr/Thr",
+          "nerpa_core": "Thr",
+          "chirality": "L",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 264
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Left"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              6,
+              5
+            ],
+            "label_to_atom": [
+              {
+                "C1": 100
+              },
+              {
+                "N1": 99
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              7,
+              6
+            ],
+            "label_to_atom": [
+              {
+                "C1": 66
+              },
+              {
+                "N1": 68
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "O1",
+                "ESTER",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "O1",
+                "ESTER",
+                "1"
+              ]
+            ],
+            "monomers": [
+              1,
+              6
+            ],
+            "label_to_atom": [
+              {
+                "C1": 72
+              },
+              {
+                "O1": 71
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"},{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"}]": [
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0000359.1",
+        "monomer_name": "OH-Orn",
+        "monomer_idx": 1
+      },
+      "monomer": {
+        "atoms": [
+          {
+            "id": 29,
+            "name": "N",
+            "hydrogens": 1
+          },
+          {
+            "id": 30,
+            "name": "C",
+            "hydrogens": 1
+          },
+          {
+            "id": 31,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 71,
+            "name": "C",
+            "hydrogens": 0
+          },
+          {
+            "id": 32,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 72,
+            "name": "O",
+            "hydrogens": 0
+          },
+          {
+            "id": 73,
+            "name": "O",
+            "hydrogens": 1
+          },
+          {
+            "id": 33,
+            "name": "C",
+            "hydrogens": 2
+          },
+          {
+            "id": 34,
+            "name": "N",
+            "hydrogens": 0
+          },
+          {
+            "id": 70,
+            "name": "O",
+            "hydrogens": 1
+          }
+        ],
+        "atomic_bonds": [
+          {
+            "atom_ids": [
+              71,
+              72
+            ],
+            "arity": "2",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              33,
+              34
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              30,
+              71
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              30,
+              29
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              30,
+              31
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              32,
+              33
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              34,
+              70
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              31,
+              32
+            ],
+            "arity": "1",
+            "bond_type": null
+          },
+          {
+            "atom_ids": [
+              71,
+              73
+            ],
+            "arity": "1",
+            "bond_type": null
+          }
+        ],
+        "features": {
+          "name": "OH-Orn",
+          "nerpa_core": "Orn",
+          "chirality": "L",
+          "methylated": false,
+          "is_pks_hybrid": false,
+          "mon_code": 204
+        }
+      },
+      "bonds_by_bs": [
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              2,
+              1
+            ],
+            "label_to_atom": [
+              {
+                "C1": 27
+              },
+              {
+                "N1": 29
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              7,
+              1
+            ],
+            "label_to_atom": [
+              {
+                "C1": 35
+              },
+              {
+                "N1": 34
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "[{\"bond_templ\":[[\"C1\",\"N1\",\"AMINO\",\"1\"]],\"side\":\"Right\"},{\"bond_templ\":[[\"C2\",\"S1\",\"THIAZOLE_CYCLE\",\"1\"],[\"C2\",\"N1\",\"THIAZOLE_CYCLE\",\"2\"]],\"side\":\"Left\"}]": [
+    {
+      "monomer_origin": {
+        "compound_id": "BGC0002107.0",
+        "monomer_name": "Ala",
+        "monomer_idx": 2
+      },
       "monomer": {
         "atoms": [
           {
@@ -2962,16 +2918,16 @@
         "atomic_bonds": [
           {
             "atom_ids": [
-              33,
-              34
+              32,
+              33
             ],
             "arity": "1",
             "bond_type": null
           },
           {
             "atom_ids": [
-              32,
-              33
+              33,
+              34
             ],
             "arity": "1",
             "bond_type": null
@@ -2998,43 +2954,70 @@
         [
           {
             "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "side": "Right"
+          },
+          {
+            "bond_templ": [
+              [
+                "C1",
+                "N1",
+                "AMINO",
+                "1"
+              ]
+            ],
+            "monomers": [
+              9,
+              2
+            ],
+            "label_to_atom": [
               {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "1",
-                "atoms": [
-                  "C2",
-                  "S1"
-                ]
+                "C1": 30
               },
               {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "2",
-                "atoms": [
-                  "C2",
-                  "N1"
-                ]
+                "N1": 32
               }
+            ]
+          }
+        ],
+        [
+          {
+            "bond_templ": [
+              [
+                "C2",
+                "S1",
+                "THIAZOLE_CYCLE",
+                "1"
+              ],
+              [
+                "C2",
+                "N1",
+                "THIAZOLE_CYCLE",
+                "2"
+              ]
             ],
             "side": "Left"
           },
           {
             "bond_templ": [
-              {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "1",
-                "atoms": [
-                  "C2",
-                  "S1"
-                ]
-              },
-              {
-                "bond_type": "THIAZOLE_CYCLE",
-                "arity": "2",
-                "atoms": [
-                  "C2",
-                  "N1"
-                ]
-              }
+              [
+                "C2",
+                "S1",
+                "THIAZOLE_CYCLE",
+                "1"
+              ],
+              [
+                "C2",
+                "N1",
+                "THIAZOLE_CYCLE",
+                "2"
+              ]
             ],
             "monomers": [
               2,
@@ -3047,45 +3030,6 @@
               {
                 "N1": 36,
                 "S1": 69
-              }
-            ]
-          }
-        ],
-        [
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "side": "Right"
-          },
-          {
-            "bond_templ": [
-              {
-                "bond_type": "AMINO",
-                "arity": "1",
-                "atoms": [
-                  "C1",
-                  "N1"
-                ]
-              }
-            ],
-            "monomers": [
-              9,
-              2
-            ],
-            "label_to_atom": [
-              {
-                "C1": 30
-              },
-              {
-                "N1": 32
               }
             ]
           }

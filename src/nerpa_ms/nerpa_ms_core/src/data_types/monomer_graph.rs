@@ -84,13 +84,22 @@ impl MonomerGraph {
 	    panic!("Attempting to substitute monomer {} with a monomer that has an incompatible binding sites profile", monomer_idx);
 	}
 
+	// Shifting the atom IDs in the db entry to avoid collisions with existing atom IDs in the graph
+	let db_entry_shifted = {
+	    let max_id: u32 = self.monomers.values()
+		.flat_map(|mon| mon.atoms.iter().map(|atom| atom.id.0))
+		.max()
+		.unwrap_or(0);
+	    mon_db_entry.shift_atom_ids(max_id + 1)
+	};
+
 	let new_bonds_by_mon_indices = {
 	    let mut new_bonds_by_mons = HashMap::new();
 	    for i in 0..mon_bonds_by_bs.len() {
 		let (mon_bs, mon_bond) =
 		    mon_bonds_by_bs.get(i).unwrap();
 		let (db_entry_bs, db_entry_bond) =
-		    mon_db_entry.bonds_by_bs.get(i).unwrap();
+		    db_entry_shifted.bonds_by_bs.get(i).unwrap();
 		debug_assert_eq!(*mon_bs, *db_entry_bs);
 		let side = mon_bs.side;
 
@@ -115,7 +124,7 @@ impl MonomerGraph {
 	    }
 	}
 
-	self.monomers.insert(monomer_idx, mon_db_entry.monomer.clone());
+	self.monomers.insert(monomer_idx, db_entry_shifted.monomer.clone());
 
     }
 }

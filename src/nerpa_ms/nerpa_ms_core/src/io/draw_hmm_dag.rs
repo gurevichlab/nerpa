@@ -22,7 +22,7 @@ pub fn draw_hmm_dag_opt_paths(
     draw_nerpa_hmm(hmm,
 		   Some(&hmm_svg_path),
 		   Some(hmm_path),
-		   true)?;
+		   false)?;
 
     dag.draw_svg(&dag_svg_path,
 		 &Draw_DAG_Config { node_indexes: true },

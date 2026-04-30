@@ -12,11 +12,38 @@ impl BondAtomLabel {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AtomicBondTemplate {
     pub bond_type: BondType,
     pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
     pub atoms: (BondAtomLabel, BondAtomLabel),
+}
+
+impl Serialize for AtomicBondTemplate {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+	S: serde::Serializer,
+    {
+	// Serialize as a tuple of (bond_type, arity, atoms)
+	(self.atoms.0.clone(), self.atoms.1.clone(), self.bond_type.clone(), self.arity.clone())
+	    .serialize(serializer)
+    }
+}
+
+impl <'de> Deserialize<'de> for AtomicBondTemplate {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where
+	D: serde::Deserializer<'de>,
+	{
+	// Deserialize from the same tuple form
+	let (atom_label_0, atom_label_1, bond_type, arity) =
+	    <(BondAtomLabel, BondAtomLabel, BondType, String)>::deserialize(deserializer)?;
+	Ok(AtomicBondTemplate {
+	    bond_type,
+	    arity,
+	    atoms: (atom_label_0, atom_label_1),
+	})
+	}
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]

@@ -311,6 +311,91 @@ def force_svg_pixel_size(
     return svg2.encode('utf-8')
 
 
+def _label_svg(
+    *,
+    label: str,
+    width: float,
+    height: float,
+    rotate_deg: float = 0.0,
+    bg: str = '#ffffff',
+    fg: str = '#111111',
+) -> str:
+    # Intent: generate a simple "stripe" SVG: background rect + centered label text.
+    root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
+        'width': f'{width}',
+        'height': f'{height}',
+        'viewBox': f'0 0 {width} {height}',
+    })
+
+    ET.SubElement(root, f'{{{_SVG_NS}}}rect', attrib={
+        'x': '0',
+        'y': '0',
+        'width': f'{width}',
+        'height': f'{height}',
+        'fill': bg,
+    })
+
+    # Intent: pick a readable font size relative to the stripe thickness.
+    thickness: float = min(width, height)
+    font_size: float = max(14.0, min(48.0, thickness * 0.7))
+
+    cx: float = width / 2.0
+    cy: float = height / 2.0
+    text_attrib: dict[str, str] = {
+        'x': f'{cx}',
+        'y': f'{cy}',
+        'fill': fg,
+        'font-family': 'sans-serif',
+        'font-size': f'{font_size}',
+        'text-anchor': 'middle',
+        'dominant-baseline': 'middle',
+    }
+    if abs(rotate_deg) > 1e-9:
+        text_attrib['transform'] = f'rotate({rotate_deg} {cx} {cy})'
+
+    t = ET.SubElement(root, f'{{{_SVG_NS}}}text', attrib=text_attrib)
+    t.text = label
+
+    return _svg_to_string(root)
+
+
+def svg_with_label(svg: str, label: str, position: Literal['left', 'right', 'top', 'bottom']) -> str:
+    """
+    Add a labeled stripe to one side of an SVG and return the resulting SVG string.
+
+    The stripe is built as its own SVG (rect + text) and then combined via join_svgs_in_rectangle().
+    """
+    parsed: _ParsedSvg = _parse_svg_root(ET.fromstring(svg))
+
+    # Intent: make the stripe thickness scale with the source SVG so it looks consistent.
+    base: float = min(parsed.w, parsed.h)
+    font_size: float = max(14.0, min(56.0, base * 0.12))
+    pad: float = font_size * 0.5
+    thickness: float = font_size + 2.0 * pad
+
+    if position in ('left', 'right'):
+        stripe_svg: str = _label_svg(
+            label=label,
+            width=thickness,
+            height=parsed.h,
+            rotate_deg=(-90.0 if position == 'left' else 90.0),
+        )
+        if position == 'left':
+            return join_svgs_in_rectangle([[stripe_svg, svg]])
+        return join_svgs_in_rectangle([[svg, stripe_svg]])
+
+    stripe_svg = _label_svg(
+        label=label,
+        width=parsed.w,
+        height=thickness,
+        rotate_deg=0.0,
+    )
+    if position == 'top':
+        return join_svgs_in_rectangle([[stripe_svg], [svg]])
+    return join_svgs_in_rectangle([[svg], [stripe_svg]])
+
+
+
 def ensure_image_ext(p: Path, fmt: Literal['png', 'svg']) -> Path:
     """Ensure path ends with .svg or .png without stripping mid-name parts like '.1'."""
     s = str(p)

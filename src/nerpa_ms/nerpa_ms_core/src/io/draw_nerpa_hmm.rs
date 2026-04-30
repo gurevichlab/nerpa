@@ -296,44 +296,6 @@ pub fn draw_nerpa_hmm(
         5.0, // layer_y_gap
     )?;
 
-    // // DEBUG: inspect LP output range/spread
-    // {
-    //     let mut xs: Vec<f64> = pos.values().map(|(x, _y)| *x).collect();
-    //     xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
-
-    //     let x_min = xs.first().copied().unwrap_or(0.0);
-    //     let x_max = xs.last().copied().unwrap_or(0.0);
-
-    //     // Count "distinct" x values with a small tolerance
-    //     let mut distinct = 0usize;
-    //     let mut last_x: Option<f64> = None;
-    //     for &x in &xs {
-    //         if last_x.map_or(true, |lx| (x - lx).abs() > 1e-6) {
-    //             distinct += 1;
-    //             last_x = Some(x);
-    //         }
-    //     }
-
-    //     eprintln!(
-    //         "DEBUG layout: n_states={}, x_min={:.6}, x_max={:.6}, span={:.6}, distinct_x~={}",
-    //         n_states,
-    //         x_min,
-    //         x_max,
-    //         x_max - x_min,
-    //         distinct
-    //     );
-
-    //     // Print first 12 nodes by index with their positions
-    //     for i in 0..n_states.min(12) {
-    //         let (x, y) = pos[&i];
-    //         eprintln!(
-    //             "DEBUG node {i}: x={:.6}, y={:.6}, label={}",
-    //             x,
-    //             y,
-    //             hmm.state_labels[i]
-    //         );
-    //     }
-    // }
 
     // Pivot layer: the layer containing INITIAL/FINAL (for port direction rule)
     let pivot_layer_idx = layer_types
@@ -360,13 +322,24 @@ pub fn draw_nerpa_hmm(
     writeln!(&mut dot, r#"  node [shape="ellipse", style="filled"];"#)?;
     writeln!(&mut dot, r#"  edge [arrowhead="vee"];"#)?;
 
-    let gv_pos_scale = 21.0; // diagnostic: convert "inches-ish" to graphviz points
+    let gv_x_scale = 12.0; // diagnostic: convert "inches-ish" to graphviz points
+    let gv_y_scale = 20.0; // diagnostic: convert "inches-ish" to graphviz points
     for idx in 0..n_states {
         let (x, y) = *pos.get(&idx).ok_or_else(|| anyhow!("Missing pos for node {idx}"))?;
-        let x = x * gv_pos_scale;
-        let y = y * gv_pos_scale;
+        let x = x * gv_x_scale;
+        let y = y * gv_y_scale;
 
-        let label = dot_escape(&hmm.state_labels[idx]);
+        let label = { 
+	    let raw = &hmm.state_labels[idx];
+	    let len = raw.len();
+	    let not_escaped = if len > 10 {
+		raw[..len / 2].to_string() + "\n" + &raw[len / 2..]
+	    } else {
+		raw.clone()
+	    };
+	    dot_escape(&not_escaped)
+	};
+
         let fill = state_color(state_types[idx]);
         writeln!(
             &mut dot,

@@ -17,6 +17,7 @@ from src.generic.svg import (
     ensure_image_ext,
     force_svg_pixel_size,
     join_svgs_in_rectangle,
+    svg_with_label,
 )
 import colorsys
 from PIL import Image
@@ -217,7 +218,7 @@ def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
     # make every edge use a 2‑point pen and 1.5× bigger arrowheads
     fig.attr('edge', penwidth='2', arrowsize='1.5')
 
-    for u in record.monomers.keys():
+    for u in sorted(record.monomers.keys()):
         color = rgb_to_hex(mon_colors[u])
         fig.node(str(u),
                  label=mon_labels[u],
@@ -228,7 +229,7 @@ def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
     # print(f'Drawing {len(record.monomer_bonds)} monomer bonds...')
     # print(record.monomer_bonds)
 
-    for u, v in record.monomer_bonds.keys():
+    for u, v in sorted(record.monomer_bonds.keys()):
         amino_bond_dir = amino_bond_direction((u, v), record)
         if amino_bond_dir is not None:
             if amino_bond_dir == (u, v):
@@ -470,9 +471,18 @@ def draw_molecule_diff(
         monomer_labels=monomer_labels,
         size=(size[0]//2, size[1]//2),
     )
+    left_side_svg = join_svgs_in_rectangle([[original_fig], [diff_out.original_diff_data]])
+    left_side_svg = svg_with_label(svg=left_side_svg,
+                                   label="Original",
+                                   position="bottom")
+
+    right_side_svg = join_svgs_in_rectangle([[modified_fig], [diff_out.modified_diff_data]])
+    right_side_svg = svg_with_label(svg=right_side_svg,
+                                    label="Modified",
+                                    position="bottom")
+
     joined_svg = join_svgs_in_rectangle(
-        [[original_fig, diff_out.original_diff_data],
-         [modified_fig, diff_out.modified_diff_data]],
+        [[left_side_svg, right_side_svg]],
     )
     output.write_bytes(joined_svg.encode('utf-8'))
 
@@ -542,8 +552,17 @@ def draw_monomer_graph_diff(
         stretch=False
     ).decode('utf-8')
 
+    left_side_svg = join_svgs_in_rectangle([[original_svg], [original_diff_svg]])
+    left_side_svg = svg_with_label(svg=left_side_svg,
+                                   label="Original",
+                                   position="bottom")
+
+    right_side_svg = join_svgs_in_rectangle([[modified_svg], [modified_diff_svg]])
+    right_side_svg = svg_with_label(svg=right_side_svg,
+                                    label="Modified",
+                                    position="bottom")
+
     joined_svg = join_svgs_in_rectangle(
-        [[original_svg, original_diff_svg],
-         [modified_svg, modified_diff_svg]],
+        [[left_side_svg, right_side_svg]],
     )
     output.write_bytes(joined_svg.encode('utf-8'))
