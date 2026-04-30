@@ -20,3 +20,5 @@ src/rust/target
 
 # generated preprocessed data
 data/input/preprocessed/
+nerpa_results/
+test_run/
