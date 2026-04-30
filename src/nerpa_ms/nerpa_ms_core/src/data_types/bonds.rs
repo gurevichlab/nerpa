@@ -19,6 +19,7 @@ pub struct AtomicBondTemplate {
     pub atoms: (BondAtomLabel, BondAtomLabel),
 }
 
+
 impl Serialize for AtomicBondTemplate {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -142,6 +143,7 @@ pub struct BindingSiteType {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct BindingSitesProfile(Vec<BindingSiteType>);
 
+
 impl BindingSitesProfile {
     pub fn new(binding_site_types: Vec<BindingSiteType>) -> Self {
         let mut bs_types: Vec<BindingSiteType> = binding_site_types;
@@ -159,6 +161,14 @@ impl BindingSitesProfile {
     pub fn from_string_key(s: &str) -> Result<Self, serde_json::Error> {
         let v = serde_json::from_str::<Vec<BindingSiteType>>(s)?;
         Ok(BindingSitesProfile::new(v))
+    }
+
+    pub fn as_slice(&self) -> &[BindingSiteType] {
+	&self.0
+    }
+
+    pub fn into_vec(self) -> Vec<BindingSiteType> {
+	self.0
     }
 }
 
@@ -187,6 +197,9 @@ impl BondsByBSType {
     }
     pub fn get(&self, idx: usize) -> Option<&(BindingSiteType, Bond)> {
 	self.0.get(idx)
+    }
+    pub fn as_slice(&self) -> &[(BindingSiteType, Bond)] {
+	self.0.as_slice()
     }
 }
 

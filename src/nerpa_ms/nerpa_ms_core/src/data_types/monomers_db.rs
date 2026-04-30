@@ -132,3 +132,17 @@ impl MonomersDB_Entry {
 	shifted_entry
     }
 }
+
+pub fn get_entry_by_profile_and_name<'a>(
+    monomers_db: &'a MonomersDB,
+    profile: &BindingSitesProfile,
+    name: &NorineMonomerName,
+) -> Option<&'a MonomersDB_Entry> {
+    monomers_db.get(profile).and_then(|entries| {
+	entries
+	    .iter()
+	    .find(|entry| entry.monomer.features.name == *name)
+    })
+}
+
+
