@@ -122,8 +122,14 @@ impl MonomersDB_Entry {
 	    .map(|(bs, bond)| {
 		let mut new_bond = bond.clone();
 		match bs.side {
-		    BondSide::Left => new_bond.monomers.0 = new_idx,
-		    BondSide::Right => new_bond.monomers.1 = new_idx,
+		    BondSide::Left => {
+			new_bond.monomers.0 = new_idx;
+			new_bond.monomers.1 = MonomerIdx(bond.monomers.1.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
+		    },
+		    BondSide::Right => {
+			new_bond.monomers.1 = new_idx;
+			new_bond.monomers.0 = MonomerIdx(bond.monomers.0.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
+		    },
 		}
 		(bs.clone(), new_bond)
 	    })
@@ -132,7 +138,7 @@ impl MonomersDB_Entry {
 	self.bonds_by_bs = BondsByBSType::new(new_bonds_by_bs);
     }
 
-    pub fn shift_atom_ids(&self, shift: u32) -> MonomersDB_Entry {
+    pub fn shift_atom_ids(&self, shift: u32) {
 	let mut shifted_entry = self.clone();
 	shifted_entry.monomer.shift_atom_ids(shift);
 	shifted_entry.bonds_by_bs = {
@@ -144,7 +150,6 @@ impl MonomersDB_Entry {
 		}
 	    BondsByBSType::new(shifted_bonds)
 	};
-	shifted_entry
     }
 }
 

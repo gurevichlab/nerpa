@@ -19,23 +19,58 @@ pub fn get_entries_for_insertion_between<'a>(
 	.collect()
 }
 
-pub fn splice_bonds(bond1: &Bond,
-		    bond2: &Bond) -> Bond {
-    // Creates a new bond by connecting the first monomer of bond1 to the second monomer of bond2
-    // E.g. C1->N1, C2->N2 yields C1->N2
+pub fn splice_bonds(mon_with_bond1: (MonomerIdx, &Bond),
+		    mon_with_bond2: (MonomerIdx, &Bond)) -> Bond {
+    // Takes two monomers with their respective bonds, where the two bonds have the same template and the monomers appear on opposite sides in those bonds, and returns a new bond that "splices" them.
+    // E.g. (m1, C1)->(m2, N2) and (m3, C3)->(m4, N4) yields (m1, C1)->(m4, N4)
+    let (mon1, bond1) = mon_with_bond1;
+    let (mon2, bond2) = mon_with_bond2;
     debug_assert_eq!(bond1.bond_templ, bond2.bond_templ);
 
-    let bond_templ = bond1.bond_templ.clone();
-    
-    let monomers = (
-	bond1.monomers.0,
-	bond2.monomers.1,
-    );
+    let side1 = if bond1.monomers.0 == mon1 {
+	BondSide::Left
+    } else if bond1.monomers.1 == mon1 {
+	BondSide::Right
+    } else {
+	panic!("mon_with_bond1 does not contain the monomer that is part of the bond");
+    };
 
-    let label_to_atom = (
-	bond1.label_to_atom.0.clone(),
-	bond2.label_to_atom.1.clone(),
-    );
+    let side2 = if bond2.monomers.0 == mon2 {
+	BondSide::Left
+    } else if bond2.monomers.1 == mon2 {
+	BondSide::Right
+    } else {
+	panic!("mon_with_bond2 does not contain the monomer that is part of the bond");
+    };
+
+    let bond_templ = bond1.bond_templ.clone();
+    let monomers;
+    let label_to_atom;
+    match (side1, side2) {
+	(BondSide::Left, BondSide::Right) => {
+	    monomers = (
+		bond1.monomers.0,
+		bond2.monomers.1,
+	    );
+
+	    label_to_atom = (
+		bond1.label_to_atom.0.clone(),
+		bond2.label_to_atom.1.clone(),
+	    );
+	},
+	(BondSide::Right, BondSide::Left) => {
+	    monomers = (
+		bond2.monomers.0,
+		bond1.monomers.1,
+	    );
+
+	    label_to_atom = (
+		bond2.label_to_atom.0.clone(),
+		bond1.label_to_atom.1.clone(),
+	    );
+	},
+	_ => panic!("The two bonds should have opposite sides for the monomers being connected"),
+    };
 
     Bond {
 	bond_templ,
@@ -70,12 +105,15 @@ impl MonomerGraph {
 	}
 
 	// Shifting the atom IDs in the db entry to avoid collisions with existing atom IDs in the graph
-	let db_entry_shifted = {
+	let corrected_db_entry = {
 	    let max_id: u32 = self.monomers.values()
 		.flat_map(|mon| mon.atoms.iter().map(|atom| atom.id.0))
 		.max()
 		.unwrap_or(0);
-	    mon_db_entry.shift_atom_ids(max_id + 1)
+	    let mut db_entry = mon_db_entry.clone();
+	    db_entry.shift_atom_ids(max_id + 1);
+	    db_entry.set_monomer_idx(monomer_idx);
+	    db_entry
 	};
 
 	let new_bonds_by_mon_indices = {
@@ -84,21 +122,18 @@ impl MonomerGraph {
 		let (mon_bs, mon_bond) =
 		    mon_bonds_by_bs.get(i).unwrap();
 		let (db_entry_bs, db_entry_bond) =
-		    db_entry_shifted.bonds_by_bs.get(i).unwrap();
+		    corrected_db_entry.bonds_by_bs.get(i).unwrap();
 		debug_assert_eq!(*mon_bs, *db_entry_bs);
-		let side = mon_bs.side;
 
-		let mut new_bond = mon_bond.clone();
-		match side {
-		    BondSide::Left => {
-			new_bond.label_to_atom.0 = db_entry_bond.label_to_atom.0.clone();
-		    },
-		    BondSide::Right => {
-			new_bond.label_to_atom.1 = db_entry_bond.label_to_atom.1.clone();
-		    }
-		}
+		let other_mon_idx = if mon_bond.monomers.0 == monomer_idx {
+		    mon_bond.monomers.1
+		} else {
+		    mon_bond.monomers.0
+		};
+		let new_bond = splice_bonds((monomer_idx, db_entry_bond),
+					    (other_mon_idx, mon_bond));
 
-		new_bonds_by_mons.insert(mon_bond.monomers, new_bond);
+		new_bonds_by_mons.insert(new_bond.monomers, new_bond);
 	    }
 	    new_bonds_by_mons
 	};
@@ -109,7 +144,7 @@ impl MonomerGraph {
 	    }
 	}
 
-	self.monomers.insert(monomer_idx, db_entry_shifted.monomer.clone());
+	self.monomers.insert(monomer_idx, corrected_db_entry.monomer.clone());
 
     }
 
@@ -213,24 +248,24 @@ impl MonomerGraph {
 
 	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
 	debug_assert_eq!(bonds_by_bs.len(), 2);
-        let (bs_a, bond_a) = bonds_by_bs.get(0).unwrap();
-        let (bs_b, bond_b) = bonds_by_bs.get(1).unwrap();
+        let (_bs_a, bond_a) = bonds_by_bs.get(0).unwrap();
+        let (_bs_b, bond_b) = bonds_by_bs.get(1).unwrap();
+	let mon_a = if bond_a.monomers.0 == monomer_idx {
+	    bond_a.monomers.1
+	} else {
+	    bond_a.monomers.0
+	};
+	let mon_b = if bond_b.monomers.0 == monomer_idx {
+	    bond_b.monomers.1
+	} else {
+	    bond_b.monomers.0
+	};
 
-        // Identify which bond has `monomer_idx` on the Left vs Right.
-        let (bond_with_monomer_on_left, bond_with_monomer_on_right) = match (bs_a.side, bs_b.side)
-        {
-            (BondSide::Left, BondSide::Right) => (bond_a, bond_b),
-            (BondSide::Right, BondSide::Left) => (bond_b, bond_a),
-            _ => panic!(
-                "_remove_deg2 called on a monomer that is not (Left, Right) for the two bonds"
-            ),
-        };
-
-	let new_bond = splice_bonds(bond_with_monomer_on_right, bond_with_monomer_on_left);
+	let new_bond = splice_bonds((mon_a, bond_a), (mon_b, bond_b));
 	
 	// Remove the two old bonds and add the new spliced bond.
 	self.monomer_bonds
-	    .retain(|b| b != bond_with_monomer_on_left && b != bond_with_monomer_on_right);
+	    .retain(|b| b.monomers.0 != monomer_idx && b.monomers.1 != monomer_idx);
 	self.monomer_bonds.push(new_bond);
 
 	// Finally, remove the monomer itself.
@@ -305,7 +340,7 @@ impl MonomerGraph {
 	let corrected_db_entry = {
 	    let mut new_entry = mon_db_entry.clone();
 	    new_entry.set_monomer_idx(new_idx);
-	    new_entry.monomer.shift_atom_ids(max_atom_id + 1);
+	    new_entry.shift_atom_ids(max_atom_id + 1);
 	    new_entry
 	};
 
@@ -348,8 +383,10 @@ impl MonomerGraph {
 	   }
        };
 
-       let left_mon_new_bond = splice_bonds(old_bond, mon_db_bond_right);
-       let right_mon_new_bond = splice_bonds(mon_db_bond_left, old_bond);
+       let left_mon_new_bond = splice_bonds((left_mon, old_bond),
+					    (new_idx, mon_db_bond_right));
+       let right_mon_new_bond = splice_bonds((right_mon, old_bond),
+					     (new_idx, mon_db_bond_left));
 
        self.monomer_bonds.retain(|b| {
            !((b.monomers.0 == left_mon && b.monomers.1 == right_mon)
@@ -427,73 +464,53 @@ since can_insert_at_leaf should have been called before and returned true")
 		.max()
 		.unwrap();
 	    sub_entry.set_monomer_idx(monomer_idx);
-	    sub_entry.monomer.shift_atom_ids(max_atom_id + 1);
+	    sub_entry.shift_atom_ids(max_atom_id + 1);
 	    sub_entry
 	};
 	debug_assert_eq!(&old_leaf_sub_entry.bonds_by_bs.get_profile(), &*AMINO_MIDDLE_PROFILE);
 
 	let old_leaf_bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
-	let old_leaf_profile = old_leaf_bonds_by_bs.get_profile();
+	debug_assert_eq!(old_leaf_bonds_by_bs.len(), 1);
+	let (old_leaf_bs, old_leaf_bond) = old_leaf_bonds_by_bs.get(0).unwrap();
 
-	let parent_dangling_bond_side = if &old_leaf_profile == &*AMINO_C_END_PROFILE {
-	    BondSide::Right
-	} else if &old_leaf_profile == &*AMINO_N_END_PROFILE {
-	    BondSide::Left
-	} else {
-	    unreachable!("The leaf binding site type should be either the amino C-end or N-end since _data_for_attaching_to_leaf returned Some");
-	};
-
-	let old_leaf_sub_dangling_bond = {
-	    &old_leaf_sub_entry
-		.bonds_by_bs
-		.iter()
-		.find(|(bs, _bond)| bs.side == parent_dangling_bond_side)
-		.expect("parent substitution entry should have binding sites with each Side")
-		.1
-	};
-	let old_leaf_sub_attached_bond = {
-	    &old_leaf_sub_entry
-		.bonds_by_bs
-		.iter()
-		.find(|(bs, _bond)| bs.side != parent_dangling_bond_side)
-		.expect("parent substitution entry should have binding sites with each Side")
-		.1
-	};
-
-	// substitute the leaf monomer with the DB entry
+	// identify which of the two bonds in the DB entry is the one that will be attached to the old leaf's parent, and which one will be the dangling bond to which the new leaf will be attached
+	let old_leaf_sub_attached_bond;
+	let old_leaf_sub_dangling_bond;
 	{
-	    let old_leaf_bond = &old_leaf_bonds_by_bs.get(0).unwrap().1;
-	    let new_parent_bond = {
-		if &old_leaf_profile == &*AMINO_C_END_PROFILE {
-		    splice_bonds(old_leaf_sub_attached_bond, old_leaf_bond)
-		} else if &old_leaf_profile == &*AMINO_N_END_PROFILE {
-		    splice_bonds(old_leaf_bond, old_leaf_sub_attached_bond)
-		} else {
-		    unreachable!("The leaf binding site type should be either the amino C-end or N-end since
-_data_for_attaching_to_leaf returned Some");
-		}
+	    let old_leaf_sub_bonds_by_bs = &old_leaf_sub_entry.bonds_by_bs.as_slice();
+	    let (old_leaf_sub_bs_1, old_leaf_sub_bond_1) = &old_leaf_sub_bonds_by_bs[0];
+	    let (old_leaf_sub_bs_2, old_leaf_sub_bond_2) = &old_leaf_sub_bonds_by_bs[1];
+	    if old_leaf_sub_bs_1 == old_leaf_bs {
+		old_leaf_sub_attached_bond = old_leaf_sub_bond_1;
+		old_leaf_sub_dangling_bond = old_leaf_sub_bond_2;
+	    }
+	    else {
+		debug_assert_eq!(old_leaf_sub_bs_2, old_leaf_bs);
+		old_leaf_sub_attached_bond = old_leaf_sub_bond_2;
+		old_leaf_sub_dangling_bond = old_leaf_sub_bond_1;
+	    }
+	}
+
+	// substitute the old leaf monomer with the DB entry
+	{
+	    let parent_idx = if old_leaf_bond.monomers.0 == monomer_idx {
+		old_leaf_bond.monomers.1
+	    } else {
+		old_leaf_bond.monomers.0
 	    };
+	    let new_parent_bond = splice_bonds((monomer_idx, old_leaf_sub_attached_bond),
+					       (parent_idx, old_leaf_bond));
 	    self.monomer_bonds
 		.retain(|b| b.monomers.0 != monomer_idx && b.monomers.1 != monomer_idx);
 	    self.monomer_bonds.push(new_parent_bond);
-	    self.monomers[&monomer_idx] = old_leaf_sub_entry.monomer.clone();
+	    self.monomers[&monomer_idx] = old_leaf_sub_entry.monomer;
 	}
 	
 	// attach the new leaf
 	let (new_idx, corrected_db_entry) = self.prepare_entry_for_insertion(mon_db_entry);
 	let corrected_db_entry_bond = &corrected_db_entry.bonds_by_bs.get(0).unwrap().1;
-	let new_leaf_bond;
-	if &old_leaf_profile == &*AMINO_C_END_PROFILE {
-	    debug_assert_eq!(&mon_db_entry.bonds_by_bs.get_profile(), &*AMINO_C_END_PROFILE);
-	    new_leaf_bond = splice_bonds(corrected_db_entry_bond, old_leaf_sub_dangling_bond);
-	}
-	else if &old_leaf_profile == &*AMINO_N_END_PROFILE {
-	    debug_assert_eq!(&mon_db_entry.bonds_by_bs.get_profile(), &*AMINO_N_END_PROFILE);
-	    new_leaf_bond = splice_bonds(old_leaf_sub_dangling_bond, corrected_db_entry_bond);
-	}
-	else {
-	    unreachable!("The leaf binding site type should be either the amino C-end or N-end since _data_for_attaching_to_leaf returned Some");
-	}
+	let new_leaf_bond = splice_bonds((new_idx, corrected_db_entry_bond),
+					 (monomer_idx, old_leaf_sub_dangling_bond));
 
 	self.monomer_bonds.push(new_leaf_bond);
 	self.monomers.insert(new_idx, corrected_db_entry.monomer);
