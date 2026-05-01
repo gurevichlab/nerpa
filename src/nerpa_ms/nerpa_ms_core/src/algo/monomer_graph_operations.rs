@@ -19,6 +19,31 @@ pub fn get_entries_for_insertion_between<'a>(
 	.collect()
 }
 
+pub fn splice_bonds(bond1: &Bond,
+		    bond2: &Bond) -> Bond {
+    // Creates a new bond by connecting the first monomer of bond1 to the second monomer of bond2
+    // E.g. C1->N1, C2->N2 yields C1->N2
+    debug_assert_eq!(bond1.bond_templ, bond2.bond_templ);
+
+    let bond_templ = bond1.bond_templ.clone();
+    
+    let monomers = (
+	bond1.monomers.0,
+	bond2.monomers.1,
+    );
+
+    let label_to_atom = (
+	bond1.label_to_atom.0.clone(),
+	bond2.label_to_atom.1.clone(),
+    );
+
+    Bond {
+	bond_templ,
+	monomers,
+	label_to_atom,
+    }
+}
+
 fn _profile_without_bs_type(
     profile: BindingSitesProfile,
     bs_type_to_remove: &BindingSiteType,
@@ -375,12 +400,7 @@ impl MonomerGraph {
        mon2: MonomerIdx,
        monomers_db: &'a MonomersDB,
    ) -> Vec<&'a MonomersDB_Entry> {
-       let bond = &self.monomer_bonds
-           .iter()
-           .find(|b| {
-	       (b.monomers.0 == mon1 && b.monomers.1 == mon2)
-		   || (b.monomers.0 == mon2 && b.monomers.1 == mon1)
-	   })
+       let bond = self.get_bond(mon1, mon2)
            .unwrap_or_else(|| panic!("bond between monomers {:?} not found",
 				     (mon1, mon2)));
 
@@ -397,71 +417,54 @@ impl MonomerGraph {
        mon2: MonomerIdx,
        mon_db_entry: &MonomersDB_Entry,
    ) {
-       // Find and clone the old bond (we'll remove it from `self.monomer_bonds`).
-       let old_bond_idx = self
-           ._find_bond_idx_between(mon1, mon2)
-           .expect("insert_between: no bond exists between the given monomers");
-       let old_bond = self.monomer_bonds[old_bond_idx].clone();
+       let mut new_mon_db_entry = mon_db_entry.clone();
+       let inserted_idx = {
+	   let max_idx = self.monomers.keys()
+	       .max()
+	       .unwrap();
+	   MonomerIdx(max_idx.0 + 1)
+       };
+       new_mon_db_entry.set_monomer_idx(inserted_idx);
+       
+       // Database monomer should have exactly two bonds
+       // with the same template as the bond we are inserting into
+       // The bond mon_db_bond_left should have mon_db_entry on the Left, and mon_db_bond_right should have it on the Right
 
-       if !Self::_is_supported_insertion_bond_templ(&old_bond.bond_templ) {
-           panic!("insert_between: only supported for C-N amino-like single bonds (arity=1, BondType::Single)");
-       }
+       let (mon_db_bond_left, mon_db_bond_right) = {
+	   let bonds_by_bs = new_mon_db_entry.bonds_by_bs.as_slice();
+	   debug_assert_eq!(bonds_by_bs.len(), 2);
+	   let (bs_a, bond_a) = &bonds_by_bs[0];
+	   let (bs_b, bond_b) = &bonds_by_bs[1];
+	   debug_assert_eq!(bs_a.bond_templ, bs_b.bond_templ);
+	   match (bs_a.side, bs_b.side) {
+	       (BondSide::Left, BondSide::Right) => (bond_a, bond_b),
+	       (BondSide::Right, BondSide::Left) => (bond_b, bond_a),
+	       _ => panic!("DB entry bonds should have opposite sides"),
+	   }
+       };
 
-       // Normalize orientation: old bond is (left_mon) -- (right_mon)
+       let old_bond = self.get_bond(mon1, mon2)
+	   .unwrap_or_else(|| panic!("bond between monomers {:?} not found",
+				     (mon1, mon2)));
+
+
+       // Normalize orientation: old bond is (left_mon) -> (right_mon)
        let left_mon = old_bond.monomers.0;
        let right_mon = old_bond.monomers.1;
 
-       // Make sure the caller’s (mon1, mon2) refers to this bond (either order).
-       if !((left_mon == mon1 && right_mon == mon2) || (left_mon == mon2 && right_mon == mon1)) {
-           panic!("insert_between: internal error: found bond does not match requested monomer pair");
-       }
+       let left_mon_new_bond = splice_bonds(old_bond, mon_db_bond_right);
+       let right_mon_new_bond = splice_bonds(mon_db_bond_left, old_bond);
 
-       // Create the new monomer index.
-       let inserted_idx = self._next_monomer_idx();
-
-       // Shift atom ids in the inserted entry to avoid collisions with existing atoms.
-       let shift = self._max_atom_id() + 1;
-       let inserted_entry = mon_db_entry.shift_atom_ids(shift);
-
-       // (Caller promised mon_db_entry came from `possible_insertions_between`.)
-       let required_profile = Self::_required_deg2_insertion_profile(&old_bond.bond_templ);
-       debug_assert_eq!(inserted_entry.bonds_by_bs.get_profile(), required_profile);
-
-       // Pull out the label->atom maps for the inserted monomer on both sides.
-       // In the new left bond, inserted monomer is on the Right.
-       // In the new right bond, inserted monomer is on the Left.
-       let inserted_left_map =
-           Self::_entry_label_map_for_side(&inserted_entry, &old_bond.bond_templ, BondSide::Left);
-       let inserted_right_map =
-           Self::_entry_label_map_for_side(&inserted_entry, &old_bond.bond_templ, BondSide::Right);
-
-       // Old bond’s neighbor-side maps (these must be preserved).
-       let old_left_map = old_bond.label_to_atom.0.clone();
-       let old_right_map = old_bond.label_to_atom.1.clone();
-
-       let new_left_bond = Bond {
-           bond_templ: old_bond.bond_templ.clone(),
-           monomers: (left_mon, inserted_idx),
-           label_to_atom: (old_left_map, inserted_right_map),
-       };
-
-       let new_right_bond = Bond {
-           bond_templ: old_bond.bond_templ.clone(),
-           monomers: (inserted_idx, right_mon),
-           label_to_atom: (inserted_left_map, old_right_map),
-       };
-
-       // Remove the old bond (unique between a pair, per your assumption) and insert the two new ones.
        self.monomer_bonds.retain(|b| {
            !((b.monomers.0 == left_mon && b.monomers.1 == right_mon)
-               || (b.monomers.0 == right_mon && b.monomers.1 == left_mon))
+             || (b.monomers.0 == right_mon && b.monomers.1 == left_mon))
        });
-       self.monomer_bonds.push(new_left_bond);
-       self.monomer_bonds.push(new_right_bond);
+       self.monomer_bonds.push(left_mon_new_bond);
+       self.monomer_bonds.push(right_mon_new_bond);
 
        // Insert the new monomer itself.
        self.monomers
-           .insert(inserted_idx, inserted_entry.monomer.clone());
+           .insert(inserted_idx, new_mon_db_entry.monomer.clone());
    }
 
 }

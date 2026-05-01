@@ -78,4 +78,10 @@ impl MonomerGraph {
 	BondsByBSType::new(bonds_by_bs)
     }
 
+    pub fn get_bond(&self, mon1: MonomerIdx, mon2: MonomerIdx) -> Option<&Bond> {
+	self.monomer_bonds.iter().find(|bond| {
+	    (bond.monomers.0 == mon1 && bond.monomers.1 == mon2)
+		|| (bond.monomers.0 == mon2 && bond.monomers.1 == mon1)
+	})
+    }
 }

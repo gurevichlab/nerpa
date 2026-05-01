@@ -1,4 +1,4 @@
-use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond, BondsByBSType};
+use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond, BondSide, BondsByBSType};
 use itertools::Itertools;
 use crate::data_types::parsed_rban_record::{
     MonomerInfo, NerpaCoreResidue, NorineMonomerName, Parsed_rBAN_Record,
@@ -117,6 +117,21 @@ impl Monomer {
 }
 
 impl MonomersDB_Entry {
+    pub fn set_monomer_idx(&mut self, new_idx: MonomerIdx) {
+	let new_bonds_by_bs = self.bonds_by_bs.iter()
+	    .map(|(bs, bond)| {
+		let mut new_bond = bond.clone();
+		match bs.side {
+		    BondSide::Left => new_bond.monomers.0 = new_idx,
+		    BondSide::Right => new_bond.monomers.1 = new_idx,
+		}
+		(bs.clone(), new_bond)
+	    })
+	    .collect();
+
+	self.bonds_by_bs = BondsByBSType::new(new_bonds_by_bs);
+    }
+
     pub fn shift_atom_ids(&self, shift: u32) -> MonomersDB_Entry {
 	let mut shifted_entry = self.clone();
 	shifted_entry.monomer.shift_atom_ids(shift);
