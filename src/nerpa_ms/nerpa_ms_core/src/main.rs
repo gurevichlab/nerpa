@@ -26,26 +26,31 @@ fn main() -> Result<()> {
     println!("Generating variants...");
     let mut output_items: Vec<OutputItem> = Vec::with_capacity(input_items.len());
     for item in &input_items {
-	let dag = create_dag(&item.rban_record,
+	let monomer_graph = MonomerGraph::from(&item.rban_record);
+	let dag = create_dag(&monomer_graph,
 			     &item.linearization,
 			     &monomers_db);
-	let monomer_graph = MonomerGraph::from(&item.rban_record);
 	let new_variants_with_opt_paths = generate_new_variants_with_opt_paths(
 	    &item.hmm,
 	    &monomer_graph,
 	    &dag,
 	    cli.max_edits,
-	    cli.num_variants_per_num_edits
+	    cli.num_variants_per_num_edits,
+	    &monomers_db
 	);
 
-	let bgc_id_short = &item.hmm
+	let bgc_id_short = {
+	    &item.hmm
 	    .bgc_variant_id
 	    .bgc_id
-	    .to_str_short();
-	let figs_dir = cli.out
-	    .join("figures")
-	    .join("opt_paths")
-	    .join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id));
+	    .to_str_short()
+	};
+	let figs_dir = {
+	    cli.out
+		.join("figures")
+		.join("opt_paths")
+		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	};
 
 	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
 	    let res = draw_hmm_dag_opt_paths(
@@ -61,10 +66,12 @@ fn main() -> Result<()> {
 	    }
 	}
 
-	let new_variants = new_variants_with_opt_paths
+	let new_variants = {
+	    new_variants_with_opt_paths
 	    .into_iter()
 	    .map(|v| v.new_variant)
-	    .collect::<Vec<_>>();
+	    .collect::<Vec<_>>()
+	};
 	output_items.push(OutputItem {
 	    bgc_variant_id: item.hmm.bgc_variant_id.clone(),
 	    compound_id: item.rban_record.compound_id.clone(),
@@ -75,13 +82,17 @@ fn main() -> Result<()> {
     write_output(&output_items,
 		 &cli.out.join("new_variants.json"))?;
 
-    let original_records: Vec<&Parsed_rBAN_Record> = input_items
-	.iter()
-	.map(|item| &item.rban_record)
-	.collect();
-    let new_variants_figures_dir = cli.out
-	.join("figures")
-	.join("new_variants");
+    let original_records: Vec<&Parsed_rBAN_Record> = {
+	input_items
+	    .iter()
+	    .map(|item| &item.rban_record)
+	    .collect()
+    };
+    let new_variants_figures_dir: PathBuf = {
+	cli.out
+	    .join("figures")
+	    .join("new_variants")
+    };
     if let Some(nerpa_root) = &cli.nerpa_root {
 	draw_output_variants(&output_items,
 			     &original_records,

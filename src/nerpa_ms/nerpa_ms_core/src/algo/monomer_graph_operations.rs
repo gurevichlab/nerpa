@@ -1,4 +1,5 @@
 use crate::data_types::bond_consts::{AMINO_C_END_PROFILE, AMINO_MIDDLE_PROFILE, AMINO_N_END_PROFILE};
+use crate::data_types::graph_modifications::GraphModification;
 use crate::data_types::monomer_graph::{Monomer, MonomerGraph};
 use crate::data_types::monomers_db::{MonomersDB, MonomersDB_Entry, get_entry_by_profile_and_name};
 use crate::data_types::bonds::{
@@ -98,136 +99,159 @@ struct _DataForRemovalDeg1<'a> {
 }
 
 impl MonomerGraph {
+   
+    pub fn possible_substitutions<'a>(
+	&self,
+	monomer_idx: MonomerIdx,
+	monomers_db: &'a MonomersDB,
+    ) -> Vec<&'a MonomersDB_Entry> {
+	let bs_profile: BindingSitesProfile = {
+	    self.bonds_by_bs_type(monomer_idx)
+		.get_profile()
+	};
+
+	match monomers_db.get(&bs_profile) {
+	    Some(entries) => {
+		// filter out substitutions that would substitute the monomer with an identical one (same name)
+		let name = &self.monomers.get(&monomer_idx).unwrap().features.name;
+		entries.iter()
+		    .filter(|entry| entry.monomer.features.name != *name)
+		    .collect()
+	    },
+	    None => Vec::new(),
+	}
+    }
+
     pub fn substitute(&mut self, monomer_idx: MonomerIdx, mon_db_entry: &MonomersDB_Entry) {
-	let mon_bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
-	if !mon_bonds_by_bs.compatible_with(&mon_db_entry.bonds_by_bs) {
-	    panic!("Attempting to substitute monomer {} with a monomer that has an incompatible binding sites profile", monomer_idx);
-	}
-
-	// Shifting the atom IDs in the db entry to avoid collisions with existing atom IDs in the graph
-	let corrected_db_entry = {
-	    let max_id: u32 = self.monomers.values()
-		.flat_map(|mon| mon.atoms.iter().map(|atom| atom.id.0))
-		.max()
-		.unwrap_or(0);
-	    let mut db_entry = mon_db_entry.clone();
-	    db_entry.shift_atom_ids(max_id + 1);
-	    db_entry.set_monomer_idx(monomer_idx);
-	    db_entry
-	};
-
-	let new_bonds_by_mon_indices = {
-	    let mut new_bonds_by_mons = HashMap::new();
-	    for i in 0..mon_bonds_by_bs.len() {
-		let (mon_bs, mon_bond) =
-		    mon_bonds_by_bs.get(i).unwrap();
-		let (db_entry_bs, db_entry_bond) =
-		    corrected_db_entry.bonds_by_bs.get(i).unwrap();
-		debug_assert_eq!(*mon_bs, *db_entry_bs);
-
-		let other_mon_idx = if mon_bond.monomers.0 == monomer_idx {
-		    mon_bond.monomers.1
-		} else {
-		    mon_bond.monomers.0
-		};
-		let new_bond = splice_bonds((monomer_idx, db_entry_bond),
-					    (other_mon_idx, mon_bond));
-
-		new_bonds_by_mons.insert(new_bond.monomers, new_bond);
+	    let mon_bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
+	    if !mon_bonds_by_bs.compatible_with(&mon_db_entry.bonds_by_bs) {
+		panic!("Attempting to substitute monomer {} with a monomer that has an incompatible binding sites profile", monomer_idx);
 	    }
-	    new_bonds_by_mons
-	};
 
-	for old_bond in self.monomer_bonds.iter_mut() {
-	    if let Some(new_bond) = new_bonds_by_mon_indices.get(&old_bond.monomers) {
-		*old_bond = new_bond.clone();
+	    // Shifting the atom IDs in the db entry to avoid collisions with existing atom IDs in the graph
+	    let corrected_db_entry = {
+		let max_id: u32 = self.monomers.values()
+		    .flat_map(|mon| mon.atoms.iter().map(|atom| atom.id.0))
+		    .max()
+		    .unwrap_or(0);
+		let mut db_entry = mon_db_entry.clone();
+		db_entry.shift_atom_ids(max_id + 1);
+		db_entry.set_monomer_idx(monomer_idx);
+		db_entry
+	    };
+
+	    let new_bonds_by_mon_indices = {
+		let mut new_bonds_by_mons = HashMap::new();
+		for i in 0..mon_bonds_by_bs.len() {
+		    let (mon_bs, mon_bond) =
+			mon_bonds_by_bs.get(i).unwrap();
+		    let (db_entry_bs, db_entry_bond) =
+			corrected_db_entry.bonds_by_bs.get(i).unwrap();
+		    debug_assert_eq!(*mon_bs, *db_entry_bs);
+
+		    let other_mon_idx = if mon_bond.monomers.0 == monomer_idx {
+			mon_bond.monomers.1
+		    } else {
+			mon_bond.monomers.0
+		    };
+		    let new_bond = splice_bonds((monomer_idx, db_entry_bond),
+						(other_mon_idx, mon_bond));
+
+		    new_bonds_by_mons.insert(new_bond.monomers, new_bond);
+		}
+		new_bonds_by_mons
+	    };
+
+	    for old_bond in self.monomer_bonds.iter_mut() {
+		if let Some(new_bond) = new_bonds_by_mon_indices.get(&old_bond.monomers) {
+		    *old_bond = new_bond.clone();
+		}
+	    }
+
+	    self.monomers.insert(monomer_idx, corrected_db_entry.monomer.clone());
+
+	}
+
+	fn _leaf_parent_with_bs_type(
+	    &self,
+	    monomer_idx: MonomerIdx,
+	) -> (MonomerIdx, BindingSiteType) {
+	    let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
+	    debug_assert_eq!(bonds_by_bs.len(), 1);
+	    let bs_and_bond = bonds_by_bs.get(0).unwrap();
+
+	    let bond = &bs_and_bond.1;
+
+	    let other_mon = if bond.monomers.0 == monomer_idx {
+		bond.monomers.1
+	    } else {
+		bond.monomers.0
+	    };
+
+	    let other_bs_type = BindingSiteType {
+		bond_templ: bond.bond_templ.clone(),
+		side: match bs_and_bond.0.side {
+		    BondSide::Left => BondSide::Right,
+		    BondSide::Right => BondSide::Left,
+		},
+	    };
+
+	    (other_mon, other_bs_type)
+	}
+
+	fn _data_to_remove_deg1<'a>(&self,
+				    monomer_idx: MonomerIdx,
+				    monomers_db: &'a MonomersDB) -> Option<_DataForRemovalDeg1<'a>> {
+	    debug_assert_eq!(self.bonds_by_bs_type(monomer_idx).len(), 1);
+
+	    let (other_mon, other_bs_type) =
+		self._leaf_parent_with_bs_type(monomer_idx);
+
+	    let other_bs_profile = self.bonds_by_bs_type(other_mon).get_profile();
+	    let other_bs_profile_wo_this_bs =
+		_profile_without_bs_type(other_bs_profile, &other_bs_type);
+
+	    let other_name = &self.monomers.get(&other_mon).unwrap().features.name;
+
+	    let maybe_entry = get_entry_by_profile_and_name(monomers_db,
+							    &other_bs_profile_wo_this_bs,
+							    other_name);
+	    match maybe_entry {
+		Some(entry) => Some(_DataForRemovalDeg1 {
+		    parent_idx: other_mon,
+		    parent_sub: entry,
+		}),
+		None => None,
 	    }
 	}
 
-	self.monomers.insert(monomer_idx, corrected_db_entry.monomer.clone());
-
-    }
-
-    fn _leaf_parent_with_bs_type(
-        &self,
-        monomer_idx: MonomerIdx,
-    ) -> (MonomerIdx, BindingSiteType) {
-	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
-	debug_assert_eq!(bonds_by_bs.len(), 1);
-	let bs_and_bond = bonds_by_bs.get(0).unwrap();
-	
-        let bond = &bs_and_bond.1;
-
-        let other_mon = if bond.monomers.0 == monomer_idx {
-            bond.monomers.1
-        } else {
-            bond.monomers.0
-        };
-
-        let other_bs_type = BindingSiteType {
-            bond_templ: bond.bond_templ.clone(),
-            side: match bs_and_bond.0.side {
-                BondSide::Left => BondSide::Right,
-                BondSide::Right => BondSide::Left,
-            },
-        };
-
-        (other_mon, other_bs_type)
-    }
-
-    fn _data_to_remove_deg1<'a>(&self,
-				monomer_idx: MonomerIdx,
-				monomers_db: &'a MonomersDB) -> Option<_DataForRemovalDeg1<'a>> {
-	debug_assert_eq!(self.bonds_by_bs_type(monomer_idx).len(), 1);
-	
-        let (other_mon, other_bs_type) =
-            self._leaf_parent_with_bs_type(monomer_idx);
-
-        let other_bs_profile = self.bonds_by_bs_type(other_mon).get_profile();
-        let other_bs_profile_wo_this_bs =
-            _profile_without_bs_type(other_bs_profile, &other_bs_type);
-
-        let other_name = &self.monomers.get(&other_mon).unwrap().features.name;
-
-        let maybe_entry = get_entry_by_profile_and_name(monomers_db,
-							&other_bs_profile_wo_this_bs,
-							other_name);
-	match maybe_entry {
-	    Some(entry) => Some(_DataForRemovalDeg1 {
-		parent_idx: other_mon,
-		parent_sub: entry,
-	    }),
-	    None => None,
+	fn _can_remove_deg1(&self,
+			    monomer_idx: MonomerIdx,
+			    monomers_db: &MonomersDB) -> bool {
+	    self._data_to_remove_deg1(monomer_idx, monomers_db).is_some()
 	}
-    }
 
-    fn _can_remove_deg1(&self,
+	fn _remove_deg1(&mut self,
 			monomer_idx: MonomerIdx,
-			monomers_db: &MonomersDB) -> bool {
-	self._data_to_remove_deg1(monomer_idx, monomers_db).is_some()
-    }
+			monomers_db: &MonomersDB) {
+	    debug_assert!(self._can_remove_deg1(monomer_idx, monomers_db));
+	    let data_for_removal = self._data_to_remove_deg1(monomer_idx, monomers_db)
+		.expect("Expected data for removal to be present since _can_remove_deg1 returned true");
 
-    fn _remove_deg1(&mut self,
-		    monomer_idx: MonomerIdx,
-		    monomers_db: &MonomersDB) {
-	debug_assert!(self._can_remove_deg1(monomer_idx, monomers_db));
-	let data_for_removal = self._data_to_remove_deg1(monomer_idx, monomers_db)
-	    .expect("Expected data for removal to be present since _can_remove_deg1 returned true");
+	    // 1) Remove the monomer and its only incident bond.
+	    self.monomer_bonds
+		.retain(|b| b.monomers.0 != monomer_idx && b.monomers.1 != monomer_idx);
+	    self.monomers.remove(&monomer_idx);
 
-        // 1) Remove the monomer and its only incident bond.
-        self.monomer_bonds
-            .retain(|b| b.monomers.0 != monomer_idx && b.monomers.1 != monomer_idx);
-        self.monomers.remove(&monomer_idx);
+	    // 2) Now the other monomer's binding-sites profile has changed,
+	    // so we can substitute it with the corresponding degree-reduced DB entry.
+	    self.substitute(data_for_removal.parent_idx, data_for_removal.parent_sub);
+	}
 
-        // 2) Now the other monomer's binding-sites profile has changed,
-        // so we can substitute it with the corresponding degree-reduced DB entry.
-        self.substitute(data_for_removal.parent_idx, data_for_removal.parent_sub);
-    }
-
-    fn _can_remove_deg2(&self,
-			monomer_idx: MonomerIdx) -> bool {
-	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
-	debug_assert_eq!(bonds_by_bs.len(), 2);
+	fn _can_remove_deg2(&self,
+			    monomer_idx: MonomerIdx) -> bool {
+	    let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
+	    debug_assert_eq!(bonds_by_bs.len(), 2);
 	let fst_bs = &bonds_by_bs.get(0).unwrap().0;
 	let snd_bs = &bonds_by_bs.get(1).unwrap().0;
 	fst_bs.bond_templ == snd_bs.bond_templ
@@ -354,7 +378,7 @@ impl MonomerGraph {
        mon1: MonomerIdx,
        mon2: MonomerIdx,
        mon_db_entry: &MonomersDB_Entry,
-   ) {
+   ) -> MonomerIdx {
        let (new_idx, corrected_db_entry) = self.prepare_entry_for_insertion(mon_db_entry);
 
        let old_bond = self.get_bond(mon1, mon2)
@@ -398,6 +422,8 @@ impl MonomerGraph {
        // Insert the new monomer itself.
        self.monomers
            .insert(new_idx, corrected_db_entry.monomer.clone());
+
+       new_idx
    }
 
     fn leaf_substitute_for_attaching<'a>(&self,
@@ -450,7 +476,7 @@ impl MonomerGraph {
     pub fn attach_to_leaf(&mut self,
 			  monomer_idx: MonomerIdx,
 			  mon_db_entry: &MonomersDB_Entry,
-			  monomers_db: &MonomersDB) {
+			  monomers_db: &MonomersDB) -> MonomerIdx {
 	// Update the monomer for substituting the current leaf to avoid index collisions
 	let old_leaf_sub_entry = {
 	    let mut sub_entry = self
@@ -514,5 +540,7 @@ since can_insert_at_leaf should have been called before and returned true")
 
 	self.monomer_bonds.push(new_leaf_bond);
 	self.monomers.insert(new_idx, corrected_db_entry.monomer);
+
+	new_idx
     }
 }

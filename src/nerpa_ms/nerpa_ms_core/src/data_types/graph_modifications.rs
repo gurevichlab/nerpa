@@ -6,43 +6,23 @@ use super::bonds::{BindingSiteType, BindingSitesProfile};
 use super::monomers_db::{MonomersDB, MonomersDB_Entry};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InsertionSite {
+    Edge(MonomerIdx, MonomerIdx),
+    Leaf(MonomerIdx),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GraphModification<'a> {
-    Insert {
-        edge: MonomerEdge,
+    Substitute {
+        monomer_idx: MonomerIdx,
         mon_db_entry: &'a MonomersDB_Entry,
     },
     Remove {
         monomer_idx: MonomerIdx,
     },
-    Substitute {
-        monomer_idx: MonomerIdx,
+    Insert {
+        site: InsertionSite,
         mon_db_entry: &'a MonomersDB_Entry,
     },
 }
 
-pub fn get_possible_subs<'a>(
-    rban_record: &Parsed_rBAN_Record,
-    monomer_idx: MonomerIdx,
-    monomers_db: &'a MonomersDB,
-) -> Vec<GraphModification<'a>> {
-    let bs_profile: BindingSitesProfile = {
-	let bs_with_bonds = rban_record.bonds_for_monomer(monomer_idx);
-	BindingSitesProfile::new(
-	    bs_with_bonds.iter()
-		.map(|(bs, _bond)| bs.clone())
-		.collect::<Vec<BindingSiteType>>())
-    };
-
-    if let Some(entries) = monomers_db.get(&bs_profile) {
-	entries
-	.iter()
-	.map(|entry| GraphModification::Substitute {
-		monomer_idx,
-		mon_db_entry: entry,
-	})
-	.collect()
-    }
-    else {
-	Vec::new()
-    }
-}

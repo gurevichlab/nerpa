@@ -28,6 +28,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
     dag: &DAG<'mon_db>,
     max_weight: usize,
     max_variants_per_weight: usize,
+    monomers_db: &'mon_db MonomersDB,
 ) -> Vec<NewVariantWithOptPaths> {
     println!("Computing DP table...");
     let dp_table = compute_dp_table(hmm, &dag, max_weight);
@@ -60,8 +61,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		    .collect()
 	    };
 			
-
-	    let new_variant = apply_modifications(&monomer_graph, &mods);
+	    let new_variant = apply_modifications(&monomer_graph, &mods, monomers_db);
 	    let variant = Altered_rBAN_Record {
 		score: sol.dlp.to_logprob(),
 		new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
