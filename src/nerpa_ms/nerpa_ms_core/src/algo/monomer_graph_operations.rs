@@ -1,12 +1,11 @@
-use crate::data_types::bond_consts::{AMINO_C_END_PROFILE, AMINO_MIDDLE_PROFILE, AMINO_N_END_PROFILE};
+use crate::data_types::bond_consts::{AMINO_BOND, AMINO_C_END_PROFILE, AMINO_MIDDLE_PROFILE, AMINO_N_END_PROFILE};
 use crate::data_types::graph_modifications::GraphModification;
 use crate::data_types::monomer_graph::{Monomer, MonomerGraph};
 use crate::data_types::monomers_db::{MonomersDB, MonomersDB_Entry, get_entry_by_profile_and_name};
 use crate::data_types::bonds::{
-    AMINO_BOND_TEMPLATE, BindingSiteType, BindingSitesProfile, Bond, BondSide, BondsByBSType
+    BindingSiteType, BindingSitesProfile, Bond, BondSide
 };
-use crate::data_types::common_types::MonomerIdx
-use crate::data_types::parsed_rban_record::NorineMonomerName;
+use crate::data_types::common_types::MonomerIdx;
 use std::collections::HashMap;
 
 pub fn get_entries_for_insertion_between<'a>(
@@ -297,7 +296,7 @@ impl MonomerGraph {
     }
 
 
-    pub fn can_remove(&mut self,
+    pub fn can_remove(&self,
 		      monomer_idx: MonomerIdx,
 		      monomers_db: &MonomersDB) -> bool {
 	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
@@ -337,11 +336,13 @@ impl MonomerGraph {
        mon2: MonomerIdx,
        monomers_db: &'a MonomersDB,
    ) -> Vec<&'a MonomersDB_Entry> {
-       let bond = self.get_bond(mon1, mon2)
-           .unwrap_or_else(|| panic!("bond between monomers {:?} not found",
-				     (mon1, mon2)));
+       let bond = {
+	   if let Some(bond) = self.get_bond(mon1, mon2) {bond}
+	   else if let Some(bond) = self.get_bond(mon2, mon1) {bond}
+	   else { panic!("bond between monomers {:?} not found", (mon1, mon2)) }
+       };
 
-       if &bond.bond_templ != &*AMINO_BOND_TEMPLATE {
+       if &bond.bond_templ != &*AMINO_BOND {
            return Vec::new();
        }
 
@@ -529,7 +530,8 @@ since can_insert_at_leaf should have been called before and returned true")
 	    self.monomer_bonds
 		.retain(|b| b.monomers.0 != monomer_idx && b.monomers.1 != monomer_idx);
 	    self.monomer_bonds.push(new_parent_bond);
-	    self.monomers[&monomer_idx] = old_leaf_sub_entry.monomer;
+	    let mon_entry = self.monomers.get_mut(&monomer_idx).unwrap();
+	    *mon_entry = old_leaf_sub_entry.monomer;
 	}
 	
 	// attach the new leaf

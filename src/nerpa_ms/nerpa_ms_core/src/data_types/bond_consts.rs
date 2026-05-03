@@ -1,5 +1,8 @@
-use crate::bond_template::{AtomicBondTemplate, BondAtomLabel, BondTemplate, BondType};
+use crate::data_types::bonds::{AtomicBondTemplate, BondAtomLabel, BondTemplate};
+use crate::data_types::parsed_rban_record::BondType;
 use std::sync::LazyLock;
+
+use super::bonds::{BindingSiteType, BindingSitesProfile, BondSide};
 
 pub static AMINO_ATOMIC_BOND: LazyLock<AtomicBondTemplate> = LazyLock::new(|| {
     AtomicBondTemplate {
@@ -11,20 +14,20 @@ pub static AMINO_ATOMIC_BOND: LazyLock<AtomicBondTemplate> = LazyLock::new(|| {
 
 pub static AMINO_BOND: LazyLock<BondTemplate> = LazyLock::new(|| {
     BondTemplate::new(
-	vec![*AMINO_ATOMIC_BOND.clone()]
+	vec![(*AMINO_ATOMIC_BOND).clone()]
     )
 });
 
 pub static AMINO_BINDING_SITE_C: LazyLock<BindingSiteType> = LazyLock::new(|| {
     BindingSiteType {
-	bond_templ: *AMINO_BOND.clone(),
+	bond_templ: (*AMINO_BOND).clone(),
 	side: BondSide::Left,
     }
 });
 
 pub static AMINO_BINDING_SITE_N: LazyLock<BindingSiteType> = LazyLock::new(|| {
     BindingSiteType {
-	bond_templ: *AMINO_BOND.clone(),
+	bond_templ: (*AMINO_BOND).clone(),
 	side: BondSide::Right,
     }
 });

@@ -49,7 +49,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		    .iter()
 		    .filter_map(|m| {
 			match m {
-			    GraphModification::Insert { edge: _, mon_db_entry } => Some(mon_db_entry),
+			    GraphModification::Insert { site: _, mon_db_entry } => Some(mon_db_entry),
 			    GraphModification::Substitute { monomer_idx: _, mon_db_entry } => Some(mon_db_entry),
 			    GraphModification::Remove { monomer_idx: _ } => None,
 			}

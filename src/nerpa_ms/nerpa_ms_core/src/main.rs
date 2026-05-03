@@ -3,6 +3,8 @@ mod cli;
 mod data_types;
 mod io;
 
+use std::path::PathBuf;
+
 use clap::Parser;
 use anyhow::{Context, Result};
 use data_types::parsed_rban_record::Parsed_rBAN_Record;
@@ -26,10 +28,14 @@ fn main() -> Result<()> {
     println!("Generating variants...");
     let mut output_items: Vec<OutputItem> = Vec::with_capacity(input_items.len());
     for item in &input_items {
+	println!("Processing BGC {} and compound {}...", item.hmm.bgc_variant_id.bgc_id.to_str_short(), item.rban_record.compound_id);
+	println!("Creating monomer graph...");
 	let monomer_graph = MonomerGraph::from(&item.rban_record);
+	println!("Creating DAG from linearization...");
 	let dag = create_dag(&monomer_graph,
 			     &item.linearization,
 			     &monomers_db);
+	println!("Creating new variants with optimal paths...");
 	let new_variants_with_opt_paths = generate_new_variants_with_opt_paths(
 	    &item.hmm,
 	    &monomer_graph,

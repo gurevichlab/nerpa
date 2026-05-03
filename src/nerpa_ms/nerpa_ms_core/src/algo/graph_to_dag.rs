@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::data_types::common_types::MonomerIdx;
 use crate::data_types::dag::{DAG, Edge, VertexLabel, VertexId};
-use crate::data_types::graph_modifications::{GraphModification, InsertionSite, get_possible_subs};
+use crate::data_types::graph_modifications::{GraphModification, InsertionSite};
 use crate::data_types::monomer_graph::{MonomerFeatures, MonomerGraph};
 use crate::data_types::{monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record};
 
@@ -39,14 +39,14 @@ pub fn get_insert_mods_edge<'a>(
 	.collect()
 }
 
-pub fn add_inserts_to_subgraph_root(
+pub fn add_inserts_to_subgraph_root<'a>(
     subgraph_root: usize,
-    insert_mods: Vec<GraphModification>,
+    insert_mods: &[GraphModification<'a>],
     labels: &mut HashMap<usize, VertexLabel>,
-    out_edges: &mut HashMap<usize, Vec<Edge>>
+    out_edges: &mut HashMap<usize, Vec<Edge<'a>>>
 ) {
     let free_node_idx = labels.len();
-    for (i, gm) in insert_mods.into_iter().enumerate() {
+    for (i, gm) in insert_mods.iter().enumerate() {
 	let insert_node_idx = free_node_idx + i;
 	match &gm {
 	    GraphModification::Insert { site: _, mon_db_entry } => {
@@ -57,11 +57,13 @@ pub fn add_inserts_to_subgraph_root(
 	    },
 	    _ => unreachable!("expected Insert"),
 	}
-	out_edges[&subgraph_root].push(Edge {
-	    to: insert_node_idx,
-	    weight: 1,
-	    modification: Some(gm),
-	});
+	out_edges.get_mut(&subgraph_root)
+	    .unwrap()
+	    .push(Edge {
+		to: insert_node_idx,
+		weight: 1,
+		modification: Some(gm.clone()),
+	    });
 	out_edges.insert(insert_node_idx, vec![Edge {
 	    to: subgraph_root,
 	    weight: 0,
@@ -75,8 +77,8 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'a MonomersDB) -> DAG<'a> {
     // for debugging purposes, limit the number of modifications
-    let max_subs = 3; 
-    let max_inserts = 3;
+    let max_subs = 0; 
+    let max_inserts = 0;
 
     // HashMap instead of Vec for less headache
     // the keys are actually continuous 0,1,...
@@ -126,11 +128,13 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 	    monomer_code: Some(monomer_info.mon_code.clone()),
 	    name: monomer_info.name.0.clone() + "*"
 	});
-        out_edges[&subgraph_root].push(Edge {
-            to: subgraph_root + 1,
-            weight: 0,
-            modification: None,
-        });
+        out_edges.get_mut(&subgraph_root)
+	    .unwrap()
+	    .push(Edge {
+		to: subgraph_root + 1,
+		weight: 0,
+		modification: None,
+            });
         out_edges.insert(subgraph_root + 1, vec![Edge {
             to: next_subgraph_root,
             weight: 0,
@@ -138,7 +142,7 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
         }]);
 			
 	// ===== Insertions
-	add_inserts_to_subgraph_root(subgraph_root, inserts, &mut labels, &mut out_edges);
+	add_inserts_to_subgraph_root(subgraph_root, &inserts, &mut labels, &mut out_edges);
 
 	// ===== Substitutions
         for (i, gm) in subs.into_iter().enumerate() {
@@ -153,7 +157,9 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
                 _ => unreachable!("expected Substitute"),
             }
 
-            out_edges[&subgraph_root].push(Edge {
+            out_edges.get_mut(&subgraph_root)
+                .unwrap()
+		.push(Edge {
                 to: sub_node_idx,
                 weight: 1,
                 modification: Some(gm),
@@ -168,7 +174,9 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 	// ===== Deletion
 	if monomer_graph.can_remove(monomer_idx, monomers_db) {
 	    let del_mod = GraphModification::Remove { monomer_idx: monomer_idx };
-	    out_edges[&subgraph_root].push(Edge {
+	    out_edges.get_mut(&subgraph_root)
+		.unwrap()
+		.push(Edge {
 		to: next_subgraph_root,
 		weight: 1,
 		modification: Some(del_mod),
@@ -188,7 +196,7 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
     // Add insertions at the end of the linearization
     let last_monomer_idx = linearization.last().unwrap().clone();
     let inserts_at_end = get_insert_mods_leaf(monomer_graph, last_monomer_idx, monomers_db, max_inserts);
-    add_inserts_to_subgraph_root(final_node_idx, inserts_at_end, &mut labels, &mut out_edges);
+    add_inserts_to_subgraph_root(final_node_idx, &inserts_at_end, &mut labels, &mut out_edges);
     
     // Convert HashMaps to Vecs. The keys of the HashMaps are actually continuous 0,1,...,labels.len()-1, so we can just iterate over the keys in order.
     let num_nodes = labels.len();
