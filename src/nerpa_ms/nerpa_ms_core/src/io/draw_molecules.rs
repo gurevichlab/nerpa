@@ -48,6 +48,8 @@ pub fn draw_output_variants(
 	}
     }
 
+    println!("Created {} items for drawing...", items_for_drawing.len());
+
     let json_output = serde_json::to_string(&items_for_drawing)
         .context("Failed to serialize items for drawing")?;
 

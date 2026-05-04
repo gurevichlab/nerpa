@@ -5,16 +5,69 @@ mod io;
 
 use std::path::PathBuf;
 
+use algo::algo_main::NewVariantWithOptPaths;
 use clap::Parser;
 use anyhow::{Context, Result};
+use data_types::dag::DAG;
 use data_types::parsed_rban_record::Parsed_rBAN_Record;
 use data_types::{monomer_graph::MonomerGraph, monomers_db::load_monomers_db};
 use io::draw_molecules::draw_output_variants;
+use io::input::InputItem;
 use io::output::{OutputItem, write_output};
 use io::draw_hmm_dag::draw_hmm_dag_opt_paths;
 use algo::{algo_main::{generate_new_variants_with_opt_paths}, graph_to_dag::create_dag};
 
 use crate::data_types::alignment::Alignment;
+
+fn draw_optimal_paths(
+    new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+    item: &InputItem,
+    dag: &DAG<'_>,
+    figs_dir: &PathBuf
+) {
+	let bgc_id_short = {
+	    &item.hmm
+	    .bgc_variant_id
+	    .bgc_id
+	    .to_str_short()
+	};
+	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
+	    let res = draw_hmm_dag_opt_paths(
+		&item.hmm,
+		&dag,
+		&new_variant_with_opt_paths.hmm_path,
+		&new_variant_with_opt_paths.dag_path,
+		&figs_dir.join(format!("{i}"))
+	    );	     
+	    if let Err(e) = res {
+		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
+ bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
+	    }
+	}
+}
+
+fn write_alignments(
+	new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+	item: &InputItem,
+	alignments_dir: &PathBuf
+) -> anyhow::Result<()> {
+    if !alignments_dir.exists() {
+	std::fs::create_dir_all(alignments_dir)
+            .context("Failed to create alignments directory")?;
+    }
+
+    for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
+	let alignment = Alignment::new(
+	    &new_variant_with_opt_paths.hmm_path,
+	    &new_variant_with_opt_paths.linearization,
+	    &item.bgc_variant,
+	    &item.hmm,
+	    &new_variant_with_opt_paths.new_variant.new_record,
+	);
+	std::fs::write(alignments_dir.join(format!("alignment_{}.txt", i)), alignment.to_tsv_string_aligned())?;
+    }
+    Ok(())
+}
 
 fn main() -> Result<()> {
     println!("Nerpa-MS variant generation has started...");
@@ -53,39 +106,22 @@ fn main() -> Result<()> {
 	    .bgc_id
 	    .to_str_short()
 	};
-	let figs_dir = {
+	let alignments_dir = {
 	    cli.out
-		.join("figures")
-		.join("opt_paths")
+		.join("alignments")
 		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
 	};
 
-	// println!("Drawing HMM-DAG optimal paths for {} variants...", new_variants_with_opt_paths.len());
-	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
-	    // let res = draw_hmm_dag_opt_paths(
-	    // 	&item.hmm,
-	    // 	&dag,
-	    // 	&new_variant_with_opt_paths.hmm_path,
-	    // 	&new_variant_with_opt_paths.dag_path,
-	    // 	&figs_dir.join(format!("{i}"))
-	    // );	     
- // 	    if let Err(e) = res {
- // 		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
- // bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
- // 	    }
+	write_alignments(&new_variants_with_opt_paths, item, &alignments_dir)?;
 
-	    // Print alignment
-	    let alignment = Alignment::new(
-		&new_variant_with_opt_paths.hmm_path,
-		&new_variant_with_opt_paths.linearization,
-		&item.bgc_variant,
-		&item.hmm,
-		&item.rban_record
-	    );
+	// let figs_dir = {
+	//     cli.out
+	// 	.join("figures")
+	// 	.join("opt_paths")
+	// 	.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	// };
+	// draw_optimal_paths(&new_variants_with_opt_paths, item, &dag, &figs_dir);
 
-	    // q: write to a text file using to_tsv_string method of Alignment
-	    std::fs::write(figs_dir.join(format!("alignment_{}.txt", i)), alignment.to_tsv_string_aligned())?;
-	}
 
 	let new_variants = {
 	    new_variants_with_opt_paths

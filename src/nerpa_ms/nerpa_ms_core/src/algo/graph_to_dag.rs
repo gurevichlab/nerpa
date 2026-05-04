@@ -77,8 +77,8 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'mon_db MonomersDB) -> DAG<'mon_db> {
     // for debugging purposes, limit the number of modifications
-    let max_subs = 2; 
-    let max_inserts = 2;
+    let max_subs = usize::MAX;
+    let max_inserts = usize::MAX;
 
     // HashMap instead of Vec for less headache
     // the keys are actually continuous 0,1,...
