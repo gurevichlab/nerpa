@@ -77,8 +77,8 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'a MonomersDB) -> DAG<'a> {
     // for debugging purposes, limit the number of modifications
-    let max_subs = 0; 
-    let max_inserts = 0;
+    let max_subs = 2; 
+    let max_inserts = 2;
 
     // HashMap instead of Vec for less headache
     // the keys are actually continuous 0,1,...
@@ -113,14 +113,22 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
         };
 	let inserts: Vec<GraphModification> = {
 	    if lin_idx == 0 {
-		get_insert_mods_leaf(monomer_graph, monomer_idx, monomers_db, max_inserts)
+		if monomer_graph.degree(monomer_idx) != 1 {
+		    Vec::new()
+		} else {
+		    get_insert_mods_leaf(monomer_graph, monomer_idx, monomers_db, max_inserts)
+		}
 	    } else {
 		let prev_monomer_idx = linearization[lin_idx - 1];
-		get_insert_mods_edge(monomer_graph, prev_monomer_idx, monomer_idx, monomers_db, max_inserts)
+		if monomer_graph.get_bond(monomer_idx, prev_monomer_idx).is_none() {
+		    Vec::new()
+		} else {
+		    get_insert_mods_edge(monomer_graph, prev_monomer_idx, monomer_idx, monomers_db, max_inserts)
+		}
 	    }
 	};
 
-	// +2 because of a "no modifications" node
+	// +2 instead of +1 because of the "no modifications" node
         let next_subgraph_root = subgraph_root + inserts.len() + subs.len() + 2;
 
 	// ===== No modifications (weight 0)
@@ -195,8 +203,10 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 
     // Add insertions at the end of the linearization
     let last_monomer_idx = linearization.last().unwrap().clone();
-    let inserts_at_end = get_insert_mods_leaf(monomer_graph, last_monomer_idx, monomers_db, max_inserts);
-    add_inserts_to_subgraph_root(final_node_idx, &inserts_at_end, &mut labels, &mut out_edges);
+    if monomer_graph.degree(last_monomer_idx) == 1 {
+	let inserts_at_end = get_insert_mods_leaf(monomer_graph, last_monomer_idx, monomers_db, max_inserts);
+	add_inserts_to_subgraph_root(final_node_idx, &inserts_at_end, &mut labels, &mut out_edges);
+    }
     
     // Convert HashMaps to Vecs. The keys of the HashMaps are actually continuous 0,1,...,labels.len()-1, so we can just iterate over the keys in order.
     let num_nodes = labels.len();

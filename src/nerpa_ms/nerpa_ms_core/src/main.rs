@@ -58,6 +58,7 @@ fn main() -> Result<()> {
 		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
 	};
 
+	println!("Drawing HMM-DAG optimal paths for {} variants...", new_variants_with_opt_paths.len());
 	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
 	    let res = draw_hmm_dag_opt_paths(
 		&item.hmm,
@@ -99,6 +100,7 @@ fn main() -> Result<()> {
 	    .join("figures")
 	    .join("new_variants")
     };
+    println!("Drawing new variants...");
     if let Some(nerpa_root) = &cli.nerpa_root {
 	draw_output_variants(&output_items,
 			     &original_records,

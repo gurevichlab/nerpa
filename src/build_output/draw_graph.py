@@ -13,6 +13,7 @@ from src.rban_parsing.rban_parser import (
     MonomerIdx,
     Parsed_rBAN_Record
 )
+from src.rban_parsing.retrieve_nrp_variants import get_bond_direction
 from src.generic.svg import (
     ensure_image_ext,
     force_svg_pixel_size,
@@ -169,29 +170,6 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
 
     drawer.FinishDrawing()
     return drawer.GetDrawingText()
-
-
-def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
-                         record: Parsed_rBAN_Record) -> Optional[Tuple[MonomerIdx, MonomerIdx]]:
-    if bond not in record.monomer_bonds:
-        raise ValueError(f'Bond {bond} not found in record')
-
-    edge_info_list = record.monomer_bonds[bond]
-    if len(edge_info_list) != 1:
-        return None  # if multiple atomic bonds between the same monomers, we can't be sure which one is the "main" bond, so we won't classify it as amino
-
-    atomic_bond_info = edge_info_list[0].atomic_edge
-    atom_id1, atom_id2 = (edge_info_list[0].monomer_to_atom[mon_idx] for mon_idx in bond)
-
-    if atomic_bond_info.bond_type != 'AMINO':
-        return None
-
-    if record.atoms[atom_id1].name == 'C' and record.atoms[atom_id2].name == 'N':
-        return (bond[0], bond[1])  # direction from C to N
-    elif record.atoms[atom_id1].name == 'N' and record.atoms[atom_id2].name == 'C':
-        return (bond[1], bond[0])  # direction from C to N
-    else:
-        raise ValueError(f'Unexpected atom names for amino bond between atoms {atom_id1} and {atom_id2}: {record.atoms[atom_id1].name}, {record.atoms[atom_id2].name}')
     
 
 def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
@@ -230,7 +208,7 @@ def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
     # print(record.monomer_bonds)
 
     for u, v in sorted(record.monomer_bonds.keys()):
-        amino_bond_dir = amino_bond_direction((u, v), record)
+        amino_bond_dir = get_bond_direction((u, v), record)
         if amino_bond_dir is not None:
             if amino_bond_dir == (u, v):
                 fig.edge(str(u), str(v), color='blue', dir='forward', arrowhead='normal')

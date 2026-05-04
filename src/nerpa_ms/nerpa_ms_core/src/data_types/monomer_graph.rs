@@ -84,4 +84,13 @@ impl MonomerGraph {
 		|| (bond.monomers.0 == mon2 && bond.monomers.1 == mon1)
 	})
     }
+
+    pub fn degree(&self, monomer_idx: MonomerIdx) -> usize {
+	self.monomer_bonds.iter()
+	    .filter(|bond| {
+		bond.monomers.0 == monomer_idx
+		    || bond.monomers.1 == monomer_idx
+	    })
+	    .count()
+    }
 }

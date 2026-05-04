@@ -433,6 +433,9 @@ impl MonomerGraph {
 	// Check if the given leaf monomer can be substituted with a DB entry
 	// in a way that would allow attaching a new leaf monomer to it.
 	let bs_profile = self.bonds_by_bs_type(monomer_idx).get_profile();
+	if bs_profile.len() != 1 {
+	    panic!("Expected the monomer to have exactly one bond since it is a leaf, but found profile {} with length {}", bs_profile.to_string_key(), bs_profile.len());
+	}
 	if &bs_profile != &*AMINO_C_END_PROFILE
 	    && &bs_profile != &*AMINO_N_END_PROFILE {
 	    return None;

@@ -170,6 +170,10 @@ impl BindingSitesProfile {
     pub fn into_vec(self) -> Vec<BindingSiteType> {
 	self.0
     }
+
+    pub fn len(&self) -> usize {
+	self.0.len()
+    }
 }
 
 // A wrapper around Vec<(BindingSiteType, Bond)> to ensure that the vector is always sorted by BindingSiteType.
