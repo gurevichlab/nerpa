@@ -12,7 +12,7 @@ impl BondAtomLabel {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AtomicBondTemplate {
     pub bond_type: BondType,
     pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
@@ -46,6 +46,18 @@ impl <'de> Deserialize<'de> for AtomicBondTemplate {
 	})
 	}
 }
+
+use std::fmt;
+
+impl fmt::Debug for AtomicBondTemplate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let json_str = serde_json::to_string(self)
+	    .map_err(|_| fmt::Error)?;
+        f.write_str(&json_str)
+    }
+
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BondTemplate(Vec<AtomicBondTemplate>);

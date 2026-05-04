@@ -51,6 +51,9 @@ pub struct HMM {
 
     // Labels for states, for debugging and interpretability.
     pub state_labels: Vec<String>,
+
+    // module_match_states[i] = state index of the emitting state corresponding to the i-th module in the BGC.
+    pub module_match_states: Vec<StateIdx>,
 }
 
 // Basic helpers

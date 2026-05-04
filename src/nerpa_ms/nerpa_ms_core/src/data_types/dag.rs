@@ -4,6 +4,8 @@ use crate::data_types::common_types::MonomerCode;
 use serde::de::{Error as DeError, IgnoredAny};
 use serde::{Deserialize, Deserializer};
 
+use super::common_types::MonomerIdx;
+
 pub type VertexId = usize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

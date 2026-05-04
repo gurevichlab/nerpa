@@ -62,6 +62,7 @@ class Altered_rBAN_Record(NamedTuple):
 class ItemForDrawing(NamedTuple):
     bgc_id: BGC_ID
     original: Parsed_rBAN_Record
+    original_score: LogProb
     new_variant: Altered_rBAN_Record
 
     @classmethod
@@ -69,8 +70,10 @@ class ItemForDrawing(NamedTuple):
         original = Parsed_rBAN_Record.from_dict(d["original"])
         new_variant = Altered_rBAN_Record.from_dict(d["new_variant"])
         bgc_id = BGC_ID.from_dict(d["bgc_id"])
+        original_score = float(d["original_score"])
         return cls(original=original,
                    new_variant=new_variant,
+                   original_score=original_score,
                    bgc_id=bgc_id)
 
 
@@ -115,6 +118,8 @@ def main() -> None:
         for i, item in enumerate(items):
             draw_monomer_graph_diff(
                 original=item.original,
+                original_score=item.original_score,
+                modified_score=item.new_variant.score,
                 modified=item.new_variant.new_record,
                 old_to_new_map=item.new_variant.old_to_new_mon_map,
                 monomer_names_helper=monomer_names_helper,
@@ -123,6 +128,8 @@ def main() -> None:
             draw_molecule_diff(
                 original=item.original,
                 modified=item.new_variant.new_record,
+                original_score=item.original_score,
+                modified_score=item.new_variant.score,
                 old_to_new_map=item.new_variant.old_to_new_mon_map,
                 monomer_names_helper=monomer_names_helper,
                 output=out_dir / f"molecule_diff_{i:03d}.svg",)

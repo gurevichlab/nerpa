@@ -415,6 +415,8 @@ def get_molecule_diff(
 def draw_molecule_diff(
         original: Parsed_rBAN_Record,
         modified: Parsed_rBAN_Record,
+        original_score: float,
+        modified_score: float,
         old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
         output: Path,
         monomer_names_helper: Optional[MonomerNamesHelper] = None,
@@ -451,12 +453,12 @@ def draw_molecule_diff(
     )
     left_side_svg = join_svgs_in_rectangle([[original_fig], [diff_out.original_diff_data]])
     left_side_svg = svg_with_label(svg=left_side_svg,
-                                   label="Original",
+                                   label=f"Original (score={original_score:.2f})",
                                    position="bottom")
 
     right_side_svg = join_svgs_in_rectangle([[modified_fig], [diff_out.modified_diff_data]])
     right_side_svg = svg_with_label(svg=right_side_svg,
-                                    label="Modified",
+                                    label=f"Modified (score={modified_score:.2f})",
                                     position="bottom")
 
     joined_svg = join_svgs_in_rectangle(
@@ -468,6 +470,8 @@ def draw_molecule_diff(
 def draw_monomer_graph_diff(
         original: Parsed_rBAN_Record,
         modified: Parsed_rBAN_Record,
+        original_score: float,
+        modified_score: float,
         old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
         output: Path,
         monomer_names_helper: Optional[MonomerNamesHelper] = None,
@@ -532,12 +536,12 @@ def draw_monomer_graph_diff(
 
     left_side_svg = join_svgs_in_rectangle([[original_svg], [original_diff_svg]])
     left_side_svg = svg_with_label(svg=left_side_svg,
-                                   label="Original",
+                                   label=f"Original (score={original_score:.2f})",
                                    position="bottom")
 
     right_side_svg = join_svgs_in_rectangle([[modified_svg], [modified_diff_svg]])
     right_side_svg = svg_with_label(svg=right_side_svg,
-                                    label="Modified",
+                                    label=f"Modified (score={modified_score:.2f})",
                                     position="bottom")
 
     joined_svg = join_svgs_in_rectangle(

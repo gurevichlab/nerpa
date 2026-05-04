@@ -1,11 +1,12 @@
 use serde::Serialize;
 
-use crate::{algo::algo_main::Altered_rBAN_Record, data_types::hmm::BGC_Variant_ID};
+use crate::{algo::algo_main::Altered_rBAN_Record, data_types::{common_types::LogProb, hmm::BGC_Variant_ID}};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OutputItem {
     pub bgc_variant_id: BGC_Variant_ID,
     pub compound_id: String,
+    pub original_score: LogProb,
     pub new_variants: Vec<Altered_rBAN_Record>
 }
 

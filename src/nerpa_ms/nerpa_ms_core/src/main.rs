@@ -14,6 +14,8 @@ use io::output::{OutputItem, write_output};
 use io::draw_hmm_dag::draw_hmm_dag_opt_paths;
 use algo::{algo_main::{generate_new_variants_with_opt_paths}, graph_to_dag::create_dag};
 
+use crate::data_types::alignment::Alignment;
+
 fn main() -> Result<()> {
     println!("Nerpa-MS variant generation has started...");
     let cli = cli::Cli::parse();
@@ -58,19 +60,31 @@ fn main() -> Result<()> {
 		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
 	};
 
-	println!("Drawing HMM-DAG optimal paths for {} variants...", new_variants_with_opt_paths.len());
+	// println!("Drawing HMM-DAG optimal paths for {} variants...", new_variants_with_opt_paths.len());
 	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
-	    let res = draw_hmm_dag_opt_paths(
-		&item.hmm,
-		&dag,
+	    // let res = draw_hmm_dag_opt_paths(
+	    // 	&item.hmm,
+	    // 	&dag,
+	    // 	&new_variant_with_opt_paths.hmm_path,
+	    // 	&new_variant_with_opt_paths.dag_path,
+	    // 	&figs_dir.join(format!("{i}"))
+	    // );	     
+ // 	    if let Err(e) = res {
+ // 		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
+ // bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
+ // 	    }
+
+	    // Print alignment
+	    let alignment = Alignment::new(
 		&new_variant_with_opt_paths.hmm_path,
-		&new_variant_with_opt_paths.dag_path,
-		&figs_dir.join(format!("{i}"))
+		&new_variant_with_opt_paths.linearization,
+		&item.bgc_variant,
+		&item.hmm,
+		&item.rban_record
 	    );
-	    if let Err(e) = res {
-		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
- bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
-	    }
+
+	    // q: write to a text file using to_tsv_string method of Alignment
+	    std::fs::write(figs_dir.join(format!("alignment_{}.txt", i)), alignment.to_tsv_string_aligned())?;
 	}
 
 	let new_variants = {
@@ -82,6 +96,7 @@ fn main() -> Result<()> {
 	output_items.push(OutputItem {
 	    bgc_variant_id: item.hmm.bgc_variant_id.clone(),
 	    compound_id: item.rban_record.compound_id.clone(),
+	    original_score: item.score,
 	    new_variants,
 	});
     }

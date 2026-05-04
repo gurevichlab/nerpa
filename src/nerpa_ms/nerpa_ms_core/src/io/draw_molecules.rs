@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 use serde::Serialize;
+use crate::data_types::common_types::LogProb;
 use crate::data_types::{hmm::BGC_ID, parsed_rban_record::Parsed_rBAN_Record};
 use crate::algo::algo_main::Altered_rBAN_Record;
 use crate::io::output::OutputItem;
@@ -9,6 +10,7 @@ use crate::io::output::OutputItem;
 struct ItemForDrawing {
     bgc_id: BGC_ID,
     original: Parsed_rBAN_Record,
+    original_score: LogProb,
     new_variant: Altered_rBAN_Record,
 }
 
@@ -40,6 +42,7 @@ pub fn draw_output_variants(
 	    items_for_drawing.push(ItemForDrawing {
 		bgc_id: output_item.bgc_variant_id.bgc_id.clone(),
 		original: (*original).clone(),
+		original_score: output_item.original_score,
 		new_variant: (*new_variant).clone(),
 	    });
 	}

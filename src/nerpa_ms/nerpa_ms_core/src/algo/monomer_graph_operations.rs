@@ -337,9 +337,8 @@ impl MonomerGraph {
        monomers_db: &'a MonomersDB,
    ) -> Vec<&'a MonomersDB_Entry> {
        let bond = {
-	   if let Some(bond) = self.get_bond(mon1, mon2) {bond}
-	   else if let Some(bond) = self.get_bond(mon2, mon1) {bond}
-	   else { panic!("bond between monomers {:?} not found", (mon1, mon2)) }
+	   self.get_bond(mon1, mon2)
+	       .expect(&format!("bond between monomers {:?} not found", (mon1, mon2)))
        };
 
        if &bond.bond_templ != &*AMINO_BOND {

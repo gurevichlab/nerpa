@@ -17,6 +17,7 @@ pub struct Altered_rBAN_Record {
 
 pub struct NewVariantWithOptPaths {
     pub new_variant: Altered_rBAN_Record,
+    pub linearization: Vec<MonomerIdx>,
     pub hmm_path: Vec<StateIdx>,
     pub dag_path: Vec<VertexId>,
 }
@@ -52,6 +53,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 			    GraphModification::Insert { site: _, mon_db_entry } => Some(mon_db_entry),
 			    GraphModification::Substitute { monomer_idx: _, mon_db_entry } => Some(mon_db_entry),
 			    GraphModification::Remove { monomer_idx: _ } => None,
+			    GraphModification::KeepAsIs { monomer_idx: _ } => None,
 			}
 		    })
 		    .collect::<Vec<_>>();
@@ -71,6 +73,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 
 	    new_variant_with_opt_paths.push(NewVariantWithOptPaths {
 		new_variant: variant,
+		linearization: new_variant.linearization.clone(),
 		hmm_path: sol.states.clone(),
 		dag_path: {
 		    let mut path = vec![dag.start];

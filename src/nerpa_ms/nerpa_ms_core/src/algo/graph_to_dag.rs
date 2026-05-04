@@ -73,9 +73,9 @@ pub fn add_inserts_to_subgraph_root<'a>(
 	
 }
 
-pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
+pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
-		      monomers_db: &'a MonomersDB) -> DAG<'a> {
+		      monomers_db: &'mon_db MonomersDB) -> DAG<'mon_db> {
     // for debugging purposes, limit the number of modifications
     let max_subs = 2; 
     let max_inserts = 2;
@@ -95,7 +95,7 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 	labels.insert(subgraph_root,
 		      VertexLabel{
 			  monomer_code: None,
-			  name: format!("mon{}", monomer_idx.0)
+			  name: format!("mon{}", monomer_idx.0),
 		      });
 	out_edges.insert(subgraph_root, Vec::new());
 
@@ -121,6 +121,7 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 	    } else {
 		let prev_monomer_idx = linearization[lin_idx - 1];
 		if monomer_graph.get_bond(monomer_idx, prev_monomer_idx).is_none() {
+		    println!("Warning: no bond between monomers {} and {} in the linearization. Skipping insertions at edge.", monomer_idx.0, prev_monomer_idx.0);
 		    Vec::new()
 		} else {
 		    get_insert_mods_edge(monomer_graph, prev_monomer_idx, monomer_idx, monomers_db, max_inserts)
@@ -134,14 +135,14 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
 	// ===== No modifications (weight 0)
         labels.insert(subgraph_root + 1, VertexLabel {
 	    monomer_code: Some(monomer_info.mon_code.clone()),
-	    name: monomer_info.name.0.clone() + "*"
+	    name: monomer_info.name.0.clone() + "*",
 	});
         out_edges.get_mut(&subgraph_root)
 	    .unwrap()
 	    .push(Edge {
 		to: subgraph_root + 1,
 		weight: 0,
-		modification: None,
+		modification: Some(GraphModification::KeepAsIs { monomer_idx }),
             });
         out_edges.insert(subgraph_root + 1, vec![Edge {
             to: next_subgraph_root,
@@ -197,7 +198,7 @@ pub fn create_dag<'a>(monomer_graph: &MonomerGraph,
     let final_node_idx = subgraph_root;
     labels.insert(final_node_idx, VertexLabel{
 	monomer_code: None,
-	name: "FINAL".to_string()
+	name: "FINAL".to_string(),
     });
     out_edges.insert(final_node_idx, Vec::new());
 

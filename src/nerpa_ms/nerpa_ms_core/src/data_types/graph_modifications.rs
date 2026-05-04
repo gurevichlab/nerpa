@@ -13,6 +13,9 @@ pub enum InsertionSite {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GraphModification<'a> {
+    KeepAsIs {
+	monomer_idx: MonomerIdx,
+    },
     Substitute {
         monomer_idx: MonomerIdx,
         mon_db_entry: &'a MonomersDB_Entry,

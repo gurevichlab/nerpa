@@ -8,7 +8,7 @@ pub static AMINO_ATOMIC_BOND: LazyLock<AtomicBondTemplate> = LazyLock::new(|| {
     AtomicBondTemplate {
         bond_type: BondType(Some("AMINO".to_string())),
         arity: "1".to_string(),
-        atoms: (BondAtomLabel::new("C"), BondAtomLabel::new("N")),
+        atoms: (BondAtomLabel::new("C1"), BondAtomLabel::new("N1")),
     }
 });
 
