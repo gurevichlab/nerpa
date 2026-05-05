@@ -375,6 +375,17 @@
         <iframe id="genomeViewer" src="" width="100%" height="600px" style="display: none; border: none;"></iframe>
     </div>
 
+        <!-- NRP module -->
+    <div>
+        <div id="moduleViewerControls">
+            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true)" style="display: none;">Hide NRP module annotation</button>
+            <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
+        </div>
+
+        <canvas id="moduleViewer" width="100%" height="600px" style="display: none; border: none;"></canvas>
+  
+    </div>
+
     <!-- NRP Viewer -->
     <div>
         <div id="nrpViewerControls">
@@ -382,20 +393,23 @@
             <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
         </div>
         <div id="nrpViewerContainer" class="viewer" style="display: none;">
-            <div style="display: flex; justify-content: space-between;">
-                <div class="image-frame" style="flex: 1; padding-right: 5px;">
-                    <img id="moleculeImage"
-                         src=""
-                         alt="Molecule image is missing. Did you run the tool with '--skip-molecule-drawing'?"
-                         style="width: 100%; height: auto;"/>
+ <div style="display: flex; justify-content: space-between;">
+                <div style="flex: 1; padding-left: 5px;">
+                    <canvas id="moleculeImage" 
+                        width: 60%;
+                        height: 400px;
+                        position: relative;
+                        style="background: #ffffff; width: 100%; height: 70vh; border: 1px;">
+                </canvas>
                </div>
-                <div class="image-frame" style="flex: 1; padding-left: 5px;">
+                <div styl
+                <div style="flex: 1; padding-left: 5px;">
                     <div id="graphImage" style="background: #ffffff; 
                         width: 100%; 
                         height: 70vh; 
                         border: 1px;">
                     </div>
-                </div>
+               </div>
             </div>
         </div>
     </div>
@@ -404,10 +418,17 @@
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
  <!-- vis-network for graph -->
 <script src="https://unpkg.com/vis-network@10.0.2/standalone/umd/vis-network.min.js"></script>
+<link rel="stylesheet" href="chemdoodle/ChemDoodleWeb.css" type="text/css">
+<script type="text/javascript" src="chemdoodle/ChemDoodleWeb.js"></script>
 
 
 <script>
+    function buildModuleFigure(nrpID){
+       
+    }
+
     function drawGraph(nrpID) {
+
         const graph = monomer_graph[nrpID];
  
         const edgesMapped = graph.edges.map(({tail, head, color, penwidth}) => ({
@@ -426,7 +447,6 @@
                 color: color, 
                 font: fontsize,
         }));
-
 
         const nodes = new vis.DataSet(nodesMapped);
         const edges = new vis.DataSet(edgesMapped);
@@ -448,8 +468,55 @@
             }
         };
         
-        new vis.Network(graph_div, graph_data, graph_options);
+        var network = new vis.Network(graph_div, graph_data, graph_options);
+        network.addEventListener('click',  e => 
+                connectGraphMolecule(nodesMapped.find(n => n.id === e.nodes[0]).label, nrpID), 
+                {passive: false})
     }
+
+    function connectGraphMolecule(node, nrpID){
+        // get molecule
+        const mol = molCanvas.getMolecule();
+
+        // set image back to default setting 
+        let defaultStyle = new ChemDoodle.structures.Styles();
+        defaultStyle.atoms_color = '#000000';
+        defaultStyle.atoms_font_size_2D = 10;
+        for(const a of mol.atoms){
+            if (a.styles) a.styles = defaultStyle;
+        }
+
+        // set new style for residue of selected monomer node
+        let atomStyle = new ChemDoodle.structures.Styles();
+        atomStyle.atoms_color = 'red';
+        atomStyle.atoms_font_size_2D = 20;
+        
+        // find atoms of selected monomer node in molecule and change style
+        const atoms = molecule_image[nrpID].monomers[node];
+       
+        for(const atom of atoms){
+            const a = mol.atoms.find(a => Number(a.tmpid) === atom);
+            a.styles = atomStyle;
+        }
+
+        molCanvas.loadMolecule(mol);
+        
+    }
+    
+    let molCanvas = new ChemDoodle.ViewerCanvas('moleculeImage', 600, 600);
+
+    function drawMolecule(nrpID){
+    
+        let mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
+
+        molCanvas.styles.bonds_width_2D = .6;
+        molCanvas.styles.bonds_saturationWidthAbs_2D = 2.6;
+        molCanvas.styles.bonds_hashSpacing_2D = 2.5;
+        molCanvas.styles.atoms_font_size_2D = 10;
+        molCanvas.styles.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif'];
+        mol.scaleToAverageBondLength(14.4);
+        molCanvas.loadMolecule(mol);
+}
 
     // Function to detect if a value is numeric
     function isNumeric(value) {
@@ -805,6 +872,15 @@
                 });
             });
 
+             // NRp module links
+            document.querySelectorAll('.module-link').forEach(link => {
+                link.addEventListener('click', event => {
+                    event.preventDefault();
+                    const nrpID = link.dataset.nrp;
+                    toggleModuleViewer(false, nrpID);
+                });
+            });
+
             // NRP links
             document.querySelectorAll('.nrp-link').forEach(link => {
                 link.addEventListener('click', event => {
@@ -970,6 +1046,12 @@
                     toggleGenomeViewer(false, link.dataset.genome, link.dataset.bgc);
                 });
             });
+             container.querySelectorAll('.module-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleModuleViewer(false, link.dataset.nrp);
+                });
+            });
 
             // Match alignment info
             const alignmentTableBody = document.querySelector('#alignmentTable tbody');
@@ -995,6 +1077,7 @@
 
             toggleGenomeViewer(false, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
             toggleNrpViewer(false, nrp_id);
+            toggleModuleViewer(false, nrp_id);
         }
     }
 
@@ -1016,6 +1099,23 @@
         }
     }
 
+     // Toggle function for module viewer
+    function toggleModuleViewer(hide, nrpID) {
+        const frame = document.getElementById('moduleViewer');
+        const hideBtn = document.getElementById('hideModuleViewerBtn');
+        const label = document.getElementById('moduleViewerLabel');
+
+        if (hide) {
+            frame.style.display = 'none';
+            label.style.display = 'block';
+            hideBtn.style.display = 'none';
+        } else {
+            frame.style.display = 'block';
+            label.style.display = 'none';
+            hideBtn.style.display = 'block';
+            buildModuleFigure(nrpID);
+        }
+    }
     // Toggle function for NRP images
     function toggleNrpViewer(hide, nrpID) {
         const frame = document.getElementById('nrpViewerContainer');
@@ -1027,12 +1127,11 @@
             label.style.display = 'block';
             hideBtn.style.display = 'none';
         } else {
-            const moleculeImage = document.getElementById('moleculeImage');
-            moleculeImage.src = `NRP_images/molecules/${nrpID}.svg`;
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
             drawGraph(nrpID);
+            drawMolecule(nrpID);
         }
     }
 

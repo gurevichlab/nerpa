@@ -193,7 +193,7 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
         positions = mol.GetConformer().GetAtomPosition(atom.GetIdx())
 
         moleculeData["a"].append({
-            "i": atom.GetIdx(),
+            "i": str(atom.GetIdx()),
             "l": atom_labels.get(atom.GetIdx(), atom.GetSymbol()),
             "x": positions.x,
             "y": -1 * positions.y, # otherwise the molecule will be upside down  
