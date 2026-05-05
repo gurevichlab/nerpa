@@ -2,9 +2,11 @@ import io
 from typing import Dict, Tuple, List, NewType, Optional, Literal
 from collections import defaultdict
 from pathlib import Path
+import json
 
 import graphviz
 from rdkit.Chem.Draw import rdMolDraw2D
+from rdkit.Chem import rdMolInterchange,rdmolfiles,  rdDepictor
 
 from src.monomer_names_helper import MonomerNamesHelper
 from src.build_output.chem_helper import MolRecord
@@ -119,7 +121,7 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
                          mon_colors: Dict[MonomerIdx, RGB],
                          rban_indexes: bool = True,
                          monomer_labels: bool = True,
-                         size: Tuple[int, int] = (1000, 1000)) -> str | bytes:
+                         size: Tuple[int, int] = (1000, 1000)):
     mon_labels = get_node_labels(record, with_rban_indexes=rban_indexes)
     mol, atom_id_to_index = MolRecord.from_rban_record(record)
 
@@ -167,7 +169,49 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
                         highlightBonds=bonds_to_highlight)
 
     drawer.FinishDrawing()
-    return drawer.GetDrawingText()
+
+    #https://www.rdkit.org/docs/source/rdkit.Chem.rdMolInterchange.html
+    """ 
+    rdmolfiles.MolToPDBFile(mol, "pdbTry")
+    json_str = rdMolInterchange.MolToJSON(mol)
+    data = json.loads(json_str)
+    data["size"] = {"w": size[0],"h": size[1]}
+    data["atomLabels"] = atom_labels
+    data["highlightAtoms"] = list(atom_colors.keys())
+    data["highlightAtomColors"] = atom_colors
+    data["highlightBonds"] = bonds_to_highlight
+    """
+
+    moleculeData = {
+        "a": [],   
+        "b": [], 
+        "monomers": {},
+    }
+
+    rdDepictor.Compute2DCoords(mol)
+    for atom in mol.GetAtoms():
+        positions = mol.GetConformer().GetAtomPosition(atom.GetIdx())
+
+        moleculeData["a"].append({
+            "i": atom.GetIdx(),
+            "l": atom_labels.get(atom.GetIdx(), atom.GetSymbol()),
+            "x": positions.x,
+            "y": -1 * positions.y, # otherwise the molecule will be upside down  
+            "z": positions.z,
+        })
+    
+    for bond in mol.GetBonds():
+        moleculeData["b"].append({
+            "i": bond.GetIdx(),
+            "b": bond.GetBeginAtomIdx(),
+            "e": bond.GetEndAtomIdx(),
+            "o": bond.GetBondTypeAsDouble()
+        })
+    
+    for mon_idx, mon_info in record.monomers.items():
+        moleculeData["monomers"][mon_labels[mon_idx]] = mon_info.atoms
+
+    return drawer.GetDrawingText(), moleculeData
 
 
 def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
@@ -247,7 +291,7 @@ def draw_molecule(record: Parsed_rBAN_Record,
                   rban_indexes: bool = True,
                   monomer_labels: bool = True,
                   size: Tuple[int, int] = (1000, 1000),
-                  monomer_names_helper: Optional[MonomerNamesHelper] = None) -> None:
+                  monomer_names_helper: Optional[MonomerNamesHelper] = None):
     ext = output_file.suffix[1:].lower()
     if ext not in ['svg', 'png']:
         raise ValueError(f'Unsupported file extension: {ext}. Use .svg or .png.')
@@ -255,7 +299,7 @@ def draw_molecule(record: Parsed_rBAN_Record,
     mon_colors = get_node_colors(record, monomer_names_helper)
 
     # str for SVG, bytes for PNG
-    data = draw_molecule_colors(record=record,
+    data, mol_dict = draw_molecule_colors(record=record,
                                 ext=ext,
                                 mon_colors=mon_colors,
                                 rban_indexes=rban_indexes,
@@ -268,10 +312,10 @@ def draw_molecule(record: Parsed_rBAN_Record,
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_bytes(data)
 
+    return mol_dict
 
 def draw_monomer_graph(record: Parsed_rBAN_Record,
                        output_path: Path,
-                       output_path_json: Path,
                        with_rban_indexes: bool = True,
                        size: Tuple[int, int] = (1000, 1000),
                        dpi: int = 300,

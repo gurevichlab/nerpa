@@ -111,25 +111,26 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                    output_cfg.parsed_rban_records)
         if output_cfg.draw_molecules:
             monomer_graph_data = []
+            molecule_data = []
             for rban_record in filter(lambda r: r.compound_id in compound_ids_to_write,
                                       rban_records):
                 try:
-                    fig = draw_monomer_graph(rban_record,
+                    graph = draw_monomer_graph(rban_record,
                                        output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
-                                       output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.json',
                                        with_rban_indexes=True,
                                        monomer_names_helper=monomer_names_helper)
-                    monomer_graph_data.append((rban_record.compound_id,fig))
+                    monomer_graph_data.append((rban_record.compound_id,graph))
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw monomer graph for {rban_record.compound_id}: {e}')
 
                 try:
-                    draw_molecule(rban_record,
+                    mol = draw_molecule(rban_record,
                                   rban_indexes=True,
                                   monomer_labels=True,
                                   output_file=output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.svg',
                                   monomer_names_helper=monomer_names_helper)
+                    molecule_data.append((rban_record.compound_id,mol))
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
@@ -137,7 +138,7 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
         if log is not None:
             log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')
     
-    return monomer_graph_data
+    return monomer_graph_data, molecule_data
 
 
 def write_bgc_variants(bgc_variants_info: BGC_Variants_Info,
@@ -201,7 +202,7 @@ def write_results(matches: List[Match],
                        output_cfg)
 
     output_cfg.nrp_variants.parent.mkdir(exist_ok=True, parents=True)
-    monomer_graph_data = write_nrp_variants(nrp_variants_info,
+    monomer_graph_data, molecule_data = write_nrp_variants(nrp_variants_info,
                        nrp_ids_to_write,
                        rban_records=nrp_variants_info.rban_records,
                        output_cfg=output_cfg,
@@ -212,4 +213,4 @@ def write_results(matches: List[Match],
         write_matches_details(matches, output_cfg.matches_details)
 
     if html_report:
-        create_html_report(monomer_graph_data, output_cfg, matches, bgc_variants_info, nrp_variants_info, debug_output)
+        create_html_report(monomer_graph_data, molecule_data, output_cfg, matches, bgc_variants_info, nrp_variants_info, debug_output)

@@ -142,7 +142,16 @@ def _create_graph_dicts(monomer_graph_data) -> Dict:
 
     return graph_dict
 
+def _create_molecule_dicts(molecule_data) -> Dict:
+
+    mol_dict = {}
+    for compID, mol in molecule_data:
+        mol_dict[compID] = mol
+
+    return mol_dict
+
 def create_html_report(monomer_graph_data,
+                       molecule_data,
                        output_cfg: OutputConfig,
                        matches: List[Match],
                        bgc_variants_info: BGC_Variants_Info,
@@ -168,6 +177,7 @@ def create_html_report(monomer_graph_data,
     bgc_representatives = _create_serializable_bgc_representatives(bgc_variants_info)
     nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
     monomer_graph = _create_graph_dicts(monomer_graph_data)
+    molecule = _create_molecule_dicts(molecule_data)
 
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:
@@ -193,6 +203,10 @@ def create_html_report(monomer_graph_data,
 
         json_file.write('var monomer_graph = ')
         json.dump(monomer_graph, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var molecule_image  = ')
+        json.dump(molecule, json_file, indent=4)
         json_file.write(';\n')
 
     path_substitutions = {
