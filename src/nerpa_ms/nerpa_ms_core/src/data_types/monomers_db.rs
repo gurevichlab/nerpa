@@ -138,10 +138,9 @@ impl MonomersDB_Entry {
 	self.bonds_by_bs = BondsByBSType::new(new_bonds_by_bs);
     }
 
-    pub fn shift_atom_ids(&self, shift: u32) {
-	let mut shifted_entry = self.clone();
-	shifted_entry.monomer.shift_atom_ids(shift);
-	shifted_entry.bonds_by_bs = {
+    pub fn shift_atom_ids(&mut self, shift: u32) {
+	self.monomer.shift_atom_ids(shift);
+	self.bonds_by_bs = {
 	    let mut shifted_bonds = Vec::new();
 		for (bs, bond) in self.bonds_by_bs.iter() {
 		    let mut shifted_bond = bond.clone();

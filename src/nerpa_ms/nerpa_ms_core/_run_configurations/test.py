@@ -14,7 +14,8 @@ assert (nerpa_root / "nerpa.py").exists(), f"Invalid nerpa_root: {nerpa_root}"
 
 subprocess.run(["cargo", "build", "-q"])
 command = ' '.join(['cargo run --bin nerpa_ms_core --',
-                    '--nerpa-results fixtures/nerpa_results_1214.5',
+                    '--nerpa-results fixtures/nerpa_results_test',
+                    '--max-nerpa-matches 3',
                     '--max-edits 3',
                     '--num-variants-per-num-edits 5',
                     '--out output',

@@ -116,6 +116,8 @@ def main() -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
 
         for i, item in enumerate(items):
+            print(f"Drawing {label} variant {i}")
+            print(f"Modifications: {item.new_variant.old_to_new_mon_map}")
             draw_monomer_graph_diff(
                 original=item.original,
                 original_score=item.original_score,

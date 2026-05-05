@@ -84,9 +84,12 @@ pub fn draw_output_variants(
 				 drawing_script.display()))?;
 
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if output.status.success() {
+	println!("Drawing script completed successfully.");
+	println!("--- stdout ---\n{}\n--- stderr ---\n{}", stdout, stderr);
+    } else {
         bail!(
             "Drawing script failed (exit={}):\n--- stdout ---\n{}\n--- stderr ---\n{}",
             output.status,
