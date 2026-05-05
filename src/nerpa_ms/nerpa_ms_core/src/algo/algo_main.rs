@@ -34,59 +34,69 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
     println!("Computing DP table...");
     let dp_table = compute_dp_table(hmm, &dag, max_weight);
     println!("DP table computed. Retrieving new variants with optimal paths...");
-    let mut new_variant_with_opt_paths: Vec<NewVariantWithOptPaths> = Vec::new();
+    let mut new_variants_with_opt_paths: Vec<NewVariantWithOptPaths> = Vec::new();
 
     for weight in 0..=max_weight {
-	let max_solutions = if weight > 0 {max_variants_per_weight} else {1}; // for weight 0, we only want the original molecule, so we take 1 solution
+	let max_solutions = if weight > 0 {max_variants_per_weight} else { 1 }; // for weight 0, we only want the original molecule, so we take 1 solution
 	let solutions = backtrack_solutions(weight, &dp_table, &dag);
 
-	for sol in solutions.into_iter().take(max_solutions) {
-	    let mods = sol
-		.dag_edges.iter()
-		.filter_map(|e| e.modification)
-		.collect::<Vec<_>>();
-	    let monomer_origins: Vec<MonomerOrigin> = {
-		let mon_db_entries = mods
-		    .iter()
-		    .filter_map(|m| {
-			match m {
-			    GraphModification::Insert { site: _, mon_db_entry } => Some(mon_db_entry),
-			    GraphModification::Substitute { monomer_idx: _, mon_db_entry } => Some(mon_db_entry),
-			    GraphModification::Remove { monomer_idx: _ } => None,
-			    GraphModification::KeepAsIs { monomer_idx: _ } => None,
-			}
-		    })
-		    .collect::<Vec<_>>();
-
-		mon_db_entries.iter()
-		    .map(|entry| entry.monomer_origin.clone())
-		    .collect()
+	let mut variants_collected = 0;
+	for sol in solutions.into_iter() {
+	    let mods = {
+		sol
+		    .dag_edges.iter()
+		    .filter_map(|e| e.modification)
+		    .collect::<Vec<_>>()
 	    };
+
+	    if let Some(new_variant) = apply_modifications(monomer_graph, &mods, monomers_db) {
+		let monomer_origins: Vec<MonomerOrigin> = {
+		    let mon_db_entries = mods
+			.iter()
+			.filter_map(|m| {
+			    match m {
+			        GraphModification::Insert { site: _, mon_db_entry } => Some(mon_db_entry),
+			        GraphModification::Substitute { monomer_idx: _, mon_db_entry } => Some(mon_db_entry),
+			        GraphModification::Remove { monomer_idx: _ } => None,
+			        GraphModification::KeepAsIs { monomer_idx: _ } => None,
+			    }
+			})
+			.collect::<Vec<_>>();
+
+		    mon_db_entries.iter()
+			.map(|entry| entry.monomer_origin.clone())
+			.collect()
+		};
 			
-	    let new_variant = apply_modifications(&monomer_graph, &mods, monomers_db);
-	    let variant = Altered_rBAN_Record {
-		score: sol.dlp.to_logprob(),
-		new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
-		old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
-		monomer_origins,
-	    };
+		let variant = Altered_rBAN_Record {
+		    score: sol.dlp.to_logprob(),
+		    new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
+		    old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
+		    monomer_origins,
+		};
 
-	    new_variant_with_opt_paths.push(NewVariantWithOptPaths {
-		new_variant: variant,
-		linearization: new_variant.linearization.clone(),
-		hmm_path: sol.states.clone(),
-		dag_path: {
-		    let mut path = vec![dag.start];
-		    for edge in &sol.dag_edges {
-			path.push(edge.to);
+		new_variants_with_opt_paths.push(NewVariantWithOptPaths {
+		    new_variant: variant,
+		    linearization: new_variant.linearization.clone(),
+		    hmm_path: sol.states.clone(),
+		    dag_path: {
+			let mut path = vec![dag.start];
+			for edge in &sol.dag_edges {
+			    path.push(edge.to);
+			}
+			path
 		    }
-		    path
-		}
-	    });
-	};
+		});
+		variants_collected += 1;
+	    }
+
+	    if variants_collected >= max_solutions {
+		break;
+	    }
+	}
+
     }
 
-    new_variant_with_opt_paths
+    new_variants_with_opt_paths
 }
-
 

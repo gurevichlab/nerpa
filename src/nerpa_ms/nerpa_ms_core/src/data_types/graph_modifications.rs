@@ -29,3 +29,26 @@ pub enum GraphModification<'a> {
     },
 }
 
+impl GraphModification<'_> {
+    pub fn to_str_short(&self) -> String {
+	match self {
+	    GraphModification::KeepAsIs { monomer_idx } => {
+		format!("KeepAsIs({})", monomer_idx)
+	    },
+	    GraphModification::Substitute { monomer_idx, mon_db_entry } => {
+		format!("Substitute({}, {})", monomer_idx, mon_db_entry.monomer.features.name.0)
+	    },
+	    GraphModification::Remove { monomer_idx } => {
+		format!("Remove({}),", monomer_idx)
+	    },
+	    GraphModification::Insert { site, mon_db_entry } => {
+		let site_str = match site {
+		    InsertionSite::Edge(mon_idx1, mon_idx2) => format!("Edge({}, {})", mon_idx1, mon_idx2),
+		    InsertionSite::Leaf(mon_idx) => format!("Leaf({})", mon_idx),
+		};
+		format!("Insert({}, {})", site_str, mon_db_entry.monomer.features.name.0)
+	    },
+	}
+    }
+}
+
