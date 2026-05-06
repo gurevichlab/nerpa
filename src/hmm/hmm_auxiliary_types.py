@@ -95,6 +95,8 @@ class DetailedHMMStateType(Enum):
     SKIPPING_MODULES_AT_END = auto()
     SKIP_MODULE_AT_END = auto()  # a phantom state -- I pretend there's a chain of these states when computing skip costs
 
+    CHOOSE_IF_ITERATE_BGC = auto()
+
     FINAL = auto()
 
 
@@ -146,6 +148,8 @@ class DetailedHMMEdgeType(Enum):
     INSERT_AT_END = auto()
     SKIP_MODULES_AT_END = auto()
     SKIP_MODULE_AT_END = auto()
+
+    ITERATE_BGC = auto()
 
     def __lt__(self, other):
         return self.name < other.name

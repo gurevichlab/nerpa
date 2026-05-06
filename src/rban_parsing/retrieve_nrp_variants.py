@@ -102,9 +102,6 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
             graph.add_edge(start, end, bond_type=bond_type)
             graph.add_edge(end, start, bond_type=bond_type)
 
-    # q: debug check: print the graph edges
-    print("Graph edges:", graph.edges(data=True))
-
     return graph
 
 

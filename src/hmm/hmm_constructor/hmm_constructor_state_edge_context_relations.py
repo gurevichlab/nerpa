@@ -82,6 +82,10 @@ STATE_TYPE_TO_EDGE_TYPES: Dict[DetailedHMMStateType, Set[DetailedHMMEdgeType]] =
     ST.SKIPPING_MODULES_AT_END: {
         ET.SKIP_MODULES_AT_END,
     },
+    ST.CHOOSE_IF_ITERATE_BGC: {
+        ET.ITERATE_BGC,
+        ET.NO_ITERATION,
+    },
     ST.FINAL: set(),
 
     # 3. Aunxiliary

@@ -57,8 +57,8 @@ def add_debug(parser: argparse.ArgumentParser):
                                    help='specificity predictions will be used as is, without calibration')
     debug_input_group.add_argument('--disable-dictionary-lookup', action='store_true',
                                    help='do not use the dictionary of known A domain specificities')
-    # debug_input_group.add_argument('--draw-hmms', action='store_true',
-    #                                help='draw HMMs with optimal paths for all matches')
+    debug_input_group.add_argument('--draw-hmms', action='store_true',
+                                   help='draw HMMs with optimal paths for all matches')
     debug_input_group.add_argument('--let-it-crash', action='store_true',
                                    help='crash on first error instead of logging it and continuing')
     debug_input_group.add_argument('--disable-deduplication', action='store_true',
@@ -151,7 +151,7 @@ def post_parsing(args: CommandLineArgs):
         args.disable_nrp_deduplication = True
     args.fast_matching = True  # quick fix for backward compatibility
     args.keep_intermediate_files = True  # intermediate files are needed for Nerpa-MS
-    args.draw_hmms = False  # drawing is unreliable, disable it for release
+    # args.draw_hmms = False  # drawing is unreliable, disable it for release
     args.debug = False  # I don't remember what it does, disable for release to be safe
 
 def get_command_line_args(default_cfg: Config) -> CommandLineArgs:

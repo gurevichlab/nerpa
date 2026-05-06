@@ -5,3 +5,6 @@ python nerpa.py \
        --output-dir nerpa_results/test_run \
        --force-output-dir \
        --disable-deduplication \
+       --draw-hmms \
+       --let-it-crash
+

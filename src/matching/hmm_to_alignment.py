@@ -37,7 +37,7 @@ def hmm_path_to_alignment(hmm: DetailedHMM,
             fst_skipped_module_idx = hmm.states[edge_from].related_module_idx
             lst_skipped_module_idx = (
                     hmm.states[edge_to].related_module_idx - 1
-                    if hmm.states[edge_to].state_type != ST.FINAL
+                    if hmm.states[edge_to].state_type != ST.CHOOSE_IF_ITERATE_BGC
                     else len(hmm.bgc_variant.modules) - 1
             )
 
