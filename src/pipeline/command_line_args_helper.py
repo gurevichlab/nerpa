@@ -217,7 +217,9 @@ def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I t
     if args.smiles_tsv:
         try:
             with open(args.smiles_tsv, newline='') as f_in:
-                reader = csv.DictReader(f_in, delimiter=args.sep, quoting=csv.QUOTE_NONE)
+                reader = csv.DictReader(f_in,
+                                        delimiter=args.sep,
+                                        skipinitialspace=True)
                 validate(args.col_smiles in reader.fieldnames,
                          f'Column "{args.col_smiles}" was specified but does not exist in {args.smiles_tsv}.')
                 if args.col_id:
