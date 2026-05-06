@@ -16,8 +16,8 @@ subprocess.run(["cargo", "build", "-q"])
 command = ' '.join(['cargo run --bin nerpa_ms_core --',
                     '--nerpa-results fixtures/nerpa_results_test',
                     '--max-nerpa-matches 3',
-                    '--max-edits 3',
-                    '--num-variants-per-num-edits 5',
+                    '--max-edits 2',
+                    '--num-variants-per-num-edits 3',
                     '--out output',
                     '--monomers-db-json data/monomers_db.json',
                     '--nerpa-root', str(nerpa_root),])

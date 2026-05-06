@@ -40,6 +40,9 @@ impl StateType {
             .split_once(':')
             .ok_or_else(|| anyhow!("Invalid state label (no ':'): {label:?}"))?;
 
+        // Labels may have an optional "*monomer_name" suffix; ignore it for state type parsing.
+        let rest = rest.split_once('*').map_or(rest, |(base, _)| base);
+
 
         let st = match rest {
             "SKIPPING_MODULES_AT_END" => StateType::SkippingModulesAtEnd,
@@ -315,7 +318,7 @@ pub fn draw_nerpa_hmm(
     writeln!(&mut dot, "digraph HMM {{")?;
     writeln!(&mut dot, "  graph [")?;
     writeln!(&mut dot, r#"    overlap="false","#)?;
-    writeln!(&mut dot, r#"    splines="curved","#)?;
+    writeln!(&mut dot, r#"    splines="polyline","#)?;
     writeln!(&mut dot, r#"    esep="+1","#)?;
     writeln!(&mut dot, r#"    sep="+10""#)?;
     writeln!(&mut dot, "  ];")?;

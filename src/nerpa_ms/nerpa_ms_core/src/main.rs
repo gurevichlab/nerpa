@@ -14,12 +14,12 @@ use data_types::{monomer_graph::MonomerGraph, monomers_db::load_monomers_db};
 use io::draw_molecules::draw_output_variants;
 use io::input::InputItem;
 use io::output::{OutputItem, write_output};
-use io::draw_hmm_dag::draw_hmm_dag_opt_paths;
+use io::draw_hmm_dag::{draw_hmm_dag_opt_paths, draw_hmm_opt_path_with_monomers};
 use algo::{algo_main::{generate_new_variants_with_opt_paths}, graph_to_dag::create_dag};
 
 use crate::data_types::alignment::Alignment;
 
-fn draw_optimal_paths(
+fn draw_hmm_dags_optimal_paths(
     new_variants_with_opt_paths: &[NewVariantWithOptPaths],
     item: &InputItem,
     dag: &DAG<'_>,
@@ -41,6 +41,32 @@ fn draw_optimal_paths(
 	    );	     
 	    if let Err(e) = res {
 		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
+ bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
+	    }
+	}
+}
+
+fn draw_hmms_optimal_paths(
+	new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+	item: &InputItem,
+	figs_dir: &PathBuf
+) {
+	let bgc_id_short = {
+	    &item.hmm
+	    .bgc_variant_id
+	    .bgc_id
+	    .to_str_short()
+	};
+	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
+	    let res = draw_hmm_opt_path_with_monomers(
+		&item.hmm,
+		&new_variant_with_opt_paths.hmm_path,
+		&new_variant_with_opt_paths.linearization,
+		&item.rban_record,
+		&figs_dir.join(format!("{i}"))
+	    );	     
+	    if let Err(e) = res {
+		eprintln!("Failed to draw HMM optimal path with monomers for variant {i} of
  bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
 	    }
 	}
@@ -114,14 +140,14 @@ fn main() -> Result<()> {
 
 	write_alignments(&new_variants_with_opt_paths, item, &alignments_dir)?;
 
-	// let figs_dir = {
-	//     cli.out
-	// 	.join("figures")
-	// 	.join("opt_paths")
-	// 	.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
-	// };
-	// draw_optimal_paths(&new_variants_with_opt_paths, item, &dag, &figs_dir);
-
+	println!("Drawing HMM with optimal path...");
+	let figs_dir = {
+	    cli.out
+		.join("figures")
+		.join("opt_paths")
+		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	};
+	draw_hmms_optimal_paths(&new_variants_with_opt_paths, item, &figs_dir);
 
 	let new_variants = {
 	    new_variants_with_opt_paths
