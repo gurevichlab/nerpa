@@ -13,6 +13,7 @@ from src.antismash_parsing.bgc_variant_types import (
 )
 from src.hmm.hmm_constructor.hmm_constructor import HMM_Constructor
 from src.monomer_names_helper import NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
+from src.generic.svg import svg_with_label, join_svgs_in_rectangle
 from src.general_type_aliases import (
     LogProb,
 )
@@ -40,6 +41,7 @@ from src.matching.alignment_type import Alignment
 from src.hmm.hmm_scoring_helper import HMMHelper
 from graphviz import Digraph
 from pathlib import Path
+from more_itertools import split_when
 
 
 @dataclass
@@ -204,39 +206,51 @@ class DetailedHMM:
 
     def draw(self,
              filename: Path,
-             highlight_path: Optional[List[int]] = None) -> Digraph:
-        return draw_hmm(self, filename, highlight_path)
+             highlight_path: Optional[List[int]] = None,
+             emission_names: Optional[List[str]] = None):
+        if highlight_path is None:
+            draw_hmm(self, filename)
+            return
 
+        if emission_names is not None:
+            emission_labels = emission_names
+        else:
+            num_emitting_states = sum(1 for state_idx in highlight_path
+                                      if self.states[state_idx].is_emitting())
+            emission_labels = ['' for _ in range(num_emitting_states)]
 
-'''
-def edge_fingerprint(hmm: DetailedHMM,
-                     path: List[Tuple[int, NRP_Monomer]],
-                     edge_idx: int) -> EdgeFingerprint:
-    u, v = path[edge_idx][0], path[edge_idx + 1][0]
-    edge = hmm.transitions[u][v]
+        labels_iter = iter(emission_labels)
+        whole_path_with_emissions = [
+            (state_idx, next(labels_iter) if self.states[state_idx].is_emitting() else None)
+            for state_idx in highlight_path
+        ]
 
-    # find corresponding bgc module
-    match edge.edge_type:
-        # genomic info not relevant
-        case (
-        # before matching
-            DetailedHMMEdgeType.START_INSERTING_AT_START |
-            DetailedHMMEdgeType.INSERT_AT_START |
-            DetailedHMMEdgeType.START_SKIP_MODULES_AT_START |
-            DetailedHMMEdgeType.START_SKIP_GENES_AT_START |
-            DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START |
-        # at matching
-            DetailedHMMEdgeType.INSERT |
-            DetailedHMMEdgeType.END_INSERTING
-        ):
-            return EdgeFingerprint(edge_type=edge.edge_type)
-        # only fragment context relevant
-        case (
-            DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START |
-            DetailedHMMEdgeType.SKIP_FRAGMENT |
-            DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END
-        ):
-            return EdgeFingerprint(edge_type=edge.edge_type,
-                                   bgc_fragment_context=hmm.bgc_variant.fragments[hmm.state_idx_to_module_idx[u]].loc)
-'''
+        # split the path into bgc iterations to avoid clutter
+        # split *before* each new INITIAL state (except the very first element)
+        paths_with_emissions = list(
+            split_when(whole_path_with_emissions,
+                        lambda _prev, curr: curr[0] == self.start_state_idx)
+        )
 
+        iteration_svgs = []
+        for path_with_emissions in paths_with_emissions:
+            path_part  = [state_idx for state_idx, _ in path_with_emissions]
+            _ = draw_hmm(self, filename, path_part)
+            figure_label = ', '.join(  
+                (f'{state_idx}*{emission}' if emission is not None
+                 else f'{state_idx}')
+                for state_idx, emission in path_with_emissions
+            )
+            svg_text = filename.read_text()
+            iteration_svgs.append(
+                svg_with_label(svg_text, figure_label, position='bottom')
+            )
+
+        # combine iteration svgs into one svg
+        svg_joined = join_svgs_in_rectangle([[iter_svg] for iter_svg in iteration_svgs])
+            
+        if emission_names is not None:
+            title = '\n' + ', '.join(f'{emisson_name}' for emisson_name in emission_names)
+            svg_joined = svg_with_label(svg_joined, title, position='top')
+
+        filename.write_text(svg_joined)

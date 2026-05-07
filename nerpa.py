@@ -46,7 +46,12 @@ def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make
     representative_nrps = nrp_variants_info.get_representative_nrp_variants()
     nrp_linearizations = pipeline_helper.get_nrp_linearizations(representative_nrps)
 
-    matches = pipeline_helper.get_matches(hmms, nrp_linearizations, representative_nrps)
+    matches = pipeline_helper.get_matches(
+        hmms,
+        nrp_linearizations,
+        representative_nrps,
+        nrp_variants_info.rban_records
+    )
     pipeline_helper.write_results(matches, bgc_variants_info, nrp_variants_info,
                                   write_only_what_is_matched=not pipeline_helper.args.dump_all_preprocessed)
 

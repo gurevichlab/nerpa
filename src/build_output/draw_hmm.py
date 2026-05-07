@@ -28,17 +28,18 @@ def render_with_fallback(graph: Digraph, out_png: Path, timeout: float = 10.0,
     def render(s: str):
         clone_with_splines(s).render(out_png.with_suffix(""), cleanup=True)
 
-    p = Process(target=render, args=("curved",))
-    p.start()
-    p.join(timeout)
+    render("polyline")
+    # p = Process(target=render, args=("curved",))
+    # p.start()
+    # p.join(timeout)
 
-    if p.is_alive():
-        p.terminate()
-        p.join()
-        if report_errors:
-            print(f"Warning: Graph rendering with 'curved' splines timed out after {timeout} seconds. "
-                  f"Falling back to 'polyline' splines, which may look worse.")
-        render("polyline")
+    # if p.is_alive():
+    #     p.terminate()
+    #     p.join()
+    #     if report_errors:
+    #         print(f"Warning: Graph rendering with 'curved' splines timed out after {timeout} seconds. "
+    #               f"Falling back to 'polyline' splines, which may look worse.")
+    #     render("polyline")
 
 
 def create_nodes_layout(
@@ -107,9 +108,14 @@ def state_idx_to_label(idx: int,
     state = hmm.states[idx]
     if state.state_type == ST.MODULE_SUBGRAPH_ROOT:
         module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[idx]]
-        return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+        label = f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
     else:
-        return f'{idx}:{state.state_type.name}'
+        label = f'{idx}:{state.state_type.name}'
+
+    if len(label) > 10:
+        label = label[:len(label) // 2] + '\n' + label[len(label) // 2:]
+
+    return label
 
 
 def draw_hmm(hmm: DetailedHMM,
@@ -124,7 +130,7 @@ def draw_hmm(hmm: DetailedHMM,
     ET = DetailedHMMEdgeType
 
 
-    graph = Digraph(format="png", engine="neato")
+    graph = Digraph(format="svg", engine="neato")
     graph.graph_attr["neato"] = "-n2"
     graph.attr(
         overlap="false",
@@ -148,6 +154,11 @@ def draw_hmm(hmm: DetailedHMM,
 
 
     def state_idx_to_color(idx: int) -> str:
+        if hmm.states[idx].is_emitting():
+            if highlight_path is not None and idx in highlight_path:
+                return "plum"
+            else:
+                return "lavenderblush"
         match hmm.states[idx].state_type:
             case ST.MODULE_SUBGRAPH_ROOT:
                 return "lightblue"

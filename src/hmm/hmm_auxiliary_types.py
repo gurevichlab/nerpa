@@ -114,6 +114,9 @@ class DetailedHMMState:
         self.emissions = emissions if emissions is not None else {}
         self.related_module_idx = related_module_idx
 
+    def is_emitting(self) -> bool:
+        return self.emissions is not None and len(self.emissions) > 0
+
 
 class DetailedHMMEdgeType(Enum):
     INITIAL = auto()

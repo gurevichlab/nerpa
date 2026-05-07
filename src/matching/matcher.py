@@ -237,9 +237,9 @@ def get_hmm_matches(hmms: List[DetailedHMM],
 
     matches = filter_and_sort_matches(matches, matching_cfg)
 
-    if debug:
-        write_results.draw_hmms_with_optimal_paths(hmms, matches,
-                                                   Path('/home/ilianolhin/git/nerpa2/hmms'))
+    # if debug:
+    #     write_results.draw_hmms_with_optimal_paths(hmms, matches,
+    #                                                Path('/home/ilianolhin/git/nerpa2/hmms'))
 
 
     """

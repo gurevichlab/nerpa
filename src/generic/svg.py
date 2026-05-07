@@ -94,7 +94,9 @@ def _svg_to_string(root: ET.Element) -> str:
     return buf.getvalue()
 
 
-def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
+def join_svgs_in_rectangle(svgs: list[list[str]],
+                           horizontal_padding: float | None = None,
+                           vertical_padding: float | None = None) -> str:
     """
     Given a rectangle of SVG strings [row][col], produce one SVG:
       1) In each row, scale all SVGS to match the first SVG's height (row base height).
@@ -102,6 +104,16 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
       3) Scale rows so they all have the same total width (max row width).
       4) Join rows vertically.
     """
+    match (horizontal_padding, vertical_padding):
+        case (None, None):
+            hp = vp = 0.0
+        case (None, float() as vp):
+            hp = vp
+        case (float() as hp, None):
+            vp = hp
+        case (float() as hp, float() as vp):
+            pass
+
     if not svgs:
         raise ValueError('No rows provided')
     if any(not row for row in svgs):
@@ -118,7 +130,7 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
 
         # Intent: normalize all images in the row to the first image's height.
         scaled_ws: list[float] = [p.w * (base_h / p.h) for p in parsed_items]
-        row_w: float = sum(scaled_ws)
+        row_w: float = sum(scaled_ws) + hp * max(0, len(scaled_ws) - 1)
         row_h: float = base_h
 
         row_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
@@ -129,7 +141,7 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
 
         # Intent: lay out the normalized row left-to-right.
         x: float = 0.0
-        for p, scaled_w in zip(parsed_items, scaled_ws, strict=True):
+        for i, (p, scaled_w) in enumerate(zip(parsed_items, scaled_ws, strict=True)):
             _append_nested_svg(
                 row_root,
                 parsed=p,
@@ -139,6 +151,8 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
                 height=base_h,
             )
             x += scaled_w
+            if i != len(scaled_ws) - 1:
+                x += hp
 
         row_svgs.append(_parse_svg_root(row_root))
         row_widths.append(row_w)
@@ -153,7 +167,7 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
         scaled_row_heights.append(row_h * scale)
 
     # Intent: vertically stack the scaled rows.
-    total_h: float = sum(scaled_row_heights)
+    total_h: float = sum(scaled_row_heights) + vp * max(0, len(scaled_row_heights) - 1)
 
     out_root = ET.Element(f'{{{_SVG_NS}}}svg', attrib={
         'width': f'{target_w}',
@@ -162,7 +176,7 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
     })
 
     y: float = 0.0
-    for row_svg, scaled_h in zip(row_svgs, scaled_row_heights, strict=True):
+    for i, (row_svg, scaled_h) in enumerate(zip(row_svgs, scaled_row_heights, strict=True)):
         _append_nested_svg(
             out_root,
             parsed=row_svg,
@@ -172,6 +186,8 @@ def join_svgs_in_rectangle(svgs: list[list[str]]) -> str:
             height=scaled_h,
         )
         y += scaled_h
+        if i != len(row_svgs) - 1:
+            y += vp
 
     return _svg_to_string(out_root)
 
@@ -359,7 +375,13 @@ def _label_svg(
     return _svg_to_string(root)
 
 
-def svg_with_label(svg: str, label: str, position: Literal['left', 'right', 'top', 'bottom']) -> str:
+def svg_with_label(
+        svg: str,
+        label: str,
+        position: Literal['left', 'right', 'top', 'bottom'],
+        font_size: float | None = None,
+        pad: float | None = None,
+) -> str:
     """
     Add a labeled stripe to one side of an SVG and return the resulting SVG string.
 
@@ -369,8 +391,11 @@ def svg_with_label(svg: str, label: str, position: Literal['left', 'right', 'top
 
     # Intent: make the stripe thickness scale with the source SVG so it looks consistent.
     base: float = min(parsed.w, parsed.h)
-    font_size: float = max(14.0, min(56.0, base * 0.12))
-    pad: float = font_size * 0.5
+    if font_size is None:
+        font_size: float = max(14.0, min(56.0, base * 0.12))
+
+    if pad is None:
+        pad: float = font_size * 0.5
     thickness: float = font_size + 2.0 * pad
 
     if position in ('left', 'right'):
