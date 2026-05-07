@@ -38,22 +38,29 @@ pub struct BGC_Variant_ID {
 
 
 // HMM data structure (names preserved)
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HMM {
     pub bgc_variant_id: BGC_Variant_ID,
 
     // transitions[i]: vector of (next_state, log_prob)
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_transitions_null_lp_as_neg_inf")]
+    #[serde(deserialize_with = "crate::data_types::json_helpers::de_transitions_null_lp_as_neg_inf",
+    	    serialize_with = "crate::data_types::json_helpers::ser_transitions_neg_inf_lp_as_null")]
     pub transitions: Vec<Vec<(StateIdx, LogProb)>>,
     // emissions[i][j]: log probability of emitting monomer j from state i
-    #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_vec_logprob_null_as_neg_inf")]
+    #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_vec_logprob_null_as_neg_inf",
+    	    serialize_with = "crate::data_types::json_helpers::ser_vec_vec_logprob_neg_inf_as_null")]
     pub emissions: Vec<Vec<LogProb>>,
 
-    // Labels for states, for debugging and interpretability.
-    pub state_labels: Vec<String>,
+    // for debugging and interpretability.
+    pub state_types: Vec<String>,
 
     // module_match_states[i] = state index of the emitting state corresponding to the i-th module in the BGC.
     pub module_match_states: Vec<StateIdx>,
+
+    // not used. Needed for compatibility with python code
+    pub module_start_states: Vec<StateIdx>,
+
+    pub module_names: Vec<String>,
 }
 
 // Basic helpers
@@ -73,6 +80,14 @@ impl HMM {
 
     pub fn is_emitting(&self, state: StateIdx) -> bool {
         !self.emissions[state].is_empty()
+    }
+
+    pub fn start_state_idx(&self) -> StateIdx {
+	0
+    }
+
+    pub fn finish_state_idx(&self) -> StateIdx {
+	self.num_states() - 1
     }
 }
 

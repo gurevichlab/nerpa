@@ -48,9 +48,13 @@ class PipelineHelperCpp:
     def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
         out_file = self.config.output_config.cpp_io_config.hmms_json
         out_file.parent.mkdir(parents=True, exist_ok=True)
-        data = [detailed_hmm.to_hmm(unknown_chirality_allowed=True,
-                                    emission_weights_type='LogProb').to_json()
-                for detailed_hmm in detailed_hmms]
+        data = [
+            (detailed_hmm
+             .to_hmm(unknown_chirality_allowed=True,
+                     emission_weights_type='LogProb')
+             .to_json_dict())
+            for detailed_hmm in detailed_hmms
+        ]
 
         #pretty_json = reformat_json(json.dumps(data))
         refined_data = json_round_floats(data, ndigits=3)

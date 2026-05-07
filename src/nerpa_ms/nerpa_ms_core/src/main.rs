@@ -3,7 +3,7 @@ mod cli;
 mod data_types;
 mod io;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use algo::algo_main::NewVariantWithOptPaths;
 use clap::Parser;
@@ -14,8 +14,9 @@ use data_types::{monomer_graph::MonomerGraph, monomers_db::load_monomers_db};
 use io::draw_molecules::draw_output_variants;
 use io::input::InputItem;
 use io::output::{OutputItem, write_output};
-use io::draw_hmm_dag::{draw_hmm_dag_opt_paths, draw_hmm_opt_path_with_monomers};
+use io::draw_hmm_dag::{draw_hmm_dag_opt_paths};
 use algo::{algo_main::{generate_new_variants_with_opt_paths}, graph_to_dag::create_dag};
+use crate::io::draw_nerpa_hmm::draw_nerpa_hmm_with_linearization;
 
 use crate::data_types::alignment::Alignment;
 
@@ -23,7 +24,8 @@ fn draw_hmm_dags_optimal_paths(
     new_variants_with_opt_paths: &[NewVariantWithOptPaths],
     item: &InputItem,
     dag: &DAG<'_>,
-    figs_dir: &PathBuf
+    figs_dir: &Path,
+    nerpa_root: &Path
 ) {
 	let bgc_id_short = {
 	    &item.hmm
@@ -37,7 +39,8 @@ fn draw_hmm_dags_optimal_paths(
 		&dag,
 		&new_variant_with_opt_paths.hmm_path,
 		&new_variant_with_opt_paths.dag_path,
-		&figs_dir.join(format!("{i}"))
+		&figs_dir.join(format!("{i}")),
+		nerpa_root
 	    );	     
 	    if let Err(e) = res {
 		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
@@ -47,9 +50,10 @@ fn draw_hmm_dags_optimal_paths(
 }
 
 fn draw_hmms_optimal_paths(
-	new_variants_with_opt_paths: &[NewVariantWithOptPaths],
-	item: &InputItem,
-	figs_dir: &PathBuf
+    new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+    item: &InputItem,
+    figs_dir: &Path,
+    nerpa_root: &Path
 ) {
 	let bgc_id_short = {
 	    &item.hmm
@@ -58,12 +62,13 @@ fn draw_hmms_optimal_paths(
 	    .to_str_short()
 	};
 	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
-	    let res = draw_hmm_opt_path_with_monomers(
+	    let res = draw_nerpa_hmm_with_linearization(
 		&item.hmm,
+		&item.rban_record,
 		&new_variant_with_opt_paths.hmm_path,
 		&new_variant_with_opt_paths.linearization,
-		&item.rban_record,
-		&figs_dir.join(format!("{i}"))
+		&figs_dir.join(format!("{i}.svg")),
+		nerpa_root
 	    );	     
 	    if let Err(e) = res {
 		eprintln!("Failed to draw HMM optimal path with monomers for variant {i} of
@@ -147,7 +152,12 @@ fn main() -> Result<()> {
 		.join("opt_paths")
 		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
 	};
-	draw_hmms_optimal_paths(&new_variants_with_opt_paths, item, &figs_dir);
+	draw_hmms_optimal_paths(
+	    &new_variants_with_opt_paths,
+	    item,
+	    &figs_dir,
+	    &cli.nerpa_root
+	);
 
 	let new_variants = {
 	    new_variants_with_opt_paths
@@ -178,14 +188,10 @@ fn main() -> Result<()> {
 	    .join("new_variants")
     };
     println!("Drawing new variants...");
-    if let Some(nerpa_root) = &cli.nerpa_root {
-	draw_output_variants(&output_items,
-			     &original_records,
-			     nerpa_root,
-    			     &new_variants_figures_dir)?;
-    } else {
-	eprintln!("Nerpa root not provided, skipping drawing new variants");
-    }
+    draw_output_variants(&output_items,
+			 &original_records,
+			 &cli.nerpa_root,
+			 &new_variants_figures_dir)?;
 
     Ok(())
 }

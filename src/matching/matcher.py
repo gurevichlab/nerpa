@@ -17,7 +17,7 @@ from src.general_type_aliases import (
     LogProb
 )
 from src.hmm.detailed_hmm import DetailedHMM
-from src.hmm.hmm_auxiliary_types import HMM_LPUC
+from src.hmm.hmm import HMM_LPUC
 from src.matching.hmm_match import HMM_Match
 from src.hmm.viterbi_algorithm import get_opt_path_with_score
 from src.monomer_names_helper import MonomerNamesHelper

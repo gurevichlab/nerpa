@@ -236,7 +236,8 @@ pub enum TitlePlacement {
 pub fn svg_with_title(
     svg_text: &str,
     title: &str,
-    placement: TitlePlacement
+    placement: TitlePlacement,
+    font_size: Option<f32>,
 ) -> Result<String> {
     fn escape_xml(s: &str) -> String {
         let mut out = String::with_capacity(s.len());
@@ -260,13 +261,17 @@ pub fn svg_with_title(
     }
 
     // Simple title layout.
-    let font_size = (info.width / 25.0).clamp(12.0, 24.0);
-    let padding = (font_size * 0.75).clamp(6.0, 18.0);
-    let title_band_h = font_size + 2.0 * padding;
+    let fontsize = {
+	if let Some(f) = font_size { f }
+	else { (info.width / 25.0).clamp(12.0, 24.0) }
+    };
+
+    let padding = (fontsize * 0.75).clamp(6.0, 18.0);
+    let title_band_h = fontsize + 2.0 * padding;
 
     let (content_y, title_y, title_bg_y) = match placement {
-        TitlePlacement::Top => (title_band_h, padding + font_size, 0.0),
-        TitlePlacement::Bottom => (0.0, info.height + padding + font_size, info.height),
+        TitlePlacement::Top => (title_band_h, padding + fontsize, 0.0),
+        TitlePlacement::Bottom => (0.0, info.height + padding + fontsize, info.height),
     };
 
     let out_h = info.height + title_band_h;
@@ -295,7 +300,7 @@ pub fn svg_with_title(
         r#"<text x="{x}" y="{y}" text-anchor="middle" font-family="sans-serif" font-size="{fs}">{t}</text>"#,
         x = info.width / 2.0,
         y = title_y,
-        fs = font_size,
+        fs = fontsize,
         t = title_escaped
     ));
     out.push('\n');

@@ -47,7 +47,7 @@ pub struct Cli {
     #[arg(long)]
     pub monomers_db_json: PathBuf,
 
-    /// Path to root Nerpa dir (used to draw molecules via calling python scripts from that repo)
+    /// Path to root Nerpa dir
     #[arg(long)]
-    pub nerpa_root: Option<PathBuf>,
+    pub nerpa_root: PathBuf,
 }

@@ -13,7 +13,6 @@ from src.antismash_parsing.bgc_variant_types import (
 )
 from src.hmm.hmm_constructor.hmm_constructor import HMM_Constructor
 from src.monomer_names_helper import NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
-from src.generic.svg import svg_with_label, join_svgs_in_rectangle
 from src.general_type_aliases import (
     LogProb,
 )
@@ -21,16 +20,11 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMStateType,
     DetailedHMMState,
     DetailedHMMEdge,
-    HMM,
     StateIdx,
-    HMM_LPUC
 )
+from src.hmm.hmm import HMM, HMM_LPUC
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.alignment_type import AlignmentLight, alignment_to_light_alignment
-from src.build_output.draw_hmm import (
-    draw_hmm,
-    state_idx_to_label,
-)
 from src._not_used.p_values_estimation import PValueEstimator
 from src.monomer_names_helper import Chirality
 from src.rban_parsing.rban_monomer import rBAN_Monomer
@@ -149,13 +143,24 @@ class DetailedHMM:
                                for mon in sorted(state.emissions,
                                                  key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
                               for state in self.states]
+
+        module_names = [
+            f'F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+            for module in self.bgc_variant.modules
+        ]
+
         self._hmms[(emission_weights_type, unknown_chirality_allowed)] = \
-            HMM(transitions=adj_list,
+            HMM(
+                transitions=adj_list,
                 emissions=emission_scores,
                 module_start_states=self._module_idx_to_state_idx,
                 module_match_states=self._module_idx_to_match_state_idx,
-                state_labels=[state_idx_to_label(state_idx, self) for state_idx in range(len(self.states))],
-                bgc_variant_id=self.bgc_variant.bgc_variant_id)
+                state_types=[
+                    state.state_type for state in self.states
+                ],
+                bgc_variant_id=self.bgc_variant.bgc_variant_id,
+                module_names=module_names
+            )
         return self._hmms[(emission_weights_type, unknown_chirality_allowed)]
 
     def to_hmm_lpuc(self) -> HMM_LPUC:
@@ -208,49 +213,8 @@ class DetailedHMM:
              filename: Path,
              highlight_path: Optional[List[int]] = None,
              emission_names: Optional[List[str]] = None):
-        if highlight_path is None:
-            draw_hmm(self, filename)
-            return
-
-        if emission_names is not None:
-            emission_labels = emission_names
-        else:
-            num_emitting_states = sum(1 for state_idx in highlight_path
-                                      if self.states[state_idx].is_emitting())
-            emission_labels = ['' for _ in range(num_emitting_states)]
-
-        labels_iter = iter(emission_labels)
-        whole_path_with_emissions = [
-            (state_idx, next(labels_iter) if self.states[state_idx].is_emitting() else None)
-            for state_idx in highlight_path
-        ]
-
-        # split the path into bgc iterations to avoid clutter
-        # split *before* each new INITIAL state (except the very first element)
-        paths_with_emissions = list(
-            split_when(whole_path_with_emissions,
-                        lambda _prev, curr: curr[0] == self.start_state_idx)
+        self.to_hmm().draw(
+            filename=filename,
+            highlight_path=highlight_path,
+            emission_names=emission_names
         )
-
-        iteration_svgs = []
-        for path_with_emissions in paths_with_emissions:
-            path_part  = [state_idx for state_idx, _ in path_with_emissions]
-            _ = draw_hmm(self, filename, path_part)
-            figure_label = ', '.join(  
-                (f'{state_idx}*{emission}' if emission is not None
-                 else f'{state_idx}')
-                for state_idx, emission in path_with_emissions
-            )
-            svg_text = filename.read_text()
-            iteration_svgs.append(
-                svg_with_label(svg_text, figure_label, position='bottom')
-            )
-
-        # combine iteration svgs into one svg
-        svg_joined = join_svgs_in_rectangle([[iter_svg] for iter_svg in iteration_svgs])
-            
-        if emission_names is not None:
-            title = '\n' + ', '.join(f'{emisson_name}' for emisson_name in emission_names)
-            svg_joined = svg_with_label(svg_joined, title, position='top')
-
-        filename.write_text(svg_joined)
