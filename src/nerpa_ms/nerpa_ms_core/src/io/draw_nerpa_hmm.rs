@@ -21,12 +21,20 @@ pub fn draw_nerpa_hmm_with_linearization(
 ) -> Result<()> {
     let emission_labels: Vec<String> = {
 	linearization.iter()
-	    .map(|monomer_idx| {
-		format!("{}.{}", 
-			&rban_record.monomers[monomer_idx].name.0,
-			monomer_idx.0)
+	    .map(|monomer_idx| -> Result<String> {
+		let monomer = rban_record
+		    .monomers
+		    .get(monomer_idx)
+		    .with_context(|| {
+			format!(
+			    "Monomer index {} in linearization is absent in the rban record for {}",
+			    monomer_idx, rban_record.compound_id
+			)
+		    })?;
+
+		Ok(format!("{}.{}", monomer.name.0, monomer_idx.0))
 	    })
-	    .collect()
+	    .collect::<Result<Vec<_>>>()?
     };
 		
     draw_nerpa_hmm(

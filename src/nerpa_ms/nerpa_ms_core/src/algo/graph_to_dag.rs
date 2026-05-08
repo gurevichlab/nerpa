@@ -57,17 +57,19 @@ pub fn add_inserts_to_subgraph_root<'a>(
 	    },
 	    _ => unreachable!("expected Insert"),
 	}
+
 	out_edges.get_mut(&subgraph_root)
 	    .unwrap()
 	    .push(Edge {
 		to: insert_node_idx,
-		weight: 1,
-		modification: Some(gm.clone()),
+		weight: 0,
+		modification: None,
 	    });
+	// It's important that the BACK edge has weight 1, as DP assumes that edges with weight 0 increase the vertex index
 	out_edges.insert(insert_node_idx, vec![Edge {
 	    to: subgraph_root,
-	    weight: 0,
-	    modification: None,
+	    weight: 1,
+	    modification: Some(gm.clone()),
 	}]);
     }
 	
@@ -76,7 +78,13 @@ pub fn add_inserts_to_subgraph_root<'a>(
 pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'mon_db MonomersDB) -> DAG<'mon_db> {
-    // for debugging purposes, limit the number of modifications
+    // forbid/limit certain nodes/edges for debugging purposes
+    // let max_subs = 0;
+    // let max_inserts = 2;
+    // let allow_deletions = false;
+
+    let debug_output = true;
+    let allow_deletions = true;
     let max_subs = usize::MAX;
     let max_inserts = usize::MAX;
 
@@ -121,13 +129,32 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 	    } else {
 		let prev_monomer_idx = linearization[lin_idx - 1];
 		if monomer_graph.get_bond(monomer_idx, prev_monomer_idx).is_none() {
-		    println!("Warning: no bond between monomers {} and {} in the linearization. Skipping insertions at edge.", monomer_idx.0, prev_monomer_idx.0);
+		    if debug_output {
+			println!("Warning: no bond between monomers {} and {} in the linearization. Skipping insertions at edge.", monomer_idx.0, prev_monomer_idx.0);
+		    }
 		    Vec::new()
 		} else {
 		    get_insert_mods_edge(monomer_graph, prev_monomer_idx, monomer_idx, monomers_db, max_inserts)
 		}
 	    }
 	};
+
+	if debug_output {
+	    let inserts_str = {
+		let mut strs = inserts.iter()
+		    .map(|m| match m {
+			GraphModification::Insert { site, mon_db_entry } => {
+			    mon_db_entry.monomer.features.name.0.clone()
+			},
+			_ => unreachable!("expected Insert"),
+		    })
+		    .collect::<Vec<_>>();
+
+		strs.sort();
+		strs.join(", ")
+	    };
+	    println!("Inserts before monomer {}:\n{}\n", monomer_idx.0, inserts_str);
+	}
 
 	// +2 instead of +1 because of the "no modifications" node
         let next_subgraph_root = subgraph_root + inserts.len() + subs.len() + 2;
@@ -181,7 +208,7 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
         }
 
 	// ===== Deletion
-	if monomer_graph.can_remove(monomer_idx, monomers_db) {
+	if monomer_graph.can_remove(monomer_idx, monomers_db) && allow_deletions {
 	    let del_mod = GraphModification::Remove { monomer_idx: monomer_idx };
 	    out_edges.get_mut(&subgraph_root)
 		.unwrap()

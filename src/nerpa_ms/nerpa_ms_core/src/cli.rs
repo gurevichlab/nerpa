@@ -50,4 +50,8 @@ pub struct Cli {
     /// Path to root Nerpa dir
     #[arg(long)]
     pub nerpa_root: PathBuf,
+
+    /// Draw HMMs with DAGs. Careful: only enable for tiny examples
+    #[arg(long)]
+    pub draw_hmm_dag_opt_paths: bool,
 }

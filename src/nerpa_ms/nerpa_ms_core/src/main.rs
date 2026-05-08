@@ -39,7 +39,7 @@ fn draw_hmm_dags_optimal_paths(
 		&dag,
 		&new_variant_with_opt_paths.hmm_path,
 		&new_variant_with_opt_paths.dag_path,
-		&figs_dir.join(format!("{i}")),
+		&figs_dir.join(format!("{i}.svg")),
 		nerpa_root
 	    );	     
 	    if let Err(e) = res {
@@ -64,7 +64,7 @@ fn draw_hmms_optimal_paths(
 	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
 	    let res = draw_nerpa_hmm_with_linearization(
 		&item.hmm,
-		&item.rban_record,
+		&new_variant_with_opt_paths.new_variant.new_record,
 		&new_variant_with_opt_paths.hmm_path,
 		&new_variant_with_opt_paths.linearization,
 		&figs_dir.join(format!("{i}.svg")),
@@ -158,6 +158,23 @@ fn main() -> Result<()> {
 	    &figs_dir,
 	    &cli.nerpa_root
 	);
+
+	if cli.draw_hmm_dag_opt_paths {
+	    println!("Drawing HMM-DAG optimal paths...");
+	    let figs_dir = {
+		cli.out
+		    .join("figures")
+		    .join("hmm_dag_opt_paths")
+		    .join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	    };
+	    draw_hmm_dags_optimal_paths(
+		&new_variants_with_opt_paths,
+		item,
+		&dag,
+		&figs_dir,
+		&cli.nerpa_root
+	    );
+	}
 
 	let new_variants = {
 	    new_variants_with_opt_paths
