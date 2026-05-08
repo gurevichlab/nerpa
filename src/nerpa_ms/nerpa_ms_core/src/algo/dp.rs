@@ -1,6 +1,6 @@
-use crate::data_types::common_types::LogProb;
+use crate::data_types::common_types::LogOdds;
 use crate::data_types::dag::{Edge, DAG};
-use crate::data_types::discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet};
+use crate::data_types::discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet};
 use crate::data_types::dp_table::{DP_Coords, DP_Table};
 use crate::data_types::hmm::{StateIdx, HMM};
 
@@ -20,13 +20,13 @@ fn relax_non_emitting_states(dp: &mut DP_Table, hmm: &HMM, v: usize, w: usize) {
                 continue;
             }
 
-            for &(to, edge_lp) in &hmm.transitions[s] {
+            for &(to, edge_lo) in &hmm.transitions[s] {
                 let new_coords = DP_Coords {
                     weight: w,
                     vertex: v,
                     state: to,
                 };
-                dp.update(&new_coords, &cur_coords, Some(edge_lp), None);
+                dp.update(&new_coords, &cur_coords, Some(edge_lo), None);
             }
         }
     }
@@ -95,14 +95,14 @@ fn advance_dag_labeled<'a>(
             continue;
         }
 
-        let emission_lp = hmm.emissions[s][mon_code.as_usize()];
+        let emission_lo = hmm.emissions[s][mon_code.as_usize()];
 
-        for &(new_state, edge_lp) in &hmm.transitions[s] {
+        for &(new_state, transition_lo) in &hmm.transitions[s] {
             for dag_edge in &dag.out_edges[v] {
                 let new_weight = w + dag_edge.weight as usize;
                 if new_weight <= max_weight {
                     // shifted (v, w, s) is recomputed here but that's
-                    // fine as most of the time there's just one dag edge
+                    // fine as most of the time there's just one dag edge out of a labeled vertex
                     let new_coords = DP_Coords {
                         weight: new_weight,
                         vertex: dag_edge.to,
@@ -111,7 +111,7 @@ fn advance_dag_labeled<'a>(
                     dp.update(
                         &new_coords,
                         &cur_coords,
-                        Some(edge_lp + emission_lp),
+                        Some(transition_lo + emission_lo),
                         Some(dag_edge.clone()),
                     );
                 }

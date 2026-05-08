@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::data_types::{bgc_variant::BGC_Variant, common_types::{LogProb, MonomerIdx}, hmm::{HMM, StateIdx}, parsed_rban_record::Parsed_rBAN_Record};
+use crate::data_types::{bgc_variant::BGC_Variant, common_types::{LogOdds, MonomerIdx}, hmm::{HMM, StateIdx}, parsed_rban_record::Parsed_rBAN_Record};
 
 pub struct AlignmentStep {
     pub module_idx: Option<usize>,
@@ -82,7 +82,7 @@ impl<'a> Alignment<'a> {
         use std::cmp::Ordering;
         use std::fmt::Write;
 
-        fn logprob_to_percent(logp: &LogProb) -> u64 {
+        fn logprob_to_percent(logp: &LogOdds) -> u64 {
             // LogProb is assumed to be a natural-log probability (ln p).
             // Convert to percent in 0..100: exp(logp) * 100, rounded.
             let percent = ((*logp).exp() * 100.0).round();

@@ -29,15 +29,49 @@ struct Args {
     alphabet: usize,
 }
 
-fn random_logprobs(rng: &mut impl Rng, n: usize) -> Vec<f64> {
-    // Random categorical distribution -> ln(prob)
-    let mut xs: Vec<f64> = (0..n).map(|_| rng.gen_range(0.001..1.0)).collect();
-    let sum: f64 = xs.iter().sum();
-    for x in &mut xs {
-        let lp = (*x / sum).ln();
-        *x = (lp * 10.0).round() / 10.0;
+fn random_balanced_distribution(
+    rng: &mut impl Rng,
+    n: usize,
+    min_allowed_prob: f64
+) -> Vec<f64> {
+    if min_allowed_prob * (n as f64) > 1.0 {
+	panic!("min_allowed_prob {} is too high for n {}", min_allowed_prob, n);
     }
-    xs
+
+    let mut remaining_n = n;
+    let mut probs = Vec::with_capacity(n);
+    for _ in 0..n {
+	let max_for_this = 1.0 - min_allowed_prob * (remaining_n as f64);
+	let prob = rng.gen_range(min_allowed_prob..=max_for_this);
+	remaining_n -= 1;
+	probs.push(prob);
+    }
+    probs
+}
+
+
+fn random_logprobs(
+    rng: &mut impl Rng,
+    n: usize,
+    min_allowed_logprob: f64
+) -> Vec<f64> {
+    // Random categorical distribution -> ln(prob)
+    let min_allowed_prob = min_allowed_logprob.exp();
+    let probs = random_balanced_distribution(rng, n, min_allowed_prob);
+    probs.iter().map(|p| (p * 10.0).round() / 10.0).collect()
+}
+
+fn random_logodds(
+    rng: &mut impl Rng,
+    n: usize,
+    logodds_abs_bound: f64,
+) -> Vec<f64> {
+    let v1 = random_logprobs(rng, n, -logodds_abs_bound);
+    let v2 = random_logprobs(rng, n, -logodds_abs_bound);
+    v1.into_iter()
+	.zip(v2.into_iter())
+	.map(|(lp1, lp2)| lp1 - lp2)  // both lp1 and lp2 in [-logodds_abs_bound, 0], so difference is in [-logodds_abs_bound, logodds_abs_bound]
+	.collect()
 }
 
 fn gen_hmm(rng: &mut impl Rng, alphabet: usize, test_idx: usize) -> serde_json::Value {
@@ -53,7 +87,7 @@ fn gen_hmm(rng: &mut impl Rng, alphabet: usize, test_idx: usize) -> serde_json::
     let emissions: Vec<serde_json::Value> = (0..n_states)
         .map(|i| {
             if emitting[i] {
-                json!(random_logprobs(rng, alphabet))
+                json!(random_logodds(rng, alphabet, 5.0)) // logodds in [-5, 5]
             } else {
                 json!([]) // non-emitting convention
             }
@@ -85,7 +119,7 @@ fn gen_hmm(rng: &mut impl Rng, alphabet: usize, test_idx: usize) -> serde_json::
         tos.sort_unstable();
         tos.dedup();
 
-        let lps = random_logprobs(rng, tos.len());
+        let lps = random_logprobs(rng, tos.len(), -5.0); // logprobs in [-5, 0]
         transitions[i] = tos.into_iter().zip(lps.into_iter()).collect();
     }
 
@@ -102,6 +136,10 @@ fn gen_hmm(rng: &mut impl Rng, alphabet: usize, test_idx: usize) -> serde_json::
             row.iter().map(|(to, lp)| json!([to, lp])).collect::<Vec<_>>()
         }).collect::<Vec<_>>(),
         "emissions": emissions,
+	"state_types": json!([]),  // not needed for tests
+	"module_match_states": json!([]),  // not needed for tests
+	"module_start_states": json!([]),  // not needed for tests
+	"module_names": json!([]),  // not needed for tests
     })
 }
 

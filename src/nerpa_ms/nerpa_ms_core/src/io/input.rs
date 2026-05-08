@@ -10,7 +10,7 @@ use serde_json::Value;
 
 use crate::cli::Cli;
 use crate::data_types::bgc_variant::BGC_Variant;
-use crate::data_types::common_types::{LogProb, MonomerIdx};
+use crate::data_types::common_types::{LogOdds, MonomerIdx};
 use crate::data_types::hmm::{BGC_Variant_ID, HMM};
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 
@@ -19,7 +19,7 @@ pub struct InputItem {
     pub hmm: HMM,
     pub rban_record: Parsed_rBAN_Record,
     pub linearization: Vec<MonomerIdx>,
-    pub score: LogProb,
+    pub score: LogOdds,
 }
 
 pub fn get_input(cli: &Cli) -> Result<Vec<InputItem>> {
@@ -101,8 +101,8 @@ pub fn get_input_from_nerpa_results(
 ) -> Result<Vec<InputItem>> {
     let hmms: Vec<HMM> = {
         let hmms_json = nerpa_results_path
-            .join("intermediate_files")
-            .join("hmms.json");
+            .join("preprocessed_input")
+            .join("hmms_nerpa_ms.json");
         let hmms_text = fs::read_to_string(&hmms_json).with_context(|| {
             format!(
                 "failed to read hmms.json from nerpa_results at {}",

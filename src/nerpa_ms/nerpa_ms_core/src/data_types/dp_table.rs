@@ -1,7 +1,7 @@
 use super::{
-    common_types::LogProb,
+    common_types::LogOdds,
     dag::Edge,
-    discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet},
+    discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet},
 };
 
 pub type DP_Idx = usize;
@@ -9,7 +9,7 @@ pub type DP_Idx = usize;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BacktrackPointer<'a> {
     pub parent: DP_Coords,
-    pub dlp_shift: Option<usize>, // shift to apply to all log-probs from parent cell when backtracking
+    pub dlo_shift: Option<isize>, // shift that was applied to all log-probs in parent cell when transitioning
     pub dag_edge: Option<Edge<'a>>,
 }
 
@@ -20,7 +20,7 @@ pub struct DP_Table<'a> {
     n_weights: usize, // = max_weight + 1
     n_vertices: usize,
     n_states: usize,
-    data: Vec<DiscreteLogProbSet>,
+    data: Vec<DiscreteLogOddsSet>,
     parents: Vec<Vec<BacktrackPointer<'a>>>, // parallel to data, stores parent indices and optional shift for each cell
 }
 
@@ -36,9 +36,9 @@ impl<'a> DP_Table<'a> {
         let n_weights = max_weight + 1;
         let len = n_vertices * n_weights * n_states;
 
-        let mut data = vec![DiscreteLogProbSet::empty(); len];
+        let mut data = vec![DiscreteLogOddsSet::empty(); len];
         // start state has probability 1
-        data[0] = DiscreteLogProbSet::from_logprob_vec(vec![0.0]);
+        data[0] = DiscreteLogOddsSet::from_logodds_vec(vec![0.0]);
 
         let parents = vec![Vec::new(); len];
 
@@ -81,13 +81,13 @@ impl<'a> DP_Table<'a> {
     }
 
     #[inline]
-    pub fn get(&self, coords: &DP_Coords) -> &DiscreteLogProbSet {
+    pub fn get(&self, coords: &DP_Coords) -> &DiscreteLogOddsSet {
         let i = self.idx(coords);
         &self.data[i]
     }
 
     #[inline]
-    pub fn get_by_idx(&self, idx: DP_Idx) -> &DiscreteLogProbSet {
+    pub fn get_by_idx(&self, idx: DP_Idx) -> &DiscreteLogOddsSet {
         debug_assert!(idx < self.data.len());
         &self.data[idx]
     }
@@ -119,6 +119,8 @@ impl<'a> DP_Table<'a> {
         self.n_states
     }
 
+    // Union src cell into dst cell, without any shift.
+    // Implemented as a separate method since it's a common case and we can optimize by avoiding cloning src when no shift is needed.
     #[inline]
     fn update_cell_with_cell(&mut self, dst: usize, src: usize) {
         if dst == src {
@@ -139,11 +141,12 @@ impl<'a> DP_Table<'a> {
         }
     }
 
+    // Update dst cell by unioning in src cell, optionally applying a shift to all log-probabilities from src before unioning.
     fn update_from_idx(
         &mut self,
         dst: usize,
         src: usize,
-        shift: Option<LogProb>,
+        shift: Option<LogOdds>,
         dag_edge: Option<Edge<'a>>,
     ) {
         match shift {
@@ -158,14 +161,17 @@ impl<'a> DP_Table<'a> {
             }
         }
 
-        let dlp_shift = shift.map(|lp| DiscreteLogProbSet::get_abs_shift(lp));
+        let dlo_shift: Option<isize> = shift.map(|lo| DiscreteLogOdds::logodds_to_centered_discrete_lo(lo));
 
         let parent = self.idx_to_coordinates(src);
         let ptr = BacktrackPointer {
             parent,
-            dlp_shift,
+            dlo_shift,
             dag_edge,
         };
+
+	// Avoid adding duplicate backtrack pointers for the same parent and shift
+	// which can happen when handling iterations
         if !self.parents[dst]
             .iter()
             .any(|existing_ptr| *existing_ptr == ptr)
@@ -179,7 +185,7 @@ impl<'a> DP_Table<'a> {
         &mut self,
         dst: &DP_Coords,
         src: &DP_Coords,
-        shift: Option<LogProb>,
+        shift: Option<LogOdds>,
         dag_edge: Option<Edge<'a>>,
     ) {
         let src_idx = self.idx(src);

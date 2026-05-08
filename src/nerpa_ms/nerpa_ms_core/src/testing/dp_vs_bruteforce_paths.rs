@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     algo::solve_brute_force::{PathsToCoords, retrieve_paths_brute_force},
     data_types::{
-        common_types::LogProb, dag::{DAG, Edge, VertexId}, discrete_log_prob::MIN_LOG_PROB, dp_table::{DP_Coords, DP_Table}, hmm::{HMM, StateIdx}
+        common_types::LogOdds, dag::{DAG, Edge, VertexId}, discrete_log_prob::MIN_LOG_PROB, dp_table::{DP_Coords, DP_Table}, hmm::{HMM, StateIdx}
     },
 };
 
@@ -44,28 +44,28 @@ pub fn find_paths_mismatch<'a>(
     tol: f64,
 ) -> Option<PathsMismatch> {
     // ---- collect DP backtracked paths
-    let mut dp_pairs: Vec<(PathKey, LogProb)> = Vec::new();
+    let mut dp_pairs: Vec<(PathKey, LogOdds)> = Vec::new();
     for sol in backtrack_solutions(weight, dp, dag) {
         let key = PathKey {
             dag_vertices: dag_vertices_from_edges(dag, &sol.dag_edges),
             hmm_states: sol.states.clone(),
         };
-        dp_pairs.push((key, sol.dlp.to_logprob()));
+        dp_pairs.push((key, sol.dlo.to_logodds()));
     }
     dp_pairs.sort_by(|a, b| a.0.cmp(&b.0));
 
     // ---- collect brute force paths
     let brute_paths = retrieve_paths_brute_force(hmm, dag, brute_paths_to_coords, weight);
 
-    let mut brute_pairs: Vec<(PathKey, LogProb)> = brute_paths
+    let mut brute_pairs: Vec<(PathKey, LogOdds)> = brute_paths
         .into_iter()
         .filter_map(|p| {
-	    if p.lp > MIN_LOG_PROB {
+	    if p.lo > MIN_LOG_PROB {
 		let key = PathKey {
                     dag_vertices: dag_vertices_from_edges(dag, &p.dag_path),
                     hmm_states: p.hmm_path,
 		};
-		Some((key, p.lp))
+		Some((key, p.lo))
 	    } else {
 		None
 	    }

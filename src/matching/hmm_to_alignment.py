@@ -23,16 +23,14 @@ ST = DetailedHMMStateType
 def hmm_path_to_alignment(hmm: DetailedHMM,
                           path: List[int],
                           nrp_monomers: List[rBAN_Monomer]) -> Alignment:
-    hmm.draw(Path('debug_hmm.svg'),
-             highlight_path=path,
-             emission_names=[
-                 mon.rban_name
-                 for mon in nrp_monomers
-             ])
-
     # for debugging
-    # for u in path:
-    #     print(f'State {u}: {hmm.states[u].state_type}, related module idx: {hmm.states[u].related_module_idx}')
+    # hmm.draw(Path('debug_hmm.svg'),
+    #          highlight_path=path,
+    #          emission_names=[
+    #              mon.rban_name
+    #              for mon in nrp_monomers
+    #          ])
+
     monomers_iter = iter(nrp_monomers)
     alignment = []
     for edge_from, edge_to in pairwise(path):

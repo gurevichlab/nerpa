@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::data_types::common_types::{LogProb, MonomerCode};
+use crate::data_types::common_types::{LogOdds, MonomerCode};
 use crate::data_types::dag::{Edge, DAG};
-use crate::data_types::discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet};
+use crate::data_types::discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet};
 use crate::data_types::dp_table::DP_Coords;
 use crate::data_types::hmm::{StateIdx, HMM};
 
@@ -31,7 +31,7 @@ pub fn all_hmm_paths_until(
     s: usize,
     num_emissions: usize,
     hmm: &HMM,
-) -> Vec<Vec<(usize, LogProb)>> {
+) -> Vec<Vec<(usize, LogOdds)>> {
     let mut paths = Vec::new();
     let mut stack = vec![(0, 0, Vec::new())]; // (state, path)
     while let Some((current_state, current_num_emissions, current_path)) = stack.pop() {
@@ -40,7 +40,7 @@ pub fn all_hmm_paths_until(
             continue;
         }
 
-        for &(to, edge_lp) in &hmm.transitions[current_state] {
+        for &(to, transition_lo) in &hmm.transitions[current_state] {
             let new_emission = if hmm.emissions[current_state].is_empty() {
                 0
             } else {
@@ -50,7 +50,7 @@ pub fn all_hmm_paths_until(
 
             if new_num_emissions <= num_emissions {
                 let mut new_path = current_path.clone();
-                new_path.push((to, edge_lp));
+                new_path.push((to, transition_lo));
                 stack.push((to, new_num_emissions, new_path));
             }
         }
@@ -62,7 +62,7 @@ pub fn all_hmm_paths_until(
 pub struct PathsToCoords<'a> {
     pub dag_path: Vec<Edge<'a>>,
     pub hmm_path: Vec<StateIdx>,
-    pub lp: LogProb,
+    pub lo: LogOdds,
 }
 
 pub fn dp_brute_force<'a>(
@@ -94,8 +94,8 @@ pub fn dp_brute_force<'a>(
                             .filter(|&&(state, _)| !hmm.emissions[state].is_empty())
                             .map(|&(state, _)| state)
                             .collect();
-                        let total_transition_lp: LogProb = hmm_path.iter().map(|&(_, lp)| lp).sum();
-                        let total_emission_lp: LogProb = emitting_states
+                        let total_transition_lo: LogOdds = hmm_path.iter().map(|&(_, lp)| lp).sum();
+                        let total_emission_lo: LogOdds = emitting_states
                             .iter()
                             .zip(emissions.iter())
                             .map(|(&state, &mon_code)| hmm.emissions[state][mon_code.as_usize()])
@@ -114,7 +114,7 @@ pub fn dp_brute_force<'a>(
                             .push(PathsToCoords {
                                 dag_path: dag_path.clone(),
                                 hmm_path: hmm_states,
-                                lp: total_transition_lp + total_emission_lp,
+                                lo: total_transition_lo + total_emission_lo,
                             });
                     }
                 }
@@ -127,14 +127,14 @@ pub fn dp_brute_force<'a>(
 
 pub fn compute_dp_table_brute_force(
     paths_to_coords: &HashMap<DP_Coords, Vec<PathsToCoords>>,
-) -> HashMap<DP_Coords, HashSet<DiscreteLogProb>> {
+) -> HashMap<DP_Coords, HashSet<DiscreteLogOdds>> {
     let mut dp_table = HashMap::new();
     for (coords, paths) in paths_to_coords {
-        let dlps: HashSet<DiscreteLogProb> = paths
+        let dlos: HashSet<DiscreteLogOdds> = paths
             .iter()
-            .map(|p| DiscreteLogProb::from_logprob(p.lp))
+            .map(|p| DiscreteLogOdds::from_logodds(p.lo))
             .collect();
-        dp_table.insert(coords.clone(), dlps);
+        dp_table.insert(coords.clone(), dlos);
     }
     dp_table
 }

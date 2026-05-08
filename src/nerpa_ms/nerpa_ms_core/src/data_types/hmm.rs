@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::data_types::common_types::{LogProb};
+use crate::data_types::common_types::{LogOdds};
 
 pub type StateIdx = usize;
 
@@ -45,11 +45,11 @@ pub struct HMM {
     // transitions[i]: vector of (next_state, log_prob)
     #[serde(deserialize_with = "crate::data_types::json_helpers::de_transitions_null_lp_as_neg_inf",
     	    serialize_with = "crate::data_types::json_helpers::ser_transitions_neg_inf_lp_as_null")]
-    pub transitions: Vec<Vec<(StateIdx, LogProb)>>,
+    pub transitions: Vec<Vec<(StateIdx, LogOdds)>>,
     // emissions[i][j]: log probability of emitting monomer j from state i
     #[serde(deserialize_with = "crate::data_types::json_helpers::de_vec_vec_logprob_null_as_neg_inf",
     	    serialize_with = "crate::data_types::json_helpers::ser_vec_vec_logprob_neg_inf_as_null")]
-    pub emissions: Vec<Vec<LogProb>>,
+    pub emissions: Vec<Vec<LogOdds>>,
 
     // for debugging and interpretability.
     pub state_types: Vec<String>,

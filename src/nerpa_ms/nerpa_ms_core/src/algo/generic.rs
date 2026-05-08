@@ -46,3 +46,18 @@ where
         Some(chunk)
     }
 }
+
+pub fn rounded(f: f64, digits: usize) -> f64 {
+    if !f.is_finite() {
+	return f;
+    }
+    if digits == 0 {
+	return f.round();
+    }
+    let factor = 10f64.powf(digits as f64);
+    if !factor.is_finite() || factor == 0.0 {
+	return f;
+    }
+    (f * factor).round() / factor
+}
+

@@ -1,4 +1,4 @@
-use crate::{algo::{apply_modifications::apply_modifications, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogProb, MonomerIdx}, dag::{DAG, VertexId}, graph_modifications::GraphModification, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::{MonomerOrigin, MonomersDB}, parsed_rban_record::Parsed_rBAN_Record}};
+use crate::{algo::{apply_modifications::apply_modifications, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogOdds, MonomerIdx}, dag::{DAG, VertexId}, graph_modifications::GraphModification, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::{MonomerOrigin, MonomersDB}, parsed_rban_record::Parsed_rBAN_Record}};
 
 use crate::algo::graph_to_dag::create_dag;
 use serde::Serialize;
@@ -9,7 +9,7 @@ use super::dp_backtrack::Solution;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Altered_rBAN_Record {
-    pub score: LogProb,
+    pub score: LogOdds,
     pub new_record: Parsed_rBAN_Record,
     pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>,
     pub monomer_origins: Vec<MonomerOrigin>,
@@ -69,7 +69,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		};
 			
 		let variant = Altered_rBAN_Record {
-		    score: sol.dlp.to_logprob(),
+		    score: sol.dlo.to_logodds(),
 		    new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
 		    old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
 		    monomer_origins,
