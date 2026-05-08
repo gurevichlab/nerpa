@@ -18,11 +18,11 @@ command = ' '.join(['cargo run --bin nerpa_ms_core --',
                     '--nerpa-results fixtures/trash_single',
                     '--max-nerpa-matches 3',
                     '--max-edits 2',
-                    '--num-variants-per-num-edits 3',
+                    '--num-variants-per-num-edits 5',
                     '--out output',
                     '--monomers-db-json data/monomers_db.json',
                     '--nerpa-root', str(nerpa_root),
-                    #'--draw-hmm-dag-opt-paths',
+                    '--draw-hmm-dag-opt-paths',
                     ])
 subprocess.run(command.split())
 

@@ -21,6 +21,11 @@ from src.matching.alignment_step_type import MatchDetailedScore
 from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
 from dataclasses import dataclass
 from math import log
+from enum import Enum, auto
+
+class ScoringScheme(Enum):
+    NERPA = auto()  # LogProb, unknown chiralities allowed
+    NERPA_MS = auto()  # LogOdds, chirality score component removed
 
 
 @dataclass
@@ -107,35 +112,29 @@ class HMMHelper:
                 match_score.chirality_score - default_score.chirality_score
           )
 
-    def get_emissions(self,
-                      bgc_module: BGC_Module,
-                      scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
-                      allow_unknown_chiralities: bool = True,
-                      pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        assert scoring_type in ['LogProb'], \
-            f'Invalid scoring type: {scoring_type}. Expected "LogProb". "LogOdds" is deprecated.'
+    def get_match_emissions(
+            self,
+            bgc_module: BGC_Module,
+            scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
+            pks_domains_in_bgc: bool = False
+    ) -> Dict[NRP_Monomer, LogProb]:
         emission_scores = {}
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
-            if (nrp_monomer.chirality == Chirality.UNKNOWN
-                    and not allow_unknown_chiralities):
-                emission_scores[nrp_monomer] = float('-inf')
-                continue
-
-            if scoring_type == 'LogProb':
-                emission_scores[nrp_monomer] = self.match(bgc_module, nrp_monomer, pks_domains_in_bgc)
-            elif scoring_type == 'LogOdds':
-                detailed_score = self.normalized_match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
-                emission_scores[nrp_monomer] = (detailed_score.residue_score
-                                          + detailed_score.methylation_score
-                                          + detailed_score.chirality_score)
+            match scoring_scheme:
+                case ScoringScheme.NERPA:
+                     emission_scores[nrp_monomer] = self.match(bgc_module, nrp_monomer, pks_domains_in_bgc)
+                case ScoringScheme.NERPA_MS:
+                    detailed_score = self.normalized_match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
+                    emission_scores[nrp_monomer] = detailed_score.residue_score + detailed_score.methylation_score
+                case _:
+                    raise ValueError(f'Invalid scoring scheme: {scoring_scheme}')
 
         return emission_scores
 
     # TODO: precompute once and cache
     def get_insert_emissions(self,
                              bgc_module: Optional[BGC_Module],
-                             scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
-                             allow_unknown_chiralities: bool = True,
+                             scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
                              pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
         # adjust default monomer frequencies to force the probability of UNKNOWN_RESIDUE to be UNKNOWN_INSERT_FREQ
         UNKNOWN_INSERT_FREQ = self.scoring_config.insert_unknown_freq
@@ -147,10 +146,6 @@ class HMMHelper:
         assert math.isclose(sum(default_insert_freqs.values()), 1.0), \
             f'Default insert frequencies do not sum to 1: {sum(default_insert_freqs.values())}'
 
-        assert scoring_type in ['LogProb'], \
-            (f'Invalid scoring type: {scoring_type}. Expected "LogProb" '
-             f'("LogOdds" deprecated for now).')
-
         mon_helper_residues = {mon.residue for mon in self.monomer_names_helper.mon_to_int}
         assert set(default_insert_freqs.keys()) == mon_helper_residues, \
             ('Default insert frequencies do not match monomer names helper residues.\n'
@@ -160,27 +155,19 @@ class HMMHelper:
 
         emission_scores = {}
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
-            if (not allow_unknown_chiralities
-                    and (nrp_monomer.chirality == Chirality.UNKNOWN
-                         or nrp_monomer.is_pks_hybrid)):
-                emission_scores[nrp_monomer] = float('-inf')
-                continue
-
-            # If the monomer is a PKS hybrid, we treat it as an unknown residue
-            if not nrp_monomer.is_pks_hybrid or pks_domains_in_bgc:
-                res = nrp_monomer.residue
-            else:
-                # if there are no PKS domains in the BGC, alleged PKS hybrids are treated as unknown residues
-                res = UNKNOWN_RESIDUE
-
-            #if nrp_monomer.residue == PKS_RESIDUE:
-            #    res = UNKNOWN_RESIDUE  # PKS residues are treated as unknowns in insertions (STUB)
+            res = (
+                nrp_monomer.residue 
+                if not nrp_monomer.is_pks_hybrid or pks_domains_in_bgc
+                else UNKNOWN_RESIDUE
+            )
 
             res_freq = default_insert_freqs[res]
             res_score = log(res_freq)
-            meth_freq = (self.monomer_names_helper.default_frequencies.methylation
-                            if nrp_monomer.methylated else
-                            1 - self.monomer_names_helper.default_frequencies.methylation)
+            meth_freq = (
+                self.monomer_names_helper.default_frequencies.methylation
+                if nrp_monomer.methylated else
+                1 - self.monomer_names_helper.default_frequencies.methylation
+            )
             meth_score = log(meth_freq)
 
             d_chr_freq = self.monomer_names_helper.default_frequencies.d_chirality
@@ -191,17 +178,36 @@ class HMMHelper:
                     chr_score = log(1 - d_chr_freq)
                 case Chirality.UNKNOWN:
                     chr_score = (
-                            d_chr_freq * log(d_chr_freq)
-                            + (1 - d_chr_freq) * log(1 - d_chr_freq)
+                        d_chr_freq * log(d_chr_freq)
+                        + (1 - d_chr_freq) * log(1 - d_chr_freq)
                     )
+            match scoring_scheme:
+                case ScoringScheme.NERPA:
+                    emission_scores[nrp_monomer] = res_score + meth_score + chr_score
+                case ScoringScheme.NERPA_MS:
+                    emission_scores[nrp_monomer] = res_score + meth_score
 
-            emission_scores[nrp_monomer] = res_score + meth_score + chr_score
+        distinct_proper_monomers = []
+        match scoring_scheme:
+            case ScoringScheme.NERPA:
+                distinct_proper_monomers = [
+                    mon
+                    for mon in emission_scores
+                    if mon.chirality != Chirality.UNKNOWN and not mon.is_pks_hybrid
+                ]
+            case ScoringScheme.NERPA_MS:
+                mon_by_res_meth = {
+                    (mon.residue, mon.methylated): mon
+                    for mon in emission_scores
+                    if not mon.is_pks_hybrid
+                }
+                distinct_proper_monomers = list(mon_by_res_meth.values())               
+            case _:
+                raise ValueError(f'Invalid scoring scheme: {scoring_scheme}')
 
         # assert that all scores sum to 1
-        total_score = sum(math.e ** score
-                          for mon, score in emission_scores.items()
-                          if mon.chirality != Chirality.UNKNOWN
-                          and not mon.is_pks_hybrid)
+        total_score = sum(math.e ** emission_scores[mon]
+                          for mon in distinct_proper_monomers)
 
         assert math.isclose(total_score, 1.0), \
             f'Total score of insert emissions is {total_score}, expected 1.0'
@@ -210,11 +216,9 @@ class HMMHelper:
 
     def get_insert_at_start_emissions(self,
                                       bgc_module: BGC_Module,
-                                      scoring_type: Literal['LogProb', 'LogOdds'] = 'LogProb',
-                                      allow_unknown_chiralities: bool = True,
+                                      scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
                                       pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
         return self.get_insert_emissions(bgc_module,
-                                         scoring_type,
-                                         allow_unknown_chiralities,
-                                         pks_domains_in_bgc)
+                                         scoring_scheme=scoring_scheme,
+                                         pks_domains_in_bgc=pks_domains_in_bgc)
 

@@ -79,13 +79,13 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'mon_db MonomersDB) -> DAG<'mon_db> {
     // forbid/limit certain nodes/edges for debugging purposes
-    // let max_subs = 0;
+    let max_subs = 0;
     // let max_inserts = 2;
-    // let allow_deletions = false;
+    let allow_deletions = false;
 
     let debug_output = true;
-    let allow_deletions = true;
-    let max_subs = usize::MAX;
+    // let allow_deletions = true;
+    // let max_subs = usize::MAX;
     let max_inserts = usize::MAX;
 
     // HashMap instead of Vec for less headache
@@ -120,23 +120,45 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
                 .collect()
         };
 	let inserts: Vec<GraphModification> = {
-	    if lin_idx == 0 {
-		if monomer_graph.degree(monomer_idx) != 1 {
-		    Vec::new()
-		} else {
+	    let mut inserts: Vec<GraphModification> = Vec::new();
+	    if monomer_graph.degree(monomer_idx) == 1 {
+		inserts.extend(
 		    get_insert_mods_leaf(monomer_graph, monomer_idx, monomers_db, max_inserts)
-		}
-	    } else {
+		);
+	    }
+	    if let Some(parent) = monomer_graph.get_amino_chain_parent(monomer_idx) {
+		inserts.extend(
+		    get_insert_mods_edge(monomer_graph, parent, monomer_idx, monomers_db, max_inserts)
+		);
+	    }
+	    if lin_idx > 0 {
 		let prev_monomer_idx = linearization[lin_idx - 1];
-		if monomer_graph.get_bond(monomer_idx, prev_monomer_idx).is_none() {
-		    if debug_output {
-			println!("Warning: no bond between monomers {} and {} in the linearization. Skipping insertions at edge.", monomer_idx.0, prev_monomer_idx.0);
+		if monomer_graph.degree(prev_monomer_idx) == 1 {
+		    inserts.extend(
+			get_insert_mods_leaf(monomer_graph, prev_monomer_idx, monomers_db, max_inserts)
+		    );
+		}
+		if let Some(prev_child) = monomer_graph.get_amino_chain_child(prev_monomer_idx) {
+		    if prev_child != monomer_idx {
+			inserts.extend(
+			    get_insert_mods_edge(monomer_graph, prev_monomer_idx, prev_child, monomers_db, max_inserts)
+			);
 		    }
-		    Vec::new()
-		} else {
-		    get_insert_mods_edge(monomer_graph, prev_monomer_idx, monomer_idx, monomers_db, max_inserts)
 		}
 	    }
+
+	    // DEBUG! Don't forget to remove
+	    inserts.into_iter()
+		.filter(|m| match m {
+		    GraphModification::Insert { site: _, mon_db_entry: entry } => {
+			let name = &entry.monomer.features.name.0;
+			name == "Ser" || name == "Orn"
+		    },
+		    _ => unreachable!("expected Insert"),
+		})
+		.collect()
+	    // inserts
+
 	};
 
 	if debug_output {
@@ -231,10 +253,19 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 
     // Add insertions at the end of the linearization
     let last_monomer_idx = linearization.last().unwrap().clone();
-    if monomer_graph.degree(last_monomer_idx) == 1 {
-	let inserts_at_end = get_insert_mods_leaf(monomer_graph, last_monomer_idx, monomers_db, max_inserts);
-	add_inserts_to_subgraph_root(final_node_idx, &inserts_at_end, &mut labels, &mut out_edges);
-    }
+    let inserts_at_end: Vec<GraphModification> = {
+	if monomer_graph.degree(last_monomer_idx) == 1 {
+	    get_insert_mods_leaf(monomer_graph, last_monomer_idx, monomers_db, max_inserts)
+	} else {
+	    if let Some(child) = monomer_graph.get_amino_chain_child(last_monomer_idx) {
+		get_insert_mods_edge(monomer_graph, last_monomer_idx, child, monomers_db, max_inserts)
+	    }
+	    else {
+		Vec::new()
+	    }
+	}
+    };
+    add_inserts_to_subgraph_root(final_node_idx, &inserts_at_end, &mut labels, &mut out_edges);
     
     // Convert HashMaps to Vecs. The keys of the HashMaps are actually continuous 0,1,...,labels.len()-1, so we can just iterate over the keys in order.
     let num_nodes = labels.len();

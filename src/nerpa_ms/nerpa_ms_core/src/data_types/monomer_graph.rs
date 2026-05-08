@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{bonds::{BindingSiteType, BindingSitesProfile, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
+use super::{bond_consts::{AMINO_BINDING_SITE_C, AMINO_BINDING_SITE_N, AMINO_BOND}, bonds::{BindingSiteType, BindingSitesProfile, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -93,4 +93,68 @@ impl MonomerGraph {
 	    })
 	    .count()
     }
+
+    pub fn get_amino_chain_parent(&self, monomer_idx: MonomerIdx) -> Option<MonomerIdx> {
+	if !self.monomers.contains_key(&monomer_idx) {
+	    panic!("Monomer index {} not found in monomer graph", monomer_idx);
+	}
+	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
+
+	let bonds_to_parents: Vec<&Bond> = {
+	    bonds_by_bs.iter()
+		.filter_map(|(bst, bond)|
+			    if *bst == *AMINO_BINDING_SITE_N {
+				Some(bond)
+			    } else {
+				None
+			    })
+		.collect::<Vec<_>>()
+	};
+
+	if bonds_to_parents.len() == 1 {
+	    let parent_bond = bonds_to_parents[0];
+	    if parent_bond.monomers.0 == monomer_idx {
+		Some(parent_bond.monomers.1)
+	    } else if parent_bond.monomers.1 == monomer_idx {
+		Some(parent_bond.monomers.0)
+	    } else {
+		unreachable!("Bond {:?} is connected to monomer {} but neither of its monomers is {}", parent_bond, monomer_idx, monomer_idx);
+	    }
+	} else {
+	    None
+	}
+    }
+
+    pub fn get_amino_chain_child(&self, monomer_idx: MonomerIdx) -> Option<MonomerIdx> {
+	if !self.monomers.contains_key(&monomer_idx) {
+	    panic!("Monomer index {} not found in monomer graph", monomer_idx);
+	}
+
+	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
+
+	let bonds_to_parents: Vec<&Bond> = {
+	    bonds_by_bs.iter()
+		.filter_map(|(bst, bond)|
+			    if *bst == *AMINO_BINDING_SITE_C {
+				Some(bond)
+			    } else {
+				None
+			    })
+		.collect::<Vec<_>>()
+	};
+
+	if bonds_to_parents.len() == 1 {
+	    let parent_bond = bonds_to_parents[0];
+	    if parent_bond.monomers.0 == monomer_idx {
+		Some(parent_bond.monomers.1)
+	    } else if parent_bond.monomers.1 == monomer_idx {
+		Some(parent_bond.monomers.0)
+	    } else {
+		unreachable!("Bond {:?} is connected to monomer {} but neither of its monomers is {}", parent_bond, monomer_idx, monomer_idx);
+	    }
+	} else {
+	    None
+	}
+    }
+	
 }

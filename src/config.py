@@ -259,6 +259,7 @@ class OutputConfig:
     logo: Path  # seems a bit out of place here
     rban_output_config: rBAN_Output_Config
     cpp_io_config: CppIOConfig
+    hmms_nerpa_ms_json: Path
 
     bgc_variants_no_calibration_dir: Path  # for debugging
 

@@ -15,6 +15,7 @@ from src.matching.alignment_step_type import (
     AlignmentStep_BGC_Module_Info,
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
+from pathlib import Path
 
 ET = DetailedHMMEdgeType  # for convenience
 ST = DetailedHMMStateType
@@ -22,6 +23,14 @@ ST = DetailedHMMStateType
 def hmm_path_to_alignment(hmm: DetailedHMM,
                           path: List[int],
                           nrp_monomers: List[rBAN_Monomer]) -> Alignment:
+    hmm.draw(Path('debug_hmm.svg'),
+             highlight_path=path,
+             emission_names=[
+                 mon.rban_name
+                 for mon in nrp_monomers
+             ])
+
+    # for debugging
     # for u in path:
     #     print(f'State {u}: {hmm.states[u].state_type}, related module idx: {hmm.states[u].related_module_idx}')
     monomers_iter = iter(nrp_monomers)

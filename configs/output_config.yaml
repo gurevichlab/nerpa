@@ -13,9 +13,19 @@ report: report.tsv
 html_report: report.html
 logo: docs/img/logo.png
 draw_molecules: true
-rban_output_config: {rban_output_dir: intermediate_files/rBAN, default_monomers_file: intermediate_files/rBAN/rban_monomers_db.json,
-  default_input_file: intermediate_files/rBAN/rban.input.json, default_output_file_name: rban.output.json,
-  putative_hybrids_input_file: intermediate_files/rBAN/hybrid_monomers_input.json,
-  putative_hybrids_output_file_name: hybrid_monomers_output.json}
-cpp_io_config: {hmms_json: intermediate_files/hmms.json, nrp_linearizations_json: intermediate_files/nrp_linearizations.json,
-  cpp_output_json: intermediate_files/cpp_matching_output.json}
+
+rban_output_config:
+    rban_output_dir: intermediate_files/rBAN
+    default_monomers_file: intermediate_files/rBAN/rban_monomers_db.json
+    default_input_file: intermediate_files/rBAN/rban.input.json
+    default_output_file_name: rban.output.json
+    putative_hybrids_input_file: intermediate_files/rBAN/hybrid_monomers_input.json
+    putative_hybrids_output_file_name: hybrid_monomers_output.json
+
+cpp_io_config: 
+    hmms_json: intermediate_files/hmms.json
+    nrp_linearizations_json: intermediate_files/nrp_linearizations.json
+    cpp_output_json: intermediate_files/cpp_matching_output.json
+
+hmms_nerpa_ms_json: preprocessed_input/hmms_nerpa_ms.json
+

@@ -73,13 +73,17 @@ class HMM_Constructor:
 
     def get_emissions(self,
                       module: BGC_Module) -> Dict[NRP_Monomer, LogProb]:
-        return self.hmm_helper.get_emissions(module,
-                                             pks_domains_in_bgc=self.bgc_variant.has_pks_domains())
+        return self.hmm_helper.get_match_emissions(
+            module,
+            pks_domains_in_bgc=self.bgc_variant.has_pks_domains()
+        )
 
     def get_insert_emissions(self,
                              module: BGC_Module) -> Dict[NRP_Monomer, LogProb]:
-        return self.hmm_helper.get_insert_emissions(module,
-                                                    pks_domains_in_bgc=self.bgc_variant.has_pks_domains())
+        return self.hmm_helper.get_insert_emissions(
+            module,
+            pks_domains_in_bgc=self.bgc_variant.has_pks_domains()
+        )
 
     def add_iteration_subgraph(self,
                                module_idx: int,
