@@ -26,7 +26,15 @@ HMM parse_hmm(const nlohmann::json& entry)
         std::vector<std::pair<StateIdx, LogProb>> row;
         for (auto& pair_j : st) {
             StateIdx st_to = pair_j.at(0).get<StateIdx>();
-            LogProb  prob  = pair_j.at(1).get<LogProb>();
+	    auto prob_val = pair_j.at(1);
+	    LogProb prob;
+	    if (prob_val.is_null()) {
+	      // null → -∞
+	      prob = -std::numeric_limits<LogProb>::infinity();
+	    } else {
+	      // normal finite value
+	      prob = prob_val.get<LogProb>();
+	    }
             row.emplace_back(st_to, prob);
         }
         hmm.transitions.push_back(row);

@@ -59,10 +59,10 @@ class PipelineHelperCpp:
             for detailed_hmm in detailed_hmms
         ]
 
-        #pretty_json = reformat_json(json.dumps(data))
         refined_data = json_round_floats(data, ndigits=3)
-        refined_data = json_remove_infinities(refined_data, infinity=1e30)
-        pretty_json = json.dumps(refined_data)
+        # refined_data = json_remove_infinities(refined_data, infinity=1e30)
+        pretty_json = reformat_json(json.dumps(refined_data))
+        # pretty_json = json.dumps(refined_data)
         #pretty_json = json.dumps(data)
 
         out_file.parent.mkdir(parents=True, exist_ok=True)

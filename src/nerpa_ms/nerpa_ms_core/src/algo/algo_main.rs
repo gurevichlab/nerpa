@@ -6,6 +6,7 @@ use serde::Serialize;
 use crate::algo::dp::compute_dp_table;
 
 use super::dp_backtrack::Solution;
+use itertools::Itertools;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Altered_rBAN_Record {
@@ -38,17 +39,27 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 
     for weight in 0..=max_weight {
 	let max_solutions = if weight > 0 {max_variants_per_weight} else { 1 }; // for weight 0, we only want the original molecule, so we take 1 solution
-	let solutions = backtrack_solutions(weight, &dp_table, &dag);
+	let solutions_with_mods = {
+	    backtrack_solutions(weight, &dp_table, dag)
+		.map(|sol| {
+		    let mods = sol
+			.dag_edges
+			.iter()
+			.filter_map(|e| e.modification.clone())
+			.collect::<Vec<_>>();
+		    (sol, mods)
+		})
+		.unique_by(|(sol, mods)| {
+		    mods.iter()
+			.map(|m| m.to_str_short())
+			.sorted()
+			.join(";")
+		})
+	};
+		
 
 	let mut variants_collected = 0;
-	for sol in solutions.into_iter() {
-	    let mods = {
-		sol
-		    .dag_edges.iter()
-		    .filter_map(|e| e.modification)
-		    .collect::<Vec<_>>()
-	    };
-
+	for (sol, mods) in solutions_with_mods {
 	    if let Some(new_variant) = apply_modifications(monomer_graph, &mods, monomers_db) {
 		let monomer_origins: Vec<MonomerOrigin> = {
 		    let mon_db_entries = mods

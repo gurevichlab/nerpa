@@ -172,6 +172,7 @@ class DetailedHMM:
 
         self._hmms[scoring_scheme] = \
             HMM(
+                bgc_variant_id=self.bgc_variant.bgc_variant_id,
                 transitions=adj_list,
                 emissions=emission_scores,
                 module_start_states=self._module_idx_to_state_idx,
@@ -179,7 +180,6 @@ class DetailedHMM:
                 state_types=[
                     state.state_type for state in self.states
                 ],
-                bgc_variant_id=self.bgc_variant.bgc_variant_id,
                 module_names=module_names
             )
         return self._hmms[scoring_scheme]

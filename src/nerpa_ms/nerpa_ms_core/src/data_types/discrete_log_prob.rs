@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::data_types::common_types::LogOdds;
 
 pub const MAX_LOG_PROB: LogOdds = 100.0; // assumed to be unreachable. Values above this cause overflow and panic
@@ -13,8 +11,8 @@ pub const SCALING_FACTOR: f64 = (MAX_DISCRETE_LOG_PROB as f64) / (MAX_LOG_PROB -
 pub struct DiscreteLogOdds(pub usize);
 
 impl DiscreteLogOdds {
-    pub fn logodds_to_centered_discrete_lo(lp: LogOdds) -> isize {
-        (lp * SCALING_FACTOR).round() as isize
+    pub fn logodds_to_centered_discrete_lo(lo: LogOdds) -> isize {
+        (lo * SCALING_FACTOR).round() as isize
     }
 
     pub fn from_logodds(lo: LogOdds) -> Self {
@@ -96,12 +94,6 @@ impl DiscreteLogOddsSet {
         Self::from_dlo_vec(dlps)
     }
 
-    pub fn get_abs_shift(lp: LogOdds) -> usize {
-	let delta: isize = DiscreteLogOdds::logodds_to_centered_discrete_lo(lp);
-	assert!(delta <= 0, "get_abs_shift: positive log prob not allowed");
-	delta.unsigned_abs() as usize
-    }
-
     fn check_shift_overflow(&self, delta: isize) -> bool {
 	let max_element: Option<usize> = {
 	    self.words.iter()
@@ -137,42 +129,24 @@ impl DiscreteLogOddsSet {
         self.shift(delta)
     }
 
-    pub fn shift(&self, delta: isize) -> DiscreteLogOddsSet {
+pub fn shift_towards_zero(&self, delta: usize) -> DiscreteLogOddsSet {
         if delta == 0 {
             return self.clone();
         }
-	debug_assert!(delta < 0 || !self.check_shift_overflow(delta),  // overflow for negative shift is fine
-		      "shift: overflow detected for delta={}", delta);
 
         let mut out = DiscreteLogOddsSet::empty();
 
-        let (word_shift, bit_shift) = if delta >= 0 {
-	    (delta / 64, delta % 64)
-	} else {
-	    (delta.div_euclid(64), delta.rem_euclid(64))
-	};
+        let (word_shift, bit_shift) = (delta / 64, delta % 64);
 
-	let (dst_lb, dst_ub) = if word_shift >= 0 {  // semi-open: [dst_lb, dst_ub) 
-	    (word_shift as usize, N_WORDS)
-	} else {
-	    (0, N_WORDS.saturating_sub((-word_shift) as usize))
-	};
-
-        for dst in dst_lb..dst_ub {
+        for dst in 0..N_WORDS.saturating_sub(word_shift) {
             // preimage of bits [dst*64 .. (dst+1)*64] is bits [dst*64 + delta .. (dst+1)*64 + delta]:
             // `dst + word_shift` bits [bit_shift .. 63] map to src[0: 64 - bit_shift], and
             // `dst + word_shift + 1` bits [0 .. bit_shift-1] map to src[64 - bit_shift : 64]
-	    let src1_idx = (dst as isize) - word_shift;
-            let src1: u64 = if src1_idx >= 0 && (src1_idx as usize) < N_WORDS {
-		self.words[src1_idx as usize]
-	    } else {
-		0
-	    };
+            let src1 = self.words[dst + word_shift];
             let shifted_src1 = src1 >> bit_shift;
 
-	    let src2_idx = (dst as isize) - word_shift + 1;
-            let src2: u64 = if src2_idx >= 0 && (src2_idx as usize) < N_WORDS {
-                self.words[src2_idx as usize]
+            let src2: u64 = if dst + word_shift + 1 < N_WORDS {
+                self.words[dst + word_shift + 1]
             } else {
                 0
             };
@@ -190,6 +164,59 @@ impl DiscreteLogOddsSet {
         out
     }
 
+    pub fn shift_away_from_zero(&self, delta: usize) -> DiscreteLogOddsSet {
+	if delta == 0 {
+	    return self.clone();
+	}
+
+	debug_assert!(!self.check_shift_overflow(delta as isize),
+		      "shift: overflow detected for delta={}", delta);
+
+	let mut out = DiscreteLogOddsSet::empty();
+
+	let (word_shift, bit_shift) = (delta / 64, delta % 64);
+
+	for dst in word_shift..N_WORDS {
+	    // preimage of bits [dst*64 .. (dst+1)*64] is bits [dst*64 - delta .. (dst+1)*64 - delta]:
+	    // `dst - word_shift - 1` bits [64 - bit_shift .. 63] map to src[0: bit_shift], and
+	    // `dst - word_shift` bits [0 .. 64 - bit_shift] map to src[bit_shift : 63]
+	    let src1 = if dst > word_shift {
+		self.words[dst - word_shift - 1]
+	    } else {
+		0
+	    };
+
+	    let shifted_src1 = if bit_shift > 0 {
+		src1 >> (64 - bit_shift)
+	    } else {
+		0
+	    };
+
+	    let src2: u64 = self.words[dst - word_shift];
+
+	    let shifted_src2 = src2 << bit_shift;
+
+	    out.words[dst] = shifted_src1 | shifted_src2;
+	}
+
+	out
+    }
+	
+    pub fn shift(&self, delta: isize) -> DiscreteLogOddsSet {
+        if delta == 0 {
+            return self.clone();
+        }
+	if delta > 0 {
+	    self.shift_away_from_zero(delta as usize)
+	} else {
+	    if delta == isize::MIN {
+		DiscreteLogOddsSet::empty() // shifting by isize::MIN erases all bits
+	    } else {
+		self.shift_towards_zero((-delta) as usize)
+	    }
+	}
+    }
+
     /// Bitwise OR union.
     pub fn union(&self, other: &DiscreteLogOddsSet) -> DiscreteLogOddsSet {
         let mut out = self.clone();
@@ -200,7 +227,7 @@ impl DiscreteLogOddsSet {
     }
 
     /// Bitwise OR union.
-    pub fn union_inplace(&mut self, other: &DiscreteLogOddsSet) -> () {
+    pub fn union_inplace(&mut self, other: &DiscreteLogOddsSet) {
         for i in 0..N_WORDS {
             self.words[i] |= other.words[i];
         }

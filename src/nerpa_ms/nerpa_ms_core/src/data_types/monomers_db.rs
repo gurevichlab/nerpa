@@ -22,6 +22,7 @@ pub struct MonomersDB_Entry {
     pub bonds_by_bs: BondsByBSType,
 }
 
+
 pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
 
 pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> MonomersDB {

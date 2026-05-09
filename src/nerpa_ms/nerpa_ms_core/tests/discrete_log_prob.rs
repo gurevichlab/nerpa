@@ -115,7 +115,7 @@ fn shift_towards_zero_nontrivial_bitshift() {
         DiscreteLogOdds(63),
         DiscreteLogOdds(64),
     ]);
-    let shifted = s.shift(1);
+    let shifted = s.shift(-1);
 
     // Expected: 1->0, 63->62, 64->63
     let got: Vec<usize> = shifted.iter_desc().map(|d| d.0).collect();
@@ -258,7 +258,7 @@ fn shift_matches_naive_hashset_many_values_many_shifts() {
 	};
 
 	let mut expected: Vec<usize> = Vec::new();
-	for &v in &src_vals {
+	for &v in &src_vals_filtered {
 	    expected.push(((v as isize) + delta) as usize);
 	}
 	expected.sort_unstable();

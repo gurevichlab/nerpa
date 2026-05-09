@@ -9,7 +9,15 @@ use crate::data_types::hmm::{StateIdx, HMM};
 pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &DAG<'a>) -> Vec<Vec<Edge<'a>>> {
     let mut paths = Vec::new();
     let mut stack = vec![(dag.start, 0, Vec::new())]; // (vertex, weight, path)
+
+    let mut loops_cnt = 0;
+    let max_loops = 1_000_000; // safety check in case of too many paths or a bug causing infinite loops
     while let Some((current_vertex, current_weight, current_path)) = stack.pop() {
+	loops_cnt += 1;
+	if loops_cnt > max_loops {
+	    panic!("Exceeded max loops in all_dag_paths_until, paths found so far: {}",
+		   paths.len());
+	}
         if (current_vertex, current_weight) == (v, w) {
             paths.push(current_path);
             continue;
@@ -34,7 +42,16 @@ pub fn all_hmm_paths_until(
 ) -> Vec<Vec<(usize, LogOdds)>> {
     let mut paths = Vec::new();
     let mut stack = vec![(0, 0, Vec::new())]; // (state, path)
+
+    let mut loops_cnt = 0;
+    let max_loops = 1_000_000; // safety check in case of too many paths or a bug causing infinite loops
+
     while let Some((current_state, current_num_emissions, current_path)) = stack.pop() {
+	loops_cnt += 1;
+	if loops_cnt > max_loops {
+	    panic!("Exceeded max loops in all_hmm_paths_until, paths found so far: {}", paths.len());
+	} 
+
         if (current_state, current_num_emissions) == (s, num_emissions) {
             paths.push(current_path);
             continue;

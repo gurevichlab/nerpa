@@ -5,7 +5,7 @@ use crate::data_types::parsed_rban_record::{MonomerEdge, MonomerInfo, Parsed_rBA
 use super::bonds::{BindingSiteType, BindingSitesProfile};
 use super::monomers_db::{MonomersDB, MonomersDB_Entry};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum InsertionSite {
     Edge(MonomerIdx, MonomerIdx),
     Leaf(MonomerIdx),

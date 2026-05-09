@@ -60,4 +60,3 @@ pub fn rounded(f: f64, digits: usize) -> f64 {
     }
     (f * factor).round() / factor
 }
-

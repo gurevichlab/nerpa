@@ -20,7 +20,7 @@ from src.hmm.hmm_scoring_config import (
 from src.matching.alignment_step_type import MatchDetailedScore
 from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
 from dataclasses import dataclass
-from math import log
+from math import log, isnan
 from enum import Enum, auto
 
 class ScoringScheme(Enum):
@@ -38,7 +38,7 @@ class HMMHelper:
                             nrp_monomer: NRP_Monomer,
                             pks_domains_in_bgc: bool) -> LogProb:
         if nrp_monomer.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
-            return -math.inf  # PKS residues are never matched to BGC modules
+            return float('-inf')  # PKS residues are never matched to BGC modules
 
         # if there are no PKS domains in the BGC, PKS hybrids are treated as unknown residues
         if nrp_monomer.is_pks_hybrid and not pks_domains_in_bgc:
@@ -82,7 +82,7 @@ class HMMHelper:
     def monomer_detailed_default_score(self,
                                        nrp_monomer: NRP_Monomer) -> MatchDetailedScore:
         if nrp_monomer.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
-            return MatchDetailedScore(float('-inf'), float('-inf'), float('-inf'))
+            return MatchDetailedScore(float('-inf'), 0, 0)
         if nrp_monomer.is_pks_hybrid:
             # PKS hybrids are treated as unknown residues for default scoring
             mon = NRP_Monomer(residue=UNKNOWN_RESIDUE,
@@ -106,8 +106,13 @@ class HMMHelper:
           """
           match_score = self.match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
           default_score = self.monomer_detailed_default_score(nrp_monomer)
+          res_score = (
+              float('-inf')
+              if match_score.residue_score == float('-inf')
+              else match_score.residue_score - default_score.residue_score
+          )
           return MatchDetailedScore(
-                match_score.residue_score - default_score.residue_score,
+                res_score,
                 match_score.methylation_score - default_score.methylation_score,
                 match_score.chirality_score - default_score.chirality_score
           )
@@ -128,6 +133,9 @@ class HMMHelper:
                     emission_scores[nrp_monomer] = detailed_score.residue_score + detailed_score.methylation_score
                 case _:
                     raise ValueError(f'Invalid scoring scheme: {scoring_scheme}')
+
+            if isnan(emission_scores[nrp_monomer]):
+                print(f'Warning: NaN score for module {(bgc_module.gene_id, bgc_module.a_domain_idx)} and monomer {nrp_monomer} with scoring scheme {scoring_scheme}')
 
         return emission_scores
 
@@ -186,6 +194,8 @@ class HMMHelper:
                     emission_scores[nrp_monomer] = res_score + meth_score + chr_score
                 case ScoringScheme.NERPA_MS:
                     emission_scores[nrp_monomer] = res_score + meth_score
+                case _:
+                    raise ValueError(f'Invalid scoring scheme: {scoring_scheme}')
 
         distinct_proper_monomers = []
         match scoring_scheme:
