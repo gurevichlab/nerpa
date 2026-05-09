@@ -74,7 +74,14 @@ impl<'mon_db, 'iter> BacktrackSolutionsIter<'mon_db, 'iter> {
 	    let parent_dlo = match ptr.dlo_shift {
 		// shift is applied parent -> child
 		// so we need to apply -shift to get from child back to parent
-		Some(shift) => frame.dlo.shift(-shift),
+		Some(shift) => {
+		    if shift == isize::MIN {
+			None  // avoid overflow when negating shift
+		    }
+		    else {
+			frame.dlo.shift(-shift)
+		    }
+		},
 		None => Some(frame.dlo),
 	    };
 	    if parent_dlo.is_none() || !self.dp.get(&ptr.parent).contains(parent_dlo.unwrap()) { continue }

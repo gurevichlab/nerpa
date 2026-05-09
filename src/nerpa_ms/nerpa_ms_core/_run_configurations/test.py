@@ -15,14 +15,14 @@ assert (nerpa_root / "nerpa.py").exists(), f"Invalid nerpa_root: {nerpa_root}"
 subprocess.run(["cargo", "build", "-q"])
 command = ' '.join(['cargo run --bin nerpa_ms_core --',
                     # '--nerpa-results fixtures/test_run',
-                    '--nerpa-results fixtures/trash_single',
+                    '--nerpa-results fixtures/test_run',
                     '--max-nerpa-matches 3',
                     '--max-edits 2',
                     '--num-variants-per-num-edits 5',
                     '--out output',
                     '--monomers-db-json data/monomers_db.json',
                     '--nerpa-root', str(nerpa_root),
-                    '--draw-hmm-dag-opt-paths',
+                    # '--draw-hmm-dag-opt-paths',
                     ])
 subprocess.run(command.split())
 

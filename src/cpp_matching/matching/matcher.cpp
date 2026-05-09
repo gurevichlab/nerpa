@@ -5,8 +5,19 @@
 #include <vector>
 #include <limits>
 #include <utility>
+#include <cassert>
+#include <cmath>
+#include <algorithm>
+#include <iostream>
 using namespace std;
 
+bool floats_are_close(double a, double b, double rel_eps = 1e-3, double abs_eps = 1e-3) {
+  bool result = std::fabs(a - b) <= std::max(abs_eps, rel_eps * std::max(std::fabs(a), std::fabs(b)));
+  if (!result) {
+    std::cerr << "Warning: Values " << a << " and " << b << " are not close." << std::endl;
+  }
+  return result;
+}
 
 LogProb linearization_score(const HMM& hmm,
                             const NRP_Linearization& linearization){
@@ -188,7 +199,7 @@ MatchInfo get_full_match_info(const MatchInfoLight& match_light,
                               const HMM& hmm)
 {
     MatchInfo fullMatch;
-    fullMatch.score = 0;
+    fullMatch.raw_score = 0;
     fullMatch.bgc_variant_id = match_light.bgc_variant_id;
     fullMatch.nrp_id = match_light.nrp_id;
 
@@ -201,8 +212,13 @@ MatchInfo get_full_match_info(const MatchInfoLight& match_light,
         auto [pathScore, optimalPath] = get_opt_hmm_path(hmm, 0, static_cast<StateIdx>(hmm.transitions.size() - 1),
                                                          linPtr->first);
         fullMatch.optimal_paths.push_back(optimalPath);
-        fullMatch.score += pathScore;
+        fullMatch.raw_score += pathScore;
     }
+
+    // Assert that the raw scores from the light match and the full match are approximately equal.
+    assert(floats_are_close(match_light.raw_score, fullMatch.raw_score));
+
+    fullMatch.score = match_light.score;  // The score in the light match is already adjusted for ranking, so we can directly use it.
 
     return fullMatch;
 }

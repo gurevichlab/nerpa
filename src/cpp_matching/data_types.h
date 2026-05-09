@@ -62,11 +62,12 @@ struct MatchingConfig {
 // ========== MatchInfo Structures ==========
 
 struct MatchInfo {
-    LogProb score;
-    BGC_Variant_ID bgc_variant_id;
-    NRP_ID nrp_id;
-    std::vector<NRP_Linearization> linearizations;
-    std::vector<std::vector<StateIdx>> optimal_paths;  // one path per linearization
+  LogProb raw_score;  // used for ranking matches (e.g., score vs. average BGC score)
+  LogProb score;
+  BGC_Variant_ID bgc_variant_id;
+  NRP_ID nrp_id;
+  std::vector<NRP_Linearization> linearizations;
+  std::vector<std::vector<StateIdx>> optimal_paths;  // one path per linearization
 };
 
 struct MatchInfoLight {
