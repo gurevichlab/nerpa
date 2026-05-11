@@ -150,6 +150,21 @@ def _create_molecule_dicts(molecule_data) -> Dict:
 
     return mol_dict
 
+
+def _create_module_dicts(ids) -> Dict:
+
+    module_dict = {}
+    for id, x in ids:
+
+        filename = id[:-2] + '_genes.json'
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            module_dict[id] = data
+   
+        os.remove(filename)
+      
+    return module_dict
+
 def create_html_report(monomer_graph_data,
                        molecule_data,
                        output_cfg: OutputConfig,
@@ -178,6 +193,7 @@ def create_html_report(monomer_graph_data,
     nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
     monomer_graph = _create_graph_dicts(monomer_graph_data)
     molecule = _create_molecule_dicts(molecule_data)
+    modules = _create_module_dicts(monomer_graph_data)
 
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:
@@ -207,6 +223,10 @@ def create_html_report(monomer_graph_data,
 
         json_file.write('var molecule_image  = ')
         json.dump(molecule, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var modules_data  = ')
+        json.dump(modules, json_file, indent=4)
         json_file.write(';\n')
 
     path_substitutions = {

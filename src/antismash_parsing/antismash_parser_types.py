@@ -103,6 +103,41 @@ class Module:
     a_domain: Optional[A_Domain]
     domains_sequence: List[DomainType]
 
+    def to_dict(self) -> dict:
+        res = {
+            "domains": [],
+        }
+        for domain in self.domains_sequence:
+            match domain:
+                case domain.A:
+                    res["domains"].append("A")
+                case domain.PKS:
+                    res["domains"].append("PKS")
+                case domain.PCP:  
+                    res["domains"].append("PCP")
+                case domain.C:  
+                    res["domains"].append("C")
+                case domain.C_STARTER:  
+                    res["domains"].append("C_STARTER")
+                case domain.C_LCL:  
+                    res["domains"].append("C_LCL")
+                case domain.C_DCL:  
+                    res["domains"].append("C_DCL")
+                case domain.C_DUAL:  
+                    res["domains"].append("C_DUAL")
+                case domain.E:  
+                    res["domains"].append("E")
+                case domain.MT:  
+                    res["domains"].append("MT")
+                case domain.TE_TD:  
+                    res["domains"].append("TE_TD")
+                case domain.CTERM:  
+                    res["domains"].append("CTERM")
+                case domain.NTERM:  
+                    res["domains"].append("NTERM")
+                case _: 
+                    res["domains"].append("")
+        return res
 
 @dataclass
 class Gene:
@@ -112,6 +147,22 @@ class Gene:
     orphan_c_at_start: bool = False
     orphan_c_at_end: bool = False
 
+    def to_dict(self) -> dict:
+        res = {
+                "gene_id": self.gene_id,
+                "coords": {
+                    "start": self.coords.start,
+                    "end": self.coords.end,
+                    "strand": "FORWARD" if self.coords.strand == STRAND.FORWARD else "REVERSE",
+                },
+                "modules": [],
+                "orphan_c_at_start": self.orphan_c_at_start,
+                "orphan_c_at_end": self.orphan_c_at_end
+            }
+        for module in self.modules:
+            res["modules"].append(module.to_dict())
+
+        return res
 
 class BGC_ID(NamedTuple):
     antiSMASH_file: Path
@@ -140,9 +191,8 @@ class BGC_ID(NamedTuple):
     def _genome_id(self) -> str:
         return self.antiSMASH_file.stem
 
-
 @dataclass
-class antiSMASH_metadata:
+class antiSMASH_metadata: 
     antismash_json: Path  # str instead of Path for easier serialization
     contig_idx: int
     sequence_file: Optional[str]

@@ -128,6 +128,7 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
     atom_colors = dict()
     bonds_to_highlight = list()
     atom_labels = dict()
+    atom_monomers = dict()
     for mon_idx, mon_info in record.monomers.items():
         if monomer_labels:
             monomer_repr = get_atom_id_to_display_name(record, mon_idx)
@@ -137,6 +138,7 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
         for atom_id in mon_info.atoms:  # set atoms colors
             atom_index = atom_id_to_index[atom_id]
             atom_colors[atom_index] = mon_colors[mon_idx]
+            atom_monomers[atom_id] = mon_labels[mon_idx]
 
         for atom1_id, atom2_id in record.atomic_bonds:  # set bonds to highlight (color is deduced automatically)
             if atom1_id not in mon_info.atoms or atom2_id not in mon_info.atoms:
@@ -207,9 +209,11 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
             "e": bond.GetEndAtomIdx(),
             "o": bond.GetBondTypeAsDouble()
         })
-    
     for mon_idx, mon_info in record.monomers.items():
         moleculeData["monomers"][mon_labels[mon_idx]] = mon_info.atoms
+    
+    moleculeData["highlightAtomColors"] = atom_colors
+    moleculeData["highlightBonds"] = bonds_to_highlight
 
     return drawer.GetDrawingText(), moleculeData
 

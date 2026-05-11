@@ -382,8 +382,9 @@
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
 
-        <canvas id="moduleViewer" width="100%" height="600px" style="display: none; border: none;"></canvas>
-  
+        <svg id="moduleViewer"
+            style="background: #ffffff; width: 100%; border: 1px;">
+        </svg>  
     </div>
 
     <!-- NRP Viewer -->
@@ -396,11 +397,8 @@
  <div style="display: flex; justify-content: space-between;">
                 <div style="flex: 1; padding-left: 5px;">
                     <canvas id="moleculeImage" 
-                        width: 60%;
-                        height: 400px;
-                        position: relative;
-                        style="background: #ffffff; width: 100%; height: 70vh; border: 1px;">
-                </canvas>
+                    style="width: 100%; height: 70vh; border: 1px; ">
+                    </canvas>
                </div>
                 <div styl
                 <div style="flex: 1; padding-left: 5px;">
@@ -424,7 +422,171 @@
 
 <script>
     function buildModuleFigure(nrpID){
-       
+         const svg = document.getElementById("moduleViewer");
+        function svgBuildModule(domains, x, y, gene, id, residue, rad){
+            const module = document.createElementNS(svgns, 'g');
+            module.setAttribute("id", `module_${id}`);
+            
+            
+            let i = 0;
+            let xi;
+            for(const domain of domains){
+                xi = rad + i * (rad * 2) + x;
+                i++;
+                const circle = document.createElementNS(svgns, 'circle');
+                let y_circ = y;
+                let domainName;
+                switch(domain) {
+                    case 'A':
+                        circle.setAttribute('fill', `rgb(${179}, ${130}, ${238})`); 
+                        domainName = 'A';
+                        break;
+                    case 'PCP':
+                        circle.setAttribute('fill', `rgb(${142}, ${189}, ${242})`); 
+                        domainName = 'CP';
+                        break;
+                    case 'E':
+                        circle.setAttribute('fill', `rgb(${127}, ${127}, ${238})`);  
+                        domainName = 'E';
+                        break;
+                    case 'PKS':
+                        circle.setAttribute('fill', `rgb(${110}, ${248}, ${126})`); 
+                        domainName = 'KS';
+                        break;
+                    // C domain
+                    case 'C_STARTER':
+                    case 'C_LCL':
+                    case 'C_DCL':
+                    case 'C':
+                        circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                        domainName = 'C';
+                        break;
+                    case 'TE_TD':
+                        circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
+                        domainName = 'TD'; 
+                        break;
+                    case 'MT':
+                        circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
+                        y_circ = y - 12;
+                        domainName = 'nMT';
+                        break;
+                    case 'CTERM':
+                        // color? 
+                        break;
+                    case 'NTERM':
+                        // color? 
+                        break;
+                     case 'C_DUAL':
+                        // color? 
+                        break;
+                    default:
+                        throw new Error(`Domain ${domain} is not allowed.`);
+                }
+                circle.setAttribute('cx', xi);
+                circle.setAttribute('cy', y_circ);
+                circle.setAttribute('r', rad); 
+                circle.setAttribute('stroke', 'black');
+                module.appendChild(circle);
+
+                // domain letter
+                const letter = document.createElementNS(svgns, 'text');
+                letter.setAttribute('x', xi);
+                letter.setAttribute('y', y_circ );
+                letter.setAttribute('font-family', 'Arial');
+                letter.setAttribute('font-size', '16');
+                letter.setAttribute('fill', 'black');
+                letter.setAttribute('text-anchor', 'middle');
+                letter.setAttribute('dominant-baseline', 'central');
+                letter.textContent = domainName;
+                module.appendChild(letter);
+            }
+            // line below domains
+            const line = document.createElementNS(svgns, 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', y + 30);
+            line.setAttribute('x2', xi + rad);
+            line.setAttribute('y2', y + 30);
+            line.setAttribute('stroke', 'black');
+            line.setAttribute('stroke-width', '1.5');
+            module.appendChild(line);
+
+            // id + residue description
+            const idMod = document.createElementNS(svgns, 'text');
+            idMod.setAttribute('x', x + (xi - x + rad)/2);
+            idMod.setAttribute('y', y + 40);
+            idMod.setAttribute('font-family', 'Arial');
+            idMod.setAttribute('font-size', '16');
+            idMod.setAttribute('fill', 'black');
+            idMod.textContent = id;
+            idMod.setAttribute('text-anchor', 'middle');
+            idMod.setAttribute('dominant-baseline', 'central');
+            module.appendChild(idMod);
+
+            const res = document.createElementNS(svgns, 'text');
+            res.setAttribute('x', x + (xi - x + rad)/2);
+            res.setAttribute('y', y + 56);
+            res.setAttribute('font-family', 'Arial');
+            res.setAttribute('font-size', '15');
+            res.setAttribute('fill',  `rgb(${85}, ${85}, ${85})`);
+            res.setAttribute('text-anchor', 'middle');
+            res.setAttribute('dominant-baseline', 'central');
+            res.textContent = residue;
+            module.appendChild(res);
+
+            svg.appendChild(module);
+
+            module.addEventListener('click',  e => 
+                module.setAttribute('transform', 'scale(1.1) translate(-10, -10)')
+                , 
+                {passive: false})
+
+            return xi + rad;
+        }
+
+        const genes = modules_data[nrpID]["1"]
+        let x = 0;
+        let y = 75;
+        let module_idx = 0;
+        const rad = 20;
+        var svgns = "http://www.w3.org/2000/svg";
+        for (const gene of genes){
+            const modules = gene.modules;
+            const geneID = gene.gene_id;
+            //if (!particpating_genes.includes(geneID)) continue;
+            const geneStart = x;
+
+            for(const module of modules){
+                module_idx ++;
+                const domains = module.domains;
+                const moduleID = `M${module_idx}`
+                const residue = '???';          // where to find data for this??
+                x = svgBuildModule(domains, x + 15, y, geneID, moduleID, residue, rad);
+            }
+            const geneEnd = x - rad;
+            const geneArr = document.createElementNS(svgns, 'g');
+            geneArr.setAttribute("id", `${gene.gene_id}`);
+            
+            // gene arrow
+            const arrow = document.createElementNS(svgns, 'path');
+            const d = ` M ${geneStart} ${y - 60} L ${geneEnd} ${y - 60} L ${geneEnd} ${y - 65} L ${geneEnd + rad} ${y - 50} L ${geneEnd} ${y - 35} L ${geneEnd} ${y - 40} L ${geneStart} ${y - 40} Z`;
+            arrow.setAttribute("d", d);
+            arrow.setAttribute('fill', 'black');
+            geneArr.appendChild(arrow);
+
+
+            // arrow description
+            const arrowDes = document.createElementNS(svgns, 'text');
+            arrowDes.setAttribute('x',  geneStart + ((geneEnd - geneStart) /2));
+            arrowDes.setAttribute('y', y - 50);
+            arrowDes.setAttribute('font-family', 'Arial');
+            arrowDes.setAttribute('font-size', '14');
+            arrowDes.setAttribute('fill',  'white');
+            arrowDes.setAttribute('text-anchor', 'middle');
+            arrowDes.setAttribute('dominant-baseline', 'central');
+            arrowDes.textContent = gene.gene_id;
+            geneArr.appendChild(arrowDes);
+            svg.appendChild(geneArr);
+        }
     }
 
     function drawGraph(nrpID) {
@@ -477,7 +639,8 @@
     function connectGraphMolecule(node, nrpID){
         // get molecule
         const mol = molCanvas.getMolecule();
-
+        molCanvas.loadMolecule(mol);
+        paintMolecule(mol, nrpID);
         // set image back to default setting 
         let defaultStyle = new ChemDoodle.structures.Styles();
         defaultStyle.atoms_color = '#000000';
@@ -494,13 +657,27 @@
         // find atoms of selected monomer node in molecule and change style
         const atoms = molecule_image[nrpID].monomers[node];
        
-        for(const atom of atoms){
-            const a = mol.atoms.find(a => Number(a.tmpid) === atom);
-            a.styles = atomStyle;
+        const colorCanvas = document.getElementById('moleculeImage');
+        const ctx = colorCanvas.getContext("2d");
+        for(const atomID of atoms){
+            const atom = mol.atoms.find(a => Number(a.tmpid) === atomID);
+            
+                const color = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
+                const x = atom.x;
+                const y = atom.y;
+                let label = atom.label;
+                if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
+                const l = ctx.measureText(label).width;
+                const h = molCanvas.styles.atoms_font_size_2D * 1.333;
+                
+                ctx.strokeStyle = `rgb(${color[0] * 255 * 0.7}, ${color[1] * 255 * 0.7}, ${color[2] * 255 * 0.7})`; 
+                ctx.lineWidth = h + 5;  
+                ctx.lineCap = "round";
+                ctx.beginPath();
+                ctx.moveTo(x - l/2, y);
+                ctx.lineTo(x + l/2, y);
+                ctx.stroke();
         }
-
-        molCanvas.loadMolecule(mol);
-        
     }
     
     let molCanvas = new ChemDoodle.ViewerCanvas('moleculeImage', 600, 600);
@@ -509,14 +686,54 @@
     
         let mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
 
-        molCanvas.styles.bonds_width_2D = .6;
+        molCanvas.styles.bonds_width_2D = .9;
         molCanvas.styles.bonds_saturationWidthAbs_2D = 2.6;
         molCanvas.styles.bonds_hashSpacing_2D = 2.5;
         molCanvas.styles.atoms_font_size_2D = 10;
         molCanvas.styles.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif'];
-        mol.scaleToAverageBondLength(14.4);
+        molCanvas.styles.backgroundColor = 'transparent';
+        mol.scaleToAverageBondLength(20);
         molCanvas.loadMolecule(mol);
-}
+        paintMolecule(mol, nrpID);
+    }
+    function paintMolecule(mol, nrpID){
+        const colorCanvas = document.getElementById('moleculeImage');
+        const ctx = colorCanvas.getContext("2d");
+        ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
+        for(const atom of mol.atoms){
+            if (atom.label === 'C') continue; 
+            const color = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
+            const x = atom.x;
+            const y = atom.y;
+            let label = atom.label;
+            if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
+            const l = ctx.measureText(label).width;
+            const h = molCanvas.styles.atoms_font_size_2D * 1.333;
+  
+            ctx.strokeStyle = `rgb(${color[0] * 255}, ${color[1] * 255}, ${color[2] * 255})`; 
+            ctx.lineWidth = h;  
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(x - l/2, y);
+            ctx.lineTo(x + l/2, y);
+            ctx.stroke();
+        } 
+        for(const bond of mol.bonds){
+            const sX = bond.a1.x;
+            const sY = bond.a1.y;
+            const eX = bond.a2.x;
+            const eY = bond.a2.y;
+
+             const color = molecule_image[nrpID].highlightAtomColors[bond.a1.tmpid];
+            ctx.strokeStyle = `rgb(${color[0] * 255}, ${color[1] * 255}, ${color[2] * 255})`; 
+            ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(sX, sY);
+            ctx.lineTo(eX, eY);
+            ctx.stroke();
+        } 
+    }    
 
     // Function to detect if a value is numeric
     function isNumeric(value) {
@@ -943,6 +1160,7 @@
 
             toggleGenomeViewer(hide);
             toggleNrpViewer(hide);
+            toggleModuleViewer(hide);
         } else {
             // Basic match info // TODO: maybe split into three rows: basic info, NRP-related & BGC-related metadata
             const item = data.at(matchID);
