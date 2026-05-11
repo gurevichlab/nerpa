@@ -49,7 +49,7 @@ class Coords(NamedTuple):
         return {
             "start": self.start,
             "end": self.end,
-            "strand": "FORWARD" if self.strand == STRAND.FORWARD else "REVERSE",
+            "strand": self.strand.name
         }
 
 
