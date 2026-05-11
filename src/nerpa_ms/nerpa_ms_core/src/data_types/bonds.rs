@@ -217,6 +217,11 @@ impl BondsByBSType {
     pub fn as_slice(&self) -> &[(BindingSiteType, Bond)] {
 	self.0.as_slice()
     }
+    pub fn get_by_bs_type(&self, bs_type: &BindingSiteType) -> Option<&Bond> {
+	self.0.iter()
+	    .find(|(bst, _bond)| bst == bs_type)
+	    .map(|(_bst, bond)| bond)
+    } 
 }
 
 

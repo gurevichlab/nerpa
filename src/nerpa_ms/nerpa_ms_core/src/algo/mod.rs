@@ -6,3 +6,4 @@ pub mod dp_backtrack;
 pub mod apply_modifications;
 pub mod monomer_graph_operations;
 pub mod generic;
+pub mod template_free_dag;

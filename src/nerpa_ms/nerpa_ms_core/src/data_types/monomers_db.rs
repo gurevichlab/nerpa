@@ -118,6 +118,18 @@ impl Monomer {
 }
 
 impl MonomersDB_Entry {
+    pub fn get_monomer_idx(&self) -> MonomerIdx {
+	let (bs, bond) = self.bonds_by_bs.iter().next().unwrap_or_else(|| {
+	    panic!(
+		"MonomersDB_Entry has no bonds, cannot determine monomer idx",
+	    )
+	});
+	match bs.side {
+	    BondSide::Left => bond.monomers.0,
+	    BondSide::Right => bond.monomers.1,
+	}
+    }
+
     pub fn set_monomer_idx(&mut self, new_idx: MonomerIdx) {
 	let new_bonds_by_bs = self.bonds_by_bs.iter()
 	    .map(|(bs, bond)| {

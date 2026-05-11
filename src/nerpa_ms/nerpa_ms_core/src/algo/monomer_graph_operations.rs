@@ -103,6 +103,7 @@ impl MonomerGraph {
 	&self,
 	monomer_idx: MonomerIdx,
 	monomers_db: &'a MonomersDB,
+	include_identical: bool,
     ) -> Vec<&'a MonomersDB_Entry> {
 	let bs_profile: BindingSitesProfile = {
 	    self.bonds_by_bs_type(monomer_idx)
@@ -112,10 +113,14 @@ impl MonomerGraph {
 	match monomers_db.get(&bs_profile) {
 	    Some(entries) => {
 		// filter out substitutions that would substitute the monomer with an identical one (same name)
-		let name = &self.monomers.get(&monomer_idx).unwrap().features.name;
-		entries.iter()
-		    .filter(|entry| entry.monomer.features.name != *name)
-		    .collect()
+		if include_identical {
+		    entries.iter().collect()
+		} else {
+		    let name = &self.monomers.get(&monomer_idx).unwrap().features.name;
+		    entries.iter()
+			.filter(|entry| entry.monomer.features.name != *name)
+			.collect()
+		}
 	    },
 	    None => Vec::new(),
 	}

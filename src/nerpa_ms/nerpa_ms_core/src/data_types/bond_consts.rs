@@ -12,6 +12,34 @@ pub static AMINO_ATOMIC_BOND: LazyLock<AtomicBondTemplate> = LazyLock::new(|| {
     }
 });
 
+pub static ESTER_ATOMIC_BOND: LazyLock<AtomicBondTemplate> = LazyLock::new(|| {
+    AtomicBondTemplate {
+	bond_type: BondType(Some("ESTER".to_string())),
+	arity: "1".to_string(),
+	atoms: (BondAtomLabel::new("C1"), BondAtomLabel::new("O1")),
+    }
+});
+
+pub static ESTER_BOND: LazyLock<BondTemplate> = LazyLock::new(|| {
+    BondTemplate::new(
+	vec![(*ESTER_ATOMIC_BOND).clone()]
+    )
+});
+
+pub static ESTER_BINDING_SITE_C: LazyLock<BindingSiteType> = LazyLock::new(|| {
+    BindingSiteType {
+	bond_templ: (*ESTER_BOND).clone(),
+	side: BondSide::Left,
+    }
+});
+
+pub static ESTER_BINDING_SITE_O: LazyLock<BindingSiteType> = LazyLock::new(|| {
+    BindingSiteType {
+	bond_templ: (*ESTER_BOND).clone(),
+	side: BondSide::Right,
+    }
+});
+
 pub static AMINO_BOND: LazyLock<BondTemplate> = LazyLock::new(|| {
     BondTemplate::new(
 	vec![(*AMINO_ATOMIC_BOND).clone()]
@@ -51,3 +79,19 @@ pub static AMINO_C_END_PROFILE: LazyLock<BindingSitesProfile> = LazyLock::new(||
 	AMINO_BINDING_SITE_C.clone(),
     ])
 });
+
+pub static AMINO_N_ESTER_C_PROFILE: LazyLock<BindingSitesProfile> = LazyLock::new(|| {
+	BindingSitesProfile::new(vec![
+	    AMINO_BINDING_SITE_N.clone(),
+	    ESTER_BINDING_SITE_C.clone(),
+	])
+});
+
+pub static AMINO_CN_ESTER_O_PROFILE: LazyLock<BindingSitesProfile> = LazyLock::new(|| {
+	BindingSitesProfile::new(vec![
+	    AMINO_BINDING_SITE_C.clone(),
+	    AMINO_BINDING_SITE_N.clone(),
+	    ESTER_BINDING_SITE_O.clone(),
+	])
+});
+

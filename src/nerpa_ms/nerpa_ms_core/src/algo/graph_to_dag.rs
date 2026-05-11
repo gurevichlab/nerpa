@@ -110,9 +110,8 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 
 
         let subs: Vec<GraphModification> = {
-            let sub_entries = monomer_graph.possible_substitutions(monomer_idx, monomers_db);
-            // filter out substitutions that are identical to the original monomer
-            sub_entries.into_iter()
+            monomer_graph.possible_substitutions(monomer_idx, monomers_db, false)
+		.into_iter()
                 .take(max_subs)
                 .map(|entry| GraphModification::Substitute {
 		    monomer_idx,
@@ -148,17 +147,7 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 		}
 	    }
 
-	    // DEBUG! Don't forget to remove
-	    inserts.into_iter()
-		.filter(|m| match m {
-		    GraphModification::Insert { site: _, mon_db_entry: entry } => {
-			let name = &entry.monomer.features.name.0;
-			name == "Ser" || name == "Orn"
-		    },
-		    _ => unreachable!("expected Insert"),
-		})
-		.collect()
-	    // inserts
+	    inserts
 
 	};
 
