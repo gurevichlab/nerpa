@@ -1,6 +1,7 @@
 symlink_to_latest: latest
 configs_output: configs
 antismash_out_dir: antismash_output
+bgcs: intermediate_files/antismash_bgcs.json
 bgc_variants: preprocessed_input/BGC_variants.yaml
 bgc_representatives: preprocessed_input/BGC_representatives.yaml
 nrp_variants: preprocessed_input/NRP_variants.yaml

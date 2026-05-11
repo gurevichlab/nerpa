@@ -1,6 +1,7 @@
 from typing import (
     Iterable,
     List,
+    NamedTuple,
     Tuple
 )
 
@@ -9,6 +10,7 @@ from src.pipeline.logging.buffered_logger import BufferedLogger
 from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.config import antiSMASH_Processing_Config, load_monomer_names_helper
 from src.antismash_parsing.bgc_variant_types import BGC_Variant
+from src.antismash_parsing.antismash_parser_types import BGC_Cluster
 
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants
@@ -37,15 +39,21 @@ def _load_configs(args: CommandLineArgs) -> Tuple[antiSMASH_Processing_Config, S
     return config.antismash_processing_config, specificity_prediction_helper
 
 
+class antiSMASH_Parsing_Result(NamedTuple):
+    bgcs: List[BGC_Cluster]
+    bgc_variants: List[BGC_Variant]
+    log: BufferedLogger
+
 def extract_bgc_variants_from_antismash_batch(antismash_paths: Iterable[Path],
                                               args: CommandLineArgs)\
-        -> Tuple[List[BGC_Variant], BufferedLogger]:
+        -> antiSMASH_Parsing_Result:
     antismash_processing_config, specificity_prediction_helper = _load_configs(args)
     log = BufferedLogger()
     bgc_variants: List[BGC_Variant] = []
+    antismash_bgcs: List[BGC_Cluster] = []
     for antismash_json_file in antismash_paths:
         try:
-            antismash_bgcs = parse_antismash_json(antismash_json_file,
+            new_antismash_bgcs = parse_antismash_json(antismash_json_file,
                                                   antismash_processing_config,
                                                   log)
             new_bgc_variants = chain.from_iterable(build_bgc_variants(bgc,
@@ -55,10 +63,15 @@ def extract_bgc_variants_from_antismash_batch(antismash_paths: Iterable[Path],
                                                                       args.let_it_crash)
                                                    for bgc in antismash_bgcs)
             bgc_variants.extend(new_bgc_variants)
+            antismash_bgcs.extend(new_antismash_bgcs)
         except Exception as e:
             log.error(f'Unexpected error while parsing antiSMASH JSON {antismash_json_file}: {e}'
                       f'\nSkipping this file.')
             if args.let_it_crash:
                 raise e
 
-    return bgc_variants, log
+    return antiSMASH_Parsing_Result(
+        bgcs=antismash_bgcs,
+        bgc_variants=bgc_variants,
+        log=log
+    )

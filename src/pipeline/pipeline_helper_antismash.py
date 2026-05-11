@@ -116,7 +116,7 @@ class PipelineHelper_antiSMASH:
 
     def get_bgc_variants(self) -> List[BGC_Variant]:
         if self.preprocessed_bgc_variants():
-            self.log.info('Loading preprocessed BGC variants. All other inputs will be ignored')
+            self.log.info('Loading preprocessed BGC variants. All other genomic inputs will be ignored')
             return self.load_bgc_variants()
 
         as_json_paths = self.get_antismash_results()
@@ -128,7 +128,7 @@ class PipelineHelper_antiSMASH:
         self.log.info(f'\n======= Predicting BGC variants from antiSMASH results'
                      f' using {self.args.threads} threads')
 
-        bgc_variants_in_chunks = Parallel(n_jobs=self.args.threads,
+        batches_parsing_results = Parallel(n_jobs=self.args.threads,
                                           prefer='processes')(
             delayed(extract_bgc_variants_from_antismash_batch)(
                 antismash_paths_chunk,
@@ -136,13 +136,20 @@ class PipelineHelper_antiSMASH:
             for antismash_paths_chunk in chunked(as_json_paths,
                                                  len(as_json_paths) // self.args.threads + 1)
         )
-        bgc_variants_batches, loggers = zip(*bgc_variants_in_chunks)
+        bgcs_batches, bgc_variants_batches, loggers = zip(*batches_parsing_results)
         BufferedLogger.replay(self.log, loggers)
 
 
         self.log.info('\n======= Done with Predicting BGC variants')
+        bgcs_all = list(chain(*bgcs_batches))
         bgc_variants_all = list(chain(*bgc_variants_batches))
         self.log.info(f'Extracted {len(bgc_variants_all)} BGC variants from antiSMASH results')
+
+        parsed_bgcs_json = self.config.output_config.bgcs
+        parsed_bgcs_json.parent.mkdir(parents=True, exist_ok=True)
+        with open(parsed_bgcs_json, 'w') as f:
+            json.dump([bgc.to_dict() for bgc in bgcs_all], f, indent=2)
+
         return bgc_variants_all
 
     def run_antismash(self, dna_sequences: Path,

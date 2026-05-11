@@ -245,6 +245,7 @@ class OutputConfig:
     symlink_to_latest: Optional[Path]
     configs_output: Path
     antismash_out_dir: Path
+    bgcs: Path
     bgc_variants: Path
     bgc_representatives: Path
     nrp_variants: Path

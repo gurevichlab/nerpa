@@ -45,6 +45,13 @@ class Coords(NamedTuple):
     def right_from(self, other: Coords) -> bool:
         return self.start > other.end
 
+    def to_dict(self) -> dict:
+        return {
+            "start": self.start,
+            "end": self.end,
+            "strand": "FORWARD" if self.strand == STRAND.FORWARD else "REVERSE",
+        }
+
 
 class SVM_LEVEL(Enum):
     SINGLE_AMINO = auto()
@@ -66,6 +73,14 @@ class A_Domain:
     aa10: AA10
     aa34: AA34
     svm: SVM_Predictions
+
+    def to_dict(self) -> dict:
+        # SVM_Predictions are not used anymore
+        # TODO: remove SVM_Predictions from A_Domain
+        return {
+            "aa10": self.aa10,
+            "aa34": self.aa34,
+        }
 
 
 class DomainType(Enum):
@@ -104,40 +119,12 @@ class Module:
     domains_sequence: List[DomainType]
 
     def to_dict(self) -> dict:
-        res = {
-            "domains": [],
+        a_domain_dict = self.a_domain.to_dict() if self.a_domain is not None else None
+        domain_types = [domain.name for domain in self.domains_sequence]
+        return {
+            "a_domain": a_domain_dict,
+            "domains_sequence": domain_types,
         }
-        for domain in self.domains_sequence:
-            match domain:
-                case domain.A:
-                    res["domains"].append("A")
-                case domain.PKS:
-                    res["domains"].append("PKS")
-                case domain.PCP:  
-                    res["domains"].append("PCP")
-                case domain.C:  
-                    res["domains"].append("C")
-                case domain.C_STARTER:  
-                    res["domains"].append("C_STARTER")
-                case domain.C_LCL:  
-                    res["domains"].append("C_LCL")
-                case domain.C_DCL:  
-                    res["domains"].append("C_DCL")
-                case domain.C_DUAL:  
-                    res["domains"].append("C_DUAL")
-                case domain.E:  
-                    res["domains"].append("E")
-                case domain.MT:  
-                    res["domains"].append("MT")
-                case domain.TE_TD:  
-                    res["domains"].append("TE_TD")
-                case domain.CTERM:  
-                    res["domains"].append("CTERM")
-                case domain.NTERM:  
-                    res["domains"].append("NTERM")
-                case _: 
-                    res["domains"].append("")
-        return res
 
 @dataclass
 class Gene:
@@ -148,21 +135,13 @@ class Gene:
     orphan_c_at_end: bool = False
 
     def to_dict(self) -> dict:
-        res = {
-                "gene_id": self.gene_id,
-                "coords": {
-                    "start": self.coords.start,
-                    "end": self.coords.end,
-                    "strand": "FORWARD" if self.coords.strand == STRAND.FORWARD else "REVERSE",
-                },
-                "modules": [],
-                "orphan_c_at_start": self.orphan_c_at_start,
-                "orphan_c_at_end": self.orphan_c_at_end
-            }
-        for module in self.modules:
-            res["modules"].append(module.to_dict())
-
-        return res
+        return {
+            "gene_id": self.gene_id,
+            "coords": self.coords.to_dict(),
+            "modules": [m.to_dict() for m in self.modules],
+            "orphan_c_at_start": self.orphan_c_at_start,
+            "orphan_c_at_end": self.orphan_c_at_end
+        }
 
 class BGC_ID(NamedTuple):
     antiSMASH_file: Path
@@ -248,6 +227,13 @@ class BGC_Cluster:
         return any(module.a_domain is not None
                    for gene in self.genes
                    for module in gene.modules)
+
+    def to_dict(self) -> dict:
+        return {
+            'bgc_id': self.bgc_id.to_dict(),
+            'genes': [gene.to_dict() for gene in self.genes],
+            'metadata': self.metadata.to_dict()
+        }
 
 
 @dataclass
