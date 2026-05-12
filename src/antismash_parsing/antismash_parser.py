@@ -290,7 +290,6 @@ def parse_antismash_json(antismash_json_file: Path,
                          config: antiSMASH_Processing_Config,
                          log: BufferedLogger) -> List[BGC_Cluster]:
     bgcs = []
-    geneDict = {}
     antismash_json = json.load(open(antismash_json_file))
     for ctg_idx, contig_data in enumerate(antismash_json['records'], start=1):
         try:
@@ -307,19 +306,7 @@ def parse_antismash_json(antismash_json_file: Path,
             genes = extract_genes(contig_data, a_domains_info, a_domains_coords, config)
             bgcs.extend(extract_bgc_clusters(contig_data, genes, metadata))
 
-            geneArray = []
-            for gene in genes: geneArray.append(gene.to_dict())
-
-            geneDict = {
-                ctg_idx: geneArray
-            }
-            
         except Exception as e:
                 log.error(f'Error parsing contig {ctg_idx} from input file {antismash_json.get("input_file")}:\n'
                             f'{type(e).__name__}: {e}')
-        
-        with open(antismash_json_file.stem + "_genes" + ".json", "w", encoding="utf-8") as f:
-            json.dump(geneDict, f, ensure_ascii=False, indent=4)
-
-
     return bgcs

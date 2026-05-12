@@ -151,18 +151,13 @@ def _create_molecule_dicts(molecule_data) -> Dict:
     return mol_dict
 
 
-def _create_module_dicts(ids) -> Dict:
+def _create_module_dicts(module_data) -> Dict:
 
     module_dict = {}
-    for id, x in ids:
-
-        filename = id[:-2] + '_genes.json'
-        with open(filename, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            module_dict[id] = data
-   
-        os.remove(filename)
-      
+    
+    for bgc in module_data: 
+        module_dict[bgc["bgc_id"]["bgc_idx"]] = bgc["genes"]
+    
     return module_dict
 
 def create_html_report(monomer_graph_data,
@@ -180,7 +175,10 @@ def create_html_report(monomer_graph_data,
     with open(template_main_report_path, 'r') as file:
         main_report_html_template = file.read()
 
-    # TODO: Maybe add these paths directly to config_paths?
+    with open(output_cfg.main_out_dir / 'intermediate_files/antismash_bgcs.json', 'r', encoding='utf-8') as f:
+        module_data = json.load(f) 
+  
+    # TODO: Maybe add these paths directly to config_paths
     html_aux_dir = output_cfg.main_out_dir / 'html_aux'
     report_data_js_path = html_aux_dir / 'report_data.js'
     html_aux_dir.mkdir()
@@ -193,7 +191,7 @@ def create_html_report(monomer_graph_data,
     nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
     monomer_graph = _create_graph_dicts(monomer_graph_data)
     molecule = _create_molecule_dicts(molecule_data)
-    modules = _create_module_dicts(monomer_graph_data)
+    modules = _create_module_dicts(module_data)
 
     # the main (root) HTML report and associated JSON
     with open(report_data_js_path, 'w') as json_file:

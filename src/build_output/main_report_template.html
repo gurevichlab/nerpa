@@ -421,7 +421,7 @@
 
 
 <script>
-    function buildModuleFigure(nrpID){
+    function buildModuleFigure(bgcID){
          const svg = document.getElementById("moduleViewer");
         function svgBuildModule(domains, x, y, gene, id, residue, rad){
             const module = document.createElementNS(svgns, 'g');
@@ -543,7 +543,7 @@
             return xi + rad;
         }
 
-        const genes = modules_data[nrpID]["1"]
+        const genes = modules_data[bgcID.bgc_idx]
         let x = 0;
         let y = 75;
         let module_idx = 0;
@@ -557,7 +557,7 @@
 
             for(const module of modules){
                 module_idx ++;
-                const domains = module.domains;
+                const domains = module.domains_sequence;
                 const moduleID = `M${module_idx}`
                 const residue = '???';          // where to find data for this??
                 x = svgBuildModule(domains, x + 15, y, geneID, moduleID, residue, rad);
@@ -1094,7 +1094,7 @@
                 link.addEventListener('click', event => {
                     event.preventDefault();
                     const nrpID = link.dataset.nrp;
-                    toggleModuleViewer(false, nrpID);
+                    toggleModuleViewer(false, nrpID, bgcID);
                 });
             });
 
@@ -1295,7 +1295,7 @@
 
             toggleGenomeViewer(false, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
             toggleNrpViewer(false, nrp_id);
-            toggleModuleViewer(false, nrp_id);
+            toggleModuleViewer(false, nrp_id, bgc_id);
         }
     }
 
