@@ -15,10 +15,12 @@ from src.rban_parsing.rban_parser import (
     MonomerIdx,
     Parsed_rBAN_Record
 )
+from src.rban_parsing.retrieve_nrp_variants import get_bond_direction
 from src.generic.svg import (
     ensure_image_ext,
     force_svg_pixel_size,
     join_svgs_in_rectangle,
+    svg_with_label,
 )
 import colorsys
 from PIL import Image
@@ -217,28 +219,6 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
 
     return drawer.GetDrawingText(), moleculeData
 
-
-def amino_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
-                         record: Parsed_rBAN_Record) -> Optional[Tuple[MonomerIdx, MonomerIdx]]:
-    if bond not in record.monomer_bonds:
-        raise ValueError(f'Bond {bond} not found in record')
-
-    edge_info_list = record.monomer_bonds[bond]
-    if len(edge_info_list) != 1:
-        return None  # if multiple atomic bonds between the same monomers, we can't be sure which one is the "main" bond, so we won't classify it as amino
-
-    atomic_bond_info = edge_info_list[0].atomic_edge
-    atom_id1, atom_id2 = (edge_info_list[0].monomer_to_atom[mon_idx] for mon_idx in bond)
-
-    if atomic_bond_info.bond_type != 'AMINO':
-        return None
-
-    if record.atoms[atom_id1].name == 'C' and record.atoms[atom_id2].name == 'N':
-        return (bond[0], bond[1])  # direction from C to N
-    elif record.atoms[atom_id1].name == 'N' and record.atoms[atom_id2].name == 'C':
-        return (bond[1], bond[0])  # direction from C to N
-    else:
-        raise ValueError(f'Unexpected atom names for amino bond between atoms {atom_id1} and {atom_id2}: {record.atoms[atom_id1].name}, {record.atoms[atom_id2].name}')
     
 
 def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
@@ -265,7 +245,7 @@ def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
     # make every edge use a 2‑point pen and 1.5× bigger arrowheads
     fig.attr('edge', penwidth='2', arrowsize='1.5')
 
-    for u in record.monomers.keys():
+    for u in sorted(record.monomers.keys()):
         color = rgb_to_hex(mon_colors[u])
         fig.node(str(u),
                  label=mon_labels[u],
@@ -276,8 +256,8 @@ def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
     # print(f'Drawing {len(record.monomer_bonds)} monomer bonds...')
     # print(record.monomer_bonds)
 
-    for u, v in record.monomer_bonds.keys():
-        amino_bond_dir = amino_bond_direction((u, v), record)
+    for u, v in sorted(record.monomer_bonds.keys()):
+        amino_bond_dir = get_bond_direction((u, v), record)
         if amino_bond_dir is not None:
             if amino_bond_dir == (u, v):
                 fig.edge(str(u), str(v), color='blue', dir='forward', arrowhead='normal')
@@ -487,6 +467,8 @@ def get_molecule_diff(
 def draw_molecule_diff(
         original: Parsed_rBAN_Record,
         modified: Parsed_rBAN_Record,
+        original_score: float,
+        modified_score: float,
         old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
         output: Path,
         monomer_names_helper: Optional[MonomerNamesHelper] = None,
@@ -521,9 +503,18 @@ def draw_molecule_diff(
         monomer_labels=monomer_labels,
         size=(size[0]//2, size[1]//2),
     )
+    left_side_svg = join_svgs_in_rectangle([[original_fig], [diff_out.original_diff_data]])
+    left_side_svg = svg_with_label(svg=left_side_svg,
+                                   label=f"Original (score={original_score:.2f})",
+                                   position="bottom")
+
+    right_side_svg = join_svgs_in_rectangle([[modified_fig], [diff_out.modified_diff_data]])
+    right_side_svg = svg_with_label(svg=right_side_svg,
+                                    label=f"Modified (score={modified_score:.2f})",
+                                    position="bottom")
+
     joined_svg = join_svgs_in_rectangle(
-        [[original_fig, diff_out.original_diff_data],
-         [modified_fig, diff_out.modified_diff_data]],
+        [[left_side_svg, right_side_svg]],
     )
     output.write_bytes(joined_svg.encode('utf-8'))
 
@@ -531,6 +522,8 @@ def draw_molecule_diff(
 def draw_monomer_graph_diff(
         original: Parsed_rBAN_Record,
         modified: Parsed_rBAN_Record,
+        original_score: float,
+        modified_score: float,
         old_to_new_map: List[Tuple[Optional[MonomerIdx], Optional[MonomerIdx]]],
         output: Path,
         monomer_names_helper: Optional[MonomerNamesHelper] = None,
@@ -593,8 +586,17 @@ def draw_monomer_graph_diff(
         stretch=False
     ).decode('utf-8')
 
+    left_side_svg = join_svgs_in_rectangle([[original_svg], [original_diff_svg]])
+    left_side_svg = svg_with_label(svg=left_side_svg,
+                                   label=f"Original (score={original_score:.2f})",
+                                   position="bottom")
+
+    right_side_svg = join_svgs_in_rectangle([[modified_svg], [modified_diff_svg]])
+    right_side_svg = svg_with_label(svg=right_side_svg,
+                                    label=f"Modified (score={modified_score:.2f})",
+                                    position="bottom")
+
     joined_svg = join_svgs_in_rectangle(
-        [[original_svg, original_diff_svg],
-         [modified_svg, modified_diff_svg]],
+        [[left_side_svg, right_side_svg]],
     )
     output.write_bytes(joined_svg.encode('utf-8'))

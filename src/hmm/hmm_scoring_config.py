@@ -82,11 +82,15 @@ def load_chirality_score(cfg: dict,
     })
     return chr_score
 
+import math
+from src.generic.numeric import clamp
 
 def load_edge_weight_params(cfg: dict) -> Dict[ST, Dict[ModuleGenomicContext, Dict[ET, LogProb]]]:
     edge_weights_cfg = cfg['edge_weight_parameters']
     ET = DetailedHMMEdgeType
     MGF = ModuleGenomicContextFeature
+    min_allowed_log_prob = -3  # a quick fix because I am too lazy to update training right now
+    max_allowed_log_prob = math.log(1 - math.e ** min_allowed_log_prob)
 
     parsed_data = {}
     for state_type_name, ctxt_dict in edge_weights_cfg.items():
@@ -94,7 +98,10 @@ def load_edge_weight_params(cfg: dict) -> Dict[ST, Dict[ModuleGenomicContext, Di
         for gc_str, edge_types_dict in ctxt_dict.items():
             gc = tuple(MGF[feature_str] for feature_str in eval(gc_str))
             parsed_data[ST[state_type_name]][gc] = {}
+
             for edge_type_name, log_prob in edge_types_dict.items():
+                if log_prob != float('-inf') and log_prob != 0.0:
+                    log_prob = clamp(log_prob, min_allowed_log_prob, max_allowed_log_prob)
                 parsed_data[ST[state_type_name]][gc][ET[edge_type_name]] = log_prob
 
     return parsed_data

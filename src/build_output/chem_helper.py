@@ -23,11 +23,13 @@ class MolRecord(NamedTuple):
 
         # add atoms to mol and keep track of index
         atom_id_to_index = {}
-        for atom_id, atom_info in record.atoms.items():
+        for atom_id in sorted(record.atoms):
+            atom_info = record.atoms[atom_id]
             atom_id_to_index[atom_id] = mol.AddAtom(Chem.Atom(atom_info.name))
 
         # add bonds between adjacent atoms
-        for (u, v), edge_info in record.atomic_bonds.items():
+        for u, v in sorted(record.atomic_bonds):
+            edge_info = record.atomic_bonds[(u, v)]
             # add relevant bond type (there are many more of these)
             if edge_info.arity == "1":
                 bond_type = Chem.rdchem.BondType.SINGLE
@@ -41,4 +43,7 @@ class MolRecord(NamedTuple):
         mol = mol.GetMol()
         return MolRecord(mol=mol,
                          atom_id_to_mol_idx=atom_id_to_index)
+
+    def to_canonical_smiles(self) -> str:
+        return Chem.MolToSmiles(self.mol, canonical=True)
 

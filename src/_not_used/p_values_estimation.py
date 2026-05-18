@@ -4,7 +4,7 @@ import math
 from math import e
 from typing import List, Tuple, NewType
 from src.general_type_aliases import LogProb, Prob
-from src.hmm.hmm_auxiliary_types import HMM_LOUC, HMM_LPKC
+from src.hmm.hmm import HMM_LOUC, HMM_LPKC
 import numpy as np
 from numpy.typing import NDArray
 from joblib import Parallel, delayed

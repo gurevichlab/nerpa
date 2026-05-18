@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{bonds::{BindingSiteType, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, monomers_db::MonomersDB_Entry, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
+use super::{bond_consts::{AMINO_BINDING_SITE_C, AMINO_BINDING_SITE_N, AMINO_BOND}, bonds::{BindingSiteType, BindingSitesProfile, Bond, BondSide, BondsByBSType}, common_types::{MonomerCode, MonomerIdx}, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::{AtomId, BondType, Chirality, NRP_Metadata, NerpaCoreResidue, NorineMonomerName}};
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -78,44 +78,83 @@ impl MonomerGraph {
 	BondsByBSType::new(bonds_by_bs)
     }
 
-    pub fn substitute(&mut self, monomer_idx: MonomerIdx, mon_db_entry: &MonomersDB_Entry) {
-	let mon_bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
-	if !mon_bonds_by_bs.compatible_with(&mon_db_entry.bonds_by_bs) {
-	    panic!("Attempting to substitute monomer {} with a monomer that has an incompatible binding sites profile", monomer_idx);
+    pub fn get_bond(&self, mon1: MonomerIdx, mon2: MonomerIdx) -> Option<&Bond> {
+	self.monomer_bonds.iter().find(|bond| {
+	    (bond.monomers.0 == mon1 && bond.monomers.1 == mon2)
+		|| (bond.monomers.0 == mon2 && bond.monomers.1 == mon1)
+	})
+    }
+
+    pub fn degree(&self, monomer_idx: MonomerIdx) -> usize {
+	self.monomer_bonds.iter()
+	    .filter(|bond| {
+		bond.monomers.0 == monomer_idx
+		    || bond.monomers.1 == monomer_idx
+	    })
+	    .count()
+    }
+
+    pub fn get_amino_chain_parent(&self, monomer_idx: MonomerIdx) -> Option<MonomerIdx> {
+	if !self.monomers.contains_key(&monomer_idx) {
+	    panic!("Monomer index {} not found in monomer graph", monomer_idx);
 	}
+	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
 
-	let new_bonds_by_mon_indices = {
-	    let mut new_bonds_by_mons = HashMap::new();
-	    for i in 0..mon_bonds_by_bs.len() {
-		let (mon_bs, mon_bond) =
-		    mon_bonds_by_bs.get(i).unwrap();
-		let (db_entry_bs, db_entry_bond) =
-		    mon_db_entry.bonds_by_bs.get(i).unwrap();
-		debug_assert_eq!(*mon_bs, *db_entry_bs);
-		let side = mon_bs.side;
-
-		let mut new_bond = mon_bond.clone();
-		match side {
-		    BondSide::Left => {
-			new_bond.label_to_atom.0 = db_entry_bond.label_to_atom.0.clone();
-		    },
-		    BondSide::Right => {
-			new_bond.label_to_atom.1 = db_entry_bond.label_to_atom.1.clone();
-		    }
-		}
-
-		new_bonds_by_mons.insert(mon_bond.monomers, new_bond);
-	    }
-	    new_bonds_by_mons
+	let bonds_to_parents: Vec<&Bond> = {
+	    bonds_by_bs.iter()
+		.filter_map(|(bst, bond)|
+			    if *bst == *AMINO_BINDING_SITE_N {
+				Some(bond)
+			    } else {
+				None
+			    })
+		.collect::<Vec<_>>()
 	};
 
-	for old_bond in self.monomer_bonds.iter_mut() {
-	    if let Some(new_bond) = new_bonds_by_mon_indices.get(&old_bond.monomers) {
-		*old_bond = new_bond.clone();
+	if bonds_to_parents.len() == 1 {
+	    let parent_bond = bonds_to_parents[0];
+	    if parent_bond.monomers.0 == monomer_idx {
+		Some(parent_bond.monomers.1)
+	    } else if parent_bond.monomers.1 == monomer_idx {
+		Some(parent_bond.monomers.0)
+	    } else {
+		unreachable!("Bond {:?} is connected to monomer {} but neither of its monomers is {}", parent_bond, monomer_idx, monomer_idx);
 	    }
+	} else {
+	    None
+	}
+    }
+
+    pub fn get_amino_chain_child(&self, monomer_idx: MonomerIdx) -> Option<MonomerIdx> {
+	if !self.monomers.contains_key(&monomer_idx) {
+	    panic!("Monomer index {} not found in monomer graph", monomer_idx);
 	}
 
-	self.monomers.insert(monomer_idx, mon_db_entry.monomer.clone());
+	let bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
 
+	let bonds_to_parents: Vec<&Bond> = {
+	    bonds_by_bs.iter()
+		.filter_map(|(bst, bond)|
+			    if *bst == *AMINO_BINDING_SITE_C {
+				Some(bond)
+			    } else {
+				None
+			    })
+		.collect::<Vec<_>>()
+	};
+
+	if bonds_to_parents.len() == 1 {
+	    let parent_bond = bonds_to_parents[0];
+	    if parent_bond.monomers.0 == monomer_idx {
+		Some(parent_bond.monomers.1)
+	    } else if parent_bond.monomers.1 == monomer_idx {
+		Some(parent_bond.monomers.0)
+	    } else {
+		unreachable!("Bond {:?} is connected to monomer {} but neither of its monomers is {}", parent_bond, monomer_idx, monomer_idx);
+	    }
+	} else {
+	    None
+	}
     }
+	
 }

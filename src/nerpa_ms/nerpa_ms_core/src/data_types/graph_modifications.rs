@@ -5,44 +5,50 @@ use crate::data_types::parsed_rban_record::{MonomerEdge, MonomerInfo, Parsed_rBA
 use super::bonds::{BindingSiteType, BindingSitesProfile};
 use super::monomers_db::{MonomersDB, MonomersDB_Entry};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum InsertionSite {
+    Edge(MonomerIdx, MonomerIdx),
+    Leaf(MonomerIdx),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GraphModification<'a> {
-    Insert {
-        edge: MonomerEdge,
-        mon_db_entry: &'a MonomersDB_Entry,
-    },
-    Remove {
-        monomer_idx: MonomerIdx,
+    KeepAsIs {
+	monomer_idx: MonomerIdx,
     },
     Substitute {
         monomer_idx: MonomerIdx,
         mon_db_entry: &'a MonomersDB_Entry,
     },
+    Remove {
+        monomer_idx: MonomerIdx,
+    },
+    Insert {
+        site: InsertionSite,
+        mon_db_entry: &'a MonomersDB_Entry,
+    },
 }
 
-pub fn get_possible_subs<'a>(
-    rban_record: &Parsed_rBAN_Record,
-    monomer_idx: MonomerIdx,
-    monomers_db: &'a MonomersDB,
-) -> Vec<GraphModification<'a>> {
-    let bs_profile: BindingSitesProfile = {
-	let bs_with_bonds = rban_record.bonds_for_monomer(monomer_idx);
-	BindingSitesProfile::new(
-	    bs_with_bonds.iter()
-		.map(|(bs, _bond)| bs.clone())
-		.collect::<Vec<BindingSiteType>>())
-    };
-
-    if let Some(entries) = monomers_db.get(&bs_profile) {
-	entries
-	.iter()
-	.map(|entry| GraphModification::Substitute {
-		monomer_idx,
-		mon_db_entry: entry,
-	})
-	.collect()
-    }
-    else {
-	Vec::new()
+impl GraphModification<'_> {
+    pub fn to_str_short(&self) -> String {
+	match self {
+	    GraphModification::KeepAsIs { monomer_idx } => {
+		format!("KeepAsIs({})", monomer_idx)
+	    },
+	    GraphModification::Substitute { monomer_idx, mon_db_entry } => {
+		format!("Substitute({}, {})", monomer_idx, mon_db_entry.monomer.features.name.0)
+	    },
+	    GraphModification::Remove { monomer_idx } => {
+		format!("Remove({}),", monomer_idx)
+	    },
+	    GraphModification::Insert { site, mon_db_entry } => {
+		let site_str = match site {
+		    InsertionSite::Edge(mon_idx1, mon_idx2) => format!("Edge({}, {})", mon_idx1, mon_idx2),
+		    InsertionSite::Leaf(mon_idx) => format!("Leaf({})", mon_idx),
+		};
+		format!("Insert({}, {})", site_str, mon_db_entry.monomer.features.name.0)
+	    },
+	}
     }
 }
+

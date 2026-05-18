@@ -118,7 +118,7 @@ get_opt_hmm_path(const HMM& hmm,
     StateIdx u = final_state;
     int k = seq_len;  // number of symbols processed when reaching final_state
     vector<StateIdx> path{final_state};
-    while (u != initial_state) {
+    while (not (u == initial_state and k == 0)) {
         StateIdx prev_state = prev[u][k];
         // Ensure that a previous state exists.
         assert(prev_state != -1 && "prev_state not defined!!!");
@@ -134,6 +134,13 @@ get_opt_hmm_path(const HMM& hmm,
     assert(!path.empty());
     assert(path.front() == initial_state && "the path endpoints are wrong!!!");
     assert(path.back() == final_state && "the path endpoints are wrong!!!");
+
+    // assert that number of emitted symbols along the path equals seq_len
+    int emitted_symbols = 0;
+    for (StateIdx state_idx : path) {
+      	if (!hmm.emissions[state_idx].empty()) emitted_symbols++;
+    }
+    assert(emitted_symbols == seq_len && "the number of emitted symbols along the path is wrong!!!");
 
     return { dp[final_state][seq_len], path };
 }

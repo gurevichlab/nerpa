@@ -12,12 +12,52 @@ impl BondAtomLabel {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AtomicBondTemplate {
     pub bond_type: BondType,
     pub arity: String, // "1", "1.5", "2", etc. -- use string to compare fractional arities like "1.5"
     pub atoms: (BondAtomLabel, BondAtomLabel),
 }
+
+
+impl Serialize for AtomicBondTemplate {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+	S: serde::Serializer,
+    {
+	// Serialize as a tuple of (bond_type, arity, atoms)
+	(self.atoms.0.clone(), self.atoms.1.clone(), self.bond_type.clone(), self.arity.clone())
+	    .serialize(serializer)
+    }
+}
+
+impl <'de> Deserialize<'de> for AtomicBondTemplate {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where
+	D: serde::Deserializer<'de>,
+	{
+	// Deserialize from the same tuple form
+	let (atom_label_0, atom_label_1, bond_type, arity) =
+	    <(BondAtomLabel, BondAtomLabel, BondType, String)>::deserialize(deserializer)?;
+	Ok(AtomicBondTemplate {
+	    bond_type,
+	    arity,
+	    atoms: (atom_label_0, atom_label_1),
+	})
+	}
+}
+
+use std::fmt;
+
+impl fmt::Debug for AtomicBondTemplate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let json_str = serde_json::to_string(self)
+	    .map_err(|_| fmt::Error)?;
+        f.write_str(&json_str)
+    }
+
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BondTemplate(Vec<AtomicBondTemplate>);
@@ -115,6 +155,7 @@ pub struct BindingSiteType {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct BindingSitesProfile(Vec<BindingSiteType>);
 
+
 impl BindingSitesProfile {
     pub fn new(binding_site_types: Vec<BindingSiteType>) -> Self {
         let mut bs_types: Vec<BindingSiteType> = binding_site_types;
@@ -132,6 +173,18 @@ impl BindingSitesProfile {
     pub fn from_string_key(s: &str) -> Result<Self, serde_json::Error> {
         let v = serde_json::from_str::<Vec<BindingSiteType>>(s)?;
         Ok(BindingSitesProfile::new(v))
+    }
+
+    pub fn as_slice(&self) -> &[BindingSiteType] {
+	&self.0
+    }
+
+    pub fn into_vec(self) -> Vec<BindingSiteType> {
+	self.0
+    }
+
+    pub fn len(&self) -> usize {
+	self.0.len()
     }
 }
 
@@ -161,6 +214,14 @@ impl BondsByBSType {
     pub fn get(&self, idx: usize) -> Option<&(BindingSiteType, Bond)> {
 	self.0.get(idx)
     }
+    pub fn as_slice(&self) -> &[(BindingSiteType, Bond)] {
+	self.0.as_slice()
+    }
+    pub fn get_by_bs_type(&self, bs_type: &BindingSiteType) -> Option<&Bond> {
+	self.0.iter()
+	    .find(|(bst, _bond)| bst == bs_type)
+	    .map(|(_bst, bond)| bond)
+    } 
 }
 
 

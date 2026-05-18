@@ -3,9 +3,9 @@ use std::collections::{HashMap, HashSet};
 use crate::{
     algo::solve_brute_force::{PathsToCoords, compute_dp_table_brute_force},
     data_types::{
-        common_types::LogProb,
+        common_types::LogOdds,
         dag::DAG,
-        discrete_log_prob::{DiscreteLogProb, DiscreteLogProbSet, MAX_LOG_PROB, MIN_LOG_PROB},
+        discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet, MAX_LOG_PROB, MIN_LOG_PROB},
         dp_table::{DP_Coords, DP_Table},
         hmm::HMM,
     },
@@ -100,7 +100,7 @@ fn format_aligned_compact(cols: &[Option<usize>]) -> String {
     out
 }
 
-fn display_lp_with_paths(lp: LogProb, ptc: &PathsToCoords, hmm: &HMM, dag: &DAG<'_>) -> String {
+fn display_lp_with_paths(lp: LogOdds, ptc: &PathsToCoords, hmm: &HMM, dag: &DAG<'_>) -> String {
     let mut dag_vertices = vec![0usize]; // start vertex
     for &edge in &ptc.dag_path {
         dag_vertices.push(edge.to);
@@ -122,8 +122,8 @@ fn build_table_mismatch_error_message(
     coords: &DP_Coords,
     hmm: &HMM,
     dag: &DAG<'_>,
-    missing_in_brute: &Vec<LogProb>,
-    missing_in_dp: &Vec<(LogProb, &PathsToCoords)>,
+    missing_in_brute: &Vec<LogOdds>,
+    missing_in_dp: &Vec<(LogOdds, &PathsToCoords)>,
     parents: &Vec<DP_Coords>,
     tol: f64,
 ) -> String {
@@ -166,17 +166,17 @@ pub fn check_dp_table_coords<'a>(
 ) -> Option<DP_Table_Mismatch> {
     let empty_vec: Vec<PathsToCoords> = Vec::new(); // for unwrap_or
 
-    let dp_lps: Vec<LogProb> = dp_table
+    let dp_lps: Vec<LogOdds> = dp_table
         .get(coords)
         .iter_desc()
-        .map(|dlp| dlp.to_logprob())
+        .map(|dlp| dlp.to_logodds())
         .collect();
 
-    let brute_lps_with_paths: Vec<(LogProb, &PathsToCoords)> = brute_results
+    let brute_lps_with_paths: Vec<(LogOdds, &PathsToCoords)> = brute_results
         .get(&coords)
         .unwrap_or(&empty_vec)
         .iter()
-        .filter_map(|ptc| if ptc.lp > MIN_LOG_PROB { Some((ptc.lp, ptc))} else { None })
+        .filter_map(|ptc| if ptc.lo > MIN_LOG_PROB { Some((ptc.lo, ptc))} else { None })
         .collect();
 
     let missing_in_brute = dp_lps

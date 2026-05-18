@@ -187,12 +187,19 @@ class PipelineHelper:
     def get_matches(self,
                     hmms: List[DetailedHMM],
                     nrp_linearizations: List[NRP_Linearizations],
-                    nrp_variants: List[NRP_Variant]) -> List[Match]:
+                    nrp_variants: List[NRP_Variant],
+                    rban_records: List[Parsed_rBAN_Record]
+                    ) -> List[Match]:
         hmm_matches = self.get_hmm_matches(hmms, nrp_linearizations)
         if self.args.draw_hmms:
             self.log.info("======== Drawing HMMs with optimal paths")
-            write_results.draw_hmms_with_optimal_paths(hmms, hmm_matches,
-                                                       self.config.output_config.main_out_dir)
+            write_results.draw_hmms_with_optimal_paths(
+                hmms,
+                rban_records,
+                hmm_matches,
+                self.config.output_config.main_out_dir
+            )
+
         self.log.info("\n======= Reconstructing alignments for matches")
         return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
 

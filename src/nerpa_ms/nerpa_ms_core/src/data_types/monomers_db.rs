@@ -1,4 +1,4 @@
-use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond, BondsByBSType};
+use crate::data_types::bonds::{BindingSiteType, BindingSitesProfile, Bond, BondSide, BondsByBSType};
 use itertools::Itertools;
 use crate::data_types::parsed_rban_record::{
     MonomerInfo, NerpaCoreResidue, NorineMonomerName, Parsed_rBAN_Record,
@@ -6,20 +6,29 @@ use crate::data_types::parsed_rban_record::{
 use serde::{Deserialize, Serialize};
 use std::{cmp::Reverse, collections::HashMap, path::{Path, PathBuf}};
 
-use super::monomer_graph::Monomer;
+use super::{common_types::MonomerIdx, monomer_graph::Monomer};
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub struct MonomerOrigin {
+    pub compound_id: String,
+    pub monomer_name: NorineMonomerName,
+    pub monomer_idx: MonomerIdx,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MonomersDB_Entry {
+    pub monomer_origin: MonomerOrigin,
     pub monomer: Monomer,
     pub bonds_by_bs: BondsByBSType,
 }
+
 
 pub type MonomersDB = HashMap<BindingSitesProfile, Vec<MonomersDB_Entry>>;
 
 pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> MonomersDB {
     let mut entries_by_bs: MonomersDB = HashMap::new();
     for record in rban_records {
-        for mon_idx in record.monomers.keys() {
+        for (mon_idx, mon_info) in &record.monomers {
             let bonds_by_bs = record.bonds_for_monomer(*mon_idx);
             let bs_profile = BindingSitesProfile::new(
                 bonds_by_bs
@@ -30,6 +39,11 @@ pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> Mon
             let entry = MonomersDB_Entry {
                 monomer: Monomer::from_rban_record(record, *mon_idx),
                 bonds_by_bs: BondsByBSType::new(bonds_by_bs),
+		monomer_origin: MonomerOrigin {
+		    compound_id: record.compound_id.clone(),
+		    monomer_idx: *mon_idx,
+		    monomer_name: mon_info.name.clone(),
+		},
             };
             entries_by_bs.entry(bs_profile).or_default().push(entry);
         }
@@ -104,6 +118,39 @@ impl Monomer {
 }
 
 impl MonomersDB_Entry {
+    pub fn get_monomer_idx(&self) -> MonomerIdx {
+	let (bs, bond) = self.bonds_by_bs.iter().next().unwrap_or_else(|| {
+	    panic!(
+		"MonomersDB_Entry has no bonds, cannot determine monomer idx",
+	    )
+	});
+	match bs.side {
+	    BondSide::Left => bond.monomers.0,
+	    BondSide::Right => bond.monomers.1,
+	}
+    }
+
+    pub fn set_monomer_idx(&mut self, new_idx: MonomerIdx) {
+	let new_bonds_by_bs = self.bonds_by_bs.iter()
+	    .map(|(bs, bond)| {
+		let mut new_bond = bond.clone();
+		match bs.side {
+		    BondSide::Left => {
+			new_bond.monomers.0 = new_idx;
+			new_bond.monomers.1 = MonomerIdx(bond.monomers.1.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
+		    },
+		    BondSide::Right => {
+			new_bond.monomers.1 = new_idx;
+			new_bond.monomers.0 = MonomerIdx(bond.monomers.0.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
+		    },
+		}
+		(bs.clone(), new_bond)
+	    })
+	    .collect();
+
+	self.bonds_by_bs = BondsByBSType::new(new_bonds_by_bs);
+    }
+
     pub fn shift_atom_ids(&mut self, shift: u32) {
 	self.monomer.shift_atom_ids(shift);
 	self.bonds_by_bs = {
@@ -116,5 +163,18 @@ impl MonomersDB_Entry {
 	    BondsByBSType::new(shifted_bonds)
 	};
     }
-
 }
+
+pub fn get_entry_by_profile_and_name<'a>(
+    monomers_db: &'a MonomersDB,
+    profile: &BindingSitesProfile,
+    name: &NorineMonomerName,
+) -> Option<&'a MonomersDB_Entry> {
+    monomers_db.get(profile).and_then(|entries| {
+	entries
+	    .iter()
+	    .find(|entry| entry.monomer.features.name == *name)
+    })
+}
+
+

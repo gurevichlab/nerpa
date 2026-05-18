@@ -38,16 +38,29 @@ def write_yaml(data, out_file: Path):
 
 
 def draw_hmms_with_optimal_paths(hmms: List[DetailedHMM],
+                                 rban_records: List[Parsed_rBAN_Record],
                                  hmm_matches: List[HMM_Match],
                                  main_out_dir: Path):
-    bgc_variant_to_hmm = {detailed_hmm.bgc_variant.bgc_variant_id: detailed_hmm
-                          for detailed_hmm in hmms}
+    bgc_variant_to_hmm = {
+        detailed_hmm.bgc_variant.bgc_variant_id: detailed_hmm
+        for detailed_hmm in hmms
+    }
+    compound_id_to_rban_record = {
+        rban_record.compound_id: rban_record
+        for rban_record in rban_records
+    }
     for hmm_match in hmm_matches:
         detailed_hmm = bgc_variant_to_hmm[hmm_match.bgc_variant_id]
-        for i, opt_path in enumerate(hmm_match.optimal_paths):
-            fname = f'{hmm_match.bgc_variant_id.bgc_id.to_str_short()}_{hmm_match.nrp_id}_al{i}.png'
+        rban_record = compound_id_to_rban_record[hmm_match.nrp_id]
+        for i, (opt_path, linearization) in enumerate(zip(hmm_match.optimal_paths, hmm_match.nrp_linearizations)):
+            fname = f'{hmm_match.bgc_variant_id.bgc_id.to_str_short()}_{hmm_match.nrp_id}_al{i}.svg'
+            monomer_labels = [
+                f'{rban_record.monomers[mon_idx].name}.{mon_idx}'
+                for mon_idx in linearization
+            ]
             detailed_hmm.draw(main_out_dir / 'HMMs_with_paths' / fname,
-                              opt_path)
+                              highlight_path=opt_path,
+                              emission_names=monomer_labels)
 
 
 def build_report(matches: List[Match]) -> str:

@@ -88,7 +88,8 @@ def iterative_fragments_linearizations(nrp_fragments: List[NRP_Fragment]) -> Lis
 
 def get_nrp_linearizations(nrp_variant: NRP_Variant) -> NRP_Linearizations:
     non_iterative = list(joined_linearizations(nrp_variant.fragments))
-    iterative = iterative_fragments_linearizations(nrp_variant.fragments)
+    # iterative = iterative_fragments_linearizations(nrp_variant.fragments)
+    iterative = []  # iterative linearizations are deprecated. TODO: refactor to remove them completely
     return NRP_Linearizations(nrp_variant.nrp_variant_id.nrp_id, non_iterative, iterative)
 
 

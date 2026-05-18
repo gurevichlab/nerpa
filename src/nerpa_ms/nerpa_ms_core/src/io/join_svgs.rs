@@ -227,3 +227,96 @@ pub fn join_svgs_vertical(input_paths: &[&Path], output_path: &Path) -> Result<(
     fs::write(output_path, out)?;
     Ok(())
 }
+
+pub enum TitlePlacement {
+    Top,
+    Bottom,
+}
+
+pub fn svg_with_title(
+    svg_text: &str,
+    title: &str,
+    placement: TitlePlacement,
+    font_size: Option<f32>,
+) -> Result<String> {
+    fn escape_xml(s: &str) -> String {
+        let mut out = String::with_capacity(s.len());
+        for ch in s.chars() {
+            match ch {
+                '&' => out.push_str("&amp;"),
+                '<' => out.push_str("&lt;"),
+                '>' => out.push_str("&gt;"),
+                '"' => out.push_str("&quot;"),
+                '\'' => out.push_str("&apos;"),
+                _ => out.push(ch),
+            }
+        }
+        out
+    }
+
+    let info = parse_svg_info(svg_text)?;
+
+    if info.width <= 0.0 || info.height <= 0.0 {
+        return Err(anyhow!("SVG width/height must be > 0"));
+    }
+
+    // Simple title layout.
+    let fontsize = {
+	if let Some(f) = font_size { f }
+	else { (info.width / 25.0).clamp(12.0, 24.0) }
+    };
+
+    let padding = (fontsize * 0.75).clamp(6.0, 18.0);
+    let title_band_h = fontsize + 2.0 * padding;
+
+    let (content_y, title_y, title_bg_y) = match placement {
+        TitlePlacement::Top => (title_band_h, padding + fontsize, 0.0),
+        TitlePlacement::Bottom => (0.0, info.height + padding + fontsize, info.height),
+    };
+
+    let out_h = info.height + title_band_h;
+    let title_escaped = escape_xml(title);
+
+    let mut out = String::new();
+    out.push_str(r#"<?xml version="1.0" encoding="UTF-8"?>"#);
+    out.push('\n');
+    out.push_str(&format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">"#,
+        w = info.width,
+        h = out_h
+    ));
+    out.push('\n');
+
+    // White background band for the title.
+    out.push_str(&format!(
+        r#"<rect x="0" y="{y}" width="{w}" height="{hh}" fill="white"/>"#,
+        y = title_bg_y,
+        w = info.width,
+        hh = title_band_h
+    ));
+    out.push('\n');
+
+    out.push_str(&format!(
+        r#"<text x="{x}" y="{y}" text-anchor="middle" font-family="sans-serif" font-size="{fs}">{t}</text>"#,
+        x = info.width / 2.0,
+        y = title_y,
+        fs = fontsize,
+        t = title_escaped
+    ));
+    out.push('\n');
+
+    // Normalize viewBox origin (if any) and shift content down if title is on top.
+    out.push_str(&format!(
+        r#"<g transform="translate(0 {cy}) translate({tx} {ty})">"#,
+        cy = content_y,
+        tx = -info.min_x,
+        ty = -info.min_y
+    ));
+    out.push('\n');
+    out.push_str(&info.inner);
+    out.push('\n');
+    out.push_str("</g>\n");
+
+    out.push_str("</svg>\n");
+    Ok(out)
+}

@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 use std::path::Path;
 use serde::Serialize;
+use crate::data_types::common_types::LogOdds;
 use crate::data_types::{hmm::BGC_ID, parsed_rban_record::Parsed_rBAN_Record};
-use crate::algo::algo_main::Altered_rBAN_Record;
+use crate::algo::gen_new_variants::Altered_rBAN_Record;
 use crate::io::output::OutputItem;
 
 #[derive(Debug, Clone, Serialize)]
 struct ItemForDrawing {
     bgc_id: BGC_ID,
     original: Parsed_rBAN_Record,
+    original_score: LogOdds,
     new_variant: Altered_rBAN_Record,
 }
 
@@ -40,10 +42,13 @@ pub fn draw_output_variants(
 	    items_for_drawing.push(ItemForDrawing {
 		bgc_id: output_item.bgc_variant_id.bgc_id.clone(),
 		original: (*original).clone(),
+		original_score: output_item.original_score,
 		new_variant: (*new_variant).clone(),
 	    });
 	}
     }
+
+    println!("Created {} items for drawing...", items_for_drawing.len());
 
     let json_output = serde_json::to_string(&items_for_drawing)
         .context("Failed to serialize items for drawing")?;
@@ -79,9 +84,12 @@ pub fn draw_output_variants(
 				 drawing_script.display()))?;
 
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if output.status.success() {
+	println!("Drawing script completed successfully.");
+	println!("--- stdout ---\n{}\n--- stderr ---\n{}", stdout, stderr);
+    } else {
         bail!(
             "Drawing script failed (exit={}):\n--- stdout ---\n{}\n--- stderr ---\n{}",
             output.status,

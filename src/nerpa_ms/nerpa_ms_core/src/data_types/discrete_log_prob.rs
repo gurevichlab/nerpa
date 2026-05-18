@@ -1,50 +1,48 @@
-use std::collections::HashSet;
+use crate::data_types::common_types::LogOdds;
 
-use crate::data_types::common_types::LogProb;
-
-pub const MAX_LOG_PROB: LogProb = 0.0; // probability 1
-pub const MIN_LOG_PROB: LogProb = -50.0; // values below are treated as effectively zero probability
+pub const MAX_LOG_PROB: LogOdds = 100.0; // assumed to be unreachable. Values above this cause overflow and panic
+pub const MIN_LOG_PROB: LogOdds = -50.0; // values below are discarded as impossible
 
 /// Largest discrete value we can represent (inclusive range is `0..=MAX_DISCRETE_LOG_PROB`).
 pub const MAX_DISCRETE_LOG_PROB: usize = (1 << 14) - 1; // 16383 => 16384 bits => exactly 256 u64 words
 pub const SCALING_FACTOR: f64 = (MAX_DISCRETE_LOG_PROB as f64) / (MAX_LOG_PROB - MIN_LOG_PROB);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DiscreteLogProb(pub usize);
+pub struct DiscreteLogOdds(pub usize);
 
-impl DiscreteLogProb {
-    pub fn logprob_to_centered_discrete_lp(lp: LogProb) -> i64 {
-        (lp * SCALING_FACTOR).round() as i64
+impl DiscreteLogOdds {
+    pub fn logodds_to_centered_discrete_lo(lo: LogOdds) -> isize {
+        (lo * SCALING_FACTOR).round() as isize
     }
 
-    pub fn from_logprob(lp: LogProb) -> Self {
-        if lp <= MIN_LOG_PROB {
-            DiscreteLogProb(0)
-        } else if lp >= MAX_LOG_PROB {
-            DiscreteLogProb(MAX_DISCRETE_LOG_PROB)
+    pub fn from_logodds(lo: LogOdds) -> Self {
+        if lo <= MIN_LOG_PROB {
+            DiscreteLogOdds(0)
+        } else if lo > MAX_LOG_PROB {
+	    panic!("DiscreteLogOdds::from_logodds: log odds {} above MAX_LOG_PROB {}", lo, MAX_LOG_PROB);
         } else {
-            let d = ((lp - MIN_LOG_PROB) * SCALING_FACTOR).round() as usize;
-            DiscreteLogProb(d)
+            let d = ((lo - MIN_LOG_PROB) * SCALING_FACTOR).round() as usize;
+            DiscreteLogOdds(d)
         }
     }
 
-    pub fn to_logprob(self) -> LogProb {
+    pub fn to_logodds(self) -> LogOdds {
         MIN_LOG_PROB + (self.0 as f64) / SCALING_FACTOR
     }
 
-    pub fn shift(self, delta: i64) -> Option<DiscreteLogProb> {
-	let new_d = (self.0 as i64) + delta;
-	if new_d < 0 || new_d > MAX_DISCRETE_LOG_PROB as i64 {
+    pub fn shift(self, delta: isize) -> Option<DiscreteLogOdds> {
+	let new_d = (self.0 as isize) + delta;
+	if new_d < 0 || new_d > MAX_DISCRETE_LOG_PROB as isize {
 	    None
 	} else {
-	    Some(DiscreteLogProb(new_d as usize))
+	    Some(DiscreteLogOdds(new_d as usize))
 	}
     }
 }
 
-impl From<DiscreteLogProb> for usize {
-    fn from(dlp: DiscreteLogProb) -> Self {
-        dlp.0
+impl From<DiscreteLogOdds> for usize {
+    fn from(dlo: DiscreteLogOdds) -> Self {
+        dlo.0
     }
 }
 
@@ -61,11 +59,11 @@ const _: [(); 0] = [(); (MAX_DISCRETE_LOG_PROB + 1) % 64];
 /// - shift_towards_zero(lp): add `lp` to all represented values (dropping out-of-range)
 /// - union(other): bitwise OR
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DiscreteLogProbSet {
+pub struct DiscreteLogOddsSet {
     words: [u64; N_WORDS],
 }
 
-impl DiscreteLogProbSet {
+impl DiscreteLogOddsSet {
     pub fn empty() -> Self {
         Self {
             words: [0u64; N_WORDS],
@@ -76,47 +74,67 @@ impl DiscreteLogProbSet {
 	self.words.iter().all(|&w| w == 0)
     }
 
-    pub fn contains(&self, dlp: DiscreteLogProb) -> bool {
-	let i: usize = dlp.into();
+    pub fn contains(&self, dlo: DiscreteLogOdds) -> bool {
+	let i: usize = dlo.into();
 	(self.words[i / 64] & (1u64 << (i % 64))) != 0
     }
 
-    pub fn from_dlp_vec(dlps: Vec<DiscreteLogProb>) -> Self {
+    pub fn from_dlo_vec(dlos: Vec<DiscreteLogOdds>) -> Self {
         let mut s = Self::empty();
-        for dlp in dlps {
-            let i: usize = dlp.into();
+        for dlo in dlos {
+            let i: usize = dlo.into();
             s.words[i / 64] |= 1u64 << (i % 64);
         }
         s
     }
 
-    pub fn from_logprob_vec(lps: Vec<LogProb>) -> Self {
-        let dlps: Vec<DiscreteLogProb> =
-            lps.into_iter().map(DiscreteLogProb::from_logprob).collect();
-        Self::from_dlp_vec(dlps)
+    pub fn from_logodds_vec(los: Vec<LogOdds>) -> Self {
+        let dlps: Vec<DiscreteLogOdds> =
+            los.into_iter().map(DiscreteLogOdds::from_logodds).collect();
+        Self::from_dlo_vec(dlps)
     }
 
-    pub fn get_abs_shift(lp: LogProb) -> usize {
-	let delta: i64 = DiscreteLogProb::logprob_to_centered_discrete_lp(lp);
-	assert!(delta <= 0, "get_abs_shift: positive log prob not allowed");
-	delta.unsigned_abs() as usize
+    fn check_shift_overflow(&self, delta: isize) -> bool {
+	let max_element: Option<usize> = {
+	    self.words.iter()
+		.rposition(|&w| w != 0)
+		.map(|i| i * 64 + (63 - self.words[i].leading_zeros() as usize))
+	};
+	if let Some(m) = max_element {
+	    if delta > 0 && (m as isize) + delta > MAX_DISCRETE_LOG_PROB as isize {
+		return true;
+	    }
+	}
+
+	let min_element: Option<usize> = {
+	    self.words.iter()
+		.position(|&w| w != 0)
+		.map(|i| i * 64 + self.words[i].trailing_zeros() as usize)
+	};
+	if let Some(m) = min_element {
+	    if delta < 0 && (m as isize) + delta < 0 {
+		return true;
+	    }
+	}
+
+	false
     }
 
-    /// Adds `lp` to all discrete log-prob values represented in this set.
+    /// Adds `lo` to all discrete log-odds values represented in this set.
     ///
     /// This is implemented as a bit shift by `round(lp * SCALING_FACTOR)`.
     /// Negative shifts move bits to *lower* indices (dropping anything < 0).
-    pub fn add_to_all(&self, lp: LogProb) -> DiscreteLogProbSet {
-        let delta = DiscreteLogProbSet::get_abs_shift(lp);
-        self.shift_towards_zero(delta)
+    pub fn add_to_all(&self, lo: LogOdds) -> DiscreteLogOddsSet {
+	let delta: isize = DiscreteLogOdds::logodds_to_centered_discrete_lo(lo);
+        self.shift(delta)
     }
 
-    pub fn shift_towards_zero(&self, delta: usize) -> DiscreteLogProbSet {
+pub fn shift_towards_zero(&self, delta: usize) -> DiscreteLogOddsSet {
         if delta == 0 {
             return self.clone();
         }
 
-        let mut out = DiscreteLogProbSet::empty();
+        let mut out = DiscreteLogOddsSet::empty();
 
         let (word_shift, bit_shift) = (delta / 64, delta % 64);
 
@@ -146,8 +164,61 @@ impl DiscreteLogProbSet {
         out
     }
 
+    pub fn shift_away_from_zero(&self, delta: usize) -> DiscreteLogOddsSet {
+	if delta == 0 {
+	    return self.clone();
+	}
+
+	debug_assert!(!self.check_shift_overflow(delta as isize),
+		      "shift: overflow detected for delta={}", delta);
+
+	let mut out = DiscreteLogOddsSet::empty();
+
+	let (word_shift, bit_shift) = (delta / 64, delta % 64);
+
+	for dst in word_shift..N_WORDS {
+	    // preimage of bits [dst*64 .. (dst+1)*64] is bits [dst*64 - delta .. (dst+1)*64 - delta]:
+	    // `dst - word_shift - 1` bits [64 - bit_shift .. 63] map to src[0: bit_shift], and
+	    // `dst - word_shift` bits [0 .. 64 - bit_shift] map to src[bit_shift : 63]
+	    let src1 = if dst > word_shift {
+		self.words[dst - word_shift - 1]
+	    } else {
+		0
+	    };
+
+	    let shifted_src1 = if bit_shift > 0 {
+		src1 >> (64 - bit_shift)
+	    } else {
+		0
+	    };
+
+	    let src2: u64 = self.words[dst - word_shift];
+
+	    let shifted_src2 = src2 << bit_shift;
+
+	    out.words[dst] = shifted_src1 | shifted_src2;
+	}
+
+	out
+    }
+	
+    pub fn shift(&self, delta: isize) -> DiscreteLogOddsSet {
+        if delta == 0 {
+            return self.clone();
+        }
+	if delta > 0 {
+	    self.shift_away_from_zero(delta as usize)
+	} else {
+	    if delta == isize::MIN {
+		DiscreteLogOddsSet::empty() // shifting by isize::MIN erases all bits
+	    } else {
+		self.shift_towards_zero((-delta) as usize)
+	    }
+	}
+    }
+
     /// Bitwise OR union.
-    pub fn union(&self, other: &DiscreteLogProbSet) -> DiscreteLogProbSet {
+    pub fn union(&self, other: &DiscreteLogOddsSet) -> DiscreteLogOddsSet {
         let mut out = self.clone();
         for i in 0..N_WORDS {
             out.words[i] |= other.words[i];
@@ -156,7 +227,7 @@ impl DiscreteLogProbSet {
     }
 
     /// Bitwise OR union.
-    pub fn union_inplace(&mut self, other: &DiscreteLogProbSet) -> () {
+    pub fn union_inplace(&mut self, other: &DiscreteLogOddsSet) {
         for i in 0..N_WORDS {
             self.words[i] |= other.words[i];
         }
@@ -178,13 +249,13 @@ impl DiscreteLogProbSet {
 }
 
 pub struct DiscreteLogProbSetIterDesc<'a> {
-    set: &'a DiscreteLogProbSet,
-    word_idx: isize,
+    set: &'a DiscreteLogOddsSet,
+    word_idx: isize,  // signed for convenient loop termination at -1
     cur_word: u64,
 }
 
 impl<'a> Iterator for DiscreteLogProbSetIterDesc<'a> {
-    type Item = DiscreteLogProb;
+    type Item = DiscreteLogOdds;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -198,7 +269,7 @@ impl<'a> Iterator for DiscreteLogProbSetIterDesc<'a> {
                 self.cur_word &= !(1u64 << bit);
 
                 let idx: usize = (self.word_idx as usize) * 64 + bit;
-                return Some(DiscreteLogProb(idx));
+                return Some(DiscreteLogOdds(idx));
             }
 
             // Move to the next lower word.

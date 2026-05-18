@@ -2,6 +2,7 @@ from functools import partial
 from typing import (
     Dict,
     List,
+    Tuple,
     Optional
 )
 
@@ -51,6 +52,31 @@ def _get_bond_type(edge_info: List[MonomerEdgeInfoSingle],
     # return first
     return edge_info[0].atomic_edge.bond_type
 
+# Graph edges: [(1, 2, {'bond_type': 'AMINO'}), (2, 6, {'bond_type': 'AMINO'}), (3, 7, {'bond_type': 'AMINO'}), (3, 4, {'bond_type': 'AMINO'}), (4, 5, {'bond_type': 'AMINO'}), (6, 7, {'bond_type': 'AMINO'})]
+
+def get_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
+                       record: Parsed_rBAN_Record) -> Optional[Tuple[MonomerIdx, MonomerIdx]]:
+    if bond not in record.monomer_bonds:
+        raise ValueError(f'Bond {bond} not found in record')
+
+    edge_info_list = record.monomer_bonds[bond]
+    if len(edge_info_list) != 1:
+        return None  # if multiple atomic bonds between the same monomers, we can't be sure which one is the "main" bond, so we won't classify it as amino
+
+    atomic_bond_info = edge_info_list[0].atomic_edge
+    atom_id1, atom_id2 = (edge_info_list[0].monomer_to_atom[mon_idx] for mon_idx in bond)
+
+    if atomic_bond_info.bond_type != 'AMINO':
+        return None
+
+    if record.atoms[atom_id1].name == 'C' and record.atoms[atom_id2].name == 'N':
+        return (bond[0], bond[1])  # direction from C to N
+    elif record.atoms[atom_id1].name == 'N' and record.atoms[atom_id2].name == 'C':
+        return (bond[1], bond[0])  # direction from C to N
+    else:
+        raise ValueError(f'Unexpected atom names for amino bond between atoms {atom_id1} and {atom_id2}: {record.atoms[atom_id1].name}, {record.atoms[atom_id2].name}')
+
+
 def build_nx_graph(rban_record: Parsed_rBAN_Record,
                    backbone_bonds: List[str]) -> NerpaMonomerGraph:
     lipid_monomers = {monomer_idx for monomer_idx, monomer_info in rban_record.monomers.items()
@@ -63,18 +89,18 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
 
     for (start, end), edge_info in rban_record.monomer_bonds.items():
         bond_type = _get_bond_type(edge_info, rban_record)
-        if all([start not in lipid_monomers,
-                end not in lipid_monomers,
-                bond_type in backbone_bonds]):
+        if any([start in lipid_monomers,
+                end in lipid_monomers,
+                bond_type not in backbone_bonds]):
+            continue
 
-            if all([bond_type == 'AMINO',
-                    rban_record.atoms[start].name == 'N',
-                    rban_record.atoms[end].name == 'C']):
-                start, end = end, start  # ensure the direction of amino bond to go from C to N
-
+        bond_direction = get_bond_direction((start, end), rban_record)
+        if bond_direction is not None:
+            edge_start, edge_end = bond_direction
+            graph.add_edge(edge_start, edge_end, bond_type=bond_type)
+        else:
             graph.add_edge(start, end, bond_type=bond_type)
-            if bond_type != 'AMINO':
-                graph.add_edge(end, start, bond_type=bond_type)  # non-amino bonds are bidirectional
+            graph.add_edge(end, start, bond_type=bond_type)
 
     return graph
 

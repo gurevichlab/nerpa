@@ -15,6 +15,7 @@ from src.antismash_parsing.bgc_variant_types import (
 from src.monomer_names_helper import MonomerNamesHelper
 
 from src.hmm.detailed_hmm import DetailedHMM
+from src.hmm.hmm_scoring_helper import ScoringScheme
 
 from src.rban_parsing.get_linearizations import NRP_Linearizations
 from src.generic.other import json_round_floats, json_remove_infinities
@@ -45,18 +46,26 @@ class PipelineHelperCpp:
     log: NerpaLogger
     monomer_names_helper: MonomerNamesHelper
 
-    def dump_hmms(self, detailed_hmms: List[DetailedHMM]) -> Path:
-        out_file = self.config.output_config.cpp_io_config.hmms_json
-        out_file.parent.mkdir(parents=True, exist_ok=True)
-        data = [detailed_hmm.to_hmm(unknown_chirality_allowed=True,
-                                    emission_weights_type='LogProb').to_json()
-                for detailed_hmm in detailed_hmms]
+    def dump_hmms(
+            self,
+            detailed_hmms: List[DetailedHMM],
+            out_file: Path,
+            scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
+    ):
+        data = [
+            (detailed_hmm
+             .to_hmm(scoring_scheme)
+             .to_json_dict())
+            for detailed_hmm in detailed_hmms
+        ]
 
-        #pretty_json = reformat_json(json.dumps(data))
         refined_data = json_round_floats(data, ndigits=3)
-        refined_data = json_remove_infinities(refined_data, infinity=1e30)
-        pretty_json = json.dumps(refined_data)
+        # refined_data = json_remove_infinities(refined_data, infinity=1e30)
+        pretty_json = reformat_json(json.dumps(refined_data))
+        # pretty_json = json.dumps(refined_data)
         #pretty_json = json.dumps(data)
+
+        out_file.parent.mkdir(parents=True, exist_ok=True)
         with open(out_file, 'w') as f:
             f.write(pretty_json)
         return out_file
@@ -67,6 +76,7 @@ class PipelineHelperCpp:
                                 any_hmm: DetailedHMM) -> Path:
         out_file = self.config.output_config.cpp_io_config.nrp_linearizations_json
         out_file.parent.mkdir(parents=True, exist_ok=True)
+        # need any_hmm for default monomer frequencies
         data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper, any_hmm)
                 for nrp_linearization in nrp_linearizations]
 
@@ -124,7 +134,18 @@ class PipelineHelperCpp:
         if not detailed_hmms or not nrp_linearizations:
             return []
         
-        hmms_json = self.dump_hmms(detailed_hmms)
+        hmms_json = self.config.output_config.cpp_io_config.hmms_json
+        hmms_nerpa_ms_json = self.config.output_config.hmms_nerpa_ms_json
+        self.dump_hmms(
+            detailed_hmms,
+            scoring_scheme=ScoringScheme.NERPA,
+            out_file=hmms_json
+        )
+        self.dump_hmms(
+            detailed_hmms,
+            scoring_scheme=ScoringScheme.NERPA_MS,
+            out_file=hmms_nerpa_ms_json
+        )
         nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations, detailed_hmms[0])
         return self.run_cpp_matcher(hmms_json, nrp_linearizations_json)
 

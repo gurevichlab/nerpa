@@ -47,7 +47,24 @@ pub struct Cli {
     #[arg(long)]
     pub monomers_db_json: PathBuf,
 
-    /// Path to root Nerpa dir (used to draw molecules via calling python scripts from that repo)
+    /// Path to root Nerpa dir
     #[arg(long)]
-    pub nerpa_root: Option<PathBuf>,
+    pub nerpa_root: PathBuf,
+
+    /// Draw HMMs with optimal paths. Careful: only enable for tiny examples
+    #[arg(long)]
+    pub draw_hmm_opt_paths: bool,
+
+    /// Draw HMMs with DAGs. Careful: only enable for tiny examples
+    #[arg(long)]
+    pub draw_hmm_dag_opt_paths: bool,
+
+    /// Write alignment against BGC for each generated NRP variant
+    #[arg(long)]
+    pub write_alignments: bool,
+
+    /// Draw output variants. Careful: only enable for tiny examples
+    #[arg(long)]
+    pub draw_output_variants: bool,
+    
 }

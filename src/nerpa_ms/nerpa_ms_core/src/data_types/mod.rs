@@ -13,3 +13,6 @@ pub mod discrete_log_prob;
 pub mod dp_table;
 pub mod rban_record_to_monomer_graph;
 pub mod monomer_graph_to_rban_record;
+pub mod bond_consts;
+pub mod bgc_variant;
+pub mod alignment;

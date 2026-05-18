@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 use std::hash::Hash;
 use serde::{Deserialize};
 
@@ -23,6 +23,11 @@ impl NerpaCoreResidue {
 	self.0 == "_UNKNOWN"
     }
 }
+
+pub static UNKNOWN_RESIDUE: LazyLock<NerpaCoreResidue> = LazyLock::new(|| {
+    NerpaCoreResidue("_UNKNOWN".to_string())
+});
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Chirality {

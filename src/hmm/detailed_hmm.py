@@ -20,16 +20,11 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMStateType,
     DetailedHMMState,
     DetailedHMMEdge,
-    HMM,
     StateIdx,
-    HMM_LPUC
 )
+from src.hmm.hmm import HMM, HMM_LPUC
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.alignment_type import AlignmentLight, alignment_to_light_alignment
-from src.build_output.draw_hmm import (
-    draw_hmm,
-    state_idx_to_label,
-)
 from src._not_used.p_values_estimation import PValueEstimator
 from src.monomer_names_helper import Chirality
 from src.rban_parsing.rban_monomer import rBAN_Monomer
@@ -37,9 +32,10 @@ from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.hmm.viterbi_algorithm import get_opt_path_with_score
 from src.matching.hmm_to_alignment import hmm_path_to_alignment
 from src.matching.alignment_type import Alignment
-from src.hmm.hmm_scoring_helper import HMMHelper
+from src.hmm.hmm_scoring_helper import HMMHelper, ScoringScheme
 from graphviz import Digraph
 from pathlib import Path
+from more_itertools import split_when
 
 
 @dataclass
@@ -54,7 +50,7 @@ class DetailedHMM:
     _module_idx_to_match_state_idx: List[StateIdx]  # points to MATCH state for each module. Used for checkpoints heuristic
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
-    _hmms: Dict[Tuple[Literal['LogProb', 'LogOdds'], bool], HMM] = None  # cache for HMMs with different emission weights and unk chirality settings
+    _hmms: Dict[ScoringScheme, HMM] = None  # cache for HMMs with different emission weights and unk chirality settings
     _p_value_estimator: Optional[PValueEstimator] = None
     _score_vs_avg_nrp: Optional[LogProb] = None
 
@@ -121,47 +117,72 @@ class DetailedHMM:
     #  to improper_monomers_allowed or smth like that
     #  because it also affects PKS hybrids
     def to_hmm(self,
-               emission_weights_type: Literal['LogProb', 'LogOdds']='LogProb',
-               unknown_chirality_allowed: bool=False) -> HMM:
+               scoring_scheme: ScoringScheme = ScoringScheme.NERPA) -> HMM:
+        ST = DetailedHMMStateType  # for convenience
+
         if self._hmms is None:
             self._hmms = {}
-        if (emission_weights_type, unknown_chirality_allowed) in self._hmms:
-            return self._hmms[(emission_weights_type, unknown_chirality_allowed)]
+        if scoring_scheme in self._hmms:
+            return self._hmms[scoring_scheme]
         num_states = len(self.states)
 
         adj_list = [[(edge_to, edge_data.weight)
                      for edge_to, edge_data in self.transitions[edge_from].items()]
                     for edge_from in range(num_states)]
 
-        def adjust_score(mon: NRP_Monomer, lp_score: LogProb) -> LogProb:
-            if (not unknown_chirality_allowed and
-                    (mon.chirality == Chirality.UNKNOWN or mon.is_pks_hybrid)):
-                return LogProb(float('-inf'))
-            match emission_weights_type:
-                case 'LogProb': return lp_score
-                case 'LogOdds': return lp_score - self.hmm_helper.monomer_default_score(mon)
-                case _: raise ValueError(f'Invalid emission_weights_type: {emission_weights_type}. ')
+        def get_emissions(state_idx: StateIdx) -> Dict[NRP_Monomer, LogProb]:
+            state = self.states[state_idx]
+            match state.state_type:
+                case (ST.MATCH
+                      | ST.MATCH_POSSIBLE_ASSEMBLY_FINISH
+                      | ST.MATCH_LAST_MODULE):
+                    bgc_module_idx = self.state_idx_to_module_idx[state_idx]
+                    bgc_module = self.bgc_variant.modules[bgc_module_idx]
+                    return self.hmm_helper.get_match_emissions(
+                        bgc_module=bgc_module,
+                        scoring_scheme=scoring_scheme,
+                        pks_domains_in_bgc=self.bgc_variant.has_pks_domains()
+                    )
+                case (ST.INSERT
+                      | ST.INSERT_AT_START
+                      | ST.INSERT_AT_END):
+                    return self.hmm_helper.get_insert_emissions(
+                        bgc_module=None,
+                        scoring_scheme=scoring_scheme,
+                        pks_domains_in_bgc=self.bgc_variant.has_pks_domains()
+                    )
+                case _:
+                    return dict()
+                                                               
+        emission_scores = [
+            [
+                score
+                for _mon, score in sorted(  # sort by monomer code to ensure consistent order of emissions across states
+                        get_emissions(state_idx).items(),
+                        key=lambda m_s: self.hmm_helper.monomer_names_helper.mon_to_int[m_s[0]]
+                )
+            ]
+            for state_idx in range(len(self.states))
+        ]
 
+        module_names = [
+            f'F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+            for module in self.bgc_variant.modules
+        ]
 
-        emission_scores = [[adjust_score(mon, state.emissions[mon])
-                               for mon in sorted(state.emissions,
-                                                 key=lambda m: self.hmm_helper.monomer_names_helper.mon_to_int[m])]  # TODO: define int(m) or use monomer_names_helper
-                              for state in self.states]
-        self._hmms[(emission_weights_type, unknown_chirality_allowed)] = \
-            HMM(transitions=adj_list,
+        self._hmms[scoring_scheme] = \
+            HMM(
+                bgc_variant_id=self.bgc_variant.bgc_variant_id,
+                transitions=adj_list,
                 emissions=emission_scores,
                 module_start_states=self._module_idx_to_state_idx,
                 module_match_states=self._module_idx_to_match_state_idx,
-                state_labels=[state_idx_to_label(state_idx, self) for state_idx in range(len(self.states))],
-                bgc_variant_id=self.bgc_variant.bgc_variant_id)
-        return self._hmms[(emission_weights_type, unknown_chirality_allowed)]
-
-    def to_hmm_lpuc(self) -> HMM_LPUC:
-        return HMM_LPUC(self.to_hmm(emission_weights_type='LogProb',
-                                    unknown_chirality_allowed=True))
-
-    def get_p_value(self, lo_score: LogProb, lp_score: LogProb) -> float:
-        return self._p_value_estimator(lo_score, lp_score)
+                state_types=[
+                    state.state_type for state in self.states
+                ],
+                module_names=module_names
+            )
+        return self._hmms[scoring_scheme]
 
     def get_opt_path_with_emissions(self,
                                     start_state: StateIdx,
@@ -169,8 +190,7 @@ class DetailedHMM:
                                     emitted_monomers: List[rBAN_Monomer]) -> List[Tuple[int, Optional[rBAN_Monomer]]]:
         monomer_codes = [self.hmm_helper.monomer_names_helper.mon_to_int[mon.to_base_mon()]
                          for mon in emitted_monomers]
-        score, path = get_opt_path_with_score(hmm=self.to_hmm(emission_weights_type='LogProb',
-                                                              unknown_chirality_allowed=True),
+        score, path = get_opt_path_with_score(hmm=self.to_hmm(),
                                               observed_sequence=monomer_codes,
                                               start_state=start_state,
                                               finish_state=finish_state)
@@ -204,39 +224,10 @@ class DetailedHMM:
 
     def draw(self,
              filename: Path,
-             highlight_path: Optional[List[int]] = None) -> Digraph:
-        return draw_hmm(self, filename, highlight_path)
-
-
-'''
-def edge_fingerprint(hmm: DetailedHMM,
-                     path: List[Tuple[int, NRP_Monomer]],
-                     edge_idx: int) -> EdgeFingerprint:
-    u, v = path[edge_idx][0], path[edge_idx + 1][0]
-    edge = hmm.transitions[u][v]
-
-    # find corresponding bgc module
-    match edge.edge_type:
-        # genomic info not relevant
-        case (
-        # before matching
-            DetailedHMMEdgeType.START_INSERTING_AT_START |
-            DetailedHMMEdgeType.INSERT_AT_START |
-            DetailedHMMEdgeType.START_SKIP_MODULES_AT_START |
-            DetailedHMMEdgeType.START_SKIP_GENES_AT_START |
-            DetailedHMMEdgeType.START_SKIP_FRAGMENTS_AT_START |
-        # at matching
-            DetailedHMMEdgeType.INSERT |
-            DetailedHMMEdgeType.END_INSERTING
-        ):
-            return EdgeFingerprint(edge_type=edge.edge_type)
-        # only fragment context relevant
-        case (
-            DetailedHMMEdgeType.SKIP_FRAGMENT_AT_START |
-            DetailedHMMEdgeType.SKIP_FRAGMENT |
-            DetailedHMMEdgeType.SKIP_FRAGMENT_AT_END
-        ):
-            return EdgeFingerprint(edge_type=edge.edge_type,
-                                   bgc_fragment_context=hmm.bgc_variant.fragments[hmm.state_idx_to_module_idx[u]].loc)
-'''
-
+             highlight_path: Optional[List[int]] = None,
+             emission_names: Optional[List[str]] = None):
+        self.to_hmm().draw(
+            filename=filename,
+            highlight_path=highlight_path,
+            emission_names=emission_names
+        )

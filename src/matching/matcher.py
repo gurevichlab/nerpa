@@ -17,7 +17,7 @@ from src.general_type_aliases import (
     LogProb
 )
 from src.hmm.detailed_hmm import DetailedHMM
-from src.hmm.hmm_auxiliary_types import HMM_LPUC
+from src.hmm.hmm import HMM_LPUC
 from src.matching.hmm_match import HMM_Match
 from src.hmm.viterbi_algorithm import get_opt_path_with_score
 from src.monomer_names_helper import MonomerNamesHelper
@@ -237,9 +237,9 @@ def get_hmm_matches(hmms: List[DetailedHMM],
 
     matches = filter_and_sort_matches(matches, matching_cfg)
 
-    if debug:
-        write_results.draw_hmms_with_optimal_paths(hmms, matches,
-                                                   Path('/home/ilianolhin/git/nerpa2/hmms'))
+    # if debug:
+    #     write_results.draw_hmms_with_optimal_paths(hmms, matches,
+    #                                                Path('/home/ilianolhin/git/nerpa2/hmms'))
 
 
     """

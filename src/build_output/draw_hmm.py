@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, Tuple
-
 if TYPE_CHECKING:
-    from src.hmm.detailed_hmm import DetailedHMM
+    from src.hmm.hmm import HMM
+
 from typing import List
 from typing import Optional
-from src.hmm.hmm_auxiliary_types import DetailedHMMStateType, DetailedHMMEdgeType
+from src.hmm.hmm_auxiliary_types import DetailedHMMStateType
 from itertools import pairwise
 import pulp
 import shutil
@@ -28,17 +28,18 @@ def render_with_fallback(graph: Digraph, out_png: Path, timeout: float = 10.0,
     def render(s: str):
         clone_with_splines(s).render(out_png.with_suffix(""), cleanup=True)
 
-    p = Process(target=render, args=("curved",))
-    p.start()
-    p.join(timeout)
+    render("polyline")
+    # p = Process(target=render, args=("curved",))
+    # p.start()
+    # p.join(timeout)
 
-    if p.is_alive():
-        p.terminate()
-        p.join()
-        if report_errors:
-            print(f"Warning: Graph rendering with 'curved' splines timed out after {timeout} seconds. "
-                  f"Falling back to 'polyline' splines, which may look worse.")
-        render("polyline")
+    # if p.is_alive():
+    #     p.terminate()
+    #     p.join()
+    #     if report_errors:
+    #         print(f"Warning: Graph rendering with 'curved' splines timed out after {timeout} seconds. "
+    #               f"Falling back to 'polyline' splines, which may look worse.")
+    #     render("polyline")
 
 
 def create_nodes_layout(
@@ -102,29 +103,28 @@ def create_nodes_layout(
     return pos
 
 def state_idx_to_label(idx: int,
-                       hmm: DetailedHMM,) -> str:
+                       hmm: HMM,) -> str:
     ST = DetailedHMMStateType
-    state = hmm.states[idx]
-    if state.state_type == ST.MODULE_SUBGRAPH_ROOT:
-        module = hmm.bgc_variant.modules[hmm.state_idx_to_module_idx[idx]]
-        return f'{idx}:F{module.fragment_idx}:{module.gene_id}:{module.a_domain_idx}'
+    state_type = hmm.state_types[idx]
+    if state_type == ST.MODULE_SUBGRAPH_ROOT:
+        module_idx = hmm.module_start_states.index(idx)
+        label = f'{idx}:{hmm.module_names[module_idx]}'
     else:
-        return f'{idx}:{state.state_type.name}'
+        label = f'{idx}:{state_type.name}'
+
+    if len(label) > 10:
+        label = label[:len(label) // 2] + '\n' + label[len(label) // 2:]
+
+    return label
 
 
-def draw_hmm(hmm: DetailedHMM,
+def draw_hmm(hmm: HMM,
              output_path: Optional[Path] = None,
              highlight_path: Optional[List[int]] = None,
-             edge_weights: bool = True,
-             edge_labels: bool = False) -> Digraph:
-    if edge_weights and edge_labels:
-        raise ValueError("Cannot have both edge_weights and edge_labels enabled simultaneously.")
-
+             edge_weights: bool = True) -> Digraph:
     ST = DetailedHMMStateType
-    ET = DetailedHMMEdgeType
 
-
-    graph = Digraph(format="png", engine="neato")
+    graph = Digraph(format="svg", engine="neato")
     graph.graph_attr["neato"] = "-n2"
     graph.attr(
         overlap="false",
@@ -140,7 +140,7 @@ def draw_hmm(hmm: DetailedHMM,
                    [ST.MATCHING_FINISHED,],
                    [ST.INSERT, ST.CHOOSE_IF_FINISH_MATCHING],
                    [ST.MATCH, ST.MATCH_POSSIBLE_ASSEMBLY_FINISH, ST.MATCH_LAST_MODULE, ST.MATCHING_CONTINUED],
-                   [ST.INITIAL, ST.MODULE_SUBGRAPH_ROOT, ST.FINAL, ST.CHOOSE_IF_ITERATE_MODULE, ST.CHOOSE_IF_ITERATE_GENE],
+                   [ST.INITIAL, ST.MODULE_SUBGRAPH_ROOT, ST.FINAL, ST.CHOOSE_IF_ITERATE_MODULE, ST.CHOOSE_IF_ITERATE_GENE, ST.CHOOSE_IF_ITERATE_BGC],
                    [ST.INSERT_AT_START],
                    [ST.CHOOSE_IF_START_MATCHING, ST.SKIPPING_MODULES_AT_START_FINISHED]]
 
@@ -148,7 +148,12 @@ def draw_hmm(hmm: DetailedHMM,
 
 
     def state_idx_to_color(idx: int) -> str:
-        match hmm.states[idx].state_type:
+        if hmm.is_emitting_state(idx):
+            if highlight_path is not None and idx in highlight_path:
+                return "plum"
+            else:
+                return "lavenderblush"
+        match hmm.state_types[idx]:
             case ST.MODULE_SUBGRAPH_ROOT:
                 return "lightblue"
             case ST.INITIAL:
@@ -159,30 +164,30 @@ def draw_hmm(hmm: DetailedHMM,
                 return "white"
 
     # Assign nodes to their respective layers
-    for idx, state in enumerate(hmm.states):
+    for state_idx in range(len(hmm.transitions)):
         for layer_idx, layer_state_types in enumerate(layer_types):
-            if state.state_type in layer_state_types:
-                layers[layer_idx].append(idx)
+            if hmm.state_types[state_idx] in layer_state_types:
+                layers[layer_idx].append(state_idx)
 
     labels = {i: state_idx_to_label(i, hmm)
-              for i in range(len(hmm.states))}
+              for i in range(len(hmm.transitions))}
     forward_edges = [
         (from_idx, to_idx)
-        for from_idx, edges_dict in hmm.transitions.items()
-        for to_idx, edge_data in edges_dict.items()
+        for from_idx, edges in enumerate(hmm.transitions)
+        for to_idx, _lp in edges
         if to_idx > from_idx
     ]
     pos = create_nodes_layout(layers=layers,
                               labels=labels,
                               edges=forward_edges)  # (x,y) floats
 
-    for idx, state in enumerate(hmm.states):
-        x, y = pos[idx]
+    for state_idx in range(len(hmm.transitions)):
+        x, y = pos[state_idx]
         graph.node(
-            str(idx),
-            label=labels[idx],
+            str(state_idx),
+            label=labels[state_idx],
             shape="ellipse",
-            fillcolor=state_idx_to_color(idx),
+            fillcolor=state_idx_to_color(state_idx),
             style="filled",
             pos=f"{x},{y}!",  # the "!" pins it (critical)
         )
@@ -190,8 +195,8 @@ def draw_hmm(hmm: DetailedHMM,
     path_edges = list(pairwise(highlight_path)) \
         if highlight_path is not None else []
     # Add actual edges between nodes
-    for from_idx, edges_dict in hmm.transitions.items():
-        for to_idx, edge in edges_dict.items():
+    for from_idx, edges in enumerate(hmm.transitions):
+        for to_idx, lp in edges:
             edge_args = {
                 'tail_name': str(from_idx),
                 'head_name': str(to_idx),
@@ -200,21 +205,22 @@ def draw_hmm(hmm: DetailedHMM,
                 'color': "red" if (from_idx, to_idx) in path_edges else "black",
                 'penwidth': "2" if (from_idx, to_idx) in path_edges else "1",
             }
-            if edge_labels:
-                edge_args['label'] = edge.edge_type.name
             if edge_weights:
-                edge_args['label'] = f"{edge.weight:.2f}"
-            if edge.edge_type == ET.INSERT:  # Self-loop case
-                edge_args['headport'] = "n"  # point upwards
-                edge_args['tailport'] = "n"
-            if edge.edge_type == ET.INSERT_AT_START:
-                edge_args['headport'] = "s"  # point downwards
-                edge_args['tailport'] = "s"
+                edge_args['label'] = (
+                    "-inf" if lp < -1e10 else
+                    f"{lp:.2f}"
+                )
+            if from_idx == to_idx:
+                match hmm.state_types[to_idx]:
+                    case ST.INSERT:
+                        edge_args['headport'] = "n"  # point upwards
+                        edge_args['tailport'] = "n"
+                    case ST.INSERT_AT_START | ST.INSERT_AT_END:
+                        edge_args['headport'] = "w"  # point left
+                        edge_args['tailport'] = "w"
+                    case _:
+                        raise ValueError(f"Unexpected self-loop at state {to_idx} of type {hmm.state_types[to_idx]}")
 
-            if (hmm.states[from_idx].state_type == ST.SKIPPING_MODULES_AT_END and
-                    edge.edge_type == ET.SKIP_MODULE_AT_END):
-                edge_args['headport'] = "n"  # point upwards
-                edge_args['tailport'] = "n"
             graph.edge(**edge_args)
 
     # Optionally save the graph

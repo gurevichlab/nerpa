@@ -25,6 +25,7 @@ void write_output_to_json(const std::vector<MatchInfo>& matches,
 
         return json{
                 {"score", match.score},
+                {"raw_score", match.raw_score},
                 {"bgc_variant_id", {
                                   {"bgc_id", {
                                                      {"antiSMASH_file", genome_id(bgc_id(match.bgc_variant_id))},

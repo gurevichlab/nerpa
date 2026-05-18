@@ -1,4 +1,4 @@
-use crate::data_types::common_types::{LogProb, MonomerIdx};
+use crate::data_types::common_types::{LogOdds, MonomerIdx};
 use crate::data_types::hmm::StateIdx;
 use serde::{Deserialize, Deserializer};
 
@@ -28,7 +28,7 @@ impl<'de> Deserialize<'de> for MonomerIdx {
 // null encodes -inf *log-prob*
 pub fn de_transitions_null_lp_as_neg_inf<'de, D>(
     deserializer: D,
-) -> Result<Vec<Vec<(StateIdx, LogProb)>>, D::Error>
+) -> Result<Vec<Vec<(StateIdx, LogOdds)>>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -45,10 +45,38 @@ where
         .collect())
 }
 
+// serialize transitions: Vec<Vec<(next_state, logprob)>>
+// -inf *log-prob* is encoded as `null`
+pub fn ser_transitions_neg_inf_lp_as_null<S>(
+    transitions: &Vec<Vec<(StateIdx, LogOdds)>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mapped: Vec<Vec<(StateIdx, Option<f64>)>> = transitions
+        .iter()
+        .map(|row| {
+            row.iter()
+                .map(|&(next, lp)| {
+                    let lp_opt = if lp.is_infinite() && lp.is_sign_negative() {
+                        None
+                    } else {
+                        Some(lp)
+                    };
+                    (next, lp_opt)
+                })
+                .collect()
+        })
+        .collect();
+
+    mapped.serialize(serializer)
+}
+
 // As JSON doesn't support -inf, we allow `null` to represent -inf in the emissions matrix.
 pub fn de_vec_vec_logprob_null_as_neg_inf<'de, D>(
     deserializer: D,
-) -> Result<Vec<Vec<LogProb>>, D::Error>
+) -> Result<Vec<Vec<LogOdds>>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -66,6 +94,32 @@ where
         .collect();
 
     Ok(mapped)
+}
+
+// As JSON doesn't support -inf, we serialize -inf as `null` in the emissions matrix.
+pub fn ser_vec_vec_logprob_neg_inf_as_null<S>(
+    emissions: &Vec<Vec<LogOdds>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mapped: Vec<Vec<Option<f64>>> = emissions
+        .iter()
+        .map(|row| {
+            row.iter()
+                .map(|&lp| {
+                    if lp.is_infinite() && lp.is_sign_negative() {
+                        None
+                    } else {
+                        Some(lp)
+                    }
+                })
+                .collect()
+        })
+        .collect();
+
+    mapped.serialize(serializer)
 }
 
 use crate::data_types::parsed_rban_record::{AtomId, MonomerEdge, MonomerEdgeInfo, MonomerInfo};

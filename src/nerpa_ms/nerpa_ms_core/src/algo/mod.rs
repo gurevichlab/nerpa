@@ -1,6 +1,11 @@
 pub mod algo_main;
+pub mod gen_new_variants;
 pub mod dp;
 pub mod graph_to_dag;
 pub mod solve_brute_force;
 pub mod dp_backtrack;
 pub mod apply_modifications;
+pub mod monomer_graph_operations;
+pub mod generic;
+pub mod template_free_dag;
+pub mod rban_records_isomorphic;

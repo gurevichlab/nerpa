@@ -73,13 +73,17 @@ class HMM_Constructor:
 
     def get_emissions(self,
                       module: BGC_Module) -> Dict[NRP_Monomer, LogProb]:
-        return self.hmm_helper.get_emissions(module,
-                                             pks_domains_in_bgc=self.bgc_variant.has_pks_domains())
+        return self.hmm_helper.get_match_emissions(
+            module,
+            pks_domains_in_bgc=self.bgc_variant.has_pks_domains()
+        )
 
     def get_insert_emissions(self,
                              module: BGC_Module) -> Dict[NRP_Monomer, LogProb]:
-        return self.hmm_helper.get_insert_emissions(module,
-                                                    pks_domains_in_bgc=self.bgc_variant.has_pks_domains())
+        return self.hmm_helper.get_insert_emissions(
+            module,
+            pks_domains_in_bgc=self.bgc_variant.has_pks_domains()
+        )
 
     def add_iteration_subgraph(self,
                                module_idx: int,
@@ -93,7 +97,7 @@ class HMM_Constructor:
         for from_idx, edges in self.adj_list.items():
             for to_idx, edge in edges.items():
                 if (from_idx != to_idx and
-                        edge.edge_type not in (ET.ITERATE_MODULE, ET.ITERATE_GENE)):
+                        edge.edge_type not in (ET.ITERATE_MODULE, ET.ITERATE_GENE, ET.ITERATE_BGC)):
                     g.add_edge(from_idx, to_idx)
 
         topsorted_state_indices = list(nx.topological_sort(g))
@@ -114,15 +118,28 @@ class HMM_Constructor:
             for module_idx, old_state_idx in self.module_idx_to_subgraph_root.items()
         }
 
-    def add_final_state(self):
+    def add_bgc_iteration_and_final_state(self):
         old_final_state = self.final_state
-        self.states.append(DetailedHMMState(state_type=ST.FINAL))
+        self.states.extend([
+            DetailedHMMState(state_type=ST.CHOOSE_IF_ITERATE_BGC),
+            DetailedHMMState(state_type=ST.FINAL)
+        ])
+        bgc_iteration_state_idx = len(self.states) - 2
         self.final_state = len(self.states) - 1
+
+        # redirect edges from final state to the new iteration state 
         for from_idx, edges_dict in self.adj_list.items():
             if old_final_state in edges_dict:
                 edge = edges_dict[old_final_state]
-                self.adj_list[from_idx][self.final_state] = edge
+                self.adj_list[from_idx][bgc_iteration_state_idx] = edge
                 del self.adj_list[from_idx][old_final_state]
+
+        # add edge from iteration state to final state
+        self.add_edge(bgc_iteration_state_idx, self.final_state, ET.NO_ITERATION)
+
+        # add edge from iteration state to the beginning of the assembly line
+        self.add_edge(bgc_iteration_state_idx, self.initial_state, ET.ITERATE_BGC)
+            
 
     def check_hmm_sanity(self):
         assert self.initial_state == 0, "Initial state index should be 0"
@@ -132,7 +149,8 @@ class HMM_Constructor:
                    for from_idx, edges_dict in self.adj_list.items()
                    for to_idx, edge in edges_dict.items()
                      if edge.edge_type not in (ET.ITERATE_MODULE,
-                                                ET.ITERATE_GENE)), "HMM states are not properly topsorted"
+                                               ET.ITERATE_GENE,
+                                               ET.ITERATE_BGC)), "HMM states are not properly topsorted"
         assert all(len(edges_dict) <= 2
                    for edges_dict in self.adj_list.values()), "There should be at most 2 outgoing edges per state"
         for state_idx, edges_dict in self.adj_list.items():
@@ -189,22 +207,24 @@ class HMM_Constructor:
         add_module_subgraphs(self)
         if debug:
             self.convert_to_detailed_hmm(cls).draw(Path("added_module_subgraphs.png"))  # debugging
+
         add_skips_at_start(self, cls)
         if debug:
             self.convert_to_detailed_hmm(cls).draw(Path("added_skips_at_start.png"))
+
         add_skips_at_end(self)
         if debug:
             self.convert_to_detailed_hmm(cls).draw(Path("added_skips_at_end.png"))
 
-        # 2. Add final state and redirect edges from the stub to it
-        self.add_final_state()
+        # 2. Add BGC iteration at the end
+        self.add_bgc_iteration_and_final_state()
 
-        # 3. Topsort states (for Viterbi algorithm)
+        # 4. Topsort states (for Viterbi algorithm)
         self.topsort_states()
         if debug:
             self.convert_to_detailed_hmm(cls).draw(Path("hmm_built.png"))
 
-        # 4. Sanity check
+        # 5. Sanity check
         self.check_hmm_sanity()
 
         return self.convert_to_detailed_hmm(cls)

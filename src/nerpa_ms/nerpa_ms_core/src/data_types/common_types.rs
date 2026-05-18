@@ -18,9 +18,9 @@ impl Display for MonomerIdx {
 pub struct MonomerCode(pub u32);
 
 impl MonomerCode {
-	pub fn as_usize(&self) -> usize {
-		self.0 as usize
-	}
+    pub fn as_usize(&self) -> usize {
+	self.0 as usize
+    }
 }
 
-pub type LogProb = f64;
+pub type LogOdds = f64;

@@ -1,73 +1,25 @@
 from __future__ import annotations
 from typing import (
-    List,
     Tuple,
     NamedTuple,
     Dict,
     Optional,
-    TYPE_CHECKING,
-    Union, NewType
 )
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
-from src.antismash_parsing.bgc_variant_types import (
-    BGC_ID,
-    BGC_Variant_ID,
-    BGC_Variant,
-    GeneId,
-)
+from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 from src.monomer_names_helper import NRP_Monomer
 from src.general_type_aliases import (
     LogProb,
-    Prob,
 )
-from src.monomer_names_helper import enum_representer, MonCode
+from src.monomer_names_helper import enum_representer
 import yaml
 
 
 StateIdx = int
 GenomicContext = Tuple[ModuleGenomicContextFeature, ...]
 
-class HMM(NamedTuple):
-    bgc_variant_id: BGC_Variant_ID
-    transitions: List[List[Tuple[StateIdx, LogProb]]]  # u -> [(v, log_prob(u -> v))]
-    emissions: List[List[LogProb]]  # u -> [log_prob(u -> emission)]
-    state_labels: List[str]
-    module_start_states: List[StateIdx]
-    module_match_states: List[StateIdx]
-
-    def to_json(self):
-        _emissions = [[emission if emission != LogProb(float('-inf')) else None
-                      for emission in state_emissions]
-                     for state_emissions in self.emissions]
-        return {
-            'bgc_variant_id': self.bgc_variant_id.to_dict(),
-            'transitions': self.transitions,
-            'emissions': _emissions,
-            'state_labels': self.state_labels,
-            'module_start_states': self.module_start_states,
-            'module_match_states': self.module_match_states
-        }
-
-# HMM_LOKC: emisson scores are Log-Odds,
-# Unknown Chiralities are allowed,
-# These HMMs are used for matching
-# Transition and emission scores do NOT sum to 1
-HMM_LOUC = NewType('HMM_LOUC', HMM)
-
-# HMM_LPUC: emisson scores are Log-Probabilities,
-# Unknown Chiralities are NOT allowed (the corresponding scores are set to -inf),
-# These HMMs are used for p-value estimation
-# Transition and emission scores sum to 1
-HMM_LPKC = NewType('HMM_LPKC', HMM)
-
-# HMM_LPUC: emisson scores are Log-Probabilities,
-# Unknown Chiralities are allowed
-# These HMMs are used for matching
-# emission scores do NOT sum to 1
-HMM_LPUC = NewType('HMM_LPUC', HMM)
 
 class DetailedHMMStateType(Enum):
     INITIAL = auto()
@@ -95,6 +47,8 @@ class DetailedHMMStateType(Enum):
     SKIPPING_MODULES_AT_END = auto()
     SKIP_MODULE_AT_END = auto()  # a phantom state -- I pretend there's a chain of these states when computing skip costs
 
+    CHOOSE_IF_ITERATE_BGC = auto()
+
     FINAL = auto()
 
 
@@ -111,6 +65,9 @@ class DetailedHMMState:
         self.state_type = state_type
         self.emissions = emissions if emissions is not None else {}
         self.related_module_idx = related_module_idx
+
+    def is_emitting(self) -> bool:
+        return self.emissions is not None and len(self.emissions) > 0
 
 
 class DetailedHMMEdgeType(Enum):
@@ -146,6 +103,8 @@ class DetailedHMMEdgeType(Enum):
     INSERT_AT_END = auto()
     SKIP_MODULES_AT_END = auto()
     SKIP_MODULE_AT_END = auto()
+
+    ITERATE_BGC = auto()
 
     def __lt__(self, other):
         return self.name < other.name
