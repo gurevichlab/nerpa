@@ -56,12 +56,17 @@ def extract_bgc_variants_from_antismash_batch(antismash_paths: Iterable[Path],
             new_antismash_bgcs = parse_antismash_json(antismash_json_file,
                                                   antismash_processing_config,
                                                   log)
-            new_bgc_variants = chain.from_iterable(build_bgc_variants(bgc,
-                                                                      specificity_prediction_helper,
-                                                                      antismash_processing_config,
-                                                                      log,
-                                                                      args.let_it_crash)
-                                                   for bgc in antismash_bgcs)
+            new_bgc_variants = list(
+                chain.from_iterable(
+                    build_bgc_variants(
+                        bgc,
+                        specificity_prediction_helper,
+                        antismash_processing_config,
+                        log,
+                        args.let_it_crash
+                    )
+                    for bgc in new_antismash_bgcs
+                ))
             bgc_variants.extend(new_bgc_variants)
             antismash_bgcs.extend(new_antismash_bgcs)
         except Exception as e:
