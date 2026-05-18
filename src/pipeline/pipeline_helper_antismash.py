@@ -144,7 +144,6 @@ class PipelineHelper_antiSMASH:
         bgcs_all = list(chain(*bgcs_batches))
         bgc_variants_all = list(chain(*bgc_variants_batches))
         self.log.info(f'Extracted {len(bgc_variants_all)} BGC variants from antiSMASH results')
-        print(f'Names: {[bgc.get_genome_id() for bgc in bgc_variants_all]}')
 
         parsed_bgcs_json = self.config.output_config.bgcs
         parsed_bgcs_json.parent.mkdir(parents=True, exist_ok=True)
