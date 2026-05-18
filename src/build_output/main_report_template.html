@@ -382,9 +382,14 @@
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
 
-        <svg id="moduleViewer"
-            style="background: #ffffff; width: 100%; border: 1px;">
-        </svg>  
+        <div id="moduleViewerContainer" class="viewer-scrollable" style="display: none;"  overflow: auto;>
+            <svg id="moduleViewer"
+                style="background: #ffffff; width: 100%; border: 1px;"
+                overflow: auto
+                viewBox="0 0 100 100";
+               >
+            </svg>
+        </div>
     </div>
 
     <!-- NRP Viewer -->
@@ -394,13 +399,12 @@
             <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
         </div>
         <div id="nrpViewerContainer" class="viewer" style="display: none;">
- <div style="display: flex; justify-content: space-between;">
+            <div style="display: flex; justify-content: space-between;">
                 <div style="flex: 1; padding-left: 5px;">
                     <canvas id="moleculeImage" 
-                    style="width: 100%; height: 70vh; border: 1px; ">
+                    style="background: #ffffff; width: 100%; height: 70vh; border: 1px; ">
                     </canvas>
                </div>
-                <div styl
                 <div style="flex: 1; padding-left: 5px;">
                     <div id="graphImage" style="background: #ffffff; 
                         width: 100%; 
@@ -415,18 +419,41 @@
 
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
  <!-- vis-network for graph -->
-<script src="https://unpkg.com/vis-network@10.0.2/standalone/umd/vis-network.min.js"></script>
-<link rel="stylesheet" href="chemdoodle/ChemDoodleWeb.css" type="text/css">
-<script type="text/javascript" src="chemdoodle/ChemDoodleWeb.js"></script>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<link rel="stylesheet" href="html_aux/chemdoodle/ChemDoodleWeb.css" type="text/css">
+<script type="text/javascript" src="html_aux/chemdoodle/ChemDoodleWeb.js"></script>
 
 
 <script>
-    function buildModuleFigure(bgcID){
-         const svg = document.getElementById("moduleViewer");
+    // local variables
+    const svg = document.getElementById("moduleViewer");
+    var network;
+    let molCanvas; 
+
+    function connectTableModule(row, bgcID, nrpID){
+        const gene = row.cells[0].textContent;
+        const Aindex = row.cells[1].textContent;
+        const module = document.getElementById(`M${Aindex}_${gene}`);
+        const arrow = document.getElementById(`${gene}`);
+
+        for(const el of svg.childNodes){
+            if(!el.id) continue;
+            if(el.id != module.id && el.id !=  module.id.substring(module.id.indexOf("_") + 1)){
+                el.setAttribute("opacity", "0.3");
+            } else {
+                el.setAttribute("opacity", "1");
+            }
+        }
+        const nodeID = row.cells[6].textContent;
+        const nodeLabel = monomer_graph[nrpID].objects.find(node => node.name === nodeID).label;
+        network.selectNodes([parseInt(nodeID)]);   
+        connectGraphMolecule(nodeLabel, nodeID, nrpID);
+    }
+    
+    function buildModuleFigure(bgcID, nrpID){
         function svgBuildModule(domains, x, y, gene, id, residue, rad){
             const module = document.createElementNS(svgns, 'g');
-            module.setAttribute("id", `module_${id}`);
-            
+            module.setAttribute("id", `${id}_${gene}`);
             
             let i = 0;
             let xi;
@@ -463,7 +490,7 @@
                         break;
                     case 'TE_TD':
                         circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
-                        domainName = 'TD'; 
+                        domainName = 'TE'; 
                         break;
                     case 'MT':
                         circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
@@ -533,34 +560,59 @@
             res.textContent = residue;
             module.appendChild(res);
 
+            // if module has no A domain, traparency should be decreased
+            if(residue === '')module.setAttribute("opacity", "0.3");
+
             svg.appendChild(module);
 
-            module.addEventListener('click',  e => 
-                module.setAttribute('transform', 'scale(1.1) translate(-10, -10)')
-                , 
-                {passive: false})
+             module.addEventListener('click',  e => {
+                for(const el of svg.childNodes){
+                    if(!el.id) continue;
+                    if(el.id != module.id && el.id !=  module.id.substring(module.id.indexOf("_") + 1)){
+                        el.setAttribute("opacity", "0.3");
+                    } else {
+                        el.setAttribute("opacity", "1");
+                    }
+                }
+            }); 
 
             return xi + rad;
         }
 
-        const genes = modules_data[bgcID.bgc_idx]
+        const genes = bgcModuleIndex.get(makeBgcKey(bgcID));
         let x = 0;
         let y = 75;
         let module_idx = 0;
         const rad = 20;
         var svgns = "http://www.w3.org/2000/svg";
+
+         // find highest scoring residue
+        const match = data.find(item =>
+                                makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === makeBgcKey(bgcID) &&
+                                item["nrp_variant_id"]["nrp_id"] === nrpID);
+
+
+        const non_particpating_genes = new Set();
+
+
         for (const gene of genes){
             const modules = gene.modules;
             const geneID = gene.gene_id;
-            //if (!particpating_genes.includes(geneID)) continue;
             const geneStart = x;
+            let residue;
 
             for(const module of modules){
-                module_idx ++;
                 const domains = module.domains_sequence;
-                const moduleID = `M${module_idx}`
-                const residue = '???';          // where to find data for this??
+                if(module["a_domain"] === null) {residue = ''; non_particpating_genes.add(gene.gene_id)}
+                else { const alignment = match.alignments[0].find(item =>
+                                item.Gene === geneID &&
+                                item["A-domain_idx"] === module_idx);
+                        if(alignment["Modifying_domains"] ===  "---") residue = alignment["Top_scoring_residues"] != "---" ? alignment["Top_scoring_residues"]: 'unk';
+                        else residue = `D-${alignment["Top_scoring_residues"]}`;
+                }
+                const moduleID = `M${module_idx}`;
                 x = svgBuildModule(domains, x + 15, y, geneID, moduleID, residue, rad);
+                module_idx ++;                
             }
             const geneEnd = x - rad;
             const geneArr = document.createElementNS(svgns, 'g');
@@ -584,9 +636,23 @@
             arrowDes.setAttribute('text-anchor', 'middle');
             arrowDes.setAttribute('dominant-baseline', 'central');
             arrowDes.textContent = gene.gene_id;
-            geneArr.appendChild(arrowDes);
+            geneArr.appendChild(arrowDes);    
+            if(residue === '')geneArr.setAttribute("opacity", "0.3");
             svg.appendChild(geneArr);
+
+            module_idx = 0;
         }
+        const bbox = svg.getBBox();
+        svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+        
+        svg.addEventListener('click', e => {
+            if(e.target.parentElement.id === 'moduleViewerContainer'){
+                for(const el of svg.childNodes){
+                    if(!el.id || non_particpating_genes.has(el.id.substring(el.id.indexOf("_") + 1)) || non_particpating_genes.has(el.id)) continue;
+                    el.setAttribute("opacity", "1");
+                }
+            } 
+        });
     }
 
     function drawGraph(nrpID) {
@@ -594,8 +660,9 @@
         const graph = monomer_graph[nrpID];
  
         const edgesMapped = graph.edges.map(({tail, head, color, penwidth}) => ({
-                from: tail,
-                to: head, 
+                // inefficient find better solution!!
+                from: graph.objects.find(node => node._gvid === tail).name,
+                to: graph.objects.find(node => node._gvid === head).name,
                 color: color, 
                 width: penwidth,
                 selectionWidth: penwidth, 
@@ -603,11 +670,12 @@
                 arrows: (color == "red") ? '' : 'to',
         }));
 
-        const nodesMapped = graph.objects.map(({_gvid, color, fontsize, label}) => ({
-                id: _gvid,
+        const nodesMapped = graph.objects.map(({name, color, fontsize, label}) => ({
+                id: name,
                 label: label, 
                 color: color, 
                 font: fontsize,
+                borderWidthSelected: 4,
         }));
 
         const nodes = new vis.DataSet(nodesMapped);
@@ -627,65 +695,130 @@
             layout: {
                 randomSeed: 42,
                 improvedLayout: true,
+            },
+               interaction:{
+                zoomView:true
             }
         };
         
-        var network = new vis.Network(graph_div, graph_data, graph_options);
-        network.addEventListener('click',  e => 
-                connectGraphMolecule(nodesMapped.find(n => n.id === e.nodes[0]).label, nrpID), 
-                {passive: false})
+        network = new vis.Network(graph_div, graph_data, graph_options);
+
+        const nodeMap = {};
+        for(const entry of nodesMapped){
+            nodeMap[entry.id] = entry.label;
+        }
+
+        network.addEventListener('click',  e => {
+                connectGraphMolecule(nodeMap[e.nodes[0]], e.nodes[0], nrpID), 
+                {passive: false}}) 
+
+        // this code is from https://github.com/visjs/vis-network/issues/574 as vis-network has no minZoom 
+        let lastPosition = null;
+        const max_zoom = 2;
+        const min_zoom = 0.5;
+        network.on("zoom", function (params) {
+        if (params.scale < min_zoom|| params.scale > max_zoom) { // adjust this value according to your requirement
+            network.moveTo({
+            position: lastPosition, // use the last position before zoom limit
+            scale: params.scale > max_zoom ? max_zoom : min_zoom // this scale prevents zooming out beyond the desired limit
+            });
+        } else {
+            // store the current position as the last position before zoom limit
+            lastPosition = network.getViewPosition();
+        }
+        });
+        // on pan, store the current position
+        network.on("dragEnd", function () {
+        lastPosition = network.getViewPosition();
+        });
+        // until here 
     }
 
-    function connectGraphMolecule(node, nrpID){
+    function connectGraphMolecule(nodeLabel, nodeID, nrpID){
+       
         // get molecule
         const mol = molCanvas.getMolecule();
-        molCanvas.loadMolecule(mol);
-        paintMolecule(mol, nrpID);
-        // set image back to default setting 
-        let defaultStyle = new ChemDoodle.structures.Styles();
-        defaultStyle.atoms_color = '#000000';
-        defaultStyle.atoms_font_size_2D = 10;
-        for(const a of mol.atoms){
-            if (a.styles) a.styles = defaultStyle;
+
+        //
+        const el = document.getElementById('graphImage').visNetworkInstance;
+
+        //  if no node but background was clicked, set moelcule back to default
+        if(nodeID === undefined){
+            let newStyle = new ChemDoodle.structures.Styles();
+            newStyle.atoms_color = 'black';
+            newStyle.bonds_color = 'black';
+            for(const bond of mol.bonds){
+         
+                bond.a1.styles = newStyle;
+                bond.a2.styles = newStyle;
+                bond.styles = newStyle;
+            }
+            molCanvas.loadMolecule(mol);
+            paintMolecule(mol, nrpID);
+            
+            return;
         }
 
-        // set new style for residue of selected monomer node
-        let atomStyle = new ChemDoodle.structures.Styles();
-        atomStyle.atoms_color = 'red';
-        atomStyle.atoms_font_size_2D = 20;
-        
-        // find atoms of selected monomer node in molecule and change style
-        const atoms = molecule_image[nrpID].monomers[node];
-       
+        // find atoms of selected monomer node in molecule 
+        const selected_atoms = new Set(molecule_image[nrpID].monomers[nodeLabel]); // O(n) ! 
+
+        // paint molecule in pale color and selected residue in standard color
+        let paleStyle = new ChemDoodle.structures.Styles();
+        paleStyle.atoms_color = '#D3D3D3';
+        paleStyle.bonds_color = '#D3D3D3';
+        let newStyle = new ChemDoodle.structures.Styles();
+        newStyle.atoms_color = 'black';
+        newStyle.bonds_color = 'black';
+
+        let visited = new Set();
+
+        for(const bond of mol.bonds){
+            if(selected_atoms.has(Number(bond.a1.tmpid)) && selected_atoms.has(Number(bond.a2.tmpid))){
+                bond.a1.styles = newStyle;
+                bond.a2.styles = newStyle;
+                visited.add(bond.a1);
+                visited.add(bond.a2);
+                bond.styles = newStyle;
+            } else {
+                if(!visited.has(bond.a1)) bond.a1.styles = paleStyle;
+                if(!visited.has(bond.a2)) bond.a2.styles = paleStyle;
+                bond.styles = paleStyle;
+            }
+        }
+
+        molCanvas.loadMolecule(mol);
+
+        for(const bond of mol.bonds){
+            if(selected_atoms.has(Number(bond.a1.tmpid)) && selected_atoms.has(Number(bond.a2.tmpid))){
+                colorAtom(bond.a1, nrpID,);
+                colorAtom(bond.a2, nrpID,);
+                colorBond(bond, nrpID,);
+            } else {
+                if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
+                colorAtom(bond.a1, nrpID, 80);
+                colorAtom(bond.a2,nrpID, 80);
+                colorBond(bond, nrpID,80);
+            }
+        }
+        // set background color back to white
         const colorCanvas = document.getElementById('moleculeImage');
         const ctx = colorCanvas.getContext("2d");
-        for(const atomID of atoms){
-            const atom = mol.atoms.find(a => Number(a.tmpid) === atomID);
-            
-                const color = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
-                const x = atom.x;
-                const y = atom.y;
-                let label = atom.label;
-                if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
-                const l = ctx.measureText(label).width;
-                const h = molCanvas.styles.atoms_font_size_2D * 1.333;
-                
-                ctx.strokeStyle = `rgb(${color[0] * 255 * 0.7}, ${color[1] * 255 * 0.7}, ${color[2] * 255 * 0.7})`; 
-                ctx.lineWidth = h + 5;  
-                ctx.lineCap = "round";
-                ctx.beginPath();
-                ctx.moveTo(x - l/2, y);
-                ctx.lineTo(x + l/2, y);
-                ctx.stroke();
-        }
+        ctx.fillStyle = "white"; 
+        ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
     }
     
-    let molCanvas = new ChemDoodle.ViewerCanvas('moleculeImage', 600, 600);
-
     function drawMolecule(nrpID){
+        const rect = document.getElementById('moleculeImage').getBoundingClientRect();
+        molCanvas = new ChemDoodle.ViewerCanvas('moleculeImage', rect.width, rect.height);
     
         let mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
 
+         for(const atom of mol.atoms){
+            if(atom.label.includes('_')) {
+                atom.altLabel = atom.label;
+                atom.label = 'C'
+            }
+        }
         molCanvas.styles.bonds_width_2D = .9;
         molCanvas.styles.bonds_saturationWidthAbs_2D = 2.6;
         molCanvas.styles.bonds_hashSpacing_2D = 2.5;
@@ -696,44 +829,62 @@
         molCanvas.loadMolecule(mol);
         paintMolecule(mol, nrpID);
     }
-    function paintMolecule(mol, nrpID){
-        const colorCanvas = document.getElementById('moleculeImage');
-        const ctx = colorCanvas.getContext("2d");
-        ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
-        for(const atom of mol.atoms){
-            if (atom.label === 'C') continue; 
-            const color = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
-            const x = atom.x;
-            const y = atom.y;
-            let label = atom.label;
-            if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
-            const l = ctx.measureText(label).width;
-            const h = molCanvas.styles.atoms_font_size_2D * 1.333;
-  
-            ctx.strokeStyle = `rgb(${color[0] * 255}, ${color[1] * 255}, ${color[2] * 255})`; 
-            ctx.lineWidth = h;  
-            ctx.lineCap = "round";
-            ctx.beginPath();
-            ctx.moveTo(x - l/2, y);
-            ctx.lineTo(x + l/2, y);
-            ctx.stroke();
-        } 
-        for(const bond of mol.bonds){
-            const sX = bond.a1.x;
-            const sY = bond.a1.y;
-            const eX = bond.a2.x;
-            const eY = bond.a2.y;
 
-             const color = molecule_image[nrpID].highlightAtomColors[bond.a1.tmpid];
-            ctx.strokeStyle = `rgb(${color[0] * 255}, ${color[1] * 255}, ${color[2] * 255})`; 
-            ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
-            ctx.lineCap = "round";
-            ctx.beginPath();
-            ctx.moveTo(sX, sY);
-            ctx.lineTo(eX, eY);
-            ctx.stroke();
-        } 
-    }    
+    function paintMolecule(mol, nrpID){
+            const colorCanvas = document.getElementById('moleculeImage');
+            const ctx = colorCanvas.getContext("2d");
+            ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
+  
+            for(const bond of mol.bonds){
+                if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
+                colorAtom(bond.a1, nrpID);
+                colorAtom(bond.a2, nrpID);
+                colorBond(bond, nrpID);
+            }
+
+            ctx.fillStyle = "white"; 
+            ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+    }   
+    
+    function colorAtom(atom, nrpID, saturation = 0){ 
+        const ctx = document.getElementById('moleculeImage').getContext("2d");  
+        let label = atom.label;
+        if (!(atom.altLabel ===  undefined)) {
+            label = atom.altLabel;
+        }
+        if (label === 'C') return; 
+        const color = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
+        const x = atom.x;
+        const y = atom.y;
+        
+        if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
+        const l = ctx.measureText(label).width;
+        const h = molCanvas.styles.atoms_font_size_2D * 1.333;
+        
+        ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
+        ctx.lineWidth = h;  
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(x - l/2, y);
+        ctx.lineTo(x + l/2, y);
+        ctx.stroke();
+    }
+    
+    function colorBond(bond, nrpID, saturation = 0){  
+        const ctx = document.getElementById('moleculeImage').getContext("2d");
+        const sX = bond.a1.x;
+        const sY = bond.a1.y;
+        const eX = bond.a2.x;
+        const eY = bond.a2.y;
+        const color = molecule_image[nrpID].highlightAtomColors[bond.a1.tmpid];
+        ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
+        ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(sX, sY);
+        ctx.lineTo(eX, eY);
+        ctx.stroke();
+    }  
 
     // Function to detect if a value is numeric
     function isNumeric(value) {
@@ -879,6 +1030,9 @@
     // a lookup dictionary: BGC ID -> BGC metadata
     const bgcMetaIndex = new Map();
 
+    // a lookup dictionary: BGC ID -> BGC module data
+    const bgcModuleIndex = new Map();
+
     // Build a consistent unique key for a BGC variant
     function makeBgcKey(bgc_id) {
         // all fields in "bgc_id" are always present; no need for null checks
@@ -888,6 +1042,11 @@
     if (Array.isArray(bgc_metadata)) {
         bgc_metadata.forEach(m => {
             bgcMetaIndex.set(makeBgcKey(m.bgc_id), m.metadata || {});
+        });
+    }
+    if (Array.isArray(modules_data)) {
+        modules_data.forEach(m => {
+            bgcModuleIndex.set(makeBgcKey(m.bgc_id), m.genes || {});
         });
     }
 
@@ -1094,6 +1253,7 @@
                 link.addEventListener('click', event => {
                     event.preventDefault();
                     const nrpID = link.dataset.nrp;
+                    const bgcID = link.dataset.bgc;
                     toggleModuleViewer(false, nrpID, bgcID);
                 });
             });
@@ -1267,7 +1427,7 @@
              container.querySelectorAll('.module-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    toggleModuleViewer(false, link.dataset.nrp);
+                    toggleModuleViewer(false, link.dataset.nrp, link.dataset.bgc);
                 });
             });
 
@@ -1282,6 +1442,13 @@
                         const td = document.createElement('td');
                         td.textContent = row[alignment_column_names_mapping[header]] ?? 'n/a';
                         tr.appendChild(td);
+                    });
+                    tr.addEventListener('click', e =>{
+                        for(const r  of alignmentTableBody['rows']){
+                            r.style.border =  '1px solid #dddddd';
+                        } 
+                        tr.style.border = "2px solid green";
+                        connectTableModule(tr, bgc_id, nrp_id);
                     });
                     alignmentTableBody.appendChild(tr);
                 });
@@ -1318,8 +1485,8 @@
     }
 
      // Toggle function for module viewer
-    function toggleModuleViewer(hide, nrpID) {
-        const frame = document.getElementById('moduleViewer');
+    function toggleModuleViewer(hide, nrpID, bgcID) {
+        const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
         const label = document.getElementById('moduleViewerLabel');
 
@@ -1331,7 +1498,7 @@
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            buildModuleFigure(nrpID);
+            buildModuleFigure(bgcID, nrpID);
         }
     }
     // Toggle function for NRP images
@@ -1352,6 +1519,7 @@
             drawMolecule(nrpID);
         }
     }
+    
 
     // Alignment column chooser (detailed view)
     document.getElementById('toggleColumnsButton').addEventListener('click', function (event) {
