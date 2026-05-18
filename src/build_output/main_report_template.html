@@ -436,12 +436,14 @@
         const module = document.getElementById(`M${Aindex}_${gene}`);
         const arrow = document.getElementById(`${gene}`);
 
-        for(const el of svg.childNodes){
-            if(!el.id) continue;
-            if(el.id != module.id && el.id !=  module.id.substring(module.id.indexOf("_") + 1)){
-                el.setAttribute("opacity", "0.3");
-            } else {
-                el.setAttribute("opacity", "1");
+        if(module){
+            for(const el of svg.childNodes){
+                if(!el.id) continue;
+                if(el.id != module.id && el.id !=  module.id.substring(module.id.indexOf("_") + 1)){
+                    el.setAttribute("opacity", "0.3");
+                } else {
+                    el.setAttribute("opacity", "1");
+                }
             }
         }
         const nodeID = row.cells[6].textContent;
