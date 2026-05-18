@@ -151,14 +151,17 @@ def _create_molecule_dicts(molecule_data) -> Dict:
     return mol_dict
 
 
-def _create_module_dicts(module_data) -> Dict:
+def _create_module_dicts(module_data):
 
-    module_dict = {}
+    module_array = []
     
     for bgc in module_data: 
-        module_dict[bgc["bgc_id"]["bgc_idx"]] = bgc["genes"]
+        module_dict = {}
+        module_dict["bgc_id"] = bgc["bgc_id"]
+        module_dict["genes"] = bgc["genes"]
+        module_array.append(module_dict)
     
-    return module_dict
+    return module_array
 
 def create_html_report(monomer_graph_data,
                        molecule_data,
@@ -236,3 +239,9 @@ def create_html_report(monomer_graph_data,
         file.write(main_html_report)
     # copying logo to be embedded in the HTML report
     shutil.copy(output_cfg.logo, html_aux_dir)
+
+    # copying chemdoodle dependencies to output folder
+    os.mkdir(output_cfg.main_out_dir / 'html_aux/chemdoodle')
+    shutil.copyfile(current_dir / 'static/chemdoodle/ChemDoodleWeb.css',  output_cfg.main_out_dir / 'html_aux/chemdoodle/ChemDoodleWeb.css')
+    shutil.copyfile(current_dir / 'static/chemdoodle/ChemDoodleWeb.js',  output_cfg.main_out_dir / 'html_aux/chemdoodle/ChemDoodleWeb.js')
+
