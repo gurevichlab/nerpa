@@ -44,3 +44,6 @@ class MolRecord(NamedTuple):
         return MolRecord(mol=mol,
                          atom_id_to_mol_idx=atom_id_to_index)
 
+    def to_canonical_smiles(self) -> str:
+        return Chem.MolToSmiles(self.mol, canonical=True)
+

@@ -1,113 +1,187 @@
-use crate::{algo::{apply_modifications::apply_modifications, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogOdds, MonomerIdx}, dag::{DAG, VertexId}, graph_modifications::GraphModification, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::{MonomerOrigin, MonomersDB}, parsed_rban_record::Parsed_rBAN_Record}};
+use std::path::{Path, PathBuf};
 
 use crate::algo::graph_to_dag::create_dag;
-use serde::Serialize;
+use crate::cli;
+use crate::algo::gen_new_variants::{NewVariantWithOptPaths, generate_new_variants_with_opt_paths};
+use anyhow::{Context, Result};
+use crate::data_types::dag::DAG;
+use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
+use crate::data_types::{monomer_graph::MonomerGraph, monomers_db::load_monomers_db};
+use crate::io::input::InputItem;
+use crate::io::output::OutputItem;
+use crate::io::draw_hmm_dag::{draw_hmm_dag_opt_paths};
+use crate::data_types::monomers_db::MonomersDB;
+use crate::io::draw_nerpa_hmm::draw_nerpa_hmm_with_linearization;
 
-use crate::algo::dp::compute_dp_table;
+use crate::data_types::alignment::Alignment;
 
-use super::dp_backtrack::Solution;
-use itertools::Itertools;
-
-#[derive(Debug, Clone, Serialize)]
-pub struct Altered_rBAN_Record {
-    pub score: LogOdds,
-    pub new_record: Parsed_rBAN_Record,
-    pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>,
-    pub monomer_origins: Vec<MonomerOrigin>,
-}
-
-pub struct NewVariantWithOptPaths {
-    pub new_variant: Altered_rBAN_Record,
-    pub linearization: Vec<MonomerIdx>,
-    pub hmm_path: Vec<StateIdx>,
-    pub dag_path: Vec<VertexId>,
-}
-
-
-pub fn generate_new_variants_with_opt_paths<'mon_db>(
-    hmm: &HMM,
-    monomer_graph: &MonomerGraph,
-    dag: &DAG<'mon_db>,
-    max_weight: usize,
-    max_variants_per_weight: usize,
-    monomers_db: &'mon_db MonomersDB,
-) -> Vec<NewVariantWithOptPaths> {
-    println!("Computing DP table...");
-    let dp_table = compute_dp_table(hmm, &dag, max_weight);
-    println!("DP table computed. Retrieving new variants with optimal paths...");
-    let mut new_variants_with_opt_paths: Vec<NewVariantWithOptPaths> = Vec::new();
-
-    for weight in 0..=max_weight {
-	let max_solutions = if weight > 0 {max_variants_per_weight} else { 1 }; // for weight 0, we only want the original molecule, so we take 1 solution
-	let solutions_with_mods = {
-	    backtrack_solutions(weight, &dp_table, dag)
-		.map(|sol| {
-		    let mods = sol
-			.dag_edges
-			.iter()
-			.filter_map(|e| e.modification.clone())
-			.collect::<Vec<_>>();
-		    (sol, mods)
-		})
-		.unique_by(|(sol, mods)| {
-		    mods.iter()
-			.map(|m| m.to_str_short())
-			.sorted()
-			.join(";")
-		})
+fn draw_hmm_dags_optimal_paths(
+    new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+    item: &InputItem,
+    dag: &DAG<'_>,
+    figs_dir: &Path,
+    nerpa_root: &Path
+) {
+	let bgc_id_short = {
+	    &item.hmm
+	    .bgc_variant_id
+	    .bgc_id
+	    .to_str_short()
 	};
-		
-
-	let mut variants_collected = 0;
-	for (sol, mods) in solutions_with_mods {
-	    if let Some(new_variant) = apply_modifications(monomer_graph, &mods, monomers_db) {
-		let monomer_origins: Vec<MonomerOrigin> = {
-		    let mon_db_entries = mods
-			.iter()
-			.filter_map(|m| {
-			    match m {
-			        GraphModification::Insert { site: _, mon_db_entry } => Some(mon_db_entry),
-			        GraphModification::Substitute { monomer_idx: _, mon_db_entry } => Some(mon_db_entry),
-			        GraphModification::Remove { monomer_idx: _ } => None,
-			        GraphModification::KeepAsIs { monomer_idx: _ } => None,
-			    }
-			})
-			.collect::<Vec<_>>();
-
-		    mon_db_entries.iter()
-			.map(|entry| entry.monomer_origin.clone())
-			.collect()
-		};
-			
-		let variant = Altered_rBAN_Record {
-		    score: sol.dlo.to_logodds(),
-		    new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
-		    old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
-		    monomer_origins,
-		};
-
-		new_variants_with_opt_paths.push(NewVariantWithOptPaths {
-		    new_variant: variant,
-		    linearization: new_variant.linearization.clone(),
-		    hmm_path: sol.states.clone(),
-		    dag_path: {
-			let mut path = vec![dag.start];
-			for edge in &sol.dag_edges {
-			    path.push(edge.to);
-			}
-			path
-		    }
-		});
-		variants_collected += 1;
-	    }
-
-	    if variants_collected >= max_solutions {
-		break;
+	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
+	    let res = draw_hmm_dag_opt_paths(
+		&item.hmm,
+		&dag,
+		&new_variant_with_opt_paths.hmm_path,
+		&new_variant_with_opt_paths.dag_path,
+		&figs_dir.join(format!("{i}.svg")),
+		nerpa_root
+	    );	     
+	    if let Err(e) = res {
+		eprintln!("Failed to draw HMM-DAG optimal paths for variant {i} of
+ bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
 	    }
 	}
-
-    }
-
-    new_variants_with_opt_paths
 }
 
+fn draw_hmms_optimal_paths(
+    new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+    item: &InputItem,
+    figs_dir: &Path,
+    nerpa_root: &Path
+) {
+	let bgc_id_short = {
+	    &item.hmm
+	    .bgc_variant_id
+	    .bgc_id
+	    .to_str_short()
+	};
+	for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
+	    let res = draw_nerpa_hmm_with_linearization(
+		&item.hmm,
+		&new_variant_with_opt_paths.new_variant.new_record,
+		&new_variant_with_opt_paths.hmm_path,
+		&new_variant_with_opt_paths.linearization,
+		&figs_dir.join(format!("{i}.svg")),
+		nerpa_root
+	    );	     
+	    if let Err(e) = res {
+		eprintln!("Failed to draw HMM optimal path with monomers for variant {i} of
+ bgc {bgc_id_short}, compound {}: {e}", &item.rban_record.compound_id);
+	    }
+	}
+}
+
+fn write_alignments(
+	new_variants_with_opt_paths: &[NewVariantWithOptPaths],
+	item: &InputItem,
+	alignments_dir: &PathBuf
+) -> anyhow::Result<()> {
+    if !alignments_dir.exists() {
+	std::fs::create_dir_all(alignments_dir)
+            .context("Failed to create alignments directory")?;
+    }
+
+    for (i, new_variant_with_opt_paths) in new_variants_with_opt_paths.iter().enumerate() {
+	let alignment = Alignment::new(
+	    &new_variant_with_opt_paths.hmm_path,
+	    &new_variant_with_opt_paths.linearization,
+	    &item.bgc_variant,
+	    &item.hmm,
+	    &new_variant_with_opt_paths.new_variant.new_record,
+	);
+	std::fs::write(alignments_dir.join(format!("alignment_{}.txt", i)), alignment.to_tsv_string_aligned())?;
+    }
+    Ok(())
+}
+
+pub fn process_input_item(
+    item: &InputItem,
+    monomers_db: &MonomersDB,
+    cli: &cli::Cli,
+) -> OutputItem {
+    println!("Processing BGC {} and compound {}...",
+	     item.hmm.bgc_variant_id.bgc_id.to_str_short(),
+	     item.rban_record.compound_id);
+    println!("Creating monomer graph...");
+    let monomer_graph = MonomerGraph::from(&item.rban_record);
+    println!("Creating DAG from linearization...");
+    let dag = create_dag(&monomer_graph,
+						 &item.linearization,
+						 monomers_db);
+    println!("Creating new variants with optimal paths...");
+    let new_variants_with_opt_paths = generate_new_variants_with_opt_paths(
+		&item.hmm,
+		&monomer_graph,
+		&dag,
+		cli.max_edits,
+		cli.num_variants_per_num_edits,
+		monomers_db
+	 );
+
+    let bgc_id_short = {
+		&item.hmm
+		    .bgc_variant_id
+		    .bgc_id
+		    .to_str_short()
+	 };
+    let alignments_dir = {
+		cli.out
+			    .join("alignments")
+			    .join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	 };
+
+    if cli.write_alignments {
+	let r = write_alignments(&new_variants_with_opt_paths, item, &alignments_dir);
+	if let Err(e) = r {
+		    eprintln!("Failed to write alignments for bgc {bgc_id_short} and compound {}: {e}",
+		  &item.rban_record.compound_id);
+	}
+    }
+
+    if cli.draw_hmm_opt_paths {
+	let figs_dir = {
+	    cli.out
+		.join("figures")
+		.join("opt_paths")
+		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	};
+	println!("Drawing HMM with optimal paths...");
+	draw_hmms_optimal_paths(
+	    &new_variants_with_opt_paths,
+	    item,
+	    &figs_dir,
+	    &cli.nerpa_root
+	);
+    }
+
+    if cli.draw_hmm_dag_opt_paths {
+	println!("Drawing HMM-DAG optimal paths...");
+	let figs_dir = {
+	    cli.out
+		.join("figures")
+		.join("hmm_dag_opt_paths")
+		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+	};
+	draw_hmm_dags_optimal_paths(
+	    &new_variants_with_opt_paths,
+	    item,
+	    &dag,
+	    &figs_dir,
+	    &cli.nerpa_root
+	);
+    }
+
+    let new_variants = {
+		new_variants_with_opt_paths
+		    .into_iter()
+		    .map(|v| v.new_variant)
+		    .collect::<Vec<_>>()
+	 };
+    OutputItem {
+	bgc_variant_id: item.hmm.bgc_variant_id.clone(),
+	compound_id: item.rban_record.compound_id.clone(),
+	original_score: item.score,
+	new_variants,
+    }
+}

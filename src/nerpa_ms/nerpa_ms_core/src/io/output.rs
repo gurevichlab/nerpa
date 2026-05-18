@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::{algo::algo_main::Altered_rBAN_Record, data_types::{common_types::LogOdds, hmm::BGC_Variant_ID}};
+use crate::{algo::gen_new_variants::Altered_rBAN_Record, data_types::{common_types::LogOdds, hmm::BGC_Variant_ID}};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OutputItem {

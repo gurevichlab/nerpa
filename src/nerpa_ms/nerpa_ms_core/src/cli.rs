@@ -51,7 +51,20 @@ pub struct Cli {
     #[arg(long)]
     pub nerpa_root: PathBuf,
 
+    /// Draw HMMs with optimal paths. Careful: only enable for tiny examples
+    #[arg(long)]
+    pub draw_hmm_opt_paths: bool,
+
     /// Draw HMMs with DAGs. Careful: only enable for tiny examples
     #[arg(long)]
     pub draw_hmm_dag_opt_paths: bool,
+
+    /// Write alignment against BGC for each generated NRP variant
+    #[arg(long)]
+    pub write_alignments: bool,
+
+    /// Draw output variants. Careful: only enable for tiny examples
+    #[arg(long)]
+    pub draw_output_variants: bool,
+    
 }

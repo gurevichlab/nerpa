@@ -3,7 +3,7 @@ use std::path::Path;
 use serde::Serialize;
 use crate::data_types::common_types::LogOdds;
 use crate::data_types::{hmm::BGC_ID, parsed_rban_record::Parsed_rBAN_Record};
-use crate::algo::algo_main::Altered_rBAN_Record;
+use crate::algo::gen_new_variants::Altered_rBAN_Record;
 use crate::io::output::OutputItem;
 
 #[derive(Debug, Clone, Serialize)]
