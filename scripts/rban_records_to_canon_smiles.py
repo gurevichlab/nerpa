@@ -38,13 +38,13 @@ def parse_args() -> argparse.Namespace:
         '-o',
         '--output',
         type=Path,
-        help='Write output JSON here',
+        help='Write output YAML here',
     )
     p.add_argument(
         '--indent',
         type=int,
         default=2,
-        help='Pretty-print JSON with this indent level (default: 2). Use 0 for compact.',
+        help='Pretty-print YAML with this indent level (default: 2). Use 0 for compact.',
     )
     return p.parse_args()
 
