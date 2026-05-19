@@ -1,3 +1,9 @@
+use std::collections::HashMap;
+use std::path::Path;
+use crate::io::output::OutputItem;
+use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
+use crate::algo::gen_new_variants::Altered_rBAN_Record;
+
 pub struct MatchedVariantData {
     rank: usize,
     score: f64,
@@ -18,6 +24,27 @@ pub struct FindTargetResults {
 	distance: u32,
 
 	matched_data: Option<MatchedVariantData>,
+}
+
+impl FindTargetResults {
+    pub fn to_tsv_row(&self) -> String {
+	format!("{}\t{}\t{}\t{}\t{}",
+		self.template,
+		self.target,
+		self.distance,
+		self.matched_data.as_ref().map_or("None".to_string(), |data| data.rank.to_string()),
+		self.matched_data.as_ref().map_or("None".to_string(), |data| data.score.to_string()),
+	)
+    }
+
+    pub fn to_tsv(results: &[FindTargetResults]) -> String {
+	let mut tsv = String::from("template\ttarget\tdistance\tmatched_rank\tmatched_score\texact_match\n");
+	for result in results {
+	    tsv.push_str(result.to_tsv_row().as_str());
+	    tsv.push('\n');
+	}
+	tsv
+    }
 }
 
 pub fn find_target(
@@ -53,7 +80,7 @@ fn find_target_smiles_identical(
     target: &Parsed_rBAN_Record,
     nerpa_root: &Path,
 ) -> Option<MatchedVariantData> {
-    let randed_variants_by_id: HashMap<String, (usize, &Altered_rBAN_Record)> = {
+    let ranked_variants_by_id: HashMap<String, (usize, &Altered_rBAN_Record)> = {
 	variants
 	    .iter()
 	    .enumerate()

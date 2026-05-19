@@ -16,3 +16,4 @@ pub mod monomer_graph_to_rban_record;
 pub mod bond_consts;
 pub mod bgc_variant;
 pub mod alignment;
+pub mod config;

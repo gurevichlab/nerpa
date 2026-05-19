@@ -89,6 +89,12 @@ fn process_single_output_dir(
     find_siblings(&input_items, monomers_db, cfg, compound_distances)
 }
 
+fn write_results(results: &[FindTargetResults], out: &PathBuf) -> Result<()> {
+    let tsv = FindTargetResults::to_tsv(results);
+    std::fs::write(out, tsv)?;
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
@@ -123,7 +129,7 @@ fn main() -> Result<()> {
 	    .collect()
     };
 	
-
+    write_results(&all_results, &cli.out)?;
 
     Ok(())
 }

@@ -97,14 +97,16 @@ pub fn create_monomers_db(
         .collect()
 }
 
-pub fn load_monomers_db(monomers_db_json: &Path) -> MonomersDB {
+use anyhow::Result;
+
+pub fn load_monomers_db(monomers_db_json: &Path) -> Result<MonomersDB> {
     let json_str = std::fs::read_to_string(monomers_db_json).unwrap_or_else(|e| {
         panic!(
             "Failed to read rBAN records JSON file {:?}: {}",
             monomers_db_json, e
         )
     });
-    serde_json::from_str(&json_str).unwrap()
+    serde_json::from_str(&json_str).map_err(Into::into)
 }
 
 impl Monomer {
