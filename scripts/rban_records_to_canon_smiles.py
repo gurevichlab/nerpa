@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         'input',
         type=Path,
-        help='Path to input YAML file (a dict keyed by record id)',
+        help='Path to input YAML file (a list of Parsed_rBAN_Record objects).',
     )
     p.add_argument(
         '-o',

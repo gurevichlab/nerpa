@@ -177,64 +177,63 @@ impl MonomerGraph {
 	monomer_graph
     }
 
-    pub fn build_some_graph(
+    pub fn build_some_graph_with_linearization(
 	graph_type: GraphType,
 	n: usize,
 	monomers_db: &MonomersDB,
 	compound_id: String,
 	metadata: NRP_Metadata,
-	) -> MonomerGraph {
-	match graph_type {
-	    GraphType::Linear => {
-		let mut entries_raw: Vec<&MonomersDB_Entry> = Vec::new();
-		entries_raw.push(get_any_db_entry(&*AMINO_C_END_PROFILE, monomers_db));
-		for _ in 1..(n-1) {
-		    entries_raw.push(get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db));
-		}
-		entries_raw.push(get_any_db_entry(&*AMINO_N_END_PROFILE, monomers_db));
-		let entries = fix_entries(&entries_raw);
-		MonomerGraph::build_linear(&entries, compound_id, metadata)
-	    },
-	    GraphType::Cyclic => {
-		let entries_raw: Vec<&MonomersDB_Entry> = (0..n)
-		    .map(|_| get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db))
-		    .collect();
-		let entries = fix_entries(&entries_raw);
-		MonomerGraph::build_cyclic(&entries, compound_id, metadata)
-	    },
-	    GraphType::Rho(rho_idx) => {
-		let mut entries_raw: Vec<&MonomersDB_Entry> = Vec::new();
-		entries_raw.push(get_any_db_entry(&*AMINO_C_END_PROFILE, monomers_db));
-		for _ in 1..rho_idx {
-		    entries_raw.push(get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db));
-		}
-		entries_raw.push(get_any_db_entry(&*AMINO_CN_ESTER_O_PROFILE, monomers_db));
-		for _ in (rho_idx+1)..(n-1) {
-		    entries_raw.push(get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db));
-		}
-		entries_raw.push(get_any_db_entry(&*AMINO_N_ESTER_C_PROFILE, monomers_db));
+	) -> (MonomerGraph, Vec<MonomerIdx>) {
+	let monomer_graph = {
+	    match graph_type {
+		GraphType::Linear => {
+		    let mut entries_raw: Vec<&MonomersDB_Entry> = Vec::new();
+		    entries_raw.push(get_any_db_entry(&*AMINO_C_END_PROFILE, monomers_db));
+		    for _ in 1..(n-1) {
+			entries_raw.push(get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db));
+		    }
+		    entries_raw.push(get_any_db_entry(&*AMINO_N_END_PROFILE, monomers_db));
+		    let entries = fix_entries(&entries_raw);
+		    MonomerGraph::build_linear(&entries, compound_id, metadata)
+		},
+		GraphType::Cyclic => {
+		    let entries_raw: Vec<&MonomersDB_Entry> = (0..n)
+			.map(|_| get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db))
+			.collect();
+		    let entries = fix_entries(&entries_raw);
+		    MonomerGraph::build_cyclic(&entries, compound_id, metadata)
+		},
+		GraphType::Rho(rho_idx) => {
+		    let mut entries_raw: Vec<&MonomersDB_Entry> = Vec::new();
+		    entries_raw.push(get_any_db_entry(&*AMINO_C_END_PROFILE, monomers_db));
+		    for _ in 1..rho_idx {
+			entries_raw.push(get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db));
+		    }
+		    entries_raw.push(get_any_db_entry(&*AMINO_CN_ESTER_O_PROFILE, monomers_db));
+		    for _ in (rho_idx+1)..(n-1) {
+			entries_raw.push(get_any_db_entry(&*AMINO_MIDDLE_PROFILE, monomers_db));
+		    }
+		    entries_raw.push(get_any_db_entry(&*AMINO_N_ESTER_C_PROFILE, monomers_db));
 
-		let entries = fix_entries(&entries_raw);
-		MonomerGraph::build_rho(&entries, rho_idx, compound_id, metadata)
-	    },
-	}
+		    let entries = fix_entries(&entries_raw);
+		    MonomerGraph::build_rho(&entries, rho_idx, compound_id, metadata)
+		},
+	    }
+	};
+
+	let linearization: Vec<MonomerIdx> = (0..n).map(|i| MonomerIdx(i as u32)).collect();
+	(monomer_graph, linearization)
     }
-	     
 }
 
-pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
-		      linearization: &Vec<MonomerIdx>,
-		      monomers_db: &'mon_db MonomersDB) -> DAG<'mon_db> {
+pub fn create_dag<'mon_db>(
+    monomer_graph: &MonomerGraph,
+    linearization: &[MonomerIdx],
+    monomers_db: &'mon_db MonomersDB
+) -> DAG<'mon_db> {
     // forbid/limit certain nodes/edges for debugging purposes
-    let debug_output = false;
-    let max_subs = 2;
-    let max_inserts = 0;
-    let allow_deletions = true;
-
-    // let debug_output = false;
-    // let allow_deletions = true;
-    // let max_subs = usize::MAX;
-    // let max_inserts = usize::MAX;
+    // let max_subs = 2;
+    let max_subs = usize::MAX;
 
     // HashMap instead of Vec for less headache
     // the keys are actually continuous 0,1,...
@@ -242,12 +241,7 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
     let mut out_edges: HashMap<usize, Vec<Edge>> = HashMap::new();
     let mut subgraph_root = 0usize;
 
-    for (lin_idx, monomer_idx) in linearization.iter().cloned().enumerate() {
-	let monomer_info: &MonomerFeatures = {
-	    &monomer_graph.monomers.get(&monomer_idx)
-		.expect("linearization contains monomer index that is not present in rban_record.monomers")
-		.features
-	};
+    for monomer_idx in linearization.iter().cloned() {
 	labels.insert(subgraph_root,
 		      VertexLabel{
 			  monomer_code: None,
@@ -257,7 +251,7 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 
 
         let subs: Vec<GraphModification> = {
-            monomer_graph.possible_substitutions(monomer_idx, monomers_db, false)
+            monomer_graph.possible_substitutions(monomer_idx, monomers_db, true)
 		.into_iter()
                 .take(max_subs)
                 .map(|entry| GraphModification::Substitute {
@@ -266,82 +260,13 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 		})
                 .collect()
         };
-	let inserts: Vec<GraphModification> = {
-	    let mut inserts: Vec<GraphModification> = Vec::new();
-	    if monomer_graph.degree(monomer_idx) == 1 {
-		inserts.extend(
-		    get_insert_mods_leaf(monomer_graph, monomer_idx, monomers_db, max_inserts)
-		);
-	    }
-	    if let Some(parent) = monomer_graph.get_amino_chain_parent(monomer_idx) {
-		inserts.extend(
-		    get_insert_mods_edge(monomer_graph, parent, monomer_idx, monomers_db, max_inserts)
-		);
-	    }
-	    if lin_idx > 0 {
-		let prev_monomer_idx = linearization[lin_idx - 1];
-		if monomer_graph.degree(prev_monomer_idx) == 1 {
-		    inserts.extend(
-			get_insert_mods_leaf(monomer_graph, prev_monomer_idx, monomers_db, max_inserts)
-		    );
-		}
-		if let Some(prev_child) = monomer_graph.get_amino_chain_child(prev_monomer_idx) {
-		    if prev_child != monomer_idx {
-			inserts.extend(
-			    get_insert_mods_edge(monomer_graph, prev_monomer_idx, prev_child, monomers_db, max_inserts)
-			);
-		    }
-		}
-	    }
-
-	    inserts
-
-	};
-
-	if debug_output {
-	    let inserts_str = {
-		let mut strs = inserts.iter()
-		    .map(|m| match m {
-			GraphModification::Insert { site, mon_db_entry } => {
-			    mon_db_entry.monomer.features.name.0.clone()
-			},
-			_ => unreachable!("expected Insert"),
-		    })
-		    .collect::<Vec<_>>();
-
-		strs.sort();
-		strs.join(", ")
-	    };
-	    println!("Inserts before monomer {}:\n{}\n", monomer_idx.0, inserts_str);
-	}
 
 	// +2 instead of +1 because of the "no modifications" node
-        let next_subgraph_root = subgraph_root + inserts.len() + subs.len() + 2;
-
-	// ===== No modifications (weight 0)
-        labels.insert(subgraph_root + 1, VertexLabel {
-	    monomer_code: Some(monomer_info.mon_code.clone()),
-	    name: monomer_info.name.0.clone() + "*",
-	});
-        out_edges.get_mut(&subgraph_root)
-	    .unwrap()
-	    .push(Edge {
-		to: subgraph_root + 1,
-		weight: 0,
-		modification: Some(GraphModification::KeepAsIs { monomer_idx }),
-            });
-        out_edges.insert(subgraph_root + 1, vec![Edge {
-            to: next_subgraph_root,
-            weight: 0,
-            modification: None,
-        }]);
-			
-	// ===== Insertions
-	add_inserts_to_subgraph_root(subgraph_root, &inserts, &mut labels, &mut out_edges);
+        let next_subgraph_root = subgraph_root + subs.len() + 2;
 
 	// ===== Substitutions
         for (i, gm) in subs.into_iter().enumerate() {
-	    let sub_node_idx = subgraph_root + inserts.len() + 2 + i;
+	    let sub_node_idx = subgraph_root + 1 + i;
             match &gm {
                 GraphModification::Substitute { mon_db_entry, .. } => {
                     labels.insert(sub_node_idx, VertexLabel {
@@ -356,7 +281,7 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
                 .unwrap()
 		.push(Edge {
                 to: sub_node_idx,
-                weight: 1,
+                weight: 0,
                 modification: Some(gm),
             });
             out_edges.insert(sub_node_idx, vec![Edge {
@@ -365,18 +290,6 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
                 modification: None,
             }]);
         }
-
-	// ===== Deletion
-	if monomer_graph.can_remove(monomer_idx, monomers_db) && allow_deletions {
-	    let del_mod = GraphModification::Remove { monomer_idx: monomer_idx };
-	    out_edges.get_mut(&subgraph_root)
-		.unwrap()
-		.push(Edge {
-		to: next_subgraph_root,
-		weight: 1,
-		modification: Some(del_mod),
-	    });
-	}
 
         subgraph_root = next_subgraph_root;
     }
@@ -388,22 +301,6 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
     });
     out_edges.insert(final_node_idx, Vec::new());
 
-    // Add insertions at the end of the linearization
-    let last_monomer_idx = linearization.last().unwrap().clone();
-    let inserts_at_end: Vec<GraphModification> = {
-	if monomer_graph.degree(last_monomer_idx) == 1 {
-	    get_insert_mods_leaf(monomer_graph, last_monomer_idx, monomers_db, max_inserts)
-	} else {
-	    if let Some(child) = monomer_graph.get_amino_chain_child(last_monomer_idx) {
-		get_insert_mods_edge(monomer_graph, last_monomer_idx, child, monomers_db, max_inserts)
-	    }
-	    else {
-		Vec::new()
-	    }
-	}
-    };
-    add_inserts_to_subgraph_root(final_node_idx, &inserts_at_end, &mut labels, &mut out_edges);
-    
     // Convert HashMaps to Vecs. The keys of the HashMaps are actually continuous 0,1,...,labels.len()-1, so we can just iterate over the keys in order.
     let num_nodes = labels.len();
     debug_assert_eq!(out_edges.len(), num_nodes, "out_edges should have the same number of entries as labels");
