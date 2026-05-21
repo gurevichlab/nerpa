@@ -54,8 +54,8 @@ impl Parsed_rBAN_Record {
     }
 
 
-    pub fn to_canonical_smiles(
-	records: &[Parsed_rBAN_Record],
+    pub fn get_canonical_smiles(
+	records: &[&Parsed_rBAN_Record],
 	nerpa_root: &Path,
     ) -> anyhow::Result<HashMap<String, String>> {
 	let records_yaml: String = {

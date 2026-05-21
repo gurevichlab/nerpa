@@ -6,19 +6,30 @@ use crate::data_types::graph_modifications::{GraphModification, InsertionSite};
 use crate::data_types::monomer_graph::{MonomerFeatures, MonomerGraph, Monomer};
 use crate::data_types::monomers_db::{MonomersDB, MonomersDB_Entry};
 use crate::data_types::bonds::{Bond, BindingSitesProfile};
-use crate::data_types::parsed_rban_record::NRP_Metadata;
+use crate::data_types::parsed_rban_record::{AtomId, NRP_Metadata};
 use crate::data_types::bond_consts::{AMINO_BINDING_SITE_C, AMINO_BINDING_SITE_N, AMINO_C_END_PROFILE, AMINO_CN_ESTER_O_PROFILE, AMINO_MIDDLE_PROFILE, AMINO_N_END_PROFILE, AMINO_N_ESTER_C_PROFILE, ESTER_BINDING_SITE_C, ESTER_BINDING_SITE_O};
 use crate::algo::monomer_graph_operations::splice_bonds;
 
+#[derive(Debug, Clone, Copy)]
 pub enum GraphType {
 	Linear,
 	Cyclic,
 	Rho(usize),
 }
 
-fn get_any_db_entry(
+impl std::fmt::Display for GraphType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GraphType::Linear => write!(f, "Linear"),
+            GraphType::Cyclic => write!(f, "Cyclic"),
+            GraphType::Rho(rho_idx) => write!(f, "Rho({})", rho_idx),
+        }
+    }
+}
+
+fn get_any_db_entry<'a>(
     profile: &BindingSitesProfile,
-    monomers_db: &MonomersDB,
+    monomers_db: &'a MonomersDB,
 ) -> &'a MonomersDB_Entry {
 	// just get any entry from the monomers_db to use as a template for building the monomer graph
 	// we will overwrite the monomer_idx and shift the atom ids, so it doesn't matter which entry we take
@@ -32,7 +43,7 @@ fn fix_entries(entries: &[&MonomersDB_Entry]) -> Vec<MonomersDB_Entry> {
     // assign monomer_idx to each entry corresponding to its index in the entries slice, and shift the atom ids so that they are unique across entries
     let mut fixed_entries: Vec<MonomersDB_Entry> = Vec::new();
     for (i, entry) in entries.iter().enumerate() {
-	let mut fixed_entry = entry.clone();
+	let mut fixed_entry = (*entry).clone();
 	fixed_entry.set_monomer_idx(MonomerIdx(i as u32));
 	let max_id = if i == 0 {
 	    AtomId(0)
@@ -41,7 +52,7 @@ fn fix_entries(entries: &[&MonomersDB_Entry]) -> Vec<MonomersDB_Entry> {
 		.last().unwrap()
 		.monomer
 		.atoms.iter()
-		.map(|atom| atom.id)
+		.map(|atom| atom.id.clone())
 		.max().unwrap()
 	};
 	fixed_entry.shift_atom_ids(max_id.0 + 1);
@@ -178,14 +189,14 @@ impl MonomerGraph {
     }
 
     pub fn build_some_graph_with_linearization(
-	graph_type: GraphType,
+	graph_type: &GraphType,
 	n: usize,
 	monomers_db: &MonomersDB,
 	compound_id: String,
 	metadata: NRP_Metadata,
 	) -> (MonomerGraph, Vec<MonomerIdx>) {
 	let monomer_graph = {
-	    match graph_type {
+	    match *graph_type {
 		GraphType::Linear => {
 		    let mut entries_raw: Vec<&MonomersDB_Entry> = Vec::new();
 		    entries_raw.push(get_any_db_entry(&*AMINO_C_END_PROFILE, monomers_db));
@@ -226,11 +237,20 @@ impl MonomerGraph {
     }
 }
 
-pub fn create_dag<'mon_db>(
-    monomer_graph: &MonomerGraph,
-    linearization: &[MonomerIdx],
+pub fn create_template_free_dag<'mon_db>(
+    graph_type: &GraphType,
+    n: usize,
     monomers_db: &'mon_db MonomersDB
 ) -> DAG<'mon_db> {
+    let (monomer_graph, linearization) = MonomerGraph::build_some_graph_with_linearization(
+	&graph_type,
+	n,
+	monomers_db,
+	format!("{}_{}", &graph_type, n),
+	NRP_Metadata::default(),
+    );
+    
+	
     // forbid/limit certain nodes/edges for debugging purposes
     // let max_subs = 2;
     let max_subs = usize::MAX;
