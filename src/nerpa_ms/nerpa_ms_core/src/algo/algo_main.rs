@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::algo::graph_to_dag::create_dag;
 use crate::cli;
 use crate::algo::gen_new_variants::{NewVariantWithOptPaths, generate_new_variants_with_opt_paths};
+use crate::data_types::config::{DebugConfig, NerpaMS_Config};
 use anyhow::{Context, Result};
 use crate::data_types::dag::DAG;
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
@@ -98,7 +99,8 @@ fn write_alignments(
 pub fn process_input_item(
     item: &InputItem,
     monomers_db: &MonomersDB,
-    cli: &cli::Cli,
+    cfg: &NerpaMS_Config,
+    debug_cfg: &DebugConfig,
 ) -> OutputItem {
     println!("Processing BGC {} and compound {}...",
 	     item.hmm.bgc_variant_id.bgc_id.to_str_short(),
@@ -107,31 +109,32 @@ pub fn process_input_item(
     let monomer_graph = MonomerGraph::from(&item.rban_record);
     println!("Creating DAG from linearization...");
     let dag = create_dag(&monomer_graph,
-						 &item.linearization,
-						 monomers_db);
+			 &item.linearization,
+			 monomers_db);
     println!("Creating new variants with optimal paths...");
     let new_variants_with_opt_paths = generate_new_variants_with_opt_paths(
-		&item.hmm,
-		&monomer_graph,
-		&dag,
-		cli.max_edits,
-		cli.num_variants_per_num_edits,
-		monomers_db
-	 );
+	&item.hmm,
+	&monomer_graph,
+	&dag,
+	cfg.max_edits,
+	cfg.num_variants_per_num_edits,
+	monomers_db
+    );
 
     let bgc_id_short = {
-		&item.hmm
-		    .bgc_variant_id
-		    .bgc_id
-		    .to_str_short()
-	 };
-    let alignments_dir = {
-		cli.out
-			    .join("alignments")
-			    .join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
-	 };
+	&item.hmm
+	    .bgc_variant_id
+	    .bgc_id
+	    .to_str_short()
+    };
 
-    if cli.write_alignments {
+    let alignments_dir = {
+	debug_cfg.out
+	    .join("alignments")
+	    .join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
+    };
+
+    if debug_cfg.write_alignments {
 	let r = write_alignments(&new_variants_with_opt_paths, item, &alignments_dir);
 	if let Err(e) = r {
 		    eprintln!("Failed to write alignments for bgc {bgc_id_short} and compound {}: {e}",
@@ -139,9 +142,9 @@ pub fn process_input_item(
 	}
     }
 
-    if cli.draw_hmm_opt_paths {
+    if debug_cfg.draw_hmm_opt_paths {
 	let figs_dir = {
-	    cli.out
+	    debug_cfg.out
 		.join("figures")
 		.join("opt_paths")
 		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
@@ -151,14 +154,14 @@ pub fn process_input_item(
 	    &new_variants_with_opt_paths,
 	    item,
 	    &figs_dir,
-	    &cli.nerpa_root
+	    &debug_cfg.nerpa_root
 	);
     }
 
-    if cli.draw_hmm_dag_opt_paths {
+    if debug_cfg.draw_hmm_dag_opt_paths {
 	println!("Drawing HMM-DAG optimal paths...");
 	let figs_dir = {
-	    cli.out
+	    debug_cfg.out
 		.join("figures")
 		.join("hmm_dag_opt_paths")
 		.join(format!("{bgc_id_short}_{}", &item.rban_record.compound_id))
@@ -168,16 +171,16 @@ pub fn process_input_item(
 	    item,
 	    &dag,
 	    &figs_dir,
-	    &cli.nerpa_root
+	    &debug_cfg.nerpa_root
 	);
     }
 
     let new_variants = {
-		new_variants_with_opt_paths
-		    .into_iter()
-		    .map(|v| v.new_variant)
-		    .collect::<Vec<_>>()
-	 };
+	new_variants_with_opt_paths
+	    .into_iter()
+	    .map(|v| v.new_variant)
+	    .collect::<Vec<_>>()
+    };
     OutputItem {
 	bgc_variant_id: item.hmm.bgc_variant_id.clone(),
 	compound_id: item.rban_record.compound_id.clone(),

@@ -1,7 +1,15 @@
 #![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 
-use std::path::PathBuf;
+use nerpa_ms_core::bench::find_target::FindTargetResults;
+use nerpa_ms_core::bench::bench_find_siblings::find_siblings;
+use nerpa_ms_core::data_types::monomers_db::load_monomers_db;
+use nerpa_ms_core::data_types::config::{DebugConfig, NerpaMS_Config};
+use nerpa_ms_core::data_types::monomers_db::MonomersDB;
+use nerpa_ms_core::io::input::{InputItem, get_input_from_nerpa_results};
 
+use std::collections::HashMap;
+use anyhow::Result;
+use std::path::PathBuf;
 use clap::Parser;
 
 #[derive(Debug, Parser)]
@@ -15,18 +23,30 @@ pub struct Cli {
     #[arg(long)]
     pub compound_distances: PathBuf,
 
+    /// Maximum number of edits allowed in a structure
+    #[arg(long)]
+    pub max_edits: usize,
+
+    /// The number of variants generated for each number of edits
+    #[arg(long)]
+    pub num_variants_per_num_edits: usize,
 
     /// Path to the output tsv with the benchmarking results
     #[arg(long)]
     pub out: PathBuf,
+
+    /// Path to nerpa root dir
+    #[arg(long)]
+    pub nerpa_root: PathBuf,
+
+    /// Path to a JSON file with the monomers database
+    #[arg(long)]
+    pub monomers_db_json: PathBuf,
 }
 
-use anyhow::Result;
-
-use std::collections::HashMap;
 
 fn get_compound_distances(path: &PathBuf) -> Result<HashMap<(String, String), u32>> {
-    let text = std::fs::read_to_string(&cli.compound_distances)?;
+    let text = std::fs::read_to_string(path)?;
 
     let mut lines = text.lines().map(str::trim).filter(|l| !l.is_empty());
 
@@ -75,18 +95,25 @@ fn get_compound_distances(path: &PathBuf) -> Result<HashMap<(String, String), u3
 fn process_single_output_dir(
     dir: &PathBuf,
     monomers_db: &MonomersDB,
-    cfg: &NerpaMS_Config,
+    nerpa_ms_cfg: &NerpaMS_Config,
+    debug_cfg: &DebugConfig,
     compound_distances: &HashMap<(String, String), u32>,
 ) -> Vec<FindTargetResults> {
     let input_items: Vec<InputItem> = {
 	get_input_from_nerpa_results(
 	    dir, None, None
 	)
-	    .expect(format!("Failed to load Nerpa results from {}",
-			    dir))
+	    .expect(&format!("Failed to load Nerpa results from {}",
+			    dir.display()))
     };
 
-    find_siblings(&input_items, monomers_db, cfg, compound_distances)
+    find_siblings(
+	&input_items,
+	monomers_db,
+	nerpa_ms_cfg,
+	debug_cfg,
+	compound_distances
+    )
 }
 
 fn write_results(results: &[FindTargetResults], out: &PathBuf) -> Result<()> {
@@ -97,6 +124,21 @@ fn write_results(results: &[FindTargetResults], out: &PathBuf) -> Result<()> {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    let nerpa_ms_cfg = NerpaMS_Config {
+	max_nerpa_matches: None,
+	min_nerpa_score: None,
+	max_edits: cli.max_edits,
+	num_variants_per_num_edits: cli.num_variants_per_num_edits,
+    };
+
+    let debug_cfg = DebugConfig {
+	write_alignments: false,
+	draw_hmm_opt_paths: false,
+	draw_hmm_dag_opt_paths: false,
+	draw_output_variants: false,
+	out: cli.out.join("debug"),
+	nerpa_root: cli.nerpa_root.clone(),
+    };
 
     let nerpa_output_dirs: Vec<PathBuf> = {
 	let root = cli.nerpa_results.clone();
@@ -104,7 +146,7 @@ fn main() -> Result<()> {
 	if root.join("nerpa.log").is_file() {
             vec![root]
 	} else {
-            fs::read_dir(&root)?
+            std::fs::read_dir(&root)?
 		.filter_map(|e| e.ok())
 		.map(|e| e.path())
 		.filter(|p| p.is_dir())
@@ -119,13 +161,19 @@ fn main() -> Result<()> {
 			    cli.compound_distances.display()).as_str())
     };
 
-    let cfg = NerpaMS_Config {};
-    let monomers_db = load_monomers_db(&cli.monomers_db_json);
+    let monomers_db = load_monomers_db(&cli.monomers_db_json)?;
 
     let all_results: Vec<FindTargetResults> = {
 	nerpa_output_dirs
 	    .iter()
-	    .flat_map(|dir| process_single_output_dir(dir, &monomers_db, &cfg, &compound_distances))
+	    .flat_map(|dir|
+		      process_single_output_dir(
+			  dir,
+			  &monomers_db,
+			  &nerpa_ms_cfg,
+			  &debug_cfg,
+			  &compound_distances
+		      ))
 	    .collect()
     };
 	

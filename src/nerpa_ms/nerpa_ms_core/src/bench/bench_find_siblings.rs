@@ -1,11 +1,15 @@
 use std::collections::HashMap;
 use std::path::Path;
 
-// Adjust these imports to your module layout.
-use crate::{
-	find_target, process_input_item, Altered_rBAN_Record, FindTargetResults, InputItem, MonomersDB,
-	NerpaMS_Config, OutputItem, Parsed_rBAN_Record,
-};
+use crate::algo::gen_new_variants::Altered_rBAN_Record;
+use crate::bench::find_target::{FindTargetResults, find_target};
+use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
+use crate::data_types::common_types::MonomerIdx;
+use crate::data_types::config::{DebugConfig, NerpaMS_Config};
+use crate::io::input::InputItem;
+use crate::io::output::OutputItem;
+use crate::data_types::monomers_db::MonomersDB;
+use crate::algo::algo_main::process_input_item;
 
 fn lookup_distance(
     compound_distances: &HashMap<(String, String), usize>,
@@ -34,23 +38,30 @@ fn lookup_distance(
 pub fn find_siblings(
     input_items: &[InputItem],
     monomers_db: &MonomersDB,
-    cfg: &NerpaMS_Config,
-    compound_distances: &HashMap<(String, String), usize>,
+    nerpa_ms_cfg: &NerpaMS_Config,
+    debug_cfg: &DebugConfig,
+    compound_distances: &HashMap<(String, String), u32>,
 ) -> Vec<FindTargetResults> {
     // If cfg doesn’t actually store this, change the function signature to accept `nerpa_root: &Path`.
-    let nerpa_root: &Path = cfg.nerpa_root.as_path();
+    let nerpa_root: &Path = debug_cfg.nerpa_root.as_path();
 
     let targets: Vec<&Parsed_rBAN_Record> = {
 	input_items
 	    .iter()
-	    .map(|item| item.rban_record)
+	    .map(|item| &item.rban_record)
 	    .collect()
     };
 
     let nerpa_ms_outputs: Vec<OutputItem> = {
 	input_items
 	    .iter()
-	    .map(|item| process_input_item(item, monomers_db, &cfg))
+	    .map(|item|
+		 process_input_item(
+		     item,
+		     monomers_db,
+		     nerpa_ms_cfg,
+		     debug_cfg,
+		 ))
 	    .collect()
     };
 
@@ -58,18 +69,18 @@ pub fn find_siblings(
     let mut results: Vec<FindTargetResults> = Vec::new();
 
     for target in &targets {
-	for nerpa_ms_output in nerpa_ms_outputs {
+	for nerpa_ms_output in nerpa_ms_outputs.iter() {
 	    if target.compound_id == nerpa_ms_output.compound_id {
 		continue;
 	    }
 
-	    let distance: usize = {
+	    let distance: u32 = {
 		let target_id = target.compound_id.clone();
 		let template_id = nerpa_ms_output.compound_id.clone();
 
-		compound_distances
-		    .get(&(template_id, target_id))
-		    .or_else(|| compound_distances.get(&(target_id, template_id)))
+		*compound_distances
+		    .get(&(template_id.clone(), target_id.clone()))
+		    .or_else(|| compound_distances.get(&(target_id.clone(), template_id.clone())))
 		    .expect(&format!("Distance not found for pair (template={}, target={})",
 				     template_id, target_id))
 	    };
