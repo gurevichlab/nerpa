@@ -152,6 +152,19 @@ pub struct BindingSiteType {
     pub side: BondSide,
 }
 
+impl BindingSiteType {
+    pub fn opposite(&self) -> BindingSiteType {
+	let opposite_side = match self.side {
+	    BondSide::Left => BondSide::Right,
+	    BondSide::Right => BondSide::Left,
+	};
+	BindingSiteType {
+	    bond_templ: self.bond_templ.clone(),
+	    side: opposite_side,
+	}
+    }
+    }
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct BindingSitesProfile(Vec<BindingSiteType>);
 

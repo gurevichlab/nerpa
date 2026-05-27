@@ -154,7 +154,7 @@ pub fn apply_modifications(
 			match site {
 			    InsertionSite::Edge{ .. } => panic!("..."),
 			    InsertionSite::Leaf(mon_idx) => {
-				let new_idx = new_monomer_graph.attach_to_leaf(
+				let new_idx = new_monomer_graph.attach_leaf(
 				    *mon_idx,
 				    mon_db_entry,
 				    monomers_db
