@@ -138,7 +138,34 @@ def _create_graph_dicts(monomer_graph_data) -> Dict:
 
     graph_dict = {}
     for compID, graph in monomer_graph_data:
-        graph_dict[compID] = json.loads(graph.pipe(format='dot_json').decode('utf-8'))
+        graphJson = json.loads(graph.pipe(format='json0').decode('utf-8'))
+        entry = {}
+        entry["nodes"] = []
+        entry["edges"] = []
+        for node in graphJson["objects"]:
+            entry["nodes"].append({
+                "id": node["name"],
+                "label":node["label"],
+                "color" : node["color"],
+                "font" : node["fontsize"],
+                "borderWidthSelected": 4,
+                "x": float(node["pos"].split(",")[0]),
+                "y": - float(node["pos"].split(",")[1]),
+            })
+        
+        for edge in graphJson["edges"]:
+            entry["edges"].append({
+                "id": edge["_gvid"],
+                "from": next(filter(lambda n: n["_gvid"] == edge["tail"], graphJson["objects"]))["name"],
+                "to" : next(filter(lambda n: n["_gvid"] == edge["head"], graphJson["objects"]))["name"],
+                "color" : edge["color"],
+                "width": edge["penwidth"],
+                "selectionWidth": edge["penwidth"],
+                "hoverWidth": edge["penwidth"], 
+                "arrows": '' if (edge["color"] == "red") else 'to',
+            })
+
+        graph_dict[compID] = entry
 
     return graph_dict
 

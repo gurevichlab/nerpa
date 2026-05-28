@@ -226,9 +226,9 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
         }
         
-        .image-frame {
-            overflow: hidden;
-            position: relative; 
+        .viewer-scrollable {
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
 
@@ -382,13 +382,20 @@
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
 
-        <div id="moduleViewerContainer" class="viewer-scrollable" style="display: none;"  overflow: auto;>
-            <svg id="moduleViewer"
-                style="background: #ffffff; width: 100%; border: 1px;"
-                overflow: auto
-                viewBox="0 0 100 100";
-               >
-            </svg>
+           <div id="moduleViewerContainer"   
+            style="display: none">
+
+            <div  class="viewer-scrollable">
+                <svg id="moduleViewerBGC"
+                    style="background: #ffffff;">
+                </svg>
+            </div>
+
+            <div  class="viewer-scrollable">
+                <svg id="moduleViewerNRP"
+                    style="background: #ffffff;">
+                </svg>
+            </div>
         </div>
     </div>
 
@@ -425,264 +432,434 @@
 
 
 <script>
-    // local variables
-    const svg = document.getElementById("moduleViewer");
+     // local variables
+   
     var network;
-    let molCanvas; 
+    let molCanvas;
+    let hide = true;
+    var svgns = "http://www.w3.org/2000/svg";
+    const svgNRP = document.getElementById("moduleViewerNRP");
+    const svgBGC = document.getElementById("moduleViewerBGC");
+    let moduleMap = undefined;
+    let nodeMap = undefined;
 
-    function connectTableModule(row, bgcID, nrpID){
+    function connect(row, bgcID, nrpID){
         const gene = row.cells[0].textContent;
         const Aindex = row.cells[1].textContent;
-        const module = document.getElementById(`M${Aindex}_${gene}`);
-        const arrow = document.getElementById(`${gene}`);
-
-        if(module){
-            for(const el of svg.childNodes){
-                if(!el.id) continue;
-                if(el.id != module.id && el.id !=  module.id.substring(module.id.indexOf("_") + 1)){
-                    el.setAttribute("opacity", "0.3");
-                } else {
-                    el.setAttribute("opacity", "1");
-                }
+        const nip = row.cells[6].textContent;
+        for(const el of svgBGC.childNodes){
+            if(!el.id) continue;
+            if(!moduleMap[parseInt(nip)].includes(el.id)){
+                el.setAttribute("opacity", "0.3");
+            } else {
+                el.setAttribute("opacity", "1");
             }
         }
+
         const nodeID = row.cells[6].textContent;
-        const nodeLabel = monomer_graph[nrpID].objects.find(node => node.name === nodeID).label;
-        network.selectNodes([parseInt(nodeID)]);   
+        for(const el of svgNRP.childNodes){
+            if(!el.id) continue;
+            if(!moduleMap[parseInt(nip)].includes(el.id)){
+                el.setAttribute("opacity", "0.3");
+            } else {
+                el.setAttribute("opacity", "1");
+            }
+        }
+        
+        const nodeLabel = nodeMap[nodeID];
+        // ! funtiernt doch mit update https://github.com/visjs/vis/issues/1537
+        network.selectNodes([nodeID]);   
         connectGraphMolecule(nodeLabel, nodeID, nrpID);
     }
     
-    function buildModuleFigure(bgcID, nrpID){
-        function svgBuildModule(domains, x, y, gene, id, residue, rad){
-            const module = document.createElementNS(svgns, 'g');
-            module.setAttribute("id", `${id}_${gene}`);
-            
-            let i = 0;
-            let xi;
-            for(const domain of domains){
-                xi = rad + i * (rad * 2) + x;
-                i++;
-                const circle = document.createElementNS(svgns, 'circle');
-                let y_circ = y;
-                let domainName;
-                switch(domain) {
-                    case 'A':
-                        circle.setAttribute('fill', `rgb(${179}, ${130}, ${238})`); 
-                        domainName = 'A';
-                        break;
-                    case 'PCP':
-                        circle.setAttribute('fill', `rgb(${142}, ${189}, ${242})`); 
-                        domainName = 'CP';
-                        break;
-                    case 'E':
-                        circle.setAttribute('fill', `rgb(${127}, ${127}, ${238})`);  
-                        domainName = 'E';
-                        break;
-                    case 'PKS':
-                        circle.setAttribute('fill', `rgb(${110}, ${248}, ${126})`); 
-                        domainName = 'KS';
-                        break;
-                    // C domain
-                    case 'C_STARTER':
-                    case 'C_LCL':
-                    case 'C_DCL':
-                    case 'C':
-                        circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
-                        domainName = 'C';
-                        break;
-                    case 'TE_TD':
-                        circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
-                        domainName = 'TE'; 
-                        break;
-                    case 'MT':
-                        circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
-                        y_circ = y - 12;
-                        domainName = 'nMT';
-                        break;
-                    case 'CTERM':
-                        // color? 
-                        break;
-                    case 'NTERM':
-                        // color? 
-                        break;
-                     case 'C_DUAL':
-                        // color? 
-                        break;
-                    default:
-                        throw new Error(`Domain ${domain} is not allowed.`);
-                }
-                circle.setAttribute('cx', xi);
-                circle.setAttribute('cy', y_circ);
-                circle.setAttribute('r', rad); 
-                circle.setAttribute('stroke', 'black');
-                module.appendChild(circle);
+       // --- Module Viewer ---
 
-                // domain letter
-                const letter = document.createElementNS(svgns, 'text');
-                letter.setAttribute('x', xi);
-                letter.setAttribute('y', y_circ );
-                letter.setAttribute('font-family', 'Arial');
-                letter.setAttribute('font-size', '16');
-                letter.setAttribute('fill', 'black');
-                letter.setAttribute('text-anchor', 'middle');
-                letter.setAttribute('dominant-baseline', 'central');
-                letter.textContent = domainName;
-                module.appendChild(letter);
-            }
-            // line below domains
-            const line = document.createElementNS(svgns, 'line');
-            line.setAttribute('x1', x);
-            line.setAttribute('y1', y + 30);
-            line.setAttribute('x2', xi + rad);
-            line.setAttribute('y2', y + 30);
-            line.setAttribute('stroke', 'black');
-            line.setAttribute('stroke-width', '1.5');
-            module.appendChild(line);
-
-            // id + residue description
-            const idMod = document.createElementNS(svgns, 'text');
-            idMod.setAttribute('x', x + (xi - x + rad)/2);
-            idMod.setAttribute('y', y + 40);
-            idMod.setAttribute('font-family', 'Arial');
-            idMod.setAttribute('font-size', '16');
-            idMod.setAttribute('fill', 'black');
-            idMod.textContent = id;
-            idMod.setAttribute('text-anchor', 'middle');
-            idMod.setAttribute('dominant-baseline', 'central');
-            module.appendChild(idMod);
-
-            const res = document.createElementNS(svgns, 'text');
-            res.setAttribute('x', x + (xi - x + rad)/2);
-            res.setAttribute('y', y + 56);
-            res.setAttribute('font-family', 'Arial');
-            res.setAttribute('font-size', '15');
-            res.setAttribute('fill',  `rgb(${85}, ${85}, ${85})`);
-            res.setAttribute('text-anchor', 'middle');
-            res.setAttribute('dominant-baseline', 'central');
-            res.textContent = residue;
-            module.appendChild(res);
-
-            // if module has no A domain, traparency should be decreased
-            if(residue === '')module.setAttribute("opacity", "0.3");
-
-            svg.appendChild(module);
-
-             module.addEventListener('click',  e => {
-                for(const el of svg.childNodes){
-                    if(!el.id) continue;
-                    if(el.id != module.id && el.id !=  module.id.substring(module.id.indexOf("_") + 1)){
-                        el.setAttribute("opacity", "0.3");
-                    } else {
-                        el.setAttribute("opacity", "1");
-                    }
-                }
-            }); 
-
-            return xi + rad;
-        }
-
-        const genes = bgcModuleIndex.get(makeBgcKey(bgcID));
-        let x = 0;
-        let y = 75;
-        let module_idx = 0;
-        const rad = 20;
-        var svgns = "http://www.w3.org/2000/svg";
-
-         // find highest scoring residue
+    function buildModuleViewerNRP(bgcID, nrpID){
         const match = data.find(item =>
                                 makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === makeBgcKey(bgcID) &&
                                 item["nrp_variant_id"]["nrp_id"] === nrpID);
 
-
-        const non_particpating_genes = new Set();
-
-
-        for (const gene of genes){
-            const modules = gene.modules;
-            const geneID = gene.gene_id;
-            const geneStart = x;
-            let residue;
-
-            for(const module of modules){
-                const domains = module.domains_sequence;
-                if(module["a_domain"] === null) {residue = ''; non_particpating_genes.add(gene.gene_id)}
-                else { const alignment = match.alignments[0].find(item =>
-                                item.Gene === geneID &&
-                                item["A-domain_idx"] === module_idx);
-                        if(alignment["Modifying_domains"] ===  "---") residue = alignment["Top_scoring_residues"] != "---" ? alignment["Top_scoring_residues"]: 'unk';
-                        else residue = `D-${alignment["Top_scoring_residues"]}`;
-                }
-                const moduleID = `M${module_idx}`;
-                x = svgBuildModule(domains, x + 15, y, geneID, moduleID, residue, rad);
-                module_idx ++;                
+        const genesMatch = bgcModuleIndex.get(makeBgcKey(bgcID));
+        let genes = [];
+        let gAlignments = undefined;
+        let lastGeneID = undefined;
+        let c = 0;
+        for(const alignment of match.alignments[0]){
+            if(alignment["A-domain_idx"] === "---") continue;
+            if(gAlignments === undefined) {
+                gAlignments = [];
+                gAlignments.push(alignment);
+                lastGeneID = alignment.Gene;
+                continue;
             }
-            const geneEnd = x - rad;
-            const geneArr = document.createElementNS(svgns, 'g');
-            geneArr.setAttribute("id", `${gene.gene_id}`);
-            
-            // gene arrow
-            const arrow = document.createElementNS(svgns, 'path');
-            const d = ` M ${geneStart} ${y - 60} L ${geneEnd} ${y - 60} L ${geneEnd} ${y - 65} L ${geneEnd + rad} ${y - 50} L ${geneEnd} ${y - 35} L ${geneEnd} ${y - 40} L ${geneStart} ${y - 40} Z`;
-            arrow.setAttribute("d", d);
-            arrow.setAttribute('fill', 'black');
-            geneArr.appendChild(arrow);
-
-
-            // arrow description
-            const arrowDes = document.createElementNS(svgns, 'text');
-            arrowDes.setAttribute('x',  geneStart + ((geneEnd - geneStart) /2));
-            arrowDes.setAttribute('y', y - 50);
-            arrowDes.setAttribute('font-family', 'Arial');
-            arrowDes.setAttribute('font-size', '14');
-            arrowDes.setAttribute('fill',  'white');
-            arrowDes.setAttribute('text-anchor', 'middle');
-            arrowDes.setAttribute('dominant-baseline', 'central');
-            arrowDes.textContent = gene.gene_id;
-            geneArr.appendChild(arrowDes);    
-            if(residue === '')geneArr.setAttribute("opacity", "0.3");
-            svg.appendChild(geneArr);
-
-            module_idx = 0;
+            if(alignment["A-domain_idx"] === 0){
+                const g = structuredClone(genesMatch.find(item => item.gene_id === lastGeneID));
+                g.modules.forEach((m, idx) => m.alignment = [gAlignments[idx]]);
+                genes.push(g);
+                gAlignments = [];
+                gAlignments.push(alignment);
+                lastGeneID = alignment.Gene;
+            } else {
+                gAlignments.push(alignment);
+            }
+                 
         }
-        const bbox = svg.getBBox();
-        svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
-        
+        const g = genesMatch.find(item => item.gene_id ===  lastGeneID)
+        g.modules.forEach((m, idx) => m.alignment = [gAlignments[idx]]);
+        genes.push(g);
+       
+        const drawData = buildDrawData(genes, match);
+       
+        svgNRP.setAttribute("width", drawData[drawData.length - 1].position.x + 15 + drawData[drawData.length - 1].length);
+        svgNRP.innerHTML = "";
+        drawModuleViewer(drawData, svgNRP);
+    }
+  
+    function buildModuleViewerBGC(bgcID, nrpID){
+        moduleMap = {};
+       
+        const match = data.find(item =>
+                                makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === makeBgcKey(bgcID) &&
+                                item["nrp_variant_id"]["nrp_id"] === nrpID);
+                             
+        const genes = bgcModuleIndex.get(makeBgcKey(bgcID));
+         // ???
+        if(genes.some(item => item.coords.strand === "REVERSE")) {
+            genes.reverse();
+        }
+
+        for(const g of genes){
+            g.modules.forEach((m, idx) => m.alignment =  match.alignments[0].filter(
+                            item =>
+                                item.Gene === g.gene_id &&
+                                item["A-domain_idx"] === idx
+                        ));
+        }
+
+        const drawData = buildDrawData(genes, match);
+        svgBGC.setAttribute("width", drawData[drawData.length - 1].position.x + 15 + drawData[drawData.length - 1].length);
+        svgBGC.innerHTML = "";
+        drawModuleViewer(drawData, svgBGC);
+    }
+    
+    function buildDrawData(geneList, match){
+        /* gene object
+        {
+            id: Number,
+            postion:  {x: Number, y: Number},
+            length: Number (in px),
+            displayed: Bool,
+            nip: Number, (if of graph nodes matched to  all modules)
+            modules: Array<Module>
+        }
+        module object
+        {
+            id: Number,
+            nip: Number, (id of graph nodes and molecules)
+            domains: Array<String>,
+            residue: String,
+            displayed: Boolean,
+            postion:  {x: Number, y: Number},
+            length: Number,
+            rad: Number,
+        }
+    */
+        const radFixed = 20; // radius of domain circles
+        const dist = 15;   // distance between modules
+        const yFixed = 75;
+
+        let drawData = []; // 
+
+        for(const g of geneList){ // why is alignment [[]]
+            let gene ={
+                id: g.gene_id,                         
+                position: {x: undefined, y: yFixed},                          
+                length: undefined,  
+                displayed: true,  
+                nip: undefined,
+                modules: g.modules.map((m, idx)=> {
+                    return{
+                        id: idx,
+                        nip: m["a_domain"] != null ? m.alignment.map(al => al["rBAN_idx"]): [''],
+                        domains: m.domains_sequence, 
+
+                        residue: 
+                            m["a_domain"] != null
+                                ? (
+                                    m.alignment[0]["Modifying_domains"] ===  "---"
+                                    ? (
+                                        m.alignment[0]["Top_scoring_residues"] != "---" 
+                                            ? m.alignment[0]["Top_scoring_residues"] 
+                                                : 'unk'
+                                    )
+                                    : `D-${m.alignment[0]["Top_scoring_residues"]}`
+                                )
+                                : '', // bei nrp muss es NRP_residue sein 
+
+                        displayed: m["a_domain"] != null,        
+                        position: {x: undefined, y: yFixed}, 
+                        length: m.domains_sequence.length * radFixed * 2,     
+                        rad: radFixed                
+                    };
+                }),              
+            };
+            gene.length = gene.modules.reduce((c,m) => c + m.length + dist, -dist);
+            drawData.push(gene);
+        }
+        // calc positions of genes and modules
+        let xGene = 0;
+        for(const gObj of drawData){
+            gObj.position.x = xGene + dist;
+            xGene = xGene + dist + gObj.length;
+
+            let xModule = gObj.position.x;
+            for(const mObj of gObj.modules){
+                if(!mObj.displayed) gObj.displayed = false;
+                mObj.position.x = xModule;
+                xModule = xModule + dist + mObj.length;
+            }
+
+            gObj.nip = gObj.modules.map(m => m.nip).flat();
+        }
+
+        return drawData;
+    }
+
+    function drawModuleViewer(drawData, svg){
+        for(const g of drawData){
+            for (const m of g.modules){
+                drawModule(g.id, m.id, m.nip, m.position.x, m.position.y, m.length, m.domains, m.residue, m.displayed, m.rad, svg);
+            }
+            drawGeneArrow(g.id, g.nip, g.position.x, g.position.y, g.length, g.displayed, svg);
+        }
+
         svg.addEventListener('click', e => {
             if(e.target.parentElement.id === 'moduleViewerContainer'){
                 for(const el of svg.childNodes){
-                    if(!el.id || non_particpating_genes.has(el.id.substring(el.id.indexOf("_") + 1)) || non_particpating_genes.has(el.id)) continue;
+                    if(!el.id || !el.displayed) continue;
                     el.setAttribute("opacity", "1");
                 }
             } 
         });
     }
 
+    function drawGeneArrow(id, nip, x, y, length, displayed, svg){
+        const geneEnd = x + length;
+        const geneStart = x;
+        const arrowhead = x + length;
+        const arrowlineEnd = x + (length * 0.9);
+        const geneArr = document.createElementNS(svgns, 'g');
+        geneArr.setAttribute("id", `G${id},${nip}`);
+
+        // draw arrow
+        const arrow = document.createElementNS(svgns, 'path');
+        const d = ` M ${geneStart} ${y - 60} L ${arrowlineEnd} ${y - 60} L ${arrowlineEnd} ${y - 65} L ${arrowhead} ${y - 50} L ${arrowlineEnd} ${y - 35} L ${arrowlineEnd} ${y - 40} L ${geneStart} ${y - 40} Z`;
+        arrow.setAttribute("d", d);
+        arrow.setAttribute('fill', 'black');
+        geneArr.appendChild(arrow);
+
+        // set arrow description
+        const arrowDes = document.createElementNS(svgns, 'text');
+        arrowDes.setAttribute('x',  geneStart + (length / 2));
+        if(id.length * 7 > length) {
+            arrowDes.setAttribute('y', y - 68);
+            arrowDes.setAttribute('font-family', 'Arial');
+            arrowDes.setAttribute('font-size', '10');
+            arrowDes.setAttribute('fill', 'black');
+            arrowDes.setAttribute('text-anchor', 'middle');
+            arrowDes.setAttribute('dominant-baseline', 'central');
+        }
+        else{ 
+            arrowDes.setAttribute('y', y - 50);
+            arrowDes.setAttribute('font-family', 'Arial');
+            arrowDes.setAttribute('font-size', '14');
+            arrowDes.setAttribute('fill', 'white');
+            arrowDes.setAttribute('text-anchor', 'middle');
+            arrowDes.setAttribute('dominant-baseline', 'central');
+        }
+        arrowDes.textContent = id;
+        geneArr.appendChild(arrowDes);
+
+        svg.childNodes.forEach(e => {
+                const split = splitId(e.id);
+                if(split.nid.some(n => nip.includes(n)) && split.mid){
+                    e.appendChild(geneArr);
+                }
+            }
+        );
+
+        if(!displayed)geneArr.setAttribute("opacity", "0.3");
+        geneArr.displayed = displayed;
+        svg.appendChild(geneArr);
+        geneArr.addEventListener('click',  e => {
+            for(const el of svg.childNodes){
+                if(!el.id) continue;
+                const split = splitId(el.id);
+                if(split.nid.some(n => nip.includes(n))){
+                    el.setAttribute("opacity", "1");
+                } else {
+                    el.setAttribute("opacity", "0.3");
+                }
+            }
+        });
+        
+        nip.forEach(n => (moduleMap[n] ||= []).push(geneArr.id));
+    }
+
+    function splitId(id){
+        const split = id.split(',');
+
+        const sDict = {};
+        sDict.nid = [];
+        for(const s of split){
+            if(s.startsWith("M")) sDict.mid = s;
+            else if(s.startsWith("G")) sDict.gid = s;
+            else sDict.nid.push(parseInt(s));
+        }
+        
+        return sDict;
+    }
+    
+    function drawModule(gid, mid, nip, x, y, length, domains, residue, displayed, rad, svg){
+        
+        const module = document.createElementNS(svgns, 'g');
+        module.setAttribute("id", `M${mid},G${gid},${nip}`);
+          
+        let i = 0;
+        let xi;
+        for(const d of domains){
+            xi = rad + i * (rad * 2) + x;
+            i++;
+            const circle = document.createElementNS(svgns, 'circle');
+            let y_circ = y;
+            let domainName;
+            let letterColor = 'black;'
+            switch(d) {
+                case 'A':
+                    circle.setAttribute('fill', `rgb(${179}, ${130}, ${238})`); 
+                    domainName = 'A';
+                    break;
+                case 'PCP':
+                    circle.setAttribute('fill', `rgb(${142}, ${189}, ${242})`); 
+                    domainName = 'CP';
+                    break;
+                case 'E':
+                    circle.setAttribute('fill', `rgb(${127}, ${127}, ${238})`);  
+                    domainName = 'E';
+                    break;
+                case 'PKS':
+                    circle.setAttribute('fill', `rgb(${110}, ${248}, ${126})`); 
+                    domainName = 'KS';
+                    break;
+                // C domain
+                case 'C_STARTER':
+                case 'C_LCL':
+                case 'C_DCL':
+                case 'C':
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    domainName = 'C';
+                    break;
+                case 'TE_TD':
+                    circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
+                    domainName = 'TE'; 
+                    break;
+                case 'MT':
+                    circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
+                    y_circ = y - 12;
+                    domainName = 'nMT';
+                    break;
+                case 'CTERM':
+                    // color? 
+                    break;
+                case 'NTERM':
+                    // color? 
+                    break;
+                 case 'C_DUAL':
+                    // color? 
+                    break;
+                case 'orphan_c_at_end':
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    circle.setAttribute("opacity", "0.3");
+                    domainName = 'C';
+                    xi = xi + 4;
+                    letterColor = `rgb(${199}, ${199}, ${199})`;
+                    break;
+                default:
+                    throw new Error(`'${d}'' is no domain.`);
+            }
+            circle.setAttribute('cx', xi);
+            circle.setAttribute('cy', y_circ);
+            circle.setAttribute('r', rad); 
+            circle.setAttribute('stroke', 'black');
+            module.appendChild(circle);
+            // domain letter
+            const letter = document.createElementNS(svgns, 'text');
+            letter.setAttribute('x', xi);
+            letter.setAttribute('y', y_circ );
+            letter.setAttribute('font-family', 'Arial');
+            letter.setAttribute('font-size', '16');
+            letter.setAttribute('fill', letterColor);
+            letter.setAttribute('text-anchor', 'middle');
+            letter.setAttribute('dominant-baseline', 'central');
+            letter.textContent = domainName;
+            module.appendChild(letter);
+        }
+        // line below domains
+        const line = document.createElementNS(svgns, 'line');
+        line.setAttribute('x1', x);
+        line.setAttribute('y1', y + 30);
+        line.setAttribute('x2', length + x);
+        line.setAttribute('y2', y + 30);
+        line.setAttribute('stroke', 'black');
+        line.setAttribute('stroke-width', '1.5');
+        module.appendChild(line);
+        // id + residue description
+        const idMod = document.createElementNS(svgns, 'text');
+        idMod.setAttribute('x', length / 2 + x);
+        idMod.setAttribute('y', y + 40);
+        idMod.setAttribute('font-family', 'Arial');
+        idMod.setAttribute('font-size', '16');
+        idMod.setAttribute('fill', 'black');
+        idMod.textContent = `M${mid}`;
+        idMod.setAttribute('text-anchor', 'middle');
+        idMod.setAttribute('dominant-baseline', 'central');
+        module.appendChild(idMod);
+        const res = document.createElementNS(svgns, 'text');
+        res.setAttribute('x', length / 2 + x);
+        res.setAttribute('y', y + 56);
+        res.setAttribute('font-family', 'Arial');
+        res.setAttribute('font-size', '15');
+        res.setAttribute('fill',  `rgb(${85}, ${85}, ${85})`);
+        res.setAttribute('text-anchor', 'middle');
+        res.setAttribute('dominant-baseline', 'central');
+        res.textContent = residue;
+        module.appendChild(res);
+        
+        if(!displayed) module.setAttribute("opacity", "0.3");
+        module.displayed = displayed;
+        svg.appendChild(module);
+        module.addEventListener('click',  e => {
+            for(const el of svg.childNodes){
+                if(!el.id) continue;
+                const split = splitId(el.id);
+                if(split.nid.some(n => nip.includes(n))){
+                    el.setAttribute("opacity", "1");
+                } else {
+                    el.setAttribute("opacity", "0.3");
+                }
+            }
+            network.selectNodes(nip);   
+           // connectGraphMolecule(nodeLabel, el.id, nrpID); 
+        }); 
+
+        nip.forEach(n => (moduleMap[n] ||= []).push(module.id));
+    }
+  // --- Graph ---
     function drawGraph(nrpID) {
-
+        nodeMap = {};
         const graph = monomer_graph[nrpID];
- 
-        const edgesMapped = graph.edges.map(({tail, head, color, penwidth}) => ({
-                // inefficient find better solution!!
-                from: graph.objects.find(node => node._gvid === tail).name,
-                to: graph.objects.find(node => node._gvid === head).name,
-                color: color, 
-                width: penwidth,
-                selectionWidth: penwidth, 
-                hoverWidth: penwidth,
-                arrows: (color == "red") ? '' : 'to',
-        }));
-
-        const nodesMapped = graph.objects.map(({name, color, fontsize, label}) => ({
-                id: name,
-                label: label, 
-                color: color, 
-                font: fontsize,
-                borderWidthSelected: 4,
-        }));
-
-        const nodes = new vis.DataSet(nodesMapped);
-        const edges = new vis.DataSet(edgesMapped);
-
+        const nodes = new vis.DataSet(graph.nodes);
+        const edges = new vis.DataSet(graph.edges);
         const graph_div = document.getElementById("graphImage");
         const graph_data = { nodes: nodes, edges: edges };
         const graph_options = { 
@@ -690,34 +867,45 @@
             edges: {
                 arrows: {
                     to: {enabled: true, scaleFactor: 1.5, type: 'arrow'},
-                    from: {enabled: false},
-                    middle: {enabled: false}
                 },
+                smooth: {
+                    enabled: true,
+                    type: 'dynamic', 
+                    roundness: 0.5      
+                }
             },
-            layout: {
-                randomSeed: 42,
-                improvedLayout: true,
-            },
-               interaction:{
+            interaction:{
                 zoomView:true
             }
         };
-        
+       
         network = new vis.Network(graph_div, graph_data, graph_options);
-
-        const nodeMap = {};
-        for(const entry of nodesMapped){
+        
+        for(const entry of graph.nodes){
             nodeMap[entry.id] = entry.label;
         }
 
+        let selected = false;
         network.addEventListener('click',  e => {
-                connectGraphMolecule(nodeMap[e.nodes[0]], e.nodes[0], nrpID), 
-                {passive: false}}) 
+                // reset
+                if(selected){
+                    nodes.get().forEach(n => nodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
+                    edges.get().forEach(e => edges.update({id: e.id, color: e.color === '#E0A59D' ?'red' : 'blue'}));
+                } 
+                // color graph transparent expect selected node
+                if(!(e.nodes.length === 0)){
+                    nodes.get().forEach(n => n.id != e.nodes[0] ? nodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
+                    edges.get().forEach(e => edges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
+                }
+                selected = !(e.nodes.length === 0);
+           
+                connectGraphMolecule(nodeMap[e.nodes[0]], e.nodes[0], nrpID);
+        });
 
         // this code is from https://github.com/visjs/vis-network/issues/574 as vis-network has no minZoom 
         let lastPosition = null;
         const max_zoom = 2;
-        const min_zoom = 0.5;
+        const min_zoom = 0.3;
         network.on("zoom", function (params) {
         if (params.scale < min_zoom|| params.scale > max_zoom) { // adjust this value according to your requirement
             network.moveTo({
@@ -735,29 +923,24 @@
         });
         // until here 
     }
-
+     
     function connectGraphMolecule(nodeLabel, nodeID, nrpID){
        
         // get molecule
         const mol = molCanvas.getMolecule();
 
-        //
-        const el = document.getElementById('graphImage').visNetworkInstance;
-
-        //  if no node but background was clicked, set moelcule back to default
+        //  if no node but background was clicked, set molecule back to default
         if(nodeID === undefined){
             let newStyle = new ChemDoodle.structures.Styles();
             newStyle.atoms_color = 'black';
             newStyle.bonds_color = 'black';
             for(const bond of mol.bonds){
-         
                 bond.a1.styles = newStyle;
                 bond.a2.styles = newStyle;
                 bond.styles = newStyle;
             }
-            molCanvas.loadMolecule(mol);
-            paintMolecule(mol, nrpID);
-            
+            molCanvas.repaint(mol);
+            paintMolecule(mol);
             return;
         }
 
@@ -768,19 +951,19 @@
         let paleStyle = new ChemDoodle.structures.Styles();
         paleStyle.atoms_color = '#D3D3D3';
         paleStyle.bonds_color = '#D3D3D3';
-        let newStyle = new ChemDoodle.structures.Styles();
-        newStyle.atoms_color = 'black';
-        newStyle.bonds_color = 'black';
+        let standardStyle = new ChemDoodle.structures.Styles();
+        standardStyle.atoms_color = 'black';
+        standardStyle.bonds_color = 'black';
 
         let visited = new Set();
 
         for(const bond of mol.bonds){
             if(selected_atoms.has(Number(bond.a1.tmpid)) && selected_atoms.has(Number(bond.a2.tmpid))){
-                bond.a1.styles = newStyle;
-                bond.a2.styles = newStyle;
+                bond.a1.styles = standardStyle;
+                bond.a2.styles = standardStyle;
+                bond.styles = standardStyle;
                 visited.add(bond.a1);
                 visited.add(bond.a2);
-                bond.styles = newStyle;
             } else {
                 if(!visited.has(bond.a1)) bond.a1.styles = paleStyle;
                 if(!visited.has(bond.a2)) bond.a2.styles = paleStyle;
@@ -788,18 +971,18 @@
             }
         }
 
-        molCanvas.loadMolecule(mol);
+        molCanvas.repaint(mol);
 
         for(const bond of mol.bonds){
             if(selected_atoms.has(Number(bond.a1.tmpid)) && selected_atoms.has(Number(bond.a2.tmpid))){
-                colorAtom(bond.a1, nrpID,);
-                colorAtom(bond.a2, nrpID,);
-                colorBond(bond, nrpID,);
+                colorAtom(bond.a1, nrpID);
+                colorAtom(bond.a2, nrpID);
+                colorBond(bond, nrpID);
             } else {
                 if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
                 colorAtom(bond.a1, nrpID, 80);
                 colorAtom(bond.a2,nrpID, 80);
-                colorBond(bond, nrpID,80);
+                colorBond(bond, nrpID, 80);
             }
         }
         // set background color back to white
@@ -809,17 +992,22 @@
         ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
     }
     
+   // --- Molecule ---
     function drawMolecule(nrpID){
+        document.getElementById('moleculeImage').innerHTML = "";
         const rect = document.getElementById('moleculeImage').getBoundingClientRect();
         molCanvas = new ChemDoodle.ViewerCanvas('moleculeImage', rect.width, rect.height);
     
         let mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
+        mol.name = nrpID;
 
-         for(const atom of mol.atoms){
+        for(const atom of mol.atoms){
             if(atom.label.includes('_')) {
                 atom.altLabel = atom.label;
-                atom.label = 'C'
-            }
+                atom.residue = atom.label;
+                atom.label = 'C';
+            }    
+            atom.backgroundColor = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
         }
         molCanvas.styles.bonds_width_2D = .9;
         molCanvas.styles.bonds_saturationWidthAbs_2D = 2.6;
@@ -829,23 +1017,23 @@
         molCanvas.styles.backgroundColor = 'transparent';
         mol.scaleToAverageBondLength(20);
         molCanvas.loadMolecule(mol);
-        paintMolecule(mol, nrpID);
+        paintMolecule(mol);
+        //zooming(document.getElementById('moleculeImage'));
     }
-
-    function paintMolecule(mol, nrpID){
-            const colorCanvas = document.getElementById('moleculeImage');
-            const ctx = colorCanvas.getContext("2d");
-            ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
-  
-            for(const bond of mol.bonds){
-                if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
-                colorAtom(bond.a1, nrpID);
-                colorAtom(bond.a2, nrpID);
-                colorBond(bond, nrpID);
-            }
-
-            ctx.fillStyle = "white"; 
-            ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+    
+    function paintMolecule(mol){
+        const colorCanvas = document.getElementById('moleculeImage');
+        const ctx = colorCanvas.getContext("2d");
+        ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
+        const nrpID = mol.name;
+        for(const bond of mol.bonds){
+            if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
+            colorAtom(bond.a1, nrpID);
+            colorAtom(bond.a2, nrpID);
+            colorBond(bond, nrpID);
+        }
+        ctx.fillStyle = "white"; 
+        ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
     }   
     
     function colorAtom(atom, nrpID, saturation = 0){ 
@@ -855,20 +1043,21 @@
             label = atom.altLabel;
         }
         if (label === 'C') return; 
-        const color = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
+        const color = atom.backgroundColor;
         const x = atom.x;
         const y = atom.y;
         
-        if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
+        //if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
+        const h = molCanvas.styles.atoms_font_size_2D;
+        ctx.font = `${h}px Arial`;
         const l = ctx.measureText(label).width;
-        const h = molCanvas.styles.atoms_font_size_2D * 1.333;
         
         ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
         ctx.lineWidth = h;  
         ctx.lineCap = "round";
         ctx.beginPath();
-        ctx.moveTo(x - l/2, y);
-        ctx.lineTo(x + l/2, y);
+        ctx.moveTo(x - l/2 + h * 0.25, y);
+        ctx.lineTo(x + l/2 - h * 0.25, y);
         ctx.stroke();
     }
     
@@ -887,6 +1076,17 @@
         ctx.lineTo(eX, eY);
         ctx.stroke();
     }  
+   
+    function hideLabels(){
+        const mol = molCanvas.getMolecule();
+        // if atom has a label, set it to undefined such that it is not displayed anymore
+        // if atom has a undefined label, set it back to its orig label such that it is displayed again 
+        mol.atoms.map(a => a.altLabel ? a.altLabel = undefined : 
+                        ( a.altLabel === undefined ? a.altLabel = a.residue : a.altLabel));
+    
+        molCanvas.repaint(mol);
+        paintMolecule(mol);
+    }
 
     // Function to detect if a value is numeric
     function isNumeric(value) {
@@ -1250,16 +1450,6 @@
                 });
             });
 
-             // NRp module links
-            document.querySelectorAll('.module-link').forEach(link => {
-                link.addEventListener('click', event => {
-                    event.preventDefault();
-                    const nrpID = link.dataset.nrp;
-                    const bgcID = link.dataset.bgc;
-                    toggleModuleViewer(false, nrpID, bgcID);
-                });
-            });
-
             // NRP links
             document.querySelectorAll('.nrp-link').forEach(link => {
                 link.addEventListener('click', event => {
@@ -1426,12 +1616,6 @@
                     toggleGenomeViewer(false, link.dataset.genome, link.dataset.bgc);
                 });
             });
-             container.querySelectorAll('.module-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    toggleModuleViewer(false, link.dataset.nrp, link.dataset.bgc);
-                });
-            });
 
             // Match alignment info
             const alignmentTableBody = document.querySelector('#alignmentTable tbody');
@@ -1446,12 +1630,11 @@
                         tr.appendChild(td);
                     });
                     tr.addEventListener('click', e =>{
-                        for(const r  of alignmentTableBody['rows']){
-                            r.style.border =  '1px solid #dddddd';
-                        } 
-                        tr.style.border = "2px solid green";
-                        connectTableModule(tr, bgc_id, nrp_id);
-                    });
+                        [...alignmentTableBody['rows']].forEach(r => r.style.cssText = "")
+                        tr.style.border = "2px solid #9EC37B";
+                        tr.style.background = '#ddfcdb';
+                        connect(tr, bgc_id, nrp_id);
+                       });
                     alignmentTableBody.appendChild(tr);
                 });
             });
@@ -1500,7 +1683,8 @@
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            buildModuleFigure(bgcID, nrpID);
+            buildModuleViewerBGC(bgcID, nrpID);
+            buildModuleViewerNRP(bgcID, nrpID);
         }
     }
     // Toggle function for NRP images
