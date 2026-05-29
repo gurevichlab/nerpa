@@ -51,6 +51,9 @@ pub fn get_inserts_for_linearization<'a>(
 	monomers_db: &'a MonomersDB,
 	max_inserts: usize
 ) -> Vec<Vec<GraphModification<'a>>> {
+    // attaching leaves is disabled for now as it changes node degrees and thus interferes with other modifications. I might implement it later.
+    let allow_attaching_leaves = false;
+
     // for linearization of length n returns exactly n+1 vectors of insert modifications:
     // before the first monomer, between each pair of consecutive monomers, and after the last monomer (some may be empty if no insertions are possible)
     let mut inserts_per_position: Vec<Vec<GraphModification>> = Vec::new();
@@ -126,7 +129,7 @@ pub fn get_inserts_for_linearization<'a>(
 
 	// 4. If monomer is a leaf, try attaching a new monomer with an AMINO bond
 	// Applied to leaves only not to produce unrealistic graphs
-	if monomer_graph.degree(monomer_idx) == 1 {
+	if monomer_graph.degree(monomer_idx) == 1 && allow_attaching_leaves{
 	    inserts.extend(
 		get_insert_mods_leaf(
 		    monomer_graph,
@@ -142,7 +145,8 @@ pub fn get_inserts_for_linearization<'a>(
 	// 5. If prev_monomer_idx is a leaf, try attaching a new monomer to it with an AMINO bond
 	// Applied to leaves only not to produce unrealistic graphs
 	if let Some(prev_idx) = maybe_prev_idx
-	    && monomer_graph.degree(prev_idx) == 1 {
+	    && monomer_graph.degree(prev_idx) == 1
+	    && allow_attaching_leaves {
 		inserts.extend(
 		    get_insert_mods_leaf(
 			monomer_graph,
@@ -181,7 +185,8 @@ pub fn get_inserts_for_linearization<'a>(
 	    )
 	);
     }
-    if monomer_graph.degree(last) == 1 {
+    if monomer_graph.degree(last) == 1
+	&& allow_attaching_leaves {
 	inserts_after_last.extend(
 	    get_insert_mods_leaf(
 		monomer_graph,

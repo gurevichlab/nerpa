@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::data_types::{common_types::MonomerIdx, dag::{DAG, Edge, VertexId}, graph_modifications::{GraphModification, InsertionSite}, monomer_graph::MonomerGraph, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::Parsed_rBAN_Record};
 
@@ -17,39 +17,47 @@ pub struct AlteredMonomerGraph {
 }
 
 pub fn modifications_consistent(modifications: &[GraphModification]) -> bool {
-    let indices_removed: HashSet<MonomerIdx> = {
-	modifications.iter()
-	    .filter_map(|m| {
-		if let GraphModification::Remove { monomer_idx } = m {
-		    Some(*monomer_idx)
-		} else {
-		    None
+    let mods_by_index = {
+	let mut index_to_mods: HashMap<MonomerIdx, Vec<&GraphModification>> = HashMap::new();
+	for m in modifications {
+	    match m {
+		GraphModification::KeepAsIs { monomer_idx } | GraphModification::Substitute { monomer_idx, .. } | GraphModification::Remove { monomer_idx } => {
+		    index_to_mods.entry(*monomer_idx).or_default().push(m);
+		},
+		GraphModification::Insert { site, .. } => {
+		    match site {
+			InsertionSite::Edge(mon_idx1, mon_idx2) => {
+			    index_to_mods.entry(*mon_idx1).or_default().push(m);
+			    index_to_mods.entry(*mon_idx2).or_default().push(m);
+			},
+			InsertionSite::Leaf(mon_idx) => {
+			    index_to_mods.entry(*mon_idx).or_default().push(m);
+			}
+		    }
 		}
-	    })
-	    .collect()
+	    }
+	}
+	index_to_mods
     };
 
-    let indices_that_should_remain: HashSet<MonomerIdx> = {
-	modifications.iter()
-	    .map(|m| {
-		match m {
-		    GraphModification::KeepAsIs { monomer_idx } => vec![*monomer_idx],
-		    GraphModification::Substitute { monomer_idx, .. } => vec![*monomer_idx],
-		    GraphModification::Insert { site, mon_db_entry } => {
-			match site {
-			    InsertionSite::Edge(mon_idx1, mon_idx2) => vec![*mon_idx1, *mon_idx2],
-			    InsertionSite::Leaf(mon_idx) => vec![*mon_idx],
-			}
-		    },
-		    _ => vec![],
-		}
-	    })
-	    .flatten()
-	    .collect()
+    for (_mon_idx, mods) in mods_by_index {
+	// if has remove, shouldn't have anything else
+	// only one modification per monomer_idx except for inserts on edges
+	let has_remove = mods.iter().any(|m| matches!(m, GraphModification::Remove { .. }));
+	if has_remove && mods.len() > 1 {
+	    return false;
+	}
+	let num_not_insert = {
+	    mods.iter()
+		.filter(|m| !matches!(m, GraphModification::Insert { .. }))
+		.count()
 	};
+	if num_not_insert > 1 {
+	    return false;
+	}
+    }
 
-    indices_removed.is_disjoint(&indices_that_should_remain)
-		    
+    true
 }
 
 enum ModificationsBatch<'batch: 'mon_db, 'mon_db> {

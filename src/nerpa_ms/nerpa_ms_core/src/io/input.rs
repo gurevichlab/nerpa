@@ -15,7 +15,7 @@ use crate::data_types::hmm::{BGC_Variant_ID, HMM};
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 
 pub struct InputItem {
-    pub bgc_variant: BGC_Variant,
+    pub bgc_variant: BGC_Variant, // for reporting alignments
     pub hmm: HMM,
     pub rban_record: Parsed_rBAN_Record,
     pub linearization: Vec<MonomerIdx>,

@@ -67,7 +67,7 @@ impl FindTargetResults {
 pub fn find_target(
     nerpa_ms_output: &OutputItem,
     target: &Parsed_rBAN_Record,
-    distance: u32,
+    distance: u32,  // used only to write in the results
     nerpa_root: &Path,
 ) -> FindTargetResults {
     let variants = &nerpa_ms_output.new_variants;
