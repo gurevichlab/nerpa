@@ -22,7 +22,7 @@ from src.generic.svg import (
     join_svgs_in_rectangle,
     svg_with_label,
 )
-import colorsys
+import glasbey
 from PIL import Image
 
 import re
@@ -35,15 +35,40 @@ def get_n_distinct_rgb_colors(N: int,
                               value = 0.8) -> List[RGB]:
     """
     Returns a list of N RGB triplets (floats in [0,1]) that are
-    maximally distinct by evenly stepping through the hue wheel.
+    maximally distinct by using a glasbey palette.
     """
+    
     colors = []
-    for i in range(N):
-        hue = i / N
-        rgb = RGB(colorsys.hsv_to_rgb(hue, saturation, value))
+    bounds = hsv_to_glasbey_bounds(saturation, value) 
+    color_hex = glasbey.create_palette(palette_size=N, lightness_bounds = bounds[0], chroma_bounds=bounds[1])
+
+    for hex in color_hex:
+        rgb = hex_to_rgb(ColorHex(hex.replace("#", "")))
         colors.append(rgb)
     return colors
 
+# that fuction comes from KI 
+def hsv_to_glasbey_bounds(saturation, value):
+    """
+    saturation, value in [0,1]
+    """
+
+    # perceived lightness
+    L = 15 + value * 70
+
+    # perceived chroma
+    C = 10 + saturation * value * 80
+
+    return (
+        (max(0, L - 10), min(100, L + 10)),
+        (max(0, C - 10), C + 10),
+    )
+
+def hex_to_rgb(hex: ColorHex) -> RGB:
+    return RGB((int(hex[0:2], 16) / 255.0,
+               int(hex[2:4], 16) / 255.0,
+               int(hex[4:6], 16) / 255.0
+    ))
 
 def rgb_to_hex(rgb: RGB) -> ColorHex:
     """(r, g, b) with 0≤r,g,b≤1 → “#rrggbb”"""

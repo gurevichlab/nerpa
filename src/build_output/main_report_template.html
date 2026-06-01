@@ -191,11 +191,24 @@
             margin-bottom: 5px;
         }
 
+         button.hide-button-label {
+            margin-top: 0px;
+            margin-bottom: 5px;
+        }
+
         .matchDetailedInfoLabel {
             font-weight: bold;
             text-align: center;
             margin-top: 10px;
             margin-bottom: 0px;
+        }
+
+         .orderLabel{
+            font-weight: bold;
+            font-size: 13px;
+            text-align: left;
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
 
         /* Column chooser inline controls */
@@ -376,22 +389,28 @@
     </div>
 
         <!-- NRP module -->
-    <div>
+ <div>
+        
         <div id="moduleViewerControls">
-            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true)" style="display: none;">Hide NRP module annotation</button>
+            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true)" style="display: none;">Hide module annotation</button>
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
 
-           <div id="moduleViewerContainer"   
+        <div id="moduleViewerContainer"   
             style="display: none">
-
-            <div  class="viewer-scrollable">
+            <p class="matchDetailedInfoLabel">module viewer</p>
+            
+            
+            <div  id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none">
+               <p class="orderLabel">BGC order</p>
                 <svg id="moduleViewerBGC"
                     style="background: #ffffff;">
                 </svg>
             </div>
-
-            <div  class="viewer-scrollable">
+            
+            
+            <div id="moduleViewerNRPDiv" class="viewer-scrollable" style="display: none">
+                <p class="orderLabel">alignment order</p>
                 <svg id="moduleViewerNRP"
                     style="background: #ffffff;">
                 </svg>
@@ -406,19 +425,24 @@
             <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
         </div>
         <div id="nrpViewerContainer" class="viewer" style="display: none;">
-            <div style="display: flex; justify-content: space-between;">
-                <div style="flex: 1; padding-left: 5px;">
-                    <canvas id="moleculeImage" 
-                    style="background: #ffffff; width: 100%; height: 70vh; border: 1px; ">
+             <div style="display: flex;  gap:10px;">
+
+                <div id="moleculeImage" style="flex: 1; min-width:0; height: 70vh; overflow: hidden;">
+                    <canvas id="moleculeImageCanvas" 
+                        style="background: #ffffff; width: 100%; border: 1px; ">
                     </canvas>
                </div>
-                <div style="flex: 1; padding-left: 5px;">
+
+                <div style="flex: 1; min-width:0;">
                     <div id="graphImage" style="background: #ffffff; 
                         width: 100%; 
                         height: 70vh; 
                         border: 1px;">
                     </div>
                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between;">    
+                    <button  class="hide-button-label" id="hideLabelBtn" onclick="hideLabels()" style="display: none;">Hide residue labels</button>
             </div>
         </div>
     </div>
@@ -432,7 +456,7 @@
 
 
 <script>
-     // local variables
+    // -- local variables --
    
     var network;
     let molCanvas;
@@ -440,8 +464,11 @@
     var svgns = "http://www.w3.org/2000/svg";
     const svgNRP = document.getElementById("moduleViewerNRP");
     const svgBGC = document.getElementById("moduleViewerBGC");
-    let moduleMap = undefined;
+    let moduleMap = {};
     let nodeMap = undefined;
+    let nodes = undefined;
+    let edges = undefined;
+    let selected = false;
 
     function connect(row, bgcID, nrpID){
         const gene = row.cells[0].textContent;
@@ -466,20 +493,21 @@
             }
         }
         
-        const nodeLabel = nodeMap[nodeID];
         // ! funtiernt doch mit update https://github.com/visjs/vis/issues/1537
         network.selectNodes([nodeID]);   
-        connectGraphMolecule(nodeLabel, nodeID, nrpID);
+        connectGraphMolecule([nodeID], nrpID);
     }
-    
-       // --- Module Viewer ---
+
+    // --- Module Viewer ---
 
     function buildModuleViewerNRP(bgcID, nrpID){
+        const key = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
         const match = data.find(item =>
-                                makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === makeBgcKey(bgcID) &&
+                                makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === key &&
                                 item["nrp_variant_id"]["nrp_id"] === nrpID);
+                            
 
-        const genesMatch = bgcModuleIndex.get(makeBgcKey(bgcID));
+        const genesMatch = bgcModuleIndex.get(key);
         let genes = [];
         let gAlignments = undefined;
         let lastGeneID = undefined;
@@ -512,19 +540,22 @@
        
         svgNRP.setAttribute("width", drawData[drawData.length - 1].position.x + 15 + drawData[drawData.length - 1].length);
         svgNRP.innerHTML = "";
-        drawModuleViewer(drawData, svgNRP);
+        drawModuleViewer(drawData, svgNRP, nrpID);
     }
   
     function buildModuleViewerBGC(bgcID, nrpID){
         moduleMap = {};
        
+        const key = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
+       
         const match = data.find(item =>
-                                makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === makeBgcKey(bgcID) &&
+                                makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === key &&
                                 item["nrp_variant_id"]["nrp_id"] === nrpID);
                              
-        const genes = bgcModuleIndex.get(makeBgcKey(bgcID));
-         // ???
-        if(genes.some(item => item.coords.strand === "REVERSE")) {
+        const genes = bgcModuleIndex.get(key);
+   
+        const numRevGenes = genes.reduce((c, item) => item.coords.strand === "REVERSE" ? c + 1 : c, 0);
+        if( numRevGenes > genes.length / 2) {
             genes.reverse();
         }
 
@@ -539,7 +570,7 @@
         const drawData = buildDrawData(genes, match);
         svgBGC.setAttribute("width", drawData[drawData.length - 1].position.x + 15 + drawData[drawData.length - 1].length);
         svgBGC.innerHTML = "";
-        drawModuleViewer(drawData, svgBGC);
+        drawModuleViewer(drawData, svgBGC, nrpID);
     }
     
     function buildDrawData(geneList, match){
@@ -550,6 +581,7 @@
             length: Number (in px),
             displayed: Bool,
             nip: Number, (if of graph nodes matched to  all modules)
+            reversed: Bool,
             modules: Array<Module>
         }
         module object
@@ -577,6 +609,7 @@
                 length: undefined,  
                 displayed: true,  
                 nip: undefined,
+                reversed: g.coords.strand === 'REVERSE',
                 modules: g.modules.map((m, idx)=> {
                     return{
                         id: idx,
@@ -625,12 +658,12 @@
         return drawData;
     }
 
-    function drawModuleViewer(drawData, svg){
+    function drawModuleViewer(drawData, svg, nrpID){
         for(const g of drawData){
             for (const m of g.modules){
-                drawModule(g.id, m.id, m.nip, m.position.x, m.position.y, m.length, m.domains, m.residue, m.displayed, m.rad, svg);
+                drawModule(g.id, m.id, m.nip, m.position.x, m.position.y, m.length, m.domains, m.residue, m.displayed, m.rad, svg, nrpID);
             }
-            drawGeneArrow(g.id, g.nip, g.position.x, g.position.y, g.length, g.displayed, svg);
+            drawGeneArrow(g.id, g.nip, g.position.x, g.position.y, g.length, g.displayed, g.reversed, svg, nrpID);
         }
 
         svg.addEventListener('click', e => {
@@ -643,17 +676,23 @@
         });
     }
 
-    function drawGeneArrow(id, nip, x, y, length, displayed, svg){
+    function drawGeneArrow(id, nip, x, y, length, displayed, reversed, svg, nrpID){
         const geneEnd = x + length;
         const geneStart = x;
-        const arrowhead = x + length;
-        const arrowlineEnd = x + (length * 0.9);
+        let arrowStart = x;
+        let arrowhead = x + length;
+        let arrowlineEnd = x + (length * 0.9);
         const geneArr = document.createElementNS(svgns, 'g');
         geneArr.setAttribute("id", `G${id},${nip}`);
 
         // draw arrow
         const arrow = document.createElementNS(svgns, 'path');
-        const d = ` M ${geneStart} ${y - 60} L ${arrowlineEnd} ${y - 60} L ${arrowlineEnd} ${y - 65} L ${arrowhead} ${y - 50} L ${arrowlineEnd} ${y - 35} L ${arrowlineEnd} ${y - 40} L ${geneStart} ${y - 40} Z`;
+        if(reversed){
+            arrowStart = geneEnd;
+            arrowhead = geneStart;
+            arrowlineEnd = geneEnd - (length * 0.9);
+        }
+        let d = ` M ${arrowStart} ${y - 60} L ${arrowlineEnd} ${y - 60} L ${arrowlineEnd} ${y - 65} L ${arrowhead} ${y - 50} L ${arrowlineEnd} ${y - 35} L ${arrowlineEnd} ${y - 40} L ${arrowStart} ${y - 40} Z`;
         arrow.setAttribute("d", d);
         arrow.setAttribute('fill', 'black');
         geneArr.appendChild(arrow);
@@ -701,6 +740,9 @@
                     el.setAttribute("opacity", "0.3");
                 }
             }
+            
+            network.selectNodes(nip); 
+            connectGraphMolecule(nip.map(String), nrpID);
         });
         
         nip.forEach(n => (moduleMap[n] ||= []).push(geneArr.id));
@@ -720,7 +762,7 @@
         return sDict;
     }
     
-    function drawModule(gid, mid, nip, x, y, length, domains, residue, displayed, rad, svg){
+    function drawModule(gid, mid, nip, x, y, length, domains, residue, displayed, rad, svg, nrpID){
         
         const module = document.createElementNS(svgns, 'g');
         module.setAttribute("id", `M${mid},G${gid},${nip}`);
@@ -849,17 +891,17 @@
                 }
             }
             network.selectNodes(nip);   
-           // connectGraphMolecule(nodeLabel, el.id, nrpID); 
+            connectGraphMolecule(nip.map(String), nrpID);
         }); 
 
         nip.forEach(n => (moduleMap[n] ||= []).push(module.id));
     }
-  // --- Graph ---
+     // --- Graph ---
     function drawGraph(nrpID) {
         nodeMap = {};
         const graph = monomer_graph[nrpID];
-        const nodes = new vis.DataSet(graph.nodes);
-        const edges = new vis.DataSet(graph.edges);
+        nodes = new vis.DataSet(graph.nodes);
+        edges = new vis.DataSet(graph.edges);
         const graph_div = document.getElementById("graphImage");
         const graph_data = { nodes: nodes, edges: edges };
         const graph_options = { 
@@ -876,61 +918,69 @@
             },
             interaction:{
                 zoomView:true
-            }
+            },
+            multiselect: true,
         };
-       
+
         network = new vis.Network(graph_div, graph_data, graph_options);
         
         for(const entry of graph.nodes){
             nodeMap[entry.id] = entry.label;
         }
-
-        let selected = false;
+        
         network.addEventListener('click',  e => {
-                // reset
-                if(selected){
-                    nodes.get().forEach(n => nodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
-                    edges.get().forEach(e => edges.update({id: e.id, color: e.color === '#E0A59D' ?'red' : 'blue'}));
-                } 
-                // color graph transparent expect selected node
-                if(!(e.nodes.length === 0)){
-                    nodes.get().forEach(n => n.id != e.nodes[0] ? nodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
-                    edges.get().forEach(e => edges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
-                }
-                selected = !(e.nodes.length === 0);
-           
-                connectGraphMolecule(nodeMap[e.nodes[0]], e.nodes[0], nrpID);
+            connectGraphMolecule( e.nodes, nrpID);
         });
-
+        maxZoomGraph();
+    }
+    
+    function maxZoomGraph(){
         // this code is from https://github.com/visjs/vis-network/issues/574 as vis-network has no minZoom 
         let lastPosition = null;
         const max_zoom = 2;
         const min_zoom = 0.3;
         network.on("zoom", function (params) {
-        if (params.scale < min_zoom|| params.scale > max_zoom) { // adjust this value according to your requirement
-            network.moveTo({
-            position: lastPosition, // use the last position before zoom limit
-            scale: params.scale > max_zoom ? max_zoom : min_zoom // this scale prevents zooming out beyond the desired limit
+            if (params.scale < min_zoom|| params.scale > max_zoom) { // adjust this value according to your requirement
+                network.moveTo({
+                position: lastPosition, // use the last position before zoom limit
+                scale: params.scale > max_zoom ? max_zoom : min_zoom // this scale prevents zooming out beyond the desired limit
+                });
+            } else {
+                // store the current position as the last position before zoom limit
+                lastPosition = network.getViewPosition();
+            }
             });
-        } else {
-            // store the current position as the last position before zoom limit
+            // on pan, store the current position
+            network.on("dragEnd", function () {
             lastPosition = network.getViewPosition();
-        }
         });
-        // on pan, store the current position
-        network.on("dragEnd", function () {
-        lastPosition = network.getViewPosition();
-        });
-        // until here 
     }
-     
-    function connectGraphMolecule(nodeLabel, nodeID, nrpID){
+
+    function increaseTranparency(nodeIDs){
+        // reset
+        if(selected){
+            nodes.get().forEach(n => nodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
+            edges.get().forEach(e => edges.update({id: e.id, color: e.color === '#E0A59D' ?'red' : 'blue'}));
+        } 
+        // color graph transparent expect selected node
+        if(!(nodeIDs.length === 0)){
+            nodes.get().forEach(n => !nodeIDs.includes(n.id) ? nodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
+            edges.get().forEach(e => edges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
+        }
+        selected = !(nodeIDs.length === 0);
+    }
+    
+    function connectGraphMolecule(nodeIDs, nrpID){
+        increaseTranparency(nodeIDs);
+        nodeID = nodeIDs[0];
+        const nodeLabels = [];
+        nodeIDs.forEach(n => nodeLabels.push(nodeMap[n]))
        
         // get molecule
         const mol = molCanvas.getMolecule();
 
         //  if no node but background was clicked, set molecule back to default
-        if(nodeID === undefined){
+        if(nodeIDs.length === 0){
             let newStyle = new ChemDoodle.structures.Styles();
             newStyle.atoms_color = 'black';
             newStyle.bonds_color = 'black';
@@ -945,7 +995,10 @@
         }
 
         // find atoms of selected monomer node in molecule 
-        const selected_atoms = new Set(molecule_image[nrpID].monomers[nodeLabel]); // O(n) ! 
+        const selected_atoms = new Set();
+        for(const label of nodeLabels){
+            molecule_image[nrpID].monomers[label].forEach(a => selected_atoms.add(a));// O(n) ! 
+        }
 
         // paint molecule in pale color and selected residue in standard color
         let paleStyle = new ChemDoodle.structures.Styles();
@@ -986,18 +1039,18 @@
             }
         }
         // set background color back to white
-        const colorCanvas = document.getElementById('moleculeImage');
+        const colorCanvas = document.getElementById('moleculeImageCanvas');
         const ctx = colorCanvas.getContext("2d");
         ctx.fillStyle = "white"; 
         ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
     }
     
-   // --- Molecule ---
+    // --- Molecule ---
     function drawMolecule(nrpID){
-        document.getElementById('moleculeImage').innerHTML = "";
+        document.getElementById('moleculeImageCanvas').innerHTML = "";
         const rect = document.getElementById('moleculeImage').getBoundingClientRect();
-        molCanvas = new ChemDoodle.ViewerCanvas('moleculeImage', rect.width, rect.height);
-    
+        molCanvas = new ChemDoodle.ViewerCanvas('moleculeImageCanvas', rect.width, rect.height);
+        
         let mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
         mol.name = nrpID;
 
@@ -1018,15 +1071,23 @@
         mol.scaleToAverageBondLength(20);
         molCanvas.loadMolecule(mol);
         paintMolecule(mol);
-        //zooming(document.getElementById('moleculeImage'));
+        zooming(document.getElementById('moleculeImageCanvas'),mol);
+        window.addEventListener("resize", (event) => {
+            const div = document.getElementById('moleculeImage');
+            const width = div.offsetWidth;
+            const height = div.offsetHeight;
+            molCanvas.resize(width,height);
+            paintMolecule(mol);
+        }); 
     }
     
     function paintMolecule(mol){
-        const colorCanvas = document.getElementById('moleculeImage');
+        const colorCanvas = document.getElementById('moleculeImageCanvas');
         const ctx = colorCanvas.getContext("2d");
         ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
         const nrpID = mol.name;
         for(const bond of mol.bonds){
+            if(! bond.tmpid)bond.tmpid = 1;                                         // could be buggy !!
             if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
             colorAtom(bond.a1, nrpID);
             colorAtom(bond.a2, nrpID);
@@ -1037,7 +1098,7 @@
     }   
     
     function colorAtom(atom, nrpID, saturation = 0){ 
-        const ctx = document.getElementById('moleculeImage').getContext("2d");  
+        const ctx = document.getElementById('moleculeImageCanvas').getContext("2d");  
         let label = atom.label;
         if (!(atom.altLabel ===  undefined)) {
             label = atom.altLabel;
@@ -1062,7 +1123,7 @@
     }
     
     function colorBond(bond, nrpID, saturation = 0){  
-        const ctx = document.getElementById('moleculeImage').getContext("2d");
+        const ctx = document.getElementById('moleculeImageCanvas').getContext("2d");
         const sX = bond.a1.x;
         const sY = bond.a1.y;
         const eX = bond.a2.x;
@@ -1076,7 +1137,7 @@
         ctx.lineTo(eX, eY);
         ctx.stroke();
     }  
-   
+
     function hideLabels(){
         const mol = molCanvas.getMolecule();
         // if atom has a label, set it to undefined such that it is not displayed anymore
@@ -1085,9 +1146,55 @@
                         ( a.altLabel === undefined ? a.altLabel = a.residue : a.altLabel));
     
         molCanvas.repaint(mol);
-        paintMolecule(mol);
+        paintMolecule(mol); 
     }
 
+    function zooming(el,mol){
+        // zoom functionality
+        el.addEventListener('wheel', e => e.preventDefault(), {passive: false}); 
+        let scalefactor = 1;
+        let zoom = e => {
+            scalefactor += e.deltaY * -0.01;
+            scalefactor = Math.max(scalefactor, 1);
+            scalefactor = Math.min(2, scalefactor);
+            el.style.transition = "transform 0.1s";
+            el.style.transform = `scale(${scalefactor})`;
+        }
+        el.onwheel = zoom;
+
+        // move functionality
+        let dragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+        let startX, startY;
+
+        el.addEventListener('mousedown', e => {
+            dragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+        );
+        el.addEventListener('mousemove', e => {
+            if(dragging && scalefactor != 1){
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                offsetX += dx;
+                offsetY += dy;
+                el.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scalefactor})`;
+
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+        });
+        el.addEventListener('mouseup', e => 
+            dragging = false
+        );
+        el.addEventListener('mouseleave', e => 
+            dragging = false
+        );
+
+    }
     // Function to detect if a value is numeric
     function isNumeric(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
@@ -1366,15 +1473,15 @@
             <td class="score">${fmtNum(item.raw_score)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
-        `;
+            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}"  data-bgc="${makeBgcKey(bgc_id)}">${nrp_id}</a></td>
+       `;
 
         // NRP metadata
         appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(nrp_id));
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">${genome_id}</a></td>
             <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
@@ -1446,16 +1553,21 @@
                     event.preventDefault();
                     const genomeID = link.dataset.genome;
                     const bgcID = link.dataset.bgc;
+                    const nrpID = link.dataset.nrp;
+                    const bgcIDM = link.dataset.bgcm; 
                     toggleGenomeViewer(false, genomeID, bgcID);
+                    toggleModuleViewer(false, nrpID, bgcIDM, bgc = true, align = false);
                 });
             });
 
             // NRP links
-            document.querySelectorAll('.nrp-link').forEach(link => {
+               document.querySelectorAll('.nrp-link').forEach(link => {
                 link.addEventListener('click', event => {
                     event.preventDefault();
                     const nrpID = link.dataset.nrp;
+                    const bgcID = link.dataset.bgc;
                     toggleNrpViewer(false, nrpID);
+                    toggleModuleViewer(false, nrpID, bgcID, bgc = false, align = true);
                 });
             });
         } else {
@@ -1556,6 +1668,7 @@
             nrpIDLink.href = '#';
             nrpIDLink.className = 'nrp-link';
             nrpIDLink.dataset.nrp = nrp_id;
+            nrpIDLink.dataset.bgc = bgc_id;
             nrpIDLink.textContent = nrp_id;
 
             const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(nrp_id), { wrap: "span" });
@@ -1670,21 +1783,31 @@
     }
 
      // Toggle function for module viewer
-    function toggleModuleViewer(hide, nrpID, bgcID) {
+    function toggleModuleViewer(hide, nrpID, bgcID, bgc = true, align = true) {
         const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
         const label = document.getElementById('moduleViewerLabel');
+        const bgcFrame = document.getElementById('moduleViewerBGCDiv');
+        const alignFrame = document.getElementById('moduleViewerNRPDiv');
 
         if (hide) {
             frame.style.display = 'none';
+            bgcFrame.style.display = 'none';
+            alignFrame.style.display = 'none';
             label.style.display = 'block';
             hideBtn.style.display = 'none';
         } else {
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            buildModuleViewerBGC(bgcID, nrpID);
-            buildModuleViewerNRP(bgcID, nrpID);
+            if(bgc){ 
+                bgcFrame.style.display = 'block';
+                buildModuleViewerBGC(bgcID, nrpID);
+            }
+            if(align) {
+                alignFrame.style.display = 'block';
+                buildModuleViewerNRP(bgcID, nrpID);
+            }
         }
     }
     // Toggle function for NRP images
@@ -1692,15 +1815,18 @@
         const frame = document.getElementById('nrpViewerContainer');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
         const label = document.getElementById('nrpViewerLabel');
+        const hideLabelBtn = document.getElementById('hideLabelBtn');
     
         if (hide) {
             frame.style.display = 'none';
             label.style.display = 'block';
             hideBtn.style.display = 'none';
+            hideLabelBtn.style.display = 'none';
         } else {
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
+            hideLabelBtn.style.display = 'block';
             drawGraph(nrpID);
             drawMolecule(nrpID);
         }
