@@ -5,7 +5,7 @@ use crate::algo::apply_modifications::{AlteredMonomerGraph, apply_modifications,
 use crate::algo::graph_to_dag::get_inserts_for_linearization;
 use crate::data_types::monomer_graph::MonomerGraph;
 use crate::data_types::graph_modifications::GraphModification;
-use crate::bench::find_target::{FindTargetResults, find_target};
+use crate::bench::find_target::TargetSearchResults;
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 use crate::data_types::common_types::MonomerIdx;
 use crate::data_types::config::{DebugConfig, NerpaMS_Config};
@@ -13,6 +13,8 @@ use crate::io::input::InputItem;
 use crate::io::output::OutputItem;
 use crate::data_types::monomers_db::MonomersDB;
 use crate::algo::algo_main::process_input_item;
+
+use super::find_target::TargetSearchData;
 
 
 pub fn get_all_modifications<'a>(
@@ -68,7 +70,7 @@ pub fn get_all_modifications<'a>(
 	all_mods_non_empty
 }
 
-pub fn sample_modifications_unchecked(
+pub fn sample_modifications_unchecked<'a>(
     all_mods: &[Vec<Vec<GraphModification<'a>>>],
     n: usize,
     rng: &mut impl rand::Rng,
@@ -112,7 +114,12 @@ pub fn sample_graph_neighborhood(
 	let mut sampled_graphs = Vec::new();
 	for _ in 0..n_samples {
 	    let mods = sample_modifications(&all_mods, n_mods, rng);
-	    let maybe_new_graph = apply_modifications(monomer_graph, &mods, monomers_db);
+	    let maybe_new_graph = apply_modifications(
+		monomer_graph,
+		&mods,
+		monomers_db,
+		false // debug_stdout
+	    );
 	    let new_graph = maybe_new_graph
 		.expect("Failed to apply sampled modifications");
 
@@ -129,7 +136,7 @@ pub fn tweak_and_reconstruct(
     debug_cfg: &DebugConfig,
     n_mods: usize,
     rng: &mut impl rand::Rng,
-) -> FindTargetResults {
+) -> TargetSearchResults {
     let orig_mon_graph = MonomerGraph::from(&input_item.rban_record);
     let orig_linearization = &input_item.linearization;
 
@@ -162,10 +169,22 @@ pub fn tweak_and_reconstruct(
 	debug_cfg
     );
 	
-    find_target(
-	&nerpa_ms_out,
-	&input_item.rban_record,
-	n_mods as u32,
-	&debug_cfg.nerpa_root,
+    let template = MonomerGraph::from(&new_input_item.rban_record);
+    let template_linearization = &new_input_item.linearization;
+    let target = MonomerGraph::from(&input_item.rban_record);
+    let target_linearization = &input_item.linearization;
+    let target_search_data = TargetSearchData {
+	hmm: &input_item.hmm,
+	template: &template,
+	template_linearization,
+	target: &target,
+	target_linearization,
+	monomers_db,
+	nerpa_root: &debug_cfg.nerpa_root
+    };
+	
+    TargetSearchResults::new(
+	&target_search_data,
+	&nerpa_ms_out.new_variants,
     )
 }

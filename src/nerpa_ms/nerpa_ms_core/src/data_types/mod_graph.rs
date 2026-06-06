@@ -22,7 +22,7 @@ pub struct VertexLabel {
 }
 
 #[derive(Debug, Clone)]
-pub struct DAG<'a> {
+pub struct ModGraph<'a> {
     pub nrp_variant_id: String,
     pub labels: Vec<VertexLabel>,      // labels[v] = label of vertex v
     pub out_edges: Vec<Vec<Edge<'a>>>, // out_edges[v] = list of edges from vertex v
@@ -30,7 +30,7 @@ pub struct DAG<'a> {
     pub finish: VertexId,              // labels.len() - 1
 }
 
-impl<'a> DAG<'a> {
+impl<'a> ModGraph<'a> {
     pub fn num_nodes(&self) -> usize {
         self.labels.len()
     }
@@ -64,7 +64,7 @@ struct DAGDe {
     finish: VertexId,
 }
 
-impl<'de> Deserialize<'de> for DAG<'static> {
+impl<'de> Deserialize<'de> for ModGraph<'static> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -86,7 +86,7 @@ impl<'de> Deserialize<'de> for DAG<'static> {
 	    })
 	    .collect::<Vec<Vec<Edge>>>();
 
-        Ok(DAG {
+        Ok(ModGraph {
             nrp_variant_id: helper.nrp_variant_id,
             labels: helper.labels,
             out_edges: out_edges,

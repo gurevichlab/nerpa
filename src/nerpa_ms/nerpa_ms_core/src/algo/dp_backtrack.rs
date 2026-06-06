@@ -1,4 +1,4 @@
-use crate::data_types::{dag::{DAG, Edge, VertexId}, discrete_log_prob::DiscreteLogOdds, dp_table::{BacktrackPointer, DP_Coords, DP_Table}, hmm::StateIdx};
+use crate::data_types::{mod_graph::{ModGraph, Edge, VertexId}, discrete_log_prob::DiscreteLogOdds, dp_table::{BacktrackPointer, DP_Coords, DP_Table}, hmm::StateIdx};
 
 pub struct Solution <'mon_db>{
     pub states: Vec<StateIdx>,
@@ -135,7 +135,7 @@ impl<'mon_db, 'iter> Iterator for BacktrackSolutionsIter<'mon_db, 'iter> {
 pub fn backtrack_solutions<'mon_db: 'iter, 'iter>(
     weight: usize,
     dp: &'iter DP_Table<'mon_db>,
-    dag: &'iter DAG<'mon_db>,
+    dag: &'iter ModGraph<'mon_db>,
 ) -> BacktrackSolutionsIter<'mon_db, 'iter> {
     debug_assert!(weight <= dp.max_weight());
 

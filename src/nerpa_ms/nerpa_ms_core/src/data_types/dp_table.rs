@@ -1,6 +1,6 @@
 use super::{
     common_types::LogOdds,
-    dag::Edge,
+    mod_graph::Edge,
     discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet},
 };
 

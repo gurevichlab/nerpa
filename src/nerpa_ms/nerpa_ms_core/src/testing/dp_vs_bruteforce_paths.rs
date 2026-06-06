@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     algo::solve_brute_force::{PathsToCoords, retrieve_paths_brute_force},
     data_types::{
-        common_types::LogOdds, dag::{DAG, Edge, VertexId}, discrete_log_prob::MIN_LOG_PROB, dp_table::{DP_Coords, DP_Table}, hmm::{HMM, StateIdx}
+        common_types::LogOdds, mod_graph::{ModGraph, Edge, VertexId}, discrete_log_prob::MIN_LOG_PROB, dp_table::{DP_Coords, DP_Table}, hmm::{HMM, StateIdx}
     },
 };
 
@@ -22,7 +22,7 @@ pub struct PathsMismatch {
     pub message: String,
 }
 
-fn dag_vertices_from_edges<'a>(dag: &DAG<'a>, edges: &[Edge<'a>]) -> Vec<usize> {
+fn dag_vertices_from_edges<'a>(dag: &ModGraph<'a>, edges: &[Edge<'a>]) -> Vec<usize> {
     let mut vertices = Vec::with_capacity(edges.len() + 1);
     vertices.push(dag.start);
     for e in edges {
@@ -37,7 +37,7 @@ fn dag_vertices_from_edges<'a>(dag: &DAG<'a>, edges: &[Edge<'a>]) -> Vec<usize> 
 /// Logprobs must match within `tol`.
 pub fn find_paths_mismatch<'a>(
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     dp: &'a DP_Table<'a>,
     brute_paths_to_coords: &HashMap<DP_Coords, Vec<PathsToCoords<'a>>>,
     weight: usize,

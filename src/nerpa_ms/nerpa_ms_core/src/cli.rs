@@ -59,6 +59,10 @@ pub struct Cli {
     #[arg(long)]
     pub draw_hmm_dag_opt_paths: bool,
 
+    /// Write debug log to stdout
+    #[arg(long)]
+    pub debug_stdout: bool,
+
     /// Write alignment against BGC for each generated NRP variant
     #[arg(long)]
     pub write_alignments: bool,

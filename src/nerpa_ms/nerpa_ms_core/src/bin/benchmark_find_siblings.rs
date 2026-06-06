@@ -1,6 +1,6 @@
 #![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 
-use nerpa_ms_core::bench::find_target::FindTargetResults;
+use nerpa_ms_core::bench::find_target::TargetSearchResults;
 use nerpa_ms_core::bench::bench_find_siblings::find_siblings;
 use nerpa_ms_core::data_types::monomers_db::load_monomers_db;
 use nerpa_ms_core::data_types::config::{DebugConfig, NerpaMS_Config};
@@ -9,7 +9,7 @@ use nerpa_ms_core::io::input::{InputItem, get_input_from_nerpa_results};
 
 use std::collections::HashMap;
 use anyhow::Result;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use clap::Parser;
 
 #[derive(Debug, Parser)]
@@ -18,10 +18,6 @@ pub struct Cli {
     /// Path to Nerpa results on MIBiG: each BGC against its respective NRPs in its own folder
     #[arg(long)]
     pub nerpa_results: PathBuf,
-
-    /// Path to a txt file with the pairwise distances between compounds in the MIBiG dataset
-    #[arg(long)]
-    pub compound_distances: PathBuf,
 
     /// Maximum number of edits allowed in a structure
     #[arg(long)]
@@ -97,8 +93,7 @@ fn process_single_output_dir(
     monomers_db: &MonomersDB,
     nerpa_ms_cfg: &NerpaMS_Config,
     debug_cfg: &DebugConfig,
-    compound_distances: &HashMap<(String, String), u32>,
-) -> Vec<FindTargetResults> {
+) -> Vec<TargetSearchResults> {
     let input_items: Vec<InputItem> = {
 	get_input_from_nerpa_results(
 	    dir, None, None
@@ -112,13 +107,13 @@ fn process_single_output_dir(
 	monomers_db,
 	nerpa_ms_cfg,
 	debug_cfg,
-	compound_distances
     )
 }
 
-fn write_results(results: &[FindTargetResults], out: &PathBuf) -> Result<()> {
-    let tsv = FindTargetResults::to_tsv(results);
-    std::fs::write(out, tsv)?;
+fn write_results(results: &[TargetSearchResults], out: &Path) -> Result<()> {
+    std::fs::create_dir_all(out.parent().unwrap())?; // Create parent directories
+    let json = serde_json::to_string_pretty(results)?;
+    std::fs::write(out, json)?;
     Ok(())
 }
 
@@ -133,6 +128,7 @@ fn main() -> Result<()> {
 
     let debug_cfg = DebugConfig {
 	write_alignments: false,
+	debug_stdout: false,
 	draw_hmm_opt_paths: false,
 	draw_hmm_dag_opt_paths: false,
 	draw_output_variants: false,
@@ -155,15 +151,9 @@ fn main() -> Result<()> {
 	}
     };
 
-    let compound_distances: HashMap<(String, String), u32> = {
-	get_compound_distances(&cli.compound_distances)
-	    .expect(format!("Failed to load compound distances from {}",
-			    cli.compound_distances.display()).as_str())
-    };
-
     let monomers_db = load_monomers_db(&cli.monomers_db_json)?;
 
-    let all_results: Vec<FindTargetResults> = {
+    let all_results: Vec<TargetSearchResults> = {
 	nerpa_output_dirs
 	    .iter()
 	    .flat_map(|dir|
@@ -172,7 +162,6 @@ fn main() -> Result<()> {
 			  &monomers_db,
 			  &nerpa_ms_cfg,
 			  &debug_cfg,
-			  &compound_distances
 		      ))
 	    .collect()
     };

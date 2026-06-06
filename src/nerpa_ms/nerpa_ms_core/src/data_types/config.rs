@@ -27,6 +27,9 @@ impl NerpaMS_Config {
 }
 
 pub struct DebugConfig {
+    /// Write debug log to stdout
+    pub debug_stdout: bool,
+    
     /// Whether to write alignments to disk
     pub write_alignments: bool,
 
@@ -49,6 +52,7 @@ pub struct DebugConfig {
 impl DebugConfig {
     pub fn from_cli(cli: &Cli) -> Self {
 	Self {
+	    debug_stdout: cli.debug_stdout,
 	    write_alignments: cli.write_alignments,
 	    draw_hmm_opt_paths: cli.draw_hmm_opt_paths,
 	    draw_hmm_dag_opt_paths: cli.draw_hmm_dag_opt_paths,

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::data_types::common_types::MonomerIdx;
-use crate::data_types::dag::{DAG, Edge, VertexLabel, VertexId};
+use crate::data_types::mod_graph::{ModGraph, Edge, VertexLabel, VertexId};
 use crate::data_types::graph_modifications::{GraphModification, InsertionSite};
 use crate::data_types::monomer_graph::{MonomerFeatures, MonomerGraph, Monomer};
 use crate::data_types::monomers_db::{MonomersDB, MonomersDB_Entry};
@@ -241,7 +241,7 @@ pub fn create_template_free_dag<'mon_db>(
     graph_type: &GraphType,
     n: usize,
     monomers_db: &'mon_db MonomersDB
-) -> DAG<'mon_db> {
+) -> ModGraph<'mon_db> {
     let (monomer_graph, linearization) = MonomerGraph::build_some_graph_with_linearization(
 	&graph_type,
 	n,
@@ -335,7 +335,7 @@ pub fn create_template_free_dag<'mon_db>(
 	    .collect()
     };
 
-    DAG { 
+    ModGraph { 
 	nrp_variant_id: monomer_graph.compound_id.clone(),
 	labels: labels_vec,
 	out_edges: out_edges_vec,

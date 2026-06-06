@@ -2,6 +2,7 @@ use petgraph::algo::is_isomorphic_matching;
 use petgraph::graph::UnGraph;
 use petgraph::prelude::NodeIndex;
 use crate::data_types::parsed_rban_record::{Parsed_rBAN_Record, NorineMonomerName};
+use crate::data_types::monomer_graph::MonomerGraph;
 use crate::data_types::common_types::MonomerIdx;
 use std::collections::{HashMap};
 use anyhow::{bail, Context, Result};
@@ -116,5 +117,13 @@ impl Parsed_rBAN_Record {
             .context("Failed to parse records_to_smiles output YAML as HashMap<String, String>")?;
 
 	Ok(id_to_smiles)
+    }
+}
+
+impl MonomerGraph {
+    pub fn is_isomorphic_to(&self, other: &MonomerGraph) -> bool {
+	let self_record = Parsed_rBAN_Record::from(self);
+	let other_record = Parsed_rBAN_Record::from(other);
+	self_record.is_isomorphic_to(&other_record)
     }
 }

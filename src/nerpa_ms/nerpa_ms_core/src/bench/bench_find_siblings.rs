@@ -2,7 +2,8 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::algo::gen_new_variants::Altered_rBAN_Record;
-use crate::bench::find_target::{FindTargetResults, find_target};
+use crate::bench::find_target::{TargetSearchData, TargetSearchResults};
+use crate::data_types::monomer_graph::MonomerGraph;
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 use crate::data_types::common_types::MonomerIdx;
 use crate::data_types::config::{DebugConfig, NerpaMS_Config};
@@ -40,21 +41,21 @@ pub fn find_siblings(
     monomers_db: &MonomersDB,
     nerpa_ms_cfg: &NerpaMS_Config,
     debug_cfg: &DebugConfig,
-    compound_distances: &HashMap<(String, String), u32>,
-) -> Vec<FindTargetResults> {
+) -> Vec<TargetSearchResults> {
     // If cfg doesn’t actually store this, change the function signature to accept `nerpa_root: &Path`.
     let nerpa_root: &Path = debug_cfg.nerpa_root.as_path();
 
-    let targets: Vec<&Parsed_rBAN_Record> = {
+    let targets_with_linearizations: Vec<(&Parsed_rBAN_Record, &[MonomerIdx])> = {
 	input_items
 	    .iter()
-	    .map(|item| &item.rban_record)
+	    .map(|item| (&item.rban_record, &item.linearization[..]))
 	    .collect()
     };
 
     let nerpa_ms_outputs: Vec<OutputItem> = {
 	input_items
 	    .iter()
+	    .take(1) // debug
 	    .map(|item|
 		 process_input_item(
 		     item,
@@ -66,32 +67,40 @@ pub fn find_siblings(
     };
 
 
-    let mut results: Vec<FindTargetResults> = Vec::new();
+    let mut results: Vec<TargetSearchResults> = Vec::new();
 
-    for target in &targets {
-	for nerpa_ms_output in nerpa_ms_outputs.iter() {
+    for (input_item, nerpa_ms_output) in (input_items.iter()
+					  .zip(nerpa_ms_outputs.iter())) {
+	println!("BGC:\n{}", input_item.bgc_variant);
+	println!("NRPs:");
+	for (target, target_linearization) in targets_with_linearizations.iter() {
+	    println!("{}\t{}", target.compound_id, target.show_linearization(target_linearization).unwrap_or_else(|_| "Failed to show linearization".to_string()));
+
+	}
+
+	    
+	for (target, target_linearization) in targets_with_linearizations.iter().cloned() {
 	    if target.compound_id == nerpa_ms_output.compound_id {
 		continue;
 	    }
 
-	    let distance: u32 = {
-		let target_id = target.compound_id.clone();
-		let template_id = nerpa_ms_output.compound_id.clone();
-
-		*compound_distances
-		    .get(&(template_id.clone(), target_id.clone()))
-		    .or_else(|| compound_distances.get(&(target_id.clone(), template_id.clone())))
-		    .expect(&format!("Distance not found for pair (template={}, target={})",
-				     template_id, target_id))
-	    };
-
-	    let one_result = find_target(
-		nerpa_ms_output,
-		target,
-		distance,
+	    let template_mon_graph = MonomerGraph::from(&input_item.rban_record);
+	    let target_mon_graph = MonomerGraph::from(target);
+	    let target_search_data = TargetSearchData {
+		hmm: &input_item.hmm,
+		template: &template_mon_graph,
+		template_linearization: &input_item.linearization,
+		target: &target_mon_graph,
+		target_linearization, 
+		monomers_db,
 		nerpa_root,
-	    );
-	    results.push(one_result);
+	    };
+	    
+	    results.push(TargetSearchResults::new(
+		&target_search_data,
+		&nerpa_ms_output.new_variants,
+	    ));
+		
 	}
     }
 

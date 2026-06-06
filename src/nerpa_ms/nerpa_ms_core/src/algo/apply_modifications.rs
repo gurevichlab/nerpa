@@ -1,6 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use crate::data_types::{common_types::MonomerIdx, config::DebugConfig, mod_graph::{ModGraph, Edge, VertexId}, graph_modifications::{GraphModification, InsertionSite}, monomer_graph::MonomerGraph, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::Parsed_rBAN_Record};
 
-use crate::data_types::{common_types::MonomerIdx, dag::{DAG, Edge, VertexId}, graph_modifications::{GraphModification, InsertionSite}, monomer_graph::MonomerGraph, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::Parsed_rBAN_Record};
+use std::collections::{HashMap, HashSet};
+use chrono::Local;
 
 
 #[derive(Debug, Clone)]
@@ -69,6 +70,7 @@ pub fn apply_modifications(
     monomer_graph: &MonomerGraph,
     modifications: &[GraphModification],
     monomers_db: &MonomersDB,
+    debug_stdout: bool,
 ) -> Option<AlteredMonomerGraph> {
     let mut new_monomer_graph = (*monomer_graph).clone();
     let mut old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)> = Vec::new();
@@ -81,10 +83,20 @@ pub fn apply_modifications(
 	.collect::<Vec<_>>()
 	.join("\n")
     };
-    println!("\nCreating a new monomer graph by applying the following modifications:\n{}", modifications_str);
+
+    if debug_stdout {
+	let now = Local::now().format("%Y-%m-%d %H:%M:%S%.3f");
+	println!(
+	    "\n[{}] Creating a new monomer graph by applying the following modifications:\n{}",
+	    now,
+	    modifications_str
+	);
+    }
 
     if !modifications_consistent(modifications) {
-	println!("Incompatible modifications detected. No monomer graph can be produced.");
+	if debug_stdout {
+	    println!("Incompatible modifications detected. No monomer graph can be produced.");
+	}
 	return None;
     }
 
@@ -175,6 +187,14 @@ pub fn apply_modifications(
 		}
 	    }
 	}		    
+    }
+
+    if debug_stdout {
+	let now = Local::now().format("%Y-%m-%d %H:%M:%S%.3f");
+	println!(
+	    "\n[{}] New monomer graph created.\n",
+	    now,
+	);
     }
 
     Some(AlteredMonomerGraph {

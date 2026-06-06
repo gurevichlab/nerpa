@@ -1,6 +1,6 @@
-use crate::{algo::{apply_modifications::{AlteredMonomerGraph, apply_modifications}, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogOdds, MonomerIdx}, dag::{DAG, VertexId}, graph_modifications::GraphModification, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::{MonomerOrigin, MonomersDB}, parsed_rban_record::Parsed_rBAN_Record}};
+use crate::{algo::{apply_modifications::{AlteredMonomerGraph, apply_modifications}, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogOdds, MonomerIdx}, config::DebugConfig, mod_graph::{ModGraph, VertexId}, graph_modifications::GraphModification, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::{MonomerOrigin, MonomersDB}, parsed_rban_record::{MonomerInfo, Parsed_rBAN_Record}}};
 
-use crate::algo::graph_to_dag::create_dag;
+use crate::algo::graph_to_dag::create_mod_graph;
 use serde::Serialize;
 
 use crate::algo::dp::compute_dp_table;
@@ -14,8 +14,17 @@ pub struct Altered_rBAN_Record {
     pub rank: usize,
     pub original_id: String,
     pub new_record: Parsed_rBAN_Record,
+    pub linearization: Vec<MonomerIdx>,
     pub old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)>,
     pub monomer_origins: Vec<MonomerOrigin>,
+}
+
+impl Altered_rBAN_Record {
+    pub fn linearization_monomers(&self) -> Vec<MonomerInfo> {
+	self.new_record
+	    .get_monomers(&self.linearization)
+	    .expect("Linearization contains invalid monomer indices")
+    }
 }
 
 pub struct NewVariantWithOptPaths {
@@ -29,14 +38,21 @@ pub struct NewVariantWithOptPaths {
 pub fn generate_new_variants_with_opt_paths<'mon_db>(
     hmm: &HMM,
     monomer_graph: &MonomerGraph,
-    dag: &DAG<'mon_db>,
+    dag: &ModGraph<'mon_db>,
     max_weight: usize,
     max_variants_per_weight: usize,
     monomers_db: &'mon_db MonomersDB,
+    debug_stdout: bool,
 ) -> Vec<NewVariantWithOptPaths> {
-    println!("Computing DP table...");
+    if debug_stdout {
+	println!("Computing DP table...");
+    }
+
     let dp_table = compute_dp_table(hmm, &dag, max_weight);
-    println!("DP table computed. Retrieving new variants with optimal paths...");
+    if debug_stdout {
+	println!("DP table computed. Retrieving new variants with optimal paths...");
+    }
+
     let mut new_variants_with_opt_paths: Vec<NewVariantWithOptPaths> = Vec::new();
 
     for weight in 0..=max_weight {
@@ -64,7 +80,12 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		
 	for (sol, mods) in solutions_with_mods_unique {
 	    let new_variant: AlteredMonomerGraph;
-	    if let Some(variant) = apply_modifications(monomer_graph, &mods, monomers_db) {
+	    if let Some(variant) = apply_modifications(
+		monomer_graph,
+		&mods,
+		monomers_db,
+		debug_stdout,
+	    ) {
 		new_variant = variant;
 	    }
 	    else { continue; } // skip this solution if modifications are inconsistent
@@ -93,6 +114,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		rank: rank,
 		original_id: monomer_graph.compound_id.clone(),
 		new_record: Parsed_rBAN_Record::from(&new_variant.new_monomer_graph),
+		linearization: new_variant.linearization.clone(),
 		old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
 		monomer_origins,
 	    };

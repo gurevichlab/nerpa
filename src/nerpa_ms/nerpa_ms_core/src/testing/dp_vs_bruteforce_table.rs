@@ -4,7 +4,7 @@ use crate::{
     algo::solve_brute_force::{PathsToCoords, compute_dp_table_brute_force},
     data_types::{
         common_types::LogOdds,
-        dag::DAG,
+        mod_graph::ModGraph,
         discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet, MAX_LOG_PROB, MIN_LOG_PROB},
         dp_table::{DP_Coords, DP_Table},
         hmm::HMM,
@@ -16,7 +16,7 @@ pub struct DP_Table_Mismatch {
     pub message: String,
 }
 
-fn is_dag_emitting(dag: &DAG<'_>, v: usize) -> bool {
+fn is_dag_emitting(dag: &ModGraph<'_>, v: usize) -> bool {
     dag.labels[v].monomer_code.is_some()
 }
 
@@ -28,7 +28,7 @@ fn is_hmm_emitting(hmm: &HMM, s: usize) -> bool {
 /// We align emitting steps with emitting steps; epsilon steps create a `None` on the other side.
 fn align_paths(
     hmm: &HMM,
-    dag: &DAG<'_>,
+    dag: &ModGraph<'_>,
     dag_vertices: &[usize],
     hmm_states: &[usize],
 ) -> (Vec<Option<usize>>, Vec<Option<usize>>) {
@@ -100,7 +100,7 @@ fn format_aligned_compact(cols: &[Option<usize>]) -> String {
     out
 }
 
-fn display_lp_with_paths(lp: LogOdds, ptc: &PathsToCoords, hmm: &HMM, dag: &DAG<'_>) -> String {
+fn display_lp_with_paths(lp: LogOdds, ptc: &PathsToCoords, hmm: &HMM, dag: &ModGraph<'_>) -> String {
     let mut dag_vertices = vec![0usize]; // start vertex
     for &edge in &ptc.dag_path {
         dag_vertices.push(edge.to);
@@ -121,7 +121,7 @@ fn display_lp_with_paths(lp: LogOdds, ptc: &PathsToCoords, hmm: &HMM, dag: &DAG<
 fn build_table_mismatch_error_message(
     coords: &DP_Coords,
     hmm: &HMM,
-    dag: &DAG<'_>,
+    dag: &ModGraph<'_>,
     missing_in_brute: &Vec<LogOdds>,
     missing_in_dp: &Vec<(LogOdds, &PathsToCoords)>,
     parents: &Vec<DP_Coords>,
@@ -159,7 +159,7 @@ fn build_table_mismatch_error_message(
 pub fn check_dp_table_coords<'a>(
     coords: &DP_Coords,
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     dp_table: &DP_Table<'a>,
     brute_results: &HashMap<DP_Coords, Vec<PathsToCoords<'a>>>,
     tol: f64,
@@ -211,7 +211,7 @@ pub fn check_dp_table_coords<'a>(
 
 pub fn find_dp_table_mismatch<'a>(
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     dp_table: &DP_Table<'a>,
     brute_results: &HashMap<DP_Coords, Vec<PathsToCoords<'a>>>,
     tol: f64,

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::data_types::bond_consts::{AMINO_BINDING_SITE_C, AMINO_BINDING_SITE_N};
 use crate::data_types::bonds::{BindingSiteType, Bond};
 use crate::data_types::common_types::MonomerIdx;
-use crate::data_types::dag::{DAG, Edge, VertexLabel, VertexId};
+use crate::data_types::mod_graph::{ModGraph, Edge, VertexLabel, VertexId};
 use crate::data_types::graph_modifications::{GraphModification, InsertionSite};
 use crate::data_types::monomer_graph::{MonomerFeatures, MonomerGraph};
 use crate::data_types::{monomers_db::MonomersDB, parsed_rban_record::Parsed_rBAN_Record};
@@ -78,6 +78,7 @@ pub fn get_inserts_for_linearization<'a>(
 			max_inserts
 		    )
 		);
+		inserts_per_position.push(inserts);
 		continue;
 	    }
 
@@ -197,7 +198,8 @@ pub fn get_inserts_for_linearization<'a>(
 	    )
 	);
     }
-	
+
+    inserts_per_position.push(inserts_after_last);
 
     inserts_per_position
 }
@@ -214,7 +216,7 @@ pub fn add_inserts_to_subgraph_root<'a>(
 	match &gm {
 	    GraphModification::Insert { site: _, mon_db_entry } => {
 		labels.insert(insert_node_idx, VertexLabel {
-		    monomer_code: Some(mon_db_entry.monomer.features.mon_code.clone()),
+		    monomer_code: Some(mon_db_entry.monomer.features.mon_code),
 		    name: mon_db_entry.monomer.features.name.0.clone()
 		});
 	    },
@@ -238,9 +240,9 @@ pub fn add_inserts_to_subgraph_root<'a>(
 	
 }
 
-pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
+pub fn create_mod_graph<'mon_db>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
-		      monomers_db: &'mon_db MonomersDB) -> DAG<'mon_db> {
+		      monomers_db: &'mon_db MonomersDB) -> ModGraph<'mon_db> {
     // forbid/limit certain nodes/edges for debugging purposes
     let debug_output = false;
     let max_subs = 2;
@@ -412,7 +414,7 @@ pub fn create_dag<'mon_db>(monomer_graph: &MonomerGraph,
 	    .collect()
     };
 
-    DAG { 
+    ModGraph { 
 	nrp_variant_id: monomer_graph.compound_id.clone(),
 	labels: labels_vec,
 	out_edges: out_edges_vec,
