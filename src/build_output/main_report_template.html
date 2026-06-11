@@ -381,7 +381,8 @@
     <!-- antiSMASH (Genome/BGC) Viewer -->
     <div>
         <div id="genomeViewerControls">
-            <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true)" style="display: none;">Hide Genome/BGC annotation</button>
+            <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true,'','', true)" style="display: none;">Hide Genome/BGC annotation</button>
+            <button class="hide-button" id="showGenomeViewerBtn" style="display: none;">Show Genome/BGC annotation</button>
             <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
         </div>
 
@@ -392,16 +393,15 @@
  <div>
         
         <div id="moduleViewerControls">
-            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true)" style="display: none;">Hide module annotation</button>
+            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true, true)" style="display: none;">Hide module annotation</button>
+            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show module annotation</button>
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
 
         <div id="moduleViewerContainer"   
             style="display: none">
-            <p class="matchDetailedInfoLabel">module viewer</p>
-            
-            
-            <div  id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none">
+
+            <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none">
                <p class="orderLabel">BGC order</p>
                 <svg id="moduleViewerBGC"
                     style="background: #ffffff;">
@@ -421,7 +421,8 @@
     <!-- NRP Viewer -->
     <div>
         <div id="nrpViewerControls">
-            <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true)" style="display: none;">Hide NRP annotation</button>
+            <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true, '', true)" style="display: none;">Hide NRP annotation</button>
+            <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show NRP annotation</button>
             <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
         </div>
         <div id="nrpViewerContainer" class="viewer" style="display: none;">
@@ -492,8 +493,6 @@
                 el.setAttribute("opacity", "1");
             }
         }
-        
-        // ! funtiernt doch mit update https://github.com/visjs/vis/issues/1537
         network.selectNodes([nodeID]);   
         connectGraphMolecule([nodeID], nrpID);
     }
@@ -541,6 +540,14 @@
         svgNRP.setAttribute("width", drawData[drawData.length - 1].position.x + 15 + drawData[drawData.length - 1].length);
         svgNRP.innerHTML = "";
         drawModuleViewer(drawData, svgNRP, nrpID);
+
+        svgNRP.addEventListener('click', e => {
+            if(e.target.parentElement.id === 'moduleViewerNRPDiv'){
+                for(const el of svgNRP.childNodes){
+                    el.setAttribute("opacity", "1");
+                }
+            } 
+        });
     }
   
     function buildModuleViewerBGC(bgcID, nrpID){
@@ -567,13 +574,22 @@
                         ));
         }
 
-        const drawData = buildDrawData(genes, match);
+        const drawData = buildDrawData(genes, match, r = true);
         svgBGC.setAttribute("width", drawData[drawData.length - 1].position.x + 15 + drawData[drawData.length - 1].length);
         svgBGC.innerHTML = "";
         drawModuleViewer(drawData, svgBGC, nrpID);
+
+        svgBGC.addEventListener('click', e => {
+            if(e.target.parentElement.id === 'moduleViewerBGCDiv'){
+                for(const el of svgBGC.childNodes){
+                    if(el.getAttribute("displayed") === 'false') continue; 
+                    el.setAttribute("opacity", "1");
+                }
+            } 
+        });
     }
     
-    function buildDrawData(geneList, match){
+    function buildDrawData(geneList, match, r=false){
         /* gene object
         {
             id: Number,
@@ -609,26 +625,13 @@
                 length: undefined,  
                 displayed: true,  
                 nip: undefined,
-                reversed: g.coords.strand === 'REVERSE',
+                reversed: g.coords.strand === 'REVERSE' && r,
                 modules: g.modules.map((m, idx)=> {
                     return{
                         id: idx,
                         nip: m["a_domain"] != null ? m.alignment.map(al => al["rBAN_idx"]): [''],
                         domains: m.domains_sequence, 
-
-                        residue: 
-                            m["a_domain"] != null
-                                ? (
-                                    m.alignment[0]["Modifying_domains"] ===  "---"
-                                    ? (
-                                        m.alignment[0]["Top_scoring_residues"] != "---" 
-                                            ? m.alignment[0]["Top_scoring_residues"] 
-                                                : 'unk'
-                                    )
-                                    : `D-${m.alignment[0]["Top_scoring_residues"]}`
-                                )
-                                : '', // bei nrp muss es NRP_residue sein 
-
+                        residue: selectResidue(m, r),
                         displayed: m["a_domain"] != null,        
                         position: {x: undefined, y: yFixed}, 
                         length: m.domains_sequence.length * radFixed * 2,     
@@ -646,6 +649,7 @@
             xGene = xGene + dist + gObj.length;
 
             let xModule = gObj.position.x;
+            if(gObj.reversed) gObj.modules.reverse();
             for(const mObj of gObj.modules){
                 if(!mObj.displayed) gObj.displayed = false;
                 mObj.position.x = xModule;
@@ -675,7 +679,158 @@
             } 
         });
     }
+    
+    function drawModule(gid, mid, nip, x, y, length, domains, residue, displayed, rad, svg, nrpID){
+        
+        const module = document.createElementNS(svgns, 'g');
+        module.setAttribute("id", `M${mid},G${gid},${nip}`);
+          
+        let i = 0;
+        let xi;
+        for(const d of domains){
+            xi = rad + i * (rad * 2) + x;
+            i++;
+            const circle = document.createElementNS(svgns, 'circle');
+            let y_circ = y;
+            let domainName;
+            let letterColor = 'black;'
+            let typeIdx = '';
+            switch(d) {
+                case 'A':
+                    circle.setAttribute('fill', `rgb(${179}, ${130}, ${238})`); 
+                    domainName = 'A';
+                    break;
+                case 'PCP':
+                    circle.setAttribute('fill', `rgb(${142}, ${189}, ${242})`); 
+                    domainName = 'CP';
+                    break;
+                case 'E':
+                    circle.setAttribute('fill', `rgb(${127}, ${127}, ${238})`);  
+                    domainName = 'E';
+                    break;
+                case 'PKS':
+                    circle.setAttribute('fill', `rgb(${110}, ${248}, ${126})`); 
+                    domainName = 'KS';
+                    break;
+                // C domain
+                case 'C_STARTER':
+                    typeIdx = 'St';
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    domainName = 'C';
+                    break;
+                case 'C_LCL':
+                    typeIdx = 'LCL';
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    domainName = 'C';
+                    break;
+                case 'C_DCL':
+                    typeIdx = 'DCL';
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    domainName = 'C';
+                    break;
+                case 'C_DUAL':
+                    typeIdx = 'DUAL';
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    domainName = 'C';
+                    break; 
+                case 'C':
+                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
+                    domainName = 'C';
+                    break;
+                case 'TE_TD':
+                    circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
+                    domainName = 'TE'; 
+                    break;
+                case 'MT':
+                    circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
+                    y_circ = y - 12;
+                    domainName = 'nMT';
+                    break;
+                case 'CTERM':
+                    // color? 
+                    break;
+                case 'NTERM':
+                    // color? 
+                    break;
+                default:
+                    throw new Error(`'${d}'' is no domain.`);
+            }
+            circle.setAttribute('cx', xi);
+            circle.setAttribute('cy', y_circ);
+            circle.setAttribute('r', rad); 
+            circle.setAttribute('stroke', 'black');
+            module.appendChild(circle);
+            // domain text
+            const letter = document.createElementNS(svgns, 'text');
+            letter.setAttribute('x', xi);
+            letter.setAttribute('y', y_circ );
+            letter.setAttribute('font-family', 'Arial');
+            letter.setAttribute('font-size', '16');
+            letter.setAttribute('fill', letterColor);
+            letter.setAttribute('text-anchor', 'middle');
+            letter.setAttribute('dominant-baseline', 'central');
+            letter.textContent = domainName;
+            const type = document.createElementNS(svgns, "tspan");
+            type.textContent = typeIdx;
+            type.setAttribute("baseline-shift", "sub");
+            type.setAttribute("font-size", "60%");
+            letter.appendChild(type);
+            module.appendChild(letter);
+        }
+        // line below domains
+        const line = document.createElementNS(svgns, 'line');
+        line.setAttribute('x1', x);
+        line.setAttribute('y1', y + 30);
+        line.setAttribute('x2', length + x);
+        line.setAttribute('y2', y + 30);
+        line.setAttribute('stroke', 'black');
+        line.setAttribute('stroke-width', '1.5');
+        module.appendChild(line);
+        // id + residue description
+        const idMod = document.createElementNS(svgns, 'text');
+        idMod.setAttribute('x', length / 2 + x);
+        idMod.setAttribute('y', y + 40);
+        idMod.setAttribute('font-family', 'Arial');
+        idMod.setAttribute('font-size', '16');
+        idMod.setAttribute('fill', 'black');
+        idMod.textContent = `M${mid}`;
+        idMod.setAttribute('text-anchor', 'middle');
+        idMod.setAttribute('dominant-baseline', 'central');
+        module.appendChild(idMod);
+        const res = document.createElementNS(svgns, 'text');
+        res.setAttribute('x', length / 2 + x);
+        res.setAttribute('y', y + 56);
+        res.setAttribute('font-family', 'Arial');
+        res.setAttribute('font-size', '15');
+        res.setAttribute('fill',  `rgb(${85}, ${85}, ${85})`);
+        res.setAttribute('text-anchor', 'middle');
+        res.setAttribute('dominant-baseline', 'central');
+        res.textContent = residue;
+        module.appendChild(res);
+        
+        if(!displayed) {
+            module.setAttribute("opacity", "0.3");
+            module.setAttribute("displayed", "false");
+        }
+        module.displayed = displayed;
+        svg.appendChild(module);
+        module.addEventListener('click',  e => {
+            for(const el of svg.childNodes){
+                if(!el.id) continue;
+                const split = splitId(el.id);
+                if(split.nid.some(n => nip.includes(n))){
+                    el.setAttribute("opacity", "1");
+                } else {
+                    el.setAttribute("opacity", "0.3");
+                }
+            }
+            network.selectNodes(nip);   
+            connectGraphMolecule(nip.map(String), nrpID);
+        }); 
 
+        nip.forEach(n => (moduleMap[n] ||= []).push(module.id));
+    }
+    
     function drawGeneArrow(id, nip, x, y, length, displayed, reversed, svg, nrpID){
         const geneEnd = x + length;
         const geneStart = x;
@@ -727,7 +882,10 @@
             }
         );
 
-        if(!displayed)geneArr.setAttribute("opacity", "0.3");
+        if(!displayed) {
+            geneArr.setAttribute("opacity", "0.3");
+            geneArr.setAttribute("displayed", "false");
+        }
         geneArr.displayed = displayed;
         svg.appendChild(geneArr);
         geneArr.addEventListener('click',  e => {
@@ -747,7 +905,7 @@
         
         nip.forEach(n => (moduleMap[n] ||= []).push(geneArr.id));
     }
-
+    
     function splitId(id){
         const split = id.split(',');
 
@@ -762,141 +920,38 @@
         return sDict;
     }
     
-    function drawModule(gid, mid, nip, x, y, length, domains, residue, displayed, rad, svg, nrpID){
-        
-        const module = document.createElementNS(svgns, 'g');
-        module.setAttribute("id", `M${mid},G${gid},${nip}`);
-          
-        let i = 0;
-        let xi;
-        for(const d of domains){
-            xi = rad + i * (rad * 2) + x;
-            i++;
-            const circle = document.createElementNS(svgns, 'circle');
-            let y_circ = y;
-            let domainName;
-            let letterColor = 'black;'
-            switch(d) {
-                case 'A':
-                    circle.setAttribute('fill', `rgb(${179}, ${130}, ${238})`); 
-                    domainName = 'A';
-                    break;
-                case 'PCP':
-                    circle.setAttribute('fill', `rgb(${142}, ${189}, ${242})`); 
-                    domainName = 'CP';
-                    break;
-                case 'E':
-                    circle.setAttribute('fill', `rgb(${127}, ${127}, ${238})`);  
-                    domainName = 'E';
-                    break;
-                case 'PKS':
-                    circle.setAttribute('fill', `rgb(${110}, ${248}, ${126})`); 
-                    domainName = 'KS';
-                    break;
-                // C domain
-                case 'C_STARTER':
-                case 'C_LCL':
-                case 'C_DCL':
-                case 'C':
-                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
-                    domainName = 'C';
-                    break;
-                case 'TE_TD':
-                    circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
-                    domainName = 'TE'; 
-                    break;
-                case 'MT':
-                    circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
-                    y_circ = y - 12;
-                    domainName = 'nMT';
-                    break;
-                case 'CTERM':
-                    // color? 
-                    break;
-                case 'NTERM':
-                    // color? 
-                    break;
-                 case 'C_DUAL':
-                    // color? 
-                    break;
-                case 'orphan_c_at_end':
-                    circle.setAttribute('fill', `rgb(${128}, ${128}, ${240})`); 
-                    circle.setAttribute("opacity", "0.3");
-                    domainName = 'C';
-                    xi = xi + 4;
-                    letterColor = `rgb(${199}, ${199}, ${199})`;
-                    break;
-                default:
-                    throw new Error(`'${d}'' is no domain.`);
-            }
-            circle.setAttribute('cx', xi);
-            circle.setAttribute('cy', y_circ);
-            circle.setAttribute('r', rad); 
-            circle.setAttribute('stroke', 'black');
-            module.appendChild(circle);
-            // domain letter
-            const letter = document.createElementNS(svgns, 'text');
-            letter.setAttribute('x', xi);
-            letter.setAttribute('y', y_circ );
-            letter.setAttribute('font-family', 'Arial');
-            letter.setAttribute('font-size', '16');
-            letter.setAttribute('fill', letterColor);
-            letter.setAttribute('text-anchor', 'middle');
-            letter.setAttribute('dominant-baseline', 'central');
-            letter.textContent = domainName;
-            module.appendChild(letter);
+    function selectResidue(m, bgc){
+        if(bgc){
+            return (
+                m["a_domain"] != null ?
+                    (
+                        m["domains_sequence"].includes('E') ?
+                            `D-${m.alignment[0]["Top_scoring_residues"]}`
+                        : (
+                            m.alignment[0]["Top_scoring_residues"] != "---" ?
+                                m.alignment[0]["Top_scoring_residues"] 
+                            : 'unk'
+                        )
+                    )
+                : 'x'  
+            )
+        } else {
+            return (
+                m["a_domain"] != null ?
+                    (
+                        m.alignment[0]["Modifying_domains"] ===  "---" ?
+                            (
+                                m.alignment[0]["Top_scoring_residues"] != "---" ?
+                                    m.alignment[0]["Top_scoring_residues"] 
+                                : 'unk'
+                            )
+                        : `D-${m.alignment[0]["Top_scoring_residues"]}`
+                    )
+                : 'x'  
+            )
         }
-        // line below domains
-        const line = document.createElementNS(svgns, 'line');
-        line.setAttribute('x1', x);
-        line.setAttribute('y1', y + 30);
-        line.setAttribute('x2', length + x);
-        line.setAttribute('y2', y + 30);
-        line.setAttribute('stroke', 'black');
-        line.setAttribute('stroke-width', '1.5');
-        module.appendChild(line);
-        // id + residue description
-        const idMod = document.createElementNS(svgns, 'text');
-        idMod.setAttribute('x', length / 2 + x);
-        idMod.setAttribute('y', y + 40);
-        idMod.setAttribute('font-family', 'Arial');
-        idMod.setAttribute('font-size', '16');
-        idMod.setAttribute('fill', 'black');
-        idMod.textContent = `M${mid}`;
-        idMod.setAttribute('text-anchor', 'middle');
-        idMod.setAttribute('dominant-baseline', 'central');
-        module.appendChild(idMod);
-        const res = document.createElementNS(svgns, 'text');
-        res.setAttribute('x', length / 2 + x);
-        res.setAttribute('y', y + 56);
-        res.setAttribute('font-family', 'Arial');
-        res.setAttribute('font-size', '15');
-        res.setAttribute('fill',  `rgb(${85}, ${85}, ${85})`);
-        res.setAttribute('text-anchor', 'middle');
-        res.setAttribute('dominant-baseline', 'central');
-        res.textContent = residue;
-        module.appendChild(res);
-        
-        if(!displayed) module.setAttribute("opacity", "0.3");
-        module.displayed = displayed;
-        svg.appendChild(module);
-        module.addEventListener('click',  e => {
-            for(const el of svg.childNodes){
-                if(!el.id) continue;
-                const split = splitId(el.id);
-                if(split.nid.some(n => nip.includes(n))){
-                    el.setAttribute("opacity", "1");
-                } else {
-                    el.setAttribute("opacity", "0.3");
-                }
-            }
-            network.selectNodes(nip);   
-            connectGraphMolecule(nip.map(String), nrpID);
-        }); 
-
-        nip.forEach(n => (moduleMap[n] ||= []).push(module.id));
     }
-     // --- Graph ---
+    // --- Graph ---
     function drawGraph(nrpID) {
         nodeMap = {};
         const graph = monomer_graph[nrpID];
@@ -917,9 +972,9 @@
                 }
             },
             interaction:{
-                zoomView:true
+                zoomView:true,
+                multiselect: true,
             },
-            multiselect: true,
         };
 
         network = new vis.Network(graph_div, graph_data, graph_options);
@@ -1033,9 +1088,9 @@
                 colorBond(bond, nrpID);
             } else {
                 if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
-                colorAtom(bond.a1, nrpID, 80);
-                colorAtom(bond.a2,nrpID, 80);
-                colorBond(bond, nrpID, 80);
+                colorAtom(bond.a1, nrpID, 60);
+                colorAtom(bond.a2,nrpID, 60);
+                colorBond(bond, nrpID, 60);
             }
         }
         // set background color back to white
@@ -1473,16 +1528,16 @@
             <td class="score">${fmtNum(item.raw_score)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}"  data-bgc="${makeBgcKey(bgc_id)}">${nrp_id}</a></td>
-       `;
+            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
+        `;
 
         // NRP metadata
         appendMetadataCells(row, nrpMetadataColumns, getNrpMetadata(nrp_id));
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">${genome_id}</a></td>
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}">
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
         `);
@@ -1547,27 +1602,27 @@
                 });
             });
 
-            // Genome/BGC links
+             // Genome/BGC links
             document.querySelectorAll('.genome-link').forEach(link => {
                 link.addEventListener('click', event => {
                     event.preventDefault();
+                    toggleMatchViewer(true);
                     const genomeID = link.dataset.genome;
                     const bgcID = link.dataset.bgc;
                     const nrpID = link.dataset.nrp;
                     const bgcIDM = link.dataset.bgcm; 
-                    toggleGenomeViewer(false, genomeID, bgcID);
-                    toggleModuleViewer(false, nrpID, bgcIDM, bgc = true, align = false);
+                    toggleGenomeViewer(false, false, genomeID, bgcID);
+                    if(bgcID != '') toggleModuleViewer(false, nrpID, bgcIDM, false);
                 });
             });
 
             // NRP links
-               document.querySelectorAll('.nrp-link').forEach(link => {
+            document.querySelectorAll('.nrp-link').forEach(link => {
                 link.addEventListener('click', event => {
                     event.preventDefault();
+                    toggleMatchViewer(true);
                     const nrpID = link.dataset.nrp;
-                    const bgcID = link.dataset.bgc;
                     toggleNrpViewer(false, nrpID);
-                    toggleModuleViewer(false, nrpID, bgcID, bgc = false, align = true);
                 });
             });
         } else {
@@ -1668,7 +1723,6 @@
             nrpIDLink.href = '#';
             nrpIDLink.className = 'nrp-link';
             nrpIDLink.dataset.nrp = nrp_id;
-            nrpIDLink.dataset.bgc = bgc_id;
             nrpIDLink.textContent = nrp_id;
 
             const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(nrp_id), { wrap: "span" });
@@ -1758,34 +1812,52 @@
             label.style.display = 'none';
             hideBtn.style.display = 'block';
 
-            toggleGenomeViewer(false, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`);
+            toggleGenomeViewer(true, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`, true);
             toggleNrpViewer(false, nrp_id);
             toggleModuleViewer(false, nrp_id, bgc_id);
         }
     }
 
     // Toggle function for antiSMASH viewer
-    function toggleGenomeViewer(hide, genomeFolderID, bgcID) {
+    function toggleGenomeViewer(hide, genomeFolderID, bgcID, userHide = false) {
         const iframe = document.getElementById('genomeViewer');
         const hideBtn = document.getElementById('hideGenomeViewerBtn');
+        const showBtn = document.getElementById('showGenomeViewerBtn');
         const label = document.getElementById('genomeViewerLabel');
+
+        // initialize iframe with source and show button with function 
+        const notInit = !iframe.state || 
+                        iframe.state.bgcID != bgcID && bgcID != '' || 
+                        iframe.state.genomeFolderID != genomeFolderID && genomeFolderID != '';
+
+        if(notInit){
+            showBtn.onclick = () => toggleGenomeViewer(false, genomeFolderID, bgcID);
+            iframe.src = `antismash_output/${genomeFolderID}/index.html?timestamp=${Date.now()}#${bgcID}`; 
+            iframe.state = {
+                genomeFolderID,
+                bgcID
+            }
+        }
 
         if (hide) {
             iframe.style.display = 'none';
-            label.style.display = 'block';
+            label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
+            showBtn.style.display = userHide ? 'block' : 'none';
         } else {
-            iframe.src = `antismash_output/${genomeFolderID}/index.html?timestamp=${Date.now()}#${bgcID}`;
             iframe.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
+            showBtn.style.display = 'none';
         }
     }
 
+
      // Toggle function for module viewer
-    function toggleModuleViewer(hide, nrpID, bgcID, bgc = true, align = true) {
+     function toggleModuleViewer(hide, nrpID, bgcID, align = true, userHide = false) {
         const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
+        const showBtn = document.getElementById('showModuleViewerBtn');
         const label = document.getElementById('moduleViewerLabel');
         const bgcFrame = document.getElementById('moduleViewerBGCDiv');
         const alignFrame = document.getElementById('moduleViewerNRPDiv');
@@ -1794,39 +1866,44 @@
             frame.style.display = 'none';
             bgcFrame.style.display = 'none';
             alignFrame.style.display = 'none';
-            label.style.display = 'block';
+            label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
+            showBtn.style.display = userHide ? 'block' : 'none';
         } else {
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            if(bgc){ 
-                bgcFrame.style.display = 'block';
-                buildModuleViewerBGC(bgcID, nrpID);
-            }
+            showBtn.style.display = 'none';
+            showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID, align);
+            bgcFrame.style.display = 'block';
+            buildModuleViewerBGC(bgcID, nrpID);
             if(align) {
                 alignFrame.style.display = 'block';
                 buildModuleViewerNRP(bgcID, nrpID);
             }
         }
     }
-    // Toggle function for NRP images
-    function toggleNrpViewer(hide, nrpID) {
+   // Toggle function for NRP images
+    function toggleNrpViewer(hide, nrpID, userHide = false) {
         const frame = document.getElementById('nrpViewerContainer');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
+         const showBtn = document.getElementById('showNrpViewerBtn');
         const label = document.getElementById('nrpViewerLabel');
         const hideLabelBtn = document.getElementById('hideLabelBtn');
-    
+     
         if (hide) {
             frame.style.display = 'none';
-            label.style.display = 'block';
+            label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
             hideLabelBtn.style.display = 'none';
+            showBtn.style.display = userHide ? 'block' : 'none';
         } else {
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
             hideLabelBtn.style.display = 'block';
+            showBtn.style.display = 'none';
+            showBtn.onclick = () => toggleNrpViewer(hide, nrpID);
             drawGraph(nrpID);
             drawMolecule(nrpID);
         }
