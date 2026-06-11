@@ -12,23 +12,6 @@ use crate::io::output::OutputItem;
 use crate::data_types::monomers_db::MonomersDB;
 use crate::algo::algo_main::process_input_item;
 
-fn lookup_distance(
-    compound_distances: &HashMap<(String, String), usize>,
-    template: &str,
-    target: &str,
-) -> Option<usize> {
-    let direct_key = (template.to_string(), target.to_string());
-    if let Some(&d) = compound_distances.get(&direct_key) {
-	return Some(d);
-    }
-
-    let reverse_key = (target.to_string(), template.to_string());
-    if let Some(&d) = compound_distances.get(&reverse_key) {
-	return Some(d);
-    }
-
-    None
-}
 
 /// Find sibling compounds: for each input item as template, try to find every other item as target.
 ///

@@ -24,20 +24,22 @@ pub enum LinearizationModification {
 }
 
 impl <'a> LinearizationModification {
-    pub fn try_to_graph_modification(
+    pub fn to_graph_modifications(
 	&self,
 	monomer_graph: &MonomerGraph,
 	linearization: &[MonomerIdx],
 	monomers_db: &'a MonomersDB,
-    ) -> Option<GraphModification<'a>> {
+    ) -> Vec<GraphModification<'a>> { 
+	// returns the list of graph modifications corresponding to this linearization modification (sometimes there can be multiple graph modifications corresponding to the same linearization modification, i.e. if there are several places to insert a monomer "between" two other monomers
+
 	match self {
 	    LinearizationModification::Remove { pos } => {
 		let mon_idx = *linearization.get(*pos)
 		    .expect("Invalid position in linearization modification");
 		if monomer_graph.can_remove(mon_idx, monomers_db) {
-		    Some(GraphModification::Remove { monomer_idx: mon_idx })
+		    vec![GraphModification::Remove { monomer_idx: mon_idx }]
 		}
-		else { None }
+		else { vec![] }
 	    },
 	    LinearizationModification::Insert { pos, new_name } => {
 		// check that there exists a possible insertion at this position with this new monomer name
@@ -51,7 +53,7 @@ impl <'a> LinearizationModification {
 		    .get(*pos)
 		    .expect(&format!("Invalid position in linearization modification: {} in linearization of length {}", pos, linearization.len()))
 		    .iter()
-		    .find(|m| {
+		    .filter(|m| {
 			if let GraphModification::Insert { site: _, mon_db_entry } = m {
 			    mon_db_entry.monomer.features.name == *new_name
 			} else {
@@ -59,6 +61,7 @@ impl <'a> LinearizationModification {
 			}
 		    })
 		    .cloned()
+		    .collect()
 	    },
 	    LinearizationModification::Substitute { pos, new_name } => {
 		let mon_idx = *linearization.get(*pos)
@@ -69,10 +72,13 @@ impl <'a> LinearizationModification {
 			.iter().cloned()
 			.find(|entry| entry.monomer.features.name == *new_name)
 		};
-		maybe_entry.map(|entry| GraphModification::Substitute {
-		    monomer_idx: mon_idx,
-		    mon_db_entry: entry,
-		})
+		if let Some(entry) = maybe_entry {
+		   vec![GraphModification::Substitute {
+		       monomer_idx: mon_idx,
+		       mon_db_entry: entry,
+		   }] 
+		}
+		else { vec![] }
 	    }
 	}
     }
@@ -139,13 +145,13 @@ pub fn linearization_edits<'a>(
 	    },
 
             LinearizationComparisonMode::EditsCanBePerformed => {
-                LinearizationModification::try_to_graph_modification(
+                LinearizationModification::to_graph_modifications(
                     lin_mod,
                     original_graph,
                     original_linearization,
                     monomers_db,
                 )
-                .is_some()
+                .len() > 0
             }
         }
     };

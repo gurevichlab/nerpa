@@ -244,15 +244,15 @@ pub fn create_mod_graph<'mon_db>(monomer_graph: &MonomerGraph,
 		      linearization: &Vec<MonomerIdx>,
 		      monomers_db: &'mon_db MonomersDB) -> ModGraph<'mon_db> {
     // forbid/limit certain nodes/edges for debugging purposes
-    let debug_output = false;
-    let max_subs = 2;
-    let max_inserts = 0;
-    let allow_deletions = true;
-
     // let debug_output = false;
+    // let max_subs = 2;
+    // let max_inserts = 0;
     // let allow_deletions = true;
-    // let max_subs = usize::MAX;
-    // let max_inserts = usize::MAX;
+
+    let debug_output = false;
+    let allow_deletions = true;
+    let max_subs = usize::MAX;
+    let max_inserts = usize::MAX;
 
     // HashMap instead of Vec for less headache
     // the keys are actually continuous 0,1,...

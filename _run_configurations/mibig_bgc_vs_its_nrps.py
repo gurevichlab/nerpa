@@ -85,7 +85,7 @@ def main():
         "--force-output-dir",
         "--let-it-crash",
         "--dump-all-preprocessed",
-        #"--draw-hmms"
+        "--draw-hmms"
     ]
 
     subprocess.run(command, check=True)

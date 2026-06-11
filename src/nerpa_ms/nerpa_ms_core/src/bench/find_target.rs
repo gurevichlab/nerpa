@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
+use crate::algo::generic::f64_cmp;
 use crate::algo::apply_modifications::apply_modifications;
 use crate::algo::compare_linearizations::{LinearizationComparisonMode, LinearizationModification, linearization_edits};
 use crate::data_types::common_types::MonomerIdx;
@@ -7,10 +8,41 @@ use crate::data_types::graph_modifications::GraphModification;
 use crate::data_types::hmm::HMM;
 use crate::data_types::monomer_graph::MonomerGraph;
 use crate::data_types::monomers_db::MonomersDB;
-use crate::io::output::OutputItem;
-use crate::data_types::parsed_rban_record::{MonomerInfo, Parsed_rBAN_Record};
+use crate::data_types::parsed_rban_record::{MonomerInfo, NorineMonomerName, Parsed_rBAN_Record};
 use crate::algo::gen_new_variants::Altered_rBAN_Record;
+use crate::algo::rban_records_isomorphic::MonomerKey;
 use serde::Serialize;
+use itertools::Itertools;
+
+fn cartesian_product_of_rows<T: Clone>(
+    matrix: &[Vec<T>],
+    max_combinations: usize, // optional limit on the number of combinations
+) -> Vec<Vec<T>> {
+    // If any row is empty, there are no combinations.
+    if matrix.iter().any(|row| row.is_empty()) {
+        return Vec::new();
+    }
+
+    // By convention, the product of zero rows is one empty combination.
+    if matrix.is_empty() {
+        return vec![vec![]];
+    }
+
+    let result = {
+    matrix
+        .iter()
+        .map(|row| row.iter())
+        .multi_cartesian_product()
+        .take(max_combinations) // limit the number of combinations if needed
+        .map(|combo| combo.into_iter().cloned().collect::<Vec<T>>())
+        .collect::<Vec<Vec<T>>>()
+    };
+    if result.len() == max_combinations {
+	eprintln!("Warning: reached the maximum number of combinations ({}). Consider increasing the limit if you want to explore more combinations.", max_combinations);
+    }
+
+    result
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub enum MatchLevel {
@@ -30,6 +62,7 @@ pub struct TargetSearchFeatures {
     // HMM score for the target linearization
     target_score: f64,
 
+
     // edit distance between template and target linearizations
     linearization_distance: u32,
 
@@ -41,6 +74,9 @@ pub struct TargetSearchFeatures {
 
     // the target monomer graph can be reconstructed from the correct linearization
     target_mon_graph_reconstructable: bool,
+
+    // the monomers of the reconstructed monomer graph have correct masses
+    target_mon_masses_reconstructable: bool,
 
     // the target SMILES can be reconstructed from the correct monomer graph
     target_smiles_reconstructable: bool,
@@ -96,15 +132,16 @@ impl <'a>TargetSearchData <'a> {
 	)
     }
 
-    pub fn lin_mods_to_graph_mods(
+    pub fn reconstructed_graphs(
 	&self,
 	lin_mods: &[LinearizationModification]
-    ) -> Option<Vec<GraphModification>> {
-	let maybe_graph_mods: Vec<Option<GraphModification>> = {
+    ) -> Vec<MonomerGraph> {
+	// each lin_mod corresponds to a set of possible graph modifications
+	let graph_mods: Vec<Vec<GraphModification>> = {
 	    lin_mods
 		.iter()
 		.map(|lin_mod| {
-		    LinearizationModification::try_to_graph_modification(
+		    LinearizationModification::to_graph_modifications(
 			lin_mod,
 			self.template,
 			self.template_linearization,
@@ -114,27 +151,18 @@ impl <'a>TargetSearchData <'a> {
 		.collect()
 	};
 
-	if maybe_graph_mods.iter().any(|m| m.is_none()) {
-	    return None;  // if any edit cannot be converted to a graph modification, return None
-	}
-
-	Some(maybe_graph_mods
-	    .into_iter()
-	    .map(|m| m.unwrap())
-	    .collect())
-    }
-
-    pub fn reconstructed_graph(
-	&self,
-	graph_mods: &[GraphModification]
-    ) -> Option<MonomerGraph> {
-	apply_modifications(
-	    self.template,
-	    graph_mods,
-	    self.monomers_db,
-	    false
-	)
+	// combine all possible pre-image graph modifications for each linearization modification
+	cartesian_product_of_rows(&graph_mods, 100) // choose a graph modification for each linearization modification
+	    .iter()
+	    .filter_map(|graph_mods_vec|
+		 apply_modifications(
+		     self.template,
+		     graph_mods_vec,
+		     self.monomers_db,
+		     false
+		 ))
 	    .map(|altered_graph| altered_graph.new_monomer_graph)
+	    .collect()
     }
 
     pub fn reconstructed_smiles(
@@ -142,11 +170,12 @@ impl <'a>TargetSearchData <'a> {
 	reconstructed_graph: &MonomerGraph,
     ) -> Option<String> {
 	let reconstructed_record = Parsed_rBAN_Record::from(reconstructed_graph);
-	Parsed_rBAN_Record::get_canonical_smiles(
+	let maybe_smiles = Parsed_rBAN_Record::get_canonical_smiles(
 	    &[&reconstructed_record],
 	    self.nerpa_root
-	)
-	    .ok()?
+	).map_err(|e| eprintln!("Error getting canonical SMILES: {}", e)); 
+
+	maybe_smiles.ok()?
 	    .values()
 	    .next()
 	    .cloned()
@@ -154,11 +183,12 @@ impl <'a>TargetSearchData <'a> {
 
     pub fn target_smiles(&self) -> Option<String> {
 	let target_record = Parsed_rBAN_Record::from(self.target);
-	Parsed_rBAN_Record::get_canonical_smiles(
+	let maybe_smiles = Parsed_rBAN_Record::get_canonical_smiles(
 	    &[&target_record],
 	    self.nerpa_root
-	)
-	    .ok()?
+	).map_err(|e| eprintln!("Error getting canonical SMILES: {}", e)); 
+
+	maybe_smiles.ok()?
 	    .values()
 	    .next()
 	    .cloned()
@@ -167,54 +197,84 @@ impl <'a>TargetSearchData <'a> {
 }
 
 impl TargetSearchFeatures {
-    pub fn new(data: &TargetSearchData) -> Self {
+    pub fn new(
+	data: &TargetSearchData,
+	debug_output: bool
+    ) -> Self {
+	if debug_output {
+	    println!("Template: {}", data.template.compound_id);
+	    println!("Target: {}", data.target.compound_id);
+	}
+
+	if debug_output {
+	    println!("Computing target score...");
+	}
 	let target_score = data.hmm.score(
 	    &data.target,
 	    data.target_linearization
 	);
 
+	if debug_output {
+	    println!("Computing linearization distance...");
+	}
 	let linearization_distance: u32 = data.linearization_distance();
 
+	if debug_output {
+	    println!("Checking if new monomers are supported...");
+	}
 	let new_monomers_supported: bool = data.new_monomers_supported();
 
+	if debug_output {
+	    println!("Checking if edits are applicable...");
+	}
 	let maybe_edits = data.get_applicable_edits();
 	let edits_applicable: bool = maybe_edits.is_some();
 
-	let maybe_graph_mods: Option<Vec<GraphModification>> =
+	if debug_output {
+	    println!("Reconstructing monomer graphs from edits...");
+	}
+	let reconstructed_graphs: Vec<MonomerGraph> = {
 	    if let Some(edits) = maybe_edits {
-		data.lin_mods_to_graph_mods(&edits)
-	    } else {
-		None
-	    };
+		data.reconstructed_graphs(&edits)
+	    }
+	    else { vec![] }
+	};
 
-	let maybe_reconstructed_graph: Option<MonomerGraph> =
-	    if let Some(graph_mods) = maybe_graph_mods {
-		data.reconstructed_graph(&graph_mods)
-	    } else {
-		None
-	    };
+	if debug_output {
+	    println!("Checking if any reconstructed graph is isomorphic to the target...");
+	}
+	let maybe_correct_reconstructed_graph = reconstructed_graphs
+	    .iter()
+	    .find(|reconstructed_graph|
+		  reconstructed_graph.is_isomorphic_to(data.target, MonomerKey::Name));
+		
 
-	let target_mon_graph_reconstructable: bool =
-	    if let Some(ref reconstructed_graph) = maybe_reconstructed_graph {
-		reconstructed_graph.is_isomorphic_to(data.target)
-	    } else {
-		false
-	    };
+	let target_mon_graph_reconstructable: bool = 
+	    maybe_correct_reconstructed_graph.is_some();
 
+	if debug_output {
+	    println!("Checking if the monomers of the reconstructed graph have correct masses...");
+	}
+	let target_mon_masses_reconstructable: bool = 
+	    maybe_correct_reconstructed_graph 
+            .is_some_and(|g| g.is_isomorphic_to(data.target, MonomerKey::Name_Mass));
+
+	if debug_output {
+	    println!("Checking if the target SMILES can be reconstructed from the correct monomer graph...");
+	}
 	let maybe_reconstructed_smiles =
-	    if let Some(ref reconstructed_graph) = maybe_reconstructed_graph {
-		data.reconstructed_smiles(&reconstructed_graph)
-	    } else {
-		None
-	    };
+	    maybe_correct_reconstructed_graph
+	    .and_then(|g| data.reconstructed_smiles(g));
+
 
 	let maybe_target_smiles = data.target_smiles();
 	let target_smiles_reconstructable: bool =
-	    if let (Some(ref reconstructed_smiles), Some(ref target_smiles)) = (maybe_reconstructed_smiles, maybe_target_smiles) {
+	    if let (Some(reconstructed_smiles), Some(target_smiles)) = (&maybe_reconstructed_smiles, &maybe_target_smiles) {
 		reconstructed_smiles == target_smiles
 	    } else {
 		false
 	    };
+
 
 	TargetSearchFeatures {
 	    template: data.template.compound_id.clone(),
@@ -224,6 +284,7 @@ impl TargetSearchFeatures {
 	    new_monomers_supported,
 	    edits_applicable,
 	    target_mon_graph_reconstructable,
+	    target_mon_masses_reconstructable,
 	    target_smiles_reconstructable,
 	}
     }
@@ -275,14 +336,12 @@ impl TargetSearchMatch {
 	    }
 	}
 
-	if let Some(variant) = matched_variant {
-	    Some(TargetSearchMatch {
-		matched_variant_rank: variant.rank,
-		match_level: match_level.expect("If a match is found, match level should be set"),
-	    })
-	} else {
-	    None
-	}
+	matched_variant
+	    .map(|variant|
+		 TargetSearchMatch {
+		     matched_variant_rank: variant.rank,
+		     match_level: match_level.expect("If a match is found, match level should be set"),
+		 })
     }
 
     pub fn find_target_smiles_identical<'a>(
@@ -334,7 +393,9 @@ impl TargetSearchMatch {
 	variants
 	    .iter()
 	    .find(|variant| {
-		variant.new_record.is_isomorphic_to(target)
+		variant.new_record.is_isomorphic_to(
+		    target, MonomerKey::Name
+		)
 	    })
     }
 
@@ -343,17 +404,27 @@ impl TargetSearchMatch {
 	target: &Parsed_rBAN_Record,
 	target_linearization: &[MonomerIdx],
     ) -> Option<&'a Altered_rBAN_Record> {
-	let target_mons: Vec<MonomerInfo> = {
+	let target_mons: Vec<NorineMonomerName> = {
 	    target.get_monomers(target_linearization)
 		.expect("Invalid target linearization")
+		.iter()
+		.map(|mon_info| mon_info.name.clone())
+		.collect()
 	};
 
 	variants
 	    .iter()
 	    .find(|variant| {
-		variant.linearization_monomers() == target_mons
+		let variant_names: Vec<NorineMonomerName> = {
+		    variant.linearization_monomers()
+			.iter()
+			.map(|mon_info| mon_info.name.clone())
+			.collect()
+		};
+		variant_names == target_mons
 	    })
     }
+
 }
 
 
@@ -361,6 +432,12 @@ impl TargetSearchMatch {
 pub struct TargetSearchResults {
     features: TargetSearchFeatures,
     found_match: Option<TargetSearchMatch>,
+
+    // minimum HMM score among the generated variants
+    variants_min_score: f64,
+
+    // maximum HMM score among the generated variants
+    variants_max_score: f64,
 }
 
 impl TargetSearchResults {
@@ -368,7 +445,20 @@ impl TargetSearchResults {
 	search_data: &TargetSearchData,
 	generated_variants: &[Altered_rBAN_Record],
     ) -> TargetSearchResults {
-	let features = TargetSearchFeatures::new(search_data);
+	// println!("Generated {} variants", generated_variants.len());
+	// for variant in generated_variants {
+	//     let linearization_names = {
+	// 	variant.linearization_monomers()
+	// 	    .iter()
+	// 	    .map(|mon_info| mon_info.name.clone())
+	// 	    .collect::<Vec<NorineMonomerName>>()
+	//     };
+	//     if linearization_names.last().unwrap().0 != "Arg" {
+	// 	println!("{}", linearization_names.iter().map(|name| name.0.clone()).join(", "));
+	//     }	    
+	// }
+
+	let features = TargetSearchFeatures::new(search_data, false);
 	let target_record = Parsed_rBAN_Record::from(search_data.target);
 	let found_match = TargetSearchMatch::find_target(
 	    &target_record,
@@ -377,9 +467,31 @@ impl TargetSearchResults {
 	    search_data.nerpa_root
 	);
 
+	let variant_scores: Vec<f64> = generated_variants
+	    .iter()
+	    .map(|variant| variant.score)
+	    .collect();
+
+	let variants_min_score: f64 = {
+	    variant_scores
+		.iter()
+		.min_by(f64_cmp)
+		.cloned()
+		.unwrap_or(f64::NAN)
+	};
+	let variants_max_score: f64 = {
+	    variant_scores
+		.iter()
+		.max_by(f64_cmp)
+		.cloned()
+		.unwrap_or(f64::NAN)
+	};
+	
 	TargetSearchResults {
 	    features,
 	    found_match,
+	    variants_min_score,
+	    variants_max_score,
 	}
     }
 }

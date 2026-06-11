@@ -180,6 +180,39 @@ impl<'a> DP_Table<'a> {
         }
     }
 
+    fn check_update(
+	&self,
+	dst: &DP_Coords,
+	src: &DP_Coords,
+	shift: Option<LogOdds>,
+	dag_edge: Option<Edge<'a>>,
+    ) -> bool {
+	// Sanity check to avoid cycles in the DP table which would cause infinite loops during backtracking.
+	// Rules:
+	// 0. Weight never decreases
+	// 1. Weight stays the same -> vertex never decreases
+	// 2. Weight and vertex stay the same -> shift is always non-positive. Moreover, if state decreases, shift must be strictly negative (to avoid infinite cycles between states with equal weight and vertex)
+
+	if dst.weight != src.weight {
+	    return dst.weight > src.weight;
+	}
+
+	// now dst.weight == src.weight
+
+	if dst.vertex != src.vertex {
+	    return dst.vertex > src.vertex;
+	}
+
+	// now dst.weight == src.weight && dst.vertex == src.vertex
+
+	if dst.state > src.state {
+	    return shift.is_none() || shift.is_some_and(|s| s <= 0.0);
+	}
+
+	// now dst.weight == src.weight && dst.vertex == src.vertex && dst.state <= src.state
+	shift.is_some_and(|s| s < -0.1)
+    }
+
     // Update dst cell by unioning in src cell, optionally applying a shift to all log-probabilities from src before unioning.
     pub fn update(
         &mut self,
@@ -188,22 +221,11 @@ impl<'a> DP_Table<'a> {
         shift: Option<LogOdds>,
         dag_edge: Option<Edge<'a>>,
     ) {
+	debug_assert!(self.check_update(dst, src, shift, dag_edge),
+		       "Invalid DP update: dst={:?}, src={:?}, shift={:?}, dag_edge={:?}", dst, src, shift, dag_edge);
         let src_idx = self.idx(src);
         let dst_idx = self.idx(dst);
 
-        // if src_idx < self.idx(&DP_Coords {
-        //     weight: 0,
-        //     vertex: 5,
-        //     state: 1,
-        // })
-        // {
-        //     println!(
-        //         "Update\n\tdst: {:?}\n\tsrc: {:?}\n\tshift: {:?}",
-        //         dst,
-        //         src,
-        //         shift.map(|s| (10.0 * s).round() / 10.0)
-        //     );
-        // }
 
         self.update_from_idx(dst_idx, src_idx, shift, dag_edge);
     }

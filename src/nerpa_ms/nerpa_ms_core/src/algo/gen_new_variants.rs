@@ -70,6 +70,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 	};
 	let solutions_with_mods_unique = {
 	    solutions_with_mods
+		.take(max_solutions * 2)  // to avoid the case where there're no more unique solutions, and solutions_with_mods just keeps yielding the same (differing only by eps cycles in HMM)
 		.unique_by(|(_sol, mods)| {
 		    mods.iter()
 			.map(|m| m.to_str_short())
@@ -78,7 +79,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		})
 	};
 		
-	for (sol, mods) in solutions_with_mods_unique {
+	for (solutions_fetched, (sol, mods)) in solutions_with_mods_unique.enumerate() {
 	    let new_variant: AlteredMonomerGraph;
 	    if let Some(variant) = apply_modifications(
 		monomer_graph,
@@ -90,6 +91,9 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 	    }
 	    else { continue; } // skip this solution if modifications are inconsistent
 
+	    if debug_stdout {
+		println!("Getting monomer origins for new variant...");
+	    }
 	    let monomer_origins: Vec<MonomerOrigin> = {
 		let mon_db_entries = mods
 		    .iter()
@@ -109,6 +113,9 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 	    };
 	    let rank = new_variants_with_opt_paths.len();
 			
+	    if debug_stdout {
+		println!("Constructing Altered_rBAN_Record");
+	    }
 	    let variant = Altered_rBAN_Record {
 		score: sol.dlo.to_logodds(),
 		rank: rank,
@@ -118,6 +125,9 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		old_to_new_mon_map: new_variant.old_to_new_mon_map.clone(),
 		monomer_origins,
 	    };
+	    if debug_stdout {
+		println!("Constructed Altered_rBAN_Record for rank {rank} with score {} and linearization {:?}.", variant.score, variant.linearization);
+	    }
 
 	    new_variants_with_opt_paths.push(NewVariantWithOptPaths {
 		new_variant: variant,

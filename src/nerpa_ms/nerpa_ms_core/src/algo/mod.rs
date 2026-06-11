@@ -11,3 +11,4 @@ pub mod template_free_dag;
 pub mod rban_records_isomorphic;
 pub mod compare_linearizations;
 pub mod viterbi;
+pub mod monomer_masses;

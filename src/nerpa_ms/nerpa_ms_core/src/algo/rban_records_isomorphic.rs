@@ -10,8 +10,32 @@ use tempfile::NamedTempFile;
 use std::io::Write;
 use std::path::Path;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum MonomerKey {
+    Name,
+    Name_Mass,
+}
+
+fn monomer_key_name(record: &Parsed_rBAN_Record, mon_idx: MonomerIdx) -> String {
+	record.monomers
+	.get(&mon_idx)
+	.expect("mon_idx not found in record")
+	.name.0.clone()
+}
+
+fn monomer_key_name_mass(record: &Parsed_rBAN_Record, mon_idx: MonomerIdx) -> String {
+    let name = monomer_key_name(record, mon_idx);
+    let mass = record.get_monomer_mass(mon_idx)
+	.expect("Failed to get monomer mass");
+    format!("{}_{:.4}", name, mass)
+}
+
 impl Parsed_rBAN_Record {
-    pub fn is_isomorphic_to(&self, other: &Parsed_rBAN_Record) -> bool {
+    pub fn is_isomorphic_to(
+	&self,
+	other: &Parsed_rBAN_Record,
+	monomer_key: MonomerKey,
+    ) -> bool {
 	if self.monomers.len() != other.monomers.len() {
             return false;
 	}
@@ -20,23 +44,35 @@ impl Parsed_rBAN_Record {
             return false;
 	}
 
-	let (self_graph, _self_node_map) = self.build_pet_graph();
-	let (other_graph, _other_node_map) = other.build_pet_graph();
+	let key_fn: fn(&Parsed_rBAN_Record, MonomerIdx) -> String = match monomer_key {
+	    MonomerKey::Name => monomer_key_name,
+	    MonomerKey::Name_Mass => monomer_key_name_mass,
+	};
 
-	is_isomorphic_matching(
-            &self_graph,
-            &other_graph,
-            |left_name, right_name| left_name == right_name, // node match: monomer name
-            |_left_edge, _right_edge| true,                  // edge match: trivial
-	)
-    }
+    let (self_graph, _self_node_map) = self.build_pet_graph(key_fn);
+    let (other_graph, _other_node_map) = other.build_pet_graph(key_fn);
 
-    fn build_pet_graph(&self) -> (UnGraph<NorineMonomerName, ()>, HashMap<MonomerIdx, NodeIndex>) {
-	let mut graph: UnGraph<NorineMonomerName, ()> = UnGraph::new_undirected();
+    is_isomorphic_matching(
+	&self_graph,
+	&other_graph,
+	|l, r| l == r,
+	|_le, _re| true,
+    )
+}
+
+    fn build_pet_graph<K, F> (
+	&self,
+	node_key_fn: F,
+    ) -> (UnGraph<K, ()>, HashMap<MonomerIdx, NodeIndex>)
+    where
+	F: Fn(&Parsed_rBAN_Record, MonomerIdx) -> K,
+    {
+	let mut graph: UnGraph<K, ()> = UnGraph::new_undirected();
 	let mut node_indices: HashMap<MonomerIdx, NodeIndex> = HashMap::new();
 
-	for (monomer_idx, monomer_info) in &self.monomers {
-            let node_index = graph.add_node(monomer_info.name.clone());
+	for monomer_idx in self.monomers.keys() {
+	    let node_key = node_key_fn(&self, *monomer_idx);
+            let node_index = graph.add_node(node_key);
             node_indices.insert(monomer_idx.clone(), node_index);
 	}
 
@@ -53,7 +89,6 @@ impl Parsed_rBAN_Record {
 
 	(graph, node_indices)
     }
-
 
     pub fn get_canonical_smiles(
 	records: &[&Parsed_rBAN_Record],
@@ -121,9 +156,13 @@ impl Parsed_rBAN_Record {
 }
 
 impl MonomerGraph {
-    pub fn is_isomorphic_to(&self, other: &MonomerGraph) -> bool {
+    pub fn is_isomorphic_to(
+	&self,
+	other: &MonomerGraph,
+	monomer_key: MonomerKey,
+    ) -> bool {
 	let self_record = Parsed_rBAN_Record::from(self);
 	let other_record = Parsed_rBAN_Record::from(other);
-	self_record.is_isomorphic_to(&other_record)
+	self_record.is_isomorphic_to(&other_record, monomer_key)
     }
 }
