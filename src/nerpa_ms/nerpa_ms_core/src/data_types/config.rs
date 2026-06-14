@@ -61,5 +61,12 @@ impl DebugConfig {
 	    nerpa_root: cli.nerpa_root.clone(),
 	}
     }
+
+    pub fn nerpa_ms_dir(&self) -> PathBuf {
+	self.nerpa_root
+	    .join("src")
+	    .join("nerpa_ms")
+	    .join("nerpa_ms_core")
+    }
 }
 

@@ -6,6 +6,7 @@ use nerpa_ms_core::data_types::monomers_db::load_monomers_db;
 use nerpa_ms_core::data_types::config::{DebugConfig, NerpaMS_Config};
 use nerpa_ms_core::data_types::monomers_db::MonomersDB;
 use nerpa_ms_core::io::input::{InputItem, get_input_from_nerpa_results};
+use nerpa_ms_core::bench::plot_find_siblings::plot;
 
 use std::collections::HashMap;
 use anyhow::Result;
@@ -166,7 +167,7 @@ fn main() -> Result<()> {
 	    .collect()
     };
 	
-    write_results(&all_results, &cli.out)?;
+    plot(&all_results, &debug_cfg.nerpa_ms_dir())?;
 
     Ok(())
 }

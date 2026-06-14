@@ -18,14 +18,12 @@ use crate::algo::algo_main::process_input_item;
 /// Assumes `input_items` all belong to the same BGC run.
 ///
 /// NOTE: This function needs access to `nerpa_root` to call `find_target`.
-/// I assume you have it inside `cfg` (e.g. `cfg.nerpa_root: PathBuf`).
 pub fn find_siblings(
     input_items: &[InputItem],
     monomers_db: &MonomersDB,
     nerpa_ms_cfg: &NerpaMS_Config,
     debug_cfg: &DebugConfig,
 ) -> Vec<TargetSearchResults> {
-    // If cfg doesn’t actually store this, change the function signature to accept `nerpa_root: &Path`.
     let nerpa_root: &Path = debug_cfg.nerpa_root.as_path();
 
     let targets_with_linearizations: Vec<(&Parsed_rBAN_Record, &[MonomerIdx])> = {
@@ -38,7 +36,6 @@ pub fn find_siblings(
     let nerpa_ms_outputs: Vec<OutputItem> = {
 	input_items
 	    .iter()
-	    .take(1) // debug
 	    .map(|item|
 		 process_input_item(
 		     item,
@@ -49,15 +46,35 @@ pub fn find_siblings(
 	    .collect()
     };
 
+    println!("BGC:\n{}", &input_items[0].bgc_variant);
 
     let mut results: Vec<TargetSearchResults> = Vec::new();
 
-    for (input_item, nerpa_ms_output) in (input_items.iter()
-					  .zip(nerpa_ms_outputs.iter())) {
-	println!("BGC:\n{}", input_item.bgc_variant);
-	println!("NRPs:");
+    for (i, (input_item, nerpa_ms_output)) in (input_items.iter()
+					       .zip(nerpa_ms_outputs.iter())
+					       .enumerate()) {
+	let template_lin_str = input_item.rban_record.show_linearization(&input_item.linearization)
+	    .unwrap_or_else(|_| "Failed to show linearization".to_string());
+	println!(
+	    "{}/{}. Template:\n{}\t{}",
+	    i + 1,
+	    input_items.len(),
+	    input_item.rban_record.compound_id,
+	    template_lin_str
+	);
+
+	println!("Targets:");
 	for (target, target_linearization) in targets_with_linearizations.iter() {
-	    println!("{}\t{}", target.compound_id, target.show_linearization(target_linearization).unwrap_or_else(|_| "Failed to show linearization".to_string()));
+	    if target.compound_id == nerpa_ms_output.compound_id {
+		continue;
+	    }
+	    let target_lin_str = target.show_linearization(target_linearization)
+		.unwrap_or_else(|_| "Failed to show linearization".to_string());
+	    println!(
+		"{}\t{}",
+		target.compound_id,
+		target_lin_str
+	    );
 
 	}
 

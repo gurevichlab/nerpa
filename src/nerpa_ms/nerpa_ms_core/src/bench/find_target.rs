@@ -54,32 +54,32 @@ pub enum MatchLevel {
 #[derive(Debug, Clone, Serialize)]
 pub struct TargetSearchFeatures {
     // the name of the compound used as the template for NerpaMS
-    template: String,
+    pub template: String,
 
     // the name of the compound we want to find among the candidates
-    target: String,
+    pub target: String,
 
     // HMM score for the target linearization
-    target_score: f64,
+    pub target_score: f64,
 
 
     // edit distance between template and target linearizations
-    linearization_distance: u32,
+    pub linearization_distance: u32,
 
     // edits to reconstruct the target involve only supported monomers
-    new_monomers_supported: bool,
+    pub new_monomers_supported: bool,
 
     // edits to reconstruct the target can be applied to the template monomer graph
-    edits_applicable: bool,
+    pub edits_applicable: bool,
 
     // the target monomer graph can be reconstructed from the correct linearization
-    target_mon_graph_reconstructable: bool,
+    pub target_mon_graph_reconstructable: bool,
 
     // the monomers of the reconstructed monomer graph have correct masses
-    target_mon_masses_reconstructable: bool,
+    pub target_mon_masses_reconstructable: bool,
 
     // the target SMILES can be reconstructed from the correct monomer graph
-    target_smiles_reconstructable: bool,
+    pub target_smiles_reconstructable: bool,
 }
 
 pub struct TargetSearchData <'a>{
@@ -430,14 +430,14 @@ impl TargetSearchMatch {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct TargetSearchResults {
-    features: TargetSearchFeatures,
-    found_match: Option<TargetSearchMatch>,
+    pub features: TargetSearchFeatures,
+    pub found_match: Option<TargetSearchMatch>,
 
     // minimum HMM score among the generated variants
-    variants_min_score: f64,
+    pub variants_min_score: f64,
 
     // maximum HMM score among the generated variants
-    variants_max_score: f64,
+    pub variants_max_score: f64,
 }
 
 impl TargetSearchResults {
