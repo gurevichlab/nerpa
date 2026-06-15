@@ -69,7 +69,7 @@ def main() -> None:
     if not run_one_script.exists():
         raise FileNotFoundError(run_one_script)
 
-    bgc_ids: list[str] = bgc_ids_from_pnrpdb(pnrpdb_path)[:5]
+    bgc_ids: list[str] = bgc_ids_from_pnrpdb(pnrpdb_path)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
