@@ -5,6 +5,7 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+from joblib import Parallel, delayed
 
 import polars as pl
 
@@ -24,6 +25,14 @@ def parse_args(nerpa_dir: Path) -> argparse.Namespace:
         type=Path,
         default=nerpa_dir / 'nerpa_results/all_mibig_bgcs_vs_their_nrps',
         help='Base output directory; each BGC will be written into OUTPUT_DIR/<BGC_ID>',
+    )
+    parser.add_argument(
+        '-t',
+        '--num-threads',
+        dest='num_threads',
+        type=int,
+        default=1,
+        help='Number of parallel jobs to run (passed to joblib.Parallel; -1 uses all cores)',
     )
     return parser.parse_args()
 
@@ -60,27 +69,24 @@ def main() -> None:
     if not run_one_script.exists():
         raise FileNotFoundError(run_one_script)
 
-    bgc_ids: list[str] = bgc_ids_from_pnrpdb(pnrpdb_path)
+    bgc_ids: list[str] = bgc_ids_from_pnrpdb(pnrpdb_path)[:5]
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f'Found {len(bgc_ids)} BGC IDs from {pnrpdb_path}. Running {run_one_script} on each one with output in {args.output_dir}...')
 
-    for i, bgc_id in enumerate(bgc_ids, start=1):
-        if i > 5:
-            break
+    def _run_one(i: int, bgc_id: str) -> tuple[str, bool]:
         out_dir: Path = args.output_dir / bgc_id
         cmd: list[str] = [
             "python",
             str(run_one_script),
             bgc_id,
-            '-o',
+            "-o",
             str(out_dir),
             "--dont-open-html",
         ]
 
-        print(f'[{i}/{len(bgc_ids)}] {bgc_id} -> {out_dir}')
-
+        print(f"[{i}/{len(bgc_ids)}] {bgc_id} -> {out_dir}")
         out_dir.mkdir(parents=True, exist_ok=True)
 
         try:
@@ -90,11 +96,16 @@ def main() -> None:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-        except subprocess.CalledProcessError as e:
-            print(f'{bgc_id} failed.', file=sys.stderr)
-            continue
+        except subprocess.CalledProcessError:
+            print(f"{bgc_id} failed.", file=sys.stderr)
+            return (bgc_id, False)
         else:
-            print('Success.')
+            print(f"{bgc_id} success.")
+            return (bgc_id, True)
+
+    Parallel(n_jobs=args.num_threads)(
+        delayed(_run_one)(i, bgc_id) for i, bgc_id in enumerate(bgc_ids, start=1)
+    )
 
     print('Done.')
 
