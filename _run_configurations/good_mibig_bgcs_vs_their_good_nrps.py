@@ -1,5 +1,6 @@
 import subprocess
 import os
+import sys
 from pathlib import Path
 import polars as pl
 import yaml
@@ -10,6 +11,7 @@ from src.benchmarking.data_frames import (
     get_good_mibig_bgs_to_nrps,
 )
 import argparse
+from joblib import Parallel, delayed
 
 
 def parse_args(nerpa_dir: Path) -> argparse.Namespace:
@@ -36,7 +38,67 @@ def parse_args(nerpa_dir: Path) -> argparse.Namespace:
         default=3,
         help="Minimum number of monomers in the NRP to include it (default: 3)")
 
+    parser.add_argument(
+        "-t",
+        "--num-threads",
+        dest="num_threads",
+        type=int,
+        default=1,
+        help="Number of parallel jobs to run (passed to joblib.Parallel; -1 uses all cores)",
+    )
+
     return parser.parse_args()
+
+def run_nerpa_for_bgc_and_its_nrps(
+        nerpa_root: Path,
+        nerpa_script: Path,
+        bgc_id: str,
+        nrp_ids: List[str],
+        pnrpdb: pl.DataFrame,
+        antismash_results_all: Path,
+        output_dir: Path,
+        idx: int,
+        total: int
+) -> None:
+        print(f'{idx}/{total}. Matching BGC {bgc_id} against {len(nrp_ids)} NRPs:\n{nrp_ids}')
+
+        # Write the relevant NRPs to a temporary TSV file
+        smiles_tsv_path: Path = nerpa_root / 'tmp' / f'{bgc_id}_nrps.tsv'
+        smiles_tsv_path.parent.mkdir(parents=True, exist_ok=True)
+        nrps_table: pl.DataFrame = (
+            pnrpdb.filter(pl.col('ID').is_in(nrp_ids))
+        )
+        nrps_table.write_csv(smiles_tsv_path, separator='\t')
+
+        antismash_results = antismash_results_all / bgc_id
+
+        # Construct the command
+        command = [
+            "python3", str(nerpa_script),
+            "--antismash", str(antismash_results),
+            "--smiles-tsv", smiles_tsv_path,
+            "--col-id", "ID",
+            "--output-dir", str(output_dir),
+            "--force-output-dir",
+            "--let-it-crash",
+            "--dump-all-preprocessed",
+            "--draw-hmms"
+        ]
+
+        try:
+            subprocess.run(
+                command,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError:
+            print(f"{bgc_id} failed.", file=sys.stderr)
+        else:
+            print(f"{bgc_id} success.")
+
+        subprocess.run(command, check=True)
+    
 
 
 def main():
@@ -62,33 +124,20 @@ def main():
     local_paths = yaml.safe_load((nerpa_root / "local_paths.yaml").read_text())
     antismash_results_all = Path(local_paths['as_results_mibig4_nrps'])
 
-    for i, (bgc_id, nrp_ids) in enumerate(good_bgcs_to_nrps.items()):
-        print(f'{i}/{len(good_bgcs_to_nrps)}. Matching BGC {bgc_id} against {len(nrp_ids)} NRPs:\n{nrp_ids}')
-
-        # Write the relevant NRPs to a temporary TSV file
-        smiles_tsv_path: Path = nerpa_root / 'tmp' / f'{bgc_id}_nrps.tsv'
-        smiles_tsv_path.parent.mkdir(parents=True, exist_ok=True)
-        nrps_table: pl.DataFrame = (
-            pnrpdb.filter(pl.col('ID').is_in(nrp_ids))
+    Parallel(n_jobs=args.num_threads)(
+        delayed(run_nerpa_for_bgc_and_its_nrps)(
+            nerpa_root=nerpa_root,
+            nerpa_script=nerpa_script,
+            bgc_id=bgc_id,
+            nrp_ids=nrp_ids,
+            pnrpdb=pnrpdb,
+            antismash_results_all=antismash_results_all,
+            output_dir=args.output_dir,
+            idx=i,
+            total=len(good_bgcs_to_nrps)
         )
-        nrps_table.write_csv(smiles_tsv_path, separator='\t')
-
-        antismash_results = antismash_results_all / bgc_id
-
-        # Construct the command
-        command = [
-            "python3", str(nerpa_script),
-            "--antismash", str(antismash_results),
-            "--smiles-tsv", smiles_tsv_path,
-            "--col-id", "ID",
-            "--output-dir", str(args.output_dir),
-            "--force-output-dir",
-            "--let-it-crash",
-            "--dump-all-preprocessed",
-            "--draw-hmms"
-        ]
-
-        subprocess.run(command, check=True)
+        for i, (bgc_id, nrp_ids) in enumerate(good_bgcs_to_nrps.items(), start=1)
+    )
 
 
 if __name__ == '__main__':
