@@ -56,7 +56,7 @@ def run_nerpa_for_bgc_and_its_nrps(
         nrp_ids: List[str],
         pnrpdb: pl.DataFrame,
         antismash_results_all: Path,
-        output_dir: Path,
+        main_output_dir: Path,
         idx: int,
         total: int
 ) -> None:
@@ -71,6 +71,7 @@ def run_nerpa_for_bgc_and_its_nrps(
         nrps_table.write_csv(smiles_tsv_path, separator='\t')
 
         antismash_results = antismash_results_all / bgc_id
+        output_dir = main_output_dir / bgc_id
 
         # Construct the command
         command = [
@@ -132,7 +133,7 @@ def main():
             nrp_ids=nrp_ids,
             pnrpdb=pnrpdb,
             antismash_results_all=antismash_results_all,
-            output_dir=args.output_dir,
+            main_output_dir=args.output_dir,
             idx=i,
             total=len(good_bgcs_to_nrps)
         )
