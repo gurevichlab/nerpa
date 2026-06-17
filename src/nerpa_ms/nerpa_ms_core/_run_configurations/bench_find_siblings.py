@@ -2,7 +2,7 @@
 import subprocess
 import os
 from pathlib import Path
-# os.environ["RUST_BACKTRACE"] = "1"
+os.environ["RUST_BACKTRACE"] = "1"
 os.environ["RUSTFLAGS"] = "-Awarnings"
 
 
@@ -20,7 +20,7 @@ command = ' '.join(['cargo run --bin benchmark_find_siblings --',
                     f'--nerpa-results {nerpa_results}',
                     # f'--compound-distances {compound_distances}',
                     '--max-edits 1',
-                    '--num-variants-per-num-edits 1000',
+                    '--num-variants-per-num-edits 10',
                     '--out benchmarking/find_siblings',
                     '--nerpa-root', str(nerpa_root),
                     '--monomers-db-json data/monomers_db.json',

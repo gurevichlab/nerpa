@@ -167,7 +167,12 @@ fn main() -> Result<()> {
 	    .collect()
     };
 	
-    plot(&all_results, &debug_cfg.nerpa_ms_dir())?;
+    write_results(&all_results, &cli.out.join("benchmarking_results.json"))?;
+    plot(
+	&all_results,
+	&debug_cfg.nerpa_ms_dir(),
+	&cli.out.join("benchmarking_plot.svg"),
+    )?;
 
     Ok(())
 }

@@ -235,28 +235,25 @@ pub fn write_plot_payload_json(
 pub fn plot(
     results: &[TargetSearchResults],
     nerpa_ms_dir: &Path,
+    svg_output_path: &Path,
 ) -> Result<()> {
     let buckets = split_results_by_distance(results, 4);
     let cluster_data = compute_bucket_cluster_data(&buckets, &TARGET_SEARCH_BAR_SCHEME);
     let bar_labels = TARGET_SEARCH_BAR_SCHEME.bar_labels();
     let payload = build_plot_payload("Find Siblings Benchmark".to_string(), &cluster_data, bar_labels);
-    let output_json_path = nerpa_ms_dir
+    let input_for_drawing_path = nerpa_ms_dir
 	.join("tmp")
 	.join("find_siblings_plot_data.json");
-    write_plot_payload_json(&payload, &output_json_path)?;
+    write_plot_payload_json(&payload, &input_for_drawing_path)?;
 
     let plot_script_path = nerpa_ms_dir
 	.join("scripts")
 	.join("plot_find_siblings.py");
 
-    let svg_output_path = nerpa_ms_dir
-	.join("tmp")
-	.join("find_siblings_plot.svg");
-
     // Call the plotting script (assumes Python environment with necessary libraries is set up).
     std::process::Command::new("python")
 	.arg(plot_script_path)
-	.arg(output_json_path)
+	.arg(input_for_drawing_path)
 	.arg(svg_output_path)
 	.status()?;
     
