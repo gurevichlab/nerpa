@@ -94,7 +94,7 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                        output_cfg: OutputConfig,
                        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
                        log: Optional[NerpaLogger] = None,
-                       monomer_names_helper: Optional[MonomerNamesHelper] = None,):
+                       monomer_names_helper: Optional[MonomerNamesHelper] = None,) -> tuple[dict, dict[str,dict[str, list | dict]]]:
     if rban_records is None:
         rban_records = []
 
@@ -226,4 +226,4 @@ def write_results(matches: List[Match],
         write_matches_details(matches, output_cfg.matches_details)
 
     if html_report:
-        create_html_report(monomer_graph_data, molecule_data, output_cfg, matches, bgc_variants_info, nrp_variants_info, debug_output)
+        create_html_report(output_cfg, matches, bgc_variants_info, nrp_variants_info, monomer_graph_data, molecule_data, debug_output)

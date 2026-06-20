@@ -178,7 +178,7 @@ def _create_molecule_dicts(molecule_data) -> Dict:
     return mol_dict
 
 
-def _create_module_dicts(module_data):
+def _create_module_dicts(module_data) -> list:
 
     module_array = []
     
@@ -190,12 +190,12 @@ def _create_module_dicts(module_data):
     
     return module_array
 
-def create_html_report(monomer_graph_data,
-                       molecule_data,
-                       output_cfg: OutputConfig,
+def create_html_report(output_cfg: OutputConfig,
                        matches: List[Match],
                        bgc_variants_info: BGC_Variants_Info,
                        nrp_variants_info: NRP_Variants_Info,
+                       monomer_graph_data: dict,
+                       molecule_data: dict[str,dict[str, list | dict]],
                        debug_output: bool = False,
                        default_score_field: str = 'log_odds_vs_avg_bgc'):
     current_dir = Path(__file__).resolve().parent

@@ -2,11 +2,10 @@ import io
 from typing import Dict, Tuple, List, NewType, Optional, Literal
 from collections import defaultdict
 from pathlib import Path
-import json
 
 import graphviz
 from rdkit.Chem.Draw import rdMolDraw2D
-from rdkit.Chem import rdMolInterchange,rdmolfiles,  rdDepictor
+from rdkit.Chem import rdDepictor
 
 from src.monomer_names_helper import MonomerNamesHelper
 from src.build_output.chem_helper import MolRecord
@@ -47,7 +46,6 @@ def get_n_distinct_rgb_colors(N: int,
         colors.append(rgb)
     return colors
 
-# that fuction comes from KI 
 def hsv_to_glasbey_bounds(saturation, value):
     """
     saturation, value in [0,1]
@@ -148,7 +146,7 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
                          mon_colors: Dict[MonomerIdx, RGB],
                          rban_indexes: bool = True,
                          monomer_labels: bool = True,
-                         size: Tuple[int, int] = (1000, 1000)):
+                         size: Tuple[int, int] = (1000, 1000)) -> tuple[str | bytes, dict]:
     mon_labels = get_node_labels(record, with_rban_indexes=rban_indexes)
     mol, atom_id_to_index = MolRecord.from_rban_record(record)
 
@@ -198,18 +196,6 @@ def draw_molecule_colors(record: Parsed_rBAN_Record,
                         highlightBonds=bonds_to_highlight)
 
     drawer.FinishDrawing()
-
-    #https://www.rdkit.org/docs/source/rdkit.Chem.rdMolInterchange.html
-    """ 
-    rdmolfiles.MolToPDBFile(mol, "pdbTry")
-    json_str = rdMolInterchange.MolToJSON(mol)
-    data = json.loads(json_str)
-    data["size"] = {"w": size[0],"h": size[1]}
-    data["atomLabels"] = atom_labels
-    data["highlightAtoms"] = list(atom_colors.keys())
-    data["highlightAtomColors"] = atom_colors
-    data["highlightBonds"] = bonds_to_highlight
-    """
 
     moleculeData = {
         "a": [],   
@@ -300,7 +286,7 @@ def draw_molecule(record: Parsed_rBAN_Record,
                   rban_indexes: bool = True,
                   monomer_labels: bool = True,
                   size: Tuple[int, int] = (1000, 1000),
-                  monomer_names_helper: Optional[MonomerNamesHelper] = None):
+                  monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
     ext = output_file.suffix[1:].lower()
     if ext not in ['svg', 'png']:
         raise ValueError(f'Unsupported file extension: {ext}. Use .svg or .png.')
@@ -328,7 +314,7 @@ def draw_monomer_graph(record: Parsed_rBAN_Record,
                        with_rban_indexes: bool = True,
                        size: Tuple[int, int] = (1000, 1000),
                        dpi: int = 300,
-                       monomer_names_helper: Optional[MonomerNamesHelper] = None):
+                       monomer_names_helper: Optional[MonomerNamesHelper] = None) -> graphviz.Digraph:
     mon_colors = get_node_colors(record, monomer_names_helper)
     fig = draw_monomer_graph_colors(record=record,
                                     mon_colors=mon_colors,

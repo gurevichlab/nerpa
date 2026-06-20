@@ -19,15 +19,45 @@
             padding: 20px;
         }
 
-        h1 {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #fff;
-            background-color: #333;
-            padding: 20px 0;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            background: #333;
+            padding: 20px 30px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            border-radius: 8px;
         }
+
+        .header h1 {
+            margin: 0;
+            color: white;
+            font-size: 2.5rem;
+        }
+        .header h1 a{
+            color: white;
+            font-size: 1.3rem;
+            font-weight: normal
+        }
+
+        .header nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .header nav a:hover {
+            background-color: rgba(255,255,255,0.15);
+        }        
 
         .filter-section {
             margin-bottom: 10px;
@@ -248,27 +278,35 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Nerpa Report</h1>
+<div class="container" deselect-trigger>
+    
+    <div class ="header" deselect-trigger>
+        <h1>Nerpa <a id="version"></a></h1>
+        <nav>
+                <a href="https://github.com/gurevichlab/nerpa#feedback-and-bug-reports">contact</a>
+                <a href="https://github.com/gurevichlab/nerpa#nerpa-21-manual">documentation</a>
+        </nav>
 
-    <div class="top-row">
-        <div class="filters-block">
-            <div class="filter-section">
+    </div>
+    
+    <div class="top-row" deselect-trigger>
+        <div class="filters-block" deselect-trigger>
+            <div class="filter-section" deselect-trigger>
                 <label for="globalFilterInput">Search all fields</label>
                 <input type="text" id="globalFilterInput" placeholder="Enter text to search across all fields...">
             </div>
 
-            <div class="filter-section">
+            <div class="filter-section" deselect-trigger>
                 <label for="scoreFilterInput">Filter by Score</label>
                 <input type="text" id="scoreFilterInput" placeholder="Enter minimal Score value to filter...">
             </div>
 
-            <div class="filter-section">
+            <div class="filter-section" deselect-trigger>
                 <label for="nrpFilterInput">Filter by NRP</label>
                 <input type="text" id="nrpFilterInput" placeholder="Enter NRP ID to filter...">
             </div>
 
-            <div class="filter-section">
+            <div class="filter-section" deselect-trigger>
                 <label for="genomeFilterInput">Filter by Genome</label>
                 <input type="text" id="genomeFilterInput" placeholder="Enter Genome name to filter...">
             </div>
@@ -289,11 +327,11 @@
         </div>
     </div>
 
-    <div class="explanation">
+    <div class="explanation" deselect-trigger>
         Click a column name to sort the rows; click again to toggle the sort direction (▲/▼).
     </div>
 
-    <div class="table-container">
+    <div class="table-container" deselect-trigger>
         <table class="scrollable-table" id="reportTable">
             <thead>
             <tr>
@@ -306,25 +344,25 @@
         </table>
     </div>
 
-    <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;"></div>
+    <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;" deselect-trigger></div>
 
     <!-- Match Viewer -->
     <div>
-        <div id="matchViewerControls">
+        <div id="matchViewerControls" deselect-trigger>
             <button class="hide-button" id="hideMatchViewerBtn" onclick="toggleMatchViewer(true)" style="display: none;">Hide match details and BGC/NRP annotations</button>
             <p id="matchViewerLabel" style="display: block;">Click on a Match ID to display the detailed match report and the corresponding BGC and NRP annotations</p>
         </div>
-        <div id="matchViewerContainer" class="viewer" style="display: none;">
+        <div id="matchViewerContainer" class="viewer" style="display: none;" deselect-trigger>
             <p class="matchDetailedInfoLabel">Match general information</p>
             <div class="table-container">
                 <!-- everything is populated here by JavaScript -->
                 <table id="matchTable">
                 </table>
             </div>
-            <p class="matchDetailedInfoLabel">Alignment details</p>
-            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px; flex-wrap: wrap;">
-                <div id="columnControls" style="display: flex; align-items: center;">
-                     <button class="hide-button" id="hideAlignBtn" onclick="toggleAlignmentTable(true)" style="display: none;">Hide alignment details</button>
+        
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 5px; flex-wrap: wrap;" deselect-trigger>
+                <div id="columnControls" style="display: flex; align-items: center;" deselect-trigger>
+                    <button class="hide-button" id="hideAlignBtn" onclick="toggleAlignmentTable(true)" style="display: none;">Hide alignment details</button>
                     <button class="hide-button" id="showAlignBtn" onclick="toggleAlignmentTable(false)" style="display: none;">Show alignment details</button>
                     <a href="#" id="toggleColumnsButton">Select columns to display</a>
                     <div id="checkboxContainer" style="display: none; margin-left: 10px;">
@@ -382,7 +420,7 @@
 
     <!-- antiSMASH (Genome/BGC) Viewer -->
     <div>
-        <div id="genomeViewerControls">
+        <div id="genomeViewerControls" deselect-trigger>
             <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true,'','', true)" style="display: none;">Hide Genome/BGC annotation</button>
             <button class="hide-button" id="showGenomeViewerBtn" style="display: none;">Show Genome/BGC annotation</button>
             <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
@@ -392,29 +430,28 @@
     </div>
 
     <!-- module viewer-->
- <div>
+    <div>
         
-        <div id="moduleViewerControls">
+        <div id="moduleViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true, true)" style="display: none;">Hide module annotation</button>
             <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show module annotation</button>
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
 
-        <div id="moduleViewerContainer"   
-            style="display: none">
-
-            <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none">
+        <div id="moduleViewerContainer"  style="display: none" deselect-trigger>
+            
+            <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                <p class="orderLabel">BGC order</p>
                 <svg id="moduleViewerBGC"
-                    style="background: #ffffff;">
+                    style="background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
             
             
-            <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none">
+            <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                 <p class="orderLabel">alignment order</p>
                 <svg id="moduleViewerAlign"
-                    style="background: #ffffff;">
+                    style="background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
         </div>
@@ -422,19 +459,19 @@
 
     <!-- NRP Viewer -->
     <div>
-        <div id="nrpViewerControls">
+        <div id="nrpViewerControls" deselect-trigger>
             <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true, '', true)" style="display: none;">Hide NRP annotation</button>
             <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show NRP annotation</button>
             <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
         </div>
-        <div id="nrpViewerContainer" class="viewer" style="display: none;">
-             <div style="display: flex;  gap:10px;">
+        <div id="nrpViewerContainer" class="viewer" style="display: none;" deselect-trigger>
+           <div style="display: flex;  gap:10px;" deselect-trigger>
 
-                <div id="moleculeImage" style="flex: 1; min-width:0; height: 70vh; overflow: hidden;">
+                <div id="moleculeImage" style="flex: 1; min-width:0; height: 70vh; overflow: hidden;" deselect-trigger>
                     <canvas id="moleculeImageCanvas" 
-                        style="background: #ffffff; width: 100%; border: 1px; ">
+                        style="background: #ffffff; width: 100%; border: 1px; " deselect-trigger>
                     </canvas>
-               </div>
+                </div>
 
                 <div style="flex: 1; min-width:0;">
                     <div id="graphImage" style="background: #ffffff; 
@@ -444,7 +481,7 @@
                     </div>
                </div>
             </div>
-            <div style="display: flex; justify-content: space-between;">    
+            <div style="display: flex; justify-content: space-between;" deselect-trigger>    
                     <button  class="hide-button-label" id="hideLabelBtn" onclick="hideLabels()" style="display: none;">Hide/show residue labels</button>
             </div>
         </div>
@@ -452,8 +489,9 @@
 </div>
 
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
- <!-- vis-network for graph -->
+<!-- vis-network -->
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<!-- chemdoodle -->
 <link rel="stylesheet" href="html_aux/chemdoodle/ChemDoodleWeb.css" type="text/css">
 <script type="text/javascript" src="html_aux/chemdoodle/ChemDoodleWeb.js"></script>
 
@@ -471,7 +509,12 @@
                                 makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === bgcKey &&
                                 item["nrp_variant_id"]["nrp_id"] === nrpID);
         
-        const alignments = match.alignments[0];
+                                // this is necessary because match.alignments is currently saved as a list within a list of lenth 1
+        const array_in_array =  Array.isArray(match.alignments) && 
+                                match.alignments.length === 1 &&
+                                Array.isArray(match.alignments[0])
+        const alignments = array_in_array ? match.alignments[0] : match.alignments; 
+             
         const genes = prepareGenesAlign(bgcKey, alignments);
 
         const drawData = buildDrawData(genes, match);
@@ -493,7 +536,11 @@
                                 makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === bgcKey &&
                                 item["nrp_variant_id"]["nrp_id"] === nrpID);
          
-        const alignments = match.alignments[0];
+          // this is necessary because match.alignments is currently saved as a list within a list of lenth 1
+        const array_in_array =  Array.isArray(match.alignments) && 
+                                match.alignments.length === 1 &&
+                                Array.isArray(match.alignments[0])
+        const alignments = array_in_array ? match.alignments[0] : match.alignments;
         const genes = prepareGenesBGC(bgcKey, alignments);
 
         const drawData = buildDrawData(genes, match, true);
@@ -531,9 +578,9 @@
                 let idx = 0;
                 for(const m of g.modules){
                     if(m.a_domain === null) {
-                        m.alignment = [];
+                        m.alignment = undefined;
                     } else {
-                        m.alignment = [pendingAlignments[idx]];
+                        m.alignment = pendingAlignments[idx];
                         idx ++;
                     }
                 }
@@ -553,9 +600,9 @@
         let idx = 0;
         for(const m of g.modules){
             if(m.a_domain === null) {
-                m.alignment = [];
+                m.alignment = undefined;
             } else {
-                m.alignment = [pendingAlignments[idx]];
+                m.alignment = pendingAlignments[idx];
                 idx ++;
             }
         }
@@ -566,12 +613,6 @@
 
     function prepareGenesBGC(bgcKey, alignments){
         const genes = structuredClone(bgcModuleIndex.get(bgcKey));
-
-        // reverse gene order if genes on reverse strand account for >= 0.5
-        const numRevGenes = genes.reduce((c, item) => item.coords.strand === "REVERSE" ? c + 1 : c, 0);
-        if(numRevGenes > genes.length / 2) {
-            genes.reverse();
-        }
 
         // assign each module its corresponding alignment
         for(const g of genes){
@@ -621,7 +662,7 @@
 
         let drawData = []; // 
 
-        for(const g of geneList){ // why is alignment [[]]
+        for(const g of geneList){ 
             let gene ={
                 id: g.gene_id,                         
                 position: {x: undefined, y: yFixed},                          
@@ -632,7 +673,8 @@
                 modules: g.modules.map((m, idx)=> {
                     return{
                         id: idx,
-                        nid: m["a_domain"] != null ? m.alignment.map(al => al["rBAN_idx"]): [''],
+                        nid: m["a_domain"] != null ? 
+                                    (r ? m.alignment.map(al => al["rBAN_idx"]) : m.alignment["rBAN_idx"]): [''],
                         domains: m.domains_sequence, 
                         residue: selectResidue(m, r),
                         displayed: m["a_domain"] != null,        
@@ -735,6 +777,14 @@
                 case 'TE_TD':
                     circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
                     domainName = 'TE'; 
+                    break;
+                case 'TE':
+                    circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
+                    domainName = 'TE'; 
+                    break;
+                case 'TD':
+                    circle.setAttribute('fill', `rgb(${245}, ${187}, ${238})`);
+                    domainName = 'TD'; 
                     break;
                 case 'MT':
                     circle.setAttribute('fill', `rgb(${213}, ${213}, ${213})`); 
@@ -877,15 +927,17 @@
     }
     
     function selectResidue(m, bgc){
+         // module in BGC order can have multiple alignments but all have same 'Top_scoring_residues' 
+        const alignment = Array.isArray(m.alignment) ? m.alignment[0] : m.alignment;
         if(bgc){
             return (
                 m["a_domain"] != null ?
                     ( 
-                        m.alignment[0]["Top_scoring_residues"] != "---" && m.alignment[0]["Top_scoring_residues"] != "_UNKNOWN"  ?
+                        alignment["Top_scoring_residues"] != "---" && alignment["Top_scoring_residues"] != "_UNKNOWN"  ?
                         ( 
                             m["domains_sequence"].includes('E') ?
-                                `D-${m.alignment[0]["Top_scoring_residues"]}`
-                            : m.alignment[0]["Top_scoring_residues"] 
+                                `D-${alignment["Top_scoring_residues"]}`
+                            : alignment["Top_scoring_residues"] 
                         )
                         : 'unk'
                     )
@@ -895,11 +947,11 @@
             return (
                 m["a_domain"] != null ?
                     (
-                        m.alignment[0]["Top_scoring_residues"] != "---" && m.alignment[0]["Top_scoring_residues"] != "_UNKNOWN"  ?
+                        alignment["Top_scoring_residues"] != "---" && alignment["Top_scoring_residues"] != "_UNKNOWN"  ?
                         (
-                            m.alignment[0]["Modifying_domains"] ===  "---" ?
-                                m.alignment[0]["Top_scoring_residues"] 
-                            : `D-${m.alignment[0]["Top_scoring_residues"]}`
+                            alignment["Modifying_domains"] ===  "---" ?
+                                alignment["Top_scoring_residues"] 
+                            : `D-${alignment["Top_scoring_residues"]}`
                         )
                         : 'unk'
                     )
@@ -957,7 +1009,7 @@
         
         nodeIdLabel.clear();
         for(const entry of graph.nodes){
-            nodeIdLabel[entry.id] = entry.label;
+            nodeIdLabel.set(entry.id, entry.label);
         }
         
         network.addEventListener('click',  e => {
@@ -1011,6 +1063,10 @@
 
     // -- molecule variables --
     let molCanvas;
+    
+    window.addEventListener("resize", (event) => {
+            resizeMol();
+    });   
 
     function drawMolecule(nrpID){
         document.getElementById('moleculeImageCanvas').innerHTML = "";
@@ -1019,6 +1075,7 @@
         
         const mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
         mol.name = nrpID;
+        mol.selected = false;
 
         for(const atom of mol.atoms){
             if(atom.label.includes('_')) {
@@ -1035,7 +1092,7 @@
         molCanvas.styles.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif'];
         molCanvas.styles.backgroundColor = 'transparent';
 
-        const bondLen = getMaxBondLen(mol);
+        const bondLen = getMaxBondLen(mol, molCanvas.width, molCanvas.height);
         mol.scaleToAverageBondLength(bondLen);
 
         molCanvas.loadMolecule(mol);
@@ -1043,22 +1100,26 @@
         
         enableZoomMol(document.getElementById('moleculeImageCanvas'),mol);
 
-        window.addEventListener("resize", (event) => {
-            const div = document.getElementById('moleculeImage');
-            const width = div.offsetWidth;
-            const height = div.offsetHeight;
-            molCanvas.resize(width,height);
-            paintMolecule(mol);
-        }); 
+    }
+
+    function resizeMol(){
+        const mol = molCanvas.getMolecule();
+        const div = document.getElementById('moleculeImage');
+        const width = div.offsetWidth;
+        const height = div.offsetHeight;
+        const maxBondLen = getMaxBondLen(mol, width, height);
+        mol.scaleToAverageBondLength(maxBondLen);
+        molCanvas.resize(width,height);
+        molCanvas.loadMolecule(mol);
+        paintMolecule(mol);
     }
     
-    function getMaxBondLen(mol){
-        // this function is made with the help of AI
+    function getMaxBondLen(mol, width, height){
         const dim = mol.getDimension();
         const padding = 10;
 
-        const maxWidth = molCanvas.width - padding;
-        const maxHeight = molCanvas.height - padding;
+        const maxWidth = width - padding;
+        const maxHeight = height - padding;
 
         const scale = Math.min(
             maxWidth / dim.x,
@@ -1150,7 +1211,7 @@
         
         // find atoms of selected monomer node in molecule 
         const nodeLabels = [];
-        nid.forEach(n => nodeLabels.push(nodeIdLabel[n]));
+        nid.forEach(n => nodeLabels.push(nodeIdLabel.get(n)));
         const selected_atoms = new Set();
         for(const label of nodeLabels){
             molecule_image[nrpID].monomers[label].forEach(a => selected_atoms.add(a));
@@ -1207,6 +1268,7 @@
     
     function deselectMol(){
         const mol = molCanvas.getMolecule();
+        mol.selected = false;
         let st = new ChemDoodle.structures.Styles();
         st.atoms_color = 'black';
         st.bonds_color = 'black';
@@ -1342,7 +1404,7 @@
             network.selectNodes(nidString);  
             increaseTranparency(nidString);
             // select molecule
-            selectMol(nidInt, nrpID);
+            selectMol(nidString, nrpID);
         }
     }
     
@@ -2160,6 +2222,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         // After DOM ready, populate table headers and rows, and apply visibility
+        document.getElementById('version').innerHTML = "version 0.0.0";
         buildMainTableHeader();
         ensureMetadataHeaders(nrpMetadataColumns, 'NRP ID');
         ensureMetadataHeaders(bgcMetadataColumns, 'BGC ID');
@@ -2273,16 +2336,11 @@
     document.getElementById('nrpFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('genomeFilterInput').addEventListener('keyup', filterTable);
     document.getElementById('scoreFilterInput').addEventListener('keyup', filterTable);
-    const objToDeselect = [document.body,
-            document.getElementById('moleculeImageCanvas'), 
-            document.getElementById('moduleViewerAlign'),
-            document.getElementById('moduleViewerBGC'),
-            // graph not included; vis-network uses its own click handling (see drawGraph()).
-    ];
+    
     document.addEventListener('click', e => {
-        if(objToDeselect.includes(e.target)){
+        if(e.target.hasAttribute("deselect-trigger") || e.target === document.body){
             deselect();
-        } 
+        }
     });
 </script>
 </body>
