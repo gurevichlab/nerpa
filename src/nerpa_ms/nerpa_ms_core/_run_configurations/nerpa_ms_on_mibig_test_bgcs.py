@@ -117,11 +117,18 @@ def _run_one(
         "--monomers-db-json", "data/monomers_db.json",
         "--nerpa-root", str(nerpa_root),
     ]
+    nerpa_ms_root = (
+        nerpa_root
+        / 'src'
+        / 'nerpa_ms'
+        / 'nerpa_ms_core'
+    )
 
     try:
         print(f"Running command:\n {' '.join(args)}")
         subprocess.run(
             args,
+            cwd=nerpa_ms_root,
             check=True,
             stdout=subprocess.DEVNULL,
             #stderr=subprocess.DEVNULL,
