@@ -179,7 +179,7 @@ def main():
             nerpa_root=nerpa_root,
             main_output_dir=args.output_dir,
             idx=i,
-            total=len(list(args.nerpa_results.iterdir())),
+            total=len(single_results_dirs),
             max_edits=args.max_edits,
             num_variants_per_num_edits=args.num_variants_per_num_edits,
         )
