@@ -1,0 +1,4 @@
+monomer_names_table: data/nerpa_internal/monomer_names_table.tsv
+norine_monomers_cnts: data/nerpa_internal/norine_monomers_cnts.yaml
+supported_residues: [Aad, Aib, Ala, Arg, Asn, Asp, Bza, Cys, Dab, Gln, Glu, Gly, His,
+  Hpg, Ile, Leu, Lys, Orn, Phe, Pip, Pro, Ser, Thr, Trp, Tyr, Val, bAla, dHpg]

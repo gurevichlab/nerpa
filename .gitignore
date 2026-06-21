@@ -21,7 +21,6 @@ test_results
 data/for_training_and_testing/nerpa1_results
 src/rust/target
 src/nerpa_ms/nerpa_ms_core/target
-src/nerpa_ms/nerpa_ms_core/fixtures/test_run
 
 # local config
 local_paths.yaml

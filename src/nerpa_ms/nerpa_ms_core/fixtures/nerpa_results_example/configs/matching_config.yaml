@@ -1,0 +1,2 @@
+{max_num_matches_per_bgc: 10, max_num_matches_per_nrp: 0, min_num_matches_per_bgc: 0,
+  min_num_matches_per_nrp: 0, max_num_matches: 100, checkpoints_heuristic: false}

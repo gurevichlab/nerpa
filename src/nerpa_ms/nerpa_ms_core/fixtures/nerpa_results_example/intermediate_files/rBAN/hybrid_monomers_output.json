@@ -1,0 +1,113 @@
+[ {
+  "id" : "1_9",
+  "isomericSmiles" : "[NH]CC(=O)O",
+  "canonicalSmiles" : null,
+  "coverage" : 1.0,
+  "correctness" : 0.0,
+  "missingMonomers" : 0,
+  "monomericGraph" : {
+    "monomericGraph" : {
+      "monomers" : [ {
+        "monomer" : {
+          "index" : 1,
+          "atoms" : [ 0, 1, 2, 3, 4 ],
+          "bonds" : [ 0, 1, 2, 3 ],
+          "monomer" : {
+            "id" : 217,
+            "cid" : "750",
+            "monomer" : "Gly",
+            "codes" : [ "Gly" ],
+            "names" : [ "Glycine" ],
+            "smiles" : "NCC(=O)O",
+            "mwHeavyAtoms" : 69.99290324,
+            "isNew" : false,
+            "isIdentified" : true,
+            "compounds" : null,
+            "compoundsCount" : 0
+          }
+        }
+      } ],
+      "bonds" : [ ]
+    }
+  },
+  "atomicGraph" : {
+    "atomicGraph" : {
+      "atoms" : [ {
+        "res" : 217,
+        "cdk_idx" : 0,
+        "name" : "N",
+        "hydrogens" : 1,
+        "matchIdx" : 1,
+        "x" : 0.0,
+        "y" : 0.0,
+        "monName" : "Gly"
+      }, {
+        "res" : 217,
+        "cdk_idx" : 1,
+        "name" : "C",
+        "hydrogens" : 2,
+        "matchIdx" : 1,
+        "x" : 1.299038105676658,
+        "y" : -0.7499999999999999,
+        "monName" : "Gly"
+      }, {
+        "res" : 217,
+        "cdk_idx" : 2,
+        "name" : "C",
+        "hydrogens" : 0,
+        "matchIdx" : 1,
+        "x" : 2.5980762113533165,
+        "y" : -9.992007221626409E-16,
+        "monName" : "Gly"
+      }, {
+        "res" : 217,
+        "cdk_idx" : 3,
+        "name" : "O",
+        "hydrogens" : 0,
+        "matchIdx" : 1,
+        "x" : 2.5980762113533182,
+        "y" : 1.4999999999999991,
+        "monName" : "Gly"
+      }, {
+        "res" : 217,
+        "cdk_idx" : 4,
+        "name" : "O",
+        "hydrogens" : 1,
+        "matchIdx" : 1,
+        "x" : 3.897114317029973,
+        "y" : -0.7500000000000028,
+        "monName" : "Gly"
+      } ],
+      "bonds" : [ {
+        "arity" : 1,
+        "res" : 217,
+        "cdk_idx" : 0,
+        "matchIdx" : 0,
+        "atoms" : [ 0, 1 ],
+        "bondType" : null
+      }, {
+        "arity" : 1,
+        "res" : 217,
+        "cdk_idx" : 1,
+        "matchIdx" : 0,
+        "atoms" : [ 1, 2 ],
+        "bondType" : null
+      }, {
+        "arity" : 2,
+        "res" : 217,
+        "cdk_idx" : 2,
+        "matchIdx" : 0,
+        "atoms" : [ 2, 3 ],
+        "bondType" : null
+      }, {
+        "arity" : 1,
+        "res" : 217,
+        "cdk_idx" : 3,
+        "matchIdx" : 0,
+        "atoms" : [ 2, 4 ],
+        "bondType" : null
+      } ]
+    }
+  },
+  "monomersNames" : [ "Gly" ]
+} ]

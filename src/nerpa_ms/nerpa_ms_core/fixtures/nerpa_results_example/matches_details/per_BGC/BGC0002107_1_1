@@ -1,0 +1,82 @@
+Genome: BGC0002107
+antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002107.0
+NRP_variant: 0
+RawScore: -24.066
+LogOdds_vs_avg_BGC: 10.470420301765916
+LogOdds_vs_avg_NRP: -24.066
+P-value: None
+Alignment:
+ Gene     A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step            Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---      ---           ---                   ---                _UNKNOWN     UNKNOWN        False           X0         6         START_INSERTING_AT_START  -2.29   ---           ---               ---             ---         ---                                
+ Atu3670  0             bAla                  ---                bAla         UNKNOWN        False           bAla       5         MATCH                     -1.279  3.703         0.119             0.277           DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ Atu3675  0             Tyr                   ---                Gly          UNKNOWN        False           Gly        9         MATCH                     -5.276  -2.453        0.119             0.277           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3682  0             Ala                   ---                Ala          UNKNOWN        False           Ala        2         MATCH                     -0.968  2.36          0.119             0.277           DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                Cys          UNKNOWN        False           dhCys      1         MATCH                     -0.973  3.15          0.119             0.277           DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                Gly          UNKNOWN        False           Gly        7         MATCH                     -0.97   2.631         0.119             0.277           DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      Ala          UNKNOWN        False           Ala        4         MATCH                     -1.791  2.36          0.119             -0.547          DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+ Atu3670  0             bAla                  ---                Gly          UNKNOWN        False           Gly        3         MATCH                     -1.972  1.629         0.119             0.277           DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ Atu3675  0             Tyr                   ---                _UNKNOWN     UNKNOWN        False           X1         8         MATCH                     -3.206  -0.384        0.119             0.277           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3682  0             Ala                   ---                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+
+
+Genome: BGC0002107
+antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0000359.1
+NRP_variant: 0
+RawScore: -52.605999999999995
+LogOdds_vs_avg_BGC: -7.533282650847283
+LogOdds_vs_avg_NRP: -52.605999999999995
+P-value: None
+Alignment:
+ Gene     A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step  Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ Atu3670  0             bAla                  ---                ---          ---            ---             ---        ---       SKIP_MODULE     -3      ---           ---               ---             DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ Atu3675  0             Tyr                   ---                Orn          L              False           OH-Orn     1         MATCH           -3.376  0.439         0.119             0.485           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3682  0             Ala                   ---                Bza          UNKNOWN        False           diOH-Bz    6         MATCH           -5.479  -0.799        0.119             0.277           DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                Arg          D              False           Arg        5         MATCH           -7.481  -1.064        0.119             -0.752          DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                Gly          UNKNOWN        False           Gly        8         MATCH           -0.97   2.631         0.119             0.277           DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      ---          ---            ---             ---        ---       SKIP_MODULE     -3      ---           ---               ---             DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+ Atu3670  0             bAla                  ---                Gly          UNKNOWN        False           Gly        9         MATCH           -1.972  1.629         0.119             0.277           DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ Atu3675  0             Tyr                   ---                Ser          L              False           Ser        7         MATCH           -4.652  -1.803        0.119             0.485           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3682  0             Ala                   ---                Bza          UNKNOWN        False           diOH-Bz    10        MATCH           -5.479  -0.799        0.119             0.277           DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                Arg          D              False           Arg        4         MATCH           -7.481  -1.064        0.119             -0.752          DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                Gly          UNKNOWN        False           Gly        3         MATCH           -0.97   2.631         0.119             0.277           DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      Gly          UNKNOWN        False           Gly        2         MATCH           -5.914  -1.49         0.119             -0.547          DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+
+
+Genome: BGC0002107
+antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 2
+NRP: BGC0000985.4
+NRP_variant: 0
+RawScore: -66.384
+LogOdds_vs_avg_BGC: -9.540853552334646
+LogOdds_vs_avg_NRP: -66.384
+P-value: None
+Alignment:
+ Gene     A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name    rBAN_idx  Alignment_step            Score    ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---      ---           ---                   ---                _UNKNOWN     UNKNOWN        False           Lac          9         START_INSERTING_AT_START  -1.197   ---           ---               ---             ---         ---                                
+ Atu3682  0             Ala                   ---                Pro          L              False           Pro          8         MATCH                     -4.866   -1.427        0.119             0.485           DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                Leu          D              True            NMe-Leu      7         MATCH                     -10.543  -1.721        -0.214            -0.752          DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                Thr          L              False           aThr/Thr     6         MATCH                     -4.479   -1.636        0.119             0.485           DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      _UNKNOWN     UNKNOWN        False           Ist          5         MATCH                     -3.685   -0.039        0.119             -0.547          DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+ Atu3675  0             Tyr                   ---                Gln          L              False           Gln          4         MATCH                     -3.366   0.402         0.119             0.485           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3670  0             bAla                  ---                Gln          L              False           Gln          3         MATCH                     -5.155   -1.387        0.119             0.485           DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ ---      ---           ---                   ---                Gln          L              False           Gln          14        START_INSERTING_AT_START  -5.185   ---           ---               ---             ---         ---                                
+ Atu3682  0             Ala                   ---                Glu          L              False           Glu          10        MATCH                     -5.122   -1.016        0.119             0.485           DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                _UNKNOWN     UNKNOWN        False           Hip          12        MATCH                     -2.861   -0.039        0.119             0.277           DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                Leu          L              False           Leu          11        MATCH                     -4.363   -1.721        0.119             0.485           DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      Pro          L              False           Pro          2         MATCH                     -6.307   -1.427        0.119             -0.956          DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+ Atu3675  0             Tyr                   ---                Tyr          L              True            NMe-OMe-Tyr  1         MATCH                     -4.754   2.366         -0.214            0.485           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3670  0             bAla                  ---                ---          ---            ---             ---          ---       SKIP_MODULES_AT_END       0        ---           ---               ---             DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 

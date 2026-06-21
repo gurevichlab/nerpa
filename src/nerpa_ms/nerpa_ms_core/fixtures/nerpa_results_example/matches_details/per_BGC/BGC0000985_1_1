@@ -1,0 +1,77 @@
+Genome: BGC0000985
+antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0000985.4
+NRP_variant: 0
+RawScore: -21.88899999999999
+LogOdds_vs_avg_BGC: 34.95414644766536
+LogOdds_vs_avg_NRP: -21.88899999999999
+P-value: None
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains          NRP_residue  NRP_chirality  NRP_methylated  rBAN_name    rBAN_idx  Alignment_step   Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ TMO_c0602  0             Gln                   ---                        Gln          L              False           Gln          4         MATCH            -0.572  3.196         0.119             0.485           DAWQFGLIDK  HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA 
+ TMO_c0602  1             Gln                   ---                        Gln          L              False           Gln          3         MATCH            -0.572  3.196         0.119             0.485           DAWQFGLIDK  HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA 
+ TMO_c0602  0             Gln                   ---                        Gln          L              False           Gln          14        MATCH            -0.572  3.196         0.119             0.485           DAWQFGLIDK  HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA 
+ TMO_c0602  1             Gln                   ---                        Glu          L              False           Glu          10        MATCH            -5.122  -1.016        0.119             0.485           DAWQFGLIDK  HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA 
+ ---        ---           ---                   ---                        _UNKNOWN     UNKNOWN        False           Lac          9         START_INSERTING  -1.684  ---           ---               ---             ---         ---                                
+ TMO_c0604  0             Pro                   ---                        Pro          L              False           Pro          8         MATCH            -0.57   2.868         0.119             0.485           DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0605  0             Leu                   METHYLATION,EPIMERIZATION  Leu          D              True            NMe-Leu      7         MATCH            -0.831  2.08          3.462             1.483           DAWFLGHVVK  LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA 
+ TMO_c0605  1             Thr                   ---                        Thr          L              False           aThr/Thr     6         MATCH            -0.564  2.28          0.119             0.485           DFWNIGMVHK  LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH 
+ TMO_c0605  2             Ile                   ---                        _UNKNOWN     UNKNOWN        False           Ist          5         MATCH            -2.91   -0.087        0.119             0.277           DAFFLGITFK  RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV 
+ ---        ---           ---                   ---                        _UNKNOWN     UNKNOWN        False           Hip          12        START_INSERTING  -1.684  ---           ---               ---             ---         ---                                
+ TMO_c0609  0             Leu                   ---                        Leu          L              False           Leu          11        MATCH            -0.562  2.08          0.119             0.485           DAWFLGNVVK  LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS 
+ TMO_c0610  0             Pro                   ---                        Pro          L              False           Pro          2         MATCH            -0.57   2.868         0.119             0.485           DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0611  0             Tyr                   METHYLATION                Tyr          L              True            NMe-OMe-Tyr  1         MATCH            -0.682  2.761         3.462             0.485           DASTLAAVCK  TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM 
+
+
+Genome: BGC0000985
+antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002107.0
+NRP_variant: 0
+RawScore: -48.60300000000001
+LogOdds_vs_avg_BGC: -14.066579698234094
+LogOdds_vs_avg_NRP: -48.60300000000001
+P-value: None
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains          NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step            Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---        ---           ---                   ---                        _UNKNOWN     UNKNOWN        False           X0         6         START_INSERTING_AT_START  -2.29   ---           ---               ---             ---         ---                                
+ TMO_c0602  0             Gln                   ---                        bAla         UNKNOWN        False           bAla       5         MATCH                     -5.645  -0.664        0.119             0.277           DAWQFGLIDK  HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA 
+ TMO_c0602  1             Gln                   ---                        Gly          UNKNOWN        False           Gly        9         MATCH                     -5.091  -2.268        0.119             0.277           DAWQFGLIDK  HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA 
+ ---        ---           ---                   ---                        Ala          UNKNOWN        False           Ala        2         START_INSERTING           -5.303  ---           ---               ---             ---         ---                                
+ TMO_c0604  0             Pro                   ---                        Cys          UNKNOWN        False           dhCys      1         MATCH                     -5.353  -1.229        0.119             0.277           DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0605  0             Leu                   METHYLATION,EPIMERIZATION  Gly          UNKNOWN        False           Gly        7         MATCH                     -7.959  -1.49         -1.925            -0.547          DAWFLGHVVK  LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA 
+ TMO_c0605  1             Thr                   ---                        Ala          UNKNOWN        False           Ala        4         MATCH                     -4.973  -1.645        0.119             0.277           DFWNIGMVHK  LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH 
+ TMO_c0605  2             Ile                   ---                        Gly          UNKNOWN        False           Gly        3         MATCH                     -5.119  -1.518        0.119             0.277           DAFFLGITFK  RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV 
+ TMO_c0609  0             Leu                   ---                        _UNKNOWN     UNKNOWN        False           X1         8         MATCH                     -2.861  -0.039        0.119             0.277           DAWFLGNVVK  LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS 
+ TMO_c0610  0             Pro                   ---                        ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0611  0             Tyr                   METHYLATION                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DASTLAAVCK  TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM 
+
+
+Genome: BGC0000985
+antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0000359.1
+NRP_variant: 0
+RawScore: -63.91200000000002
+LogOdds_vs_avg_BGC: -18.83928265084731
+LogOdds_vs_avg_NRP: -63.91200000000002
+P-value: None
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains          NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step   Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ TMO_c0602  0             Gln                   ---                        Bza          UNKNOWN        False           diOH-Bz    10        MATCH            -5.479  -0.799        0.119             0.277           DAWQFGLIDK  HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA 
+ TMO_c0602  1             Gln                   ---                        Arg          D              False           Arg        4         MATCH            -7.481  -1.064        0.119             -0.752          DAWQFGLIDK  HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA 
+ ---        ---           ---                   ---                        Gly          UNKNOWN        False           Gly        3         START_INSERTING  -6.055  ---           ---               ---             ---         ---                                
+ TMO_c0604  0             Pro                   ---                        Gly          UNKNOWN        False           Gly        2         MATCH            -5.091  -1.49         0.119             0.277           DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0605  0             Leu                   METHYLATION,EPIMERIZATION  Bza          UNKNOWN        False           diOH-Bz    6         MATCH            -8.347  -0.799        -1.925            -0.547          DAWFLGHVVK  LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA 
+ TMO_c0605  1             Thr                   ---                        Arg          D              False           Arg        5         MATCH            -7.481  -1.064        0.119             -0.752          DFWNIGMVHK  LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH 
+ TMO_c0605  2             Ile                   ---                        Gly          UNKNOWN        False           Gly        8         MATCH            -5.119  -1.518        0.119             0.277           DAFFLGITFK  RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV 
+ TMO_c0609  0             Leu                   ---                        Gly          UNKNOWN        False           Gly        9         MATCH            -5.091  -1.49         0.119             0.277           DAWFLGNVVK  LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS 
+ TMO_c0610  0             Pro                   ---                        Ser          L              False           Ser        7         MATCH            -4.501  -1.652        0.119             0.485           DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0611  0             Tyr                   METHYLATION                Orn          L              False           OH-Orn     1         MATCH            -7.056  -1.197        -1.925            0.485           DASTLAAVCK  TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM 

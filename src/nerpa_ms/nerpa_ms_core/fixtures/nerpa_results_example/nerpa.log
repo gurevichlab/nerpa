@@ -1,0 +1,80 @@
+
+Started with command: nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv --col-id ID --output-dir nerpa_results/test_run --force-output-dir --disable-deduplication --draw-hmms --let-it-crash
+
+Nerpa version: 2.1.0
+
+System information:
+    OS: Linux-6.17.0-1020-oem-x86_64-with-glibc2.39
+    Python version: 3.11
+    CPUs number: 14
+Started: 2026-05-09 21:16:50
+Logging to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/nerpa.log (all) and /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/warnings.log (warnings and errors)
+Found 3 antiSMASH json files to process
+
+======= Predicting BGC variants from antiSMASH results using 1 threads
+
+======= Done with Predicting BGC variants
+Extracted 6 BGC variants from antiSMASH results
+Getting BGC variants took 0.8584 seconds
+
+======= Constructing HMMs
+Constructing HMMs took 0.0568 seconds
+
+======= Getting rBAN output
+
+======= Structures preprocessing with rBAN
+
+== Running: java -jar /home/ilianolhin/work/tools/nerpa/external_tools/rBAN/rBAN-1.0.jar -inputFile /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/rBAN/rban.input.json -outputFolder /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/rBAN/ -outputFileName rban.output.json -monomersDB /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/rBAN/rban_monomers_db.json
+
+  Process completed successfully. Compounds analysed: 3
+
+== Done
+
+
+=== Resolving NRP-PK hybrid monomers candidates
+
+== Running: java -jar /home/ilianolhin/work/tools/nerpa/external_tools/rBAN/rBAN-1.0.jar -inputFile /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/rBAN/hybrid_monomers_input.json -outputFolder /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/rBAN/ -outputFileName hybrid_monomers_output.json -monomersDB /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/rBAN/rban_monomers_db.json
+
+  Process completed successfully. Compounds analysed: 1
+
+== Done
+
+
+======= Done with Structures preprocessing with rBAN
+
+======= Processing rBAN output
+results will be in /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/preprocessed_input/NRP_variants.yaml
+
+======= Done with Processing rBAN output
+Getting NRP variants took 1.1605 seconds
+
+======= Generating NRP linearizations
+Generating linearizations took 0.0001 seconds
+
+======= Nerpa matching
+Running C++ matcher with command: /home/ilianolhin/work/tools/nerpa/build/hmm_nrp_matcher --hmms_json /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/hmms.json --nrps_json /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/nrp_linearizations.json --max_num_matches_per_bgc 10 --max_num_matches_per_nrp 0 --min_num_matches_per_bgc 0 --min_num_matches_per_nrp 0 --max_num_matches 100 --threads 1 --output /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/cpp_matching_output.json
+Stdout: Parsing HMMs from /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/hmms.json
+Parsing NRP linearizations from /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/nrp_linearizations.json
+Matching 6 HMMs against 3 NRP linearizations in 1 threads...
+Matching took 0.011 s
+Writing matches to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/cpp_matching_output.json
+Done! Wrote 9 matches to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/intermediate_files/cpp_matching_output.json
+
+C++ matcher completed successfully
+Matching took 0.2840 seconds
+======== Drawing HMMs with optimal paths
+
+======= Reconstructing alignments for matches
+
+======= Writing results
+RESULTS:
+    Main report is saved to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/report.tsv
+    HTML report is saved to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/report.html
+    Detailed reports are saved to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/matches_details
+Writing results took 0.3218 seconds
+The whole log is saved to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/nerpa.log
+Verbose warnings log is saved to /home/ilianolhin/work/tools/nerpa/nerpa_results/test_run/warnings.log
+Finished: 2026-05-09 21:17:03
+Elapsed time: 0:00:12.999404
+
+Thank you for using Nerpa!
