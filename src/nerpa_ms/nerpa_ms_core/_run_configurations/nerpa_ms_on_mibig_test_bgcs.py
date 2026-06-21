@@ -155,7 +155,15 @@ def main():
     args = parse_args(nerpa_root)
     single_results_dirs = []
     for results_dir in args.nerpa_results.iterdir():
-        if len(get_nrp_ids(results_dir)) <= 1:
+        try:
+            num_nrp_ids = len(get_nrp_ids(results_dir))
+        except Exception as e:
+            print(f"Error processing {results_dir.name}: {e}",
+                  file=sys.stderr)
+            print(f"Skipping {results_dir.name} due to error.", file=sys.stderr)
+            continue
+
+        if num_nrp_ids <= 1:
             print(f"Skipping {results_dir.name} because it has <= 1 NRP(s).")
         else:
             single_results_dirs.append(results_dir)
