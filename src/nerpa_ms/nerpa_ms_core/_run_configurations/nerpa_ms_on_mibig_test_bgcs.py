@@ -153,9 +153,17 @@ def main():
     # os.environ["RUST_BACKTRACE"] = "1"
 
     args = parse_args(nerpa_root)
-    single_results_dirs = list(args.nerpa_results.iterdir())
+    single_results_dirs = []
+    for results_dir in args.nerpa_results.iterdir():
+        if len(get_nrp_ids(results_dir)) <= 1:
+            print(f"Skipping {results_dir.name} because it has <= 1 NRP(s).")
+        else:
+            single_results_dirs.append(results_dir)
+
     if args.max_dirs_to_process is not None:
         single_results_dirs = single_results_dirs[:args.max_dirs_to_process]
+
+    print(f"Processing {len(single_results_dirs)} directories (after filtering out those with <= 1 NRP(s)).")
     
     Parallel(n_jobs=args.num_threads)(
         delayed(_run_one)(
