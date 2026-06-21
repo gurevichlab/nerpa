@@ -1,5 +1,6 @@
 # ARGS="--nerpa-results /home/ilianolhin/work/tools/nerpa/nerpa_results/all_mibig_bgcs_vs_their_nrps"
 import subprocess
+import time
 import os
 from pathlib import Path
 import sys
@@ -172,6 +173,8 @@ def main():
         single_results_dirs = single_results_dirs[:args.max_dirs_to_process]
 
     print(f"Processing {len(single_results_dirs)} directories (after filtering out those with <= 1 NRP(s)).")
+    start_time = time.time()
+    print(f"Starting processing at {time.ctime(start_time)}")
     
     Parallel(n_jobs=args.num_threads)(
         delayed(_run_one)(
@@ -185,6 +188,10 @@ def main():
         )
         for i, nerpa_results_one_bgc in enumerate(single_results_dirs, start=1)
     )
+    finish_time = time.time()
+    print(f"Finished processing at {time.ctime(finish_time)}")
+    elapsed_time = finish_time - start_time
+    print(f"Elapsed time: {elapsed_time:.2f} seconds ({elapsed_time/3600:.2f} hours)")
 
 
 if __name__ == "__main__":
