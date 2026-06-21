@@ -62,20 +62,30 @@ def parse_args(nerpa_root: Path) -> argparse.Namespace:
         help="Number of parallel jobs to run (passed to joblib.Parallel; -1 uses all cores)",
     )
 
+    default_max_edits = 3
     parser.add_argument(
         "--max-edits",
         dest="max_edits",
         type=int,
-        default=3,
-        help="Maximum number of edits to consider when generating variants (default: 3)",
+        default=default_max_edits,
+        help=f"Maximum number of edits to consider when generating variants (default: {default_max_edits})",
     )
 
+    default_num_variants_per_num_edits = 1000
     parser.add_argument(
         "--num-variants-per-num-edits",
         dest="num_variants_per_num_edits",
         type=int,
-        default=10,
-        help="Number of variants to generate per number of edits (default: 500)",
+        default=default_num_variants_per_num_edits,
+        help=f"Number of variants to generate per number of edits (default: {default_num_variants_per_num_edits})",
+    )
+
+    parser.add_argument(
+        "--max-dirs-to-process",
+        dest="max_dirs_to_process",
+        type=int,
+        default=None,
+        help="Maximum number of subdirectories of --nerpa-results to process (default: unlimited). Useful for testing on a subset of the data. Used for debugging",
     )
 
     return parser.parse_args()
@@ -144,6 +154,8 @@ def main():
 
     args = parse_args(nerpa_root)
     single_results_dirs = list(args.nerpa_results.iterdir())
+    if args.max_dirs_to_process is not None:
+        single_results_dirs = single_results_dirs[:args.max_dirs_to_process]
     
     Parallel(n_jobs=args.num_threads)(
         delayed(_run_one)(
