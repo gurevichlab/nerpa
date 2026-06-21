@@ -25,5 +25,6 @@ command = [
     '--nerpa-root', str(nerpa_root),
     '--draw-hmm-dag-opt-paths',
 ]
+print(f"Running command:\n {' '.join(command)}")
 subprocess.run(command)
 
