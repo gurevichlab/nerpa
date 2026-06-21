@@ -16,7 +16,7 @@ subprocess.run(["cargo", "build", "-q"])
 command = [
     'cargo',  'run',
     '--bin', 'nerpa_ms_core', '--',
-    '--nerpa-results', 'fixtures/trash_single',
+    '--nerpa-results', 'fixtures/nerpa_results_example',
     '--max-nerpa-matches', '3',
     '--max-edits', '2',
     '--num-variants-per-num-edits', '5',
