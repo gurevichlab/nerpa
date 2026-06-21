@@ -75,7 +75,7 @@ def parse_args(nerpa_root: Path) -> argparse.Namespace:
         dest="num_variants_per_num_edits",
         type=int,
         default=10,
-        help="Number of variants to generate per number of edits (default: 5)",
+        help="Number of variants to generate per number of edits (default: 500)",
     )
 
     return parser.parse_args()
@@ -143,7 +143,7 @@ def main():
     # os.environ["RUST_BACKTRACE"] = "1"
 
     args = parse_args(nerpa_root)
-    single_results_dirs = list(args.nerpa_results.iterdir())[:5]
+    single_results_dirs = list(args.nerpa_results.iterdir())
     
     Parallel(n_jobs=args.num_threads)(
         delayed(_run_one)(
