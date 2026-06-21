@@ -11,8 +11,14 @@ nerpa_root = (
     .parent.parent.parent.parent.parent
 )
 assert (nerpa_root / "nerpa.py").exists(), f"Invalid nerpa_root: {nerpa_root}"
+nerpa_ms_root = (
+    nerpa_root
+    / 'src'
+    / 'nerpa_ms'
+    / 'nerpa_ms_core'
+)
 
-subprocess.run(["cargo", "build", "-q"])
+subprocess.run(["cargo", "build"], cwd=nerpa_ms_root, check=True)
 command = [
     'cargo',  'run',
     '--bin', 'nerpa_ms_core', '--',
@@ -25,6 +31,6 @@ command = [
     '--nerpa-root', str(nerpa_root),
     '--draw-hmm-dag-opt-paths',
 ]
-print(f"Running command:\n {' '.join(command)}")
-subprocess.run(command)
+print(f"Running in {nerpa_ms_root}:\n  {' '.join(command)}")
+subprocess.run(command, cwd=nerpa_ms_root, check=True)
 
