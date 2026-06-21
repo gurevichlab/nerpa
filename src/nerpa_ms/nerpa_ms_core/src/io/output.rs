@@ -17,6 +17,7 @@ pub fn write_output(
     output_path: &Path
 ) -> anyhow::Result<()> {
     let json_output = serde_json::to_string_pretty(output_items)?;
+    std::fs::create_dir_all(output_path.parent().unwrap())?;
     std::fs::write(output_path, json_output)?;
     Ok(())
 }

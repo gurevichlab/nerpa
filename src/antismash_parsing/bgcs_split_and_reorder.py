@@ -21,33 +21,6 @@ from more_itertools import split_before, split_at, split_when
 from src.pipeline.logging.buffered_logger import BufferedLogger
 
 
-def split_by_dist(bgc_cluster: BGC_Cluster,
-                  config: antiSMASH_Processing_Config) -> List[BGC_Cluster]:
-    dummy_gene = Gene(GeneId(''), Coords(start=-1, end=-1, strand=STRAND.FORWARD), [])  # dummy gene to start the pairwise
-    gene_groups = list(split_before(pairwise([dummy_gene] + bgc_cluster.genes),
-                                    lambda p: p[1].coords.start - p[0].coords.end > config.MAX_DISTANCE_BETWEEN_GENES))
-    return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
-                        contig_idx=bgc_cluster.contig_idx,
-                        bgc_idx=bgc_cluster.bgc_idx,
-                        genes=[gene for _, gene in group])
-            for group in gene_groups]
-
-
-def split_by_single_gene_Starter_TE(bgc_cluster: BGC_Cluster,
-                                    config: antiSMASH_Processing_Config) -> List[BGC_Cluster]:  # config is not used but added for consistency
-    gene_groups = split_at(bgc_cluster.genes,
-                           lambda gene: DomainType.C_STARTER in gene.modules[0].domains_sequence and
-                                        DomainType.TE_TD in gene.modules[-1].domains_sequence,
-                           keep_separator=True)
-    gene_groups = [list(group) for group in gene_groups]
-    return [BGC_Cluster(genome_id=bgc_cluster.genome_id,
-                        contig_idx=bgc_cluster.contig_idx,
-                        bgc_idx=bgc_cluster.bgc_idx,
-                        genes=group)
-            for group in gene_groups
-            if len(group) > 0]
-
-
 def a_pcp_module(module: Module) -> bool:
     domains_set = set(module.domains_sequence)
     return {DomainType.A, DomainType.PCP}.issubset(domains_set) and all(not DomainType.in_c_domain_group(domain)
@@ -71,8 +44,11 @@ def genes_sequence_consistent(genes: List[Gene]) -> bool:
                                for module in joined_modules[1:])
     a_pcp_consistent = all(not a_pcp_module(module)
                            for module in joined_modules[1:])
-    te_td_consistent = all(DomainType.TE_TD not in module.domains_sequence
-                           for module in joined_modules[:-1])
+    te_td_consistent = not any(
+        domain.is_t_domain()
+        for module in joined_modules[:-1]
+        for domain in module.domains_sequence
+    )
 
     return all([at_least_one_A_domain,
                 a_pcp_consistent,
@@ -97,9 +73,14 @@ def get_fragment_rearrangements(genes: BGC_Fragment,
     starting_gene = next(([gene] for gene in genes
                           if DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])),
                          [])
-    terminal_gene = next(([gene] for gene in genes
-                          if DomainType.TE_TD in gene.modules[-1].domains_sequence),
-                         [])
+    terminal_gene = next(
+        (
+            [gene] for gene in genes
+            if any(domain.is_t_domain()
+                   for domain in gene.modules[-1].domains_sequence)
+        ),
+        []
+    )
     interior_genes = [gene for gene in genes
                       if gene not in starting_gene + terminal_gene]
     result = [starting_gene + permuted_interior_genes + terminal_gene
@@ -117,7 +98,7 @@ def split_genes_into_fragments(genes: List[Gene]) -> List[BGC_Fragment]:
     fragment: BGC_Fragment = []
     for gene in genes:
         is_start_gene = DomainType.C_STARTER in gene.modules[0].domains_sequence or a_pcp_module(gene.modules[0])
-        is_end_gene = DomainType.TE_TD in gene.modules[-1].domains_sequence
+        is_end_gene = any(domain.is_t_domain() for domain in gene.modules[-1].domains_sequence)
 
         if is_start_gene:
             if fragment:

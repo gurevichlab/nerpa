@@ -97,8 +97,6 @@ def run_nerpa_for_bgc_and_its_nrps(
             print(f"{bgc_id} failed.", file=sys.stderr)
         else:
             print(f"{bgc_id} success.")
-
-        subprocess.run(command, check=True)
     
 
 
