@@ -81,15 +81,32 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		
 	for (solutions_fetched, (sol, mods)) in solutions_with_mods_unique.enumerate() {
 	    let new_variant: AlteredMonomerGraph;
-	    if let Some(variant) = apply_modifications(
-		monomer_graph,
-		&mods,
-		monomers_db,
-		debug_stdout,
-	    ) {
+	    let apply_res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+		apply_modifications(
+		    monomer_graph,
+		    &mods,
+		    monomers_db,
+		    debug_stdout,
+		)
+	    }));
+
+	    let maybe_variant = match apply_res {
+		Ok(v) => v,
+		Err(_panic) => {
+		    eprintln!(
+			"apply_modifications panicked for compound_id={} mods={:?}",
+			monomer_graph.compound_id,
+			mods
+		    );
+		    panic!("apply_modifications panicked");
+		}
+	    };
+
+	    if let Some(variant) = maybe_variant {
 		new_variant = variant;
+	    } else {
+		continue; // skip this solution if modifications are inconsistent
 	    }
-	    else { continue; } // skip this solution if modifications are inconsistent
 
 	    if debug_stdout {
 		println!("Getting monomer origins for new variant...");

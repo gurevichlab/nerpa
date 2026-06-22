@@ -101,7 +101,7 @@ def main():
             elapsed += interval
 
         if report_path.exists():
-            webbrowser.open(report_path.as_uri())
+            webbrowser.open(report_path.resolve().as_uri())
         else:
             print(f"report not found at {report_path}; skipping browser open")
 

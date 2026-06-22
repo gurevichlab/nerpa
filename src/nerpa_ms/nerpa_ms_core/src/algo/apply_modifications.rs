@@ -101,92 +101,94 @@ pub fn apply_modifications(
     }
 
     // We have to group insertions to the the same edge and deal with them together not to mess up the indices
-    let batches = {
-	let mut batches: Vec<ModificationsBatch> = Vec::new();
-	let mut edge_inserts: Vec<&GraphModification> = Vec::new();
+    let non_insert_mods: Vec<&GraphModification> = {
+	modifications
+	    .iter()
+	    .filter(|m| {
+		!matches!(m, GraphModification::Insert { site: InsertionSite::Edge { .. }, .. })
+	    })
+	    .collect()
+    };
+    let insert_by_edge: HashMap<(MonomerIdx, MonomerIdx), Vec<&GraphModification>> = {
+	let mut edge_to_inserts: HashMap<(MonomerIdx, MonomerIdx), Vec<&GraphModification>> = HashMap::new();
 	for m in modifications {
-	    match m {
-		GraphModification::Insert {
-		    site: InsertionSite::Edge { .. },
-		    ..
-		} => edge_inserts.push(m),
-		_ => {
-		    if !edge_inserts.is_empty() {
-			batches.push(ModificationsBatch::EdgeInserts(edge_inserts.clone()));
-			edge_inserts.clear();
-		    }
-		    batches.push(ModificationsBatch::Other(m));
-		}
+	    if let GraphModification::Insert { site: InsertionSite::Edge(mon_idx1,
+									 mon_idx2), .. } = m {
+		edge_to_inserts.entry((*mon_idx1, *mon_idx2)).or_default().push(m);
 	    }
 	}
-
-	if !edge_inserts.is_empty() {
-	    batches.push(ModificationsBatch::EdgeInserts(edge_inserts.clone()));
-	}
-	 batches
+	edge_to_inserts
     };
 	
-    for batch in batches {
-	match batch {
-	    ModificationsBatch::EdgeInserts(edge_inserts) => {
-		// all inserts in the batch should affect the same edge
-		let mut edges: HashSet<(MonomerIdx, MonomerIdx)> = HashSet::new();
-		let mut db_entries: Vec<&MonomersDB_Entry> = Vec::new();
-		for m in edge_inserts {
+    // Apply edge insertions
+    for (edge, edge_inserts) in insert_by_edge {
+	let db_entries: Vec<&MonomersDB_Entry> = {
+	    edge_inserts
+		.iter()
+		.map(|m| {
 		    match m {
-			GraphModification::Insert {
-			    site: InsertionSite::Edge(mon_idx1, mon_idx2),
-			    mon_db_entry: db_entry,
-			} => {
-			    edges.insert((*mon_idx1, *mon_idx2));
-			    db_entries.push(*db_entry);
-			},
+			GraphModification::Insert { site: _, mon_db_entry } => *mon_db_entry,
 			_ => unreachable!("expected only edge inserts in this batch"),
 		    }
+		})
+		.collect()
+	};
+	
+	let mut last_inserted_idx = edge.0;
+	for (i, db_entry) in db_entries.iter().enumerate() {
+	    let insert_res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+		new_monomer_graph.insert_between(last_inserted_idx, edge.1, db_entry)
+	    }));
+	    let new_idx = match insert_res {
+		Ok(idx) => idx,
+		Err(_panic) => {
+		    eprintln!(
+			"insert_between panicked for edge ({}, {}) originally modification {:?}, {}-th insert in the batch", 
+			last_inserted_idx, edge.1,
+			edge_inserts[i],
+			i + 1,
+		    );
+		    panic!("insert_between panicked");
 		}
-		if edges.len() != 1 {
-		    panic!("Expected all edge inserts in the batch to affect the same edge, but found inserts for edges: {:?}", edges);
-		}
-		let edge = edges.into_iter().next().unwrap();
-		let mut last_inserted_idx = edge.0;
-		for db_entry in db_entries {
-		    let new_idx = new_monomer_graph.insert_between(last_inserted_idx, edge.1, db_entry);
-		    old_to_new_mon_map.push((None, Some(new_idx)));
-		    linearization.push(new_idx);
-		    last_inserted_idx = new_idx;
-		}
+	    };
+
+	    old_to_new_mon_map.push((None, Some(new_idx)));
+	    linearization.push(new_idx);
+	    last_inserted_idx = new_idx;
+	};
+    }
+
+    // Apply other modifications
+    for modification in non_insert_mods {
+	match modification {
+	    GraphModification::KeepAsIs { monomer_idx } => {
+		linearization.push(*monomer_idx);
 	    },
-	    ModificationsBatch::Other(modification) => {
-		match modification {
-		    GraphModification::KeepAsIs { monomer_idx } => {
-			linearization.push(*monomer_idx);
-		    },
-		    GraphModification::Substitute { monomer_idx, mon_db_entry } => {
-			new_monomer_graph.substitute(*monomer_idx, mon_db_entry);
-			old_to_new_mon_map.push((Some(*monomer_idx), Some(*monomer_idx)));
-			linearization.push(*monomer_idx);
-		    },
-		    GraphModification::Remove { monomer_idx } => {
-			new_monomer_graph.remove(*monomer_idx, monomers_db);
-			old_to_new_mon_map.push((Some(*monomer_idx), None));
-		    },
-		    GraphModification::Insert { site, mon_db_entry } => {
-			match site {
-			    InsertionSite::Edge{ .. } => panic!("..."),
-			    InsertionSite::Leaf(mon_idx) => {
-				let new_idx = new_monomer_graph.attach_leaf(
-				    *mon_idx,
-				    mon_db_entry,
-				    monomers_db
-				);
-				old_to_new_mon_map.push((None, Some(new_idx)));
-				linearization.push(new_idx);
-			    }
-			}
+	    GraphModification::Substitute { monomer_idx, mon_db_entry } => {
+		new_monomer_graph.substitute(*monomer_idx, mon_db_entry);
+		old_to_new_mon_map.push((Some(*monomer_idx), Some(*monomer_idx)));
+		linearization.push(*monomer_idx);
+	    },
+	    GraphModification::Remove { monomer_idx } => {
+		new_monomer_graph.remove(*monomer_idx, monomers_db);
+		old_to_new_mon_map.push((Some(*monomer_idx), None));
+	    },
+	    GraphModification::Insert { site, mon_db_entry } => {
+		match site {
+		    InsertionSite::Edge{ .. } => unreachable!("edge insertions should have been handled in a separate batch"),
+		    InsertionSite::Leaf(mon_idx) => {
+			// let new_idx = new_monomer_graph.attach_leaf(
+			//     *mon_idx,
+			//     mon_db_entry,
+			//     monomers_db
+			// );
+			// old_to_new_mon_map.push((None, Some(new_idx)));
+			// linearization.push(new_idx);
+			unimplemented!("leaf insertions are not supported for now")
 		    }
 		}
 	    }
-	}		    
+	}
     }
 
     if debug_stdout {
