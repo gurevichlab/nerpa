@@ -1,14 +1,14 @@
 use crate::{algo::{apply_modifications::{AlteredMonomerGraph, apply_modifications}, dp_backtrack::backtrack_solutions}, data_types::{common_types::{LogOdds, MonomerIdx}, config::DebugConfig, mod_graph::{ModGraph, VertexId}, graph_modifications::GraphModification, hmm::{HMM, StateIdx}, monomer_graph::MonomerGraph, monomers_db::{MonomerOrigin, MonomersDB}, parsed_rban_record::{MonomerInfo, Parsed_rBAN_Record}}};
 
 use crate::algo::graph_to_dag::create_mod_graph;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::algo::dp::compute_dp_table;
 
 use super::dp_backtrack::Solution;
 use itertools::Itertools;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Altered_rBAN_Record {
     pub score: LogOdds,
     pub rank: usize,
@@ -33,6 +33,7 @@ pub struct NewVariantWithOptPaths {
     pub hmm_path: Vec<StateIdx>,
     pub dag_path: Vec<VertexId>,
 }
+
 
 
 pub fn generate_new_variants_with_opt_paths<'mon_db>(

@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::{algo::gen_new_variants::Altered_rBAN_Record, data_types::{common_types::LogOdds, hmm::BGC_Variant_ID}};
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OutputItem {
     pub bgc_variant_id: BGC_Variant_ID,
     pub compound_id: String,

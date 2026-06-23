@@ -3,6 +3,7 @@ use std::path::Path;
 
 use crate::algo::gen_new_variants::Altered_rBAN_Record;
 use crate::bench::find_target::{TargetSearchData, TargetSearchResults};
+use crate::data_types::bgc_variant::BGC_Variant;
 use crate::data_types::monomer_graph::MonomerGraph;
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 use crate::data_types::common_types::MonomerIdx;
@@ -19,49 +20,45 @@ use crate::algo::algo_main::process_input_item;
 ///
 /// NOTE: This function needs access to `nerpa_root` to call `find_target`.
 pub fn find_siblings(
-    input_items: &[InputItem],
+    nerpa_matches_by_nrp: &HashMap<String, InputItem>,
+    nerpa_ms_variants_by_nrp: &HashMap<String, OutputItem>,
     monomers_db: &MonomersDB,
-    nerpa_ms_cfg: &NerpaMS_Config,
-    debug_cfg: &DebugConfig,
+    nerpa_root: &Path,
 ) -> Vec<TargetSearchResults> {
-    let nerpa_root: &Path = debug_cfg.nerpa_root.as_path();
 
     let targets_with_linearizations: Vec<(&Parsed_rBAN_Record, &[MonomerIdx])> = {
-	input_items
-	    .iter()
+	nerpa_matches_by_nrp
+	    .values()
 	    .map(|item| (&item.rban_record, &item.linearization[..]))
 	    .collect()
     };
 
-    let nerpa_ms_outputs: Vec<OutputItem> = {
-	input_items
-	    .iter()
-	    .map(|item|
-		 process_input_item(
-		     item,
-		     monomers_db,
-		     nerpa_ms_cfg,
-		     debug_cfg,
-		 ))
-	    .collect()
+    let bgc_variant: &BGC_Variant = {
+	&nerpa_matches_by_nrp
+	    .values()
+	    .next()
+	    .expect("No input items found for this BGC")
+	    .bgc_variant
     };
 
-    println!("BGC:\n{}", &input_items[0].bgc_variant);
+    println!("BGC:\n{}", bgc_variant);
 
     let mut results: Vec<TargetSearchResults> = Vec::new();
 
-    for (i, (input_item, nerpa_ms_output)) in (input_items.iter()
-					       .zip(nerpa_ms_outputs.iter())
-					       .enumerate()) {
+    for (i, (nrp_id, input_item)) in (nerpa_matches_by_nrp.iter().enumerate()) {
 	let template_lin_str = input_item.rban_record.show_linearization(&input_item.linearization)
 	    .unwrap_or_else(|_| "Failed to show linearization".to_string());
 	println!(
 	    "{}/{}. Template:\n{}\t{}",
 	    i + 1,
-	    input_items.len(),
+	    nerpa_matches_by_nrp.len(),
 	    input_item.rban_record.compound_id,
 	    template_lin_str
 	);
+
+	let nerpa_ms_output = nerpa_ms_variants_by_nrp
+	    .get(nrp_id)
+	    .unwrap_or_else(|| panic!("No Nerpa-MS output found for NRP ID {}", nrp_id));
 
 	println!("Targets:");
 	for (target, target_linearization) in targets_with_linearizations.iter() {
