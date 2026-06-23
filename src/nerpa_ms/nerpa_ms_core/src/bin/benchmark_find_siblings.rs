@@ -247,8 +247,12 @@ fn main() -> Result<()> {
     }
 
     let mut all_results: Vec<TargetSearchResults> = Vec::new();
-    for (bgc_name, nerpa_ms_variants_by_nrp) in &nerpa_ms_variants_by_bgc_nrp {
-	println!("Processing BGC {}...", bgc_name);
+    for (i, (bgc_name, nerpa_ms_variants_by_nrp)) in nerpa_ms_variants_by_bgc_nrp.iter().enumerate() {
+	println!(
+	    "{}/{}. Processing BGC {}...",
+	    i, nerpa_ms_variants_by_nrp.len(),
+	    bgc_name
+	);
 	let nerpa_matches_by_nrp: &HashMap<String, InputItem> = {
 	    nerpa_matches_by_bgc_nrp
 		.get(bgc_name)

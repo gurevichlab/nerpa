@@ -11,7 +11,7 @@ use crate::data_types::monomers_db::MonomersDB;
 use crate::data_types::parsed_rban_record::{MonomerInfo, NorineMonomerName, Parsed_rBAN_Record};
 use crate::algo::gen_new_variants::Altered_rBAN_Record;
 use crate::algo::rban_records_isomorphic::MonomerKey;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use itertools::Itertools;
 
 fn cartesian_product_of_rows<T: Clone>(
@@ -44,14 +44,14 @@ fn cartesian_product_of_rows<T: Clone>(
     result
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MatchLevel {
     LINEARIZATION,
     MONOMER_GRAPH,
     SMILES,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TargetSearchFeatures {
     // the name of the compound used as the template for NerpaMS
     pub template: String,
@@ -291,7 +291,7 @@ impl TargetSearchFeatures {
 }
 	    
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TargetSearchMatch {
     matched_variant_rank: usize, 
     match_level: MatchLevel,
@@ -428,7 +428,7 @@ impl TargetSearchMatch {
 }
 
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TargetSearchResults {
     pub features: TargetSearchFeatures,
     pub found_match: Option<TargetSearchMatch>,
