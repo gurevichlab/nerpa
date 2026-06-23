@@ -237,7 +237,7 @@ pub fn plot(
     nerpa_ms_dir: &Path,
     svg_output_path: &Path,
 ) -> Result<()> {
-    let buckets = split_results_by_distance(results, 4);
+    let buckets = split_results_by_distance(results, 3);
     let cluster_data = compute_bucket_cluster_data(&buckets, &TARGET_SEARCH_BAR_SCHEME);
     let bar_labels = TARGET_SEARCH_BAR_SCHEME.bar_labels();
     let payload = build_plot_payload("Find Siblings Benchmark".to_string(), &cluster_data, bar_labels);

@@ -38,7 +38,7 @@ fn main() -> Result<()> {
 	    
     plot(
 	&target_search_results,
-	&nerpa_ms_root,
+	nerpa_ms_root,
 	&cli.out
     );
     Ok(())
