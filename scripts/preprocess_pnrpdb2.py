@@ -151,13 +151,13 @@ def main():
         nerpa_results = args.nerpa_results_dir
         print(f"Reusing existing Nerpa results from {nerpa_results}")
     else:
-        nerpa_results = args.nerpa_results_output_dir
-        print(f"Running Nerpa on {pnrpdb2_path} and storing results in {nerpa_results}")
+        nerpa_results = args.output_for_nerpa_run
+        print(f"Running Nerpa on {pnrpdb2_path} and storing results in {args.output_for_nerpa_run}")
         
         run_nerpa_on_pnrpdb2(
             nerpa_dir=nerpa_dir,
             pnrpdb2_path=pnrpdb2_path,
-            output_dir=args.nerpa_results_output_dir,
+            output_dir=args.output_for_nerpa_run,
             deduplicate=args.deduplicate,
         )
 
