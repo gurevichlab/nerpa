@@ -6,7 +6,7 @@ import yaml
 
 from snakemake.exceptions import WorkflowError
 
-NERPA_DIR = Path(workflow.basedir)
+NERPA_ROOT = Path(workflow.basedir)
 PATHS_TO_EXTERNAL_DATA = "paths_to_external_data.yaml"
 
 
@@ -21,23 +21,23 @@ def ext_path(key: str) -> Path:
     return Path(str(val)).expanduser()
 
 # ===== Source data files -- these are not produced by any rule
-APPROVED_MATCHES = NERPA_DIR / 'data/for_training_and_testing/approved_matches.yaml'
-PNRPDB2_INITIAL = NERPA_DIR / 'data' / 'input' / 'pnrpdb2.tsv'
+APPROVED_MATCHES = NERPA_ROOT / 'data/for_training_and_testing/approved_matches.yaml'
+PNRPDB2_INITIAL = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2.tsv'
 ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
 # PNRPDB2 without the compounds Nerpa is unable to process
-PNRPDB2 = NERPA_DIR / 'data' / 'input' / 'pnrpdb2_filtered.tsv'
+PNRPDB2 = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_filtered.tsv'
 # Deduplicated compounds from MIBiG and Norine, aka "confirmed NRPs"
-PNRPDB2_MIBIG_NORINE = NERPA_DIR / 'data' / 'input' / 'pnrpdb2_mibig_norine_deduplicated.tsv'
-MIBIG_NORINE_PREPROCESSED = NERPA_DIR / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
+PNRPDB2_MIBIG_NORINE = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_mibig_norine_deduplicated.tsv'
+MIBIG_NORINE_PREPROCESSED = NERPA_ROOT / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
 # Clustering and stats on PNRPDB2 compounds
-PNRPDB2_INFO = NERPA_DIR / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.tsv'
+PNRPDB2_INFO = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.tsv'
 
 # ==== Important directories
-TEST_RESULTS_DIR = NERPA_DIR / 'test_results'
-SMILES_DIR = NERPA_DIR / 'data' / 'input'
-NRP_PREPROCESSED_DIR = NERPA_DIR / 'data' / 'input' / 'preprocessed'
+TEST_RESULTS_DIR = NERPA_ROOT / 'test_results'
+SMILES_DIR = NERPA_ROOT / 'data' / 'input'
+NRP_PREPROCESSED_DIR = NERPA_ROOT / 'data' / 'input' / 'preprocessed'
 
 rule all:
     input:
@@ -52,7 +52,7 @@ rule test_nerpa:
         mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
         antismash=ANTISMASH_RESULTS,
     output:
-        log=NERPA_DIR / 'test_results' / 'test_nerpa.log',
+        log=NERPA_ROOT / 'test_results' / 'test_nerpa.log',
         wrong_matches=TEST_RESULTS_DIR / 'wrong_matches.yaml',
     shell:
         r"""
@@ -67,11 +67,11 @@ rule test_nerpa:
 
 rule preprocess_pnrpdb2:
     params:
-        tables_dir=NERPA_DIR / 'data' / 'input',
-        preprocessed_dir=NERPA_DIR / 'data' / 'input' / 'preprocessed',
-        preprocess_script=NERPA_DIR / 'scripts' / 'preprocess_pnrpdb2.py',
-        build_pnrpdb2_info_script=NERPA_DIR / 'scripts' / 'pnrpdb_info.py',
-        nerpa_output_dir=NERPA_DIR / 'nerpa_results' / 'preprocessed_pnrpdb2',
+        tables_dir=NERPA_ROOT / 'data' / 'input',
+        preprocessed_dir=NERPA_ROOT / 'data' / 'input' / 'preprocessed',
+        preprocess_script=NERPA_ROOT / 'scripts' / 'preprocess_pnrpdb2.py',
+        build_pnrpdb2_info_script=NERPA_ROOT / 'scripts' / 'pnrpdb_info.py',
+        nerpa_output_dir=NERPA_ROOT / 'nerpa_results' / 'preprocessed_pnrpdb2',
     input:
         pnrpdb2=PNRPDB2_INITIAL,
     output:
@@ -101,11 +101,11 @@ rule preprocess_pnrpdb2:
         """
 
 # used for training
-NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_DIR / 'nerpa_results' / 'mibig_no_calibration'
+NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_ROOT / 'nerpa_results' / 'mibig_no_calibration'
 
 rule preprocess_mibig_no_calibration:
     params:
-        nerpa_exec=NERPA_DIR / 'nerpa.py',
+        nerpa_exec=NERPA_ROOT / 'nerpa.py',
     input:
         ANTISMASH_RESULTS
     output:
