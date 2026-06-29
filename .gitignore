@@ -19,3 +19,6 @@ data/for_training_and_testing/nerpa1_results
 
 # generated preprocessed data
 data/input/preprocessed/
+
+# local config
+paths_to_external_data.yaml

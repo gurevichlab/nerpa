@@ -91,9 +91,28 @@ def dump_emissions_training_data(data_for_training: DataForTraining, output_dir:
 def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
     parser = argparse.ArgumentParser(description="Estimates Nerpa parameters "
                                                  "based on Nerpa results on approved matches")
-    parser.add_argument("--approved-matches", type=Path,
-                        default=nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml')
-    parser.add_argument("--bgc-variants", type=Path)
+    default_approved_matches = (
+        nerpa_dir
+        / 'data'
+        / 'for_training_and_testing'
+        / 'approved_matches.yaml'
+    )
+    parser.add_argument(
+        "--approved-matches",
+        type=Path,
+        default=default_approved_matches,
+        help=f"Path to the approved matches YAML file (default: {default_approved_matches})",
+    )
+    parser.add_argument(
+        "--nerpa-results-on-mibig-no-calibration",
+        type=Path,
+        required=True,
+        help=(
+            "Path to the directory containing Nerpa results on MIBiG BGCs. "
+            "Needed to extract preprocessed BGC variants for training. "
+            "PARAS predictions should NOT be calibrated."
+        ),
+    )
 
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'training_results')
@@ -199,7 +218,7 @@ def check_bgcs_with_many_variants(bgc_variants: List[BGC_Variant]):
 # TODO: load paths from config instead of hardcoding them
 def main():
     nerpa_dir = Path(__file__).parent
-    assert nerpa_dir.stem == 'nerpa', "quick sanity check that nerpa_dir is correct"
+    assert (nerpa_dir / 'nerpa.py').exists(), f"nerpa.py not found in {nerpa_dir}. Please ensure the script is run from the correct directory."
 
     args = load_command_line_args(nerpa_dir)
 
@@ -224,7 +243,7 @@ def main():
     if args.bgc_variants:
         bgc_variants_yaml = args.bgc_variants
     else:
-        test_matches_bgcs = {match.bgc_id for match in approved_matches}
+        test_matches_bgcs = {m.bgc_id for m in approved_matches}
         bgc_variants_yaml = get_bgc_variants(test_matches_bgcs,
                                              nerpa_dir,
                                              args.output_dir,)

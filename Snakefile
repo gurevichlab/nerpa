@@ -22,12 +22,16 @@ def ext_path(key: str) -> Path:
 # ===== Source data files -- these are not produced by any rule
 APPROVED_MATCHES = NERPA_DIR / 'data/for_training_and_testing/approved_matches.yaml'
 PNRPDB2_INITIAL = NERPA_DIR / 'data' / 'input' / 'pnrpdb2.tsv'
-ANTISMASH_RESULTS = ext_path('as_results_mibig4_nrps')
+ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
+# PNRPDB2 without the compounds Nerpa is unable to process
 PNRPDB2 = NERPA_DIR / 'data' / 'input' / 'pnrpdb2_filtered.tsv'
+# Deduplicated compounds from MIBiG and Norine, aka "confirmed NRPs"
 PNRPDB2_MIBIG_NORINE = NERPA_DIR / 'data' / 'input' / 'pnrpdb2_mibig_norine_deduplicated.tsv'
 MIBIG_NORINE_PREPROCESSED = NERPA_DIR / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml'
+# Clustering and stats on PNRPDB2 compounds
+PNRPDB2_INFO = NERPA_DIR / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.tsv'
 
 # ==== Important directories
 TEST_RESULTS_DIR = NERPA_DIR / 'test_results'
@@ -62,7 +66,8 @@ rule preprocess_pnrpdb2:
     params:
         tables_dir=NERPA_DIR / 'data' / 'input',
         preprocessed_dir=NERPA_DIR / 'data' / 'input' / 'preprocessed',
-        script=NERPA_DIR / 'scripts' / 'preprocess_pnrpdb2.py',
+        preprocess_script=NERPA_DIR / 'scripts' / 'preprocess_pnrpdb2.py',
+        build_pnrpdb2_info_script=NERPA_DIR / 'scripts' / 'pnrpdb_info.py',
         nerpa_output_dir=NERPA_DIR / 'nerpa_results' / 'preprocessed_pnrpdb2',
     input:
         pnrpdb2=PNRPDB2_INITIAL,
@@ -76,13 +81,47 @@ rule preprocess_pnrpdb2:
         pnrpdb2_mibig_norine_preprocessed=params.preprocessed_dir / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml',
         pnrpdb2_mibig_norine_deduplicated=params.tables_dir / 'pnrpdb2_mibig_norine_deduplicated.tsv',
         pnrpdb2_mibig_norine_deduplicated_preprocessed=PNRPDB2_MIBIG_NORINE_PREPROCESSED,
+        pnrpdb2_info=PNRPDB2_INFO,
     shell:
         r"""
-        python {params.script}  \
+        python {params.preprocess_script}  \
           --nrp-database {input.pnrpdb2} \
           --filtered-tables-dir {params.tables_dir} \
           --preprocessed-dir {params.preprocessed_dir} \
           run-nerpa \
           --output-for-nerpa-run {params.nerpa_output_dir} \
           --deduplicate
+
+        python {params.build_pnrpdb2_info_script} \
+            --pnrpdb2-preprocessed {output.pnrpdb2_preprocessed} \
+            --out {output.pnrpdb2_info}
         """
+
+# used for training
+NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_DIR / 'nerpa_results' / 'mibig_no_calibration'
+
+rule preprocess_mibig_no_calibration:
+    params:
+        nerpa_exec=NERPA_DIR / 'nerpa.py',
+    input:
+        ANTISMASH_RESULTS
+    output:
+        NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
+    shell:
+        r"""
+        python {params.nerpa_exec} \
+            --antismash-results {input} \
+            # a random SMILES. It doesn't matter -- we just want to get prepocessed BGCs
+            --smiles CC(=O)OC1=CC=CC=C1C(=O)O \
+            --output-dir {NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION} \
+            --force-output-dir \
+            --min-num-matches-per-bgc 1 \
+            # 0 means unlimited
+            --max-num-matches 0 \
+            --disable-calibration \
+            --dump-all-preprocessed \
+            --let-it-crash
+        """
+        
+        
+    
