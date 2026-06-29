@@ -30,7 +30,7 @@ ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 PNRPDB2 = NERPA_DIR / 'data' / 'input' / 'pnrpdb2_filtered.tsv'
 # Deduplicated compounds from MIBiG and Norine, aka "confirmed NRPs"
 PNRPDB2_MIBIG_NORINE = NERPA_DIR / 'data' / 'input' / 'pnrpdb2_mibig_norine_deduplicated.tsv'
-MIBIG_NORINE_PREPROCESSED = NERPA_DIR / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml'
+MIBIG_NORINE_PREPROCESSED = NERPA_DIR / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
 # Clustering and stats on PNRPDB2 compounds
 PNRPDB2_INFO = NERPA_DIR / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.tsv'
 
