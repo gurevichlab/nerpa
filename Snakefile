@@ -36,6 +36,8 @@ PNRPDB2_INFO = NERPA_DIR / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.t
 
 # ==== Important directories
 TEST_RESULTS_DIR = NERPA_DIR / 'test_results'
+SMILES_DIR = NERPA_DIR / 'data' / 'input'
+NRP_PREPROCESSED_DIR = NERPA_DIR / 'data' / 'input' / 'preprocessed'
 
 rule all:
     input:
@@ -74,14 +76,14 @@ rule preprocess_pnrpdb2:
         pnrpdb2=PNRPDB2_INITIAL,
     output:
         # "filtered" means ID for which Nerpa is able build NRP variants
-        pnrpdb2_filtered=params.tables_dir / 'pnrpdb2_filtered.tsv',
-        pnrpdb2_preprocessed=params.preprocessed_dir / 'pnrpdb2_parsed_rban_records.yaml',
+        pnrpdb2_filtered=SMILES_DIR / 'pnrpdb2_filtered.tsv',
+        pnrpdb2_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_parsed_rban_records.yaml',
         pnrpdb2_deduplicated=PNRPDB2,
-        pnrpdb2_deduplicated_preprocessed=params.preprocessed_dir / 'pnrpdb2_deduplicated_parsed_rban_records.yaml',
+        pnrpdb2_deduplicated_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_deduplicated_parsed_rban_records.yaml',
         pnrpdb2_mibig_norine=PNRPDB2_MIBIG_NORINE,
-        pnrpdb2_mibig_norine_preprocessed=params.preprocessed_dir / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml',
-        pnrpdb2_mibig_norine_deduplicated=params.tables_dir / 'pnrpdb2_mibig_norine_deduplicated.tsv',
-        pnrpdb2_mibig_norine_deduplicated_preprocessed=PNRPDB2_MIBIG_NORINE_PREPROCESSED,
+        pnrpdb2_mibig_norine_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml',
+        pnrpdb2_mibig_norine_deduplicated=SMILES_DIR / 'pnrpdb2_mibig_norine_deduplicated.tsv',
+        pnrpdb2_mibig_norine_deduplicated_preprocessed=MIBIG_NORINE_PREPROCESSED,
         pnrpdb2_info=PNRPDB2_INFO,
     shell:
         r"""
