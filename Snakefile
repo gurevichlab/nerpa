@@ -80,9 +80,9 @@ rule preprocess_pnrpdb2:
         pnrpdb2_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_parsed_rban_records.yaml',
         pnrpdb2_deduplicated=SMILES_DIR / 'pnrpdb2_deduplicated.tsv',
         pnrpdb2_deduplicated_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_deduplicated_parsed_rban_records.yaml',
-        pnrpdb2_mibig_norine=PNRPDB2_MIBIG_NORINE,
+        pnrpdb2_mibig_norine=SMILES_DIR / 'pnrpdb2_mibig_norine.tsv',
         pnrpdb2_mibig_norine_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml',
-        pnrpdb2_mibig_norine_deduplicated=SMILES_DIR / 'pnrpdb2_mibig_norine_deduplicated.tsv',
+        pnrpdb2_mibig_norine_deduplicated=PNRPDB2_MIBIG_NORINE,
         pnrpdb2_mibig_norine_deduplicated_preprocessed=MIBIG_NORINE_PREPROCESSED,
         pnrpdb2_info=PNRPDB2_INFO,
     shell:
