@@ -6,6 +6,10 @@ from io import StringIO
 from src.pipeline.nerpa_utils import get_path_to_program
 import csv
 
+DEFAULT_STRUCT_ID_COLUMN = "ID"
+DEFAULT_SMILES_COLUMN = "SMILES"
+
+
 def add_genomic_arguments(parser: argparse.ArgumentParser):
     genomic_group = parser.add_argument_group('Genomic input', 'Genomes of NRP-producing organisms or BGC predictions')
     genomic_group.add_argument("--antismash", "-a", dest="antismash", action='append', type=Path,
@@ -30,9 +34,10 @@ def add_struct_arguments(parser: argparse.ArgumentParser):
                                     help="multi-column file with structures in the SMILES format and metadata", type=Path)
     struct_group.add_argument("--col-smiles", dest="col_smiles", metavar='STR',
                               help="column name in smiles-tsv for structures in the SMILES format [default: '%(default)s']",
-                              type=str, default='SMILES')
+                              type=str, default=DEFAULT_SMILES_COLUMN)
     struct_group.add_argument("--col-id", dest="col_id", metavar='STR',
-                              help="column name in smiles-tsv for structure identifier [if not provided, row index will be used]",
+                              help="column name in smiles-tsv for unique structure identifier "
+                                   f"[default: '{DEFAULT_STRUCT_ID_COLUMN}'; if absent, row index will be used]",
                               type=str)
     struct_group.add_argument("--sep", dest="sep", metavar='CHAR',
                               help="column separator in smiles-tsv [default: '\\t']", type=str, default='\t')
@@ -222,6 +227,11 @@ def validate_arguments(args: CommandLineArgs, default_cfg: Config):  # TODO: I t
                                         skipinitialspace=True)
                 validate(args.col_smiles in reader.fieldnames,
                          f'Column "{args.col_smiles}" was specified but does not exist in {args.smiles_tsv}.')
+
+                # Resolve the implicit default: prefer the conventional ID column if present.
+                if args.col_id is None and DEFAULT_STRUCT_ID_COLUMN in reader.fieldnames:
+                    args.col_id = DEFAULT_STRUCT_ID_COLUMN
+
                 if args.col_id:
                     validate(args.col_id in reader.fieldnames,
                              f'Column "{args.col_id}" was specified but does not exist in {args.smiles_tsv}.')

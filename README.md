@@ -137,7 +137,7 @@ Alternatively, you can download it from [here](https://github.com/gurevichlab/ne
 To run Nerpa on the test data, execute:
 
 ```commandline
-nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv --col-id ID --output-dir nerpa_results/test_run
+nerpa.py -a test_data/antismash --smiles-tsv test_data/smiles.tsv --output-dir nerpa_results/test_run
 ```
 
 For details on the output directory contents and their interpretation refer to the [corresponding section](#sec_run_results).
@@ -185,7 +185,7 @@ You can provide them in one of the following ways:
 - In a multi-column file specified via the `--smiles-tsv` option.
 
 In the latter case, the default column separator (`\t`), names of the SMILES column (`SMILES`) and the column with molecule IDs 
-(*row index*) could be adjusted using the `--sep`, `--col-smiles`, and `--col-id` options, respectively.
+(`ID` or *row index* if absent) could be adjusted using the `--sep`, `--col-smiles`, and `--col-id` options, respectively.
 
 The Nerpa release package comes with a set of NRP databases in the SMILES format:  
 
