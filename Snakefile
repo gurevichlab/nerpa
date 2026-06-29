@@ -87,7 +87,7 @@ rule preprocess_pnrpdb2:
         pnrpdb2_info=PNRPDB2_INFO,
     shell:
         r"""
-        python {params.preprocess_script}  \
+        PYTHONPATH={NERPA_ROOT} python {params.preprocess_script}  \
           --nrp-database {input.pnrpdb2} \
           --filtered-tables-dir {params.tables_dir} \
           --preprocessed-dir {params.preprocessed_dir} \
@@ -95,7 +95,7 @@ rule preprocess_pnrpdb2:
           --output-for-nerpa-run {params.nerpa_output_dir} \
           --deduplicate
 
-        python {params.build_pnrpdb2_info_script} \
+        PYTHONPATH={NERPA_ROOT} python {params.build_pnrpdb2_info_script} \
             --pnrpdb2-preprocessed {output.pnrpdb2_preprocessed} \
             --out {output.pnrpdb2_info}
         """
