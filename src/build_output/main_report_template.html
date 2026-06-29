@@ -350,7 +350,7 @@
     <div>
         <div id="matchViewerControls" deselect-trigger>
             <button class="hide-button" id="hideMatchViewerBtn" onclick="toggleMatchViewer(true)" style="display: none;">Hide match details and BGC/NRP annotations</button>
-            <p id="matchViewerLabel" style="display: block;">Click on a Match ID to display the detailed match report and the corresponding BGC and NRP annotations</p>
+            <p id="matchViewerLabel" style="display: block;">Click on a Match ID to view the detailed match report and the corresponding BGC and NRP annotations</p>
         </div>
         <div id="matchViewerContainer" class="viewer" style="display: none;" deselect-trigger>
             <p class="matchDetailedInfoLabel">Match general information</p>
@@ -423,7 +423,7 @@
         <div id="genomeViewerControls" deselect-trigger>
             <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true,'','', true)" style="display: none;">Hide Genome/BGC annotation</button>
             <button class="hide-button" id="showGenomeViewerBtn" style="display: none;">Show Genome/BGC annotation</button>
-            <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
+            <p id="genomeViewerLabel" style="display: block;">Click on a Genome to view its antiSMASH annotation (if available)</p>
         </div>
 
         <iframe id="genomeViewer" src="" width="100%" height="600px" style="display: none; border: none;"></iframe>
@@ -434,8 +434,8 @@
         
         <div id="moduleViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true, true)" style="display: none;">Hide module annotation</button>
-            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show module annotation</button>
-            <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
+            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show BGC module annotation</button>
+            <p id="moduleViewerLabel" style="display: block;">Click on a BGC ID to view its module and antiSMASH annotation (if available)</p>
         </div>
 
         <div id="moduleViewerContainer"  style="display: none" deselect-trigger>
@@ -462,7 +462,7 @@
         <div id="nrpViewerControls" deselect-trigger>
             <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleNrpViewer(true, '', true)" style="display: none;">Hide NRP annotation</button>
             <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show NRP annotation</button>
-            <p id="nrpViewerLabel" style="display: block;">Click on an NRP to display its annotated molecular structure and monomer graph</p>
+            <p id="nrpViewerLabel" style="display: block;">Click on an NRP ID to view its annotated molecular structure and monomer graph</p>
         </div>
         <div id="nrpViewerContainer" class="viewer" style="display: none;" deselect-trigger>
            <div style="display: flex;  gap:10px;" deselect-trigger>
