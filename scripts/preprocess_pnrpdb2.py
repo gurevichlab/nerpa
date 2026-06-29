@@ -144,7 +144,7 @@ def main():
     args = parse_args(nerpa_dir)
     pnrpdb2_path = args.nrp_database
     pnrpdb_pref = (
-        pnrpdb2_path.stem[-len('_raw'):]
+        pnrpdb2_path.stem[:-len('_raw')]
         if pnrpdb2_path.stem.endswith('_raw')
         else pnrpdb2_path.stem + '_filtered'
     )
