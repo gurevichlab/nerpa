@@ -1,6 +1,4 @@
 Nerpa: a tool for discovering biosynthetic gene clusters of nonribosomal peptides
-<<<<<<< HEAD
-=======
 Copyright (c) 2022-2026 Helmholtz Institute for Pharmaceutical Research Saarland (HIPS), HZI
 Copyright (c) 2018-2021 Saint Petersburg State University
 
@@ -30,7 +28,8 @@ Main authors:
     Alexey Gurevich
 
 Other contributors:
-    Aleksandra Kushnareva
+    Raja Neumann (HTML report)
+    Aleksandra Kushnareva (data curation)
     Hosein Mohimani (original idea)
 
 Contact:
@@ -38,6 +37,5 @@ Contact:
     https://github.com/gurevichlab/nerpa
 
 References:
-    Olkhovskii et al., bioRxiv 2024. doi: 10.1101/2024.11.19.624380
+    Olkhovskii et al., Bioinformatics 2026. doi: 10.1093/bioinformatics/btag462
     Kunyavskaya, Tagirdzhanov et al., Metabolites 2021. doi: 10.3390/metabo11100693
->>>>>>> origin/nerpa_2.1_release

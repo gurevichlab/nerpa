@@ -240,7 +240,7 @@ The key files and directories inside the Nerpa output directory (`--output-dir`)
 ## Citation
 
 If you use Nerpa in your research, please cite our papers:  
-Nerpa v.2 is described in [Olkhovskii et al, bioRxiv 2024](https://doi.org/10.1101/2024.11.19.624380).  
+Nerpa v.2 is described in [Olkhovskii et al., Bioinformatics 2026](https://doi.org/10.1093/bioinformatics/btag462).  
 Nerpa v.1 is published in [Kunyavskaya, Tagirdzhanov et al., Metabolites 2021](https://doi.org/10.3390/metabo11100693).
 
 <a name="sec_feedback"></a>
