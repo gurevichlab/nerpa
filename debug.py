@@ -22,6 +22,7 @@ from joblib import Parallel, delayed
 
 from scripts.pnrpdb_compound_similarity import nerpa_mon_cmp, unknown_chr_equal_known_cmp
 
+
 def main():
     nerpa_dir = Path(__file__).resolve().parent
     nerpa_cfg = load_config()
@@ -47,6 +48,7 @@ def main():
                                        node_match=lambda n1, n2: unknown_chr_equal_known_cmp(n1['monomer'], n2['monomer']))
         if are_isomorphic:
             print(f'Graphs for {nrp1_id} and {nrp2_id} are isomorphic!')
+
 
 if __name__ == '__main__':
     main()

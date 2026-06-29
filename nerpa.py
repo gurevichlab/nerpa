@@ -7,6 +7,7 @@ from src.pipeline.logging.logger import PreliminaryLogger
 from src.build_output.write_results import write_nrp_variants
 import traceback
 
+
 def build_data_for_lars(pipeline_helper: PipelineHelper):
     import polars as pl
     import json
@@ -31,16 +32,13 @@ def build_data_for_lars(pipeline_helper: PipelineHelper):
     output_json = Path('paras_predictions_known_specificities.json')
     output_json.write_text(json.dumps(rows, indent=2), encoding='utf-8')
 
+
 def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make it easier to write log in case of exception
     pipeline_helper = PipelineHelper(pre_logger)
-
-    # build_data_for_lars(pipeline_helper)
-    # exit(0)  
 
     bgc_variants_info = pipeline_helper.get_bgc_variants()
     representative_bgcs = bgc_variants_info.get_representative_bgc_variants()
     hmms = pipeline_helper.construct_hmms(representative_bgcs)
-    #exit(0)  # TEMPORARY EXIT TO DISABLE NRP PART
 
     nrp_variants_info = pipeline_helper.get_nrp_variants_and_rban_records()
     representative_nrps = nrp_variants_info.get_representative_nrp_variants()
@@ -65,29 +63,3 @@ if __name__ == "__main__":
     except Exception as e:
         log.exception(traceback.format_exc())
         exit(1)
-
-'''
-def compute_modification_freqs(bgc_variants: List[BGC_Variant]):
-    processed_bgc_ids = set()
-
-    total_modules = 0
-    total_methylated = 0
-    total_epimerized = 0
-    for bgc_variant in bgc_variants:
-        if bgc_variant.bgc_variant_id.bgc_id in processed_bgc_ids:
-            continue
-        processed_bgc_ids.add(bgc_variant.bgc_variant_id.bgc_id)
-
-        for module in bgc_variant.modules:
-            total_modules += 1
-            if BGC_Module_Modification.METHYLATION in module.modifications:
-                total_methylated += 1
-            if BGC_Module_Modification.EPIMERIZATION in module.modifications:
-                total_epimerized += 1
-
-    methylation_freq = total_methylated / total_modules
-    epimerization_freq = total_epimerized / total_modules
-    print(f"Total modules: {total_modules}")
-    print(f"Methylation frequency: {methylation_freq:.4f}")
-    print(f"Epimerization frequency: {epimerization_freq:.4f}")
-'''
