@@ -1394,11 +1394,9 @@
         });
 
         if(hasInvalidIdx) {
-            // deselect graph
             network.selectNodes([]);  
-            increaseTranparency([]);
-            // deselect molecule
-            deselectMol();
+            increaseTranparency(nidInt);
+            selectMol([], nrpID);
         } else {
             // select graph
             network.selectNodes(nidString);  
