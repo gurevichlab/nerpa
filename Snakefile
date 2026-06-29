@@ -51,7 +51,7 @@ rule test_nerpa:
         antismash=ANTISMASH_RESULTS,
     output:
         log=NERPA_DIR / 'test_results' / 'test_nerpa.log',
-        wrong_matches=params.test_results_dir / 'wrong_matches.yaml',
+        wrong_matches=TEST_RESULTS_DIR / 'wrong_matches.yaml',
     shell:
         r"""
         mkdir -p test_results
