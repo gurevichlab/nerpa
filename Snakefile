@@ -76,9 +76,9 @@ rule preprocess_pnrpdb2:
         pnrpdb2=PNRPDB2_INITIAL,
     output:
         # "filtered" means ID for which Nerpa is able build NRP variants
-        pnrpdb2_filtered=SMILES_DIR / 'pnrpdb2_filtered.tsv',
+        pnrpdb2_filtered=PNRPDB2,
         pnrpdb2_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_parsed_rban_records.yaml',
-        pnrpdb2_deduplicated=PNRPDB2,
+        pnrpdb2_deduplicated=SMILES_DIR / 'pnrpdb2_deduplicated.tsv',
         pnrpdb2_deduplicated_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_deduplicated_parsed_rban_records.yaml',
         pnrpdb2_mibig_norine=PNRPDB2_MIBIG_NORINE,
         pnrpdb2_mibig_norine_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml',
