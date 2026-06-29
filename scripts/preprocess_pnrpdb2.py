@@ -143,7 +143,11 @@ def main():
 
     args = parse_args(nerpa_dir)
     pnrpdb2_path = args.nrp_database
-    pnrpdb_pref = pnrpdb2_path.stem
+    pnrpdb_pref = (
+        pnrpdb2_path.stem[-len('_raw'):]
+        if pnrpdb2_path.stem.endswith('_raw')
+        else pnrpdb2_path.stem + '_filtered'
+    )
     print(f'Using pnrpdb2 path: {pnrpdb2_path}, prefix for output tables: {pnrpdb_pref}')
     pnrpdb2_df = pd.read_csv(pnrpdb2_path, sep='\t')
 
@@ -178,7 +182,7 @@ def main():
     tables: List[Tuple[str, pd.DataFrame]] = []
 
     # 0. The filtered pnrpdb2 table with only records that were processed by nerpa
-    tables.append((f'{pnrpdb_pref}_filtered', pnrpdb2_df))
+    tables.append((pnrpdb_pref, pnrpdb2_df))
 
     # 1. Only the subset of pnrpdb2 that are in MIBiG or Norine
     is_mibig_norine_col = pnrpdb2_df['ID'].apply(is_mibig_norine)

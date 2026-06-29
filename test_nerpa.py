@@ -203,13 +203,21 @@ def remove_deprecated_nrps(test_matches: List[TestMatch],
     '''
 
     valid_nrp_ids = set(pnrpdb_info['compound_id'])
-    deprecated_ids = {test_match.nrp_id for test_match in test_matches
-                      if test_match.nrp_id not in valid_nrp_ids}
-    print(f'Removed {len(deprecated_ids)} test matches with deprecated NRP IDs:\n'
-          f'{sorted(deprecated_ids)}\n')
+    deprecated_ids = {
+        test_match.nrp_id
+        for test_match in test_matches
+        if test_match.nrp_id not in valid_nrp_ids
+    }
+    print(
+        f'Removed {len(deprecated_ids)} test matches with deprecated NRP IDs:\n'
+        f'{sorted(deprecated_ids)}\n'
+    )
 
-    return [test_match for test_match in test_matches
-            if test_match.nrp_id in valid_nrp_ids]
+    return [
+        test_match
+        for test_match in test_matches
+        if test_match.nrp_id in valid_nrp_ids
+    ]
 
 NRP_ISO_CLASS = str  # NRP representative ID up to isomorphism
 NRP_ID = str

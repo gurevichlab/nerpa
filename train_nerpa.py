@@ -1,36 +1,45 @@
-from typing import List, Dict, Set, NamedTuple
-from pathlib import Path
-from collections import defaultdict
 import argparse
 from argparse import Namespace as CommandlineArgs
+from collections import defaultdict
 from logging import Logger
+from pathlib import Path
+from typing import Dict, List, NamedTuple, Set, Optional
 
 import polars as pl
 import yaml
 
-from src.aa_specificity_prediction_model.specificity_prediction_helper import SpecificityPredictionHelper
+from src.aa_specificity_prediction_model.specificity_prediction_helper import (
+    SpecificityPredictionHelper,
+)
 from src.antismash_parsing.antismash_parser_types import BGC_ID
 from src.antismash_parsing.bgc_variant_types import BGC_Variant
 from src.build_output.write_results import write_yaml
-from src.config import load_monomer_names_helper, load_config, Config
-from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import MATCHING_STATE_TYPES
-from src.rban_parsing.rban_parser import Parsed_rBAN_Record
-from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
-from src.training.logging_config import configure_logging
+from src.config import Config, load_config, load_monomer_names_helper
+from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
+    MATCHING_STATE_TYPES,
+)
 from src.hmm.hmm_scoring_config import load_hmm_scoring_config
 from src.hmm.hmm_scoring_helper import HMMHelper
 from src.matching.matcher import NRP_ID
 from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variant
+from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 from src.testing.testing_types import TestMatch
-from src.training.hmm_parameters.extract_data_for_training import extract_data_for_training, DataForTraining
-from src.training.hmm_parameters.bgc_alignment_compatibility import bgc_variant_match_compatible
+from src.training.hmm_parameters.bgc_alignment_compatibility import (
+    bgc_variant_match_compatible,
+)
+from src.training.hmm_parameters.extract_data_for_training import (
+    DataForTraining,
+    extract_data_for_training,
+)
 from src.training.hmm_parameters.hmm_infer_edge_params import infer_edge_params
 from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission_params
 from src.training.hmm_parameters.norine_stats import load_norine_stats
-from src.training.hmm_parameters.training_types import MatchWithBGCNRP, EmissionInfo
+from src.training.hmm_parameters.training_types import EmissionInfo, MatchWithBGCNRP
 from src.training.hmm_parameters.write_results import write_params
-from test_nerpa import load_local_paths, run_nerpa, remove_deprecated_nrps
+from src.training.logging_config import configure_logging
+from test_nerpa import load_local_paths, remove_deprecated_nrps, run_nerpa
 
 
 def load_all_bgc_variants(bgc_variants_yaml: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
@@ -42,26 +51,28 @@ def load_all_bgc_variants(bgc_variants_yaml: Path) -> Dict[BGC_ID, List[BGC_Vari
     return bgc_variants
 
 
-def load_bgc_variants_for_matches(bgc_id_to_bgc_variants: Dict[BGC_ID, List[BGC_Variant]],
-                                  matches: List[TestMatch],
-                                  log: Logger) -> Dict[NRP_ID, BGC_Variant]:  # nrp_id -> bgc_variant
+def load_bgc_variants_for_matches(
+        bgc_id_to_bgc_variants: Dict[BGC_ID, List[BGC_Variant]],
+        matches: List[TestMatch],
+        log: Logger
+) -> Dict[NRP_ID, BGC_Variant]:  # nrp_id -> bgc_variant
     nrp_id_to_bgc_variant = {}
-    for match in matches:
-        nrp_id = match.nrp_id
-        genome_id = match.bgc_id
+    for m in matches:
+        nrp_id = m.nrp_id
+        genome_id = m.bgc_id
         try:
             # TestMatches come from MIBiG, and math.bgc_id is genome id, e.g. BGC0001234
             # conversely, Nerpa uses tuples (antiSMASH_file, contig_idx, bgc_idx)
             bgc_id = next(bgc_id
                           for bgc_id in bgc_id_to_bgc_variants.keys()
-                          if bgc_id.antiSMASH_file.stem == genome_id)
+                          if bgc_id._genome_id() == genome_id)
 
             bgc_variant = next(bgc_variant
                                for bgc_variant in bgc_id_to_bgc_variants[bgc_id]
-                               if bgc_variant_match_compatible(bgc_variant, match))
+                               if bgc_variant_match_compatible(bgc_variant, m))
         except StopIteration:
             log.warning(f'Cannot find appropriate BGC variant for {nrp_id}')
-            log.debug(f'Match that failed to find variant: {match}')
+            log.debug(f'Match that failed to find variant: {m}')
             continue
 
         nrp_id_to_bgc_variant[nrp_id] = bgc_variant
@@ -103,6 +114,7 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
         default=default_approved_matches,
         help=f"Path to the approved matches YAML file (default: {default_approved_matches})",
     )
+
     parser.add_argument(
         "--nerpa-results-on-mibig-no-calibration",
         type=Path,
@@ -114,6 +126,36 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
         ),
     )
 
+    default_pnrpdb2_info = (
+        nerpa_dir
+        / 'data'
+        / 'for_training_and_testing'
+        / 'pnrpdb2_info.tsv'
+    )
+    parser.add_argument(
+        "--pnrpdb2-info",
+        type=Path,
+        default=default_pnrpdb2_info,
+        help=(
+            f"Path to the PNRPDB2 info TSV file (default: {default_pnrpdb2_info}). "
+            "This file contains compounds clustering and some status such as number of monomers, number of unknown monomers, etc. "
+        ),
+    )
+
+    default_mibig_norine_preprocessed = (
+        nerpa_dir
+        / 'data'
+        / 'input'
+        / 'preprocessed'
+        / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
+    )
+    parser.add_argument(
+        "--mibig-norine-preprocessed",
+        type=Path,
+        default=default_mibig_norine_preprocessed,
+        help=f"Path to the preprocessed PNRPDB2 data (default: {default_mibig_norine_preprocessed})",
+    )
+        
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'training_results')
     parser.add_argument("--draw-hmms", action='store_true')
@@ -133,77 +175,35 @@ def load_hmm_helper(cfg: Config,
     return HMMHelper(hmm_scoring_config, monomer_names_helper)
 
 
-def get_bgc_variants(bgc_ids: Set[str],
-                     nerpa_dir: Path,
-                     output_dir: Path) -> Path:
-    local_paths = load_local_paths(nerpa_dir)
-    antismash_results_dir = Path(local_paths['as_results_mibig4_nrps']).resolve()
-
-    missing_bgcs = {bgc_id for bgc_id in bgc_ids if not (antismash_results_dir / bgc_id).exists()}
-    if missing_bgcs:
-        raise ValueError(f"The following BGC IDs do not have corresponding antiSMASH results in {antismash_results_dir}:\n"
-                         f"{missing_bgcs}\nPlease ensure that the antiSMASH results for these BGCs are present in the specified directory.")
-
-    as_results_file = output_dir / 'antismash_results_paths.txt'
-    with open(as_results_file, 'w') as f:
-        for bgc_id in bgc_ids:
-            f.write(f"{antismash_results_dir / bgc_id}\n")
-
-    smiles_tsv = output_dir / 'smiles.tsv'
-    with open(smiles_tsv, 'w') as f:
-        f.write('ID\tSMILES\n')
-        f.write('compound_1\tCC(=O)OC1=CC=CC=C1C(=O)O\n')  # aspirin as dummy SMILES
-
-    print('Running Nerpa')
-    run_nerpa(nerpa_dir,
-              antismash_paths=as_results_file,
-              smiles_tsv=smiles_tsv,
-              min_num_matches_per_bgc=1,
-              max_num_matches_per_bgc=1,
-              disable_calibration=True,
-              disable_dictionary_lookup=True,
-              output_dir=output_dir / 'nerpa_results')
-    print('Nerpa finished')
-    return output_dir / 'nerpa_results/preprocessed_input/BGC_variants.yaml'
+def get_bgc_variants(
+        nerpa_results: Path,
+        genome_ids: Optional[Set[str]]=None,
+) -> List[BGC_Variant]:
+    bgc_variants_yaml = nerpa_results / 'preprocessed_input' / 'BGC_variants.yaml'
+    with open(bgc_variants_yaml, 'r') as f:
+        bgc_variants = [
+            BGC_Variant.from_yaml_dict(bgc_variant_dict)
+            for bgc_variant_dict in yaml.safe_load(f)
+        ]
+    return [
+        bgc_variant for bgc_variant in bgc_variants
+        if genome_ids is None or bgc_variant.bgc_variant_id.bgc_id._genome_id() in genome_ids
+    ]
 
 
-def get_nrp_variants(nerpa_dir: Path) -> Dict[NRP_ID, NRP_Variant]:
-    parsed_rban_records_yaml = (nerpa_dir / 'data/input/preprocessed/'
-                                       'pnrpdb2_expanded_mibig_norine_parsed_rban_records.yaml')
-    with open (parsed_rban_records_yaml, 'r') as f:
-        parsed_rban_records = [Parsed_rBAN_Record.from_dict(record)
-                               for record in yaml.safe_load(f)]
+ def get_nrp_variants(parsed_rban_records_yaml: Path) -> Dict[NRP_ID, NRP_Variant]:
+     with open (parsed_rban_records_yaml, 'r') as f:
+         parsed_rban_records = [
+             Parsed_rBAN_Record.from_dict(record)
+             for record in yaml.safe_load(f)
+         ]
 
-    nrp_variants = rban_records_to_nrp_variants(parsed_rban_records)
-    return {variant.nrp_variant_id.nrp_id: variant
-            for variant in nrp_variants}
+     nrp_variants = rban_records_to_nrp_variants(parsed_rban_records)
+     return {
+         variant.nrp_variant_id.nrp_id: variant
+         for variant in nrp_variants
+     }
 
-'''
-pnrpdb_info_tsv = nerpa_dir / 'data/for_training_and_testing/pnrpdb2_info.tsv'
-
-pnrpdb_info = pl.read_csv(pnrpdb_info_tsv, separator='\t')
-
-# Create a mapping from nrp_id (compound_id) to nrp_iso_class
-nrp_id_to_iso_class = {row['compound_id']: row['nrp_variant_iso_class_representative']
-                       for row in pnrpdb_info.iter_rows(named=True)}
-
-# Create a mapping from nrp_iso_class to NRP_Variant
-# by finding which iso_class each variant's nrp_id belongs to
-iso_class_to_variant = {}
-for variant in nrp_variants:
-    nrp_id = variant.nrp_variant_id.nrp_id
-    iso_class = nrp_id_to_iso_class[nrp_id]
-    iso_class_to_variant[iso_class] = variant
-
-# Map each compound_id to its corresponding variant based on nrp_iso_class
-nrp_id_to_variant = {}
-for row in pnrpdb_info.iter_rows(named=True):
-    compound_id = row['compound_id']
-    nrp_iso_class = row['nrp_variant_iso_class_representative']
-
-    if nrp_iso_class in iso_class_to_variant:
-        nrp_id_to_variant[compound_id] = iso_class_to_variant[nrp_iso_class]
-'''
 
 def check_bgcs_with_many_variants(bgc_variants: List[BGC_Variant]):
     bgc_id_to_variants = defaultdict(set)
@@ -229,48 +229,57 @@ def main():
     monomer_names_helper = load_monomer_names_helper(nerpa_cfg.monomers_config,
                                                      nerpa_dir)
     hmm_helper = load_hmm_helper(nerpa_cfg, monomer_names_helper)
-    pnrpdb_info = pl.read_csv(nerpa_dir / 'data/for_training_and_testing/pnrpdb2_info.tsv', separator='\t')
+    pnrpdb_info = pl.read_csv(args.pnrpdb2_info, sep='\t')
 
     # 2. Load approved matches and corresponding BGC variants
     logger.info('Loading approved matches')
-    approved_matches = [TestMatch.from_yaml_dict(test_match_dict)
-                        for test_match_dict in yaml.safe_load(args.approved_matches.read_text())]
+    approved_matches = [
+        TestMatch.from_yaml_dict(test_match_dict)
+        for test_match_dict in yaml.safe_load(args.approved_matches.read_text())
+    ]
     approved_matches = remove_deprecated_nrps(approved_matches, pnrpdb_info)
 
     logger.info('Loading BGC variants')
-    # Note: each BGC can have multiple BGC variants;
-    # we try to find the ones compatible with alignments in approved matches
-    if args.bgc_variants:
-        bgc_variants_yaml = args.bgc_variants
-    else:
-        test_matches_bgcs = {m.bgc_id for m in approved_matches}
-        bgc_variants_yaml = get_bgc_variants(test_matches_bgcs,
-                                             nerpa_dir,
-                                             args.output_dir,)
+    test_matches_genome_ids = {
+        m.bgc_id
+        for m in approved_matches
+    }
+    bgc_variants = get_bgc_variants(
+        args.nerpa_results_on_mibig_no_calibration,
+        test_matches_genome_ids,
+    )
 
-    bgc_id_to_bgc_variants = load_all_bgc_variants(bgc_variants_yaml)
-    matched_bgc_variants: Dict[NRP_ID, BGC_Variant] = load_bgc_variants_for_matches(bgc_id_to_bgc_variants,
-                                                                                    approved_matches,
-                                                                                    logger)
+    bgc_id_to_bgc_variants = defaultdict(list)
+    for bgc_variant in bgc_variants:
+        bgc_id_to_bgc_variants[bgc_variant.bgc_variant_id.bgc_id].append(bgc_variant)
+    matched_bgc_variants: Dict[NRP_ID, BGC_Variant] = load_bgc_variants_for_matches(
+        bgc_id_to_bgc_variants,
+        approved_matches,
+        logger
+    )
     check_bgcs_with_many_variants(list(matched_bgc_variants.values()))
 
-    nrp_id_to_nrp_variant = get_nrp_variants(nerpa_dir)
+    nrp_id_to_nrp_variant = get_nrp_variants(args.mibig_norine_preprocessed)
 
 
     # note: alignments are taken from "old" approved matches while bgc predictions are taken from current matches
     matches_with_bgcs_nrps_for_training = [
-        MatchWithBGCNRP(match,
-                        matched_bgc_variants[match.nrp_id],
-                        nrp_id_to_nrp_variant[match.nrp_id])
-        for match in approved_matches
-        if match.nrp_id in matched_bgc_variants
+        MatchWithBGCNRP(
+            m,
+            matched_bgc_variants[m.nrp_id],
+            nrp_id_to_nrp_variant[m.nrp_id]
+        )
+        for m in approved_matches
+        if m.nrp_id in matched_bgc_variants
     ]
 
     logger.info(f'Number of matches with BGC and NRP variants for training: {len(matches_with_bgcs_nrps_for_training)}')
 
-    data_for_training = extract_data_for_training(matches_with_bgcs_nrps_for_training,
-                                                  hmm_helper,
-                                                  dir_for_hmm_figures=args.output_dir if args.draw_hmms else None)
+    data_for_training = extract_data_for_training(
+        matches_with_bgcs_nrps_for_training,
+        hmm_helper,
+        dir_for_hmm_figures=args.output_dir if args.draw_hmms else None
+    )
 
     # intermediate results for debug
     dump_emissions_training_data(data_for_training, args.output_dir)

@@ -22,7 +22,7 @@ def ext_path(key: str) -> Path:
 
 # ===== Source data files -- these are not produced by any rule
 APPROVED_MATCHES = NERPA_ROOT / 'data/for_training_and_testing/approved_matches.yaml'
-PNRPDB2_INITIAL = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2.tsv'
+PNRPDB2_INITIAL = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_raw.tsv'
 ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
@@ -70,7 +70,6 @@ rule preprocess_pnrpdb2:
         tables_dir=NERPA_ROOT / 'data' / 'input',
         preprocessed_dir=NERPA_ROOT / 'data' / 'input' / 'preprocessed',
         preprocess_script=NERPA_ROOT / 'scripts' / 'preprocess_pnrpdb2.py',
-        build_pnrpdb2_info_script=NERPA_ROOT / 'scripts' / 'pnrpdb_info.py',
         nerpa_output_dir=NERPA_ROOT / 'nerpa_results' / 'preprocessed_pnrpdb2',
     input:
         pnrpdb2=PNRPDB2_INITIAL,
@@ -84,7 +83,6 @@ rule preprocess_pnrpdb2:
         pnrpdb2_mibig_norine_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_mibig_norine_parsed_rban_records.yaml',
         pnrpdb2_mibig_norine_deduplicated=PNRPDB2_MIBIG_NORINE,
         pnrpdb2_mibig_norine_deduplicated_preprocessed=MIBIG_NORINE_PREPROCESSED,
-        pnrpdb2_info=PNRPDB2_INFO,
     shell:
         r"""
         PYTHONPATH={NERPA_ROOT} python {params.preprocess_script}  \
@@ -94,9 +92,19 @@ rule preprocess_pnrpdb2:
           run-nerpa \
           --output-for-nerpa-run {params.nerpa_output_dir} \
           --deduplicate
+        """
 
+rule compute_pnrpdb2_info:
+    params:
+        build_pnrpdb2_info_script=NERPA_ROOT / 'scripts' / 'pnrpdb_info.py',
+    input:
+        pnrpdb2_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_parsed_rban_records.yaml',
+    output:
+        pnrpdb2_info=PNRPDB2_INFO,
+    shell:
+        r"""
         PYTHONPATH={NERPA_ROOT} python {params.build_pnrpdb2_info_script} \
-            --pnrpdb2-preprocessed {output.pnrpdb2_preprocessed} \
+            --pnrpdb2-preprocessed {input.pnrpdb2_preprocessed} \
             --out {output.pnrpdb2_info}
         """
 
