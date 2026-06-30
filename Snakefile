@@ -40,6 +40,7 @@ NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE = NERPA_ROOT / 'nerpa_results' / 'mibig_
 # ===== Important directories
 TEST_RESULTS_DIR = NERPA_ROOT / 'test_results'
 TRAINING_RESULTS_DIR = NERPA_ROOT / 'training_results'
+BENCHMARKING_PLOTS_DIR = NERPA_ROOT / 'benchmarking_results'
 SMILES_DIR = NERPA_ROOT / 'data' / 'input'
 NRP_PREPROCESSED_DIR = NERPA_ROOT / 'data' / 'input' / 'preprocessed'
 
