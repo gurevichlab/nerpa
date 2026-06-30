@@ -24,18 +24,22 @@ def ext_path(key: str) -> Path:
 APPROVED_MATCHES = NERPA_ROOT / 'data/for_training_and_testing/approved_matches.yaml'
 PNRPDB2_INITIAL = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_raw.tsv'
 ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
+NERPA1_RESULTS_ON_MIBIG = ext_path('NERPA1 results on MIBiG 4 vs MIBIG+NORINE NRPs')
+BIOCAT_RESULTS_ON_MIBIG = ext_path('BioCAT results on MIBiG 4 vs MIBIG+NORINE NRPs')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
 # PNRPDB2 without the compounds Nerpa is unable to process
-PNRPDB2 = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_filtered.tsv'
+PNRPDB2 = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2.tsv'
 # Deduplicated compounds from MIBiG and Norine, aka "confirmed NRPs"
 PNRPDB2_MIBIG_NORINE = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_mibig_norine_deduplicated.tsv'
 MIBIG_NORINE_PREPROCESSED = NERPA_ROOT / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
 # Clustering and stats on PNRPDB2 compounds
 PNRPDB2_INFO = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.tsv'
-
-# ==== Important directories
+NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_ROOT / 'nerpa_results' / 'mibig_no_calibration'
+NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE = NERPA_ROOT / 'nerpa_results' / 'mibig_vs_mibig_norine' 
+# ===== Important directories
 TEST_RESULTS_DIR = NERPA_ROOT / 'test_results'
+TRAINING_RESULTS_DIR = NERPA_ROOT / 'training_results'
 SMILES_DIR = NERPA_ROOT / 'data' / 'input'
 NRP_PREPROCESSED_DIR = NERPA_ROOT / 'data' / 'input' / 'preprocessed'
 
@@ -108,16 +112,13 @@ rule compute_pnrpdb2_info:
             --out {output.pnrpdb2_info}
         """
 
-# used for training
-NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_ROOT / 'nerpa_results' / 'mibig_no_calibration'
-
 rule preprocess_mibig_no_calibration:
     params:
         nerpa_exec=NERPA_ROOT / 'nerpa.py',
     input:
         ANTISMASH_RESULTS
     output:
-        NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
+        NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
     shell:
         r"""
         python {params.nerpa_exec} \
@@ -134,5 +135,83 @@ rule preprocess_mibig_no_calibration:
             --let-it-crash
         """
         
-        
     
+rule train_nerpa:
+    params:
+        train_script=NERPA_ROOT / 'scripts' / 'train_nerpa.py',
+        nerpa_results_on_mibig_no_calibration=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION,
+        output_dir=TRAINING_RESULTS_DIR,
+    input:
+        approved_matches=APPROVED_MATCHES,
+        # ensure we have preprocessed BGC variants available for training
+        mibig_no_calib_variants=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
+        pnrpdb2_info=PNRPDB2_INFO,
+        mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
+    output:
+        outdir=directory(NERPA_ROOT / 'training_results'),
+        log=NERPA_ROOT / 'training_results' / 'train_nerpa.log',
+    shell:
+        r"""
+        mkdir -p {output.outdir}
+        PYTHONPATH={NERPA_ROOT} python {params.train_script} \
+          --approved-matches {input.approved_matches} \
+          --nerpa-results-on-mibig-no-calibration {params.nerpa_results_on_mibig_no_calibration} \
+          --pnrpdb2-info {input.pnrpdb2_info} \
+          --mibig-norine-preprocessed {input.mibig_norine_preprocessed} \
+          --output-dir {output.outdir} \
+          > {output.log} 2>&1
+        """
+   
+rule nerpa2_on_mibig_vs_mibig_norine:
+    params:
+        nerpa_exec=NERPA_ROOT / 'nerpa.py',
+        outdir=NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE,
+    input:
+        antismash=ANTISMASH_RESULTS,
+        # confirmed NRPs (MIBiG+Norine), already parsed by rBAN
+        parsed_rban_records=MIBIG_NORINE_PREPROCESSED,
+    output:
+        outdir=directory(NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE),
+    shell:
+        r"""
+        python {params.nerpa_exec} \
+          --antismash {input.antismash} \
+          --parsed-rban-records {input.parsed_rban_records} \
+          --output-dir {output.outdir} \
+          --force-output-dir \
+          --fast-matching \
+          --min-num-matches-per-bgc 10 \
+          --max-num-matches-per-bgc 10 \
+          --min-num-matches-per-nrp 0 \
+          --max-num-matches-per-nrp 0 \
+          --max-num-matches 0 \
+          --disable-bgc-deduplication \
+          --process-hybrids \
+          --threads 8 \
+          --skip-molecule-drawing \
+          --dump-all-preprocessed
+        """
+
+rule benchmarking_plots:
+    params:
+        benchmarking_script=NERPA_ROOT / 'scripts' / 'benchmarking_plots.py',
+    input:
+        nerpa1_report=NERPA1_RESULTS_ON_MIBIG,
+        nerpa2_report=NERPA2_REPORT_ON_MIBIG_VS_MIBIG_NORINE,
+        biocat_report=BIOCAT_RESULTS_ON_MIBIG,
+    output:
+        outdir=directory(BENCHMARKING_PLOTS_DIR / '{bgc_test_set}'),
+        success=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / '_SUCCESS',
+        log=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / 'benchmarking_plots.log',
+    shell:
+        r"""
+         mkdir -p {output.outdir}
+         PYTHONPATH={NERPA_ROOT} python {params.benchmarking_script} \
+           --nerpa1-report {input.nerpa1_report} \
+           --nerpa2-report {input.nerpa2_report} \
+           --biocat-report {input.biocat_report} \
+           --output-dir {output.outdir} \
+           --bgc-test-set {wildcards.bgc_test_set} \
+           > {output.log} 2>&1
+         touch {output.success}
+        """

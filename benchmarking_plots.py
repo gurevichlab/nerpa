@@ -89,18 +89,20 @@ def nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path: Path,
 
 
 
-def plots_for_paper(nerpa1_report_path: Path,
-                    nerpa2_report_path: Path,
-                    biocat_report_path: Path,
-                    output_dir: Path,
-                    bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs']) -> Path:
-    nerpa_dir = Path(__file__).parent
-    
-    nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path=nerpa1_report_path,
-                               nerpa2_report_path=nerpa2_report_path,
-                               biocat_report_path=biocat_report_path,
-                               output_dir=output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots',
-                               bgc_test_set=bgc_test_set)
+def plots_for_paper(
+        nerpa1_report_path: Path,
+        nerpa2_report_path: Path,
+        biocat_report_path: Path,
+        output_dir: Path,
+        bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs']
+) -> Path:
+    nerpa1_vs_nerpa2_vs_biocat(
+        nerpa1_report_path=nerpa1_report_path,
+        nerpa2_report_path=nerpa2_report_path,
+        biocat_report_path=biocat_report_path,
+        output_dir=output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots',
+        bgc_test_set=bgc_test_set
+    )
 
     # nerpa1_vs_nerpa2_alignment()
     plots_for_paper_dir = output_dir / 'plots_for_paper'
@@ -121,9 +123,11 @@ def plots_for_paper(nerpa1_report_path: Path,
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         dest_path.write_bytes(file_path.read_bytes())
         
-    join_svgs_side_by_side(svg_paths=files_to_copy,
-                           output_path=plots_for_paper_dir / 'combined_figure.svg',
-                           force_same_heights=True,)
+    join_svgs_side_by_side(
+        svg_paths=files_to_copy,
+        output_path=plots_for_paper_dir / 'combined_figure.svg',
+        force_same_heights=True,
+    )
 
     return plots_for_paper_dir / 'combined_figure.svg'
 
@@ -139,11 +143,13 @@ def parse_args():
 if __name__ == "__main__":
     # Example usage
     args = parse_args()
-    figure_path = plots_for_paper(nerpa1_report_path=args.nerpa1_report,
-                                  nerpa2_report_path=args.nerpa2_report,
-                                  biocat_report_path=args.biocat_report,
-                                  output_dir=args.output_dir,
-                                  bgc_test_set=args.bgc_test_set)
+    figure_path = plots_for_paper(
+        nerpa1_report_path=args.nerpa1_report,
+        nerpa2_report_path=args.nerpa2_report,
+        biocat_report_path=args.biocat_report,
+        output_dir=args.output_dir,
+        bgc_test_set=args.bgc_test_set
+    )
     print(f"Combined figure saved at: {figure_path}")
     # nerpa1_vs_nerpa2()
     #nerpa1_vs_nerpa2_vs_biocat()
