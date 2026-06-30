@@ -197,7 +197,7 @@ rule benchmarking_plots:
         benchmarking_script=NERPA_ROOT / 'scripts' / 'benchmarking_plots.py',
     input:
         nerpa1_report=NERPA1_RESULTS_ON_MIBIG,
-        nerpa2_report=NERPA2_REPORT_ON_MIBIG_VS_MIBIG_NORINE,
+        nerpa2_report=NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE / 'report.tsv',
         biocat_report=BIOCAT_RESULTS_ON_MIBIG,
     output:
         outdir=directory(BENCHMARKING_PLOTS_DIR / '{bgc_test_set}'),
