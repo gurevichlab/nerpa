@@ -46,7 +46,7 @@ NRP_PREPROCESSED_DIR = NERPA_ROOT / 'data' / 'input' / 'preprocessed'
 
 rule all:
     input:
-        TEST_RESULTS_DIR / 'test_nerpa.log',
+        TEST_RESULTS_DIR / 'wrong_matches.yaml',
 
 
 rule test_nerpa:
@@ -57,8 +57,9 @@ rule test_nerpa:
         mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
         antismash=ANTISMASH_RESULTS,
     output:
-        log=NERPA_ROOT / 'test_results' / 'test_nerpa.log',
         wrong_matches=TEST_RESULTS_DIR / 'wrong_matches.yaml',
+    log:
+        TEST_RESULTS_DIR / 'test_nerpa.log',
     shell:
         r"""
         mkdir -p test_results
@@ -67,7 +68,7 @@ rule test_nerpa:
           --parsed-rban-records {input.mibig_norine_preprocessed} \
           --antismash-results {input.antismash} \
           --output-dir {params.test_results_dir} \
-          > {output.log} 2>&1
+          > {log} 2>&1
         """
 
 rule preprocess_pnrpdb2:
