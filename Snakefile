@@ -66,7 +66,7 @@ rule test_nerpa:
         mkdir -p test_results
         python test_nerpa.py \
           --test-matches {input.matches} \
-          --parsed-rban-records {input.mibig_norine_preprocessed} \
+          --preprocessed-nrps {input.mibig_norine_preprocessed} \
           --nrps-info {input.pnrpdb2_info} \
           --antismash-results {input.antismash} \
           --output-dir {params.test_results_dir} \
