@@ -189,7 +189,6 @@ rule nerpa2_on_mibig_vs_mibig_norine:
           --parsed-rban-records {input.parsed_rban_records} \
           --output-dir {params.outdir} \
           --force-output-dir \
-          --fast-matching \
           --min-num-matches-per-bgc 10 \
           --max-num-matches-per-bgc 10 \
           --min-num-matches-per-nrp 0 \
