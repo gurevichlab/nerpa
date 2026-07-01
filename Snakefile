@@ -46,7 +46,10 @@ NRP_PREPROCESSED_DIR = NERPA_ROOT / 'data' / 'input' / 'preprocessed'
 
 rule all:
     input:
-        TEST_RESULTS_DIR / 'wrong_matches.yaml',
+        TEST_RESULTS_DIR / '.done',
+        TRAINING_RESULTS_DIR / '.done',
+        BENCHMARKING_PLOTS_DIR / 'mibig4_wo_training_bgcs' / '.done',
+        BENCHMARKING_PLOTS_DIR / 'training_bgcs' / '.done',
 
 
 rule test_nerpa:
@@ -58,7 +61,7 @@ rule test_nerpa:
         pnrpdb2_info=PNRPDB2_INFO,
         antismash=ANTISMASH_RESULTS,
     output:
-        wrong_matches=TEST_RESULTS_DIR / 'wrong_matches.yaml',
+        test_nerpa_done=TEST_RESULTS_DIR / '.done',
     log:
         TEST_RESULTS_DIR / 'test_nerpa.log',
     shell:
@@ -71,6 +74,7 @@ rule test_nerpa:
           --antismash-results {input.antismash} \
           --output-dir {params.test_results_dir} \
           > {log} 2>&1
+        touch {output.test_nerpa_done}
         """
 
 rule preprocess_pnrpdb2:
@@ -152,8 +156,9 @@ rule train_nerpa:
         pnrpdb2_info=PNRPDB2_INFO,
         mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
     output:
-        outdir=directory(NERPA_ROOT / 'training_results'),
-        log=NERPA_ROOT / 'training_results' / 'train_nerpa.log',
+        train_nerpa_done=NERPA_ROOT / 'training_results' / '.done',
+    log:
+        NERPA_ROOT / 'training_results' / 'train_nerpa.log',
     shell:
         r"""
         mkdir -p {output.outdir}
@@ -164,6 +169,7 @@ rule train_nerpa:
           --mibig-norine-preprocessed {input.mibig_norine_preprocessed} \
           --output-dir {output.outdir} \
           > {output.log} 2>&1
+        touch {output.train_nerpa_done}
         """
    
 rule nerpa2_on_mibig_vs_mibig_norine:
@@ -199,23 +205,24 @@ rule nerpa2_on_mibig_vs_mibig_norine:
 rule benchmarking_plots:
     params:
         benchmarking_script=NERPA_ROOT / 'scripts' / 'benchmarking_plots.py',
+        outdir=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}',
     input:
         nerpa1_report=NERPA1_RESULTS_ON_MIBIG,
         nerpa2_report=NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE / 'report.tsv',
         biocat_report=BIOCAT_RESULTS_ON_MIBIG,
     output:
-        outdir=directory(BENCHMARKING_PLOTS_DIR / '{bgc_test_set}'),
-        success=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / '_SUCCESS',
-        log=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / 'benchmarking_plots.log',
+        benchmarking_done=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / '.done',
+    log:
+        BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / 'benchmarking_plots.log',
     shell:
         r"""
-         mkdir -p {output.outdir}
+         mkdir -p {params.outdir}
          PYTHONPATH={NERPA_ROOT} python {params.benchmarking_script} \
            --nerpa1-report {input.nerpa1_report} \
            --nerpa2-report {input.nerpa2_report} \
            --biocat-report {input.biocat_report} \
-           --output-dir {output.outdir} \
+           --output-dir {params.outdir} \
            --bgc-test-set {wildcards.bgc_test_set} \
-           > {output.log} 2>&1
-         touch {output.success}
+           > {log} 2>&1
+         touch {output.benchmarking_done}
         """
