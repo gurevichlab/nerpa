@@ -35,6 +35,9 @@ PNRPDB2_MIBIG_NORINE = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_mibig_norine_ded
 MIBIG_NORINE_PREPROCESSED = NERPA_ROOT / 'data' / 'input' / 'preprocessed' / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
 # Clustering and stats on PNRPDB2 compounds
 PNRPDB2_INFO = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'pnrpdb2_info.tsv'
+PNRPDB2_COMPOUND_SIMILARITY = (
+    NERPA_ROOT / 'data' / 'for_training_and_testing' / 'pnrpdb2_compound_similarity.tsv'
+)
 NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_ROOT / 'nerpa_results' / 'mibig_no_calibration'
 NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE = NERPA_ROOT / 'nerpa_results' / 'mibig_vs_mibig_norine' 
 # ===== Important directories
@@ -50,6 +53,7 @@ rule all:
         TRAINING_RESULTS_DIR / '.done',
         BENCHMARKING_PLOTS_DIR / 'mibig4_wo_training_bgcs' / '.done',
         BENCHMARKING_PLOTS_DIR / 'training_bgcs' / '.done',
+        PNRPDB2_COMPOUND_SIMILARITY,
 
 
 rule test_nerpa:
@@ -224,3 +228,19 @@ rule benchmarking_plots:
            > {log} 2>&1
          touch {output.benchmarking_done}
         """
+        
+rule compute_compound_similarity:
+    params:
+        compound_similarity_script=NERPA_ROOT / 'scripts' / 'pnrpdb_compound_similarity.py',
+    input:
+        # Use the preprocessed PNRPDB2 rBAN records
+        preprocessed_nrps=MIBIG_NORINE_PREPROCESSED,
+    output:
+        out=PNRPDB2_COMPOUND_SIMILARITY,
+    shell:
+        r"""
+        python {params.compound_similarity_script} \
+            --preprocessed-nrps {input.preprocessed_nrps} \
+            --out {output.out}
+        """
+
