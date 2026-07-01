@@ -132,7 +132,7 @@ rule preprocess_mibig_no_calibration:
         r"""
         python {params.nerpa_exec} \
             --antismash {input} \
-            --smiles CC(=O)OC1=CC=CC=C1C(=O)O \
+            --smiles "CC(=O)OC1=CC=CC=C1C(=O)O" \
             --output-dir {params.output_dir} \
             --force-output-dir \
             --min-num-matches-per-bgc 1 \
