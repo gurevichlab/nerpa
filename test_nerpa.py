@@ -302,13 +302,15 @@ def main():
                 f.write(f"{args.antismash_results / bgc_id}\n")
 
         print('Running Nerpa')
-        run_nerpa(nerpa_dir,
-                  antismash_paths=as_results_file,
-                  smiles_tsv=args.smiles_tsv,
-                  output_dir=args.output_dir / 'nerpa_results',
-                  max_num_matches_per_bgc=30,
-                  disable_bgc_deduplication=True,
-                  disable_nrp_deduplication=True,)
+        run_nerpa(
+            nerpa_dir=nerpa_dir,
+            antismash_paths=as_results_file,
+            preprocessed_nrps=args.preprocessed_nrps,
+            output_dir=args.output_dir / 'nerpa_results',
+            max_num_matches_per_bgc=30,
+            disable_bgc_deduplication=True,
+            disable_nrp_deduplication=True,
+        )
         print('Nerpa finished')
         nerpa_results_dir = args.output_dir / 'nerpa_results'
     else:
