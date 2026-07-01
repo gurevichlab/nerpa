@@ -187,7 +187,7 @@ rule nerpa2_on_mibig_vs_mibig_norine:
         python {params.nerpa_exec} \
           --antismash {input.antismash} \
           --parsed-rban-records {input.parsed_rban_records} \
-          --output-dir {output.outdir} \
+          --output-dir {params.outdir} \
           --force-output-dir \
           --fast-matching \
           --min-num-matches-per-bgc 10 \
