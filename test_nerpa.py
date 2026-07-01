@@ -56,6 +56,7 @@ def run_nerpa(
         "--min-num-matches-per-bgc", str(min_num_matches_per_bgc),
         "--threads", "8",
         "--dump-all-preprocessed",
+        "--skip-molecule-drawing",
         "--let-it-crash",
     ]
     if disable_bgc_deduplication:
