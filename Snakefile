@@ -132,12 +132,10 @@ rule preprocess_mibig_no_calibration:
         r"""
         python {params.nerpa_exec} \
             --antismash {input} \
-            # a random SMILES. It doesn't matter -- we just want to get prepocessed BGCs
             --smiles CC(=O)OC1=CC=CC=C1C(=O)O \
             --output-dir {params.output_dir} \
             --force-output-dir \
             --min-num-matches-per-bgc 1 \
-            # 0 means unlimited
             --max-num-matches 0 \
             --disable-calibration \
             --dump-all-preprocessed \
