@@ -123,6 +123,7 @@ rule compute_pnrpdb2_info:
 rule preprocess_mibig_no_calibration:
     params:
         nerpa_exec=NERPA_ROOT / 'nerpa.py',
+        output_dir=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION,
     input:
         ANTISMASH_RESULTS
     output:
@@ -133,7 +134,7 @@ rule preprocess_mibig_no_calibration:
             --antismash-results {input} \
             # a random SMILES. It doesn't matter -- we just want to get prepocessed BGCs
             --smiles CC(=O)OC1=CC=CC=C1C(=O)O \
-            --output-dir {NERPA_RESULTS_ON_MIBIG_NO_CALIBRATION} \
+            --output-dir {params.output_dir} \
             --force-output-dir \
             --min-num-matches-per-bgc 1 \
             # 0 means unlimited
