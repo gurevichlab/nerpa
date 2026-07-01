@@ -105,6 +105,19 @@ def load_command_line_args(nerpa_dir: Path,
         help=f"Path to the smiles TSV file (default={default_preprocessed_nrps})."
     )
 
+    default_pnrpdb_info_path = (
+        nerpa_dir
+        / 'data'
+        / 'for_training_and_testing'
+        / 'pnrpdb2_info.tsv'
+    )
+    parser.add_argument(
+        "--nrps-info",
+        type=Path,
+        default=default_pnrpdb_info_path,
+        help=f"Path to table with NRP clustering and stats such as number of monomers (default={default_pnrpdb_info_path})."
+    )
+
     default_antismash_results_path = Path(local_paths['antiSMASH results on MIBiG 4'])
     parser.add_argument(
         "--antismash-results",
@@ -235,11 +248,9 @@ def load_nrp_id_to_iso_class(nerpa_results_dir: Path) -> Dict[NRP_ID, NRP_ISO_CL
 
 def main():
     nerpa_dir = Path(__file__).parent
-    NERPA_VERSION = (nerpa_dir / 'VERSION.txt').read_text().strip()
     local_paths = load_local_paths(nerpa_dir)
-    pnrpdb_info = pl.read_csv(nerpa_dir / 'data/for_training_and_testing/pnrpdb2_info.tsv',
-                              separator='\t')
     args = load_command_line_args(nerpa_dir, local_paths)
+    pnrpdb_info = pl.read_csv(args.nrps_info, separator='\t')
 
     # logging_cfg = LoggingConfig(
     #     log_file=args.output_dir / 'test_nerpa.log',

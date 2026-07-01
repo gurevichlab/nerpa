@@ -55,6 +55,7 @@ rule test_nerpa:
     input:
         matches=APPROVED_MATCHES,
         mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
+        pnrpdb2_info=PNRPDB2_INFO,
         antismash=ANTISMASH_RESULTS,
     output:
         wrong_matches=TEST_RESULTS_DIR / 'wrong_matches.yaml',
@@ -66,6 +67,7 @@ rule test_nerpa:
         python test_nerpa.py \
           --test-matches {input.matches} \
           --parsed-rban-records {input.mibig_norine_preprocessed} \
+          --nrps-info {input.pnrpdb2_info} \
           --antismash-results {input.antismash} \
           --output-dir {params.test_results_dir} \
           > {log} 2>&1
