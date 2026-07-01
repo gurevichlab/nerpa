@@ -105,7 +105,7 @@ def load_command_line_args(nerpa_dir: Path,
         help=f"Path to the smiles TSV file (default={default_preprocessed_nrps})."
     )
 
-    default_antismash_results_path = Path(local_paths['as_results_mibig4_nrps'])
+    default_antismash_results_path = Path(local_paths['antiSMASH results on MIBiG 4'])
     parser.add_argument(
         "--antismash-results",
         type=Path,
@@ -126,19 +126,16 @@ def load_command_line_args(nerpa_dir: Path,
 
 
 def load_local_paths(nerpa_dir: Path) -> dict:
-    with open(nerpa_dir / 'local_paths.yaml') as local_paths_yaml:
+    with open(nerpa_dir / 'paths_to_external_data.yaml') as local_paths_yaml:
         local_paths_dict = yaml.safe_load(local_paths_yaml)
-        if any(path is None for path in local_paths_dict.values()):
-            raise ValueError(f"Some local paths are not set in {nerpa_dir / 'local_paths.yaml'}"
-                             f"Testing cannot be performed.")
         return {key: Path(value) for key, value in local_paths_dict.items()}
 
 
 def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
                         output_file: Path):
     data = []
-    for match, test_match in wrong_matches:
-        al_wrong = simplified_alignment_from_match(match)
+    for m, test_match in wrong_matches:
+        al_wrong = simplified_alignment_from_match(m)
         al_right = test_match.true_alignment
         mismatched_step_wrong, mismatched_step_right = fst_mismatched_step(al_wrong, al_right)
         mismatched_step_wrong = _wrap_alignment([mismatched_step_wrong]) \
@@ -149,7 +146,7 @@ def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
         data.append({
             'bgc_id': test_match.bgc_id,
             'nrp_id': test_match.nrp_id,
-            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(match)),
+            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(m)),
             'true_alignment': _wrap_alignment(test_match.true_alignment),
             'first_mismatched_step': [mismatched_step_wrong,
                                       mismatched_step_right],
