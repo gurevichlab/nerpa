@@ -181,7 +181,7 @@ rule nerpa2_on_mibig_vs_mibig_norine:
         # confirmed NRPs (MIBiG+Norine), already parsed by rBAN
         parsed_rban_records=MIBIG_NORINE_PREPROCESSED,
     output:
-        outdir=directory(NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE),
+        NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE / 'report.tsv',
     shell:
         r"""
         python {params.nerpa_exec} \
