@@ -55,7 +55,6 @@ def run_nerpa(
         "--max-num-matches-per-bgc", str(max_num_matches_per_bgc),
         "--min-num-matches-per-bgc", str(min_num_matches_per_bgc),
         "--threads", "8",
-        "--fast-matching",
         "--dump-all-preprocessed",
         "--let-it-crash",
     ]
