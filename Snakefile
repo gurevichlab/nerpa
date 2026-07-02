@@ -240,6 +240,7 @@ rule benchmarking_plots:
 rule compute_compound_similarity:
     params:
         compound_similarity_script=NERPA_ROOT / 'scripts' / 'pnrpdb_compound_similarity.py',
+        nerpa_root=NERPA_ROOT,
     input:
         # Use the preprocessed PNRPDB2 rBAN records
         preprocessed_nrps=MIBIG_NORINE_PREPROCESSED,
@@ -247,7 +248,7 @@ rule compute_compound_similarity:
         out=PNRPDB2_COMPOUND_SIMILARITY,
     shell:
         r"""
-        python {params.compound_similarity_script} \
+        PYTHONPATH={params.nerpa_root} python {params.compound_similarity_script} \
             --preprocessed-nrps {input.preprocessed_nrps} \
             --out {output.out}
         """
