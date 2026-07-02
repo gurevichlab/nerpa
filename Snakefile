@@ -167,7 +167,6 @@ rule train_nerpa:
         NERPA_ROOT / 'training_results' / 'train_nerpa.log',
     shell:
         r"""
-        mkdir -p {output.outdir}
         PYTHONPATH={NERPA_ROOT} python {params.train_script} \
           --approved-matches {input.approved_matches} \
           --nerpa-results-on-mibig-no-calibration {params.nerpa_results_on_mibig_no_calibration} \
