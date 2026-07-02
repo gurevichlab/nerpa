@@ -229,7 +229,7 @@ def main():
     monomer_names_helper = load_monomer_names_helper(nerpa_cfg.monomers_config,
                                                      nerpa_dir)
     hmm_helper = load_hmm_helper(nerpa_cfg, monomer_names_helper)
-    pnrpdb_info = pl.read_csv(args.pnrpdb2_info, sep='\t')
+    pnrpdb_info = pl.read_csv(args.pnrpdb2_info, separator='\t')
 
     # 2. Load approved matches and corresponding BGC variants
     logger.info('Loading approved matches')
