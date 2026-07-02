@@ -328,16 +328,23 @@ class PlotsHelper:
 
         # Plot per top_k (all reports)
         df = pl.DataFrame()
-        max_len = len(num_identified_graphs['Nerpa 2'][max(top_ks)][PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR])
+        max_len = max(
+                len(values)
+                for top_k in top_ks
+                for report_name, topk_results in num_identified_graphs.items()
+                for cmp_method, values in topk_results[top_k].items()
+        )
         for top_k in top_ks:
             fig, ax = plt.subplots()
             for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
                 for cmp_method, linestyle in [(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR, '-'),]:
                                               #(PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR, '--')]:
                     _values = topk_results[top_k][cmp_method]
-                    values = (cnts_to_percentages(_values)
-                              if y_axis == 'Percentage'
-                              else _values)
+                    values = (
+                            cnts_to_percentages(_values)
+                            if y_axis == 'Percentage'
+                            else _values
+                    )
                     xs = range(len(values))
                     ax.plot(xs,
                             [p / 100 for p in values],
