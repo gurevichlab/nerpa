@@ -252,25 +252,26 @@ def main():
     bgc_id_to_bgc_variants = defaultdict(list)
     for bgc_variant in bgc_variants:
         bgc_id_to_bgc_variants[bgc_variant.bgc_variant_id.bgc_id].append(bgc_variant)
-    matched_bgc_variants: Dict[NRP_ID, BGC_Variant] = load_bgc_variants_for_matches(
+
+    nrp_id_to_bgc_variant: Dict[NRP_ID, BGC_Variant] = load_bgc_variants_for_matches(
         bgc_id_to_bgc_variants,
         approved_matches,
         logger
     )
-    check_bgcs_with_many_variants(list(matched_bgc_variants.values()))
+    check_bgcs_with_many_variants(list(nrp_id_to_bgc_variant.values()))
 
     nrp_id_to_nrp_variant = get_nrp_variants(args.mibig_norine_preprocessed)
-
 
     # note: alignments are taken from "old" approved matches while bgc predictions are taken from current matches
     matches_with_bgcs_nrps_for_training = [
         MatchWithBGCNRP(
             m,
-            matched_bgc_variants[m.nrp_id],
+            nrp_id_to_bgc_variant[m.nrp_id],
             nrp_id_to_nrp_variant[m.nrp_id]
         )
         for m in approved_matches
-        if m.nrp_id in matched_bgc_variants
+        if m.nrp_id in nrp_id_to_bgc_variant
+        and m.nrp_id in nrp_id_to_nrp_variant
     ]
 
     logger.info(f'Number of matches with BGC and NRP variants for training: {len(matches_with_bgcs_nrps_for_training)}')
