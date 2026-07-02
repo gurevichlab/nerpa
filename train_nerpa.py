@@ -191,7 +191,7 @@ def get_bgc_variants(
     ]
 
 
- def get_nrp_variants(parsed_rban_records_yaml: Path) -> Dict[NRP_ID, NRP_Variant]:
+def get_nrp_variants(parsed_rban_records_yaml: Path) -> Dict[NRP_ID, NRP_Variant]:
      with open (parsed_rban_records_yaml, 'r') as f:
          parsed_rban_records = [
              Parsed_rBAN_Record.from_dict(record)
