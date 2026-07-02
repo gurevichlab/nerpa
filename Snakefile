@@ -152,7 +152,7 @@ rule preprocess_mibig_no_calibration:
     
 rule train_nerpa:
     params:
-        train_script=NERPA_ROOT / 'scripts' / 'train_nerpa.py',
+        train_script=NERPA_ROOT / 'train_nerpa.py',
         nerpa_results_on_mibig_no_calibration=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION,
         output_dir=TRAINING_RESULTS_DIR,
     input:
