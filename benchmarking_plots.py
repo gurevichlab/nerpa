@@ -102,6 +102,9 @@ def plots_for_paper(
         nerpa1_report_path: Path,
         nerpa2_report_path: Path,
         biocat_report_path: Path,
+        mibig_bgcs_info_path: Path,
+        pnrpdb_info_path: Path,
+        pnrpdb_compound_similarity_path: Path,
         output_dir: Path,
         bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs']
 ) -> Path:
@@ -109,6 +112,9 @@ def plots_for_paper(
         nerpa1_report_path=nerpa1_report_path,
         nerpa2_report_path=nerpa2_report_path,
         biocat_report_path=biocat_report_path,
+        mibig_bgcs_info_path=mibig_bgcs_info_path,
+        pnrpdb_info_path=pnrpdb_info_path,
+        pnrpdb_compound_similarity_path=pnrpdb_compound_similarity_path,
         output_dir=output_dir / 'nerpa1_vs_nerpa2_vs_biocat_plots',
         bgc_test_set=bgc_test_set
     )
@@ -158,7 +164,7 @@ def parse_args():
         help="Path to the table with the stats of the PNRPDB2 (number of monomers, etc)"
     )
     parser.add_argument(
-        "--pnrpdb-compound-similarity",
+        "--pnrpdb2-compound-similarity",
         type=Path,
         required=True,
         help="Path to the table with the similarity data for PNRPDB2 compounds (isomorphic, one substitution apart, etc)"
@@ -175,7 +181,10 @@ if __name__ == "__main__":
         nerpa2_report_path=args.nerpa2_report,
         biocat_report_path=args.biocat_report,
         output_dir=args.output_dir,
-        bgc_test_set=args.bgc_test_set
+        bgc_test_set=args.bgc_test_set,
+        mibig_bgcs_info_path=args.mibig_bgcs_info,
+        pnrpdb_info_path=args.pnrpdb2_info,
+        pnrpdb_compound_similarity_path=args.pnrpdb2_compound_similarity
     )
     print(f"Combined figure saved at: {figure_path}")
     # nerpa1_vs_nerpa2()
