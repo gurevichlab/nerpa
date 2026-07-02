@@ -26,6 +26,8 @@ PNRPDB2_INITIAL = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_raw.tsv'
 ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 NERPA1_RESULTS_ON_MIBIG = ext_path('NERPA1 results on MIBiG 4 vs MIBIG+NORINE NRPs')
 BIOCAT_RESULTS_ON_MIBIG = ext_path('BioCAT results on MIBiG 4 vs MIBIG+NORINE NRPs')
+# TODO: add a rule to generate this file from MIBiG 4 BGCs
+MIBIG_INFO = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'mibig_bgcs_info.tsv'
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
 # PNRPDB2 without the compounds Nerpa is unable to process
@@ -40,6 +42,7 @@ PNRPDB2_COMPOUND_SIMILARITY = (
 )
 NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION = NERPA_ROOT / 'nerpa_results' / 'mibig_no_calibration'
 NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE = NERPA_ROOT / 'nerpa_results' / 'mibig_vs_mibig_norine' 
+
 # ===== Important directories
 TEST_RESULTS_DIR = NERPA_ROOT / 'test_results'
 TRAINING_RESULTS_DIR = NERPA_ROOT / 'training_results'
@@ -212,6 +215,9 @@ rule benchmarking_plots:
         nerpa1_report=NERPA1_RESULTS_ON_MIBIG,
         nerpa2_report=NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE / 'report.tsv',
         biocat_report=BIOCAT_RESULTS_ON_MIBIG,
+        pnrpdb2_info=PNRPDB2_INFO,
+        pnrpdb2_compound_similarity=PNRPDB2_COMPOUND_SIMILARITY,
+        mibig_info=MIBIG_INFO,
     output:
         benchmarking_done=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}' / '.done',
     log:
@@ -223,6 +229,9 @@ rule benchmarking_plots:
            --nerpa1-report {input.nerpa1_report} \
            --nerpa2-report {input.nerpa2_report} \
            --biocat-report {input.biocat_report} \
+           --mibig-bgcs-info {input.mibig_info} \
+           --pnrpdb2-info {input.pnrpdb2_info} \
+           --pnrpdb2-compound-similarity {input.pnrpdb2_compound_similarity} \
            --output-dir {params.outdir} \
            --bgc-test-set {wildcards.bgc_test_set} \
            > {log} 2>&1
@@ -243,4 +252,3 @@ rule compute_compound_similarity:
             --preprocessed-nrps {input.preprocessed_nrps} \
             --out {output.out}
         """
-

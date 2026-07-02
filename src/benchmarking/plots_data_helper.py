@@ -171,18 +171,16 @@ class PlotsDataHelper:
     test_bgcs: set[str]
     nrp_classes_with_matches: set[str]
 
-    def __init__(self,
-                 bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'):
-        nerpa_dir = Path(__file__).parent.parent.parent
-        self.mibig_bgcs_info = MIBiG_BGCs_Info.from_csv(
-            nerpa_dir / 'data/for_training_and_testing/mibig_bgcs_info.tsv'
-        )
-        self.pnrpdb_info = PNRPDB_Info.from_csv(
-            nerpa_dir / 'data/for_training_and_testing/pnrpdb2_info.tsv'
-        )
-        self.pnrpdb_compound_similarity = PNRPDB_Compound_Similarity.from_csv(
-            nerpa_dir / 'data/for_training_and_testing/pnrpdb2_compound_similarity.tsv'
-        )
+    def __init__(
+            self,
+            mibig_bgcs_info_path: Path,
+            pnrpdb_info_path: Path,
+            pnrpdb_compound_similarity_path: Path,
+            bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'
+    ):
+        self.mibig_bgcs_info = MIBiG_BGCs_Info.from_csv(mibig_bgcs_info_path)
+        self.pnrpdb_info = PNRPDB_Info.from_csv(pnrpdb_info_path)
+        self.pnrpdb_compound_similarity = PNRPDB_Compound_Similarity.from_csv(pnrpdb_compound_similarity_path)
         self.similarity_dict = get_similarity_dict(self.pnrpdb_compound_similarity)
         sanity_check_similarity_table(self.similarity_dict,
                                       self.pnrpdb_info)

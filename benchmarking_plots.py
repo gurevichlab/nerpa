@@ -61,13 +61,22 @@ def nerpa1_vs_nerpa2():
     helper.plot_all([nerpa1_report, nerpa2_report],
                      output_dir=output_dir)
 
-def nerpa1_vs_nerpa2_vs_biocat(nerpa1_report_path: Path,
-                               nerpa2_report_path: Path,
-                               biocat_report_path: Path,
-                               output_dir: Path,
-                               bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs']):
-    #helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
-    helper = PlotsHelper(bgc_test_set='mibig4_wo_training_bgcs')
+def nerpa1_vs_nerpa2_vs_biocat(
+        nerpa1_report_path: Path,
+        nerpa2_report_path: Path,
+        biocat_report_path: Path,
+        output_dir: Path,
+        bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'],
+        mibig_bgcs_info_path: Path,
+        pnrpdb_info_path: Path,
+        pnrpdb_compound_similarity_path: Path,
+):
+    helper = PlotsHelper(
+        bgc_test_set=bgc_test_set,
+        mibig_bgcs_info_path=mibig_bgcs_info_path,
+        pnrpdb_info_path=pnrpdb_info_path,
+        pnrpdb_compound_similarity_path=pnrpdb_compound_similarity_path
+    )
 
     # Path( nerpa_dir / 'data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv'),
     nerpa1_report = helper.data_helper.load_nerpa_report(report_path=nerpa1_report_path,
@@ -136,6 +145,24 @@ def parse_args():
     parser.add_argument("--nerpa1-report", type=Path, required=True, help="Path to Nerpa 1 report CSV file")
     parser.add_argument("--nerpa2-report", type=Path, required=True, help="Path to Nerpa 2 report TSV file")
     parser.add_argument("--biocat-report", type=Path, required=True, help="Path to BioCAT report file")
+    parser.add_argument(
+        "--mibig-bgcs-info",
+        type=Path,
+        required=True,
+        help="Path to the table with the stats of the MIBiG BGCs (number of modules, etc)"
+    )
+    parser.add_argument(
+        "--pnrpdb2-info",
+        type=Path,
+        required=True,
+        help="Path to the table with the stats of the PNRPDB2 (number of monomers, etc)"
+    )
+    parser.add_argument(
+        "--pnrpdb-compound-similarity",
+        type=Path,
+        required=True,
+        help="Path to the table with the similarity data for PNRPDB2 compounds (isomorphic, one substitution apart, etc)"
+    )
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory to save the generated plots")
     parser.add_argument("--bgc-test-set", type=str, choices=['mibig4_wo_training_bgcs', 'training_bgcs'], default='mibig4_wo_training_bgcs', help="Which BGC test set to use for plotting")
     return parser.parse_args()

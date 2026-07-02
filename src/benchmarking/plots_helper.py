@@ -37,9 +37,19 @@ def cnts_to_percentages(cnts: pl.Series) -> pl.Series:
 
 
 class PlotsHelper:
-    def __init__(self,
-                 bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'):
-        self.data_helper = PlotsDataHelper(bgc_test_set)
+    def __init__(
+                    self,
+                    mibig_bgcs_info_path: Path,
+                    pnrpdb_info_path: Path,
+                    pnrpdb_compound_similarity_path: Path,
+                    bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'
+    ):
+        self.data_helper = PlotsDataHelper(
+                bgc_test_set=bgc_test_set,
+                mibig_bgcs_info_path=mibig_bgcs_info_path,
+                pnrpdb_info_path=pnrpdb_info_path,
+                pnrpdb_compound_similarity_path=pnrpdb_compound_similarity_path
+        )
         self.dpi = 300
         self.height_px = 1000
         self.width_px = 1200
