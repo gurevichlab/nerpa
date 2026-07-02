@@ -206,8 +206,9 @@ class PlotsDataHelper:
         for row in self.mibig_bgcs_info.iter_rows(named=True):
             bgc_id = row[MIBiG_BGCs_Info.BGC_ID]
             nrp_id = row[MIBiG_BGCs_Info.NRP_ID]
-            nrp_class = self.nrp_id_to_iso_class[nrp_id]
-            self.bgc_to_nrp_iso_classes[bgc_id].add(nrp_class)
+            nrp_class = self.nrp_id_to_iso_class.get(nrp_id)
+            if nrp_class is not None:
+                self.bgc_to_nrp_iso_classes[bgc_id].add(nrp_class)
 
         print(f'{len(self.bgc_to_nrp_iso_classes)} BGCs in total (MIBiG 3+4)')
 
