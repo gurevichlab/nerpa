@@ -173,8 +173,8 @@ rule train_nerpa:
           --nerpa-results-on-mibig-no-calibration {params.nerpa_results_on_mibig_no_calibration} \
           --pnrpdb2-info {input.pnrpdb2_info} \
           --mibig-norine-preprocessed {input.mibig_norine_preprocessed} \
-          --output-dir {output.outdir} \
-          > {output.log} 2>&1
+          --output-dir {params.outdir} \
+          > {log} 2>&1
         touch {output.train_nerpa_done}
         """
    
