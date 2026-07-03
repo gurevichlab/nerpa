@@ -209,7 +209,7 @@ rule nerpa2_on_mibig_vs_mibig_norine:
 rule benchmarking_plots:
     params:
         benchmarking_script=NERPA_ROOT / 'benchmarking_plots.py',
-        outdir=BENCHMARKING_PLOTS_DIR / '{bgc_test_set}',
+        outdir=lambda wildcards: BENCHMARKING_PLOTS_DIR / wildcards.bgc_test_set,
     input:
         nerpa1_report=NERPA1_RESULTS_ON_MIBIG,
         nerpa2_report=NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE / 'report.tsv',
