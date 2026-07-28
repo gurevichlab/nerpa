@@ -17,6 +17,7 @@ if [[ ! -d "$kakapo_repo_dir" ]]; then
     echo "Cloning kakapo repository to $kakapo_repo_dir..."
     git clone --branch kakapo-ilya git@github.com:gurevichlab/nerpa-ms-varquest.git "$kakapo_repo_dir"
     echo "Kakapo repository cloned"
+fi
 
 # ===== 2. Set up Nerpa and Kakapo environments
 
@@ -46,7 +47,7 @@ fi
 build_dir="$repo_root/build"
 
 if [[ -d "$build_dir" ]]; then
-     echo "Removing existing build directory..."
+    echo "Removing existing build directory..."
     rm -rf "$build_dir"
  fi
 
