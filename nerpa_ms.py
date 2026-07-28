@@ -36,6 +36,24 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Path to the spectra file in MGF format"
     )
+    nerpa_ms_parser.add_argument(
+        '--max-edits',
+        type=int,
+        default=2,
+        help="Maximum number of edits allowed in generating candidate NRP variants (default: 2)"
+    )
+    nerpa_ms_parser.add_argument(
+        '--num-variants-per-num-edits',
+        type=int,
+        default=100,
+        help="Maximum number of candidate NRP variants to generate per number of edits (default: 100)"
+    )
+    nerpa_ms_parser.add_argument(
+        '--max-nerpa-matches-for-candidate-generation',
+        type=int,
+        default=10,
+        help="Maximum number of NERPA matches to consider for candidate generation (default: 10)"
+    )
 
     args = nerpa_ms_parser.parse_args()
 
@@ -48,7 +66,10 @@ def parse_args() -> argparse.Namespace:
 def nerpa_ms_core(
         nerpa_root: Path,
         nerpa_results: Path,
-        output_dir: Path
+        output_dir: Path,
+        max_nerpa_matches: int = 100,
+        max_edits: int = 2,
+        num_variants_per_num_edits: int = 5
 ) -> None:
     nerpa_ms_root = (
         nerpa_root
@@ -62,9 +83,9 @@ def nerpa_ms_core(
         'cargo',  'run',
         '--bin', 'nerpa_ms_core', '--',
         '--nerpa-results', str(nerpa_results),
-        '--max-nerpa-matches', '3',
-        '--max-edits', '2',
-        '--num-variants-per-num-edits', '5',
+        '--max-nerpa-matches', str(max_nerpa_matches),
+        '--max-edits', str(max_edits),
+        '--num-variants-per-num-edits', str(num_variants_per_num_edits),
         '--out', str(output_dir),
         '--monomers-db-json', str(nerpa_ms_root / 'data/monomers_db.json'),
         '--nerpa-root', str(nerpa_root),
@@ -223,7 +244,10 @@ def main():
     nerpa_ms_core(
         nerpa_root=nerpa_root,
         nerpa_results=args.output_dir,
-        output_dir=nerpa_ms_core_out
+        output_dir=nerpa_ms_core_out,
+        max_edits=args.max_edits,
+        num_variants_per_num_edits=args.num_variants_per_num_edits,
+        max_nerpa_matches=args.max_nerpa_matches_for_candidate_generation
     )
 
     nerpa_ms_varquest_out = args.output_dir / "nerpa_ms_varquest_results"
