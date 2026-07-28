@@ -1,3 +1,4 @@
+# ARGS=""
 python nerpa.py \
        -a test_data/antismash \
        --smiles-tsv test_data/smiles.tsv \

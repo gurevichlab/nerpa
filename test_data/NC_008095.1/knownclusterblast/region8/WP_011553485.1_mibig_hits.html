@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AZM57014.1</td>
+              <td>ABC_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002314.3">BGC0002314.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>61.0</td>
+              <td>97.6</td>
+              <td>993.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>QKO28686.1</td>
+              <td>ABC_transporter_ATP-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002315.2">BGC0002315.2</a></td>
+              <td>PKS</td>
+              <td>66.0</td>
+              <td>53.6</td>
+              <td>593.0</td>
+              <td>6.78e-206</td>
+          </tr>
+    
+          <tr>
+              <td>CAE17542.1</td>
+              <td>UV-repair_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000210.5">BGC0000210.5</a></td>
+              <td>PKS:Type II+saccharide:oligosaccharide</td>
+              <td>40.0</td>
+              <td>98.5</td>
+              <td>553.0</td>
+              <td>2.63e-185</td>
+          </tr>
+    
+          <tr>
+              <td>BAO84855.1</td>
+              <td>putative_UV-repair_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000414.5">BGC0000414.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>40.0</td>
+              <td>99.8</td>
+              <td>550.0</td>
+              <td>1.82e-183</td>
+          </tr>
+    
+          <tr>
+              <td>ABI22122.1</td>
+              <td>UV-repair_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000422.5">BGC0000422.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>40.0</td>
+              <td>96.7</td>
+              <td>540.0</td>
+              <td>1.82e-180</td>
+          </tr>
+    
+          <tr>
+              <td>AGD80606.1</td>
+              <td>UV-repair_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000394.5">BGC0000394.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>41.0</td>
+              <td>97.4</td>
+              <td>539.0</td>
+              <td>7.11e-180</td>
+          </tr>
+    
+          <tr>
+              <td>QVQ68812.1</td>
+              <td>mmrX</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002129.4">BGC0002129.4</a></td>
+              <td>PKS</td>
+              <td>39.0</td>
+              <td>98.6</td>
+              <td>527.0</td>
+              <td>3.25e-175</td>
+          </tr>
+    
+          <tr>
+              <td>ATJ04403.1</td>
+              <td>UvrA-like_transporter_(ABC)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001637.3">BGC0001637.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>37.0</td>
+              <td>97.8</td>
+              <td>503.0</td>
+              <td>7.5e-167</td>
+          </tr>
+    
+          <tr>
+              <td>CDG76951.1</td>
+              <td>Excinuclease_ABC_subunit_A_paralog_of_unknown_function</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000446.5">BGC0000446.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>38.0</td>
+              <td>95.4</td>
+              <td>496.0</td>
+              <td>2.45e-164</td>
+          </tr>
+    
+          <tr>
+              <td>AEA29626.1</td>
+              <td>Por3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000409.5">BGC0000409.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>38.0</td>
+              <td>97.9</td>
+              <td>493.0</td>
+              <td>3.05e-163</td>
+          </tr>
+    
+          <tr>
+              <td>WP_030684660.1</td>
+              <td>flavin_reductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001607.5">BGC0001607.5</a></td>
+              <td>other:other</td>
+              <td>37.0</td>
+              <td>100.2</td>
+              <td>488.0</td>
+              <td>7.22e-158</td>
+          </tr>
+    
+          <tr>
+              <td>ALU98419.1</td>
+              <td>daunorubicin_resistance_protein_DrrC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001397.5">BGC0001397.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>38.0</td>
+              <td>98.2</td>
+              <td>478.0</td>
+              <td>9.71e-157</td>
+          </tr>
+    
+          <tr>
+              <td>AAL06654.1</td>
+              <td>UvrA-like_drug_resistance_pump</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000965.5">BGC0000965.5</a></td>
+              <td>PKS:Iterative type I</td>
+              <td>38.0</td>
+              <td>98.2</td>
+              <td>478.0</td>
+              <td>1.26e-156</td>
+          </tr>
+    
+          <tr>
+              <td>AOC89014.1</td>
+              <td>putative_excinuclease_ABC_subunit_A</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001652.5">BGC0001652.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>37.0</td>
+              <td>97.2</td>
+              <td>476.0</td>
+              <td>1.91e-156</td>
+          </tr>
+    
+          <tr>
+              <td>ANY94424.1</td>
+              <td>UvrA-like_drug_resistance_pump</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001584.5">BGC0001584.5</a></td>
+              <td>PKS</td>
+              <td>38.0</td>
+              <td>98.2</td>
+              <td>476.0</td>
+              <td>2.71e-156</td>
+          </tr>
+    
+          <tr>
+              <td>ACN39026.1</td>
+              <td>putative_UvrA-drug_resistance_pump</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000448.5">BGC0000448.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>37.0</td>
+              <td>97.1</td>
+              <td>473.0</td>
+              <td>1.05e-154</td>
+          </tr>
+    
+          <tr>
+              <td>ARK19485.1</td>
+              <td>ABC_transporter-related_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001540.5">BGC0001540.5</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>100.8</td>
+              <td>478.0</td>
+              <td>5.02e-154</td>
+          </tr>
+    
+          <tr>
+              <td>ABW71839.1</td>
+              <td>drug-resistance_pump</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000303.5">BGC0000303.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>37.0</td>
+              <td>97.8</td>
+              <td>469.0</td>
+              <td>1.84e-153</td>
+          </tr>
+    
+          <tr>
+              <td>ADG27345.1</td>
+              <td>UrvA-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000296.5">BGC0000296.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>37.0</td>
+              <td>99.3</td>
+              <td>467.0</td>
+              <td>5.74e-153</td>
+          </tr>
+    
+          <tr>
+              <td>AAP85339.1</td>
+              <td>UvrA-like_drug_resistance_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000233.5">BGC0000233.5</a></td>
+              <td>PKS</td>
+              <td>37.0</td>
+              <td>97.4</td>
+              <td>467.0</td>
+              <td>9.08e-153</td>
+          </tr>
+    
+          <tr>
+              <td>AFV52154.1</td>
+              <td>efflux_pump</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000081.5">BGC0000081.5</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>37.0</td>
+              <td>97.4</td>
+              <td>465.0</td>
+              <td>4.34e-152</td>
+          </tr>
+    
+          <tr>
+              <td>ACN39729.1</td>
+              <td>SibF</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000428.5">BGC0000428.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>36.0</td>
+              <td>99.3</td>
+              <td>454.0</td>
+              <td>9.56e-148</td>
+          </tr>
+    
+          <tr>
+              <td>WP_018891755.1</td>
+              <td>excinuclease_ABC_subunit_UvrA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001558.5">BGC0001558.5</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>98.0</td>
+              <td>444.0</td>
+              <td>7.41e-144</td>
+          </tr>
+    
+          <tr>
+              <td>ATJ00745.1</td>
+              <td>ABC_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001568.5">BGC0001568.5</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>98.0</td>
+              <td>443.0</td>
+              <td>1.04e-143</td>
+          </tr>
+    
+          <tr>
+              <td>AET98908.1</td>
+              <td>UvrA-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000415.5">BGC0000415.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>101.1</td>
+              <td>439.0</td>
+              <td>7.47e-142</td>
+          </tr>
+    
+          <tr>
+              <td>BAE98165.1</td>
+              <td>UvrA-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000339.5">BGC0000339.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>101.1</td>
+              <td>438.0</td>
+              <td>2.07e-141</td>
+          </tr>
+    
+          <tr>
+              <td>KDN80074.1</td>
+              <td>daunorubicin_resistance_protein_DrrC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001074.5">BGC0001074.5</a></td>
+              <td>saccharide+PKS</td>
+              <td>35.0</td>
+              <td>98.2</td>
+              <td>436.0</td>
+              <td>4.81e-141</td>
+          </tr>
+    
+          <tr>
+              <td>WP_028678150.1</td>
+              <td>excinuclease_ABC_subunit_UvrA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001228.5">BGC0001228.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>101.1</td>
+              <td>437.0</td>
+              <td>7.87e-141</td>
+          </tr>
+    
+          <tr>
+              <td>CAK50795.1</td>
+              <td>MtrX</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000247.5">BGC0000247.5</a></td>
+              <td>PKS:Type II+saccharide:oligosaccharide</td>
+              <td>36.0</td>
+              <td>97.1</td>
+              <td>437.0</td>
+              <td>1.09e-140</td>
+          </tr>
+    
+          <tr>
+              <td>BAH04165.1</td>
+              <td>UvrA-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000450.5">BGC0000450.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>101.1</td>
+              <td>436.0</td>
+              <td>1.6e-140</td>
+          </tr>
+    
+          <tr>
+              <td>QKO28687.1</td>
+              <td>ABC_transporter_ATP-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002315.2">BGC0002315.2</a></td>
+              <td>PKS</td>
+              <td>63.0</td>
+              <td>39.5</td>
+              <td>413.0</td>
+              <td>3.2e-138</td>
+          </tr>
+    
+          <tr>
+              <td>BAI63287.1</td>
+              <td>UvrA-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000434.5">BGC0000434.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>101.3</td>
+              <td>426.0</td>
+              <td>1.1e-136</td>
+          </tr>
+    
+          <tr>
+              <td>CAJ34377.1</td>
+              <td>DNA_excisionase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000445.5">BGC0000445.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>101.6</td>
+              <td>417.0</td>
+              <td>1.61e-132</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

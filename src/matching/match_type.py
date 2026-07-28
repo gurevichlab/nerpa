@@ -33,16 +33,18 @@ class Match:
     alignments: List[Alignment]  # alignments of each fragment
 
     def to_dict(self) -> dict:
-        return {'genome_id': self.genome_id,
-                'bgc_variant_id': self.bgc_variant_id.to_dict(),
-                'nrp_variant_id': self.nrp_variant_id._asdict(),
-                'raw_score': self.raw_score,
-                'log_odds_vs_avg_nrp': self.log_odds_vs_avg_nrp,
-                'log_odds_vs_avg_bgc': self.log_odds_vs_avg_bgc,
-                'p_value': self.p_value,
-                'alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
-                                for alignment_step in alignment]
-                               for alignment in self.alignments]}
+        return {
+            'genome_id': self.genome_id,
+            'bgc_variant_id': self.bgc_variant_id.to_dict(),
+            'nrp_variant_id': self.nrp_variant_id._asdict(),
+            'raw_score': self.raw_score,
+            'log_odds_vs_avg_nrp': self.log_odds_vs_avg_nrp,
+            'log_odds_vs_avg_bgc': self.log_odds_vs_avg_bgc,
+            'p_value': self.p_value,
+            'alignments': [[dict(alignment_step.to_dict())  # for some reason yaml.dump treats OrderedDict as list of pairs
+                            for alignment_step in alignment]
+                           for alignment in self.alignments]
+        }
 
     @classmethod
     def from_dict(cls, data: dict) -> Match:

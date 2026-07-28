@@ -26,10 +26,9 @@ command = [
     '--max-nerpa-matches', '3',
     '--max-edits', '2',
     '--num-variants-per-num-edits', '5',
-    '--out', 'output',
+    '--out', 'output/example_run',
     '--monomers-db-json', 'data/monomers_db.json',
     '--nerpa-root', str(nerpa_root),
-    '--draw-hmm-dag-opt-paths',
 ]
 print(f"Running in {nerpa_ms_root}:\n  {' '.join(command)}")
 subprocess.run(command, cwd=nerpa_ms_root, check=True)

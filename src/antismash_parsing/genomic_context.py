@@ -4,7 +4,9 @@ from typing import (
     NewType,
     Optional,
     Tuple,
-    Union, Dict
+    Union,
+    Dict,
+    Set
 )
 from enum import Enum, auto
 from itertools import (
@@ -37,7 +39,7 @@ class ModuleGenomicContextFeature(Enum):
 
 yaml.add_representer(ModuleGenomicContextFeature, enum_representer)
 
-ModuleGenomicContext = Tuple[ModuleGenomicContextFeature, ...]
+ModuleGenomicContext = frozenset[ModuleGenomicContextFeature]
 
 
 def get_modules_genomic_context(fragments: List[List[Gene]]) -> Dict[BGC_Module_ID, ModuleGenomicContext]:
@@ -85,7 +87,7 @@ def get_modules_genomic_context(fragments: List[List[Gene]]) -> Dict[BGC_Module_
                 pks_upstream = DomainType.PKS in upstream_domains_before_A
                 pks_downstream = DomainType.PKS in downstream_domains_before_A
 
-                features = (
+                features = frozenset(
                     feature
                     for feature, is_present in [
                     (MGCF.START_OF_BGC, fragment_idx == 0 and gene_idx == 0 and fst_module_with_a_domain_in_gene),
@@ -99,6 +101,7 @@ def get_modules_genomic_context(fragments: List[List[Gene]]) -> Dict[BGC_Module_
                 ]
                     if is_present
                 )
-                module_id_to_genomic_context[BGC_Module_ID(gene.gene_id, module_idx)] = tuple(sorted(features, key=lambda x: x.name))
+
+                module_id_to_genomic_context[BGC_Module_ID(gene.gene_id, module_idx)] = features
 
     return module_id_to_genomic_context

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>QIS20453.1</td>
+              <td>gfo/Idh/MocA_family_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002816.2">BGC0002816.2</a></td>
+              <td>PKS:Modular type I</td>
+              <td>34.0</td>
+              <td>87.6</td>
+              <td>138.0</td>
+              <td>2.57e-37</td>
+          </tr>
+    
+          <tr>
+              <td>ACB37729.1</td>
+              <td>3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000162.5">BGC0000162.5</a></td>
+              <td>PKS</td>
+              <td>33.0</td>
+              <td>88.7</td>
+              <td>131.0</td>
+              <td>7.77e-35</td>
+          </tr>
+    
+          <tr>
+              <td>QLJ99338.1</td>
+              <td>Gfo/Idh/MocA_family_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002088.3">BGC0002088.3</a></td>
+              <td>PKS+saccharide:oligosaccharide</td>
+              <td>32.0</td>
+              <td>88.1</td>
+              <td>130.0</td>
+              <td>1.38e-34</td>
+          </tr>
+    
+          <tr>
+              <td>CAA09647.1</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000227.5">BGC0000227.5</a></td>
+              <td>PKS:Type II</td>
+              <td>33.0</td>
+              <td>90.8</td>
+              <td>129.0</td>
+              <td>3.55e-34</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ77681.1</td>
+              <td>ChlC4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000036.5">BGC0000036.5</a></td>
+              <td>PKS:Type I+saccharide:oligosaccharide</td>
+              <td>33.0</td>
+              <td>82.2</td>
+              <td>126.0</td>
+              <td>5.52e-33</td>
+          </tr>
+    
+          <tr>
+              <td>QLD23495.2</td>
+              <td>Gfo/Idh/MocA_family_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002085.3">BGC0002085.3</a></td>
+              <td>saccharide:oligosaccharide</td>
+              <td>34.0</td>
+              <td>89.2</td>
+              <td>125.0</td>
+              <td>9.32e-33</td>
+          </tr>
+    
+          <tr>
+              <td>QBG82533.1</td>
+              <td>NDP-hexose_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002587.2">BGC0002587.2</a></td>
+              <td>PKS</td>
+              <td>34.0</td>
+              <td>84.9</td>
+              <td>125.0</td>
+              <td>1.54e-32</td>
+          </tr>
+    
+          <tr>
+              <td>BAP34743.1</td>
+              <td>NDP-hexose-3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000078.5">BGC0000078.5</a></td>
+              <td>PKS</td>
+              <td>34.0</td>
+              <td>82.5</td>
+              <td>125.0</td>
+              <td>1.69e-32</td>
+          </tr>
+    
+          <tr>
+              <td>ACB46498.1</td>
+              <td>sugar_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000082.5">BGC0000082.5</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>88.1</td>
+              <td>124.0</td>
+              <td>2.1e-32</td>
+          </tr>
+    
+          <tr>
+              <td>AWH12643.1</td>
+              <td>Rmp10</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001759.3">BGC0001759.3</a></td>
+              <td>PKS</td>
+              <td>34.0</td>
+              <td>83.0</td>
+              <td>123.0</td>
+              <td>5.39e-32</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ94400.1</td>
+              <td>3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000040.5">BGC0000040.5</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>89.2</td>
+              <td>124.0</td>
+              <td>5.56e-32</td>
+          </tr>
+    
+          <tr>
+              <td>AFV52211.1</td>
+              <td>NDP-hexose_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000081.5">BGC0000081.5</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>31.0</td>
+              <td>88.9</td>
+              <td>120.0</td>
+              <td>1.06e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AFJ52691.1</td>
+              <td>sugar_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001073.5">BGC0001073.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>34.0</td>
+              <td>90.8</td>
+              <td>119.0</td>
+              <td>2.58e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AGI99504.1</td>
+              <td>sugar_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001004.5">BGC0001004.5</a></td>
+              <td>PKS:Type I</td>
+              <td>31.0</td>
+              <td>88.1</td>
+              <td>119.0</td>
+              <td>2.83e-30</td>
+          </tr>
+    
+          <tr>
+              <td>QFU80909.1</td>
+              <td>sugar_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002550.2">BGC0002550.2</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>88.1</td>
+              <td>119.0</td>
+              <td>2.83e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AGC09477.1</td>
+              <td>LobD7</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001183.5">BGC0001183.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>88.1</td>
+              <td>119.0</td>
+              <td>3.1e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AWR88423.1</td>
+              <td>putative_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001522.5">BGC0001522.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>88.7</td>
+              <td>118.0</td>
+              <td>4.37e-30</td>
+          </tr>
+    
+          <tr>
+              <td>WP_079030446.1</td>
+              <td>Gfo/Idh/MocA_family_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002033.4">BGC0002033.4</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>88.9</td>
+              <td>117.0</td>
+              <td>9.64e-30</td>
+          </tr>
+    
+          <tr>
+              <td>sipS11</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001452.5">BGC0001452.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>88.7</td>
+              <td>115.0</td>
+              <td>4.24e-29</td>
+          </tr>
+    
+          <tr>
+              <td>ADI71457.1</td>
+              <td>putative_sugar_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000203.3">BGC0000203.3</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>89.5</td>
+              <td>115.0</td>
+              <td>4.74e-29</td>
+          </tr>
+    
+          <tr>
+              <td>ANY10593.1</td>
+              <td>putative_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001773.4">BGC0001773.4</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>84.6</td>
+              <td>115.0</td>
+              <td>5.57e-29</td>
+          </tr>
+    
+          <tr>
+              <td>QKV49796.1</td>
+              <td>sugar_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002526.3">BGC0002526.3</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>89.8</td>
+              <td>115.0</td>
+              <td>7.7e-29</td>
+          </tr>
+    
+          <tr>
+              <td>ctg1_32</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001931.2">BGC0001931.2</a></td>
+              <td>PKS</td>
+              <td>30.0</td>
+              <td>88.9</td>
+              <td>114.0</td>
+              <td>2.45e-28</td>
+          </tr>
+    
+          <tr>
+              <td>AAC01734.1</td>
+              <td>putative_dNTP-hexose_3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000136.5">BGC0000136.5</a></td>
+              <td>PKS</td>
+              <td>33.0</td>
+              <td>83.0</td>
+              <td>113.0</td>
+              <td>2.58e-28</td>
+          </tr>
+    
+          <tr>
+              <td>ARD70896.1</td>
+              <td>NDP-hexose-3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001693.3">BGC0001693.3</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>86.8</td>
+              <td>112.0</td>
+              <td>6.92e-28</td>
+          </tr>
+    
+          <tr>
+              <td>QRI43533.1</td>
+              <td>3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002454.2">BGC0002454.2</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>80.1</td>
+              <td>111.0</td>
+              <td>1.56e-27</td>
+          </tr>
+    
+          <tr>
+              <td>AZF85924.1</td>
+              <td>oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001963.2">BGC0001963.2</a></td>
+              <td>PKS:Type I</td>
+              <td>30.0</td>
+              <td>81.9</td>
+              <td>105.0</td>
+              <td>3.15e-25</td>
+          </tr>
+    
+          <tr>
+              <td>ABV97171.1</td>
+              <td>oxidoreductase_domain_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000137.3">BGC0000137.3</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>82.7</td>
+              <td>102.0</td>
+              <td>2.27e-24</td>
+          </tr>
+    
+          <tr>
+              <td>CBA11563.1</td>
+              <td>NDP-hexose-3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001046.5">BGC0001046.5</a></td>
+              <td>NRPS:Type I+PKS:Type I+saccharide:hybrid/tailoring</td>
+              <td>33.0</td>
+              <td>71.7</td>
+              <td>102.0</td>
+              <td>2.33e-24</td>
+          </tr>
+    
+          <tr>
+              <td>ADR01072.1</td>
+              <td>NocS4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000609.3">BGC0000609.3</a></td>
+              <td>ribosomal:RiPP:Thiopeptide</td>
+              <td>32.0</td>
+              <td>79.8</td>
+              <td>101.0</td>
+              <td>7.16e-24</td>
+          </tr>
+    
+          <tr>
+              <td>BAJ52693.1</td>
+              <td>putative_NDP-hexose-3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000222.5">BGC0000222.5</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>88.1</td>
+              <td>100.0</td>
+              <td>2.11e-23</td>
+          </tr>
+    
+          <tr>
+              <td>QBF51799.1</td>
+              <td>NDP-hexose-3-ketoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001856.4">BGC0001856.4</a></td>
+              <td>PKS:Type I</td>
+              <td>28.0</td>
+              <td>82.5</td>
+              <td>89.0</td>
+              <td>1.7e-19</td>
+          </tr>
+    
+          <tr>
+              <td>QFU19813.1</td>
+              <td>oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002431.3">BGC0002431.3</a></td>
+              <td>PKS+saccharide</td>
+              <td>29.0</td>
+              <td>82.2</td>
+              <td>84.0</td>
+              <td>1.65e-17</td>
+          </tr>
+    
+          <tr>
+              <td>BAF92598.1</td>
+              <td>putative_NAD_dependent_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000118.5">BGC0000118.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>56.9</td>
+              <td>71.0</td>
+              <td>4.01e-13</td>
+          </tr>
+    
+          <tr>
+              <td>ACJ24872.1</td>
+              <td>putative_NAD_dependent_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000119.5">BGC0000119.5</a></td>
+              <td>PKS:Iterative type I+saccharide:hybrid/tailoring</td>
+              <td>31.0</td>
+              <td>56.9</td>
+              <td>71.0</td>
+              <td>4.01e-13</td>
+          </tr>
+    
+          <tr>
+              <td>ABA41510.1</td>
+              <td>oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000722.5">BGC0000722.5</a></td>
+              <td>other:cyclitol+saccharide</td>
+              <td>27.0</td>
+              <td>88.4</td>
+              <td>61.0</td>
+              <td>7.07e-10</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

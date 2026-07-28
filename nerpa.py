@@ -1,46 +1,24 @@
 #!/usr/bin/env python3
 
 import sys
+from typing import Optional
 
 from src.pipeline.pipeline_helper import PipelineHelper
 from src.pipeline.logging.logger import PreliminaryLogger
 from src.build_output.write_results import write_nrp_variants
 import traceback
+import argparse
 
-def build_data_for_lars(pipeline_helper: PipelineHelper):
-    import polars as pl
-    import json
-    from pathlib import Path
-    df: pl.DataFrame = pl.read_csv(
-        pipeline_helper.config.specificity_prediction_config.a_domains_signatures,
-        separator='\t',
-        has_header=True,
-    )
 
-    # Add PARAS_predictions by running foo on the aa34 sequence for each row.
-    df = df.with_columns(
-        pl.col('aa34')
-        .map_elements(lambda aa34: pipeline_helper.specificity_prediction_helper.paras_model_wrapper.predict(aa34),
-                      return_dtype=pl.Object)
-        .alias('PARAS_predictions')
-    )
-
-    rows: list[dict[str, Any]] = df.to_dicts()
-
-    # Write as a JSON list of dicts.
-    output_json = Path('paras_predictions_known_specificities.json')
-    output_json.write_text(json.dumps(rows, indent=2), encoding='utf-8')
-
-def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make it easier to write log in case of exception
-    pipeline_helper = PipelineHelper(pre_logger)
-
-    # build_data_for_lars(pipeline_helper)
-    # exit(0)  
+def nerpa(
+        pre_logger: PreliminaryLogger,
+        args: Optional[argparse.Namespace] = None
+):
+    pipeline_helper = PipelineHelper(pre_logger=pre_logger, args=args)
 
     bgc_variants_info = pipeline_helper.get_bgc_variants()
     representative_bgcs = bgc_variants_info.get_representative_bgc_variants()
     hmms = pipeline_helper.construct_hmms(representative_bgcs)
-    #exit(0)  # TEMPORARY EXIT TO DISABLE NRP PART
 
     nrp_variants_info = pipeline_helper.get_nrp_variants_and_rban_records()
     representative_nrps = nrp_variants_info.get_representative_nrp_variants()
@@ -52,42 +30,23 @@ def main(pre_logger: PreliminaryLogger):  # log is passed as an argument to make
         representative_nrps,
         nrp_variants_info.rban_records
     )
-    pipeline_helper.write_results(matches, bgc_variants_info, nrp_variants_info,
-                                  write_only_what_is_matched=not pipeline_helper.args.dump_all_preprocessed)
+    pipeline_helper.write_results(
+        matches,
+        bgc_variants_info,
+        nrp_variants_info,
+        write_only_what_is_matched=not pipeline_helper.args.dump_all_preprocessed
+    )
 
     pipeline_helper.finish()
 
-
-if __name__ == "__main__":
-    log = PreliminaryLogger()
+def main(args: Optional[argparse.Namespace] = None):  # log is passed as an argument to make it easier to write log in case of exception
+    pre_logger = PreliminaryLogger()
     try:
-        main(log)
+        nerpa(pre_logger=pre_logger, args=args)
     except Exception as e:
-        log.exception(traceback.format_exc())
+        pre_logger.exception(traceback.format_exc())
         exit(1)
 
-'''
-def compute_modification_freqs(bgc_variants: List[BGC_Variant]):
-    processed_bgc_ids = set()
 
-    total_modules = 0
-    total_methylated = 0
-    total_epimerized = 0
-    for bgc_variant in bgc_variants:
-        if bgc_variant.bgc_variant_id.bgc_id in processed_bgc_ids:
-            continue
-        processed_bgc_ids.add(bgc_variant.bgc_variant_id.bgc_id)
-
-        for module in bgc_variant.modules:
-            total_modules += 1
-            if BGC_Module_Modification.METHYLATION in module.modifications:
-                total_methylated += 1
-            if BGC_Module_Modification.EPIMERIZATION in module.modifications:
-                total_epimerized += 1
-
-    methylation_freq = total_methylated / total_modules
-    epimerization_freq = total_epimerized / total_modules
-    print(f"Total modules: {total_modules}")
-    print(f"Methylation frequency: {methylation_freq:.4f}")
-    print(f"Epimerization frequency: {epimerization_freq:.4f}")
-'''
+if __name__ == "__main__":
+    main()

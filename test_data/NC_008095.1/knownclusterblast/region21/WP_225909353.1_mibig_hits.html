@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AID65218.1</td>
+              <td>JmjC_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000335.4">BGC0000335.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>29.0</td>
+              <td>83.3</td>
+              <td>104.0</td>
+              <td>6.5e-26</td>
+          </tr>
+    
+          <tr>
+              <td>QSJ20132.1</td>
+              <td>cupin-like_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002572.3">BGC0002572.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>27.0</td>
+              <td>87.0</td>
+              <td>99.0</td>
+              <td>1.41e-23</td>
+          </tr>
+    
+          <tr>
+              <td>QSJ20133.1</td>
+              <td>cupin-like_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002572.3">BGC0002572.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>26.0</td>
+              <td>86.0</td>
+              <td>92.0</td>
+              <td>2.9e-21</td>
+          </tr>
+    
+          <tr>
+              <td>ALA09349.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001303.5">BGC0001303.5</a></td>
+              <td>PKS</td>
+              <td>26.0</td>
+              <td>82.3</td>
+              <td>60.0</td>
+              <td>5.86e-10</td>
+          </tr>
+    
+          <tr>
+              <td>DAB41908.1</td>
+              <td>ArzF_-_aKG/Fe(II)_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001884.3">BGC0001884.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>23.0</td>
+              <td>87.3</td>
+              <td>52.0</td>
+              <td>2.52e-07</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

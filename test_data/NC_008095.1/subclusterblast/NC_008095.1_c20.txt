@@ -1,0 +1,46 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS21895	5585363	5587133	+	hypothetical protein	
+MXAN_RS21900	5587129	5589103	+	ATP-binding protein	
+MXAN_RS21905	5589133	5589841	-	RibD family protein	
+MXAN_RS21910	5590112	5590825	+	LysR family transcriptional regulator	
+MXAN_RS21915	5590871	5593619	-	AAA family ATPase	
+MXAN_RS21920	5593615	5594743	-	metallophosphoesterase family protein	
+MXAN_RS38220	5594883	5595045	-	hypothetical protein	
+MXAN_RS21925	5595281	5596337	+	response regulator transcription factor	
+MXAN_RS39290	5596397	5596607	-	hypothetical protein	
+MXAN_RS39295	5596720	5597227	-	GNAT family N-acetyltransferase	
+MXAN_RS21935	5597313	5598186	-	sulfatase-like hydrolase/transferase	
+MXAN_RS39385	5598119	5598524	-	sulfatase-like hydrolase/transferase	
+MXAN_RS21940	5598688	5599888	-	extracellular solute-binding protein	
+MXAN_RS21945	5600375	5600801	+	P-loop NTPase family protein	
+MXAN_RS21950	5600882	5605430	-	non-ribosomal peptide synthetase	
+MXAN_RS21955	5605426	5611867	-	type I polyketide synthase	
+MXAN_RS21960	5611863	5627412	-	type I polyketide synthase	
+MXAN_RS21965	5627424	5632998	-	type I polyketide synthase	
+MXAN_RS21970	5633012	5638601	-	type I polyketide synthase	
+MXAN_RS21975	5638597	5645611	-	type I polyketide synthase	
+MXAN_RS21980	5646277	5647063	+	phytanoyl-CoA dioxygenase family protein	
+MXAN_RS21985	5647083	5653548	-	MupA/Atu3671 family FMN-dependent luciferase-like monooxygenase	
+MXAN_RS21990	5653905	5655273	+	MFS transporter	
+MXAN_RS21995	5655445	5656663	+	glycoside hydrolase family 19 protein	
+MXAN_RS22000	5657382	5657949	+	RNA polymerase sigma factor	
+MXAN_RS22005	5657992	5658313	+	hypothetical protein	
+MXAN_RS22010	5658309	5659038	+	ImmA/IrrE family metallo-endopeptidase	
+MXAN_RS22015	5659040	5660228	+	hypothetical protein	
+MXAN_RS22020	5660240	5662502	+	ATP-binding protein	
+MXAN_RS22025	5662584	5662887	+	hypothetical protein	
+MXAN_RS38225	5662903	5663056	-	hypothetical protein	
+MXAN_RS22030	5663237	5664227	+	endonuclease/exonuclease/phosphatase family protein	
+MXAN_RS22035	5664234	5664771	-	YceI family protein	
+MXAN_RS22040	5665168	5666584	+	B12-binding domain-containing radical SAM protein	
+MXAN_RS22045	5666576	5670839	-	AAA family ATPase	
+MXAN_RS22050	5670849	5671245	-	hypothetical protein	
+MXAN_RS22055	5671334	5671886	-	SLOG cluster 4 domain-containing protein	
+
+
+Significant hits: 
+
+
+Details:

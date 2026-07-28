@@ -61,10 +61,21 @@ class rBAN_Monomer(NamedTuple):
                    rban_idx=int(data[5]))
 
     def to_base_mon(self) -> NRP_Monomer:
-        return NRP_Monomer(residue=self.residue,
-                           methylated=self.methylated,
-                           chirality=self.chirality,
-                           is_pks_hybrid=self.is_pks_hybrid)
+        return NRP_Monomer(
+            residue=self.residue,
+            methylated=self.methylated,
+            chirality=self.chirality,
+            is_pks_hybrid=self.is_pks_hybrid
+        )
+
+    def _key(self) -> tuple:
+        return (self.rban_name, self.chirality, self.is_pks_hybrid)
+
+    def __lt__(self, other: rBAN_Monomer) -> bool:
+        return self._key() < other._key()
+
+    def __eq__(self, other: rBAN_Monomer) -> bool:
+        return self._key() == other._key()
 
 
 

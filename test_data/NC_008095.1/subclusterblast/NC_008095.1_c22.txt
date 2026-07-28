@@ -1,0 +1,25 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS22515	5817791	5818631	-	alpha/beta hydrolase	
+MXAN_RS22520	5818643	5820518	-	tetratricopeptide repeat protein	
+MXAN_RS22525	5820561	5823072	-	ATP-binding protein	
+MXAN_RS22530	5823558	5825160	+	hypothetical protein	
+MXAN_RS22535	5825170	5825911	-	TlyA family RNA methyltransferase	
+MXAN_RS22540	5825907	5827659	-	1-deoxy-D-xylulose-5-phosphate synthase	
+MXAN_RS22545	5827658	5828552	-	polyprenyl synthetase family protein	
+MXAN_RS22550	5828569	5828950	-	response regulator	
+MXAN_RS22555	5828974	5829331	-	exodeoxyribonuclease VII small subunit	
+MXAN_RS22560	5829373	5831089	-	exodeoxyribonuclease VII large subunit	
+MXAN_RS22565	5831085	5832831	-	FHA domain-containing protein	
+MXAN_RS22570	5832858	5834313	-	FHA domain-containing protein	
+MXAN_RS22575	5834319	5835210	-	type II secretion system F family protein	
+MXAN_RS22580	5835220	5836066	-	type II secretion system F family protein	
+MXAN_RS22585	5836107	5836923	-	Flp pilus assembly protein CpaB	
+MXAN_RS22590	5837126	5837858	-	hypothetical protein	
+
+
+Significant hits: 
+
+
+Details:

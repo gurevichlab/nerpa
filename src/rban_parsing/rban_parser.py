@@ -1,10 +1,13 @@
 from __future__ import annotations
 from typing import (
+    Callable,
     Dict,
     List,
     NamedTuple,
     Tuple,
-    Union, Optional
+    Union,
+    Optional,
+    Hashable,
 )
 from src.rban_parsing import handle_monomers
 from src.general_type_aliases import (
@@ -18,7 +21,7 @@ from src.monomer_names_helper import (
     MonCode,
     MonomerNamesHelper
 )
-from networkx import DiGraph, is_isomorphic
+import networkx as nx
 
 from collections import defaultdict
 from dataclasses import dataclass, asdict
@@ -79,9 +82,13 @@ class MonomerEdgeInfoSingle(NamedTuple):
 
     @classmethod
     def from_dict(cls, data: dict) -> MonomerEdgeInfoSingle:
-        return cls(monomer_to_atom={int(mon_id): AtomId(atom_id)
-                                    for mon_id, atom_id in data['monomer_to_atom'].items()},
-                   atomic_edge=AtomicEdgeInfo(**data['atomic_edge']))
+        try:
+            result =  cls(monomer_to_atom={int(mon_id): AtomId(atom_id)
+                                           for mon_id, atom_id in data['monomer_to_atom'].items()},
+                          atomic_edge=AtomicEdgeInfo(**data['atomic_edge']))
+        except Exception as e:
+            raise ValueError(f"Error parsing MonomerEdgeInfoSingle from dict:\n {data}") from e
+        return result
 
     def to_dict(self) -> dict:
         return {'monomer_to_atom': self.monomer_to_atom,
@@ -231,7 +238,80 @@ class Parsed_rBAN_Record:
         parsed_record.monomer_bonds = monomer_bonds
         parsed_record.atomic_bonds = atomic_bonds
         parsed_record.metadata = metadata
-        return parsed_record    
+        return parsed_record
+
+    def to_nx_monomer_graph(self) -> nx.Graph:
+        graph = nx.Graph()
+        for monomer_idx, monomer_info in self.monomers.items():
+            graph.add_node(monomer_idx, data=monomer_info)
+        for (mon1_idx, mon2_idx), edges in self.monomer_bonds.items():
+            edges_data = [edge_info.atomic_edge for edge_info in edges]
+            graph.add_edge(mon1_idx, mon2_idx, data=edges_data)
+        return graph
+
+    @classmethod
+    def node_key_default(cls, monomer_info: MonomerInfo) -> Hashable:
+        old_name = monomer_info.name
+        if old_name.startswith('X'):
+            new_name = 'X'  # unknown
+        elif ':' in old_name:
+            new_name = 'LIPID'  # lipid tail
+        else:
+            new_name = old_name  # regular residue
+            
+        return (
+            new_name,
+            monomer_info.chirality,
+            monomer_info.is_pks_hybrid
+        )
+
+    @classmethod
+    def edge_key_default(cls, edges_info: List[AtomicEdgeInfo]) -> Hashable:
+        return tuple(sorted(edge_info.bond_type for edge_info in edges_info))
+
+    @classmethod
+    def _edge_key_from_mon_edge_info(cls, mon_edge_info: MonomerEdgeInfo) -> Hashable:
+        atomic_edges_info = [edge_info.atomic_edge for edge_info in mon_edge_info]
+        return cls.edge_key_default(atomic_edges_info)
+
+    def is_isomorphic_to(
+            self,
+            other: Parsed_rBAN_Record,
+            node_key: Optional[Callable[[MonomerInfo], Hashable]] = None,
+            edge_key: Optional[Callable[[List[AtomicEdgeInfo]], Hashable]] = None
+    ) -> bool:
+        if node_key is None:
+            node_key = self.node_key_default
+        if edge_key is None:
+            edge_key = self.edge_key_default
+
+        # compare node and edge keys before committing to full isomorphism check
+        self_node_keys = {node_key(mon_info) for mon_info in self.monomers.values()}
+        other_node_keys = {node_key(mon_info) for mon_info in other.monomers.values()}
+        if self_node_keys != other_node_keys:
+            return False
+
+        self_edge_keys = {
+            self._edge_key_from_mon_edge_info(edges_info)
+            for edges_info in self.monomer_bonds.values()
+        }
+        other_edge_keys = {
+            other._edge_key_from_mon_edge_info(edges_info)
+            for edges_info in other.monomer_bonds.values()
+        }
+        if self_edge_keys != other_edge_keys:
+            return False
+
+        # Now perform the full isomorphism check using networkx
+        graph1 = self.to_nx_monomer_graph()
+        graph2 = other.to_nx_monomer_graph()
+        
+        return nx.is_isomorphic(
+            graph1,
+            graph2,
+            node_match=lambda n1, n2: node_key(n1['data']) == node_key(n2['data']),
+            edge_match=lambda e1, e2: edge_key(e1['data']) == edge_key(e2['data'])
+        )
 
 
 def get_hybrid_monomers_smiles(rban_record: Raw_rBAN_Record) -> List[Tuple[MonomerIdx, SMILES]]:

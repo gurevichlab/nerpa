@@ -1,0 +1,49 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS30880	7856041	7858774	-	hypothetical protein	
+MXAN_RS30885	7858871	7859930	-	peptidoglycan-binding domain-containing protein	
+MXAN_RS30890	7859933	7860347	-	hypothetical protein	
+MXAN_RS30895	7860534	7860801	-	alpha/beta fold hydrolase	
+MXAN_RS30900	7861135	7863181	-	hypothetical protein	
+MXAN_RS30905	7863379	7863913	+	FHA domain-containing protein	
+MXAN_RS30910	7864018	7865245	+	metallophosphoesterase	
+MXAN_RS30915	7865198	7865870	-	class II aldolase/adducin family protein	
+MXAN_RS30920	7865866	7866973	-	S-methyl-5-thioribose-1-phosphate isomerase	
+MXAN_RS30925	7866969	7867854	-	S-methyl-5'-thioadenosine phosphorylase	
+MXAN_RS30930	7868070	7868880	-	alpha/beta hydrolase	
+MXAN_RS30935	7869088	7872286	+	type 2 lanthipeptide synthetase LanM family protein	
+MXAN_RS30940	7872371	7872614	+	mersacidin/lichenicidin family type 2 lantibiotic	
+MXAN_RS30945	7872742	7873978	-	DUF1501 domain-containing protein	
+MXAN_RS30955	7874387	7874699	+	acyl carrier protein	
+MXAN_RS30960	7874601	7875174	+	3-hydroxyacyl-ACP dehydratase FabZ	
+MXAN_RS30965	7875194	7875965	+	MBL fold metallo-hydrolase	
+MXAN_RS30970	7875961	7877173	+	beta-ketoacyl-[acyl-carrier-protein] synthase family protein	
+MXAN_RS30975	7877169	7878192	+	beta-ketoacyl synthase N-terminal-like domain-containing protein	
+MXAN_RS30980	7878184	7878634	+	3-hydroxyacyl-ACP dehydratase FabZ family protein	
+MXAN_RS30985	7878620	7879370	+	SDR family oxidoreductase	
+MXAN_RS30990	7879366	7880140	+	SDR family NAD(P)-dependent oxidoreductase	
+MXAN_RS30995	7880202	7881438	+	beta-ketoacyl-[acyl-carrier-protein] synthase family protein	
+MXAN_RS31000	7881476	7882694	+	beta-ketoacyl-[acyl-carrier-protein] synthase family protein	
+MXAN_RS31005	7882711	7883440	+	ABC transporter ATP-binding protein	
+MXAN_RS31010	7883436	7884663	+	ABC transporter permease	
+MXAN_RS31015	7884682	7885426	+	outer membrane lipoprotein-sorting protein	
+MXAN_RS31020	7885431	7886763	+	hypothetical protein	
+MXAN_RS31025	7886878	7887277	+	hypothetical protein	
+MXAN_RS31030	7887273	7888419	+	peptidoglycan-binding protein	
+MXAN_RS36365	7888517	7892480	+	IPT/TIG domain-containing protein	
+MXAN_RS31040	7892486	7894061	-	serine hydrolase	
+MXAN_RS31045	7894163	7895750	-	DUF1800 domain-containing protein	
+MXAN_RS31050	7895927	7897790	+	protein-arginine deiminase family protein	
+MXAN_RS31055	7897786	7898710	+	HEAT repeat domain-containing protein	
+MXAN_RS31060	7898712	7899414	-	response regulator transcription factor	
+MXAN_RS31065	7899410	7901234	-	sensor histidine kinase	
+MXAN_RS31070	7901243	7902575	-	YfbK domain-containing protein	
+allorf_7874093_7874236	7874092	7874236	+		
+allorf_7860385_7860516	7860384	7860516	+		
+
+
+Significant hits: 
+
+
+Details:

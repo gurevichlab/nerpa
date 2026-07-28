@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>APZ78770.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001425.4">BGC0001425.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>300.0</td>
+              <td>1.99e-106</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78796.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001427.4">BGC0001427.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>99.0</td>
+              <td>100.0</td>
+              <td>299.0</td>
+              <td>8.09e-106</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78783.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001426.4">BGC0001426.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>99.0</td>
+              <td>100.0</td>
+              <td>298.0</td>
+              <td>1.63e-105</td>
+          </tr>
+    
+          <tr>
+              <td>AQM37585.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001424.4">BGC0001424.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>94.0</td>
+              <td>100.0</td>
+              <td>280.0</td>
+              <td>1.69e-98</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78745.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001422.4">BGC0001422.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>93.0</td>
+              <td>100.0</td>
+              <td>277.0</td>
+              <td>2.8e-97</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78810.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001428.4">BGC0001428.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>91.0</td>
+              <td>100.6</td>
+              <td>272.0</td>
+              <td>3.95e-95</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78757.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001423.4">BGC0001423.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>88.0</td>
+              <td>100.0</td>
+              <td>267.0</td>
+              <td>3.66e-93</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78730.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001421.4">BGC0001421.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>84.0</td>
+              <td>100.0</td>
+              <td>252.0</td>
+              <td>3.22e-87</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78835.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001430.4">BGC0001430.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>69.0</td>
+              <td>99.4</td>
+              <td>208.0</td>
+              <td>9.1e-70</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78693.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001418.4">BGC0001418.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>69.0</td>
+              <td>99.4</td>
+              <td>207.0</td>
+              <td>1.66e-69</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78717.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001420.4">BGC0001420.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>69.0</td>
+              <td>99.4</td>
+              <td>207.0</td>
+              <td>1.66e-69</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78705.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001419.4">BGC0001419.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>68.0</td>
+              <td>99.4</td>
+              <td>206.0</td>
+              <td>6.98e-69</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78823.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001429.4">BGC0001429.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>68.0</td>
+              <td>99.4</td>
+              <td>205.0</td>
+              <td>1.06e-68</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78847.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001431.4">BGC0001431.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>67.0</td>
+              <td>99.4</td>
+              <td>204.0</td>
+              <td>8.32e-68</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78857.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001432.4">BGC0001432.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>67.0</td>
+              <td>99.4</td>
+              <td>202.0</td>
+              <td>1.11e-67</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78681.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001417.4">BGC0001417.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>65.0</td>
+              <td>99.4</td>
+              <td>196.0</td>
+              <td>6.74e-65</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

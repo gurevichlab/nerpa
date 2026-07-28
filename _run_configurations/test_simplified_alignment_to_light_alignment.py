@@ -49,7 +49,7 @@ def main():
                          / 'preprocessed_input'
                          / 'BGC_variants.yaml')
     with open(bgc_variants_path, 'r') as f:
-        bgc_variants = [BGC_Variant.from_yaml_dict(record)
+        bgc_variants = [BGC_Variant.from_dict(record)
                         for record in yaml.safe_load(f)]
 
     bgc_id = nrp_id.split('.')[0]

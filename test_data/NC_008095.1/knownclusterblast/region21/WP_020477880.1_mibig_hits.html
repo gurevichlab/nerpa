@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ANA09437.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001483.4">BGC0001483.4</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>53.5</td>
+              <td>158.0</td>
+              <td>1.04e-41</td>
+          </tr>
+    
+          <tr>
+              <td>ABX02675.1</td>
+              <td>serine/threonine_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001521.3">BGC0001521.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>36.0</td>
+              <td>53.7</td>
+              <td>155.0</td>
+              <td>7.51e-40</td>
+          </tr>
+    
+          <tr>
+              <td>AAY32975.1</td>
+              <td>serine-threonine_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001093.3">BGC0001093.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>36.0</td>
+              <td>49.4</td>
+              <td>146.0</td>
+              <td>1.67e-36</td>
+          </tr>
+    
+          <tr>
+              <td>PVC99880.1</td>
+              <td>serine/threonine_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002100.2">BGC0002100.2</a></td>
+              <td>NRPS:Type I+other:other</td>
+              <td>34.0</td>
+              <td>39.6</td>
+              <td>125.0</td>
+              <td>7.38e-30</td>
+          </tr>
+    
+          <tr>
+              <td>BAU79596.1</td>
+              <td>serine/threonine_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001810.3">BGC0001810.3</a></td>
+              <td>PKS</td>
+              <td>36.0</td>
+              <td>36.8</td>
+              <td>119.0</td>
+              <td>1.86e-29</td>
+          </tr>
+    
+          <tr>
+              <td>AIL50161.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000213.4">BGC0000213.4</a></td>
+              <td>PKS:Type II</td>
+              <td>35.0</td>
+              <td>38.4</td>
+              <td>118.0</td>
+              <td>1.27e-27</td>
+          </tr>
+    
+          <tr>
+              <td>ACR33082.1</td>
+              <td>putative_serine/threonine_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000017.5">BGC0000017.5</a></td>
+              <td>PKS:Type I+other:other</td>
+              <td>33.0</td>
+              <td>38.4</td>
+              <td>101.0</td>
+              <td>6.94e-23</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ23092.1</td>
+              <td>possible_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000291.5">BGC0000291.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>32.0</td>
+              <td>45.2</td>
+              <td>81.0</td>
+              <td>1.49e-15</td>
+          </tr>
+    
+          <tr>
+              <td>CAF05640.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001053.5">BGC0001053.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>30.0</td>
+              <td>47.9</td>
+              <td>80.0</td>
+              <td>3.16e-15</td>
+          </tr>
+    
+          <tr>
+              <td>QKW93659.1</td>
+              <td>serine/threonine-protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002339.3">BGC0002339.3</a></td>
+              <td>terpene</td>
+              <td>27.0</td>
+              <td>37.7</td>
+              <td>72.0</td>
+              <td>6.21e-13</td>
+          </tr>
+    
+          <tr>
+              <td>XP_011392657.1</td>
+              <td>serine/threonine_protein_kinase_ATG1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001281.3">BGC0001281.3</a></td>
+              <td>PKS</td>
+              <td>25.0</td>
+              <td>43.1</td>
+              <td>72.0</td>
+              <td>1.06e-12</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78838.1</td>
+              <td>protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001430.4">BGC0001430.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>34.0</td>
+              <td>27.5</td>
+              <td>64.0</td>
+              <td>1.19e-10</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

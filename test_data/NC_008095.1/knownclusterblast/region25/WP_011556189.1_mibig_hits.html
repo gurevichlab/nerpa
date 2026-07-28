@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>CAB41566.1</td>
+              <td>putative_cyclase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001181.4">BGC0001181.4</a></td>
+              <td>terpene:Sesquiterpene</td>
+              <td>58.0</td>
+              <td>94.3</td>
+              <td>833.0</td>
+              <td>8.08e-298</td>
+          </tr>
+    
+          <tr>
+              <td>ADO85578.1</td>
+              <td>PntA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000653.5">BGC0000653.5</a></td>
+              <td>terpene</td>
+              <td>28.0</td>
+              <td>45.6</td>
+              <td>106.0</td>
+              <td>1.14e-24</td>
+          </tr>
+    
+          <tr>
+              <td>EIW83595.1</td>
+              <td>terpene_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002708.2">BGC0002708.2</a></td>
+              <td>terpene</td>
+              <td>24.0</td>
+              <td>45.2</td>
+              <td>72.0</td>
+              <td>3.48e-13</td>
+          </tr>
+    
+          <tr>
+              <td>CCT74306.1</td>
+              <td>uncharacterized_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001481.3">BGC0001481.3</a></td>
+              <td>terpene</td>
+              <td>25.0</td>
+              <td>21.7</td>
+              <td>54.0</td>
+              <td>4.65e-07</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

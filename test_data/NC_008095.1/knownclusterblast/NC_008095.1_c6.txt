@@ -1,0 +1,76 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS13485	3235610	3238013	-	ABC transporter permease	
+MXAN_RS13490	3238175	3238856	-	hypothetical protein	
+MXAN_RS13495	3238976	3242210	-	ATP-binding protein	
+MXAN_RS13500	3242380	3243445	+	4-hydroxyphenylpyruvate dioxygenase	
+MXAN_RS13505	3243475	3244813	+	homogentisate 1,2-dioxygenase	
+MXAN_RS13510	3244820	3245201	+	Rieske (2Fe-2S) protein	
+MXAN_RS13515	3245210	3246623	-	MATE family efflux transporter	
+MXAN_RS13520	3247008	3247836	-	trypsin-like serine peptidase	
+MXAN_RS13525	3247839	3248637	-	M57 family metalloprotease PrtB	
+MXAN_RS13530	3249070	3250243	+	DUF6068 family protein	
+MXAN_RS13535	3250321	3251443	+	hypothetical protein	
+MXAN_RS13540	3251569	3252349	-	TetR/AcrR family transcriptional regulator	
+MXAN_RS13545	3252515	3254765	+	ATP-binding cassette domain-containing protein	
+MXAN_RS13550	3254842	3259510	-	MupA/Atu3671 family FMN-dependent luciferase-like monooxygenase	
+MXAN_RS13555	3259550	3260372	-	alpha/beta hydrolase family protein	
+MXAN_RS13560	3260389	3266656	-	type I polyketide synthase	
+MXAN_RS13565	3266783	3268361	-	mechanosensitive ion channel family protein	
+MXAN_RS13570	3268359	3269394	+	DNA polymerase III subunit delta'	
+MXAN_RS13575	3269390	3270725	+	DNA polymerase III subunit delta	
+MXAN_RS13580	3270736	3271195	+	hypothetical protein	
+MXAN_RS13585	3271219	3272020	-	NRDE family protein	
+MXAN_RS13590	3272135	3274247	+	methionine--tRNA ligase	
+MXAN_RS13595	3274248	3275226	+	HEAT repeat domain-containing protein	
+MXAN_RS13600	3275222	3275999	+	TatD family hydrolase	
+MXAN_RS13605	3275985	3277968	-	HD domain-containing phosphohydrolase	
+MXAN_RS13610	3277976	3279428	-	OB-fold nucleic acid binding domain-containing protein	
+MXAN_RS13615	3279475	3280615	-	class I SAM-dependent rRNA methyltransferase	
+MXAN_RS13620	3280773	3281142	-	hypothetical protein	
+MXAN_RS13625	3281164	3282760	-	NAD(P)/FAD-dependent oxidoreductase	
+MXAN_RS13630	3283062	3283266	+	hypothetical protein	
+MXAN_RS13635	3283399	3284053	-	MprA protease, GlyGly-CTERM protein-sorting domain-containing form	
+
+
+Significant hits: 
+1. BGC0001902.3	bengamide
+2. BGC0001941.3	Fulvuthiacene A/Fulvuthiacene B
+
+
+Details:
+
+>>
+1. BGC0001902.3
+Source: bengamide
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 7
+Cumulative BLAST score: 4183.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS13505	AJY78097.1	96	886	100.0	0.0
+MXAN_RS13510	AJY78096.1	94	254	100.0	5.05e-89
+MXAN_RS13515	AJY78086.1	93	823	100.0	7.49e-303
+MXAN_RS13520	AJY78085.1	82	418	92.72727272727272	3.19e-149
+MXAN_RS13525	AJY78084.1	89	455	100.0	4.79e-164
+MXAN_RS13530	AJY78083.1	81	641	100.25641025641025	2.47e-233
+MXAN_RS13535	AJY78082.1	93	706	100.0	1.69e-259
+
+
+
+>>
+2. BGC0001941.3
+Source: Fulvuthiacene A/Fulvuthiacene B
+Type: PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1599.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS13550	AXM42952.1	49	927	66.04501607717042	5.01e-309
+MXAN_RS13560	AXM42949.1	46	672	42.38505747126437	8.58e-200
+

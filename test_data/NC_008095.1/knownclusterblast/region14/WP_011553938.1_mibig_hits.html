@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF89352.1</td>
+              <td>radical_SAM_domain_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001025.5">BGC0001025.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>679.0</td>
+              <td>1.66e-250</td>
+          </tr>
+    
+          <tr>
+              <td>ABU41510.1</td>
+              <td>NirJ1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000906.3">BGC0000906.3</a></td>
+              <td>other:other</td>
+              <td>29.0</td>
+              <td>59.0</td>
+              <td>82.0</td>
+              <td>6.01e-17</td>
+          </tr>
+    
+          <tr>
+              <td>ABT18044.1</td>
+              <td>heme_d1_biosynthesis_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000905.5">BGC0000905.5</a></td>
+              <td>other:other</td>
+              <td>31.0</td>
+              <td>60.8</td>
+              <td>79.0</td>
+              <td>4.93e-16</td>
+          </tr>
+    
+          <tr>
+              <td>SQF39785.1</td>
+              <td>radical_SAM_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001929.2">BGC0001929.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>24.0</td>
+              <td>54.5</td>
+              <td>55.0</td>
+              <td>3.78e-08</td>
+          </tr>
+    
+          <tr>
+              <td>AAN59159.1</td>
+              <td>putative_coenzyme_PQQ_synthesis_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002583.2">BGC0002583.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>26.0</td>
+              <td>45.5</td>
+              <td>53.0</td>
+              <td>1.59e-07</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

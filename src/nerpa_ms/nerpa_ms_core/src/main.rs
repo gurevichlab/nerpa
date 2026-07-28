@@ -46,8 +46,10 @@ fn main() -> Result<()> {
 	    .collect()
     };
 
-    write_output(&output_items,
-		 &cli.out.join("new_variants.json"))?;
+    write_output(
+        &output_items,
+		&cli.out.join("nerpa-ms-output.json")
+    )?;
 
     if debug_config.draw_output_variants {
 	let original_records: Vec<&Parsed_rBAN_Record> = {

@@ -184,7 +184,7 @@ def main() -> None:
 
     # Load NRP variants
     with open(nerpa_results_dir / 'preprocessed_input' / 'NRP_variants.yaml') as f:
-        nrp_variants = [NRP_Variant.from_yaml_dict(record)
+        nrp_variants = [NRP_Variant.from_dict(record)
                         for record in yaml.safe_load(f)]
 
     # rban_records_by_id = {r.compound_id: r for r in parsed_rban_records}

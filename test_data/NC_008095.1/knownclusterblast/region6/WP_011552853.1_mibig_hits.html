@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>CAK15824.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase_(4HPPD)_(HPD)_(HPPDase)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000344.5">BGC0000344.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>52.0</td>
+              <td>102.3</td>
+              <td>356.0</td>
+              <td>6.01e-122</td>
+          </tr>
+    
+          <tr>
+              <td>BCJ07538.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002379.3">BGC0002379.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>51.0</td>
+              <td>102.3</td>
+              <td>355.0</td>
+              <td>1.25e-121</td>
+          </tr>
+    
+          <tr>
+              <td>ABC34571.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000961.5">BGC0000961.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>36.0</td>
+              <td>98.9</td>
+              <td>207.0</td>
+              <td>1.06e-63</td>
+          </tr>
+    
+          <tr>
+              <td>BAB69150.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000918.3">BGC0000918.3</a></td>
+              <td>other:other</td>
+              <td>34.0</td>
+              <td>106.8</td>
+              <td>175.0</td>
+              <td>3.97e-51</td>
+          </tr>
+    
+          <tr>
+              <td>AYA22316.1</td>
+              <td>HmaS</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001955.4">BGC0001955.4</a></td>
+              <td>saccharide+NRPS:Type I</td>
+              <td>30.0</td>
+              <td>91.8</td>
+              <td>135.0</td>
+              <td>1.46e-36</td>
+          </tr>
+    
+          <tr>
+              <td>OLZ50901.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001461.5">BGC0001461.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>91.8</td>
+              <td>134.0</td>
+              <td>3.94e-36</td>
+          </tr>
+    
+          <tr>
+              <td>AIG79222.1</td>
+              <td>4-hydroxymandelate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000419.5">BGC0000419.5</a></td>
+              <td>NRPS:Type I+saccharide</td>
+              <td>29.0</td>
+              <td>91.8</td>
+              <td>134.0</td>
+              <td>7.63e-36</td>
+          </tr>
+    
+          <tr>
+              <td>AAK81835.1</td>
+              <td>hydroxyphenyl_pyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000326.5">BGC0000326.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>31.0</td>
+              <td>87.3</td>
+              <td>133.0</td>
+              <td>1.16e-35</td>
+          </tr>
+    
+          <tr>
+              <td>EME52972.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001460.5">BGC0001460.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>91.8</td>
+              <td>132.0</td>
+              <td>3.99e-35</td>
+          </tr>
+    
+          <tr>
+              <td>AEI58881.1</td>
+              <td>hydrooxyphenyl_pyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000455.6">BGC0000455.6</a></td>
+              <td>saccharide+NRPS:Type I</td>
+              <td>29.0</td>
+              <td>93.8</td>
+              <td>131.0</td>
+              <td>6.87e-35</td>
+          </tr>
+    
+          <tr>
+              <td>OKA09438.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001459.5">BGC0001459.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>99.2</td>
+              <td>131.0</td>
+              <td>7.29e-35</td>
+          </tr>
+    
+          <tr>
+              <td>BCD33695.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002448.2">BGC0002448.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>95.8</td>
+              <td>130.0</td>
+              <td>1.23e-34</td>
+          </tr>
+    
+          <tr>
+              <td>OLZ52440.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001462.5">BGC0001462.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>93.8</td>
+              <td>129.0</td>
+              <td>5.92e-34</td>
+          </tr>
+    
+          <tr>
+              <td>AAT09803.1</td>
+              <td>NocF</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000395.5">BGC0000395.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>88.7</td>
+              <td>128.0</td>
+              <td>7.07e-34</td>
+          </tr>
+    
+          <tr>
+              <td>AIE77078.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000418.5">BGC0000418.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>88.7</td>
+              <td>126.0</td>
+              <td>4.27e-33</td>
+          </tr>
+    
+          <tr>
+              <td>CAE53378.1</td>
+              <td>HmaS_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000440.5">BGC0000440.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>87.9</td>
+              <td>119.0</td>
+              <td>2.86e-30</td>
+          </tr>
+    
+          <tr>
+              <td>CAG15040.1</td>
+              <td>HmaS_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000441.4">BGC0000441.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>87.9</td>
+              <td>119.0</td>
+              <td>2.96e-30</td>
+          </tr>
+    
+          <tr>
+              <td>EWS95126.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000306.5">BGC0000306.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>31.0</td>
+              <td>80.8</td>
+              <td>113.0</td>
+              <td>2.83e-28</td>
+          </tr>
+    
+          <tr>
+              <td>DAB41473.1</td>
+              <td>4-hydroxyphenylpyruvate_dioxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001230.5">BGC0001230.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>27.0</td>
+              <td>83.6</td>
+              <td>96.0</td>
+              <td>7.05e-22</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

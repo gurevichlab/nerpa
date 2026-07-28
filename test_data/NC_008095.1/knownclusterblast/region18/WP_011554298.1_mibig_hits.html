@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>CAQ34922.1</td>
+              <td>putative_phospholipase,_patatin-like</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000986.5">BGC0000986.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>72.0</td>
+              <td>99.7</td>
+              <td>523.0</td>
+              <td>1.16e-187</td>
+          </tr>
+    
+          <tr>
+              <td>ADZ25000.1</td>
+              <td>phospholipase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000380.5">BGC0000380.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>42.0</td>
+              <td>98.6</td>
+              <td>275.0</td>
+              <td>4.88e-90</td>
+          </tr>
+    
+          <tr>
+              <td>AHA38195.1</td>
+              <td>GphB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000069.5">BGC0000069.5</a></td>
+              <td>PKS</td>
+              <td>41.0</td>
+              <td>98.6</td>
+              <td>269.0</td>
+              <td>1.1e-87</td>
+          </tr>
+    
+          <tr>
+              <td>ADH04684.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001344.4">BGC0001344.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>32.0</td>
+              <td>98.9</td>
+              <td>147.0</td>
+              <td>1.1e-40</td>
+          </tr>
+    
+          <tr>
+              <td>CAF05653.1</td>
+              <td>patatin-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001053.5">BGC0001053.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>33.0</td>
+              <td>98.3</td>
+              <td>146.0</td>
+              <td>2.08e-40</td>
+          </tr>
+    
+          <tr>
+              <td>CAF05652.1</td>
+              <td>patatin-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001053.5">BGC0001053.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>33.0</td>
+              <td>98.6</td>
+              <td>138.0</td>
+              <td>1.63e-37</td>
+          </tr>
+    
+          <tr>
+              <td>ADH04683.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001344.4">BGC0001344.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>31.0</td>
+              <td>102.2</td>
+              <td>127.0</td>
+              <td>1.81e-33</td>
+          </tr>
+    
+          <tr>
+              <td>AXN93576.1</td>
+              <td>ORF2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001950.4">BGC0001950.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>96.7</td>
+              <td>59.0</td>
+              <td>6.31e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AXN93585.1</td>
+              <td>ORF2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001951.4">BGC0001951.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>96.7</td>
+              <td>59.0</td>
+              <td>6.5e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AIW82278.1</td>
+              <td>ORF2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001125.5">BGC0001125.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>23.0</td>
+              <td>96.9</td>
+              <td>54.0</td>
+              <td>1.76e-07</td>
+          </tr>
+    
+          <tr>
+              <td>AXN93606.1</td>
+              <td>ORF2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001953.4">BGC0001953.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>24.0</td>
+              <td>60.4</td>
+              <td>52.0</td>
+              <td>4.67e-07</td>
+          </tr>
+    
+          <tr>
+              <td>AXN93593.1</td>
+              <td>ORF2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001952.3">BGC0001952.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>31.0</td>
+              <td>35.7</td>
+              <td>50.0</td>
+              <td>3.4e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

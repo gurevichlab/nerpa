@@ -1,0 +1,51 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS36870	4977638	4977803	-	ribbon-helix-helix domain-containing protein	
+MXAN_RS19730	4977862	4978438	-	hypothetical protein	
+MXAN_RS19735	4978551	4979043	-	DUF1772 domain-containing protein	
+MXAN_RS19740	4979120	4979909	+	helix-turn-helix domain-containing protein	
+MXAN_RS19745	4979998	4980937	+	hypothetical protein	
+MXAN_RS19750	4981284	4982871	+	leucine-rich repeat domain-containing protein	
+MXAN_RS19755	4982911	4983808	-	ATP-dependent sacrificial sulfur transferase LarE	
+MXAN_RS19760	4983906	4984680	-	adenylyl-sulfate kinase	
+MXAN_RS19765	4984872	4985286	-	M67 family metallopeptidase	
+MXAN_RS19770	4985282	4985924	-	hypothetical protein	
+MXAN_RS19775	4985929	4986202	-	ubiquitin-like small modifier protein 1	
+MXAN_RS19780	4986209	4986449	-	sulfurtransferase TusA family protein	
+MXAN_RS19785	4986436	4987204	-	HesA/MoeB/ThiF family protein	
+MXAN_RS19790	4987326	4987713	+	hypothetical protein	
+MXAN_RS19795	4987822	4989106	+	sensor histidine kinase	
+MXAN_RS19800	4989102	4989843	+	response regulator	
+MXAN_RS19805	4989858	4991130	-	glycoside hydrolase 5 family protein	
+MXAN_RS19810	4991196	4992078	+	ABC transporter ATP-binding protein	
+MXAN_RS19815	4992087	4995690	+	ABC transporter permease/M1 family aminopeptidase	
+MXAN_RS19820	4995694	4996231	-	DUF2378 family protein	
+MXAN_RS19825	4996864	5003323	+	type I polyketide synthase	
+MXAN_RS19830	5003319	5012466	+	non-ribosomal peptide synthetase	
+MXAN_RS19835	5012462	5025896	+	non-ribosomal peptide synthetase	
+MXAN_RS19840	5025892	5026357	+	DUF2269 family protein	
+MXAN_RS19845	5026442	5027948	-	DEAD/DEAH box helicase	
+MXAN_RS19850	5028297	5030406	-	elongation factor G	
+MXAN_RS19855	5030840	5032031	-	cyclic nucleotide-binding domain-containing protein	
+MXAN_RS19860	5032149	5032626	-	FKBP-type peptidyl-prolyl cis-trans isomerase	
+MXAN_RS19865	5032796	5033993	+	metallophosphoesterase	
+MXAN_RS19870	5034006	5034771	-	ZIP family metal transporter	
+MXAN_RS19875	5034963	5035515	+	RNA polymerase sigma factor	
+MXAN_RS19880	5035511	5036177	+	carotenogenesis protein CarR	
+MXAN_RS19885	5036173	5036509	+	antirepressor protein CarS	
+MXAN_RS19890	5036525	5037038	-	hypothetical protein	
+MXAN_RS19895	5037088	5038144	-	hypothetical protein	
+MXAN_RS19900	5038204	5039362	-	AI-2E family transporter	
+MXAN_RS19905	5039471	5039945	+	hypothetical protein	
+MXAN_RS19910	5039976	5040096	-	hypothetical protein	
+MXAN_RS19915	5040138	5041491	-	DmpA family aminopeptidase	
+MXAN_RS19920	5041601	5043791	-	D-alanine--D-alanine ligase family protein	
+MXAN_RS19925	5043775	5044423	-	RDD family protein	
+MXAN_RS19930	5044419	5044809	-	type IV pili motility protein SglS	
+
+
+Significant hits: 
+
+
+Details:

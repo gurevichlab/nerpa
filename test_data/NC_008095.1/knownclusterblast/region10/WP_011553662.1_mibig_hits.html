@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF88819.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002492.3">BGC0002492.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>586.0</td>
+              <td>1.42e-214</td>
+          </tr>
+    
+          <tr>
+              <td>AAG31129.1</td>
+              <td>MxcF</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001345.5">BGC0001345.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>71.0</td>
+              <td>101.0</td>
+              <td>424.0</td>
+              <td>2.05e-150</td>
+          </tr>
+    
+          <tr>
+              <td>QRK05500.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002324.3">BGC0002324.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>71.0</td>
+              <td>100.3</td>
+              <td>423.0</td>
+              <td>3.11e-150</td>
+          </tr>
+    
+          <tr>
+              <td>AEI70244.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000401.5">BGC0000401.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>61.0</td>
+              <td>102.0</td>
+              <td>364.0</td>
+              <td>1.02e-126</td>
+          </tr>
+    
+          <tr>
+              <td>CAB15187.1</td>
+              <td>isochorismatase_(siderophore_specific)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000309.5">BGC0000309.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>57.0</td>
+              <td>103.3</td>
+              <td>354.0</td>
+              <td>9.78e-123</td>
+          </tr>
+    
+          <tr>
+              <td>NPC94427.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002695.2">BGC0002695.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>56.0</td>
+              <td>97.3</td>
+              <td>343.0</td>
+              <td>9.36e-119</td>
+          </tr>
+    
+          <tr>
+              <td>ABS75233.1</td>
+              <td>DhbB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001185.5">BGC0001185.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>54.0</td>
+              <td>102.0</td>
+              <td>335.0</td>
+              <td>2.34e-115</td>
+          </tr>
+    
+          <tr>
+              <td>MBX9445641.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002414.3">BGC0002414.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>52.0</td>
+              <td>96.7</td>
+              <td>281.0</td>
+              <td>3.15e-94</td>
+          </tr>
+    
+          <tr>
+              <td>AAK95836.1</td>
+              <td>putative_2,3-dihydro-2,3-dihydroxybenzoate_synthase_PhbB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002495.2">BGC0002495.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>48.0</td>
+              <td>96.3</td>
+              <td>272.0</td>
+              <td>6.73e-91</td>
+          </tr>
+    
+          <tr>
+              <td>WP_068925907.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002688.2">BGC0002688.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>61.0</td>
+              <td>70.2</td>
+              <td>269.0</td>
+              <td>9.42e-91</td>
+          </tr>
+    
+          <tr>
+              <td>ACY02014.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000343.5">BGC0000343.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>48.0</td>
+              <td>96.0</td>
+              <td>259.0</td>
+              <td>1.28e-85</td>
+          </tr>
+    
+          <tr>
+              <td>ABK39064.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001502.4">BGC0001502.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>45.0</td>
+              <td>99.3</td>
+              <td>257.0</td>
+              <td>8.85e-85</td>
+          </tr>
+    
+          <tr>
+              <td>AAC45926.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002494.3">BGC0002494.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>48.0</td>
+              <td>95.3</td>
+              <td>256.0</td>
+              <td>2.28e-84</td>
+          </tr>
+    
+          <tr>
+              <td>ABU70376.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001890.3">BGC0001890.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>99.7</td>
+              <td>254.0</td>
+              <td>1.01e-83</td>
+          </tr>
+    
+          <tr>
+              <td>AAQ59158.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002679.2">BGC0002679.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>96.3</td>
+              <td>252.0</td>
+              <td>7.17e-83</td>
+          </tr>
+    
+          <tr>
+              <td>AAC73696.1</td>
+              <td>enterobactin_synthase_component_B</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002476.2">BGC0002476.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>96.3</td>
+              <td>251.0</td>
+              <td>8.13e-83</td>
+          </tr>
+    
+          <tr>
+              <td>AGK13424.1</td>
+              <td>Isochorismatase_(2,3_dihydro-2,3_dihydroxybenzoate_synthase)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002528.3">BGC0002528.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>46.0</td>
+              <td>93.6</td>
+              <td>250.0</td>
+              <td>1.85e-82</td>
+          </tr>
+    
+          <tr>
+              <td>AAO07761.1</td>
+              <td>Isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000460.5">BGC0000460.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>45.0</td>
+              <td>96.0</td>
+              <td>250.0</td>
+              <td>3.17e-82</td>
+          </tr>
+    
+          <tr>
+              <td>KGA48837.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002413.3">BGC0002413.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>43.0</td>
+              <td>96.0</td>
+              <td>247.0</td>
+              <td>9.02e-81</td>
+          </tr>
+    
+          <tr>
+              <td>CAJ45637.1</td>
+              <td>2,3-dihydro-2,3-dihydroxybenzoate_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000454.5">BGC0000454.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>46.0</td>
+              <td>95.0</td>
+              <td>245.0</td>
+              <td>2.19e-80</td>
+          </tr>
+    
+          <tr>
+              <td>KJY85278.1</td>
+              <td>Isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002491.3">BGC0002491.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>100.0</td>
+              <td>245.0</td>
+              <td>2.82e-80</td>
+          </tr>
+    
+          <tr>
+              <td>QJS40197.1</td>
+              <td>Isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002439.3">BGC0002439.3</a></td>
+              <td>other:other</td>
+              <td>54.0</td>
+              <td>69.6</td>
+              <td>240.0</td>
+              <td>3.28e-79</td>
+          </tr>
+    
+          <tr>
+              <td>AIE54239.1</td>
+              <td>PauY19</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001732.5">BGC0001732.5</a></td>
+              <td>other:other</td>
+              <td>53.0</td>
+              <td>70.2</td>
+              <td>237.0</td>
+              <td>5.33e-78</td>
+          </tr>
+    
+          <tr>
+              <td>AIE54186.1</td>
+              <td>Pau19</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001731.5">BGC0001731.5</a></td>
+              <td>other:other</td>
+              <td>53.0</td>
+              <td>70.2</td>
+              <td>236.0</td>
+              <td>1.52e-77</td>
+          </tr>
+    
+          <tr>
+              <td>AFB35627.1</td>
+              <td>EsmA4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000935.5">BGC0000935.5</a></td>
+              <td>other:aminocoumarin+PKS</td>
+              <td>51.0</td>
+              <td>72.9</td>
+              <td>234.0</td>
+              <td>4.76e-77</td>
+          </tr>
+    
+          <tr>
+              <td>EYT83441.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001213.5">BGC0001213.5</a></td>
+              <td>PKS</td>
+              <td>54.0</td>
+              <td>70.2</td>
+              <td>233.0</td>
+              <td>1.76e-76</td>
+          </tr>
+    
+          <tr>
+              <td>ACR10711.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000451.5">BGC0000451.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>42.0</td>
+              <td>96.3</td>
+              <td>235.0</td>
+              <td>2.22e-76</td>
+          </tr>
+    
+          <tr>
+              <td>WP_005009581.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002473.3">BGC0002473.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>54.0</td>
+              <td>70.2</td>
+              <td>232.0</td>
+              <td>3.16e-76</td>
+          </tr>
+    
+          <tr>
+              <td>ctg4_2</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002017.3">BGC0002017.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>52.0</td>
+              <td>69.6</td>
+              <td>231.0</td>
+              <td>1.06e-75</td>
+          </tr>
+    
+          <tr>
+              <td>BAC16759.1</td>
+              <td>probable_2,3-dihydro-2,3-dihydroxybenzoate_synthetase,_isochorismatase_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002474.2">BGC0002474.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>42.0</td>
+              <td>96.3</td>
+              <td>233.0</td>
+              <td>1.62e-75</td>
+          </tr>
+    
+          <tr>
+              <td>ABG94124.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000417.5">BGC0000417.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>49.0</td>
+              <td>71.2</td>
+              <td>230.0</td>
+              <td>2.47e-75</td>
+          </tr>
+    
+          <tr>
+              <td>BAC87907.1</td>
+              <td>probable_acinetobactin_biosynthesis_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000294.5">BGC0000294.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>96.7</td>
+              <td>231.0</td>
+              <td>6.51e-75</td>
+          </tr>
+    
+          <tr>
+              <td>BAH33407.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000371.5">BGC0000371.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>53.0</td>
+              <td>72.6</td>
+              <td>228.0</td>
+              <td>2e-74</td>
+          </tr>
+    
+          <tr>
+              <td>KDQ70112.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001444.5">BGC0001444.5</a></td>
+              <td>other:shikimate-derived</td>
+              <td>51.0</td>
+              <td>71.6</td>
+              <td>227.0</td>
+              <td>2.92e-74</td>
+          </tr>
+    
+          <tr>
+              <td>RGP42810.1</td>
+              <td>2,3-dihydro-2,3-dihydroxybenzoate_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002696.2">BGC0002696.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>53.0</td>
+              <td>72.2</td>
+              <td>227.0</td>
+              <td>4e-74</td>
+          </tr>
+    
+          <tr>
+              <td>CAX48670.1</td>
+              <td>putative_2,3-dihydro-3-hydroxy-anthranilate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001080.5">BGC0001080.5</a></td>
+              <td>other:phenazine</td>
+              <td>55.0</td>
+              <td>66.9</td>
+              <td>226.0</td>
+              <td>8.76e-74</td>
+          </tr>
+    
+          <tr>
+              <td>CBA63658.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000368.5">BGC0000368.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>51.0</td>
+              <td>69.6</td>
+              <td>224.0</td>
+              <td>3.89e-73</td>
+          </tr>
+    
+          <tr>
+              <td>WP_030625033.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001771.4">BGC0001771.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>51.0</td>
+              <td>69.2</td>
+              <td>224.0</td>
+              <td>5.38e-73</td>
+          </tr>
+    
+          <tr>
+              <td>AXO35179.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001848.4">BGC0001848.4</a></td>
+              <td>other:other</td>
+              <td>51.0</td>
+              <td>70.2</td>
+              <td>223.0</td>
+              <td>1.74e-72</td>
+          </tr>
+    
+          <tr>
+              <td>AQW35049.1</td>
+              <td>phenazine_biosynthesis_protein_PhzD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001675.5">BGC0001675.5</a></td>
+              <td>PKS</td>
+              <td>52.0</td>
+              <td>69.6</td>
+              <td>223.0</td>
+              <td>2.19e-72</td>
+          </tr>
+    
+          <tr>
+              <td>AHW81473.1</td>
+              <td>EpaN</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000934.4">BGC0000934.4</a></td>
+              <td>other:phenazine</td>
+              <td>53.0</td>
+              <td>66.9</td>
+              <td>218.0</td>
+              <td>6.52e-71</td>
+          </tr>
+    
+          <tr>
+              <td>AIT42119.1</td>
+              <td>putative_2,3-dihydro-3-hydroxy-anthranilate_(DHHA)_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001221.5">BGC0001221.5</a></td>
+              <td>other:phenazine</td>
+              <td>52.0</td>
+              <td>66.2</td>
+              <td>218.0</td>
+              <td>1.31e-70</td>
+          </tr>
+    
+          <tr>
+              <td>WP_018960030.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002010.4">BGC0002010.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>50.0</td>
+              <td>68.9</td>
+              <td>214.0</td>
+              <td>2.99e-69</td>
+          </tr>
+    
+          <tr>
+              <td>AYV61406.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001965.4">BGC0001965.4</a></td>
+              <td>other:other</td>
+              <td>53.0</td>
+              <td>67.6</td>
+              <td>214.0</td>
+              <td>4.02e-69</td>
+          </tr>
+    
+          <tr>
+              <td>AFY23028.1</td>
+              <td>phenazine_biosynthesis_protein_PhzD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000274.5">BGC0000274.5</a></td>
+              <td>PKS:Type II</td>
+              <td>50.0</td>
+              <td>69.2</td>
+              <td>214.0</td>
+              <td>4.1e-69</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ55903.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000359.5">BGC0000359.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>50.0</td>
+              <td>70.2</td>
+              <td>214.0</td>
+              <td>4.7e-69</td>
+          </tr>
+    
+          <tr>
+              <td>AFW04565.1</td>
+              <td>Isochorismatase,PhzD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001783.5">BGC0001783.5</a></td>
+              <td>other:other</td>
+              <td>50.0</td>
+              <td>68.6</td>
+              <td>213.0</td>
+              <td>7.05e-69</td>
+          </tr>
+    
+          <tr>
+              <td>AAC64487.1</td>
+              <td>PhzD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000936.5">BGC0000936.5</a></td>
+              <td>other:other</td>
+              <td>49.0</td>
+              <td>68.9</td>
+              <td>211.0</td>
+              <td>3.41e-68</td>
+          </tr>
+    
+          <tr>
+              <td>CDG76954.1</td>
+              <td>Isochorismatase_of_siderophore_biosynthesis</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000446.5">BGC0000446.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>50.0</td>
+              <td>68.6</td>
+              <td>210.0</td>
+              <td>1.51e-67</td>
+          </tr>
+    
+          <tr>
+              <td>ATJ04406.1</td>
+              <td>isochorismatase-like_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001637.3">BGC0001637.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>49.0</td>
+              <td>68.6</td>
+              <td>208.0</td>
+              <td>6.06e-67</td>
+          </tr>
+    
+          <tr>
+              <td>AEH42480.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000032.5">BGC0000032.5</a></td>
+              <td>PKS</td>
+              <td>50.0</td>
+              <td>68.2</td>
+              <td>208.0</td>
+              <td>1.01e-66</td>
+          </tr>
+    
+          <tr>
+              <td>ALE27508.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001292.5">BGC0001292.5</a></td>
+              <td>other:other</td>
+              <td>48.0</td>
+              <td>69.9</td>
+              <td>206.0</td>
+              <td>6.1e-66</td>
+          </tr>
+    
+          <tr>
+              <td>CAQ46281.1</td>
+              <td>putative_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002689.2">BGC0002689.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>48.0</td>
+              <td>70.2</td>
+              <td>197.0</td>
+              <td>2.03e-62</td>
+          </tr>
+    
+          <tr>
+              <td>RZB16708.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001850.4">BGC0001850.4</a></td>
+              <td>other:shikimate-derived</td>
+              <td>48.0</td>
+              <td>68.9</td>
+              <td>195.0</td>
+              <td>1.15e-61</td>
+          </tr>
+    
+          <tr>
+              <td>AGE11887.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000366.5">BGC0000366.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>46.0</td>
+              <td>72.9</td>
+              <td>195.0</td>
+              <td>1.48e-61</td>
+          </tr>
+    
+          <tr>
+              <td>ABL70473.1</td>
+              <td>Isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002493.3">BGC0002493.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>46.0</td>
+              <td>70.6</td>
+              <td>192.0</td>
+              <td>1.67e-60</td>
+          </tr>
+    
+          <tr>
+              <td>QDJ94209.1</td>
+              <td>SpzD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002561.3">BGC0002561.3</a></td>
+              <td>other:other</td>
+              <td>49.0</td>
+              <td>64.5</td>
+              <td>191.0</td>
+              <td>4.28e-60</td>
+          </tr>
+    
+          <tr>
+              <td>AWN56705.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001652.5">BGC0001652.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>46.0</td>
+              <td>67.6</td>
+              <td>191.0</td>
+              <td>8.75e-60</td>
+          </tr>
+    
+          <tr>
+              <td>CAG69519.1</td>
+              <td>2,3-dihydro-2,3-dihydroxybenzoate_synthetase,_isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000352.5">BGC0000352.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>46.0</td>
+              <td>64.2</td>
+              <td>182.0</td>
+              <td>1.46e-56</td>
+          </tr>
+    
+          <tr>
+              <td>EWM63057.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000679.5">BGC0000679.5</a></td>
+              <td>terpene</td>
+              <td>47.0</td>
+              <td>70.6</td>
+              <td>181.0</td>
+              <td>6.51e-56</td>
+          </tr>
+    
+          <tr>
+              <td>WP_015031696.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001819.3">BGC0001819.3</a></td>
+              <td>PKS</td>
+              <td>46.0</td>
+              <td>66.6</td>
+              <td>180.0</td>
+              <td>7.2e-56</td>
+          </tr>
+    
+          <tr>
+              <td>AQZ26588.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001437.5">BGC0001437.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>70.9</td>
+              <td>177.0</td>
+              <td>1.08e-54</td>
+          </tr>
+    
+          <tr>
+              <td>WP_099049897.1</td>
+              <td>isochorismatase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002002.3">BGC0002002.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>43.0</td>
+              <td>71.6</td>
+              <td>155.0</td>
+              <td>2.08e-46</td>
+          </tr>
+    
+          <tr>
+              <td>PHM31519.1</td>
+              <td>phenazine_biosynthesis_protein_PhzD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001868.4">BGC0001868.4</a></td>
+              <td>other:phenazine</td>
+              <td>43.0</td>
+              <td>65.9</td>
+              <td>155.0</td>
+              <td>2.27e-46</td>
+          </tr>
+    
+          <tr>
+              <td>AKC91614.1</td>
+              <td>phenazine_biosynthesis_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001302.5">BGC0001302.5</a></td>
+              <td>other:other</td>
+              <td>61.0</td>
+              <td>31.4</td>
+              <td>125.0</td>
+              <td>1.02e-35</td>
+          </tr>
+    
+          <tr>
+              <td>ctg4_4</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002017.3">BGC0002017.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>53.0</td>
+              <td>25.4</td>
+              <td>78.0</td>
+              <td>3.16e-18</td>
+          </tr>
+    
+          <tr>
+              <td>BAH33404.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000371.5">BGC0000371.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>53.0</td>
+              <td>24.1</td>
+              <td>77.0</td>
+              <td>1.15e-17</td>
+          </tr>
+    
+          <tr>
+              <td>RGP42813.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002696.2">BGC0002696.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>53.0</td>
+              <td>24.1</td>
+              <td>77.0</td>
+              <td>1.15e-17</td>
+          </tr>
+    
+          <tr>
+              <td>WP_244894130.1</td>
+              <td>phosphopantetheine-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002688.2">BGC0002688.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>55.0</td>
+              <td>21.4</td>
+              <td>74.0</td>
+              <td>1.39e-16</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ55901.1</td>
+              <td>isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000359.5">BGC0000359.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>49.0</td>
+              <td>24.1</td>
+              <td>74.0</td>
+              <td>1.98e-16</td>
+          </tr>
+    
+          <tr>
+              <td>ATY72526.1</td>
+              <td>phosphopantetheine_attachment_domain</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001574.5">BGC0001574.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>47.0</td>
+              <td>25.1</td>
+              <td>71.0</td>
+              <td>2.78e-15</td>
+          </tr>
+    
+          <tr>
+              <td>ABG94128.1</td>
+              <td>probable_isochorismatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000417.5">BGC0000417.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>49.0</td>
+              <td>24.1</td>
+              <td>67.0</td>
+              <td>3.31e-14</td>
+          </tr>
+    
+          <tr>
+              <td>CBA63655.1</td>
+              <td>aryl_carrier_for_2,3-dihydroxybenzoate</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000368.5">BGC0000368.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>49.0</td>
+              <td>24.7</td>
+              <td>67.0</td>
+              <td>6.17e-14</td>
+          </tr>
+    
+          <tr>
+              <td>ctg1_orf1262</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001752.4">BGC0001752.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>48.0</td>
+              <td>27.1</td>
+              <td>64.0</td>
+              <td>4.64e-13</td>
+          </tr>
+    
+          <tr>
+              <td>WP_141576286.1</td>
+              <td>non-ribosomal_peptide_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002686.2">BGC0002686.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>56.0</td>
+              <td>23.4</td>
+              <td>67.0</td>
+              <td>7.62e-12</td>
+          </tr>
+    
+          <tr>
+              <td>MBD2892727.1</td>
+              <td>Phenyloxazoline_synthase_MbtB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002718.2">BGC0002718.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>53.0</td>
+              <td>23.4</td>
+              <td>66.0</td>
+              <td>1.83e-11</td>
+          </tr>
+    
+          <tr>
+              <td>AQZ26589.1</td>
+              <td>obafluorin_aryl_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001437.5">BGC0001437.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>48.0</td>
+              <td>21.1</td>
+              <td>60.0</td>
+              <td>1.86e-11</td>
+          </tr>
+    
+          <tr>
+              <td>CAQ46280.1</td>
+              <td>putative_phosphopantetheine_attachment_site_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002689.2">BGC0002689.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>39.0</td>
+              <td>25.8</td>
+              <td>57.0</td>
+              <td>1.65e-10</td>
+          </tr>
+    
+          <tr>
+              <td>CCP45171.1</td>
+              <td>Phenyloxazoline_synthase_MbtB_(phenyloxazoline_synthetase)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001021.5">BGC0001021.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>46.0</td>
+              <td>24.7</td>
+              <td>60.0</td>
+              <td>1.12e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AGE11891.1</td>
+              <td>nonribosomal_peptide_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000366.5">BGC0000366.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>23.4</td>
+              <td>59.0</td>
+              <td>2.6e-09</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

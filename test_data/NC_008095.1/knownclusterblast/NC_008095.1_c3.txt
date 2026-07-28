@@ -1,0 +1,61 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS07330	1771437	1772145	-	metallophosphoesterase	
+MXAN_RS07335	1772577	1773246	+	RNA polymerase sigma factor	
+MXAN_RS07340	1773294	1774482	+	hypothetical protein	
+MXAN_RS07345	1774532	1775705	-	hypothetical protein	
+MXAN_RS07350	1775716	1776271	-	anti-sigma factor	
+MXAN_RS07355	1776263	1777031	-	RNA polymerase sigma factor	
+MXAN_RS07360	1777034	1777520	-	PaaI family thioesterase	
+MXAN_RS07365	1777637	1779989	+	ATP-dependent helicase	
+MXAN_RS07370	1780094	1780559	+	hypothetical protein	
+MXAN_RS07375	1780590	1781682	-	outer membrane protein assembly factor BamB family protein	
+MXAN_RS07380	1781717	1782878	+	adenosine deaminase	
+MXAN_RS07385	1782958	1783738	+	SDR family oxidoreductase	
+MXAN_RS07390	1783899	1785324	+	RtcB family protein	
+MXAN_RS07395	1785355	1785898	+	hypothetical protein	
+MXAN_RS07400	1785894	1786416	-	GNAT family N-acetyltransferase	
+MXAN_RS07405	1786423	1787653	-	glucose-1-phosphate adenylyltransferase	
+MXAN_RS07410	1787908	1788790	+	GGDEF domain-containing protein	
+MXAN_RS38065	1788793	1788964	+	hypothetical protein	
+MXAN_RS07415	1789112	1790141	-	NAD-dependent epimerase/dehydratase family protein	
+MXAN_RS07420	1790137	1794550	-	AMP-binding protein	
+MXAN_RS07425	1794558	1796169	-	NPN-dependent hydroxyacid isomerase, LarAH14/15/16 family	
+MXAN_RS07430	1796182	1796848	-	HAD family hydrolase	
+MXAN_RS07435	1796938	1797919	-	NAD-dependent epimerase/dehydratase family protein	
+MXAN_RS07440	1798266	1798584	+	SWIB/MDM2 domain-containing protein	
+MXAN_RS07445	1798749	1801851	+	malto-oligosyltrehalose synthase	
+MXAN_RS07450	1801847	1803989	+	glycogen debranching protein GlgX	
+MXAN_RS07455	1804117	1805068	+	TerC family protein	
+MXAN_RS07460	1805138	1805525	+	Co2+/Mg2+ efflux protein ApaG	
+MXAN_RS07465	1805524	1806619	+	ferrochelatase	
+MXAN_RS07470	1806563	1807589	-	hypothetical protein	
+MXAN_RS07475	1807637	1808228	-	hypothetical protein	
+MXAN_RS07480	1808412	1811958	+	DEAD/DEAH box helicase	
+MXAN_RS07485	1812509	1812884	+	DUSAM domain-containing protein	
+MXAN_RS07490	1812962	1813469	-	HEAT repeat domain-containing protein	
+
+
+Significant hits: 
+1. BGC0000871.4	VEPE/AEPE/TG-1
+
+
+Details:
+
+>>
+1. BGC0000871.4
+Source: VEPE/AEPE/TG-1
+Type: other:nucleoside
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 5744.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS07415	MXAN_1527	100	687	100.0	4.61e-253
+MXAN_RS07420	MXAN_1528	100	2897	100.0	0.0
+MXAN_RS07425	MXAN_1529	100	1075	100.0	0.0
+MXAN_RS07430	MXAN_1530	100	442	100.0	3.56e-160
+MXAN_RS07435	MXAN_1531	100	643	100.0	2.23e-236
+

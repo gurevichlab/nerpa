@@ -1,0 +1,46 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS07720	1863445	1864270	-	aminotransferase class IV	
+MXAN_RS07725	1864287	1864857	-	anthranilate synthase component II	
+MXAN_RS07730	1864853	1866308	-	anthranilate synthase component I family protein	
+MXAN_RS07735	1866402	1869888	-	helicase HerA domain-containing protein	
+MXAN_RS07740	1869908	1870910	-	hypothetical protein	
+MXAN_RS07745	1870896	1872120	-	endonuclease domain-containing protein	
+MXAN_RS07750	1872311	1873889	-	bifunctional 3-(3-hydroxy-phenyl)propionate/3-hydroxycinnamic acid hydroxylase MhpA	
+MXAN_RS07755	1873928	1874876	-	SDR family oxidoreductase	
+MXAN_RS07760	1874872	1875694	-	lysophospholipid acyltransferase family protein	
+MXAN_RS07765	1875808	1876759	+	ABC transporter ATP-binding protein	
+MXAN_RS07770	1876758	1877784	+	ABC transporter permease	
+MXAN_RS07775	1877798	1879298	+	class I SAM-dependent methyltransferase	
+MXAN_RS07780	1879316	1880483	+	pyridoxal phosphate-dependent aminotransferase	
+MXAN_RS07785	1880492	1881470	-	fatty acid desaturase	
+MXAN_RS07790	1881584	1883087	-	class I SAM-dependent methyltransferase	
+MXAN_RS07795	1883192	1887287	+	SDR family NAD(P)-dependent oxidoreductase	
+MXAN_RS07800	1887382	1889431	+	FtsX-like permease family protein	
+MXAN_RS07805	1889435	1890728	+	ABC transporter permease	
+MXAN_RS07810	1890727	1891507	+	outer membrane lipoprotein-sorting protein	
+MXAN_RS07815	1891507	1908304	-	non-ribosomal peptide synthetase	
+MXAN_RS07820	1908332	1910285	-	hypothetical protein	
+MXAN_RS37465	1910425	1910596	+	Xan family putative trans-acting RiPP leader peptide	
+MXAN_RS07825	1910601	1911600	+	aromatic ring-hydroxylating dioxygenase subunit alpha	
+MXAN_RS07830	1911614	1912589	+	c-type cytochrome	
+MXAN_RS07835	1912694	1914578	+	hypothetical protein	
+MXAN_RS07840	1914595	1915693	+	hypothetical protein	
+MXAN_RS07845	1915715	1916993	-	TldD/PmbA family protein	
+MXAN_RS07850	1917286	1918633	+	metallopeptidase TldD-related protein	
+MXAN_RS07855	1918801	1919446	+	hypothetical protein	
+MXAN_RS07860	1919797	1920004	+	cold-shock protein	
+MXAN_RS07865	1920079	1920262	+	hypothetical protein	
+MXAN_RS07870	1920400	1921045	-	helix-turn-helix transcriptional regulator	
+MXAN_RS07875	1921183	1923598	+	DNA polymerase domain-containing protein	
+MXAN_RS07880	1923614	1924499	-	hypothetical protein	
+MXAN_RS07885	1924495	1924714	-	hypothetical protein	
+MXAN_RS07890	1925100	1925616	+	hypothetical protein	
+MXAN_RS07895	1925743	1927180	+	M16 family metallopeptidase	
+
+
+Significant hits: 
+
+
+Details:

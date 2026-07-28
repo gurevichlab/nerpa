@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AAN85510.1</td>
+              <td>serine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001101.5">BGC0001101.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>51.0</td>
+              <td>97.0</td>
+              <td>397.0</td>
+              <td>1.45e-135</td>
+          </tr>
+    
+          <tr>
+              <td>BAJ19052.1</td>
+              <td>putative_serine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000288.5">BGC0000288.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>47.0</td>
+              <td>85.1</td>
+              <td>311.0</td>
+              <td>1.4e-102</td>
+          </tr>
+    
+          <tr>
+              <td>BAI23322.1</td>
+              <td>putative_serine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000949.5">BGC0000949.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>45.0</td>
+              <td>84.9</td>
+              <td>295.0</td>
+              <td>1.72e-95</td>
+          </tr>
+    
+          <tr>
+              <td>AFJ20773.1</td>
+              <td>serine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002300.2">BGC0002300.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>43.0</td>
+              <td>93.6</td>
+              <td>290.0</td>
+              <td>7.31e-94</td>
+          </tr>
+    
+          <tr>
+              <td>BAJ05887.1</td>
+              <td>putative_serine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000872.5">BGC0000872.5</a></td>
+              <td>other:other</td>
+              <td>41.0</td>
+              <td>93.1</td>
+              <td>266.0</td>
+              <td>1.36e-84</td>
+          </tr>
+    
+          <tr>
+              <td>ACQ63622.1</td>
+              <td>glycine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000875.4">BGC0000875.4</a></td>
+              <td>other:nucleoside+saccharide:hybrid/tailoring</td>
+              <td>40.0</td>
+              <td>93.1</td>
+              <td>258.0</td>
+              <td>1.31e-81</td>
+          </tr>
+    
+          <tr>
+              <td>ADZ45329.1</td>
+              <td>putative_serine_hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001020.5">BGC0001020.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>41.0</td>
+              <td>86.7</td>
+              <td>258.0</td>
+              <td>1.73e-81</td>
+          </tr>
+    
+          <tr>
+              <td>ADC96660.1</td>
+              <td>hydroxymethyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001076.5">BGC0001076.5</a></td>
+              <td>other:nucleoside</td>
+              <td>41.0</td>
+              <td>88.8</td>
+              <td>257.0</td>
+              <td>3.65e-81</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

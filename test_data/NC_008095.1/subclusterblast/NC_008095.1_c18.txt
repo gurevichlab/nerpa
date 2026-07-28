@@ -1,0 +1,95 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS20735	5235100	5235685	-	HMA2 domain-containing protein	
+MXAN_RS20740	5235681	5235954	-	hypothetical protein	
+MXAN_RS20745	5235950	5237105	-	hypothetical protein	
+MXAN_RS20750	5237341	5237899	-	hypothetical protein	
+MXAN_RS20755	5237951	5238557	-	glycosyl hydrolase	
+MXAN_RS20760	5238708	5240019	+	serpin family protein	
+MXAN_RS20765	5240232	5241144	+	serine protease	
+MXAN_RS20770	5241266	5241965	-	LysM peptidoglycan-binding domain-containing protein	
+MXAN_RS20775	5242134	5245065	-	helicase-related protein	
+MXAN_RS20780	5245051	5247247	-	phospholipase D family protein	
+MXAN_RS20785	5247243	5248629	-	hypothetical protein	
+MXAN_RS39120	5248825	5248951	-	hypothetical protein	
+MXAN_RS20790	5249049	5249670	+	DUF6624 domain-containing protein	
+MXAN_RS20795	5249681	5250926	+	hypothetical protein	
+MXAN_RS20800	5250929	5252258	+	JmjC domain-containing protein	
+MXAN_RS38200	5252319	5252472	+	hypothetical protein	
+MXAN_RS20805	5252616	5254017	+	hypothetical protein	
+MXAN_RS20810	5254047	5254836	+	thioesterase II family protein	
+MXAN_RS20815	5254832	5255093	+	acyl carrier protein	
+MXAN_RS20820	5255097	5260629	-	type I polyketide synthase	
+MXAN_RS20825	5260704	5261175	-	hypothetical protein	
+MXAN_RS20830	5261174	5262338	-	ArsA family ATPase	
+MXAN_RS20835	5262356	5263436	-	patatin-like phospholipase family protein	
+MXAN_RS20840	5263435	5267743	-	non-ribosomal peptide synthetase	
+MXAN_RS20845	5267739	5273229	-	type I polyketide synthase	
+MXAN_RS20850	5273236	5278798	-	type I polyketide synthase	
+MXAN_RS20855	5278808	5287730	-	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS20860	5287726	5291992	-	type I polyketide synthase	
+MXAN_RS20865	5291991	5294202	-	beta-ketoacyl synthase N-terminal-like domain-containing protein	
+MXAN_RS20870	5294280	5296824	-	NAD(P)/FAD-dependent oxidoreductase	
+MXAN_RS20875	5296876	5298262	-	alkaline phosphatase family protein	
+MXAN_RS20880	5298861	5300001	+	prodigiosin MBC biosynthesis dehydrogenase PigA	
+MXAN_RS20885	5299997	5301512	+	amino acid adenylation domain-containing protein	
+MXAN_RS20890	5301655	5305345	+	AsmA family protein	
+MXAN_RS20895	5305341	5305881	+	DUF1318 domain-containing protein	
+MXAN_RS20900	5305874	5309321	+	TolB family protein	
+MXAN_RS20905	5309361	5310171	-	sigma-70 family RNA polymerase sigma factor	
+MXAN_RS20910	5310255	5311302	-	hypothetical protein	
+MXAN_RS20915	5311347	5311809	-	DsrE family protein	
+
+
+Significant hits: 
+1. AF235050	coumermycin terminal pyrrole
+2. AF329398	clorobiocin terminal pyrrole
+3. DQ230532	phenalinolactone pyrrole
+
+
+Details:
+
+>>
+1. AF235050
+Source: coumermycin terminal pyrrole
+Type: pyrrole
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 740.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS20880	AF235050_3_couN3	49	324	100.0	9.36e-111
+MXAN_RS20885	AF235050_3_couN4	47	416	100.79365079365078	5.02e-143
+
+
+
+>>
+2. AF329398
+Source: clorobiocin terminal pyrrole
+Type: pyrrole
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 737.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS20880	AF329398_4_cloN3	49	329	100.0	1.22e-112
+MXAN_RS20885	AF329398_4_cloN4	47	408	99.0079365079365	4.19e-140
+
+
+
+>>
+3. DQ230532
+Source: phenalinolactone pyrrole
+Type: pyrrole
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 729.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS20880	DQ230532_1_plaP3	48	324	100.52770448548813	7.61e-111
+MXAN_RS20885	DQ230532_1_plaP4	50	405	95.63492063492063	9.83e-138
+

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>QBY34563.1</td>
+              <td>CycE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002447.3">BGC0002447.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>25.0</td>
+              <td>36.8</td>
+              <td>83.0</td>
+              <td>1.74e-16</td>
+          </tr>
+    
+          <tr>
+              <td>QTH19309.1</td>
+              <td>ABC_transporter_permease</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002442.3">BGC0002442.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>25.0</td>
+              <td>36.1</td>
+              <td>75.0</td>
+              <td>1e-13</td>
+          </tr>
+    
+          <tr>
+              <td>WP_013310326.1</td>
+              <td>ABC_transporter_permease</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001728.4">BGC0001728.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>26.0</td>
+              <td>36.2</td>
+              <td>74.0</td>
+              <td>1.33e-13</td>
+          </tr>
+    
+          <tr>
+              <td>AHZ34236.1</td>
+              <td>MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000323.5">BGC0000323.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>35.5</td>
+              <td>67.0</td>
+              <td>6.89e-11</td>
+          </tr>
+    
+          <tr>
+              <td>AAO56331.1</td>
+              <td>syringafactin_efflux_protein_SyfD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000435.5">BGC0000435.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>36.0</td>
+              <td>64.0</td>
+              <td>3.59e-10</td>
+          </tr>
+    
+          <tr>
+              <td>AHZ34249.1</td>
+              <td>MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001389.5">BGC0001389.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>27.0</td>
+              <td>35.8</td>
+              <td>62.0</td>
+              <td>2.42e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AFJ23828.1</td>
+              <td>MacB-like_ABC_transporter_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001838.4">BGC0001838.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>35.9</td>
+              <td>61.0</td>
+              <td>3.24e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AHY86401.1</td>
+              <td>ABC_transporter_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000329.5">BGC0000329.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>29.4</td>
+              <td>60.0</td>
+              <td>7.27e-09</td>
+          </tr>
+    
+          <tr>
+              <td>QNL34620.1</td>
+              <td>MacB2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002092.3">BGC0002092.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>35.4</td>
+              <td>57.0</td>
+              <td>8.6e-08</td>
+          </tr>
+    
+          <tr>
+              <td>ABA73958.1</td>
+              <td>macrolide-specific_ABC-type_efflux_carrier</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001842.4">BGC0001842.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>35.4</td>
+              <td>56.0</td>
+              <td>1.49e-07</td>
+          </tr>
+    
+          <tr>
+              <td>AOA33125.1</td>
+              <td>ABC_transporter_ATP-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001346.4">BGC0001346.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>35.4</td>
+              <td>55.0</td>
+              <td>2.58e-07</td>
+          </tr>
+    
+          <tr>
+              <td>BCJ07527.1</td>
+              <td>macrolide_export_ATP-binding/permease_protein_MacB_2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002379.3">BGC0002379.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>35.4</td>
+              <td>55.0</td>
+              <td>2.61e-07</td>
+          </tr>
+    
+          <tr>
+              <td>QDF82252.1</td>
+              <td>macrolide_export_ATP-binding/permease_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001980.3">BGC0001980.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>35.1</td>
+              <td>55.0</td>
+              <td>3.39e-07</td>
+          </tr>
+    
+          <tr>
+              <td>CAK15812.1</td>
+              <td>macrolide_ABC_efflux_protein_MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000344.5">BGC0000344.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>35.4</td>
+              <td>54.0</td>
+              <td>4.51e-07</td>
+          </tr>
+    
+          <tr>
+              <td>QMN69936.1</td>
+              <td>PsoE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002521.3">BGC0002521.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>27.0</td>
+              <td>35.8</td>
+              <td>54.0</td>
+              <td>5.94e-07</td>
+          </tr>
+    
+          <tr>
+              <td>AFH75332.1</td>
+              <td>macrolide_export_ATP-binding/permease_protein_MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000398.5">BGC0000398.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>35.9</td>
+              <td>53.0</td>
+              <td>1.02e-06</td>
+          </tr>
+    
+          <tr>
+              <td>ABW17379.1</td>
+              <td>MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000411.5">BGC0000411.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>27.0</td>
+              <td>35.8</td>
+              <td>53.0</td>
+              <td>1.35e-06</td>
+          </tr>
+    
+          <tr>
+              <td>AAY91423.1</td>
+              <td>efflux_ABC_transporter,_permease/ATP-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000399.5">BGC0000399.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>35.8</td>
+              <td>52.0</td>
+              <td>2.31e-06</td>
+          </tr>
+    
+          <tr>
+              <td>CAY48791.1</td>
+              <td>macrolide-specific_ABC-type_efflux_carrier</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001312.5">BGC0001312.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>35.9</td>
+              <td>52.0</td>
+              <td>3.04e-06</td>
+          </tr>
+    
+          <tr>
+              <td>UUQ64560.1</td>
+              <td>MacB_family_efflux_pump_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002768.2">BGC0002768.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>35.5</td>
+              <td>50.0</td>
+              <td>6.92e-06</td>
+          </tr>
+    
+          <tr>
+              <td>AFH75324.1</td>
+              <td>macrolide_export_ATP-binding/permease_protein_MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000425.5">BGC0000425.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>25.0</td>
+              <td>35.2</td>
+              <td>50.0</td>
+              <td>9.11e-06</td>
+          </tr>
+    
+          <tr>
+              <td>CCJ67642.1</td>
+              <td>macrolide_export_ATP-binding/permease_protein_MacB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000447.5">BGC0000447.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>24.0</td>
+              <td>35.2</td>
+              <td>50.0</td>
+              <td>9.11e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

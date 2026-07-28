@@ -1,0 +1,17 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS24045	6194819	6195944	+	carboxypeptidase-like regulatory domain-containing protein	
+MXAN_RS24050	6195948	6198738	+	hypothetical protein	
+MXAN_RS24055	6198760	6199498	-	HvfC/BufC N-terminal domain-containing protein	
+MXAN_RS24060	6199494	6200340	-	MNIO family bufferin maturase	
+MXAN_RS24065	6200451	6200697	-	hypothetical protein	
+MXAN_RS24070	6200754	6202434	-	M61 metallopeptidase family protein	
+MXAN_RS24075	6202641	6204261	+	helix-turn-helix domain-containing protein	
+MXAN_RS24080	6204270	6205146	+	tetratricopeptide repeat protein	
+
+
+Significant hits: 
+
+
+Details:

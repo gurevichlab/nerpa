@@ -1,0 +1,18 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS23915	6162617	6162908	-	hypothetical protein	
+MXAN_RS23920	6163105	6163477	-	hypothetical protein	
+MXAN_RS23925	6163689	6164364	+	lipid-binding SYLF domain-containing protein	
+MXAN_RS38800	6164347	6165604	+	lipid-binding SYLF domain-containing protein	
+MXAN_RS23940	6165782	6167192	-	flavin monoamine oxidase family protein	
+MXAN_RS23945	6167223	6169209	-	YcaO-like family protein	
+MXAN_RS23950	6169759	6171031	+	alpha/beta fold hydrolase	
+MXAN_RS23955	6171173	6172175	-	alpha/beta hydrolase	
+MXAN_RS38805	6172815	6173517	+	hypothetical protein	
+
+
+Significant hits: 
+
+
+Details:

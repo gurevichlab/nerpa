@@ -45,7 +45,7 @@ class PipelineHelper_rBAN:
         else:
             files_with_nrp_variants = [self.args.nrp_variants]
 
-        return [NRP_Variant.from_yaml_dict(yaml_record)
+        return [NRP_Variant.from_dict(yaml_record)
                 for file_path in files_with_nrp_variants
                 for yaml_record in yaml.safe_load(file_path.read_text())]
 

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>APZ78772.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001425.4">BGC0001425.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>1358.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78785.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001426.4">BGC0001426.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>99.0</td>
+              <td>100.0</td>
+              <td>1350.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78798.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001427.4">BGC0001427.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>98.0</td>
+              <td>100.0</td>
+              <td>1334.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78812.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001428.4">BGC0001428.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>96.0</td>
+              <td>100.0</td>
+              <td>1303.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>AQM37587.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001424.4">BGC0001424.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>95.0</td>
+              <td>99.9</td>
+              <td>1286.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78732.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001421.4">BGC0001421.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>93.0</td>
+              <td>100.0</td>
+              <td>1257.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78759.1</td>
+              <td>elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001423.4">BGC0001423.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>93.0</td>
+              <td>100.0</td>
+              <td>1254.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>ADO67785.1</td>
+              <td>Tpa10</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000615.4">BGC0000615.4</a></td>
+              <td>ribosomal:RiPP:Thiopeptide</td>
+              <td>50.0</td>
+              <td>100.4</td>
+              <td>659.0</td>
+              <td>2.15e-230</td>
+          </tr>
+    
+          <tr>
+              <td>AIE54177.1</td>
+              <td>Pau10</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001731.5">BGC0001731.5</a></td>
+              <td>other:other</td>
+              <td>50.0</td>
+              <td>100.1</td>
+              <td>658.0</td>
+              <td>3.73e-230</td>
+          </tr>
+    
+          <tr>
+              <td>AIE54230.1</td>
+              <td>PauY10</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001732.5">BGC0001732.5</a></td>
+              <td>other:other</td>
+              <td>50.0</td>
+              <td>100.1</td>
+              <td>657.0</td>
+              <td>1.5e-229</td>
+          </tr>
+    
+          <tr>
+              <td>QVN25644.1</td>
+              <td>translation_elongation_factor_G</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002363.3">BGC0002363.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>50.0</td>
+              <td>100.7</td>
+              <td>654.0</td>
+              <td>2.43e-228</td>
+          </tr>
+    
+          <tr>
+              <td>AXI91537.1</td>
+              <td>FunR3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001944.2">BGC0001944.2</a></td>
+              <td>PKS</td>
+              <td>50.0</td>
+              <td>98.3</td>
+              <td>602.0</td>
+              <td>1.98e-208</td>
+          </tr>
+    
+          <tr>
+              <td>ACR48327.1</td>
+              <td>Nos1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000610.5">BGC0000610.5</a></td>
+              <td>ribosomal:RiPP:Thiopeptide</td>
+              <td>54.0</td>
+              <td>46.4</td>
+              <td>327.0</td>
+              <td>1.54e-106</td>
+          </tr>
+    
+          <tr>
+              <td>AFU65884.1</td>
+              <td>DacR1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000216.5">BGC0000216.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>92.7</td>
+              <td>197.0</td>
+              <td>5.92e-54</td>
+          </tr>
+    
+          <tr>
+              <td>AEI98646.1</td>
+              <td>CtcC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000209.5">BGC0000209.5</a></td>
+              <td>PKS</td>
+              <td>28.0</td>
+              <td>98.4</td>
+              <td>193.0</td>
+              <td>1.33e-52</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -1,0 +1,427 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS36870	4977638	4977803	-	ribbon-helix-helix domain-containing protein	
+MXAN_RS19730	4977862	4978438	-	hypothetical protein	
+MXAN_RS19735	4978551	4979043	-	DUF1772 domain-containing protein	
+MXAN_RS19740	4979120	4979909	+	helix-turn-helix domain-containing protein	
+MXAN_RS19745	4979998	4980937	+	hypothetical protein	
+MXAN_RS19750	4981284	4982871	+	leucine-rich repeat domain-containing protein	
+MXAN_RS19755	4982911	4983808	-	ATP-dependent sacrificial sulfur transferase LarE	
+MXAN_RS19760	4983906	4984680	-	adenylyl-sulfate kinase	
+MXAN_RS19765	4984872	4985286	-	M67 family metallopeptidase	
+MXAN_RS19770	4985282	4985924	-	hypothetical protein	
+MXAN_RS19775	4985929	4986202	-	ubiquitin-like small modifier protein 1	
+MXAN_RS19780	4986209	4986449	-	sulfurtransferase TusA family protein	
+MXAN_RS19785	4986436	4987204	-	HesA/MoeB/ThiF family protein	
+MXAN_RS19790	4987326	4987713	+	hypothetical protein	
+MXAN_RS19795	4987822	4989106	+	sensor histidine kinase	
+MXAN_RS19800	4989102	4989843	+	response regulator	
+MXAN_RS19805	4989858	4991130	-	glycoside hydrolase 5 family protein	
+MXAN_RS19810	4991196	4992078	+	ABC transporter ATP-binding protein	
+MXAN_RS19815	4992087	4995690	+	ABC transporter permease/M1 family aminopeptidase	
+MXAN_RS19820	4995694	4996231	-	DUF2378 family protein	
+MXAN_RS19825	4996864	5003323	+	type I polyketide synthase	
+MXAN_RS19830	5003319	5012466	+	non-ribosomal peptide synthetase	
+MXAN_RS19835	5012462	5025896	+	non-ribosomal peptide synthetase	
+MXAN_RS19840	5025892	5026357	+	DUF2269 family protein	
+MXAN_RS19845	5026442	5027948	-	DEAD/DEAH box helicase	
+MXAN_RS19850	5028297	5030406	-	elongation factor G	
+MXAN_RS19855	5030840	5032031	-	cyclic nucleotide-binding domain-containing protein	
+MXAN_RS19860	5032149	5032626	-	FKBP-type peptidyl-prolyl cis-trans isomerase	
+MXAN_RS19865	5032796	5033993	+	metallophosphoesterase	
+MXAN_RS19870	5034006	5034771	-	ZIP family metal transporter	
+MXAN_RS19875	5034963	5035515	+	RNA polymerase sigma factor	
+MXAN_RS19880	5035511	5036177	+	carotenogenesis protein CarR	
+MXAN_RS19885	5036173	5036509	+	antirepressor protein CarS	
+MXAN_RS19890	5036525	5037038	-	hypothetical protein	
+MXAN_RS19895	5037088	5038144	-	hypothetical protein	
+MXAN_RS19900	5038204	5039362	-	AI-2E family transporter	
+MXAN_RS19905	5039471	5039945	+	hypothetical protein	
+MXAN_RS19910	5039976	5040096	-	hypothetical protein	
+MXAN_RS19915	5040138	5041491	-	DmpA family aminopeptidase	
+MXAN_RS19920	5041601	5043791	-	D-alanine--D-alanine ligase family protein	
+MXAN_RS19925	5043775	5044423	-	RDD family protein	
+MXAN_RS19930	5044419	5044809	-	type IV pili motility protein SglS	
+
+
+Significant hits: 
+1. BGC0001425.4	myxochromide A
+2. BGC0001426.4	myxochromide A
+3. BGC0001427.4	myxochromide A
+4. BGC0001421.4	myxochromide B
+5. BGC0001423.4	myxochromide C
+6. BGC0001428.4	myxochromide A
+7. BGC0001424.4	myxochromide C
+8. BGC0001422.4	myxochromide A
+9. BGC0001432.4	myxochromide D
+10. BGC0001418.4	myxochromide D
+11. BGC0001420.4	myxochromide D
+12. BGC0001419.4	myxochromide D
+13. BGC0001431.4	myxochromide S
+14. BGC0001430.4	myxochromide S
+15. BGC0001429.4	myxochromide S1
+16. BGC0001417.4	myxochromide D
+17. BGC0001023.5	myxochromide S1
+
+
+Details:
+
+>>
+1. BGC0001425.4
+Source: myxochromide A
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 27164.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78763.1	100	860	100.0	5.87e-319
+MXAN_RS19810	APZ78764.1	99	573	100.0	1.41e-209
+MXAN_RS19815	APZ78765.1	100	2350	100.0	0.0
+MXAN_RS19820	APZ78766.1	100	356	100.0	9.43e-128
+MXAN_RS19825	APZ78767.1	100	4110	100.0	0.0
+MXAN_RS19830	APZ78768.1	100	5938	100.0	0.0
+MXAN_RS19835	APZ78769.1	100	8741	99.731963368327	0.0
+MXAN_RS19840	APZ78770.1	100	300	100.0	1.99e-106
+MXAN_RS19845	APZ78771.1	100	891	100.0	0.0
+MXAN_RS19850	APZ78772.1	100	1358	100.0	0.0
+MXAN_RS19855	APZ78773.1	100	598	100.0	2.26e-216
+MXAN_RS19860	APZ78774.1	100	312	100.0	7.14e-111
+MXAN_RS19865	APZ78775.1	100	777	100.0	5.53e-287
+
+
+
+>>
+2. BGC0001426.4
+Source: myxochromide A
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 26773.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78776.1	99	848	100.0	2.48e-314
+MXAN_RS19810	APZ78777.1	99	573	100.0	1.41e-209
+MXAN_RS19815	APZ78778.1	98	2313	100.0	0.0
+MXAN_RS19820	APZ78779.1	99	355	100.0	3.84e-127
+MXAN_RS19825	APZ78780.1	97	4047	100.0	0.0
+MXAN_RS19830	APZ78781.1	98	5851	100.0	0.0
+MXAN_RS19835	APZ78782.1	98	8599	99.731963368327	0.0
+MXAN_RS19840	APZ78783.1	99	298	100.0	1.63e-105
+MXAN_RS19845	APZ78784.1	100	887	100.0	0.0
+MXAN_RS19850	APZ78785.1	99	1350	100.0	0.0
+MXAN_RS19855	APZ78786.1	99	586	100.0	2.38e-211
+MXAN_RS19860	APZ78787.1	98	307	100.0	6.86e-109
+MXAN_RS19865	APZ78788.1	98	759	100.0	5.67e-280
+
+
+
+>>
+3. BGC0001427.4
+Source: myxochromide A
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 26588.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78789.1	99	850	100.0	4.28e-315
+MXAN_RS19810	APZ78790.1	99	573	99.65870307167235	2.84e-209
+MXAN_RS19815	APZ78791.1	97	2284	100.0	0.0
+MXAN_RS19820	APZ78792.1	98	352	100.0	3.16e-126
+MXAN_RS19825	APZ78793.1	97	4028	99.81412639405205	0.0
+MXAN_RS19830	APZ78794.1	98	5842	100.0	0.0
+MXAN_RS19835	APZ78795.1	98	8560	99.731963368327	0.0
+MXAN_RS19840	APZ78796.1	99	299	100.0	8.09e-106
+MXAN_RS19845	APZ78797.1	98	823	90.01996007984032	1.89e-301
+MXAN_RS19850	APZ78798.1	98	1334	100.0	0.0
+MXAN_RS19855	APZ78799.1	98	580	100.0	3.21e-209
+MXAN_RS19860	APZ78800.1	97	304	100.0	8.01e-108
+MXAN_RS19865	APZ78801.1	98	759	100.0	1.14e-279
+
+
+
+>>
+4. BGC0001421.4
+Source: myxochromide B
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 22784.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78723.1	84	738	99.76359338061465	1.25e-270
+MXAN_RS19810	APZ78724.1	93	541	99.31740614334471	3.01e-197
+MXAN_RS19815	APZ78725.1	79	1916	100.0	0.0
+MXAN_RS19820	APZ78726.1	89	317	99.43820224719101	3.36e-112
+MXAN_RS19825	APZ78727.1	86	3582	100.0	0.0
+MXAN_RS19830	APZ78728.1	86	5159	100.0	0.0
+MXAN_RS19835	APZ78729.1	67	6825	122.98414116595934	0.0
+MXAN_RS19840	APZ78730.1	84	252	100.0	3.22e-87
+MXAN_RS19845	APZ78731.1	95	738	79.84031936127745	9.3e-268
+MXAN_RS19850	APZ78732.1	93	1257	100.0	0.0
+MXAN_RS19855	APZ78733.1	90	521	100.0	1.2e-185
+MXAN_RS19860	APZ78734.1	84	266	100.0	1.41e-92
+MXAN_RS19865	APZ78735.1	87	672	100.0	1.66e-245
+
+
+
+>>
+5. BGC0001423.4
+Source: myxochromide C
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 21755.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78750.1	84	729	99.29078014184397	2.81e-267
+MXAN_RS19810	APZ78751.1	96	559	99.65870307167235	4.16e-204
+MXAN_RS19815	APZ78752.1	87	2087	100.0	0.0
+MXAN_RS19820	APZ78753.1	88	315	99.43820224719101	2.76e-111
+MXAN_RS19825	APZ78754.1	85	3568	100.0	0.0
+MXAN_RS19830	APZ78755.1	87	5214	100.0	0.0
+MXAN_RS19835	APZ78756.1	67	5494	99.79897252624525	0.0
+MXAN_RS19840	APZ78757.1	88	267	100.0	3.66e-93
+MXAN_RS19845	APZ78758.1	92	802	100.39920159680639	2.17e-293
+MXAN_RS19850	APZ78759.1	93	1254	100.0	0.0
+MXAN_RS19855	APZ78760.1	90	525	100.0	1.81e-187
+MXAN_RS19860	APZ78761.1	84	265	100.0	2.01e-92
+MXAN_RS19865	APZ78762.1	88	676	100.0	8.32e-247
+
+
+
+>>
+6. BGC0001428.4
+Source: myxochromide A
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 25792.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78802.1	95	811	100.0	1.51e-299
+MXAN_RS19810	APZ78803.1	97	559	99.65870307167235	6.13e-204
+MXAN_RS19815	APZ78804.1	93	2208	100.0	0.0
+MXAN_RS19820	APZ78805.1	93	338	100.0	1.97e-120
+MXAN_RS19825	APZ78807.1	95	3950	100.0	0.0
+MXAN_RS19830	APZ78808.1	96	5696	100.0	0.0
+MXAN_RS19835	APZ78809.1	94	8284	99.731963368327	0.0
+MXAN_RS19840	APZ78810.1	91	272	100.64935064935065	3.95e-95
+MXAN_RS19845	APZ78811.1	91	780	100.0	1.09e-284
+MXAN_RS19850	APZ78812.1	96	1303	100.0	0.0
+MXAN_RS19855	APZ78813.1	94	557	100.0	4.31e-200
+MXAN_RS19860	APZ78814.1	94	295	100.0	5.2e-104
+MXAN_RS19865	APZ78815.1	95	739	100.0	9.62e-272
+
+
+
+>>
+7. BGC0001424.4
+Source: myxochromide C
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 13
+Cumulative BLAST score: 21977.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	AQM37577.1	91	794	100.0	1.09e-292
+MXAN_RS19810	AQM37578.1	96	554	99.65870307167235	8.34e-202
+MXAN_RS19815	AQM37579.1	90	2141	100.0	0.0
+MXAN_RS19820	AQM37580.1	94	337	100.0	2.8e-120
+MXAN_RS19825	AQM37582.1	88	3657	100.0	0.0
+MXAN_RS19830	AQM37583.1	90	5396	100.0	0.0
+MXAN_RS19835	AQM37584.1	64	5211	99.7766361402725	0.0
+MXAN_RS19840	AQM37585.1	94	280	100.0	1.69e-98
+MXAN_RS19845	AQM37586.1	93	812	100.99800399201597	2.67e-297
+MXAN_RS19850	AQM37587.1	95	1286	99.85754985754986	0.0
+MXAN_RS19855	AQM37588.1	91	525	100.0	1.99e-187
+MXAN_RS19860	AQM37589.1	87	280	100.0	3.24e-98
+MXAN_RS19865	AQM37590.1	90	704	100.50251256281406	3.77e-258
+
+
+
+>>
+8. BGC0001422.4
+Source: myxochromide A
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 12
+Cumulative BLAST score: 23623.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19805	APZ78736.1	92	801	99.76359338061465	1.38e-295
+MXAN_RS19810	APZ78737.1	96	558	100.0	5.91e-204
+MXAN_RS19815	APZ78738.1	90	2137	100.0	0.0
+MXAN_RS19820	APZ78739.1	92	331	99.43820224719101	1.09e-117
+MXAN_RS19820	APZ78740.1	90	280	86.51685393258427	1.03e-97
+MXAN_RS19825	APZ78742.1	89	3732	100.0	0.0
+MXAN_RS19830	APZ78743.1	90	5368	100.06561679790028	0.0
+MXAN_RS19835	APZ78744.1	89	7846	99.731963368327	0.0
+MXAN_RS19840	APZ78745.1	93	277	100.0	2.8e-97
+MXAN_RS19845	APZ78746.1	98	784	82.63473053892216	7.12e-286
+MXAN_RS19855	APZ78747.1	93	534	100.0	4.47e-191
+MXAN_RS19860	APZ78748.1	88	278	100.0	2.66e-97
+MXAN_RS19865	APZ78749.1	89	697	100.75376884422111	4.36e-255
+
+
+
+>>
+9. BGC0001432.4
+Source: myxochromide D
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14481.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78854.1	76	3205	100.18587360594795	0.0
+MXAN_RS19830	APZ78855.1	78	4736	100.32808398950131	0.0
+MXAN_RS19835	APZ78856.1	72	6338	99.79897252624525	0.0
+MXAN_RS19840	APZ78857.1	67	202	99.35064935064936	1.11e-67
+
+
+
+>>
+10. BGC0001418.4
+Source: myxochromide D
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14453.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78690.1	77	3233	100.18587360594795	0.0
+MXAN_RS19830	APZ78691.1	79	4727	100.19685039370079	0.0
+MXAN_RS19835	APZ78692.1	71	6286	99.62028143846325	0.0
+MXAN_RS19840	APZ78693.1	69	207	99.35064935064936	1.66e-69
+
+
+
+>>
+11. BGC0001420.4
+Source: myxochromide D
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14440.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78714.1	77	3227	100.18587360594795	0.0
+MXAN_RS19830	APZ78715.1	78	4717	100.19685039370079	0.0
+MXAN_RS19835	APZ78716.1	71	6289	99.642617824436	0.0
+MXAN_RS19840	APZ78717.1	69	207	99.35064935064936	1.66e-69
+
+
+
+>>
+12. BGC0001419.4
+Source: myxochromide D
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14364.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78702.1	76	3216	100.18587360594795	0.0
+MXAN_RS19830	APZ78703.1	78	4707	100.19685039370079	0.0
+MXAN_RS19835	APZ78704.1	71	6235	99.642617824436	0.0
+MXAN_RS19840	APZ78705.1	68	206	99.35064935064936	6.98e-69
+
+
+
+>>
+13. BGC0001431.4
+Source: myxochromide S
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14170.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78844.1	76	3203	99.95353159851301	0.0
+MXAN_RS19830	APZ78845.1	76	4582	100.39370078740157	0.0
+MXAN_RS19835	APZ78846.1	70	6181	99.66495421040875	0.0
+MXAN_RS19840	APZ78847.1	67	204	99.35064935064936	8.32e-68
+
+
+
+>>
+14. BGC0001430.4
+Source: myxochromide S
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14165.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78832.1	76	3209	100.18587360594795	0.0
+MXAN_RS19830	APZ78833.1	76	4575	100.49212598425197	0.0
+MXAN_RS19835	APZ78834.1	70	6173	99.79897252624525	0.0
+MXAN_RS19840	APZ78835.1	69	208	99.35064935064936	9.1e-70
+
+
+
+>>
+15. BGC0001429.4
+Source: myxochromide S1
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 14164.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78820.1	76	3182	99.95353159851301	0.0
+MXAN_RS19830	APZ78821.1	76	4611	100.32808398950131	0.0
+MXAN_RS19835	APZ78822.1	70	6166	99.66495421040875	0.0
+MXAN_RS19840	APZ78823.1	68	205	99.35064935064936	1.06e-68
+
+
+
+>>
+16. BGC0001417.4
+Source: myxochromide D
+Type: NRPS:Type I+PKS:Iterative type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 13510.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	APZ78678.1	75	3175	100.27881040892193	0.0
+MXAN_RS19830	APZ78679.1	79	4757	100.06561679790028	0.0
+MXAN_RS19835	APZ78680.1	64	5382	99.70962698235427	0.0
+MXAN_RS19840	APZ78681.1	65	196	99.35064935064936	6.74e-65
+
+
+
+>>
+17. BGC0001023.5
+Source: myxochromide S1
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 13959.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS19825	CAG28678.1	76	3182	99.95353159851301	0.0
+MXAN_RS19830	CAG29031.1	76	4611	100.32808398950131	0.0
+MXAN_RS19835	CAG29032.1	70	6166	99.66495421040875	0.0
+

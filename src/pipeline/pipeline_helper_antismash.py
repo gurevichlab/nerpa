@@ -58,7 +58,7 @@ class PipelineHelper_antiSMASH:
         else:
             files_with_bgc_variants = [self.args.bgc_variants]
 
-        return [BGC_Variant.from_yaml_dict(yaml_record)
+        return [BGC_Variant.from_dict(yaml_record)
                 for file_with_bgc_variants in files_with_bgc_variants
                 for yaml_record in yaml.safe_load(file_with_bgc_variants.read_text())]
 

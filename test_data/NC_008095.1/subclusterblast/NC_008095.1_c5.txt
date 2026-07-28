@@ -1,0 +1,26 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS11555	2782997	2783588	+	glutathione peroxidase	
+MXAN_RS11560	2783718	2784693	+	DUF5996 family protein	
+MXAN_RS11565	2784749	2785331	-	DUF4136 domain-containing protein	
+MXAN_RS11570	2785439	2785925	-	hypothetical protein	
+MXAN_RS11575	2785921	2786443	-	zf-HC2 domain-containing protein	
+MXAN_RS11580	2786442	2787084	-	RNA polymerase sigma factor	
+MXAN_RS11585	2787255	2787834	+	TIGR02265 family protein	
+MXAN_RS11590	2788045	2789209	+	YcaO-like family protein	
+MXAN_RS11595	2789205	2790369	+	TfuA-like protein	
+MXAN_RS11600	2790560	2792618	+	serine/threonine protein kinase	
+MXAN_RS11605	2792668	2793583	+	DUF2381 family protein	
+MXAN_RS11610	2793633	2794416	+	DNA-methyltransferase	
+MXAN_RS11615	2794394	2795033	-	2OG-Fe(II) oxygenase	
+MXAN_RS11620	2795113	2796391	+	dicarboxylate/amino acid:cation symporter	
+MXAN_RS11625	2796464	2796950	+	FKBP-type peptidyl-prolyl cis-trans isomerase	
+MXAN_RS11630	2797052	2798948	+	OPT family oligopeptide transporter	
+MXAN_RS11635	2798969	2799839	-	flagellar motor protein MotB	
+
+
+Significant hits: 
+
+
+Details:

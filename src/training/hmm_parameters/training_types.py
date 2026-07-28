@@ -14,19 +14,22 @@ from src.hmm.hmm_auxiliary_types import (
     GenomicContext,
     DetailedHMMStateType, StateIdx
 )
-from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import RELEVANT_GENOMIC_CONTEXT
+from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
+    filter_relevant_genomic_context
+)
 from dataclasses import dataclass, asdict
 
 from src.monomer_names_helper import NerpaResidue
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
+import polars as pl
 
 
-class MatchWithBGCNRP(NamedTuple):
-    match: TestMatch
+class AlignmentWithBGCNRP(NamedTuple):
+    curated_alignment: CuratedAlignment
     bgc_variant: BGC_Variant
-    nrp_variant: Optional[NRP_Variant]
+    nrp_variant: NRP_Variant
 
 
 class ChoicesCnts(NamedTuple):
@@ -71,13 +74,11 @@ class EmissionKey(NamedTuple):
                    state_type=match_emission_info.state_type)
 
 
-class EdgeChoicesSchema:
+class HMM_Chosen_Steps_Schema:
     BGC_ID = 'BGC_ID'  # BGC_Variant_ID
-    NRP_ID = 'NRP_ID'  # NRP_Varint_ID
+    NRP_ID = 'NRP_ID'  # NRP_Variant_ID
     STATE_TYPE = 'STATE_TYPE'  # DetailedHMMStateType
     EDGE_TYPE = 'EDGE_TYPE'  # DetailedHMMEdgeType
-    GENOMIC_CONTEXT = 'GENOMIC_CONTEXT'  # GenomicContext
-    RELEVANT_GC = 'RELEVANT_GC'  # GenomicContext
     MODULE = 'MODULE'  # BGC_Module
     EMISSION = 'EMISSION'  # NRP_Monomer
 
@@ -85,46 +86,53 @@ class EdgeChoicesSchema:
     EDGE_TO = 'EDGE_TO'  # StateIdx
     NUM_INSERTIONS = 'NUM_INSERTIONS'  # int
 
-
-EdgeChoices_df = NewType('EdgeChoices_df', pd.DataFrame)
-
-
-def make_edge_choices_df(df: pd.DataFrame) -> EdgeChoices_df:
-    missing_cols = [col for col in [
-        EdgeChoicesSchema.BGC_ID,
-        EdgeChoicesSchema.NRP_ID,
-        EdgeChoicesSchema.STATE_TYPE,
-        EdgeChoicesSchema.EDGE_TYPE,
-        EdgeChoicesSchema.MODULE,
-        EdgeChoicesSchema.EMISSION,
-        EdgeChoicesSchema.EDGE_FROM,
-        EdgeChoicesSchema.EDGE_TO,
-        EdgeChoicesSchema.NUM_INSERTIONS,
-    ] if col not in df.columns]
-
-    if missing_cols:
-        raise ValueError(f'EdgeChoices DataFrame is missing required columns: {missing_cols}')
+    # these columns are derived from MODULE and STATE_TYPE, and are not part of the original data
+    GENOMIC_CONTEXT = 'GENOMIC_CONTEXT'  # GenomicContext
+    RELEVANT_GC = 'RELEVANT_GC'  # GenomicContext
 
 
-    df[EdgeChoicesSchema.GENOMIC_CONTEXT] = [
-        row[EdgeChoicesSchema.MODULE].genomic_context
-        for _, row in df.iterrows()
-    ]
+class HMM_Chosen_Steps_df(pl.DataFrame):
+    @classmethod
+    def from_rows(cls, rows: List[Dict[str, object]]) -> HMM_Chosen_Steps_df:
+        ECS = HMM_Chosen_Steps_Schema
 
-    df[EdgeChoicesSchema.RELEVANT_GC] = [
-        tuple(f for f in row[EdgeChoicesSchema.GENOMIC_CONTEXT]
-              if f in RELEVANT_GENOMIC_CONTEXT[row[EdgeChoicesSchema.STATE_TYPE]])
-        for _, row in df.iterrows()
-    ]
+        df = pl.DataFrame(rows)
+        missing_cols = [
+            col
+            for col in HMM_Chosen_Steps_Schema.__dict__.values()
+            if col not in df.columns
+        ]
 
-    return EdgeChoices_df(df)
+        if missing_cols:
+            raise ValueError(f'HMM_Chosen_Steps_df DataFrame is missing required columns: {missing_cols}')
+
+
+        df = df.with_columns(
+            pl.col(ECS.MODULE)
+            .map_elements(
+                lambda m: m.genomic_context if m is not None else None,
+                return_dtype=pl.Object,
+            )
+            .alias(ECS.GENOMIC_CONTEXT)
+        )
+
+        df = df.with_columns(
+            pl.struct([ECS.GENOMIC_CONTEXT, ECS.STATE_TYPE])
+            .map_elements(
+                lambda s: filter_relevant_genomic_context(s[ECS.STATE_TYPE], s[ECS.GENOMIC_CONTEXT]),
+                return_dtype=pl.Object,
+            )
+            .alias(ECS.RELEVANT_GC)
+        )
+
+        return HMM_Chosen_Steps_df(df)
 
 
 @dataclass
 class DataForTraining:
     edge_choices_per_state_cntxt: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]]
     edge_choices_wo_filtering: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]]
-    edge_choices_df: EdgeChoices_df
+    edge_choices_df: HMM_Chosen_Steps_df
     #edge_choices_cnts: Dict[DetailedHMMEdgeType, Dict[GenomicContext, ChoicesCnts]]
     emissions: List[EmissionInfo]  # (module, monomer)
     #chosen_edges_occurrences: Dict[DetailedHMMEdgeType, Dict[GenomicContext, List[BGC_ID]]]

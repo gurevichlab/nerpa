@@ -1,0 +1,65 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS21280	5387897	5388725	-	3-keto-5-aminohexanoate cleavage enzyme	
+MXAN_RS21285	5388721	5389120	-	3-aminobutyryl-CoA ammonia lyase	
+MXAN_RS21290	5389116	5389902	-	lysine 5,6-aminomutase subunit beta	
+MXAN_RS21295	5389906	5390386	-	hypothetical protein	
+MXAN_RS21300	5390382	5391933	-	lysine 5,6-aminomutase subunit alpha	
+MXAN_RS21305	5392194	5393730	+	catalase	
+MXAN_RS21310	5393907	5394525	+	ankyrin repeat domain-containing protein	
+MXAN_RS21315	5394613	5395645	-	L-erythro-3,5-diaminohexanoate dehydrogenase	
+MXAN_RS21320	5395819	5396827	-	alpha/beta hydrolase	
+MXAN_RS38785	5396855	5397932	-	uracil-DNA glycosylase	
+MXAN_RS21330	5398131	5398563	+	PaaI family thioesterase	
+MXAN_RS21335	5398559	5399780	-	bifunctional phosphopantothenoylcysteine decarboxylase/phosphopantothenate--cysteine ligase CoaBC	
+MXAN_RS21340	5399831	5402801	-	carboxypeptidase regulatory-like domain-containing protein	
+MXAN_RS21345	5402903	5403284	-	hypothetical protein	
+MXAN_RS21350	5403391	5404675	-	Stp1/IreP family PP2C-type Ser/Thr phosphatase	
+MXAN_RS21355	5404736	5405249	-	FHA domain-containing protein	
+MXAN_RS21360	5405296	5405902	-	hypothetical protein	
+MXAN_RS21365	5406048	5406252	+	hypothetical protein	
+MXAN_RS21370	5406276	5407221	-	arginine deiminase family protein	
+MXAN_RS21375	5407415	5415644	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS21380	5415640	5419081	+	non-ribosomal peptide synthetase	
+MXAN_RS21385	5419173	5433414	+	non-ribosomal peptide synthetase	
+MXAN_RS21390	5433406	5437567	+	non-ribosomal peptide synthetase	
+MXAN_RS21395	5437563	5438892	+	MFS transporter	
+MXAN_RS21400	5438931	5440677	+	fatty acyl-AMP ligase	
+MXAN_RS21405	5440711	5441041	-	YnfA family protein	
+MXAN_RS21410	5441339	5443160	+	AsmA family protein	
+MXAN_RS21420	5443739	5444606	-	cupin-like domain-containing protein	
+MXAN_RS21425	5444806	5445769	+	CmcI family methyltransferase	
+MXAN_RS21430	5445840	5446728	-	cupin-like domain-containing protein	
+MXAN_RS21435	5446981	5448223	+	50S ribosomal protein L11 methyltransferase	
+MXAN_RS21440	5448250	5449651	+	hypothetical protein	
+MXAN_RS21445	5449705	5461426	+	non-ribosomal peptide synthetase	
+MXAN_RS21450	5461418	5468927	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS21455	5468923	5469559	+	cephalosporin hydroxylase family protein	
+MXAN_RS21460	5469594	5470398	-	GNAT family N-acetyltransferase	
+MXAN_RS21465	5470394	5471135	-	MFS transporter	
+MXAN_RS21470	5471340	5472165	+	aspartyl/asparaginyl beta-hydroxylase domain-containing protein	
+MXAN_RS21475	5472187	5472622	-	VOC family protein	
+MXAN_RS21480	5472735	5473266	-	hypothetical protein	
+MXAN_RS21485	5473385	5473958	-	TMEM165/GDT1 family protein	
+MXAN_RS21490	5474339	5474597	+	ribbon-helix-helix domain-containing protein	
+MXAN_RS38205	5474593	5474767	+	hypothetical protein	
+MXAN_RS21495	5474854	5475346	+	hypothetical protein	
+MXAN_RS21500	5475392	5476460	-	lysylphosphatidylglycerol synthase transmembrane domain-containing protein	
+MXAN_RS21505	5476477	5477209	-	tyrosine-protein phosphatase	
+MXAN_RS21510	5477205	5477415	-	DNA gyrase inhibitor YacG	
+MXAN_RS21515	5477497	5478487	+	NAD(P)H-quinone oxidoreductase	
+MXAN_RS21520	5478517	5479621	+	ankyrin repeat domain-containing protein	
+MXAN_RS21525	5479664	5480702	+	agmatinase family protein	
+MXAN_RS21530	5480745	5481741	-	ATP-binding response regulator	
+MXAN_RS21535	5481984	5483331	+	trypsin-like peptidase domain-containing protein	
+MXAN_RS21540	5483399	5485574	+	protein kinase domain-containing protein	
+MXAN_RS21545	5485658	5486918	+	saccharopine dehydrogenase family protein	
+MXAN_RS21550	5486945	5488241	-	GspE/PulE/PilB domain-containing protein	
+MXAN_RS21555	5488306	5488693	-	VOC family protein	
+
+
+Significant hits: 
+
+
+Details:

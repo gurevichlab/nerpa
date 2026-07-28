@@ -1,0 +1,18 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS20180	5105156	5107355	+	outer membrane protein assembly factor BamB family protein	
+MXAN_RS20185	5107368	5108283	-	hypothetical protein	
+MXAN_RS20190	5108334	5109366	+	homoserine O-acetyltransferase family protein	
+MXAN_RS20195	5109366	5110002	-	uridine kinase	
+MXAN_RS20200	5110071	5111724	-	MbnB/TglH/ChrH family RiPP precursor modification enzyme	
+MXAN_RS20205	5111806	5112658	+	GNAT family N-acetyltransferase	
+MXAN_RS20210	5112887	5113721	+	hypothetical protein	
+MXAN_RS20215	5114018	5114717	+	response regulator transcription factor	
+MXAN_RS20220	5114685	5116326	+	sensor histidine kinase	
+
+
+Significant hits: 
+
+
+Details:

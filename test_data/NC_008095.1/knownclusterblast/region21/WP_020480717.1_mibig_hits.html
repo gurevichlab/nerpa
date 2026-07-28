@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AHZ20785.1</td>
+              <td>major_facilitator_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000369.5">BGC0000369.5</a></td>
+              <td>NRPS:Type I+saccharide:hybrid/tailoring</td>
+              <td>36.0</td>
+              <td>92.5</td>
+              <td>211.0</td>
+              <td>1.86e-63</td>
+          </tr>
+    
+          <tr>
+              <td>AHZ20770.1</td>
+              <td>major_facilitator_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000369.5">BGC0000369.5</a></td>
+              <td>NRPS:Type I+saccharide:hybrid/tailoring</td>
+              <td>33.0</td>
+              <td>96.8</td>
+              <td>188.0</td>
+              <td>1.25e-54</td>
+          </tr>
+    
+          <tr>
+              <td>BAY02145.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002532.3">BGC0002532.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>31.0</td>
+              <td>95.9</td>
+              <td>173.0</td>
+              <td>5.28e-49</td>
+          </tr>
+    
+          <tr>
+              <td>QKM21616.1</td>
+              <td>major_facilitator_superfamily_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002351.3">BGC0002351.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>99.8</td>
+              <td>162.0</td>
+              <td>1.29e-44</td>
+          </tr>
+    
+          <tr>
+              <td>ABY83147.1</td>
+              <td>Azi8</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000960.5">BGC0000960.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>26.0</td>
+              <td>41.0</td>
+              <td>57.0</td>
+              <td>2.66e-08</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

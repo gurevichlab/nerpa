@@ -94,8 +94,8 @@ pub fn find_siblings(
 	    };
 	    
 	    results.push(TargetSearchResults::new(
-		&target_search_data,
-		&nerpa_ms_output.new_variants,
+		    &target_search_data,
+		    &nerpa_ms_output.new_variants,
 	    ));
 		
 	}

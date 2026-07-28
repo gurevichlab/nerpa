@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>APZ78775.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001425.4">BGC0001425.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>777.0</td>
+              <td>5.53e-287</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78788.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001426.4">BGC0001426.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>98.0</td>
+              <td>100.0</td>
+              <td>759.0</td>
+              <td>5.67e-280</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78801.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001427.4">BGC0001427.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>98.0</td>
+              <td>100.0</td>
+              <td>759.0</td>
+              <td>1.14e-279</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78815.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001428.4">BGC0001428.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>95.0</td>
+              <td>100.0</td>
+              <td>739.0</td>
+              <td>9.62e-272</td>
+          </tr>
+    
+          <tr>
+              <td>AQM37590.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001424.4">BGC0001424.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>90.0</td>
+              <td>100.5</td>
+              <td>704.0</td>
+              <td>3.77e-258</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78749.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001422.4">BGC0001422.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>89.0</td>
+              <td>100.8</td>
+              <td>697.0</td>
+              <td>4.36e-255</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78762.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001423.4">BGC0001423.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>88.0</td>
+              <td>100.0</td>
+              <td>676.0</td>
+              <td>8.32e-247</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78735.1</td>
+              <td>metallophosphatase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001421.4">BGC0001421.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>87.0</td>
+              <td>100.0</td>
+              <td>672.0</td>
+              <td>1.66e-245</td>
+          </tr>
+    
+          <tr>
+              <td>AGD80607.1</td>
+              <td>membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000394.5">BGC0000394.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>38.0</td>
+              <td>104.3</td>
+              <td>207.0</td>
+              <td>1.09e-62</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AGO55051.1</td>
+              <td>1-deoxy-D-xylulose-5-phosphate_synthase_Dxs</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001361.3">BGC0001361.3</a></td>
+              <td>terpene</td>
+              <td>45.0</td>
+              <td>99.1</td>
+              <td>428.0</td>
+              <td>2.58e-143</td>
+          </tr>
+    
+          <tr>
+              <td>RKS65046.1</td>
+              <td>1-deoxy-D-xylulose-5-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002283.2">BGC0002283.2</a></td>
+              <td>terpene</td>
+              <td>45.0</td>
+              <td>99.1</td>
+              <td>428.0</td>
+              <td>2.58e-143</td>
+          </tr>
+    
+          <tr>
+              <td>ADD83001.1</td>
+              <td>PtnM3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001156.5">BGC0001156.5</a></td>
+              <td>terpene:Diterpene</td>
+              <td>43.0</td>
+              <td>99.5</td>
+              <td>402.0</td>
+              <td>2.68e-133</td>
+          </tr>
+    
+          <tr>
+              <td>ACO31286.1</td>
+              <td>PtmM3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001140.5">BGC0001140.5</a></td>
+              <td>terpene:Diterpene</td>
+              <td>43.0</td>
+              <td>99.3</td>
+              <td>397.0</td>
+              <td>1.68e-131</td>
+          </tr>
+    
+          <tr>
+              <td>ABB69756.1</td>
+              <td>PlaT6</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000654.4">BGC0000654.4</a></td>
+              <td>terpene:Diterpene+saccharide:hybrid/tailoring</td>
+              <td>43.0</td>
+              <td>99.8</td>
+              <td>390.0</td>
+              <td>1.41e-128</td>
+          </tr>
+    
+          <tr>
+              <td>AFK78071.1</td>
+              <td>XiaE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000666.5">BGC0000666.5</a></td>
+              <td>terpene:Sesquiterpene</td>
+              <td>42.0</td>
+              <td>101.0</td>
+              <td>377.0</td>
+              <td>1.22e-123</td>
+          </tr>
+    
+          <tr>
+              <td>CCH63728.1</td>
+              <td>XiaB_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000665.5">BGC0000665.5</a></td>
+              <td>terpene:Sesquiterpene+other:other</td>
+              <td>41.0</td>
+              <td>101.0</td>
+              <td>376.0</td>
+              <td>3.42e-123</td>
+          </tr>
+    
+          <tr>
+              <td>APZ79619.1</td>
+              <td>FisE4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001595.3">BGC0001595.3</a></td>
+              <td>other:other</td>
+              <td>40.0</td>
+              <td>107.0</td>
+              <td>376.0</td>
+              <td>1.17e-122</td>
+          </tr>
+    
+          <tr>
+              <td>AHB62775.1</td>
+              <td>AmbD2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001126.4">BGC0001126.4</a></td>
+              <td>terpene:Monoterpene+other:other</td>
+              <td>40.0</td>
+              <td>107.0</td>
+              <td>374.0</td>
+              <td>8.91e-122</td>
+          </tr>
+    
+          <tr>
+              <td>APB62261.1</td>
+              <td>1-deoxy-D-xylulose-5-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001612.3">BGC0001612.3</a></td>
+              <td>other:other</td>
+              <td>40.0</td>
+              <td>107.0</td>
+              <td>374.0</td>
+              <td>8.91e-122</td>
+          </tr>
+    
+          <tr>
+              <td>APZ79598.1</td>
+              <td>FilE4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001501.5">BGC0001501.5</a></td>
+              <td>other:other</td>
+              <td>39.0</td>
+              <td>107.0</td>
+              <td>370.0</td>
+              <td>1.95e-120</td>
+          </tr>
+    
+          <tr>
+              <td>APZ79565.1</td>
+              <td>FimE4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001594.3">BGC0001594.3</a></td>
+              <td>other:other</td>
+              <td>39.0</td>
+              <td>107.0</td>
+              <td>370.0</td>
+              <td>1.95e-120</td>
+          </tr>
+    
+          <tr>
+              <td>AHI58837.1</td>
+              <td>WelD2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000668.5">BGC0000668.5</a></td>
+              <td>terpene:Monoterpene+other:other</td>
+              <td>39.0</td>
+              <td>106.7</td>
+              <td>366.0</td>
+              <td>1.19e-118</td>
+          </tr>
+    
+          <tr>
+              <td>CAB39701.1</td>
+              <td>probable_transketolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000663.5">BGC0000663.5</a></td>
+              <td>terpene</td>
+              <td>38.0</td>
+              <td>107.9</td>
+              <td>356.0</td>
+              <td>1.12e-114</td>
+          </tr>
+    
+          <tr>
+              <td>ARM20257.1</td>
+              <td>SauM3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002591.2">BGC0002591.2</a></td>
+              <td>PKS+terpene</td>
+              <td>38.0</td>
+              <td>105.8</td>
+              <td>343.0</td>
+              <td>4.33e-110</td>
+          </tr>
+    
+          <tr>
+              <td>BAF98621.1</td>
+              <td>putative_1-deoxy-D-xylulose-5-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000651.5">BGC0000651.5</a></td>
+              <td>terpene</td>
+              <td>39.0</td>
+              <td>77.4</td>
+              <td>252.0</td>
+              <td>1.44e-75</td>
+          </tr>
+    
+          <tr>
+              <td>ABD65921.1</td>
+              <td>DXP_synthase_2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000341.5">BGC0000341.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>38.0</td>
+              <td>67.1</td>
+              <td>220.0</td>
+              <td>1.65e-65</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

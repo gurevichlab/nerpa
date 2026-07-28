@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>WP_010071701.1</td>
+              <td>type_2_lanthipeptide_synthetase_LanM_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000554.4">BGC0000554.4</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>35.0</td>
+              <td>103.0</td>
+              <td>498.0</td>
+              <td>2.46e-158</td>
+          </tr>
+    
+          <tr>
+              <td>CAB60261.1</td>
+              <td>MrsM_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000527.5">BGC0000527.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>31.0</td>
+              <td>86.8</td>
+              <td>421.0</td>
+              <td>1.23e-129</td>
+          </tr>
+    
+          <tr>
+              <td>EEM14529.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001210.5">BGC0001210.5</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>32.0</td>
+              <td>84.2</td>
+              <td>420.0</td>
+              <td>4.21e-129</td>
+          </tr>
+    
+          <tr>
+              <td>AMQ71639.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002663.2">BGC0002663.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>31.0</td>
+              <td>88.3</td>
+              <td>386.0</td>
+              <td>6.53e-117</td>
+          </tr>
+    
+          <tr>
+              <td>EDY04299.1</td>
+              <td>Lanthionine_synthetase_C_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000516.4">BGC0000516.4</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>30.0</td>
+              <td>85.4</td>
+              <td>384.0</td>
+              <td>4.24e-116</td>
+          </tr>
+    
+          <tr>
+              <td>BAB04174.1</td>
+              <td>lantibiotic_mersacidin_modifying_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000517.4">BGC0000517.4</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>31.0</td>
+              <td>86.6</td>
+              <td>382.0</td>
+              <td>4.16e-115</td>
+          </tr>
+    
+          <tr>
+              <td>AMQ71642.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002663.2">BGC0002663.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>30.0</td>
+              <td>83.5</td>
+              <td>358.0</td>
+              <td>8.63e-107</td>
+          </tr>
+    
+          <tr>
+              <td>BAB04171.1</td>
+              <td>lantibiotic_mersacidin_modifying_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000517.4">BGC0000517.4</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>29.0</td>
+              <td>87.5</td>
+              <td>348.0</td>
+              <td>2.9e-103</td>
+          </tr>
+    
+          <tr>
+              <td>AHJ59542.1</td>
+              <td>cerecidin_modification_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000502.5">BGC0000502.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>28.0</td>
+              <td>86.7</td>
+              <td>349.0</td>
+              <td>3.36e-103</td>
+          </tr>
+    
+          <tr>
+              <td>ADM36019.1</td>
+              <td>LchM1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000525.5">BGC0000525.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>28.0</td>
+              <td>94.8</td>
+              <td>347.0</td>
+              <td>1.67e-102</td>
+          </tr>
+    
+          <tr>
+              <td>QIZ86019.1</td>
+              <td>type_2_lanthionine_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002330.2">BGC0002330.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>31.0</td>
+              <td>82.6</td>
+              <td>341.0</td>
+              <td>5.24e-100</td>
+          </tr>
+    
+          <tr>
+              <td>ACC84958.1</td>
+              <td>Lanthionine_synthetase_C_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002699.2">BGC0002699.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>31.0</td>
+              <td>84.0</td>
+              <td>332.0</td>
+              <td>1.16e-96</td>
+          </tr>
+    
+          <tr>
+              <td>WP_162224288.1</td>
+              <td>type_2_lanthipeptide_synthetase_LanM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002704.2">BGC0002704.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>29.0</td>
+              <td>97.2</td>
+              <td>289.0</td>
+              <td>1.41e-81</td>
+          </tr>
+    
+          <tr>
+              <td>CAD60521.1</td>
+              <td>CinM_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000503.5">BGC0000503.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>30.0</td>
+              <td>83.1</td>
+              <td>267.0</td>
+              <td>3.25e-74</td>
+          </tr>
+    
+          <tr>
+              <td>WP_071962207.1</td>
+              <td>type_2_lanthipeptide_synthetase_LanM_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001579.4">BGC0001579.4</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>29.0</td>
+              <td>83.4</td>
+              <td>249.0</td>
+              <td>5.26e-68</td>
+          </tr>
+    
+          <tr>
+              <td>WP_135851040.1</td>
+              <td>type_2_lanthipeptide_synthetase_LanM_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002703.2">BGC0002703.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>28.0</td>
+              <td>87.0</td>
+              <td>239.0</td>
+              <td>1.29e-64</td>
+          </tr>
+    
+          <tr>
+              <td>ANP43733.1</td>
+              <td>ThsM1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001391.3">BGC0001391.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>25.0</td>
+              <td>81.9</td>
+              <td>221.0</td>
+              <td>4.55e-59</td>
+          </tr>
+    
+          <tr>
+              <td>EFI65093.1</td>
+              <td>lantibiotic_modifying_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001407.5">BGC0001407.5</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>30.0</td>
+              <td>47.4</td>
+              <td>206.0</td>
+              <td>1.28e-55</td>
+          </tr>
+    
+          <tr>
+              <td>QKV49892.1</td>
+              <td>BrtM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002110.3">BGC0002110.3</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>27.0</td>
+              <td>87.4</td>
+              <td>199.0</td>
+              <td>4.42e-52</td>
+          </tr>
+    
+          <tr>
+              <td>ANP43736.1</td>
+              <td>ThsM2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001391.3">BGC0001391.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>24.0</td>
+              <td>75.4</td>
+              <td>180.0</td>
+              <td>5.63e-46</td>
+          </tr>
+    
+          <tr>
+              <td>AFS60642.1</td>
+              <td>LanM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000598.5">BGC0000598.5</a></td>
+              <td>ribosomal:RiPP:Proteusin</td>
+              <td>31.0</td>
+              <td>48.5</td>
+              <td>164.0</td>
+              <td>3.03e-42</td>
+          </tr>
+    
+          <tr>
+              <td>AAA62650.1</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000504.5">BGC0000504.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>26.0</td>
+              <td>46.2</td>
+              <td>148.0</td>
+              <td>5.92e-36</td>
+          </tr>
+    
+          <tr>
+              <td>AHF21237.1</td>
+              <td>CrnM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000500.5">BGC0000500.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>27.0</td>
+              <td>45.4</td>
+              <td>142.0</td>
+              <td>3.79e-34</td>
+          </tr>
+    
+          <tr>
+              <td>AAC72258.1</td>
+              <td>LctM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000521.3">BGC0000521.3</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>21.0</td>
+              <td>89.5</td>
+              <td>123.0</td>
+              <td>4.24e-28</td>
+          </tr>
+    
+          <tr>
+              <td>AAC38145.1</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000532.3">BGC0000532.3</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>21.0</td>
+              <td>75.2</td>
+              <td>105.0</td>
+              <td>1.26e-22</td>
+          </tr>
+    
+          <tr>
+              <td>AOT85891.1</td>
+              <td>synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001788.3">BGC0001788.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>22.0</td>
+              <td>87.4</td>
+              <td>103.0</td>
+              <td>6.72e-22</td>
+          </tr>
+    
+          <tr>
+              <td>ABK59358.1</td>
+              <td>MukM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000534.3">BGC0000534.3</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>22.0</td>
+              <td>87.5</td>
+              <td>97.0</td>
+              <td>5.36e-20</td>
+          </tr>
+    
+          <tr>
+              <td>AHX39583.1</td>
+              <td>thuricin_modification_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000626.3">BGC0000626.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>25.0</td>
+              <td>31.5</td>
+              <td>90.0</td>
+              <td>9.75e-18</td>
+          </tr>
+    
+          <tr>
+              <td>AAB92602.1</td>
+              <td>ScnM</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000557.5">BGC0000557.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>21.0</td>
+              <td>73.8</td>
+              <td>81.0</td>
+              <td>3.91e-15</td>
+          </tr>
+    
+          <tr>
+              <td>AFB74482.1</td>
+              <td>putative_lantibiotic_modification_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000550.3">BGC0000550.3</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>26.0</td>
+              <td>24.9</td>
+              <td>74.0</td>
+              <td>1.39e-13</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

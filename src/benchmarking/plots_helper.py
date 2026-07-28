@@ -23,23 +23,41 @@ from src.generic.plots import my_new_figure
 
 
 def cnts_to_percentages(cnts: pl.Series) -> pl.Series:
-        """
-        Convert counts to percentages.
-        """
-        if cnts.len() <= 1:
-            return pl.Series(name="percentages", values=[], dtype=pl.Float64)
+    """
+    Convert counts to percentages.
+    """
+    if cnts.len() <= 1:
+        return pl.Series(name="percentages", values=[], dtype=pl.Float64)
 
-        percentages = cnts[1:] / pl.Series(values=np.arange(1, cnts.len())) * 100.0  # skip the first value (0 identified at N=0)
+    percentages = (
+        cnts[1:] / pl.Series(values=np.arange(1, cnts.len())) * 100.0
+    )  # skip the first value (0 identified at N=0)
 
-        if not ((percentages > -1e-9) & (percentages < 100 + 1e-9)).all():
-            raise ValueError("Percentages should be in the range [0, 100]")
-        return percentages
+    if not ((percentages > -1e-9) & (percentages < 100 + 1e-9)).all():
+        raise ValueError("Percentages should be in the range [0, 100]")
+    return percentages
 
 
 class PlotsHelper:
-    def __init__(self,
-                 bgc_test_set: Literal['mibig4_wo_training_bgcs', 'training_bgcs'] = 'training_bgcs'):
-        self.data_helper = PlotsDataHelper(bgc_test_set)
+    def __init__(
+            self,
+            mibig_bgcs_info_path: Path,
+            pnrpdb_info_path: Path,
+            pnrpdb_compound_similarity_path: Path,
+            curated_alignments_path: Path,
+            out_dir: Path,
+            bgc_test_set: Literal[
+                "mibig4_wo_training_bgcs", "training_bgcs"
+            ] = "training_bgcs",
+    ):
+        self.data_helper = PlotsDataHelper(
+            mibig_bgcs_info_path=mibig_bgcs_info_path,
+            pnrpdb_info_path=pnrpdb_info_path,
+            pnrpdb_compound_similarity_path=pnrpdb_compound_similarity_path,
+            curated_alignments_path=curated_alignments_path,
+            out_dir=out_dir,
+            bgc_test_set=bgc_test_set,
+        )
         self.dpi = 300
         self.height_px = 1000
         self.width_px = 1200
@@ -47,13 +65,15 @@ class PlotsHelper:
         self.title_fontsize = 15
         self.legend_fontsize = 14
 
-    def plot_num_correct_matches(self,
-                                 nerpa_reports: List[NerpaReport],
-                                 output_dir: Path,
-                                 y_axis: Literal['Count', 'Percentage'] = 'Count',
-                                 top_matches_per_bgc_vals: Tuple[int, ...] = (1,3,5,10),
-                                 pct_thresholds: Tuple[int, ...] = (50, ),
-                                 max_num_matches: Optional[int] = 500) -> List[Path]:
+    def plot_num_correct_matches(
+            self,
+            nerpa_reports: List[NerpaReport],
+            output_dir: Path,
+            y_axis: Literal["Count", "Percentage"] = "Count",
+            top_matches_per_bgc_vals: Tuple[int, ...] = (1, 3, 5, 10),
+            pct_thresholds: Tuple[int, ...] = (50,),
+            max_num_matches: Optional[int] = 500,
+    ) -> List[Path]:
 
         output_dir.mkdir(parents=True, exist_ok=True)
         out_files = []
@@ -61,33 +81,37 @@ class PlotsHelper:
             fig, ax = plt.subplots(figsize=(10, 6))
 
             for report in nerpa_reports:
-                _plot_num_correct_matches(ax=ax,
-                                          _report=report,
-                                          title='',
-                                          label=report.name,
-                                          y_axis=y_axis,
-                                          top_matches_per_bgc=top_matches_per_bgc,
-                                          max_num_matches=max_num_matches,
-                                          pct_thresholds=pct_thresholds)
+                _plot_num_correct_matches(
+                    ax=ax,
+                    _report=report,
+                    title='',
+                    label=report.name,
+                    y_axis=y_axis,
+                    top_matches_per_bgc=top_matches_per_bgc,
+                    max_num_matches=max_num_matches,
+                    pct_thresholds=pct_thresholds
+                )
 
-            ax.set_xlim(left=0)
-            ax.set_ylim(bottom=0)
+                ax.set_xlim(left=0)
+                ax.set_ylim(bottom=0)
 
-            out_file = output_dir / f'{y_axis}_correct_top_{top_matches_per_bgc}.png'
-            out_files.append(out_file)
-            ax.set_title(f'{y_axis} of Correct Matches among the top N vs N')
-            ax.legend()
-            fig.tight_layout()
-            fig.savefig(out_file)
-            plt.close(fig)
+                out_file = output_dir / f'{y_axis}_correct_top_{top_matches_per_bgc}.png'
+                out_files.append(out_file)
+                ax.set_title(f'{y_axis} of Correct Matches among the top N vs N')
+                ax.legend()
+                fig.tight_layout()
+                fig.savefig(out_file)
+                plt.close(fig)
 
 
         return out_files
 
-    def plot_score_correctness(self,
-                               nerpa_reports: List[NerpaReport],
-                               output_dir: Path,
-                               num_bins: int = 20) -> List[Path]:
+    def plot_score_correctness(
+            self,
+            nerpa_reports: List[NerpaReport],
+            output_dir: Path,
+            num_bins: int = 20
+    ) -> List[Path]:
         output_dir.mkdir(parents=True, exist_ok=True)
         out_files = {report.name: output_dir / f'score_correctness_{report.name}.png'
                      for report in nerpa_reports}
@@ -128,18 +152,21 @@ class PlotsHelper:
             plt.savefig(out_files[nerpa_report.name])
             plt.close()
 
-        return list(out_files.values())
+            return list(out_files.values())
 
-    def plot_score_correctness_per_bgc_len(self,
-                                           nerpa_report: NerpaReport,
-                                           output_dir: Path,
-                                           num_len_bins: int = 5,
-                                           ) -> Path:
+    def plot_score_correctness_per_bgc_len(
+            self,
+            nerpa_report: NerpaReport,
+            output_dir: Path,
+            num_len_bins: int = 5,
+    ) -> Path:
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'score_correctness_per_bgc_len_{nerpa_report.name}.png'
-        data = score_correctness_per_bgc_length(nerpa_report,
-                                                self.data_helper,
-                                                num_len_bins)
+        data = score_correctness_per_bgc_length(
+            nerpa_report,
+            self.data_helper,
+            num_len_bins
+        )
         fig, ax = plt.subplots(figsize=(10, 6))
         plot_compare_score_correctness(data, ax=ax)
         ax.set_title(f'Score Correctness per BGC Length: {nerpa_report.name}')
@@ -148,10 +175,12 @@ class PlotsHelper:
         plt.close(fig)
         return out_file
 
-    def box_plots_score_per_bgc_len(self,
-                                    nerpa_report: NerpaReport,
-                                    output_dir: Path,
-                                    num_len_bins: int = 5):
+    def box_plots_score_per_bgc_len(
+            self,
+            nerpa_report: NerpaReport,
+            output_dir: Path,
+            num_len_bins: int = 5
+    ):
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'score_boxplot_per_bgc_len_{nerpa_report.name}.png'
         grouped = self.data_helper.group_by_bgc_length(nerpa_report, num_len_bins)
@@ -198,22 +227,24 @@ class PlotsHelper:
         for i, box in enumerate(boxplots['boxes']):
             box.set_facecolor(colors[i % 2])  # odd/even coloring
 
-        # You may also want to color the medians, whiskers, etc.
-        for i, median in enumerate(boxplots['medians']):
-            median.set_color("black")
+            # You may also want to color the medians, whiskers, etc.
+            for i, median in enumerate(boxplots['medians']):
+                median.set_color("black")
 
-        ax.set_title(f'Score Distribution per BGC Length: {nerpa_report.name}')
-        ax.set_xlabel('BGC Length')
-        ax.set_ylabel('Score')
-        fig.tight_layout()
-        fig.savefig(out_file)
-        plt.close(fig)
+                ax.set_title(f'Score Distribution per BGC Length: {nerpa_report.name}')
+                ax.set_xlabel('BGC Length')
+                ax.set_ylabel('Score')
+                fig.tight_layout()
+                fig.savefig(out_file)
+                plt.close(fig)
         return out_file
 
-    def bgc_len_histogram(self,
-                          nerpa_report: NerpaReport,
-                          output_dir: Path,
-                          num_len_bins: int = 5) -> Path:
+    def bgc_len_histogram(
+            self,
+            nerpa_report: NerpaReport,
+            output_dir: Path,
+            num_len_bins: int = 5
+    ) -> Path:
         output_dir.mkdir(parents=True, exist_ok=True)
         out_file = output_dir / f'bgc_length_histogram_{nerpa_report.name}.png'
 
@@ -255,14 +286,16 @@ class PlotsHelper:
         return out_file
 
 
-    def plot_num_identified(self,
-                            nerpa_reports: List[NerpaReport],
-                            id_column: str,
-                            output_dir: Path,
-                            y_axis: Literal['Count', 'Percentage'] = 'Count',
-                            top_ks: Tuple[int, ...] = (1,)) -> List[Path]:
+    def plot_num_identified(
+            self,
+            nerpa_reports: List[NerpaReport],
+            id_column: str,
+            output_dir: Path,
+            y_axis: Literal['Count', 'Percentage'] = 'Count',
+            top_ks: Tuple[int, ...] = (1,)
+    ) -> List[Path]:
         assert id_column in (NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS), \
-            f'id_column should be one of {NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS}'
+                                f'id_column should be one of {NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS}'
 
         output_dir.mkdir(parents=True, exist_ok=True)
         out_files_per_top_k = {top_k: output_dir / f'{y_axis}_identified_{id_column}_top{top_k}.svg'
@@ -274,14 +307,14 @@ class PlotsHelper:
             report.name: {
                 top_k: {
                     cmp_method:
-                        self.data_helper.compute_num_identified(
-                            report,
-                            id_column,
-                            cmp_method,
-                            top_k
-                        )
-                    for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,]
-                                       #PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
+                    self.data_helper.compute_num_identified(
+                        report,
+                        id_column,
+                        cmp_method,
+                        top_k
+                    )
+                    for cmp_method in [PNRPDB_Compound_Similarity.NERPA_ISO_WEAK_CHR,]
+                    #PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
                 }
                 for top_k in top_ks
             }
@@ -298,8 +331,8 @@ class PlotsHelper:
                               if y_axis == 'Percentage'
                               else _values)
                     linestyle = ('-'
-                                  if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
-                                  else '--')
+                                 if cmp_method == PNRPDB_Compound_Similarity.NERPA_ISO_WEAK_CHR
+                                 else '--')
 
 
                     xs = range(len(values))
@@ -307,65 +340,74 @@ class PlotsHelper:
                             label=f"top-{top_k}({cmp_method})",
                             color=color,
                             linestyle=linestyle)
-            ax.set_title(f"Num Identified by {id_column}: {report_name}")
-            ax.set_xlabel(f"Num top {id_column}")
-            ax.set_ylabel(f"{y_axis} identified")
-            ax.grid()
-            ax.legend(fontsize=self.legend_fontsize)
-            fig.tight_layout()
-            fig.savefig(out_files_per_id[report_name])
-            plt.close(fig)
+                    ax.set_title(f"Num Identified by {id_column}: {report_name}")
+                    ax.set_xlabel(f"Num top {id_column}")
+                    ax.set_ylabel(f"{y_axis} identified")
+                    ax.grid()
+                    ax.legend(fontsize=self.legend_fontsize)
+                    fig.tight_layout()
+                    fig.savefig(out_files_per_id[report_name])
+                    plt.close(fig)
 
-        # Plot per top_k (all reports)
-        df = pl.DataFrame()
-        max_len = len(num_identified_graphs['Nerpa 2'][max(top_ks)][PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR])
-        for top_k in top_ks:
-            fig, ax = plt.subplots()
-            for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
-                for cmp_method, linestyle in [(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR, '-'),]:
-                                              #(PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR, '--')]:
-                    _values = topk_results[top_k][cmp_method]
-                    values = (cnts_to_percentages(_values)
-                              if y_axis == 'Percentage'
-                              else _values)
-                    xs = range(len(values))
-                    ax.plot(xs,
-                            [p / 100 for p in values],
-                            label=f'{report_name}',
-                            #label=f'{report_name}({cmp_method})',
-                            color=color,
-                            linestyle=linestyle)
-                    df = df.with_columns(pl.Series(name=f'{report_name}',
-                                                   values=values.to_list() + [None] * (max_len - len(values))))
+                    # Plot per top_k (all reports)
+                    df = pl.DataFrame()
+                    max_len = max(
+                        len(values)
+                        for top_k in top_ks
+                        for report_name, topk_results in num_identified_graphs.items()
+                        for cmp_method, values in topk_results[top_k].items()
+                    )
+                    for top_k in top_ks:
+                        fig, ax = plt.subplots()
+                        for (report_name, topk_results), color in zip(num_identified_graphs.items(), colors):
+                            for cmp_method, linestyle in [(PNRPDB_Compound_Similarity.NERPA_ISO_WEAK_CHR, '-'),]:
+                                #(PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR, '--')]:
+                                _values = topk_results[top_k][cmp_method]
+                                values = (
+                                    cnts_to_percentages(_values)
+                                    if y_axis == 'Percentage'
+                                    else _values
+                                )
+                                xs = range(len(values))
+                                ax.plot(xs,
+                                        [p / 100 for p in values],
+                                        label=f'{report_name}',
+                                        #label=f'{report_name}({cmp_method})',
+                                        color=color,
+                                        linestyle=linestyle)
+                                df = df.with_columns(pl.Series(name=f'{report_name}',
+                                                               values=values.to_list() + [None] * (max_len - len(values))))
 
-            name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
-            # ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
-            #              fontsize=self.title_fontsize)
-            ax.set_xlabel(f"Ranked {name_identified}", fontsize=self.axis_fontsize)
-            ax.set_ylabel('Fraction of BGCs identified', fontsize=self.axis_fontsize)
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
+                                name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
+                                # ax.set_title(f"{y_axis} of true hits present among top {top_k} matches",
+                                #              fontsize=self.title_fontsize)
+                                ax.set_xlabel(f"Ranked {name_identified}", fontsize=self.axis_fontsize)
+                                ax.set_ylabel('Fraction of BGCs identified', fontsize=self.axis_fontsize)
+                                ax.spines['top'].set_visible(False)
+                                ax.spines['right'].set_visible(False)
 
-            ax.grid(alpha=0.3)
-            ax.legend(fontsize=self.legend_fontsize,
-                      loc='lower right')
-            fig.set_figheight(self.height_px / self.dpi)
-            fig.set_figwidth(self.width_px / self.dpi)
-            fig.tight_layout()
-            #fig = apply_figure_style(fig)
-            fig.savefig(out_files_per_top_k[top_k])
-            plt.close(fig)
+                                ax.grid(alpha=0.3)
+                                ax.legend(fontsize=self.legend_fontsize,
+                                          loc='lower right')
+                                fig.set_figheight(self.height_px / self.dpi)
+                                fig.set_figwidth(self.width_px / self.dpi)
+                                fig.tight_layout()
+                                #fig = apply_figure_style(fig)
+                                fig.savefig(out_files_per_top_k[top_k])
+                                plt.close(fig)
 
-        df.write_csv(output_dir / f'num_identified.tsv', separator='\t')
+                                df.write_csv(output_dir / f'num_identified.tsv', separator='\t')
 
         return list(chain(out_files_per_top_k.values(), out_files_per_id.values()))
 
-    def plot_total_identified(self,
-                              nerpa_reports: List[NerpaReport],
-                              id_column: str,
-                              output_dir: Path,
-                              max_top_k: int = 10,
-                              y_axis: Literal['Count', 'Percentage'] = 'Count') -> List[Path]:
+    def plot_total_identified(
+            self,
+            nerpa_reports: List[NerpaReport],
+            id_column: str,
+            output_dir: Path,
+            max_top_k: int = 10,
+            y_axis: Literal['Count', 'Percentage'] = 'Count'
+    ) -> List[Path]:
         """
         Plot the total number of identified BGCs/NRPs for each report
         """
@@ -381,8 +423,8 @@ class PlotsHelper:
                                                                       max_top_k=max_top_k,
                                                                       y_axis=y_axis,
                                                                       cmp_method=cmp_method)
-                for cmp_method in [PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR,]
-                                   #PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
+                for cmp_method in [PNRPDB_Compound_Similarity.NERPA_ISO_WEAK_CHR,]
+                #PNRPDB_Compound_Similarity.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR,]
             }
             for report in nerpa_reports
         }
@@ -393,8 +435,8 @@ class PlotsHelper:
         for report_name, color in zip(total_identified_graphs.keys(), colors):
             for cmp_method, total_identified in total_identified_graphs[report_name].items():
                 linestyle = ('-'
-                              if cmp_method == PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR
-                              else '--')
+                             if cmp_method == PNRPDB_Compound_Similarity.NERPA_ISO_WEAK_CHR
+                             else '--')
                 ax.step(
                     range(1, len(total_identified) + 1),
                     [p / 100 for p in total_identified],
@@ -408,37 +450,39 @@ class PlotsHelper:
                 #print(report_name, total_identified.to_list())
                 df = df.with_columns(pl.Series(name=report_name, values=total_identified))
 
-        name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
-        # ax.set_title(f'{y_axis} of true hits present',
-        #              fontsize=self.title_fontsize)
-        ax.set_xlabel(f'Top-k rank',)
-                      # fontsize=self.axis_fontsize)
-        ax.set_ylabel(f'Fraction of BGCs identified',)
-                      #fontsize=self.axis_fontsize)
-        ax.set_ylim(bottom=0, top=1)
+                name_identified = "BGCs" if id_column == NerpaReport.BGC_ID else "NRP iso classes"
+                # ax.set_title(f'{y_axis} of true hits present',
+                #              fontsize=self.title_fontsize)
+                ax.set_xlabel(f'Top-k rank',)
+                # fontsize=self.axis_fontsize)
+                ax.set_ylabel(f'Fraction of BGCs identified',)
+                #fontsize=self.axis_fontsize)
+                ax.set_ylim(bottom=0, top=1)
 
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
 
-        ax.grid(alpha=0.3)
-        ax.legend(fontsize=self.legend_fontsize,
-                  loc='lower right')
-        # fig.set_figheight(self.height_px / self.dpi)
-        # fig.set_figwidth(self.width_px / self.dpi)
-        # fig.tight_layout()
-        # my_save_figure(fig, out_file)
-        fig.savefig(out_file, dpi=self.dpi)
-        plt.close(fig)
+                ax.grid(alpha=0.3)
+                ax.legend(fontsize=self.legend_fontsize,
+                          loc='lower right')
+                # fig.set_figheight(self.height_px / self.dpi)
+                # fig.set_figwidth(self.width_px / self.dpi)
+                # fig.tight_layout()
+                # my_save_figure(fig, out_file)
+                fig.savefig(out_file, dpi=self.dpi)
+                plt.close(fig)
 
-        if y_axis == 'Percentage' \
-            and id_column == NerpaReport.BGC_ID:
-            df.write_csv(output_dir / f'total_identified.tsv', separator='\t')
+                if y_axis == 'Percentage' \
+                   and id_column == NerpaReport.BGC_ID:
+                    df.write_csv(output_dir / f'total_identified.tsv', separator='\t')
 
         return [out_file]
 
-    def plot_promiscuity_handling(self,
-                                  reports: List[NerpaReport],
-                                  output_dir: Path) -> Path:
+    def plot_promiscuity_handling(
+            self,
+            reports: List[NerpaReport],
+            output_dir: Path
+    ) -> Path:
         """
         Create a grouped bar chart for all reports and save it to a PNG.
         """
@@ -454,13 +498,14 @@ class PlotsHelper:
         plt.close(fig)
         return out_file
 
-    def plot_precision_recall_curve(self,
-                                    nerpa_reports: List[NerpaReport],
-                                    output_dir: Path,
-                                    top_matches_per_bgc_vals: Tuple[Optional[int], ...] = (None, 1, 3, 5, 10)) -> List[Path]:
+    def plot_precision_recall_curve(
+            self,
+            nerpa_reports: List[NerpaReport],
+            output_dir: Path,
+            top_matches_per_bgc_vals: Tuple[Optional[int], ...] = (None, 1, 3, 5, 10)
+    ) -> List[Path]:
         """
         Plot Precision-Recall curves for all reports.
-
         Starting from top-scoring pairs, gradually lower the score threshold
         and compute precision and recall at each threshold.
         """
@@ -482,11 +527,13 @@ class PlotsHelper:
 
         return out_files
 
-    def plot_all(self,
-                 nerpa_reports: List[NerpaReport],
-                 output_dir: Path,
-                 num_score_bins: int = 20,
-                 top_ks: Tuple[int, ...] = (1, 3, 5, 10)) -> List[Path]:
+    def plot_all(
+            self,
+            nerpa_reports: List[NerpaReport],
+            output_dir: Path,
+            num_score_bins: int = 20,
+            top_ks: Tuple[int, ...] = (1, 3, 5, 10)
+    ) -> List[Path]:
         """
         Generate all plots and return paths to the generated files.
         """

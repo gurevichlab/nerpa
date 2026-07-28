@@ -1,0 +1,28 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS18025	4432481	4433195	-	hypothetical protein	
+MXAN_RS18030	4433225	4434041	+	MlaE family ABC transporter permease	
+MXAN_RS18035	4434082	4434820	+	ABC transporter ATP-binding protein	
+MXAN_RS18040	4434925	4436455	+	MlaD family protein	
+MXAN_RS18045	4436566	4437493	+	PfkB family carbohydrate kinase	
+MXAN_RS18050	4437593	4437947	+	TIGR02266 family protein	
+MXAN_RS18055	4437974	4438757	+	metallophosphoesterase family protein	
+MXAN_RS18060	4438761	4439490	+	hypothetical protein	
+MXAN_RS18065	4439505	4440348	+	archaetidylserine decarboxylase	
+MXAN_RS18070	4440374	4441622	+	histidine--tRNA ligase	
+MXAN_RS18075	4441767	4442175	+	S24 family peptidase	
+MXAN_RS18080	4442171	4442468	+	PqqD family protein	
+MXAN_RS18085	4442467	4442995	+	hypothetical protein	
+MXAN_RS18090	4443009	4446108	+	outer membrane protein assembly factor BamB family protein	
+MXAN_RS18095	4446274	4447126	+	hypothetical protein	
+MXAN_RS18100	4447118	4448045	+	tRNA (adenosine(37)-N6)-dimethylallyltransferase MiaA	
+MXAN_RS18105	4448222	4448840	+	HdeD family acid-resistance protein	
+MXAN_RS18110	4448958	4449885	+	bestrophin family protein	
+MXAN_RS18115	4449872	4451606	-	response regulator	
+
+
+Significant hits: 
+
+
+Details:

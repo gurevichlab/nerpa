@@ -1,0 +1,24 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS17805	4379227	4382314	-	efflux RND transporter permease subunit	
+MXAN_RS17810	4382319	4383882	-	efflux RND transporter periplasmic adaptor subunit	
+MXAN_RS17815	4383882	4384152	-	hypothetical protein	
+MXAN_RS17820	4384307	4384610	-	hypothetical protein	
+MXAN_RS17825	4384644	4385154	-	TlpA family protein disulfide reductase	
+MXAN_RS17830	4385249	4387253	-	M36 family metallopeptidase	
+MXAN_RS17835	4387511	4389002	-	MFS transporter	
+MXAN_RS17840	4389208	4390207	+	polyprenyl synthetase family protein	
+MXAN_RS17845	4390203	4390800	+	GbsR/MarR family transcriptional regulator	
+MXAN_RS17850	4390820	4391342	+	gamma-glutamylcyclotransferase	
+MXAN_RS17855	4391546	4391756	-	hypothetical protein	
+MXAN_RS17860	4392544	4394749	-	1,4-alpha-glucan branching protein GlgB	
+MXAN_RS17865	4394745	4396080	-	phosphotransferase	
+MXAN_RS17870	4396076	4397732	-	maltose alpha-D-glucosyltransferase	
+MXAN_RS17875	4397748	4399746	-	alpha-1,4-glucan--maltose-1-phosphate maltosyltransferase	
+
+
+Significant hits: 
+
+
+Details:

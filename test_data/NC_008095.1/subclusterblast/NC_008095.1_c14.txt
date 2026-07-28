@@ -1,0 +1,50 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS19035	4715094	4716555	+	glutamate synthase subunit beta	
+MXAN_RS19040	4716665	4717082	+	nucleoside diphosphate kinase regulator	
+MXAN_RS19045	4717140	4717902	-	ParA family protein	
+MXAN_RS19050	4718066	4718375	-	c-type cytochrome	
+MXAN_RS19055	4718453	4719632	-	efflux RND transporter periplasmic adaptor subunit	
+MXAN_RS19060	4719628	4722817	-	efflux RND transporter permease subunit	
+MXAN_RS19065	4722905	4723460	+	hypothetical protein	
+MXAN_RS19070	4723491	4725063	+	GMC family oxidoreductase N-terminal domain-containing protein	
+MXAN_RS19075	4725046	4725931	-	hypothetical protein	
+MXAN_RS19080	4725906	4726425	-	NUDIX hydrolase	
+MXAN_RS19085	4726437	4727436	-	radical SAM protein	
+MXAN_RS19090	4727926	4728508	-	tRNA-uridine aminocarboxypropyltransferase	
+MXAN_RS19095	4728624	4729296	+	hypothetical protein	
+MXAN_RS19100	4729394	4729922	+	signal peptidase II	
+MXAN_RS19105	4729982	4730888	-	class I SAM-dependent methyltransferase	
+MXAN_RS19110	4730910	4740024	-	SDR family NAD(P)-dependent oxidoreductase	
+MXAN_RS19115	4740016	4755334	-	SDR family NAD(P)-dependent oxidoreductase	
+MXAN_RS19120	4755330	4756734	-	PfaD family polyunsaturated fatty acid/polyketide biosynthesis protein	
+MXAN_RS19125	4756845	4783794	-	non-ribosomal peptide synthetase	
+MXAN_RS19130	4783780	4790329	-	beta-ketoacyl synthase N-terminal-like domain-containing protein	
+MXAN_RS19135	4790332	4791439	-	LLM class flavin-dependent oxidoreductase	
+MXAN_RS19140	4791435	4797702	-	AprA-related methyltransferase	
+MXAN_RS19145	4797713	4798457	-	polyketide synthase	
+MXAN_RS19150	4798471	4799260	-	enoyl-CoA hydratase/isomerase	
+MXAN_RS19155	4799267	4800521	-	beta-ketoacyl synthase N-terminal-like domain-containing protein	
+MXAN_RS19160	4800582	4802547	-	ACP S-malonyltransferase	
+MXAN_RS19165	4802584	4803916	-	cytochrome P450	
+MXAN_RS19170	4804060	4804561	-	signal peptidase II	
+MXAN_RS19175	4804603	4805854	-	hydroxymethylglutaryl-CoA synthase family protein	
+MXAN_RS19180	4805846	4806098	-	phosphopantetheine-binding protein	
+MXAN_RS19185	4806102	4807080	-	LnmK family bifunctional acyltransferase/decarboxylase	
+MXAN_RS19190	4807102	4808365	-	hydroxymethylglutaryl-CoA synthase family protein	
+MXAN_RS19195	4808374	4808614	-	acyl carrier protein	
+MXAN_RS19200	4808687	4809194	-	transcription termination/antitermination NusG family protein	
+MXAN_RS19205	4809933	4810767	+	MBL fold metallo-hydrolase	
+MXAN_RS19210	4810781	4812371	+	sigma-54-dependent Fis family transcriptional regulator	
+MXAN_RS19215	4812528	4814886	+	hypothetical protein	
+MXAN_RS19220	4814981	4815875	-	hypothetical protein	
+MXAN_RS19225	4815980	4818224	-	serine/threonine-protein kinase	
+MXAN_RS19230	4818220	4819885	-	adenylate/guanylate cyclase domain-containing protein	
+MXAN_RS19235	4819992	4820904	-	hypothetical protein	
+
+
+Significant hits: 
+
+
+Details:

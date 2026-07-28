@@ -76,7 +76,7 @@ PCS = PNRPDB_Compound_Similarity
 def compute_num_identified(data_helper: 'PlotsDataHelper',
                            nerpa_report: NerpaReport,
                            id_column: str,
-                           cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+                           cmp_method: str = PCS.NERPA_ISO_WEAK_CHR,
                            top_k: int = 1) -> pl.Series:
     """Count cumulative identified BGCs/NRPs."""
     assert id_column in (NerpaReport.BGC_ID, NerpaReport.NRP_ISO_CLASS), \
@@ -130,7 +130,7 @@ def compute_total_identified(data_helper: 'PlotsDataHelper',
                              id_column: str,
                              max_top_k: int = 10,
                              y_axis: Literal['Count', 'Percentage'] = 'Count',
-                             cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> pl.Series:
+                             cmp_method: str = PCS.NERPA_ISO_WEAK_CHR) -> pl.Series:
     """Compute total identified for various top_k values."""
     total_ids = (
         len(data_helper.test_bgcs)
@@ -276,7 +276,7 @@ class PrecisionRecallPoint(NamedTuple):
 def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
                                    nerpa_report: NerpaReport,
                                    top_matches_per_bgc: Optional[int] = None,
-                                   cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR) -> List[PrecisionRecallPoint]:
+                                   cmp_method: str = PCS.NERPA_ISO_WEAK_CHR) -> List[PrecisionRecallPoint]:
     """
     Compute precision and recall at various score thresholds.
     Assuming each BGC-NRP pair is scored, for each score threshold T

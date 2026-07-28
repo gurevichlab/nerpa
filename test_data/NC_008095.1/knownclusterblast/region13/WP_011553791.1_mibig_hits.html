@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF85909.1</td>
+              <td>DnaK_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000393.5">BGC0000393.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>1434.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>CAF33333.1</td>
+              <td>putative_heat_shock_protein_HSP70</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000709.5">BGC0000709.5</a></td>
+              <td>saccharide</td>
+              <td>41.0</td>
+              <td>63.9</td>
+              <td>362.0</td>
+              <td>6.64e-115</td>
+          </tr>
+    
+          <tr>
+              <td>AXG48285.1</td>
+              <td>molecular_chaperone_HscA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002716.2">BGC0002716.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>64.2</td>
+              <td>299.0</td>
+              <td>3.42e-91</td>
+          </tr>
+    
+          <tr>
+              <td>AHA38209.1</td>
+              <td>GphP</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000069.5">BGC0000069.5</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>53.5</td>
+              <td>215.0</td>
+              <td>2.5e-61</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

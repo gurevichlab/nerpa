@@ -1,0 +1,41 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS18260	4481548	4482145	+	peptidylprolyl isomerase	
+MXAN_RS18265	4482266	4483211	+	GTPase Era	
+MXAN_RS18270	4483212	4484592	+	ribosome biogenesis GTPase Der	
+MXAN_RS18275	4484663	4485467	+	tetratricopeptide repeat protein	
+MXAN_RS18280	4485478	4486642	+	outer membrane protein assembly factor BamB family protein	
+MXAN_RS18285	4486641	4487067	+	(deoxy)nucleoside triphosphate pyrophosphohydrolase	
+MXAN_RS18290	4487066	4487948	+	ribonuclease H-like domain-containing protein	
+MXAN_RS18295	4488104	4488920	+	DUF3014 domain-containing protein	
+MXAN_RS18300	4488948	4489371	-	PHP domain-containing protein	
+MXAN_RS18305	4489836	4492257	+	ABC transporter permease	
+MXAN_RS18310	4492561	4494655	+	S46 family peptidase	
+MXAN_RS18315	4494777	4496331	-	glutamine-hydrolyzing GMP synthase	
+MXAN_RS18320	4496417	4497065	+	hypothetical protein	
+MXAN_RS18325	4497187	4498645	-	IMP dehydrogenase	
+MXAN_RS18330	4498819	4501138	+	TIGR02266 family protein	
+MXAN_RS18335	4501280	4544105	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS18340	4544091	4546653	-	patatin-like phospholipase family protein	
+MXAN_RS18345	4546776	4547556	-	DedA family protein	
+MXAN_RS18350	4547965	4548436	-	Crp/Fnr family transcriptional regulator	
+MXAN_RS18355	4548477	4548993	-	gamma carbonic anhydrase family protein	
+MXAN_RS18360	4548997	4550386	-	tRNA (N6-isopentenyl adenosine(37)-C2)-methylthiotransferase MiaB	
+MXAN_RS18365	4550459	4550969	-	hypothetical protein	
+MXAN_RS18370	4551005	4552403	-	VWA domain-containing protein	
+MXAN_RS18375	4552656	4553952	-	class I SAM-dependent RNA methyltransferase	
+MXAN_RS18380	4553959	4554328	-	TIGR02266 family protein	
+MXAN_RS18385	4554390	4555047	-	CoA transferase subunit B	
+MXAN_RS18390	4555058	4555757	-	CoA transferase subunit A	
+MXAN_RS18395	4555838	4557020	-	thiolase family protein	
+MXAN_RS18400	4557241	4559641	-	WD40 repeat domain-containing protein	
+MXAN_RS18405	4559878	4561591	-	30S ribosomal protein S1	
+MXAN_RS18410	4562029	4563175	-	acyl-CoA dehydrogenase family protein	
+MXAN_RS18415	4563185	4563638	-	AgmX/PglI C-terminal domain-containing protein	
+
+
+Significant hits: 
+
+
+Details:

@@ -12,7 +12,10 @@ from src.general_type_aliases import (
     LogProb,
      Prob,
 )
-from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
+from src.antismash_parsing.genomic_context import (
+    ModuleGenomicContext,
+    ModuleGenomicContextFeature
+)
 from src.generic.numeric import safe_log
 from src.hmm.hmm_auxiliary_types import DetailedHMMEdgeType, DetailedHMMStateType
 from src.matching.alignment_step_type import MatchDetailedScore
@@ -32,6 +35,7 @@ from src.monomer_names_helper import (
 ST = DetailedHMMStateType
 ET = DetailedHMMEdgeType
 MGF = ModuleGenomicContextFeature
+GC = ModuleGenomicContext
 
 class ChiralityMatch(NamedTuple):
     bgc_epim: bool
@@ -96,7 +100,7 @@ def load_edge_weight_params(cfg: dict) -> Dict[ST, Dict[ModuleGenomicContext, Di
     for state_type_name, ctxt_dict in edge_weights_cfg.items():
         parsed_data[ST[state_type_name]] = {}
         for gc_str, edge_types_dict in ctxt_dict.items():
-            gc = tuple(MGF[feature_str] for feature_str in eval(gc_str))
+            gc = frozenset(MGF[feature_str] for feature_str in eval(gc_str))
             parsed_data[ST[state_type_name]][gc] = {}
 
             for edge_type_name, log_prob in edge_types_dict.items():

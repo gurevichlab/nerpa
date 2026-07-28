@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>CBL93725.1</td>
+              <td>3-oxoacid_CoA-transferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000360.5">BGC0000360.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>64.0</td>
+              <td>93.1</td>
+              <td>272.0</td>
+              <td>7.04e-92</td>
+          </tr>
+    
+          <tr>
+              <td>ATI36037.1</td>
+              <td>succinyl-CoA--3-ketoacid-CoA_transferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002284.3">BGC0002284.3</a></td>
+              <td>other:other</td>
+              <td>64.0</td>
+              <td>93.1</td>
+              <td>268.0</td>
+              <td>9.98e-92</td>
+          </tr>
+    
+          <tr>
+              <td>ABS74184.1</td>
+              <td>ScoB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001090.5">BGC0001090.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>62.0</td>
+              <td>95.0</td>
+              <td>256.0</td>
+              <td>7.69e-87</td>
+          </tr>
+    
+          <tr>
+              <td>BAB69695.1</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001098.5">BGC0001098.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>62.0</td>
+              <td>95.0</td>
+              <td>256.0</td>
+              <td>7.69e-87</td>
+          </tr>
+    
+          <tr>
+              <td>AAK53493.1</td>
+              <td>beta-subunit_of_putative_3-oxoacid_CoA-transferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000774.4">BGC0000774.4</a></td>
+              <td>saccharide:lipopolysaccharide</td>
+              <td>60.0</td>
+              <td>93.1</td>
+              <td>237.0</td>
+              <td>2.32e-79</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

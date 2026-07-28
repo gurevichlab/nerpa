@@ -1,17 +1,20 @@
 from __future__ import annotations
 from typing import Tuple, Dict, Set, Iterable
 
-from more_itertools import powerset
+import more_itertools
 
-from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
+from src.antismash_parsing.genomic_context import (
+    ModuleGenomicContextFeature,
+    ModuleGenomicContext,
+)
 from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType,
 )
 from collections import defaultdict
 
-GenomicContext = Tuple[ModuleGenomicContextFeature, ...]
-GC = GenomicContext
+fset = frozenset
+GC = ModuleGenomicContext
 ET = DetailedHMMEdgeType
 ST = DetailedHMMStateType
 MCF = ModuleGenomicContextFeature
@@ -104,7 +107,7 @@ NORMAL_FLOW_EDGE_TYPES: Set[DetailedHMMEdgeType] = {
     ET.CONTINUE_MATCHING,
 }
 
-RELEVANT_GENOMIC_CONTEXT: Dict[DetailedHMMStateType, Set[MCF]] = \
+RELEVANT_GENOMIC_CONTEXT: Dict[DetailedHMMStateType, Set[ModuleGenomicContextFeature]] = (
     defaultdict(lambda: set(),
                 {
                     ST.CHOOSE_IF_START_MATCHING: {MCF.START_OF_BGC, MCF.ONLY_A_DOMAIN, MCF.ASSEMBLY_LINE_START_MARKER},  # choosing if start matching
@@ -124,9 +127,22 @@ RELEVANT_GENOMIC_CONTEXT: Dict[DetailedHMMStateType, Set[MCF]] = \
                     ST.SKIPPING_MODULES_AT_END: {MCF.ONLY_A_DOMAIN},  # context not needed for construction but is used in training
                 }
                 )
+)
 
-def genomic_context_is_possible(state_type: DetailedHMMStateType,
-                                gc: GenomicContext) -> bool:
+def filter_relevant_genomic_context(
+        gc: ModuleGenomicContext,
+        state_type: DetailedHMMStateType,
+) -> ModuleGenomicContext:
+    return frozenset(
+        f
+        for f in gc
+        if f in RELEVANT_GENOMIC_CONTEXT[state_type]
+    )
+
+def genomic_context_is_possible(
+        state_type: DetailedHMMStateType,
+        gc: ModuleGenomicContext
+) -> bool:
     if any(f not in RELEVANT_GENOMIC_CONTEXT[state_type]
            for f in gc):
         return False
@@ -141,11 +157,15 @@ def genomic_context_is_possible(state_type: DetailedHMMStateType,
     return True
 
 
-def all_possible_genomic_contexts(state_type: DetailedHMMStateType) -> Iterable[GenomicContext]:
-    mgfs_sets = powerset(RELEVANT_GENOMIC_CONTEXT[state_type])
-    gcs = [tuple(sorted(mgfs)) for mgfs in mgfs_sets]
-    return filter(lambda gc: genomic_context_is_possible(state_type, gc),
-                  gcs)
+def all_possible_genomic_contexts(state_type: DetailedHMMStateType) -> Iterable[ModuleGenomicContext]:
+    powerset = map(
+        frozenset,
+        more_itertools.powerset(RELEVANT_GENOMIC_CONTEXT[state_type])
+    )
+    return filter(
+        lambda gc: genomic_context_is_possible(state_type, gc),
+        powerset
+    )
 
 
 MATCHING_STATE_TYPES: Set[DetailedHMMStateType] = {

@@ -13,7 +13,7 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                                 ax: Axes,
                                 data_helper: PlotsDataHelper,
                                 top_matches_per_bgc: Optional[int] = None,
-                                cmp_method: str = PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
+                                cmp_method: str = PCS.NERPA_ISO_WEAK_CHR,
                                 ) -> None:
     """
     Plot Precision-Recall curves for all reports.
@@ -23,7 +23,7 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
     """
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
     for report, color in zip(nerpa_reports, colors):
-        for cmp_method in [PCS.NERPA_EQUAL_ALLOW_UNK_CHR,]:  # PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR]:
+        for cmp_method in [PCS.NERPA_ISO_WEAK_CHR,]:  # PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR]:
             pr_points = data_helper.compute_precision_recall_curve(
                 report,
                 top_matches_per_bgc=top_matches_per_bgc,
@@ -34,7 +34,7 @@ def plot_precision_recall_curve(nerpa_reports: List[NerpaReport],
                 for point in pr_points
             ])
 
-            linestyle = '-' if cmp_method == PCS.NERPA_EQUAL_ALLOW_UNK_CHR else '--'
+            linestyle = '-' if cmp_method == PCS.NERPA_ISO_WEAK_CHR else '--'
 
             # Plot precision vs recall
             ax.plot(

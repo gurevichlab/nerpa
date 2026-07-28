@@ -1,0 +1,48 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS06165	1490799	1492290	+	glutamate-cysteine ligase family protein	
+MXAN_RS06170	1492385	1493804	+	hypothetical protein	
+MXAN_RS06175	1494007	1494769	+	hypothetical protein	
+MXAN_RS06180	1494827	1495607	-	LytR/AlgR family response regulator transcription factor	
+MXAN_RS06185	1495603	1496665	-	sensor histidine kinase	
+MXAN_RS39060	1496696	1496819	-	hypothetical protein	
+MXAN_RS06190	1496989	1498960	-	LeuD/DmdB family oxidoreductase small subunit	
+MXAN_RS06195	1499047	1500118	-	isocitrate/isopropylmalate dehydrogenase family protein	
+MXAN_RS06200	1500305	1501571	+	LeuA family protein	
+MXAN_RS06205	1501634	1503392	+	NAD(P)/FAD-dependent oxidoreductase	
+MXAN_RS06210	1503488	1503695	+	hypothetical protein	
+MXAN_RS06215	1503790	1506082	+	ABC transporter ATP-binding protein	
+MXAN_RS06220	1506078	1507479	+	MBL fold metallo-hydrolase	
+MXAN_RS06225	1507475	1509008	+	carbamoyltransferase C-terminal domain-containing protein	
+MXAN_RS06230	1509038	1510166	-	phytanoyl-CoA dioxygenase family protein	
+MXAN_RS06235	1510162	1511194	-	phosphotransferase enzyme family protein	
+MXAN_RS06240	1511190	1517475	-	non-ribosomal peptide synthetase	
+MXAN_RS06245	1517489	1518431	-	diiron oxygenase	
+MXAN_RS06250	1518703	1520119	-	protoporphyrinogen oxidase	
+MXAN_RS06255	1520198	1520888	+	SDR family oxidoreductase	
+MXAN_RS06260	1520896	1521559	-	pyridoxamine 5'-phosphate oxidase	
+MXAN_RS06265	1521559	1522993	+	glycogen synthase GlgA	
+MXAN_RS06270	1523028	1523943	+	serine/threonine protein kinase	
+MXAN_RS06275	1523944	1524427	+	LEA/WHy family protein	
+MXAN_RS06280	1524524	1525097	+	hypothetical protein	
+MXAN_RS06285	1525074	1525938	+	hypothetical protein	
+MXAN_RS06290	1525984	1527352	-	hemolysin family protein	
+MXAN_RS06295	1527406	1528186	+	pilus assembly protein N-terminal domain-containing protein	
+MXAN_RS06300	1528289	1529291	+	hypothetical protein	
+MXAN_RS06305	1529364	1529829	+	DUF4150 domain-containing protein	
+MXAN_RS06310	1529848	1530385	+	DUF6484 domain-containing protein	
+MXAN_RS06315	1530402	1531725	+	TIGR02270 family protein	
+MXAN_RS06320	1531721	1532840	+	hypothetical protein	
+MXAN_RS06325	1532836	1533703	+	AHH domain-containing protein	
+MXAN_RS36575	1533711	1534296	+	imm11 family protein	
+MXAN_RS06330	1534308	1534893	+	imm11 family protein	
+MXAN_RS06335	1534909	1535692	+	hypothetical protein	
+MXAN_RS06340	1535737	1536523	-	hypothetical protein	
+MXAN_RS06345	1536614	1537319	-	leucyl/phenylalanyl-tRNA--protein transferase	
+
+
+Significant hits: 
+
+
+Details:

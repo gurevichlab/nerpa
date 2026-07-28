@@ -109,6 +109,16 @@ class DetailedHMMEdgeType(Enum):
     def __lt__(self, other):
         return self.name < other.name
 
+    def is_insert_like(self) -> bool:
+        return self in {
+            DetailedHMMEdgeType.START_INSERTING_AT_START,
+            DetailedHMMEdgeType.INSERT_AT_START,
+            DetailedHMMEdgeType.START_INSERTING,
+            DetailedHMMEdgeType.INSERT,
+            DetailedHMMEdgeType.START_INSERTING_AT_END,
+            DetailedHMMEdgeType.INSERT_AT_END,
+        }
+
 yaml.add_representer(DetailedHMMEdgeType, enum_representer)
 
 #GenomicContext = ModuleGenomicContext
