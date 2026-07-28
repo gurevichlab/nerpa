@@ -25,7 +25,7 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
 from src.training.hmm_parameters.bgc_alignment_compatibility import (
     bgc_variant_match_compatible,
 )
@@ -36,7 +36,7 @@ from src.training.hmm_parameters.extract_data_for_training import (
 from src.training.hmm_parameters.hmm_infer_edge_params import infer_edge_params
 from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission_params
 from src.training.hmm_parameters.norine_stats import load_norine_stats
-from src.training.hmm_parameters.training_types import EmissionInfo, MatchWithBGCNRP
+from src.training.hmm_parameters.training_types import EmissionInfo, AlignmentWithBGCNRP
 from src.training.hmm_parameters.write_results import write_params
 from src.training.logging_config import configure_logging
 from test_nerpa import load_local_paths, remove_deprecated_nrps, run_nerpa
@@ -44,7 +44,7 @@ from test_nerpa import load_local_paths, remove_deprecated_nrps, run_nerpa
 
 def load_all_bgc_variants(bgc_variants_yaml: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
     bgc_variants = defaultdict(list)
-    yaml_variants = [BGC_Variant.from_dict(bgc_variant_dict)
+    yaml_variants = [BGC_Variant.from_yaml_dict(bgc_variant_dict)
                      for bgc_variant_dict in yaml.safe_load(bgc_variants_yaml.read_text())]
     for bgc_variant in yaml_variants:
         bgc_variants[bgc_variant.bgc_variant_id.bgc_id].append(bgc_variant)
@@ -53,7 +53,7 @@ def load_all_bgc_variants(bgc_variants_yaml: Path) -> Dict[BGC_ID, List[BGC_Vari
 
 def load_bgc_variants_for_matches(
         bgc_id_to_bgc_variants: Dict[BGC_ID, List[BGC_Variant]],
-        matches: List[TestMatch],
+        matches: List[CuratedAlignment],
         log: Logger
 ) -> Dict[NRP_ID, BGC_Variant]:  # nrp_id -> bgc_variant
     nrp_id_to_bgc_variant = {}
@@ -182,7 +182,7 @@ def get_bgc_variants(
     bgc_variants_yaml = nerpa_results / 'preprocessed_input' / 'BGC_variants.yaml'
     with open(bgc_variants_yaml, 'r') as f:
         bgc_variants = [
-            BGC_Variant.from_dict(bgc_variant_dict)
+            BGC_Variant.from_yaml_dict(bgc_variant_dict)
             for bgc_variant_dict in yaml.safe_load(f)
         ]
     return [
@@ -234,7 +234,7 @@ def main():
     # 2. Load approved matches and corresponding BGC variants
     logger.info('Loading approved matches')
     approved_matches = [
-        TestMatch.from_yaml_dict(test_match_dict)
+        CuratedAlignment.from_yaml_dict(test_match_dict)
         for test_match_dict in yaml.safe_load(args.approved_matches.read_text())
     ]
     approved_matches = remove_deprecated_nrps(approved_matches, pnrpdb_info)
@@ -264,7 +264,7 @@ def main():
 
     # note: alignments are taken from "old" approved matches while bgc predictions are taken from current matches
     matches_with_bgcs_nrps_for_training = [
-        MatchWithBGCNRP(
+        AlignmentWithBGCNRP(
             m,
             nrp_id_to_bgc_variant[m.nrp_id],
             nrp_id_to_nrp_variant[m.nrp_id]

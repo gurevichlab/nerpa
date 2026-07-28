@@ -6,7 +6,7 @@ from src.antismash_parsing.bgc_variant_types import BGC_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 from src.testing.simplified_alignment import simplified_alignment_to_light_alignments
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
 import argparse
 
 def parse_args():
@@ -37,7 +37,7 @@ def main():
 
     approved_matches_yaml = nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml'
     with approved_matches_yaml.open("r", encoding="utf-8") as f:
-        approved_matches: list[TestMatch] = [TestMatch.from_yaml_dict(record)
+        approved_matches: list[CuratedAlignment] = [CuratedAlignment.from_yaml_dict(record)
                                              for record in yaml.safe_load(f)]
 
     test_match = next((match for match in approved_matches
@@ -49,7 +49,7 @@ def main():
                          / 'preprocessed_input'
                          / 'BGC_variants.yaml')
     with open(bgc_variants_path, 'r') as f:
-        bgc_variants = [BGC_Variant.from_dict(record)
+        bgc_variants = [BGC_Variant.from_yaml_dict(record)
                         for record in yaml.safe_load(f)]
 
     bgc_id = nrp_id.split('.')[0]

@@ -13,7 +13,7 @@ from src.pipeline.logging.logger import LoggingConfig, NerpaLogger
 from src.testing.check_matches import find_wrong_matches
 from src.testing.simplified_alignment import fst_mismatched_step
 from src.testing.testing_types import (
-    TestMatch,
+    CuratedAlignment,
     TestResult,
     _wrap_alignment,
     simplified_alignment_from_match,
@@ -143,7 +143,7 @@ def load_local_paths(nerpa_dir: Path) -> dict:
         return {key: Path(value) for key, value in local_paths_dict.items()}
 
 
-def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
+def write_wrong_matches(wrong_matches: List[tuple[Match, CuratedAlignment]],
                         output_file: Path):
     data = []
     for m, test_match in wrong_matches:
@@ -202,8 +202,8 @@ def check_nrp_bgc_variants_parsed(nerpa_results_dir: Path,
         print(f'The following NRP IDs are missing (up to isomorphism) in preprocessed input:\n{missing_nrps}')
 
 
-def remove_deprecated_nrps(test_matches: List[TestMatch],
-                           pnrpdb_info: pl.DataFrame) -> List[TestMatch]:
+def remove_deprecated_nrps(test_matches: List[CuratedAlignment],
+                           pnrpdb_info: pl.DataFrame) -> List[CuratedAlignment]:
     print('Filtering out matches with deprecated NRPs:')
     '''
     MIBiG is constantly updated and whatnot.
@@ -285,7 +285,7 @@ def main():
 
     print('Loading tests')
     test_matches_yaml = yaml.safe_load(args.test_matches.read_text())
-    test_matches = [TestMatch.from_yaml_dict(test_match_dict)
+    test_matches = [CuratedAlignment.from_yaml_dict(test_match_dict)
                     for test_match_dict in test_matches_yaml]
     test_matches = [test_match for test_match in test_matches
                     if test_match.bgc_id not in MIBIG_ERRORS]
@@ -338,7 +338,7 @@ def main():
         for m in matches
     }
 
-    test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], TestMatch] = {
+    test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], CuratedAlignment] = {
         (test_match.bgc_id, test_match.nrp_id): test_match
         for test_match in test_matches
     }

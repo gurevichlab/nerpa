@@ -7,14 +7,14 @@ from typing import List, Dict
 
 from src.generic.plots import my_new_figure
 from src.testing.testing_nerpa1 import SimplifiedMatch, load_nerpa1_matches
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
 from src.testing.simplified_alignment import get_mismatched_steps, simplified_alignment_from_match
 from src.matching.match_type import Match
 from src.testing.simplified_match import nerpa2_match_to_simplified_match
 
 def calculate_error_counts(matches: List[SimplifiedMatch],
                            matches_label: str,
-                           tests: List[TestMatch],
+                           tests: List[CuratedAlignment],
                            remove_outliers: bool = False) -> List[int]:
     """
     Calculate the number of mismatches between each test alignment and the corresponding match.
@@ -103,7 +103,7 @@ def plot_error_histograms(error_counts_dict: Dict[str, List[int]],
 
 
 def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
-                         tests: List[TestMatch],
+                         tests: List[CuratedAlignment],
                          plots_dir: Path,
                          take_only_tests_processed_by_all: bool = False) -> None:
     """
@@ -177,7 +177,7 @@ def nerpa1_vs_nerpa2(args: argparse.Namespace) -> None:
     print(f'Loaded {len(nerpa2_matches)} Nerpa 2 matches.')
 
     print('Loading approved test matches...')
-    test_matches = [TestMatch.from_yaml_dict(item)
+    test_matches = [CuratedAlignment.from_yaml_dict(item)
                     for item in yaml.safe_load(args.approved_matches_yaml.read_text())]
     print(f'Loaded {len(test_matches)} approved test matches.')
 
@@ -247,7 +247,7 @@ def filter_matches_for_testing(matches_yaml: Path,
                 match_dict['nrp_variant_id']['nrp_id'])
 
     approved_matches = [
-        TestMatch.from_yaml_dict(match_dict)
+        CuratedAlignment.from_yaml_dict(match_dict)
         for match_dict in yaml.safe_load(approved_matches_yaml.read_text())
     ]
     approved_keys = {(tm.bgc_id, tm.nrp_id) for tm in approved_matches}

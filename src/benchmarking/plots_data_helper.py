@@ -5,7 +5,7 @@ from typing import Literal, Dict, Sequence, List, Optional, Set, Tuple
 
 import polars as pl
 from collections import defaultdict
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
 
 from src.benchmarking.data_frames import (
     MIBiG_BGCs_Info,
@@ -198,7 +198,7 @@ class PlotsDataHelper:
         self.pnrpdb_info = PNRPDB_Info.from_csv(pnrpdb_info_path)
         self.pnrpdb_compound_similarity = PNRPDB_Compound_Similarity.from_csv(pnrpdb_compound_similarity_path)
         curated_alignments = [
-            TestMatch.from_yaml_dict(test_match_dict)
+            CuratedAlignment.from_yaml_dict(test_match_dict)
             for test_match_dict in yaml.safe_load(curated_alignments_path.open('r'))
         ]
         self.training_bgcs = set(
