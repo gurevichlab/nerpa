@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nerpa Report</title>
+    <title>Nerpa MS Report</title>
     <style>
+        .ChemDoodleWebComponent{
+        border:none !important;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -221,7 +225,7 @@
             margin-bottom: 5px;
         }
 
-         button.hide-button-label {
+        button.hide-button-label {
             margin-top: 0px;
             margin-bottom: 5px;
         }
@@ -274,6 +278,50 @@
             overflow-y: hidden;
         }
 
+.nerpaReport {
+    display: none;
+    justify-content: flex-start;
+    align-items: center;
+
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.nerpaReport a {
+    display: inline-block;
+    color: blue;
+    text-decoration: underline;
+
+    font-size: 0.95rem;
+    padding: 8px 14px;
+
+    background: white;
+    border: 1px solid black;
+    border-radius: 6px;
+
+    transition: background-color 0.2s;
+}
+
+.nerpaReport a:hover {
+    background-color: #f3f3f3;
+}
+
+#spectrumSvg {
+    pointer-events: none;
+}
+
+#spectrumSvg line {
+    pointer-events: all;  
+    cursor: pointer;
+}
+
+#moduleViewerAlign g { 
+    cursor: pointer;
+}
+
 
     </style>
 </head>
@@ -281,7 +329,7 @@
 <div class="container" deselect-trigger>
     
     <div class ="header" deselect-trigger>
-        <h1>Nerpa <a id="version"></a></h1>
+        <h1>Nerpa MS <a id="version"></a></h1>
         <nav>
                 <a href="https://github.com/gurevichlab/nerpa#sec_about">About</a>
                 <a href="https://github.com/gurevichlab/nerpa#feedback-and-bug-reports">Contact</a>
@@ -320,7 +368,7 @@
         </div>
 
         <div class="logo-container">
-            <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo" class="nerpa-logo">
+            <img src="html_aux/logo.png" alt="Logo" class="nerpa-logo">
             <button id="toggleReprBtn" style="display:block; margin-left:auto;">
                 Show all BGCs/NRPs (incl. duplicates)
             </button>
@@ -345,6 +393,7 @@
     </div>
 
     <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;" deselect-trigger></div>
+
 
     <!-- Match Viewer -->
     <div>
@@ -421,6 +470,12 @@
     <!-- antiSMASH (Genome/BGC) Viewer -->
     <div>
         <div id="genomeViewerControls" deselect-trigger>
+            <div class="table-container" style="display: none;">
+                <p class="matchDetailedInfoLabel">General information</p>
+                <!-- everything is populated here by JavaScript -->
+                <table id="matchTable">
+                </table>
+            </div>
             <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true,'','', true)" style="display: none;">Hide Genome/BGC annotation</button>
             <button class="hide-button" id="showGenomeViewerBtn" style="display: none;">Show Genome/BGC annotation</button>
             <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
@@ -443,7 +498,7 @@
             <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                <p class="orderLabel">BGC order</p>
                 <svg id="moduleViewerBGC"
-                    style="background: #ffffff;" deselect-trigger>
+                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
                 </svg>
             </div>
             
@@ -453,6 +508,53 @@
                 <svg id="moduleViewerAlign"
                     style="background: #ffffff;" deselect-trigger>
                 </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- modification viewer-->
+    <div>
+        <div id="modificationViewerControls" deselect-trigger>
+            <button class="hide-button" id="hideModificationViewerBtn" onclick="toggleModificationViewer(true, '', true)" style="display: none;">Hide modification annotation</button>
+            <button class="hide-button" id="showModificationViewerBtn" style="display: none;">Show modification annotation</button>
+            <p id="modificationViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its modification annotation</p>
+        </div>
+        <div id="graphModContainer" class="viewer" style="display: none; margin-bottom: 20px;" deselect-trigger>
+           <div style="display: flex;  gap:10px;" deselect-trigger>
+
+                <div style="flex: 1; min-width:0;">
+                     <p class="orderLabel">Original monomer graph</p>
+                    <div id="graphModOld" style="background: #ffffff; 
+                        width: 100%; 
+                        height: 40vh; 
+                        border: 1px;">
+                    </div>
+               </div>
+                <!-- <div style="display:flex; align-items:center;">
+                    <table style="border-collapse: collapse;">
+                        <tr>
+                            <td style="width:10px; background:#e79898;"></td>
+                            <td style="padding: 4px 10px;">Deletion</td>
+                        </tr>
+                        <tr>
+                            <td style="width:10px; background:#98e799;"></td>
+                             <td style="padding: 4px 10px;">Insertion</td>
+                        </tr>
+                        <tr>
+                            <td style="width:10px; background:#ffff9e"></td>
+                            <td style="padding: 4px 10px;">Substitution</td>
+                        </tr>
+                    </table>
+                </div> -->
+
+                <div style="flex: 1; min-width:0;">
+                    <p class="orderLabel">Modified monomer graph</p>
+                    <div id="graphModNew" style="background: #ffffff; 
+                        width: 100%; 
+                        height: 40vh; 
+                        border: 1px;">
+                    </div>
+               </div>
             </div>
         </div>
     </div>
@@ -470,32 +572,145 @@
             <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show NRP annotation</button>
             <p id="nrpViewerLabel" style="display: block;">Click on an NRP ID to view its annotated molecular structure and monomer graph</p>
         </div>
+        
         <div id="nrpViewerContainer" class="viewer" style="display: none;" deselect-trigger>
-           <div style="display: flex;  gap:10px;" deselect-trigger>
+           
+           <div style="display: flex;  gap:10px; height:70vh;" deselect-trigger>
+                <div id="spectrum" 
+                    style=" flex:1; min-width: 0;  align-items:center; justify-content: center; display:flex; position: relative; background: #ffffff;" 
+                    deselect-trigger>
+                    <!-- <p class="matchDetailedInfoLabel" style="position: absolute;
+                                        top: 10%;
+                                        left: 50%;
+                                        transform: translateX(-50%);
+                                        z-index: 10;" deselect-trigger>
+                                        No spectrum was loaded.</p> -->
+                    <div style="position:relative; display:inline-block;" deselect-trigger>
+                        
+                        <svg id="spectrumSvg"
+                            style="position:absolute;
+                                    top:0;
+                                    left:0;
+                                    width:100%;
+                                    height:100%;
+                                    z-index:1;
+                                    "deselect-trigger>
+                        </svg>
 
-                <div id="moleculeImage" style="flex: 1; min-width:0; height: 70vh; overflow: hidden;" deselect-trigger>
-                    <canvas id="moleculeImageCanvas" 
-                        style="background: #ffffff; width: 100%; border: 1px; " deselect-trigger>
-                    </canvas>
+                        <canvas id="spectrumCanvas"
+                                style="position:relative;
+                                    z-index:0;
+                                    display:block;
+                                    background: #ffffff;
+                                    " deselect-trigger>
+                        </canvas>
+                    </div>
+                    <div id="peak"
+                        style="
+                            display:none;
+                            position:absolute;
+                            bottom:60px;     
+                            left:50%;
+                            transform:translateX(-50%);
+                            z-index:20;
+                            white-space: nowrap;
+                        "deselect-trigger>
+                        <table>
+                             <thead>
+                                <tr>
+                                    <th style="padding:2px 8px;  text-align:left;">m/z</th>
+                                    <th style="padding:2px 8px; text-align:right;">Intensity</th>
+                                    <th style="padding:2px 8px;  text-align:right;">Absolute mass error</th>
+                                    <th style="padding:2px 8px;  text-align:right;">Relative mass error</th>
+                                </tr>
+                            </thead>
+                               <tbody>
+                                    <tr>
+                                        <td id="peakMz" style="padding:4px 8px; text-align:center;">-</td>
+                                        <td id="peakIntensity" style="padding:4px 8px; text-align:center;">-</td>
+                                        <td id="peakMassErrorAbs" style="padding:4px 8px; text-align:center;">-</td>
+                                        <td id="peakMassErrorRel" style="padding:4px 8px; text-align:center;">-</td>
+                                    </tr>
+                                </tbody>
+                        </table>
+                    </div>
+                    <div id="spectrumInfo"
+                        style="
+                            display:block;
+                            position:absolute;
+                            bottom:85%;     
+                            left:50%;
+                            transform:translateX(-50%);
+                            z-index:20;
+                            white-space: nowrap;
+                        "deselect-trigger>
+                        <table>
+                            
+                            
+                        </table>
+                    </div>
                 </div>
 
-                <div style="flex: 1; min-width:0;">
-                    <div id="graphImage" style="background: #ffffff; 
-                        width: 100%; 
-                        height: 70vh; 
-                        border: 1px;">
+                <div style="display:flex; flex-direction:column; gap:10px; flex:1; min-width:0;">
+                     <div id="displayArea" 
+                            style="flex:1; min-height:0; overflow:hidden;"
+                            deselect-trigger>
+
+                
+                        <div id="moleculeImage" 
+                            style="display: none; min-width:0; height: 70vh; overflow: hidden; position: relative;" 
+                            deselect-trigger>
+                            <button id="showLabelBtn" class="hide-button-label" onclick="hideLabels()" 
+                                style=" position: absolute;
+                                        top: 85%;
+                                        left: 84%;
+                                        z-index: 10;
+                                        padding: 4px 8px;
+                                        border: none;
+                                        border-radius: 12px;
+
+                                        color: #444;
+                                        font-size: 11px;
+                                        font-weight: 600;
+                                    "
+                                onmouseover="this.style.background='#e4e4e4'; "
+                                onmouseout="this.style.background='#eeeeee'; ">
+                                        Hide/show <br> residue labels
+                            </button>
+                    
+                            <canvas id="moleculeImageCanvas" 
+                                style="width: 100%; height:100%; " deselect-trigger>
+                            </canvas>
+
+                        </div>
+                        
+
+                        <div id="graphImage" style="display: none;
+                            background: #ffffff; 
+                            width: 100%; 
+                            height: 100%;
+                            position: relative;">
+                            
+                        </div>
                     </div>
-               </div>
-            </div>
-            <div style="display: flex; justify-content: space-between;" deselect-trigger>    
-                    <button  class="hide-button-label" id="hideLabelBtn" onclick="hideLabels()" style="display: none;">Hide/show residue labels</button>
+                    <button  id="switchBtn" class="hide-button-label"  onclick="switchGraphMol()" >Switch to molecule view</button>
+               </div> 
             </div>
         </div>
+        
+        <div id="nerpaReport" deselect-trigger class="nerpaReport" style="margin-top: 20px;">
+            <a href="report.html"> Corresponding Nerpa report</a>
+        </div>
     </div>
-</div>
 
+
+    
+</div>
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
+<script src="{{HTML_AUX_DIR}}/report_data_MS.js"></script>
+
 <script src="html_aux/interaction.js"></script>
+<script src="html_aux/interaction_MS.js"></script>
 <!-- vis-network -->
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <!-- chemdoodle -->
@@ -504,8 +719,7 @@
 
 
 <script>
-    
-    // Function to detect if a value is numeric
+  // Function to detect if a value is numeric
     function isNumeric(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }
@@ -854,11 +1068,11 @@
                     event.preventDefault();
                     const matchID = link.dataset.match;
                     toggleMatchViewer(false, matchID);
-                     history.pushState("", "", `#${matchID}`);
+                    history.pushState("", "", `#${matchID}`);
                 });
             });
 
-             // Genome/BGC links
+            // Genome/BGC links
             document.querySelectorAll('.genome-link').forEach(link => {
                 link.addEventListener('click', event => {
                     event.preventDefault();
@@ -877,10 +1091,10 @@
                             c.style.border = "2px solid #6ca4ba";
                             c.style.background = '#6ca4ba';
                         } 
-                    });       
+                    });
                     const bgc_id = bgcIDM === '' ? genomeID : bgcIDM;
                     fillGeneralMatchInfo('', '', bgc_id);
-
+         
                 });
             });
 
@@ -902,6 +1116,7 @@
                             c.style.background = '#6ca4ba';
                         }
                     });
+                    
                 });
             });
         } else {
@@ -957,17 +1172,18 @@
         });
     }
 
-   
     // Toggle function for hiding/showing the Match details
     function toggleMatchViewer(hide, matchID) {
         const frame = document.getElementById('matchViewerContainer');
         const hideBtn = document.getElementById('hideMatchViewerBtn');
         const label = document.getElementById('matchViewerLabel');
-   
+        const nerpaReport = document.getElementById('nerpaReport');
+
         if (hide) {
             frame.style.display = 'none';
             label.style.display = 'block';
             hideBtn.style.display = 'none';
+            nerpaReport.style.display = 'none';
 
             toggleGenomeViewer(hide);
             toggleNrpViewer(hide);
@@ -1019,8 +1235,12 @@
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            
 
+            nerpaReport.style.display = 'block';
+
+            const nerpaReportlink = nerpaReport.querySelector("a")
+
+            nerpaReportlink.href = `${nerpaReportlink.href}#${matchID}`
            
             toggleAlignmentTable(true);
             toggleGenomeViewer(true, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`, true);
@@ -1041,10 +1261,8 @@
         nrpIDLink.className = 'nrp-link';
         nrpIDLink.dataset.nrp = nrp_id;
         nrpIDLink.textContent = nrp_id;
-
         const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(nrp_id), { wrap: "span" });
         const nrpCells = [nrpIDLink, ...nrpMetadataSpans];
-
         const nrpTable = buildSingleRowTable({
             id: 'matchTableNrp',
             headers: nrpHeaders,
@@ -1069,17 +1287,14 @@
         genomeLink.dataset.genome = genome_folder;
         genomeLink.dataset.bgc = '';
         genomeLink.textContent = genome_id;
-
         const regionLink = document.createElement('a');
         regionLink.href = '#';
         regionLink.className = 'genome-link';
         regionLink.dataset.genome = genome_folder;
         regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
         regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
-
         const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id), { wrap: "span" });
         const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
-
         const bgcTable = buildSingleRowTable({
             id: 'matchTableBgc',
             headers: bgcHeaders,
@@ -1135,7 +1350,6 @@
 
         // Append the three compact tables (stacked one under another)
         container.append(generalTable, nrpTable, bgcTable);
-        
         // Handlers for the NRP-ID, Genome and BGC-ID links in the detailed match info tables
         container.querySelectorAll('.nrp-link').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -1184,10 +1398,10 @@
             showBtn.style.display = 'none';
         }
     }
-
-
-     // Toggle function for module viewer
-     function toggleModuleViewer(hide, nrpID, bgcID, align = true, userHide = false) {
+    
+    
+    // Toggle function for module viewer
+    function toggleModuleViewer(hide, nrpID, bgcID, align = true, userHide = false) {
         const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
         const showBtn = document.getElementById('showModuleViewerBtn');
@@ -1219,26 +1433,90 @@
    // Toggle function for NRP images
     function toggleNrpViewer(hide, nrpID, userHide = false) {
         const frame = document.getElementById('nrpViewerContainer');
+        const graph = document.getElementById('graphImage');
+        const molecule = document.getElementById('moleculeImage');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
-         const showBtn = document.getElementById('showNrpViewerBtn');
+        const showBtn = document.getElementById('showNrpViewerBtn');
         const label = document.getElementById('nrpViewerLabel');
-        const hideLabelBtn = document.getElementById('hideLabelBtn');
-     
+        
         if (hide) {
             frame.style.display = 'none';
             label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
-            hideLabelBtn.style.display = 'none';
             showBtn.style.display = userHide ? 'block' : 'none';
         } else {
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            hideLabelBtn.style.display = 'block';
+            graph.style.display = 'block';
+            molecule.style.display = 'block';
+
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleNrpViewer(hide, nrpID);
+
+            /* 
+            ---------------------------------------------------------------------------
+            only for testing purposes until nerpaMS provides the necessary information
+            
+            map structureIDs and spectrumIDs to nrpID (arbitrary selected)
+            map structureID -> nrpID
+                myxoprincomide_c506 -> "BGC0000359.1"
+                myxochromide_A -> "BGC0000985.4" 
+
+            map spectrumID -> nrpID
+                10736 -> "BGC0000359.1"
+                41238 -> "BGC0000985.4" 
+            */
+            const arbitraryMap = {
+                'BGC0000359.1': {
+                    spectrumID: '10736',
+                },
+                'BGC0000985.4':{
+                    spectrumID: '41238',
+                },
+
+            };
+            const structureID = nrpID; 
+            const spectrumID = arbitraryMap[nrpID].spectrumID;
+            const generatedMol = prepareDataMol(structureID);
+            const generatedGraph = prepareDataGraph(structureID);
+            molecule_image[nrpID] = generatedMol;
+            monomer_graph[nrpID] = generatedGraph;
+            /* 
+            ---------------------------------------------------------------------------
+            */
+            
             drawGraph(nrpID);
             drawMolecule(nrpID);
+
+            displayVarquestMod(spectrumID, structureID);
+            toggleModificationViewer(hide, nrpID, userHide);
+           
+            loadSpectrum(spectrumID, structureID);
+            molecule.style.display = 'none';
+        }
+    }
+
+    function toggleModificationViewer(hide, nrpID, userHide = false){
+        const frame = document.getElementById('graphModContainer');
+        const hideBtn = document.getElementById('hideModificationViewerBtn');
+        const showBtn = document.getElementById('showModificationViewerBtn');
+        const label = document.getElementById('modificationViewerLabel');
+    
+        if (hide) {
+            frame.style.display = 'none';
+            label.style.display = userHide ? 'none' : 'block';
+            hideBtn.style.display = 'none';
+            showBtn.style.display = userHide ? 'block' : 'none';
+        } else {
+            frame.style.display = 'block';
+            label.style.display = 'none';
+            hideBtn.style.display = 'block';
+
+            showBtn.style.display = 'none';
+            showBtn.onclick = () => toggleModificationViewer(hide, nrpID);
+
+            drawModGraph(nrpID);
         }
     }
 
@@ -1442,7 +1720,7 @@
         });
 
         document.getElementById('toggleReprBtn').addEventListener('click', toggleReprMode);
-
+        
         const currentURL = window.location.href;
         const splitURL = currentURL.split("#");
         if(splitURL.length > 1){

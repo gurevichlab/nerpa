@@ -271,4 +271,5 @@ def create_html_report(output_cfg: OutputConfig,
     os.mkdir(output_cfg.main_out_dir / 'html_aux/chemdoodle')
     shutil.copyfile(current_dir / 'static/chemdoodle/ChemDoodleWeb.css',  output_cfg.main_out_dir / 'html_aux/chemdoodle/ChemDoodleWeb.css')
     shutil.copyfile(current_dir / 'static/chemdoodle/ChemDoodleWeb.js',  output_cfg.main_out_dir / 'html_aux/chemdoodle/ChemDoodleWeb.js')
-
+    # copying interaction.js to output folder
+    shutil.copyfile(current_dir / 'static/interaction.js',  output_cfg.main_out_dir / 'html_aux/interaction.js')
