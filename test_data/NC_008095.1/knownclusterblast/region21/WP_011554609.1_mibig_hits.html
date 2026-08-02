@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AAS55716.1</td>
+              <td>putative_glycosyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000795.3">BGC0000795.3</a></td>
+              <td>saccharide</td>
+              <td>31.0</td>
+              <td>61.2</td>
+              <td>166.0</td>
+              <td>3.1e-46</td>
+          </tr>
+    
+          <tr>
+              <td>WP_004553776.1</td>
+              <td>glycosyltransferase_family_1_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001588.3">BGC0001588.3</a></td>
+              <td>saccharide</td>
+              <td>33.0</td>
+              <td>31.0</td>
+              <td>67.0</td>
+              <td>1.27e-11</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

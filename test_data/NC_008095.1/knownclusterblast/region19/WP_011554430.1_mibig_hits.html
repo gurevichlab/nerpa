@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>QQZ01613.1</td>
+              <td>agmatinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002497.3">BGC0002497.3</a></td>
+              <td>other:other</td>
+              <td>29.0</td>
+              <td>92.8</td>
+              <td>110.0</td>
+              <td>2.51e-27</td>
+          </tr>
+    
+          <tr>
+              <td>EDY47124.1</td>
+              <td>proclavaminate_amidinohydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000845.5">BGC0000845.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>29.0</td>
+              <td>99.1</td>
+              <td>107.0</td>
+              <td>1.56e-26</td>
+          </tr>
+    
+          <tr>
+              <td>AFH74299.1</td>
+              <td>proclavaminate_amidinohydrolase_3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001151.5">BGC0001151.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>29.0</td>
+              <td>93.6</td>
+              <td>106.0</td>
+              <td>4.64e-26</td>
+          </tr>
+    
+          <tr>
+              <td>AAX98207.1</td>
+              <td>amidinohydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000052.5">BGC0000052.5</a></td>
+              <td>PKS</td>
+              <td>28.0</td>
+              <td>94.8</td>
+              <td>103.0</td>
+              <td>5.13e-25</td>
+          </tr>
+    
+          <tr>
+              <td>BAW35625.1</td>
+              <td>putative_amidinohydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002357.3">BGC0002357.3</a></td>
+              <td>PKS+other:other</td>
+              <td>27.0</td>
+              <td>92.2</td>
+              <td>100.0</td>
+              <td>1.81e-23</td>
+          </tr>
+    
+          <tr>
+              <td>AKL64821.1</td>
+              <td>agmatinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002072.3">BGC0002072.3</a></td>
+              <td>PKS:Type I</td>
+              <td>28.0</td>
+              <td>95.1</td>
+              <td>98.0</td>
+              <td>8.54e-23</td>
+          </tr>
+    
+          <tr>
+              <td>EFG04562.1</td>
+              <td>Proclavaminate_amidinohydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000841.5">BGC0000841.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>28.0</td>
+              <td>91.3</td>
+              <td>98.0</td>
+              <td>2.22e-22</td>
+          </tr>
+    
+          <tr>
+              <td>EHK80172.1</td>
+              <td>agmatinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001447.3">BGC0001447.3</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>60.3</td>
+              <td>92.0</td>
+              <td>1.63e-20</td>
+          </tr>
+    
+          <tr>
+              <td>AXI91564.1</td>
+              <td>FunS1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001944.2">BGC0001944.2</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>55.7</td>
+              <td>86.0</td>
+              <td>2.97e-18</td>
+          </tr>
+    
+          <tr>
+              <td>BCB17038.1</td>
+              <td>putative_agmatinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002523.2">BGC0002523.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>31.0</td>
+              <td>54.8</td>
+              <td>84.0</td>
+              <td>1.36e-17</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

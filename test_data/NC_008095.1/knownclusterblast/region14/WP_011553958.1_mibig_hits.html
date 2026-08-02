@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF90176.1</td>
+              <td>polyketide_TA_biosynthesis_protein_TaC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001025.5">BGC0001025.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>840.0</td>
+              <td>6.27e-311</td>
+          </tr>
+    
+          <tr>
+              <td>CAG23954.2</td>
+              <td>3-hydroxy-3-methylglutaryl_CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001089.5">BGC0001089.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>68.0</td>
+              <td>100.0</td>
+              <td>583.0</td>
+              <td>2.01e-209</td>
+          </tr>
+    
+          <tr>
+              <td>ADD82944.1</td>
+              <td>BatC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001099.5">BGC0001099.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>67.0</td>
+              <td>100.0</td>
+              <td>571.0</td>
+              <td>8.67e-205</td>
+          </tr>
+    
+          <tr>
+              <td>QZA73312.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002385.3">BGC0002385.3</a></td>
+              <td>PKS</td>
+              <td>67.0</td>
+              <td>100.0</td>
+              <td>569.0</td>
+              <td>6.84e-204</td>
+          </tr>
+    
+          <tr>
+              <td>ABC34601.1</td>
+              <td>polyketide_biosynthesis_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000186.5">BGC0000186.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>68.0</td>
+              <td>99.0</td>
+              <td>568.0</td>
+              <td>1.88e-203</td>
+          </tr>
+    
+          <tr>
+              <td>mycP</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002055.3">BGC0002055.3</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>66.0</td>
+              <td>99.3</td>
+              <td>567.0</td>
+              <td>4.23e-203</td>
+          </tr>
+    
+          <tr>
+              <td>DAC80072.1</td>
+              <td>HMG_CoA-synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001835.2">BGC0001835.2</a></td>
+              <td>PKS</td>
+              <td>65.0</td>
+              <td>100.0</td>
+              <td>566.0</td>
+              <td>8.22e-203</td>
+          </tr>
+    
+          <tr>
+              <td>ADA82596.1</td>
+              <td>3-hydroxy-3-methylglutaryl-CoA_synthase_family</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001110.5">BGC0001110.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>67.0</td>
+              <td>100.0</td>
+              <td>560.0</td>
+              <td>2.23e-200</td>
+          </tr>
+    
+          <tr>
+              <td>DAD54491.1</td>
+              <td>hydroxymethylglutaryl-coenzyme_A_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002059.3">BGC0002059.3</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>66.0</td>
+              <td>100.0</td>
+              <td>556.0</td>
+              <td>5.01e-199</td>
+          </tr>
+    
+          <tr>
+              <td>AEC04358.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000178.5">BGC0000178.5</a></td>
+              <td>PKS:Trans-AT type I</td>
+              <td>65.0</td>
+              <td>100.0</td>
+              <td>555.0</td>
+              <td>1.33e-198</td>
+          </tr>
+    
+          <tr>
+              <td>QLG04871.1</td>
+              <td>PulJ</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002374.2">BGC0002374.2</a></td>
+              <td>PKS</td>
+              <td>66.0</td>
+              <td>100.2</td>
+              <td>555.0</td>
+              <td>2.99e-198</td>
+          </tr>
+    
+          <tr>
+              <td>ADA69245.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001071.4">BGC0001071.4</a></td>
+              <td>PKS:Type I+NRPS:Type I</td>
+              <td>65.0</td>
+              <td>99.3</td>
+              <td>553.0</td>
+              <td>1.21e-197</td>
+          </tr>
+    
+          <tr>
+              <td>AAS98779.1</td>
+              <td>JamH</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001001.5">BGC0001001.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>65.0</td>
+              <td>100.7</td>
+              <td>551.0</td>
+              <td>9.55e-197</td>
+          </tr>
+    
+          <tr>
+              <td>ADH01492.1</td>
+              <td>putative_hydroxymethylglutaryl-coenzyme_A_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000995.5">BGC0000995.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>65.0</td>
+              <td>99.3</td>
+              <td>550.0</td>
+              <td>2.75e-196</td>
+          </tr>
+    
+          <tr>
+              <td>AIC32697.1</td>
+              <td>FR9K</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001113.5">BGC0001113.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>65.0</td>
+              <td>99.3</td>
+              <td>550.0</td>
+              <td>2.75e-196</td>
+          </tr>
+    
+          <tr>
+              <td>SKB24625.1</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002455.3">BGC0002455.3</a></td>
+              <td>PKS</td>
+              <td>65.0</td>
+              <td>100.0</td>
+              <td>548.0</td>
+              <td>1.15e-195</td>
+          </tr>
+    
+          <tr>
+              <td>AGN11885.1</td>
+              <td>TstK</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001114.5">BGC0001114.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>64.0</td>
+              <td>99.3</td>
+              <td>547.0</td>
+              <td>3.19e-195</td>
+          </tr>
+    
+          <tr>
+              <td>AFX60327.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001032.3">BGC0001032.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>65.0</td>
+              <td>99.3</td>
+              <td>547.0</td>
+              <td>3.28e-195</td>
+          </tr>
+    
+          <tr>
+              <td>OEI73468.1</td>
+              <td>3-hydroxy-3-methylglutaryl-ACP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001520.3">BGC0001520.3</a></td>
+              <td>PKS</td>
+              <td>63.0</td>
+              <td>99.8</td>
+              <td>544.0</td>
+              <td>5.2e-194</td>
+          </tr>
+    
+          <tr>
+              <td>AEE88286.1</td>
+              <td>CurD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000976.5">BGC0000976.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>64.0</td>
+              <td>100.7</td>
+              <td>543.0</td>
+              <td>7.38e-194</td>
+          </tr>
+    
+          <tr>
+              <td>AVR48540.1</td>
+              <td>CusI</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001564.4">BGC0001564.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>65.0</td>
+              <td>98.1</td>
+              <td>543.0</td>
+              <td>1.16e-193</td>
+          </tr>
+    
+          <tr>
+              <td>MBO1319299.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002814.2">BGC0002814.2</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>64.0</td>
+              <td>100.7</td>
+              <td>543.0</td>
+              <td>1.21e-193</td>
+          </tr>
+    
+          <tr>
+              <td>AAV97869.1</td>
+              <td>OnnA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001105.5">BGC0001105.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>64.0</td>
+              <td>98.8</td>
+              <td>543.0</td>
+              <td>1.54e-193</td>
+          </tr>
+    
+          <tr>
+              <td>AAT70099.1</td>
+              <td>CurD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001165.5">BGC0001165.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>64.0</td>
+              <td>100.7</td>
+              <td>543.0</td>
+              <td>1.67e-193</td>
+          </tr>
+    
+          <tr>
+              <td>QCP68981.1</td>
+              <td>VatH</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002296.2">BGC0002296.2</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>63.0</td>
+              <td>100.7</td>
+              <td>542.0</td>
+              <td>2.11e-193</td>
+          </tr>
+    
+          <tr>
+              <td>AMB48448.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001357.3">BGC0001357.3</a></td>
+              <td>PKS</td>
+              <td>64.0</td>
+              <td>100.7</td>
+              <td>541.0</td>
+              <td>8.55e-193</td>
+          </tr>
+    
+          <tr>
+              <td>AFV96140.1</td>
+              <td>HMG-CoA_synthase-like_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001064.5">BGC0001064.5</a></td>
+              <td>PKS:Type I</td>
+              <td>63.0</td>
+              <td>100.7</td>
+              <td>540.0</td>
+              <td>2.44e-192</td>
+          </tr>
+    
+          <tr>
+              <td>ARU81120.1</td>
+              <td>CylF</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001566.3">BGC0001566.3</a></td>
+              <td>PKS</td>
+              <td>63.0</td>
+              <td>100.7</td>
+              <td>540.0</td>
+              <td>2.44e-192</td>
+          </tr>
+    
+          <tr>
+              <td>CAG23985.1</td>
+              <td>3-hydroxy-3-methylglutaryl_coenzyme_A_synthase-like</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000176.5">BGC0000176.5</a></td>
+              <td>PKS</td>
+              <td>62.0</td>
+              <td>99.3</td>
+              <td>534.0</td>
+              <td>4.03e-190</td>
+          </tr>
+    
+          <tr>
+              <td>ABM63533.1</td>
+              <td>BryR</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000205.3">BGC0000205.3</a></td>
+              <td>PKS</td>
+              <td>61.0</td>
+              <td>99.3</td>
+              <td>533.0</td>
+              <td>6.84e-190</td>
+          </tr>
+    
+          <tr>
+              <td>BAP05578.1</td>
+              <td>CalT</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000967.5">BGC0000967.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>63.0</td>
+              <td>101.2</td>
+              <td>533.0</td>
+              <td>1.59e-189</td>
+          </tr>
+    
+          <tr>
+              <td>RAT98522.1</td>
+              <td>3-hydroxy-3-methylglutaryl-ACP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001470.5">BGC0001470.5</a></td>
+              <td>PKS:Trans-AT type I</td>
+              <td>63.0</td>
+              <td>99.0</td>
+              <td>532.0</td>
+              <td>1.69e-189</td>
+          </tr>
+    
+          <tr>
+              <td>AFN27479.1</td>
+              <td>hydroxymethylglutaryl-coenzyme_A_synthase_BonG</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000173.5">BGC0000173.5</a></td>
+              <td>PKS:Type I</td>
+              <td>63.0</td>
+              <td>99.8</td>
+              <td>532.0</td>
+              <td>2.25e-189</td>
+          </tr>
+    
+          <tr>
+              <td>WJJ09226.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002810.2">BGC0002810.2</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>61.0</td>
+              <td>102.4</td>
+              <td>530.0</td>
+              <td>1.6e-188</td>
+          </tr>
+    
+          <tr>
+              <td>AFX60304.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001031.5">BGC0001031.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>63.0</td>
+              <td>99.3</td>
+              <td>530.0</td>
+              <td>2.26e-188</td>
+          </tr>
+    
+          <tr>
+              <td>UWK15759.1</td>
+              <td>LasS</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002153.2">BGC0002153.2</a></td>
+              <td>PKS</td>
+              <td>63.0</td>
+              <td>99.3</td>
+              <td>528.0</td>
+              <td>1.21e-187</td>
+          </tr>
+    
+          <tr>
+              <td>QBM78310.1</td>
+              <td>HMG-CoA_synthase-like_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002542.2">BGC0002542.2</a></td>
+              <td>PKS+NRPS:Type I</td>
+              <td>61.0</td>
+              <td>100.7</td>
+              <td>520.0</td>
+              <td>9.66e-185</td>
+          </tr>
+    
+          <tr>
+              <td>AAW33975.1</td>
+              <td>PedP</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000255.5">BGC0000255.5</a></td>
+              <td>PKS</td>
+              <td>59.0</td>
+              <td>103.1</td>
+              <td>512.0</td>
+              <td>2.21e-181</td>
+          </tr>
+    
+          <tr>
+              <td>AZH23829.1</td>
+              <td>MgiN</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001971.3">BGC0001971.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>59.0</td>
+              <td>100.7</td>
+              <td>509.0</td>
+              <td>3.48e-180</td>
+          </tr>
+    
+          <tr>
+              <td>CBK62727.1</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001115.5">BGC0001115.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>60.0</td>
+              <td>98.6</td>
+              <td>506.0</td>
+              <td>3.05e-179</td>
+          </tr>
+    
+          <tr>
+              <td>AZH23801.1</td>
+              <td>MgcN</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001970.3">BGC0001970.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>58.0</td>
+              <td>100.7</td>
+              <td>505.0</td>
+              <td>8.1e-179</td>
+          </tr>
+    
+          <tr>
+              <td>QDG75023.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002068.3">BGC0002068.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>59.0</td>
+              <td>100.5</td>
+              <td>498.0</td>
+              <td>5.41e-176</td>
+          </tr>
+    
+          <tr>
+              <td>AAM12922.1</td>
+              <td>MupH</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000182.5">BGC0000182.5</a></td>
+              <td>PKS:Iterative type I</td>
+              <td>61.0</td>
+              <td>98.3</td>
+              <td>496.0</td>
+              <td>5.44e-175</td>
+          </tr>
+    
+          <tr>
+              <td>QGZ36661.1</td>
+              <td>3-hydroxy-3-methylglutaryl-ACP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002082.3">BGC0002082.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>59.0</td>
+              <td>99.0</td>
+              <td>491.0</td>
+              <td>4.6e-173</td>
+          </tr>
+    
+          <tr>
+              <td>ASA76639.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001751.3">BGC0001751.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>55.0</td>
+              <td>99.3</td>
+              <td>428.0</td>
+              <td>1.4e-148</td>
+          </tr>
+    
+          <tr>
+              <td>AQW44880.1</td>
+              <td>beta_branching_3-hydroxyl-3-methylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001761.3">BGC0001761.3</a></td>
+              <td>PKS</td>
+              <td>53.0</td>
+              <td>99.3</td>
+              <td>416.0</td>
+              <td>6.7e-144</td>
+          </tr>
+    
+          <tr>
+              <td>MCC5026005.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002118.3">BGC0002118.3</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>51.0</td>
+              <td>99.0</td>
+              <td>405.0</td>
+              <td>2.26e-139</td>
+          </tr>
+    
+          <tr>
+              <td>MCC5025961.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002119.3">BGC0002119.3</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>51.0</td>
+              <td>99.0</td>
+              <td>405.0</td>
+              <td>2.26e-139</td>
+          </tr>
+    
+          <tr>
+              <td>BAF50725.1</td>
+              <td>HMG-CoA_synthase-like_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001116.5">BGC0001116.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>49.0</td>
+              <td>101.0</td>
+              <td>395.0</td>
+              <td>1.74e-135</td>
+          </tr>
+    
+          <tr>
+              <td>ADI59527.1</td>
+              <td>CorE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001091.5">BGC0001091.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>49.0</td>
+              <td>99.0</td>
+              <td>392.0</td>
+              <td>1.58e-134</td>
+          </tr>
+    
+          <tr>
+              <td>QRN75761.1</td>
+              <td>hydroxymethylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002114.3">BGC0002114.3</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>49.0</td>
+              <td>99.3</td>
+              <td>387.0</td>
+              <td>2.14e-132</td>
+          </tr>
+    
+          <tr>
+              <td>ctg3_11</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001853.3">BGC0001853.3</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>49.0</td>
+              <td>99.0</td>
+              <td>367.0</td>
+              <td>1.5e-124</td>
+          </tr>
+    
+          <tr>
+              <td>ABF92623.1</td>
+              <td>polyketide_TA_biosynthesis_protein_TaF</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001025.5">BGC0001025.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>47.0</td>
+              <td>99.8</td>
+              <td>365.0</td>
+              <td>1.04e-123</td>
+          </tr>
+    
+          <tr>
+              <td>ATY69554.1</td>
+              <td>HMG-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001611.4">BGC0001611.4</a></td>
+              <td>PKS:Type I</td>
+              <td>49.0</td>
+              <td>99.5</td>
+              <td>352.0</td>
+              <td>1.16e-118</td>
+          </tr>
+    
+          <tr>
+              <td>AAN85526.1</td>
+              <td>FabH-like_condensation_enzyme</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001101.5">BGC0001101.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>43.0</td>
+              <td>100.7</td>
+              <td>343.0</td>
+              <td>5.9e-115</td>
+          </tr>
+    
+          <tr>
+              <td>ATY69570.1</td>
+              <td>HMG-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001611.4">BGC0001611.4</a></td>
+              <td>PKS:Type I</td>
+              <td>44.0</td>
+              <td>99.0</td>
+              <td>341.0</td>
+              <td>3.24e-114</td>
+          </tr>
+    
+          <tr>
+              <td>ATY69588.1</td>
+              <td>HMG-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001823.4">BGC0001823.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>44.0</td>
+              <td>100.7</td>
+              <td>336.0</td>
+              <td>2.86e-112</td>
+          </tr>
+    
+          <tr>
+              <td>BAL90258.1</td>
+              <td>putative_3-hydroxy-3-methylglutaryl-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002021.3">BGC0002021.3</a></td>
+              <td>PKS</td>
+              <td>42.0</td>
+              <td>100.5</td>
+              <td>330.0</td>
+              <td>2.95e-110</td>
+          </tr>
+    
+          <tr>
+              <td>ATY69603.1</td>
+              <td>HMG-CoA_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001823.4">BGC0001823.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>44.0</td>
+              <td>95.5</td>
+              <td>327.0</td>
+              <td>3.56e-109</td>
+          </tr>
+    
+          <tr>
+              <td>ctg3_22</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001853.3">BGC0001853.3</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>39.0</td>
+              <td>99.8</td>
+              <td>298.0</td>
+              <td>1.5e-97</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

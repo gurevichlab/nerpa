@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>PVC99878.1</td>
+              <td>cold-shock_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002100.2">BGC0002100.2</a></td>
+              <td>NRPS:Type I+other:other</td>
+              <td>69.0</td>
+              <td>94.1</td>
+              <td>96.0</td>
+              <td>7.4e-28</td>
+          </tr>
+    
+          <tr>
+              <td>ACG60738.1</td>
+              <td>putative_cold_shock_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001058.5">BGC0001058.5</a></td>
+              <td>NRPS:Type I+PKS:Type I+saccharide:hybrid/tailoring</td>
+              <td>64.0</td>
+              <td>94.1</td>
+              <td>90.0</td>
+              <td>1.44e-25</td>
+          </tr>
+    
+          <tr>
+              <td>SCN11962.1</td>
+              <td>cold-shock_DNA-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001580.3">BGC0001580.3</a></td>
+              <td>PKS</td>
+              <td>53.0</td>
+              <td>94.1</td>
+              <td>72.0</td>
+              <td>1.6e-18</td>
+          </tr>
+    
+          <tr>
+              <td>AKA59108.1</td>
+              <td>DNA-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001619.5">BGC0001619.5</a></td>
+              <td>PKS</td>
+              <td>53.0</td>
+              <td>91.2</td>
+              <td>62.0</td>
+              <td>8.25e-14</td>
+          </tr>
+    
+          <tr>
+              <td>TXD00017.1</td>
+              <td>cold_shock_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001877.4">BGC0001877.4</a></td>
+              <td>PKS</td>
+              <td>45.0</td>
+              <td>98.5</td>
+              <td>59.0</td>
+              <td>1.79e-12</td>
+          </tr>
+    
+          <tr>
+              <td>QBF51771.1</td>
+              <td>cold-shock_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001856.4">BGC0001856.4</a></td>
+              <td>PKS:Type I</td>
+              <td>45.0</td>
+              <td>98.5</td>
+              <td>59.0</td>
+              <td>1.82e-12</td>
+          </tr>
+    
+          <tr>
+              <td>BCK51656.1</td>
+              <td>DNA-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002520.2">BGC0002520.2</a></td>
+              <td>PKS</td>
+              <td>44.0</td>
+              <td>104.4</td>
+              <td>52.0</td>
+              <td>8.63e-10</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABK32283.1</td>
+              <td>Jer3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000080.5">BGC0000080.5</a></td>
+              <td>PKS</td>
+              <td>39.0</td>
+              <td>36.1</td>
+              <td>148.0</td>
+              <td>5.69e-38</td>
+          </tr>
+    
+          <tr>
+              <td>AAY32961.1</td>
+              <td>putative_sensory_box_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001093.3">BGC0001093.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>31.0</td>
+              <td>54.1</td>
+              <td>144.0</td>
+              <td>2.8e-35</td>
+          </tr>
+    
+          <tr>
+              <td>QVV57669.1</td>
+              <td>HAMP_domain-containing_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002338.3">BGC0002338.3</a></td>
+              <td>PKS</td>
+              <td>34.0</td>
+              <td>35.8</td>
+              <td>125.0</td>
+              <td>1.27e-30</td>
+          </tr>
+    
+          <tr>
+              <td>KON98594.1</td>
+              <td>histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002122.2">BGC0002122.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>37.5</td>
+              <td>121.0</td>
+              <td>8.89e-29</td>
+          </tr>
+    
+          <tr>
+              <td>CAO98841.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000023.5">BGC0000023.5</a></td>
+              <td>PKS:Type I</td>
+              <td>31.0</td>
+              <td>41.5</td>
+              <td>114.0</td>
+              <td>1.28e-26</td>
+          </tr>
+    
+          <tr>
+              <td>ALI93253.1</td>
+              <td>transcriptional_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001380.3">BGC0001380.3</a></td>
+              <td>saccharide</td>
+              <td>29.0</td>
+              <td>37.4</td>
+              <td>110.0</td>
+              <td>1.53e-24</td>
+          </tr>
+    
+          <tr>
+              <td>AMD57702.1</td>
+              <td>hybrid_sensor_histidine_kinase/response_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001765.3">BGC0001765.3</a></td>
+              <td>saccharide</td>
+              <td>29.0</td>
+              <td>37.4</td>
+              <td>110.0</td>
+              <td>1.53e-24</td>
+          </tr>
+    
+          <tr>
+              <td>CAJ34390.1</td>
+              <td>putative_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000445.5">BGC0000445.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>32.1</td>
+              <td>75.0</td>
+              <td>9.35e-14</td>
+          </tr>
+    
+          <tr>
+              <td>CAB93670.1</td>
+              <td>RumK_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000545.5">BGC0000545.5</a></td>
+              <td>ribosomal:RiPP:Lanthipeptide</td>
+              <td>24.0</td>
+              <td>32.8</td>
+              <td>57.0</td>
+              <td>3.24e-08</td>
+          </tr>
+    
+          <tr>
+              <td>AAW03323.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000982.5">BGC0000982.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>24.0</td>
+              <td>41.2</td>
+              <td>56.0</td>
+              <td>9.69e-08</td>
+          </tr>
+    
+          <tr>
+              <td>BAQ25485.1</td>
+              <td>two-component_system_sensor_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001288.5">BGC0001288.5</a></td>
+              <td>PKS</td>
+              <td>30.0</td>
+              <td>23.4</td>
+              <td>53.0</td>
+              <td>7.51e-07</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -7,14 +7,14 @@ use crate::{
     algo::{
         dp::compute_dp_table, solve_brute_force::dp_brute_force
     },
-    data_types::{dag::DAG, hmm::HMM}, io::{draw_dag::Draw_DAG_Config, draw_hmm::Draw_HMM_Config, join_svgs::join_svgs_vertical},
+    data_types::{mod_graph::ModGraph, hmm::HMM}, io::{draw_dag::Draw_DAG_Config, draw_hmm::Draw_HMM_Config, join_svgs::join_svgs_vertical},
 };
 
 use crate::testing::dp_vs_bruteforce_table::find_dp_table_mismatch;
 use crate::testing::dp_vs_bruteforce_paths::find_paths_mismatch;
 use anyhow::{Error, Result};
 
-fn draw_hmm_and_dag(hmm: &HMM, dag: &DAG<'_>, out_dir: &Path) -> Result<()> {
+fn draw_hmm_and_dag(hmm: &HMM, dag: &ModGraph<'_>, out_dir: &Path) -> Result<()> {
     let hmm_svg_path = out_dir.join("debug_hmm.svg");
     let dag_svg_path = out_dir.join("debug_dag.svg");
     let joined_svg_path = out_dir.join("debug_joined.svg");
@@ -34,7 +34,7 @@ fn draw_hmm_and_dag(hmm: &HMM, dag: &DAG<'_>, out_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn dp_vs_bruteforce<'a>(hmm: &HMM, dag: &DAG<'a>, max_weight: usize, tol: f64) -> Option<String> {
+pub fn dp_vs_bruteforce<'a>(hmm: &HMM, dag: &ModGraph<'a>, max_weight: usize, tol: f64) -> Option<String> {
     // Brute force once (paths per DP cell).
     let brute_paths_to_coords = dp_brute_force(hmm, dag, max_weight);
 
@@ -72,7 +72,7 @@ pub fn dp_vs_bruteforce<'a>(hmm: &HMM, dag: &DAG<'a>, max_weight: usize, tol: f6
 #[derive(Debug, Clone, Deserialize)]
 struct DPvsBruteforceTestCase {
     pub hmm: HMM,
-    pub dag: DAG<'static>,
+    pub dag: ModGraph<'static>,
     pub max_weight: usize,
     pub description: String,
 }

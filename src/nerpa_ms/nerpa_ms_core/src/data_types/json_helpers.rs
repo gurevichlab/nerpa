@@ -1,3 +1,4 @@
+use crate::algo::gen_new_variants::Altered_rBAN_Record;
 use crate::data_types::common_types::{LogOdds, MonomerIdx};
 use crate::data_types::hmm::StateIdx;
 use serde::{Deserialize, Deserializer};
@@ -203,4 +204,20 @@ where
         Repr::Str(s) => Ok(s),
         Repr::Num(n) => Ok(n.to_string()),
     }
+}
+
+use serde::ser::SerializeMap;
+
+pub fn serialize_new_variants_as_id_map<S>(
+    variants: &Vec<Altered_rBAN_Record>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut map = serializer.serialize_map(Some(variants.len()))?;
+    for v in variants {
+        map.serialize_entry(&v.id(), v)?;
+    }
+    map.end()
 }

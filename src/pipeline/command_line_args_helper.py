@@ -42,6 +42,17 @@ def add_struct_arguments(parser: argparse.ArgumentParser):
     struct_group.add_argument("--sep", dest="sep", metavar='CHAR',
                               help="column separator in smiles-tsv [default: '\\t']", type=str, default='\t')
 
+
+def add_spectra_arguments(parser: argparse.ArgumentParser):
+    spectra_group = parser.add_argument_group('Spectra input', 'Mass spectra of NRP molecules')
+    spectra_group.add_argument(
+        "--spectra",
+        "-s",
+        nargs="+",
+        required=True,
+        help="Path(s) to experimental MGF spectra files or directories containing MGF files.",
+    )
+
 def add_advanced_arguments(parser: argparse.ArgumentParser):
     advanced_input_group = parser.add_argument_group('Advanced input',
                                                      'Preprocessed data '
@@ -140,8 +151,15 @@ def add_pipeline_arguments(parser: argparse.ArgumentParser, default_cfg: Config)
     #                            help="run in the debug mode and keep all intermediate files")
 
 
-def build_cmdline_args_parser(default_cfg: Config) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
+def build_cmdline_args_parser(
+        default_cfg: Config,
+        add_help: bool = True
+) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        add_help=add_help,
+    )
+
     add_genomic_arguments(parser)
     add_struct_arguments(parser)
     add_advanced_arguments(parser)
@@ -159,17 +177,10 @@ def post_parsing(args: CommandLineArgs):
     # args.draw_hmms = False  # drawing is unreliable, disable it for release
     args.debug = False  # I don't remember what it does, disable for release to be safe
 
-def get_command_line_args(default_cfg: Config) -> CommandLineArgs:
-    parser = build_cmdline_args_parser(default_cfg)
+def get_command_line_args(default_cfg: Config, add_help: bool = True) -> CommandLineArgs:
+    parser = build_cmdline_args_parser(default_cfg, add_help=add_help)
     parsed_args = parser.parse_args()
     post_parsing(parsed_args)
-    try:
-        validate_arguments(parsed_args, default_cfg)
-    except ValidationError as e:
-        # help_message = StringIO()
-        # parser.print_help(help_message)
-        error_message = str(e) if str(e) else 'Options validation failed!'
-        raise ValidationError(error_message) from None
     return parsed_args
 
 

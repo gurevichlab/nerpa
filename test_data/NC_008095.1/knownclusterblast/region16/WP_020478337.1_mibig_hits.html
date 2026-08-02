@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>APZ78763.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001425.4">BGC0001425.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>860.0</td>
+              <td>5.87e-319</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78789.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001427.4">BGC0001427.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>99.0</td>
+              <td>100.0</td>
+              <td>850.0</td>
+              <td>4.28e-315</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78776.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001426.4">BGC0001426.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>99.0</td>
+              <td>100.0</td>
+              <td>848.0</td>
+              <td>2.48e-314</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78802.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001428.4">BGC0001428.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>95.0</td>
+              <td>100.0</td>
+              <td>811.0</td>
+              <td>1.51e-299</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78736.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001422.4">BGC0001422.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>92.0</td>
+              <td>99.8</td>
+              <td>801.0</td>
+              <td>1.38e-295</td>
+          </tr>
+    
+          <tr>
+              <td>AQM37577.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001424.4">BGC0001424.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>91.0</td>
+              <td>100.0</td>
+              <td>794.0</td>
+              <td>1.09e-292</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78723.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001421.4">BGC0001421.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>84.0</td>
+              <td>99.8</td>
+              <td>738.0</td>
+              <td>1.25e-270</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78750.1</td>
+              <td>glycosyl_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001423.4">BGC0001423.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>84.0</td>
+              <td>99.3</td>
+              <td>729.0</td>
+              <td>2.81e-267</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

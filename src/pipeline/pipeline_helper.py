@@ -9,8 +9,10 @@ from src.aa_specificity_prediction_model.specificity_prediction_helper import Sp
 from src.generic.functional import timing_decorator
 from src.pipeline.command_line_args_helper import (
     CommandLineArgs,
-    get_command_line_args,
-    ValidationError
+    ValidationError,
+    validate_arguments,
+    build_cmdline_args_parser,
+    post_parsing
 )
 from src.pipeline.logging.logger import (
     NerpaLogger,
@@ -63,14 +65,27 @@ class PipelineHelper:
     pipeline_helper_cpp: PipelineHelperCpp
     specificity_prediction_helper: SpecificityPredictionHelper
 
-    def __init__(self, pre_logger: PreliminaryLogger):
-
+    def __init__(
+            self,
+            pre_logger: PreliminaryLogger,
+            args: CommandLineArgs | None = None
+    ):
+        # ===== CLI arguments parsing and validation =====
         default_cfg = load_config()
-        try:
-            self.args = get_command_line_args(default_cfg)
-        except ValidationError as e:
-            self.unrecoverable_error(e)
+        cli_parser = build_cmdline_args_parser(default_cfg)
+        self.args = (
+            cli_parser.parse_args()
+            if args is None
+            else args
+        )
+        post_parsing(self.args)
 
+        try:
+            validate_arguments(self.args, default_cfg)
+        except ValidationError as e:
+            self.unrecoverable_error(str(e))
+
+        # ===== Load configuration, set up logging and output directories =====
         try:
             self.config = load_config(self.args)
         except ValueError as e:
@@ -84,29 +99,55 @@ class PipelineHelper:
 
         shutil.copytree(self.config.configs_dir, self.config.output_config.configs_output, copy_function=shutil.copy)
 
-        self.monomer_names_helper = load_monomer_names_helper(self.config.monomers_config,
-                                                              self.config.nerpa_dir)
 
-        external_specificity_predictions = get_paras_results_all(self.args.paras_results,
-                                                                 self.monomer_names_helper,
-                                                                 self.log) \
-            if self.args.paras_results is not None else None
-        self.specificity_prediction_helper = SpecificityPredictionHelper(self.config.specificity_prediction_config,
-                                                                    self.monomer_names_helper,
-                                                                    external_specificity_predictions)
+        # ==== Initialize helpers for different parts of the pipeline ====
+        self.monomer_names_helper = load_monomer_names_helper(
+            self.config.monomers_config,
+            self.config.nerpa_dir
+        )
 
-        hmm_scoring_config = load_hmm_scoring_config(self.config.nerpa_dir,
-                                                     self.config.hmm_scoring_config,
-                                                     self.specificity_prediction_helper,
-                                                     self.monomer_names_helper)
+        external_specificity_predictions = (
+            get_paras_results_all(
+                self.args.paras_results,
+                self.monomer_names_helper,
+                self.log
+            )
+            if self.args.paras_results is not None
+            else None
+        )
+        self.specificity_prediction_helper = SpecificityPredictionHelper(
+            self.config.specificity_prediction_config,
+            self.monomer_names_helper,
+            external_specificity_predictions
+        )
+
+        hmm_scoring_config = load_hmm_scoring_config(
+            self.config.nerpa_dir,
+            self.config.hmm_scoring_config,
+            self.specificity_prediction_helper,
+            self.monomer_names_helper
+        )
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
-        self.pipeline_helper_rban = PipelineHelper_rBAN(self.config, self.args, self.log, self.monomer_names_helper)
-        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(self.config, self.args,
-                                                                  self.monomer_names_helper,
-                                                                  self.specificity_prediction_helper,
-                                                                  self.log)
-        self.pipeline_helper_cpp = PipelineHelperCpp(self.config, self.args, self.log, self.monomer_names_helper)
+        self.pipeline_helper_rban = PipelineHelper_rBAN(
+            self.config,
+            self.args,
+            self.log,
+            self.monomer_names_helper
+        )
+        self.pipeline_helper_antismash = PipelineHelper_antiSMASH(
+            self.config,
+            self.args,
+            self.monomer_names_helper,
+            self.specificity_prediction_helper,
+            self.log
+        )
+        self.pipeline_helper_cpp = PipelineHelperCpp(
+            self.config,
+            self.args,
+            self.log,
+            self.monomer_names_helper
+        )
 
     @timing_decorator('Getting BGC variants')
     def get_bgc_variants(self) -> BGC_Variants_Info:
@@ -204,21 +245,27 @@ class PipelineHelper:
         return convert_to_detailed_matches(hmms, nrp_variants, hmm_matches)
 
     @timing_decorator('Writing results')
-    def write_results(self,
-                      matches: List[Match],
-                      bgc_variants_info: BGC_Variants_Info,
-                      nrp_variants_info: NRP_Variants_Info,
-                      write_only_what_is_matched: bool = True,
-                      matches_details: bool = True):
+    def write_results(
+            self,
+            matches: List[Match],
+            bgc_variants_info: BGC_Variants_Info,
+            nrp_variants_info: NRP_Variants_Info,
+            write_only_what_is_matched: bool = True,
+            matches_details: bool = True
+    ):
         self.log.info("\n======= Writing results")
-        write_results.write_results(matches,
-                                    bgc_variants_info,
-                                    nrp_variants_info,
-                                    self.config.output_config,
-                                    write_only_what_is_matched=write_only_what_is_matched,
-                                    matches_details=matches_details,
-                                    log=self.log,
-                                    monomer_names_helper=self.monomer_names_helper)
+        write_results.write_results(
+            matches,
+            bgc_variants_info,
+            nrp_variants_info,
+            self.config.output_config,
+            nerpa_root=self.config.nerpa_dir,
+            write_only_what_is_matched=write_only_what_is_matched,
+            matches_details=matches_details,
+            log=self.log,
+            monomer_names_helper=self.monomer_names_helper
+        )
+
         self.log.info("RESULTS:")
         self.log.info("Main report is saved to " + str(self.config.output_config.report), indent=1)
         self.log.info("HTML report is saved to " + str(self.config.output_config.html_report), indent=1)

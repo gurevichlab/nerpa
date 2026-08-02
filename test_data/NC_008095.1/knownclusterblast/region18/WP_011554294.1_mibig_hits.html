@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ATG32072.1</td>
+              <td>acyl_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001750.4">BGC0001750.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>49.0</td>
+              <td>80.2</td>
+              <td>73.0</td>
+              <td>1.62e-18</td>
+          </tr>
+    
+          <tr>
+              <td>AXG22419.1</td>
+              <td>proline_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002024.3">BGC0002024.3</a></td>
+              <td>PKS:Type I</td>
+              <td>39.0</td>
+              <td>95.3</td>
+              <td>65.0</td>
+              <td>2.96e-15</td>
+          </tr>
+    
+          <tr>
+              <td>WP_013663190.1</td>
+              <td>alpha/beta_fold_hydrolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001465.5">BGC0001465.5</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>84.9</td>
+              <td>66.0</td>
+              <td>5.38e-14</td>
+          </tr>
+    
+          <tr>
+              <td>AHA34034.1</td>
+              <td>Bmp1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000890.5">BGC0000890.5</a></td>
+              <td>other:aminocoumarin</td>
+              <td>43.0</td>
+              <td>83.7</td>
+              <td>65.0</td>
+              <td>9.74e-14</td>
+          </tr>
+    
+          <tr>
+              <td>AEH42485.1</td>
+              <td>proline_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000032.5">BGC0000032.5</a></td>
+              <td>PKS</td>
+              <td>33.0</td>
+              <td>94.2</td>
+              <td>61.0</td>
+              <td>1.24e-13</td>
+          </tr>
+    
+          <tr>
+              <td>AME30284.1</td>
+              <td>prolyl_acyl_carrier_protein-thioesterase_didomain</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001463.4">BGC0001463.4</a></td>
+              <td>other:other</td>
+              <td>46.0</td>
+              <td>79.1</td>
+              <td>64.0</td>
+              <td>2.52e-13</td>
+          </tr>
+    
+          <tr>
+              <td>AKJ75107.1</td>
+              <td>Bmp1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001464.3">BGC0001464.3</a></td>
+              <td>other:other</td>
+              <td>44.0</td>
+              <td>79.1</td>
+              <td>63.0</td>
+              <td>6.49e-13</td>
+          </tr>
+    
+          <tr>
+              <td>BAQ25508.1</td>
+              <td>acyl_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001288.5">BGC0001288.5</a></td>
+              <td>PKS</td>
+              <td>36.0</td>
+              <td>90.7</td>
+              <td>59.0</td>
+              <td>9.82e-13</td>
+          </tr>
+    
+          <tr>
+              <td>AHF22851.1</td>
+              <td>MarO</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000091.5">BGC0000091.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>86.0</td>
+              <td>59.0</td>
+              <td>1.01e-12</td>
+          </tr>
+    
+          <tr>
+              <td>AAN65234.1</td>
+              <td>cloN5</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000832.4">BGC0000832.4</a></td>
+              <td>saccharide:hybrid/tailoring+other:aminocoumarin</td>
+              <td>31.0</td>
+              <td>97.7</td>
+              <td>59.0</td>
+              <td>1.06e-12</td>
+          </tr>
+    
+          <tr>
+              <td>AAG29790.1</td>
+              <td>CouN5</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000833.4">BGC0000833.4</a></td>
+              <td>saccharide:hybrid/tailoring+other:aminocoumarin</td>
+              <td>33.0</td>
+              <td>97.7</td>
+              <td>59.0</td>
+              <td>1.06e-12</td>
+          </tr>
+    
+          <tr>
+              <td>ESP90844.1</td>
+              <td>putative_hydrolase_or_acyltransferases_(alpha/beta_hydrolase_superfamily)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000891.4">BGC0000891.4</a></td>
+              <td>other:aminocoumarin</td>
+              <td>40.0</td>
+              <td>83.7</td>
+              <td>62.0</td>
+              <td>1.68e-12</td>
+          </tr>
+    
+          <tr>
+              <td>AZY92021.1</td>
+              <td>putative_proline_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002022.4">BGC0002022.4</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>97.7</td>
+              <td>57.0</td>
+              <td>4.25e-12</td>
+          </tr>
+    
+          <tr>
+              <td>AFP87532.1</td>
+              <td>proline_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001159.5">BGC0001159.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>31.0</td>
+              <td>95.3</td>
+              <td>56.0</td>
+              <td>8.31e-12</td>
+          </tr>
+    
+          <tr>
+              <td>ABO15864.1</td>
+              <td>proline_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000130.5">BGC0000130.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>94.2</td>
+              <td>56.0</td>
+              <td>1.23e-11</td>
+          </tr>
+    
+          <tr>
+              <td>QHZ99335.1</td>
+              <td>proline_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001875.4">BGC0001875.4</a></td>
+              <td>PKS:Type I</td>
+              <td>33.0</td>
+              <td>94.2</td>
+              <td>56.0</td>
+              <td>1.79e-11</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ77675.1</td>
+              <td>ChlB2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000036.5">BGC0000036.5</a></td>
+              <td>PKS:Type I+saccharide:oligosaccharide</td>
+              <td>39.0</td>
+              <td>83.7</td>
+              <td>55.0</td>
+              <td>3.34e-11</td>
+          </tr>
+    
+          <tr>
+              <td>AGC24273.1</td>
+              <td>PrlS</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001038.5">BGC0001038.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>38.0</td>
+              <td>86.0</td>
+              <td>54.0</td>
+              <td>1e-10</td>
+          </tr>
+    
+          <tr>
+              <td>CAA16180.1</td>
+              <td>hypothetical_protein_SC3F7.09</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001063.5">BGC0001063.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>29.0</td>
+              <td>89.5</td>
+              <td>52.0</td>
+              <td>3.71e-10</td>
+          </tr>
+    
+          <tr>
+              <td>AAD24885.1</td>
+              <td>PltL</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000127.5">BGC0000127.5</a></td>
+              <td>PKS</td>
+              <td>30.0</td>
+              <td>93.0</td>
+              <td>51.0</td>
+              <td>1.08e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AAQ90170.1</td>
+              <td>PltL</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000128.3">BGC0000128.3</a></td>
+              <td>PKS</td>
+              <td>33.0</td>
+              <td>93.0</td>
+              <td>47.0</td>
+              <td>2.43e-08</td>
+          </tr>
+    
+          <tr>
+              <td>ABB69752.1</td>
+              <td>PlaP4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000654.4">BGC0000654.4</a></td>
+              <td>terpene:Diterpene+saccharide:hybrid/tailoring</td>
+              <td>28.0</td>
+              <td>94.2</td>
+              <td>49.0</td>
+              <td>7.52e-08</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

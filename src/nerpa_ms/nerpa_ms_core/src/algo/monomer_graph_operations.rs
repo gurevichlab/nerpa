@@ -335,21 +335,14 @@ impl MonomerGraph {
    // Insertion helpers
    // -------------------------
 
-   pub fn possible_insertions_between<'a>(
+   pub fn possible_insertions_inside_bond<'a>(
        &self,
-       mon1: MonomerIdx,
-       mon2: MonomerIdx,
+       bond: &Bond,
        monomers_db: &'a MonomersDB,
    ) -> Vec<&'a MonomersDB_Entry> {
-       let bond = {
-	   self.get_bond(mon1, mon2)
-	       .expect(&format!("bond between monomers {:?} not found", (mon1, mon2)))
-       };
-
        if &bond.bond_templ != &*AMINO_BOND {
            return Vec::new();
        }
-
        get_entries_for_insertion_between(monomers_db)
    }
 
@@ -431,125 +424,142 @@ impl MonomerGraph {
        new_idx
    }
 
-    fn leaf_substitute_for_attaching<'a>(&self,
-					 monomer_idx: MonomerIdx,
-					 monomers_db: &'a MonomersDB) -> Option<&'a MonomersDB_Entry> {
-	// Check if the given leaf monomer can be substituted with a DB entry
+    fn get_mon_version_for_attaching<'a>(
+	&self,
+	monomer_idx: MonomerIdx,
+	bs_type: &BindingSiteType,
+	monomers_db: &'a MonomersDB
+    ) -> Option<&'a MonomersDB_Entry> {
+	// Check if the given monomer can be substituted with a DB entry with the same name
 	// in a way that would allow attaching a new leaf monomer to it.
-	let bs_profile = self.bonds_by_bs_type(monomer_idx).get_profile();
-	if bs_profile.len() != 1 {
-	    panic!("Expected the monomer to have exactly one bond since it is a leaf, but found profile {} with length {}", bs_profile.to_string_key(), bs_profile.len());
-	}
-	if &bs_profile != &*AMINO_C_END_PROFILE
-	    && &bs_profile != &*AMINO_N_END_PROFILE {
-	    return None;
-	}
-
+	let new_bs_profile = {
+	    let mut profile_vec = self.bonds_by_bs_type(monomer_idx)
+		.get_profile()
+		.into_vec();
+	    profile_vec.push(bs_type.clone());
+	    BindingSitesProfile::new(profile_vec)
+	};
+	    
 	let mon = self.monomers.get(&monomer_idx).unwrap();
-	get_entry_by_profile_and_name(monomers_db,
-				      &*AMINO_MIDDLE_PROFILE,
-				      &mon.features.name)
+	get_entry_by_profile_and_name(
+	    monomers_db,
+	    &new_bs_profile,
+	    &mon.features.name
+	)
     }
 
-   pub fn possible_insertions_at_leaf<'a>(
+   pub fn possible_attachments<'a>(
        &self,
        monomer_idx: MonomerIdx,
+       bs_type: &BindingSiteType,
        monomers_db: &'a MonomersDB,
    ) -> Vec<&'a MonomersDB_Entry> {
-       if self.leaf_substitute_for_attaching(monomer_idx, monomers_db).is_none() {
+       if self.get_mon_version_for_attaching(
+	   monomer_idx,
+	   bs_type,
+	   monomers_db
+       ).is_none() {
 	   return Vec::new();
        }
-       let bs_profile = self.bonds_by_bs_type(monomer_idx).get_profile();
+       let leaf_profile = BindingSitesProfile::new(vec![bs_type.clone()]);
 
-       if &bs_profile == &*AMINO_C_END_PROFILE {
-	   monomers_db
-	       .get(&*AMINO_C_END_PROFILE)
-	       .unwrap_or_else(|| panic!("Expected the monomers DB to contain entries with the amino middle profile"))
-	       .iter()
-	       .collect()
-       }
-       else if &bs_profile == &*AMINO_N_END_PROFILE {
-	   monomers_db
-	       .get(&*AMINO_N_END_PROFILE)
-	       .unwrap_or_else(|| panic!("Expected the monomers DB to contain entries with the amino middle profile"))
-	       .iter()
-	       .collect()
-	   }
-       else {
-	   unreachable!("The monomer has either the amino C-end or N-end profile since _data_for_attaching_to_leaf returned Some");
-       }
-
+       monomers_db
+	   .get(&leaf_profile)
+	   .unwrap_or_else(|| panic!("Expected the monomers DB to contain entries with the amino middle profile"))
+	   .iter()
+	   .collect()
    }
 
-    pub fn attach_to_leaf(&mut self,
-			  monomer_idx: MonomerIdx,
-			  mon_db_entry: &MonomersDB_Entry,
-			  monomers_db: &MonomersDB) -> MonomerIdx {
-	// Update the monomer for substituting the current leaf to avoid index collisions
-	let old_leaf_sub_entry = {
-	    let mut sub_entry = self
-		.leaf_substitute_for_attaching(monomer_idx, monomers_db)
-		.expect("Expected the leaf monomer to be substitutable for attaching
+    pub fn attach_leaf(
+	&mut self,
+	parent_idx: MonomerIdx,
+	leaf_db_entry: &MonomersDB_Entry,
+	monomers_db: &MonomersDB
+    ) -> MonomerIdx {
+	// Hereafter: parent means monomer_idx -- the monomer to which we are attaching the new leaf, and leaf means the new monomer being attached.
+
+	// We need to update the parent monomer to allow attaching a new leaf to it
+	let leaf_bs_type = &leaf_db_entry.bonds_by_bs.get(0).unwrap().0;
+	// Make sure the monomer for substituting parent doesn't create collisions
+	let new_parent_entry: MonomersDB_Entry = {
+	    let mut sub_entry: MonomersDB_Entry = {
+		self.get_mon_version_for_attaching(
+		    parent_idx,
+		    &leaf_bs_type.opposite(),
+		    monomers_db,
+		)
+		    .expect("Expected the given monomer to be substitutable for attaching
 since can_insert_at_leaf should have been called before and returned true")
-		.clone();
+		.clone()
+	    };
 
 	    let max_atom_id = self.monomers.values()
 		.flat_map(|mon| mon.atoms.iter().map(|atom| atom.id.0))
 		.max()
 		.unwrap();
-	    sub_entry.set_monomer_idx(monomer_idx);
+	    sub_entry.set_monomer_idx(parent_idx);
 	    sub_entry.shift_atom_ids(max_atom_id + 1);
 	    sub_entry
 	};
-	debug_assert_eq!(&old_leaf_sub_entry.bonds_by_bs.get_profile(), &*AMINO_MIDDLE_PROFILE);
 
-	let old_leaf_bonds_by_bs = self.bonds_by_bs_type(monomer_idx);
-	debug_assert_eq!(old_leaf_bonds_by_bs.len(), 1);
-	let (old_leaf_bs, old_leaf_bond) = old_leaf_bonds_by_bs.get(0).unwrap();
-
-	// identify which of the two bonds in the DB entry is the one that will be attached to the old leaf's parent, and which one will be the dangling bond to which the new leaf will be attached
-	let old_leaf_sub_attached_bond;
-	let old_leaf_sub_dangling_bond;
+	// identify which bond of the parent entry is to be connected to the new leaf (dangling bond)
+	// and which are to be connected to the existing neighbors (attached bonds)
+	let new_parent_dangling_bond: Bond;
+	let new_parent_attached_bonds: Vec<Bond>;
 	{
-	    let old_leaf_sub_bonds_by_bs = &old_leaf_sub_entry.bonds_by_bs.as_slice();
-	    let (old_leaf_sub_bs_1, old_leaf_sub_bond_1) = &old_leaf_sub_bonds_by_bs[0];
-	    let (old_leaf_sub_bs_2, old_leaf_sub_bond_2) = &old_leaf_sub_bonds_by_bs[1];
-	    if old_leaf_sub_bs_1 == old_leaf_bs {
-		old_leaf_sub_attached_bond = old_leaf_sub_bond_1;
-		old_leaf_sub_dangling_bond = old_leaf_sub_bond_2;
-	    }
-	    else {
-		debug_assert_eq!(old_leaf_sub_bs_2, old_leaf_bs);
-		old_leaf_sub_attached_bond = old_leaf_sub_bond_2;
-		old_leaf_sub_dangling_bond = old_leaf_sub_bond_1;
-	    }
+	    let new_parent_bonds_by_bs = new_parent_entry.bonds_by_bs.as_slice();
+	    let dangling_bond_idx = new_parent_bonds_by_bs
+		.iter()
+		.position(|(bs, _bond)| bs == &leaf_bs_type.opposite())
+		.expect("Expected to find a bond with the opposite binding site type in the parent monomer since the parent entry should have been prepared for attaching the leaf");
+	    new_parent_dangling_bond = new_parent_bonds_by_bs[dangling_bond_idx].1.clone();
+	    new_parent_attached_bonds = new_parent_bonds_by_bs
+		.iter()
+		.enumerate()
+		.filter(|(idx, _)| *idx != dangling_bond_idx)
+		.map(|(_idx, (_bs, bond))| bond.clone())
+		.collect();
 	}
 
-	// substitute the old leaf monomer with the DB entry
+	// update the parent monomer
 	{
-	    let parent_idx = if old_leaf_bond.monomers.0 == monomer_idx {
-		old_leaf_bond.monomers.1
-	    } else {
-		old_leaf_bond.monomers.0
-	    };
-	    let new_parent_bond = splice_bonds((monomer_idx, old_leaf_sub_attached_bond),
-					       (parent_idx, old_leaf_bond));
-	    self.monomer_bonds
-		.retain(|b| b.monomers.0 != monomer_idx && b.monomers.1 != monomer_idx);
-	    self.monomer_bonds.push(new_parent_bond);
-	    let mon_entry = self.monomers.get_mut(&monomer_idx).unwrap();
-	    *mon_entry = old_leaf_sub_entry.monomer;
+	    let parent_old_bonds = self.bonds_by_bs_type(parent_idx)
+		.as_slice()
+		.iter()
+		.map(|(_bs_type, bond)| bond)
+		.cloned()
+		.collect::<Vec<_>>();
+	    debug_assert_eq!(parent_old_bonds.len(), new_parent_attached_bonds.len());
+	    
+	    // Remove all the old bonds of the parent
+	    self.monomer_bonds.retain(|b| b.monomers.0 != parent_idx && b.monomers.1 != parent_idx);
+
+	    // Add the new bonds of the parent to the existing neighbors, by splicing the new parent entry's attached bonds with the parent's old bonds
+	    for (parent_old_bond, new_parent_entry_bond) in (parent_old_bonds.iter()
+							     .zip(new_parent_attached_bonds.iter())) {
+		let neighbor_idx = if parent_old_bond.monomers.0 == parent_idx {
+		    parent_old_bond.monomers.1
+		} else {
+		    parent_old_bond.monomers.0
+		};
+		let new_bond = splice_bonds((parent_idx, new_parent_entry_bond),
+					    (neighbor_idx, parent_old_bond));
+		self.monomer_bonds.push(new_bond);
+	    }
+	    let parent_monomer = self.monomers.get_mut(&parent_idx).unwrap();
+	    *parent_monomer = new_parent_entry.monomer;
 	}
 	
 	// attach the new leaf
-	let (new_idx, corrected_db_entry) = self.prepare_entry_for_insertion(mon_db_entry);
-	let corrected_db_entry_bond = &corrected_db_entry.bonds_by_bs.get(0).unwrap().1;
+	let (new_idx, corrected_leaf_entry) = self.prepare_entry_for_insertion(leaf_db_entry);
+	let corrected_db_entry_bond = &corrected_leaf_entry.bonds_by_bs.get(0).unwrap().1;
 	let new_leaf_bond = splice_bonds((new_idx, corrected_db_entry_bond),
-					 (monomer_idx, old_leaf_sub_dangling_bond));
+					 (parent_idx, &new_parent_dangling_bond));
 
 	self.monomer_bonds.push(new_leaf_bond);
-	self.monomers.insert(new_idx, corrected_db_entry.monomer);
+	self.monomers.insert(new_idx, corrected_leaf_entry.monomer);
 
 	new_idx
     }
 }
+

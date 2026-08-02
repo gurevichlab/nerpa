@@ -1,0 +1,30 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS04260	1009580	1010978	-	metallophosphoesterase	
+MXAN_RS04265	1011288	1015662	+	RCC1 domain-containing protein	
+MXAN_RS38050	1015681	1015846	-	hypothetical protein	
+MXAN_RS04270	1015866	1016460	-	hypothetical protein	
+MXAN_RS04275	1016600	1017686	-	alpha/beta hydrolase-fold protein	
+MXAN_RS04280	1017695	1018601	-	TIGR01777 family oxidoreductase	
+MXAN_RS04285	1018597	1019161	-	peroxiredoxin family protein	
+MXAN_RS04290	1019275	1020361	+	polyprenyl synthetase family protein	
+MXAN_RS04295	1020368	1021922	+	phytoene desaturase family protein	
+MXAN_RS04300	1021918	1022929	+	phytoene/squalene synthase family protein	
+MXAN_RS04305	1022989	1024447	+	phytoene desaturase family protein	
+MXAN_RS04310	1024443	1025370	+	carotenoid 1,2-hydratase	
+MXAN_RS04315	1025366	1026491	+	glycosyltransferase family 2 protein	
+MXAN_RS04320	1026487	1026874	+	lycopene cyclase domain-containing protein	
+MXAN_RS04325	1026870	1027221	+	lycopene cyclase domain-containing protein	
+MXAN_RS04330	1027217	1027895	+	lysophospholipid acyltransferase family protein	
+MXAN_RS04335	1027891	1028758	+	MerR family transcriptional regulator	
+MXAN_RS04340	1028773	1029673	+	MerR family transcriptional regulator	
+MXAN_RS04345	1029674	1031102	-	ADYC domain-containing protein	
+MXAN_RS04350	1031292	1035210	-	nSTAND1 domain-containing NTPase	
+MXAN_RS04355	1035206	1036943	-	sigma-54-dependent Fis family transcriptional regulator	
+
+
+Significant hits: 
+
+
+Details:

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF91179.1</td>
+              <td>conserved_hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001831.3">BGC0001831.3</a></td>
+              <td>PKS</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>712.0</td>
+              <td>9.8e-262</td>
+          </tr>
+    
+          <tr>
+              <td>AYM52873.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001964.2">BGC0001964.2</a></td>
+              <td>PKS</td>
+              <td>75.0</td>
+              <td>95.1</td>
+              <td>500.0</td>
+              <td>6.54e-179</td>
+          </tr>
+    
+          <tr>
+              <td>OAQ83768.1</td>
+              <td>zn-dependent_hydrolase_oxidoreductase_family_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001358.4">BGC0001358.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>36.0</td>
+              <td>54.5</td>
+              <td>112.0</td>
+              <td>1.66e-27</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

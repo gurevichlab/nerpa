@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABL09965.1</td>
+              <td>helicase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000197.5">BGC0000197.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>43.0</td>
+              <td>53.4</td>
+              <td>341.0</td>
+              <td>3.14e-101</td>
+          </tr>
+    
+          <tr>
+              <td>QLQ36610.1</td>
+              <td>ATP-dependent_helicase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002097.3">BGC0002097.3</a></td>
+              <td>NRPS:Type I+PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>44.0</td>
+              <td>49.7</td>
+              <td>331.0</td>
+              <td>3.2e-98</td>
+          </tr>
+    
+          <tr>
+              <td>QES95460.1</td>
+              <td>ATP-dependent_helicase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002453.2">BGC0002453.2</a></td>
+              <td>PKS</td>
+              <td>43.0</td>
+              <td>48.2</td>
+              <td>323.0</td>
+              <td>5.3e-95</td>
+          </tr>
+    
+          <tr>
+              <td>AFJ52712.1</td>
+              <td>SNF2/RAD54_family_helicase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001073.5">BGC0001073.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>42.0</td>
+              <td>49.4</td>
+              <td>322.0</td>
+              <td>5.48e-95</td>
+          </tr>
+    
+          <tr>
+              <td>AHA81988.1</td>
+              <td>Arm19</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000199.5">BGC0000199.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>43.0</td>
+              <td>46.9</td>
+              <td>312.0</td>
+              <td>4.1e-94</td>
+          </tr>
+    
+          <tr>
+              <td>CAJ42330.1</td>
+              <td>SNF2_related_domain</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000273.5">BGC0000273.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>43.0</td>
+              <td>44.7</td>
+              <td>304.0</td>
+              <td>2.78e-91</td>
+          </tr>
+    
+          <tr>
+              <td>QJU69510.1</td>
+              <td>superfamily_II_DNA_or_RNA_helicase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002460.3">BGC0002460.3</a></td>
+              <td>other:other</td>
+              <td>44.0</td>
+              <td>44.9</td>
+              <td>300.0</td>
+              <td>9.72e-90</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

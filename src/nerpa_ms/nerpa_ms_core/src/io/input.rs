@@ -15,7 +15,7 @@ use crate::data_types::hmm::{BGC_Variant_ID, HMM};
 use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 
 pub struct InputItem {
-    pub bgc_variant: BGC_Variant,
+    pub bgc_variant: BGC_Variant, // for reporting alignments
     pub hmm: HMM,
     pub rban_record: Parsed_rBAN_Record,
     pub linearization: Vec<MonomerIdx>,
@@ -112,6 +112,11 @@ pub fn get_input_from_nerpa_results(
         serde_json::from_str(&hmms_text)
             .with_context(|| format!("failed to parse JSON from {}", hmms_json.display()))?
     };
+
+    for hmm in hmms.iter() {
+	hmm.validate()?;
+    }
+
     let hmms_by_bgc_variant_id: HashMap<BGC_Variant_ID, HMM> = {
 	hmms
         .into_iter()

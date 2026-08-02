@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>APZ78773.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001425.4">BGC0001425.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>598.0</td>
+              <td>2.26e-216</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78786.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001426.4">BGC0001426.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>99.0</td>
+              <td>100.0</td>
+              <td>586.0</td>
+              <td>2.38e-211</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78799.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001427.4">BGC0001427.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>98.0</td>
+              <td>100.0</td>
+              <td>580.0</td>
+              <td>3.21e-209</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78813.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001428.4">BGC0001428.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>94.0</td>
+              <td>100.0</td>
+              <td>557.0</td>
+              <td>4.31e-200</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78747.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001422.4">BGC0001422.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>93.0</td>
+              <td>100.0</td>
+              <td>534.0</td>
+              <td>4.47e-191</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78760.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001423.4">BGC0001423.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>90.0</td>
+              <td>100.0</td>
+              <td>525.0</td>
+              <td>1.81e-187</td>
+          </tr>
+    
+          <tr>
+              <td>AQM37588.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001424.4">BGC0001424.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>91.0</td>
+              <td>100.0</td>
+              <td>525.0</td>
+              <td>1.99e-187</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78733.1</td>
+              <td>cyclic_nucleotide-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001421.4">BGC0001421.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>90.0</td>
+              <td>100.0</td>
+              <td>521.0</td>
+              <td>1.2e-185</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

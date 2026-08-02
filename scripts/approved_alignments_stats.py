@@ -5,7 +5,7 @@ import yaml
 
 from src.antismash_parsing.bgc_variant_types import A_Domain_ID
 from src.testing.simplified_alignment import SimplifiedAlignmentStep
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
 
 def main():
     nerpa_dir = Path(__file__).resolve().parent.parent
@@ -13,25 +13,25 @@ def main():
     approved_matches_yaml = nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml'
     with approved_matches_yaml.open() as f:
         approved_matches = [
-            TestMatch.from_yaml_dict(match_dict)
+            CuratedAlignment.from_yaml_dict(match_dict)
             for match_dict in yaml.safe_load(f)
         ]
 
-    def get_match_steps(match: TestMatch) -> List[SimplifiedAlignmentStep]:
+    def get_match_steps(match: CuratedAlignment) -> List[SimplifiedAlignmentStep]:
         return [
             step
             for step in match.true_alignment
             if step.a_domain_id is not None and step.rban_name is not None
         ]
 
-    def get_a_domain_ids(match: TestMatch) -> Set[A_Domain_ID]:
+    def get_a_domain_ids(match: CuratedAlignment) -> Set[A_Domain_ID]:
         return {
             step.a_domain_id
             for step in match.true_alignment
             if step.a_domain_id is not None
         }
 
-    def get_non_match_steps(match: TestMatch) -> List[SimplifiedAlignmentStep]:
+    def get_non_match_steps(match: CuratedAlignment) -> List[SimplifiedAlignmentStep]:
         return [
             step
             for step in match.true_alignment

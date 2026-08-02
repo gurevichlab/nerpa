@@ -1,0 +1,40 @@
+- bgc_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+  representative_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+- bgc_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 2
+  representative_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 2
+- bgc_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+  representative_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+- bgc_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+  representative_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+- bgc_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+  representative_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0

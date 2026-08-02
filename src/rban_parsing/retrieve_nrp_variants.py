@@ -77,8 +77,10 @@ def get_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
         raise ValueError(f'Unexpected atom names for amino bond between atoms {atom_id1} and {atom_id2}: {record.atoms[atom_id1].name}, {record.atoms[atom_id2].name}')
 
 
-def build_nx_graph(rban_record: Parsed_rBAN_Record,
-                   backbone_bonds: List[str]) -> NerpaMonomerGraph:
+def build_nx_graph(
+        rban_record: Parsed_rBAN_Record,
+        backbone_bonds: List[str]
+) -> NerpaMonomerGraph:
     lipid_monomers = {monomer_idx for monomer_idx, monomer_info in rban_record.monomers.items()
                       if ':' in monomer_info.name}
 
@@ -105,9 +107,11 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
     return graph
 
 
-def backbone_sequence_to_fragment(backbone_sequence: BackboneSequence,
-                                  G: NerpaMonomerGraph,
-                                  monomer_names_helper: MonomerNamesHelper) -> NRP_Fragment:
+def backbone_sequence_to_fragment(
+        backbone_sequence: BackboneSequence,
+        G: NerpaMonomerGraph,
+        monomer_names_helper: MonomerNamesHelper
+) -> NRP_Fragment:
     return NRP_Fragment(is_cyclic=backbone_sequence.is_cyclic,
                         monomers=[build_monomer(mon_info=G.nodes[idx]['data'],
                                                 idx=idx,
@@ -135,30 +139,46 @@ def trim_unrecognized_monomers(backbone: BackboneSequence, G: NerpaMonomerGraph)
                             is_cyclic=False)
 
 
-def process_single_record(rban_record: Parsed_rBAN_Record,
-                          backbone_bond_types: List[str],
-                          monomer_names_helper: MonomerNamesHelper,
-                          min_recognized_nodes=2) -> NRP_Variant:
+def process_single_record(
+        rban_record: Parsed_rBAN_Record,
+        backbone_bond_types: List[str],
+        monomer_names_helper: MonomerNamesHelper,
+) -> Optional[NRP_Variant]:
     graph = build_nx_graph(rban_record, backbone_bond_types)
 
-    backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, monomer_names_helper=monomer_names_helper)
+    backbone_to_fragment = partial(
+        backbone_sequence_to_fragment,
+        G=graph,
+        monomer_names_helper=monomer_names_helper
+    )
 
-    all_fragments = [backbone_to_fragment(backbone)
-                     for backbone in putative_backbones(graph,
-                                                        compound_id=rban_record.compound_id,)]
-    proper_fragments = [fragment
-                        for fragment in all_fragments
-                        if len(fragment.monomers) > 1 or fragment.monomers[0].residue != UNKNOWN_RESIDUE]
-    isolated_unknown_monomers = [fragment.monomers[0]
-                                 for fragment in all_fragments
-                                 if len(fragment.monomers) == 1
-                                 and fragment.monomers[0].residue not in monomer_names_helper.supported_residues]
+    all_fragments = [
+        backbone_to_fragment(backbone)
+        for backbone in putative_backbones(graph, compound_id=rban_record.compound_id,)
+    ]
+    proper_fragments = [
+        fragment
+        for fragment in all_fragments
+        if (len(fragment.monomers) > 1 or
+            fragment.monomers[0].residue != UNKNOWN_RESIDUE)
+    ]
+    isolated_unknown_monomers = [
+        fragment.monomers[0]
+        for fragment in all_fragments
+        if (len(fragment.monomers) == 1 and
+            fragment.monomers[0].residue == UNKNOWN_RESIDUE)
+    ]
 
-    return NRP_Variant(nrp_variant_id=NRP_Variant_ID(variant_idx=0,
-                                                     nrp_id=rban_record.compound_id),
-                       fragments=proper_fragments,
-                       isolated_unknown_monomers=isolated_unknown_monomers,
-                       metadata=rban_record.metadata)
+    return (
+        NRP_Variant(
+            nrp_variant_id=NRP_Variant_ID(rban_record.compound_id),
+            fragments=proper_fragments,
+            isolated_unknown_monomers=isolated_unknown_monomers,
+            metadata=rban_record.metadata
+        )
+        if proper_fragments
+        else None
+    )
 
 
 def rban_records_to_nrp_variants(rban_records: List[Parsed_rBAN_Record],
@@ -177,11 +197,13 @@ def rban_records_to_nrp_variants(rban_records: List[Parsed_rBAN_Record],
     nrp_variants = []
     for rban_record in rban_records:
         #log.info(f'Processing {rban_record.compound_id}')
-        new_variant = process_single_record(rban_record, config.PNP_BONDS,
-                                            monomer_names_helper=monomer_names_helper,
-                                            min_recognized_nodes=config.MIN_RECOGNIZED_NODES)
-        if new_variant.fragments:
-            nrp_variants.append(new_variant)
+        maybe_new_variant = process_single_record(
+            rban_record,
+            config.PNP_BONDS,
+            monomer_names_helper=monomer_names_helper,
+        )
+        if maybe_new_variant:
+            nrp_variants.append(maybe_new_variant)
         else:
             if log is not None:
                 log.warning(f'Structure "{rban_record.compound_id}": unable to determine backbone sequence. '

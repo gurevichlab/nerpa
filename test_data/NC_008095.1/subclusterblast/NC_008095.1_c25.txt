@@ -1,0 +1,24 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS30250	7707910	7710169	+	hypothetical protein	
+MXAN_RS30255	7710233	7710710	-	VOC family protein	
+MXAN_RS30260	7710727	7710961	-	hypothetical protein	
+MXAN_RS30265	7711329	7715202	+	HYR domain-containing protein	
+MXAN_RS30270	7715205	7716822	+	OmpA family protein	
+MXAN_RS30275	7716985	7719253	+	family 2 encapsulin nanocompartment cargo protein terpene cyclase	
+MXAN_RS30280	7719280	7720690	+	family 2B encapsulin nanocompartment shell protein	
+MXAN_RS30285	7720725	7722123	+	family 2B encapsulin nanocompartment shell protein	
+MXAN_RS30290	7722258	7722684	+	hypothetical protein	
+MXAN_RS30295	7722661	7723249	-	TetR/AcrR family transcriptional regulator	
+MXAN_RS30300	7723306	7723735	+	VOC family protein	
+MXAN_RS30305	7723792	7725667	-	Hint domain-containing protein	
+MXAN_RS30315	7726850	7727606	+	DUF6585 family protein	
+MXAN_RS30320	7727634	7728135	+	hypothetical protein	
+MXAN_RS30325	7728333	7728873	-	TetR/AcrR family transcriptional regulator	
+
+
+Significant hits: 
+
+
+Details:

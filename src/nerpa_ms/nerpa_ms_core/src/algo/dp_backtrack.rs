@@ -1,4 +1,4 @@
-use crate::data_types::{dag::{DAG, Edge, VertexId}, discrete_log_prob::DiscreteLogOdds, dp_table::{BacktrackPointer, DP_Coords, DP_Table}, hmm::StateIdx};
+use crate::data_types::{mod_graph::{ModGraph, Edge, VertexId}, discrete_log_prob::DiscreteLogOdds, dp_table::{BacktrackPointer, DP_Coords, DP_Table}, hmm::StateIdx};
 
 pub struct Solution <'mon_db>{
     pub states: Vec<StateIdx>,
@@ -63,6 +63,12 @@ impl<'mon_db, 'iter> BacktrackSolutionsIter<'mon_db, 'iter> {
     }
 
     fn expand_one(&mut self, frame: Frame<'mon_db>) {
+	if frame.states_rev.len() > 100 || frame.dag_edges_rev.len() > 100 {
+	    panic!("Backtracking path too long: coords={:?}, dlo={:?}, states_rev={:?}, dag_edges_rev={:?}", frame.coords, frame.dlo, frame.states_rev, frame.dag_edges_rev);
+	}
+
+
+
 	let debug = false;
 	if debug {
 	    let lp_rounded = rounded(frame.dlo.to_logodds(), 2);
@@ -84,6 +90,17 @@ impl<'mon_db, 'iter> BacktrackSolutionsIter<'mon_db, 'iter> {
 		},
 		None => Some(frame.dlo),
 	    };
+
+	    let same_coords = ptr.parent == frame.coords;
+	    let same_dlo = parent_dlo == Some(frame.dlo);
+
+	    if same_coords && same_dlo {
+		panic!(
+		    "Backtrack self-loop: coords={:?}, dlo={:?}, ptr={:?}",
+		    frame.coords, frame.dlo, ptr
+		);
+	    }
+
 	    if parent_dlo.is_none() || !self.dp.get(&ptr.parent).contains(parent_dlo.unwrap()) { continue }
 
 	    if debug {
@@ -135,7 +152,7 @@ impl<'mon_db, 'iter> Iterator for BacktrackSolutionsIter<'mon_db, 'iter> {
 pub fn backtrack_solutions<'mon_db: 'iter, 'iter>(
     weight: usize,
     dp: &'iter DP_Table<'mon_db>,
-    dag: &'iter DAG<'mon_db>,
+    dag: &'iter ModGraph<'mon_db>,
 ) -> BacktrackSolutionsIter<'mon_db, 'iter> {
     debug_assert!(weight <= dp.max_weight());
 

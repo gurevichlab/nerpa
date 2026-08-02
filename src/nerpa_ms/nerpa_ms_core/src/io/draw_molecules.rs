@@ -24,28 +24,28 @@ pub fn draw_output_variants(
 	output_dir: &Path,
 ) -> anyhow::Result<()> {
     let records_by_id: HashMap<String, &Parsed_rBAN_Record> = original_records
-	.iter()
-	.map(|&record| (record.compound_id.clone(), record))
-	.collect();
+	    .iter()
+	    .map(|&record| (record.compound_id.clone(), record))
+	    .collect();
 
     let mut items_for_drawing: Vec<ItemForDrawing> = Vec::new();
     for output_item in output_items {
-	for new_variant in &output_item.new_variants {
-	    let original = records_by_id
-		.get(&new_variant.new_record.compound_id)
-		.with_context(|| {
-		    format!(
-			"Original record not found for compound_id={}",
-			new_variant.new_record.compound_id
-		    )
-		})?;
-	    items_for_drawing.push(ItemForDrawing {
-		bgc_id: output_item.bgc_variant_id.bgc_id.clone(),
-		original: (*original).clone(),
-		original_score: output_item.original_score,
-		new_variant: (*new_variant).clone(),
-	    });
-	}
+	    for new_variant in &output_item.new_variants {
+	        let original = records_by_id
+		        .get(&new_variant.new_record.compound_id)
+		        .with_context(|| {
+		            format!(
+			            "Original record not found for compound_id={}",
+			            new_variant.new_record.compound_id
+		            )
+		        })?;
+	        items_for_drawing.push(ItemForDrawing {
+		        bgc_id: output_item.bgc_variant_id.bgc_id.clone(),
+		        original: (*original).clone(),
+		        original_score: output_item.original_score,
+		        new_variant: (*new_variant).clone(),
+	        });
+	    }
     }
 
     println!("Created {} items for drawing...", items_for_drawing.len());

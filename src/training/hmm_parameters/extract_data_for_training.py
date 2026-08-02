@@ -16,14 +16,18 @@ from src.hmm.hmm_auxiliary_types import (
     GenomicContext,
     StateIdx,
 )
-from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import MATCHING_STATE_TYPES, RELEVANT_GENOMIC_CONTEXT
+from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
+    MATCHING_STATE_TYPES,
+    RELEVANT_GENOMIC_CONTEXT,
+    INSERT_STATE_TYPES,
+)
 from src.hmm.hmm_scoring_helper import HMMHelper
 from src.hmm.detailed_hmm import DetailedHMM
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.testing.simplified_alignment import simplified_alignment_to_light_alignments, simplified_alignment_to_str
 from src.training.hmm_parameters.training_types import (
-    MatchWithBGCNRP,
+    AlignmentWithBGCNRP,
     DataForTraining,
     EmissionInfo,
     EdgeInfo,
@@ -31,9 +35,8 @@ from src.training.hmm_parameters.training_types import (
     ChoicesCnts,
     EmissionKey,
     EdgeKey,
-    EdgeChoices_df,
-    EdgeChoicesSchema,
-    make_edge_choices_df,
+    HMM_Chosen_Steps_df,
+    HMM_Chosen_Steps_Schema,
 )
 from itertools import pairwise
 from collections import defaultdict
@@ -127,10 +130,11 @@ def get_turns_info_for_match(detailed_hmm: DetailedHMM,
     return turns_info
 
 
-def get_edge_choices_for_match(detailed_hmm: DetailedHMM,
-                               nrp_variant: NRP_Variant,
-                               path_with_emissions: PathWithEmissions) \
-        -> EdgeChoices_df:
+def get_edge_choices_for_match(
+        detailed_hmm: DetailedHMM,
+        nrp_variant: NRP_Variant,
+        path_with_emissions: PathWithEmissions
+) -> HMM_Chosen_Steps_df:
     """
     At each turn of the path a choice between outcoming edges is made.
     This function returns the information about outcoming edges at each turn of the path,
@@ -140,17 +144,23 @@ def get_edge_choices_for_match(detailed_hmm: DetailedHMM,
     #detailed_hmm.draw(Path(f"{detailed_hmm.bgc_variant.genome_id}.png"),
     #                  highlight_path=path)
     ET = DetailedHMMEdgeType
-    ECS = EdgeChoicesSchema
+    ECS = HMM_Chosen_Steps_Schema
 
     num_insertions = 0
     edge_choices = []
     for (u, emission), (v, _) in pairwise(path_with_emissions):
         state = detailed_hmm.states[u]
-        module = detailed_hmm.bgc_variant.modules[state.related_module_idx] \
-            if state.related_module_idx is not None else None
+        module = (
+            detailed_hmm.bgc_variant.modules[state.related_module_idx]
+            if state.related_module_idx is not None
+            else None
+        )
         edge = detailed_hmm.transitions[u][v]
-        num_insertions = num_insertions + 1 \
-            if edge.edge_type in (ET.INSERT, ET.INSERT_AT_START) else 0
+        num_insertions = (
+            num_insertions + 1
+            if edge.edge_type in INSERT_STATE_TYPES
+            else 0
+        )
 
         edge_choices.append({
             ECS.BGC_ID: detailed_hmm.bgc_variant.bgc_variant_id,
@@ -166,10 +176,10 @@ def get_edge_choices_for_match(detailed_hmm: DetailedHMM,
 
 
 
-    return make_edge_choices_df(pd.DataFrame(edge_choices))
+    return HMM_Chosen_Steps_df.from_rows(edge_choices)
 
 
-def get_edge_choices(hmms_with_paths_with_emissions: List[Tuple[DetailedHMM, NRP_Variant, PathWithEmissions]]) -> EdgeChoices_df:
+def get_edge_choices(hmms_with_paths_with_emissions: List[Tuple[DetailedHMM, NRP_Variant, PathWithEmissions]]) -> HMM_Chosen_Steps_df:
     edge_choices = pd.DataFrame()
     # I used to filter duplicate edges per BGC, but now I want to keep all occurrences
     # edge_keys_per_bgc: Dict[BGC_ID, Set[ExtendedEdgeKey]] = defaultdict(set)
@@ -186,7 +196,7 @@ def get_edge_choices(hmms_with_paths_with_emissions: List[Tuple[DetailedHMM, NRP
     return make_edge_choices_df(edge_choices)
 
 
-def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
+def get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps: List[AlignmentWithBGCNRP],
                                        hmm_helper: HMMHelper,
                                        dir_for_hmm_figures: Optional[Path] = None) -> List[Tuple[DetailedHMM, NRP_Variant, PathWithEmissions]]:
     hmms_with_paths_with_emissions = []
@@ -334,7 +344,7 @@ def get_turn_cnts_per_state_cntxt(turns_info: List[PathTurnInfo],
     return turns_per_state_cntxt_cnts
 
 
-def extract_data_for_training(matches_with_bgcs_nrps: List[MatchWithBGCNRP],
+def extract_data_for_training(matches_with_bgcs_nrps: List[AlignmentWithBGCNRP],
                               hmm_helper: HMMHelper,
                               dir_for_hmm_figures: Optional[Path] = None) -> DataForTraining:
     hmms_nrps_paths = get_hmms_with_paths_with_emissions(matches_with_bgcs_nrps,

@@ -1,0 +1,66 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS36820	4202140	4203145	+	PD-(D/E)XK motif protein	
+MXAN_RS17490	4203147	4205295	+	AIPR family protein	
+MXAN_RS38405	4205487	4206099	-	hypothetical protein	
+MXAN_RS36825	4206095	4206677	-	response regulator transcription factor	
+MXAN_RS36830	4206673	4208764	-	sensor histidine kinase	
+MXAN_RS17500	4209760	4211071	+	group II intron reverse transcriptase/maturase	
+MXAN_RS17505	4211244	4211655	-	integrase core domain-containing protein	
+MXAN_RS38170	4211963	4212413	+	hypothetical protein	
+MXAN_RS17510	4212521	4213283	-	IS21-like element helper ATPase IstB	
+MXAN_RS17515	4213466	4215005	-	IS21 family transposase	
+MXAN_RS17520	4215248	4216754	+	IS21 family transposase	
+MXAN_RS17525	4216750	4217512	+	IS21-like element helper ATPase IstB	
+MXAN_RS37715	4217691	4217934	-	DDE-type integrase/transposase/recombinase	
+MXAN_RS36845	4218072	4219278	+	IS701 family transposase	
+MXAN_RS38755	4219451	4219634	-	hypothetical protein	
+MXAN_RS17545	4220393	4234097	-	non-ribosomal peptide synthetase	
+MXAN_RS17550	4234157	4238765	-	type I polyketide synthase	
+MXAN_RS17555	4239279	4243803	+	type I polyketide synthase	
+MXAN_RS17560	4243858	4247053	+	type I polyketide synthase	
+MXAN_RS17565	4247154	4248393	-	GNAT family N-acetyltransferase	
+MXAN_RS17570	4248424	4249111	-	glutathione S-transferase	
+MXAN_RS17575	4249182	4251489	+	lantibiotic dehydratase	
+MXAN_RS17580	4251545	4252985	+	hypothetical protein	
+MXAN_RS17585	4253000	4253867	-	cupin-like domain-containing protein	
+MXAN_RS17590	4253889	4254213	-	hypothetical protein	
+MXAN_RS17595	4254239	4254992	-	thioesterase II family protein	
+MXAN_RS17600	4254988	4256266	-	glycosyltransferase family 4 protein	
+MXAN_RS17605	4256300	4259381	-	type I polyketide synthase	
+MXAN_RS17610	4259399	4264004	-	type I polyketide synthase	
+MXAN_RS17615	4264150	4265182	-	LLM class flavin-dependent oxidoreductase	
+MXAN_RS17620	4265411	4266860	-	hypothetical protein	
+MXAN_RS17625	4267161	4284318	+	non-ribosomal peptide synthase/polyketide synthase	
+MXAN_RS17630	4284310	4297456	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS36330	4297459	4333279	+	non-ribosomal peptide synthase/polyketide synthase	
+MXAN_RS17645	4333308	4334601	-	ELWxxDGT repeat protein	
+MXAN_RS17650	4334983	4336906	+	membrane dipeptidase	
+MXAN_RS17655	4337072	4337888	+	siderophore-interacting protein	
+MXAN_RS17660	4337884	4339159	-	myxochelin B biosynthesis transaminase MxcL	
+MXAN_RS17665	4339197	4340424	-	myxochelin export MFS transporter MxcK	
+MXAN_RS17670	4340440	4341793	-	class II 3-deoxy-7-phosphoheptulonate synthase	
+MXAN_RS17675	4341789	4346130	-	myxochelin non-ribosomal peptide synthetase MxcG	
+MXAN_RS17680	4346190	4347090	-	isochorismatase family protein	
+MXAN_RS17685	4347102	4348749	-	(2,3-dihydroxybenzoyl)adenylate synthase	
+MXAN_RS17690	4348745	4349990	-	isochorismate synthase DhbC	
+MXAN_RS17695	4350101	4350875	-	2,3-dihydro-2,3-dihydroxybenzoate dehydrogenase	
+MXAN_RS17700	4351238	4353626	+	ABC transporter permease	
+MXAN_RS17705	4353767	4354295	+	hypothetical protein	
+MXAN_RS17710	4354316	4356797	-	ABC transporter permease	
+MXAN_RS17715	4356884	4357205	-	YetF domain-containing protein	
+MXAN_RS17720	4357338	4358457	+	enolase C-terminal domain-like protein	
+MXAN_RS17725	4358491	4361695	-	FAD-binding and (Fe-S)-binding domain-containing protein	
+MXAN_RS17730	4361929	4363714	+	thiamine pyrophosphate-requiring protein	
+MXAN_RS17735	4363849	4367236	-	DUF4082 domain-containing protein	
+MXAN_RS17740	4367510	4368221	+	hypothetical protein	
+MXAN_RS17745	4368351	4369071	-	helix-turn-helix transcriptional regulator	
+MXAN_RS17750	4369149	4369578	+	VOC family protein	
+MXAN_RS17755	4369602	4370163	+	YdeI/OmpD-associated family protein	
+
+
+Significant hits: 
+
+
+Details:

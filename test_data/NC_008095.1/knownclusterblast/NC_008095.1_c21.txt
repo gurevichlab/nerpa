@@ -1,0 +1,864 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS22220	5716369	5718484	+	two-component system sensor histidine kinase NtrB	
+MXAN_RS22225	5718473	5719847	+	sigma-54-dependent transcriptional regulator	
+MXAN_RS22230	5719936	5720452	+	OmpA family protein	
+MXAN_RS22235	5720566	5721298	+	type IV toxin-antitoxin system AbiEi family antitoxin domain-containing protein	
+MXAN_RS22240	5721548	5722415	-	alpha/beta fold hydrolase	
+MXAN_RS22245	5722568	5723420	-	tRNA (5-methylaminomethyl-2-thiouridine)(34)-methyltransferase MnmD	
+MXAN_RS22250	5723416	5724586	-	tRNA guanosine(34) transglycosylase Tgt	
+MXAN_RS22255	5724901	5726500	+	ABC-F family ATP-binding cassette domain-containing protein	
+MXAN_RS22260	5726594	5729624	-	chitobiase/beta-hexosaminidase C-terminal domain-containing protein	
+MXAN_RS22265	5729876	5730956	-	YihY/virulence factor BrkB family protein	
+MXAN_RS22270	5731202	5732753	+	PEGA domain-containing protein	
+MXAN_RS22275	5732742	5733735	+	tetratricopeptide repeat protein	
+MXAN_RS22280	5733771	5735541	+	serine/threonine protein kinase	
+MXAN_RS22285	5735537	5741813	-	non-ribosomal peptide synthetase	
+MXAN_RS22290	5742087	5743398	+	PLP-dependent aminotransferase family protein	
+MXAN_RS22295	5743459	5744470	+	GNAT family N-acetyltransferase	
+MXAN_RS22300	5744577	5747865	+	non-ribosomal peptide synthetase	
+MXAN_RS22305	5747861	5754008	+	non-ribosomal peptide synthetase	
+MXAN_RS22310	5754139	5755819	+	PhpK family radical SAM P-methyltransferase	
+MXAN_RS22315	5755832	5760380	+	non-ribosomal peptide synthetase	
+MXAN_RS22320	5760518	5762855	+	M28 family metallopeptidase	
+MXAN_RS22325	5762865	5764893	-	RiPP maturation radical SAM C-methyltransferase	
+MXAN_RS22330	5765033	5774912	+	non-ribosomal peptide synthetase	
+MXAN_RS22335	5775024	5775999	+	hypothetical protein	
+MXAN_RS22340	5776040	5777807	+	B12-binding domain-containing radical SAM protein	
+MXAN_RS22345	5777830	5778733	+	cupin-like domain-containing protein	
+MXAN_RS22350	5778729	5780049	+	MFS transporter	
+MXAN_RS22355	5780055	5782017	-	glycoside hydrolase family 183 protein	
+MXAN_RS22360	5782129	5782579	-	SRPBCC family protein	
+MXAN_RS22365	5782717	5783788	+	hypothetical protein	
+MXAN_RS22370	5783798	5785154	-	MFS transporter	
+MXAN_RS22375	5785235	5785787	-	dTDP-4-dehydrorhamnose 3,5-epimerase	
+MXAN_RS22380	5785783	5786665	-	glucose-1-phosphate thymidylyltransferase RfbA	
+MXAN_RS22385	5786680	5787583	-	SDR family oxidoreductase	
+MXAN_RS22390	5787586	5788612	-	dTDP-glucose 4,6-dehydratase	
+MXAN_RS22395	5788732	5790373	+	glycosyltransferase	
+MXAN_RS22400	5790362	5790884	+	hypothetical protein	
+MXAN_RS22405	5791017	5793249	+	glycosyltransferase	
+MXAN_RS22410	5793294	5794488	-	DUF2304 family protein	
+
+
+Significant hits: 
+1. BGC0001231.5	microsclerodermin
+2. BGC0001019.5	microsclerodermin M
+3. BGC0000782.3	O-antigen
+4. BGC0000785.3	O-antigen
+5. BGC0000774.4	lipopolysaccharide
+6. BGC0000766.3	exopolysaccharide
+7. BGC0002302.2	glucorhamnan
+8. BGC0000794.5	S-layer glycan
+9. BGC0000773.3	lipopolysaccharide
+10. BGC0000801.5	galactoglucan
+11. BGC0000797.5	sphingan polysaccharide
+12. BGC0000768.5	gellan polysaccharide
+13. BGC0000759.5	diutan polysaccharide
+14. BGC0000796.3	S-layer glycan
+15. BGC0001894.2	heteropolysaccharide (HePS)
+16. BGC0000775.3	lipopolysaccharide
+17. BGC0000780.3	O&K-antigen
+18. BGC0000795.3	S-layer glycan
+19. BGC0002291.3	efomycin K/efomycin L
+20. BGC0000053.5	elaiophylin
+21. BGC0000791.3	O-antigen
+22. BGC0000151.5	stambomycin A/stambomycin B/stambomycin C/stambomycin D
+23. BGC0000035.5	chalcomycin A
+24. BGC0000827.3	staurosporine
+25. BGC0000715.5	actinospectacin
+26. BGC0000047.5	10,11-dihydro-8-deoxy-12,13-deepoxy-12,13-dihydrochalcomycin
+27. BGC0000898.5	desosamine/pikromycin/neomethymycin/narbomycin
+28. BGC0001661.5	mayamycin
+29. BGC0000899.4	desosamine
+30. BGC0002141.3	trioxacarcin A
+31. BGC0001762.3	rubrolone A/rubrolone B
+32. BGC0001979.4	LL-D49194α1 (LLD)/LL-D49194β2
+33. BGC0001003.5	α-lipomycin
+34. BGC0001732.5	paulomycin
+35. BGC0000790.3	O-antigen
+36. BGC0001731.5	paulomycin
+37. BGC0000716.5	spectinomycin
+38. BGC0000162.5	tetrocarcin A
+39. BGC0001931.2	carrimycin
+40. BGC0001396.5	aldgamycin J/aldgamycin K/aldgamycin P/aldgamycin E
+41. BGC0001773.4	selvamicin
+42. BGC0002452.2	leucomycin
+43. BGC0000082.5	kijanimicin
+44. BGC0000654.4	phenalinolactone A
+45. BGC0000105.5	nanchangmycin
+46. BGC0001004.5	lobophorin B
+47. BGC0002550.2	lobophorin CR4
+48. BGC0001183.5	lobophorin A
+49. BGC0000040.5	concanamycin A
+50. BGC0002033.4	spiramycin
+
+
+Details:
+
+>>
+1. BGC0001231.5
+Source: microsclerodermin
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1663.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22285	AHB82071.1	48	810	50.3586800573888	9.71e-246
+MXAN_RS22305	AHB82072.1	46	853	53.564453125	1.09e-264
+
+
+
+>>
+2. BGC0001019.5
+Source: microsclerodermin M
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1630.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22285	AHB82058.1	46	803	53.9454806312769	2.31e-243
+MXAN_RS22305	AHB82059.1	46	827	52.294921875	8.13e-256
+
+
+
+>>
+3. BGC0000782.3
+Source: O-antigen
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1004.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAD05456.1	56	208	96.72131147540983	4.17e-69
+MXAN_RS22380	AAD05455.1	70	424	98.97610921501706	9.87e-151
+MXAN_RS22390	AAD05454.1	55	372	103.51906158357771	9.89e-129
+
+
+
+>>
+4. BGC0000785.3
+Source: O-antigen
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1000.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAK27393.1	56	208	96.72131147540983	4.17e-69
+MXAN_RS22380	AAK27392.1	70	420	98.97610921501706	3.28e-149
+MXAN_RS22390	AAK27391.1	55	372	103.51906158357771	9.89e-129
+
+
+
+>>
+5. BGC0000774.4
+Source: lipopolysaccharide
+Type: saccharide:lipopolysaccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 990.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAK53465.1	55	208	100.0	4.45e-69
+MXAN_RS22380	AAA16191.1	68	402	99.31740614334471	4.32e-142
+MXAN_RS22390	AAK53466.1	58	380	100.0	6.03e-132
+
+
+
+>>
+6. BGC0000766.3
+Source: exopolysaccharide
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 905.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	ATCC11506LJ0032	49	158	81.4207650273224	5.47e-49
+MXAN_RS22380	ATCC11506LJ0031	63	369	99.31740614334471	7.06e-129
+MXAN_RS22390	ATCC11506LJ0030	55	378	98.53372434017595	7.7e-131
+
+
+
+>>
+7. BGC0002302.2
+Source: glucorhamnan
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 903.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	RUMGNA_03528	52	184	92.34972677595628	1.53e-59
+MXAN_RS22380	RUMGNA_03529	62	381	98.63481228668942	9.65e-134
+MXAN_RS22390	RUMGNA_03530	50	338	103.81231671554252	3.59e-115
+
+
+
+>>
+8. BGC0000794.5
+Source: S-layer glycan
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1044.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAR99611.1	51	191	96.72131147540983	2.85e-62
+MXAN_RS22380	AAR99610.1	70	417	97.61092150170649	4.09e-148
+MXAN_RS22390	AAR99612.1	59	436	98.82697947214076	4.21e-154
+
+
+
+>>
+9. BGC0000773.3
+Source: lipopolysaccharide
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 929.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAC63615.1	52	177	97.26775956284153	1.17e-56
+MXAN_RS22380	AAC63614.1	72	422	96.24573378839591	7.01e-150
+MXAN_RS22390	AAC63612.1	50	330	105.86510263929618	8.46e-112
+
+
+
+>>
+10. BGC0000801.5
+Source: galactoglucan
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 876.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	CAB01950.1	46	158	97.81420765027322	2.46e-49
+MXAN_RS22380	CAB01949.1	66	379	96.9283276450512	3.78e-133
+MXAN_RS22390	CAB01951.1	53	339	100.87976539589442	1.18e-115
+
+
+
+>>
+11. BGC0000797.5
+Source: sphingan polysaccharide
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 851.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAC44073.1	53	167	89.07103825136612	5.91e-53
+MXAN_RS22380	AAC44072.1	62	360	98.29351535836177	2.06e-125
+MXAN_RS22390	AAC44074.1	49	324	100.0	8.55e-110
+
+
+
+>>
+12. BGC0000768.5
+Source: gellan polysaccharide
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 847.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	AAP57699.1	51	168	93.98907103825137	4.17e-53
+MXAN_RS22380	AAP57698.1	63	362	98.29351535836177	3.59e-126
+MXAN_RS22390	AAP57700.1	49	317	100.0	4.52e-107
+
+
+
+>>
+13. BGC0000759.5
+Source: diutan polysaccharide
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 845.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	ABW74896.1	50	163	91.2568306010929	3.88e-51
+MXAN_RS22380	ABW74895.1	61	360	98.63481228668942	1.02e-125
+MXAN_RS22390	ABW74897.1	49	322	100.0	6.92e-109
+
+
+
+>>
+14. BGC0000796.3
+Source: S-layer glycan
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 802.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	ADG29295.1	48	178	96.72131147540983	4.1e-57
+MXAN_RS22380	ADG29294.1	47	207	81.91126279863481	4.53e-66
+MXAN_RS22390	ADG29296.1	58	417	98.82697947214076	1.61e-146
+
+
+
+>>
+15. BGC0001894.2
+Source: heteropolysaccharide (HePS)
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1694.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	CEB41_05135	47	158	93.98907103825137	2.95e-49
+MXAN_RS22375	CEB41_05185	47	158	93.98907103825137	2.95e-49
+MXAN_RS22380	CEB41_05130	67	403	97.26962457337885	1.22e-142
+MXAN_RS22380	CEB41_05180	66	399	97.26962457337885	5.76e-141
+MXAN_RS22390	CEB41_05140	47	288	96.48093841642229	6.84e-96
+MXAN_RS22390	CEB41_05190	47	288	96.48093841642229	9.68e-96
+
+
+
+>>
+16. BGC0000775.3
+Source: lipopolysaccharide
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 851.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22375	CAB65208.1	55	191	101.63934426229508	3.34e-62
+MXAN_RS22380	CAB65204.1	60	361	98.63481228668942	6.97e-126
+MXAN_RS22390	CAB65206.1	49	299	93.841642228739	5.39e-100
+
+
+
+>>
+17. BGC0000780.3
+Source: O&K-antigen
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 746.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	BAG50457.1	65	388	97.95221843003414	1.43e-136
+MXAN_RS22390	BAG50456.1	55	358	101.46627565982405	2.94e-123
+
+
+
+>>
+18. BGC0000795.3
+Source: S-layer glycan
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 739.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAS55725.1	69	416	97.95221843003414	2.92e-147
+MXAN_RS22390	AAS55726.1	49	323	97.36070381231671	2.48e-109
+
+
+
+>>
+19. BGC0002291.3
+Source: efomycin K/efomycin L
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 711.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	CFP59_01559	58	354	98.29351535836177	2.58e-123
+MXAN_RS22390	CFP59_01558	56	357	95.01466275659824	3.03e-123
+
+
+
+>>
+20. BGC0000053.5
+Source: elaiophylin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 709.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ctg1_orf5	58	355	97.61092150170649	2.06e-123
+MXAN_RS22390	ctg1_orf6	56	354	94.42815249266863	4.96e-122
+
+
+
+>>
+21. BGC0000791.3
+Source: O-antigen
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 701.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ABX51873.1	64	378	97.26962457337885	9.73e-133
+MXAN_RS22390	ABX51872.1	49	323	102.63929618768329	2.96e-109
+
+
+
+>>
+22. BGC0000151.5
+Source: stambomycin A/stambomycin B/stambomycin C/stambomycin D
+Type: PKS:Type I+saccharide:hybrid/tailoring
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 697.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	SAMR0487	60	357	97.61092150170649	3.16e-124
+MXAN_RS22390	SAMR0486	55	340	95.01466275659824	3.38e-116
+
+
+
+>>
+23. BGC0000035.5
+Source: chalcomycin A
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 683.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAS79450.1	54	332	99.65870307167235	3.93e-114
+MXAN_RS22390	AAS79449.1	55	351	95.30791788856305	1.11e-120
+
+
+
+>>
+24. BGC0000827.3
+Source: staurosporine
+Type: other:other
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 681.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	Sare_2335	59	350	98.97610921501706	2.17e-121
+MXAN_RS22390	Sare_2336	53	331	97.65395894428153	2.61e-112
+
+
+
+>>
+25. BGC0000715.5
+Source: actinospectacin
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 676.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ABW87811.1	57	339	99.65870307167235	2.24e-117
+MXAN_RS22390	ABW87810.1	53	337	94.13489736070382	5.7e-115
+
+
+
+>>
+26. BGC0000047.5
+Source: 10,11-dihydro-8-deoxy-12,13-deepoxy-12,13-dihydrochalcomycin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 674.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ABB52525.1	53	329	99.65870307167235	2.28e-113
+MXAN_RS22390	ABB52526.1	54	345	94.13489736070382	1.33e-118
+
+
+
+>>
+27. BGC0000898.5
+Source: desosamine/pikromycin/neomethymycin/narbomycin
+Type: saccharide:hybrid/tailoring
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 672.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAC68682.1	56	341	99.31740614334471	5.73e-118
+MXAN_RS22390	AAC68681.1	52	331	96.18768328445748	9.51e-113
+
+
+
+>>
+28. BGC0001661.5
+Source: mayamycin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 670.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AVO00809.1	58	343	96.24573378839591	6.13e-119
+MXAN_RS22390	AVO00808.1	54	327	96.7741935483871	2.55e-111
+
+
+
+>>
+29. BGC0000899.4
+Source: desosamine
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 670.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAM88358.1	55	337	99.31740614334471	1.33e-116
+MXAN_RS22390	AAM88357.1	52	333	96.18768328445748	1.48e-113
+
+
+
+>>
+30. BGC0002141.3
+Source: trioxacarcin A
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 670.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AKT74256.1	57	335	97.61092150170649	1.44e-115
+MXAN_RS22390	AKT74255.1	52	335	97.94721407624634	3.26e-114
+
+
+
+>>
+31. BGC0001762.3
+Source: rubrolone A/rubrolone B
+Type: other:other
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 669.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AOZ61197.1	57	345	97.95221843003414	1.1e-119
+MXAN_RS22390	AOZ61196.1	53	324	94.72140762463343	8.73e-110
+
+
+
+>>
+32. BGC0001979.4
+Source: LL-D49194α1 (LLD)/LL-D49194β2
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 668.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	QDQ37914.1	56	328	98.97610921501706	8.32e-113
+MXAN_RS22390	QDQ37915.1	53	340	96.7741935483871	3.62e-116
+
+
+
+>>
+33. BGC0001003.5
+Source: α-lipomycin
+Type: NRPS:Type I+PKS:Type I+saccharide:hybrid/tailoring
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 661.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ABB05097.1	57	337	97.95221843003414	1.2e-116
+MXAN_RS22390	ABB05098.1	51	324	94.42815249266863	4.35e-110
+
+
+
+>>
+34. BGC0001732.5
+Source: paulomycin
+Type: other:other
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 661.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AIE54243.1	53	317	97.61092150170649	9.41e-109
+MXAN_RS22390	AIE54242.1	55	344	93.841642228739	7.79e-118
+
+
+
+>>
+35. BGC0000790.3
+Source: O-antigen
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 659.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ABK27314.1	64	383	98.29351535836177	1.03e-134
+MXAN_RS22390	ABK27313.1	51	276	83.28445747800586	1.41e-91
+
+
+
+>>
+36. BGC0001731.5
+Source: paulomycin
+Type: other:other
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 659.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AIE54190.1	53	317	97.61092150170649	9.41e-109
+MXAN_RS22390	AIE54189.1	54	342	93.841642228739	3.15e-117
+
+
+
+>>
+37. BGC0000716.5
+Source: spectinomycin
+Type: saccharide
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 658.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAD45556.1	58	336	97.95221843003414	5.53e-116
+MXAN_RS22390	AAD45555.1	51	322	94.42815249266863	2.14e-109
+
+
+
+>>
+38. BGC0000162.5
+Source: tetrocarcin A
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 656.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ACB37734.1	56	323	99.65870307167235	6.1e-111
+MXAN_RS22390	ACB37735.1	53	333	93.841642228739	9.93e-114
+
+
+
+>>
+39. BGC0001931.2
+Source: carrimycin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 655.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ctg1_19	55	332	99.65870307167235	3.55e-114
+MXAN_RS22390	ctg1_20	52	323	95.89442815249268	1.87e-109
+
+
+
+>>
+40. BGC0001396.5
+Source: aldgamycin J/aldgamycin K/aldgamycin P/aldgamycin E
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 655.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ANC94975.1	52	306	95.22184300341297	1.32e-104
+MXAN_RS22390	ANC94976.1	54	349	95.01466275659824	4.48e-120
+
+
+
+>>
+41. BGC0001773.4
+Source: selvamicin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 644.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AFB00_29760	57	344	97.95221843003414	2.38e-119
+MXAN_RS22390	AFB00_29755	53	300	86.51026392961877	7.33e-101
+
+
+
+>>
+42. BGC0002452.2
+Source: leucomycin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 644.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	BBM96646.1	53	323	99.65870307167235	1.1e-110
+MXAN_RS22390	BBM96647.1	53	321	95.30791788856305	1.05e-108
+
+
+
+>>
+43. BGC0000082.5
+Source: kijanimicin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 642.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	KijD5	53	306	97.61092150170649	2.25e-104
+MXAN_RS22390	KijD4	53	336	96.18768328445748	1.21e-114
+
+
+
+>>
+44. BGC0000654.4
+Source: phenalinolactone A
+Type: terpene:Diterpene+saccharide:hybrid/tailoring
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 639.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	ABB69738.1	53	311	96.24573378839591	5.34e-106
+MXAN_RS22390	ABB69737.1	54	328	95.30791788856305	1.38e-111
+
+
+
+>>
+45. BGC0000105.5
+Source: nanchangmycin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 638.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAP42866.1	52	312	99.65870307167235	1.37e-106
+MXAN_RS22390	AAP42865.1	53	326	96.7741935483871	1.03e-110
+
+
+
+>>
+46. BGC0001004.5
+Source: lobophorin B
+Type: PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 637.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AGI99503.1	52	299	98.29351535836177	1.71e-101
+MXAN_RS22390	AGI99502.1	54	338	93.54838709677419	2.04e-115
+
+
+
+>>
+47. BGC0002550.2
+Source: lobophorin CR4
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 637.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	QFU80908.1	52	299	98.29351535836177	1.71e-101
+MXAN_RS22390	QFU80907.1	54	338	93.54838709677419	2.04e-115
+
+
+
+>>
+48. BGC0001183.5
+Source: lobophorin A
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 637.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AGC09478.1	51	297	98.29351535836177	1.75e-100
+MXAN_RS22390	AGC09479.1	54	340	93.54838709677419	5.59e-116
+
+
+
+>>
+49. BGC0000040.5
+Source: concanamycin A
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 635.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AAZ94397.1	54	311	96.24573378839591	5.52e-106
+MXAN_RS22390	AAZ94396.1	54	324	94.72140762463343	4.97e-110
+
+
+
+>>
+50. BGC0002033.4
+Source: spiramycin
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 632.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	SAM23877_RS26715	55	325	98.97610921501706	1.36e-111
+MXAN_RS22390	SAM23877_RS26710	51	307	95.89442815249268	1.45e-103
+

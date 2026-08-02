@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>QDA77064.1</td>
+              <td>multi-sensor_hybrid_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002026.3">BGC0002026.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>46.0</td>
+              <td>39.0</td>
+              <td>330.0</td>
+              <td>7.44e-101</td>
+          </tr>
+    
+          <tr>
+              <td>CAL80818.1</td>
+              <td>two-component_hybrid_sensor/regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000997.4">BGC0000997.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>38.0</td>
+              <td>35.7</td>
+              <td>221.0</td>
+              <td>1.82e-60</td>
+          </tr>
+    
+          <tr>
+              <td>AXA91286.1</td>
+              <td>hybrid_sensor_histidine_kinase/response_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002044.2">BGC0002044.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>39.0</td>
+              <td>37.4</td>
+              <td>217.0</td>
+              <td>5.52e-59</td>
+          </tr>
+    
+          <tr>
+              <td>AXG46174.1</td>
+              <td>two-component_sensor_histidine_kinase_BarA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002713.2">BGC0002713.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>36.0</td>
+              <td>181.0</td>
+              <td>1.24e-46</td>
+          </tr>
+    
+          <tr>
+              <td>WP_091320338.1</td>
+              <td>HAMP_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002007.2">BGC0002007.2</a></td>
+              <td>terpene</td>
+              <td>35.0</td>
+              <td>37.6</td>
+              <td>181.0</td>
+              <td>5.53e-46</td>
+          </tr>
+    
+          <tr>
+              <td>ACV42481.1</td>
+              <td>putative_adenylate/guanylate_cyclase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000043.5">BGC0000043.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>38.7</td>
+              <td>167.0</td>
+              <td>1.04e-41</td>
+          </tr>
+    
+          <tr>
+              <td>QCP68977.1</td>
+              <td>response_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002296.2">BGC0002296.2</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>31.0</td>
+              <td>38.7</td>
+              <td>166.0</td>
+              <td>3.14e-41</td>
+          </tr>
+    
+          <tr>
+              <td>ABK32300.1</td>
+              <td>Jer7</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000080.5">BGC0000080.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>37.7</td>
+              <td>139.0</td>
+              <td>1.01e-32</td>
+          </tr>
+    
+          <tr>
+              <td>ABK32275.1</td>
+              <td>Amb7</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000014.5">BGC0000014.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>37.7</td>
+              <td>137.0</td>
+              <td>3.26e-32</td>
+          </tr>
+    
+          <tr>
+              <td>EDY47142.1</td>
+              <td>histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000845.5">BGC0000845.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>38.0</td>
+              <td>22.4</td>
+              <td>123.0</td>
+              <td>5.15e-29</td>
+          </tr>
+    
+          <tr>
+              <td>AGU42431.1</td>
+              <td>Cmm23</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000842.5">BGC0000842.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>35.0</td>
+              <td>21.5</td>
+              <td>115.0</td>
+              <td>2.09e-26</td>
+          </tr>
+    
+          <tr>
+              <td>AAS79470.1</td>
+              <td>sensory_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000035.5">BGC0000035.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>20.6</td>
+              <td>80.0</td>
+              <td>3.18e-15</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

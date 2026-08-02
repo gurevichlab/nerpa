@@ -7,13 +7,13 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::data_types::dag::{VertexId, DAG};
+use crate::data_types::mod_graph::{VertexId, ModGraph};
 
 pub struct Draw_DAG_Config {
     pub node_indexes: bool,
 }
 
-impl DAG<'_> {
+impl ModGraph<'_> {
     pub fn to_dot(&self, cfg: &Draw_DAG_Config,
 		  highlight_path: Option<&[VertexId]>) -> String {
         let highlight_edges: HashSet<(VertexId, VertexId)> = if let Some(path) = highlight_path {

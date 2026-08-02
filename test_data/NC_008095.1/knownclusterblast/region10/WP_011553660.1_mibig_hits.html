@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF85885.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002492.3">BGC0002492.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>918.0</td>
+              <td>0.0</td>
+          </tr>
+    
+          <tr>
+              <td>QRK13959.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase_class_II</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002324.3">BGC0002324.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>76.0</td>
+              <td>101.1</td>
+              <td>704.0</td>
+              <td>2.64e-256</td>
+          </tr>
+    
+          <tr>
+              <td>AAG31131.1</td>
+              <td>AroAA5</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001345.5">BGC0001345.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>74.0</td>
+              <td>101.8</td>
+              <td>691.0</td>
+              <td>7.66e-251</td>
+          </tr>
+    
+          <tr>
+              <td>QUJ09148.1</td>
+              <td>Lon1</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002440.3">BGC0002440.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>51.0</td>
+              <td>97.3</td>
+              <td>429.0</td>
+              <td>1.09e-147</td>
+          </tr>
+    
+          <tr>
+              <td>CAB38581.1</td>
+              <td>putative_2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000315.5">BGC0000315.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>49.0</td>
+              <td>99.3</td>
+              <td>429.0</td>
+              <td>1.62e-147</td>
+          </tr>
+    
+          <tr>
+              <td>PVC99873.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase_class_II</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002100.2">BGC0002100.2</a></td>
+              <td>NRPS:Type I+other:other</td>
+              <td>51.0</td>
+              <td>98.7</td>
+              <td>429.0</td>
+              <td>1.62e-147</td>
+          </tr>
+    
+          <tr>
+              <td>ATU31810.1</td>
+              <td>phospho-2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001814.5">BGC0001814.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>50.0</td>
+              <td>98.0</td>
+              <td>421.0</td>
+              <td>1.23e-144</td>
+          </tr>
+    
+          <tr>
+              <td>AFB35633.1</td>
+              <td>EsmA6</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000935.5">BGC0000935.5</a></td>
+              <td>other:aminocoumarin+PKS</td>
+              <td>50.0</td>
+              <td>99.6</td>
+              <td>410.0</td>
+              <td>2.69e-140</td>
+          </tr>
+    
+          <tr>
+              <td>ATY46605.1</td>
+              <td>aDAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001666.3">BGC0001666.3</a></td>
+              <td>PKS</td>
+              <td>48.0</td>
+              <td>94.7</td>
+              <td>384.0</td>
+              <td>4.58e-130</td>
+          </tr>
+    
+          <tr>
+              <td>EYT83449.1</td>
+              <td>phospho-2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001213.5">BGC0001213.5</a></td>
+              <td>PKS</td>
+              <td>47.0</td>
+              <td>97.6</td>
+              <td>377.0</td>
+              <td>1.81e-127</td>
+          </tr>
+    
+          <tr>
+              <td>ABP53510.1</td>
+              <td>3-deoxy-D-arabinoheptulosonate-7-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001041.4">BGC0001041.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>44.0</td>
+              <td>97.1</td>
+              <td>367.0</td>
+              <td>2.34e-123</td>
+          </tr>
+    
+          <tr>
+              <td>ABC42564.1</td>
+              <td>putative_DAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000698.5">BGC0000698.5</a></td>
+              <td>saccharide</td>
+              <td>47.0</td>
+              <td>95.6</td>
+              <td>363.0</td>
+              <td>7.2e-123</td>
+          </tr>
+    
+          <tr>
+              <td>AWH12660.1</td>
+              <td>RmpH</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001759.3">BGC0001759.3</a></td>
+              <td>PKS</td>
+              <td>45.0</td>
+              <td>93.1</td>
+              <td>346.0</td>
+              <td>2.39e-115</td>
+          </tr>
+    
+          <tr>
+              <td>ADM46364.1</td>
+              <td>DAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000106.5">BGC0000106.5</a></td>
+              <td>PKS</td>
+              <td>46.0</td>
+              <td>94.9</td>
+              <td>347.0</td>
+              <td>2.52e-115</td>
+          </tr>
+    
+          <tr>
+              <td>WP_004559804.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002009.4">BGC0002009.4</a></td>
+              <td>PKS</td>
+              <td>45.0</td>
+              <td>95.3</td>
+              <td>345.0</td>
+              <td>3.06e-115</td>
+          </tr>
+    
+          <tr>
+              <td>ALE27510.1</td>
+              <td>3-deoxy-D-arabino-heptulosonate_7-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001292.5">BGC0001292.5</a></td>
+              <td>other:other</td>
+              <td>44.0</td>
+              <td>95.3</td>
+              <td>341.0</td>
+              <td>5.56e-114</td>
+          </tr>
+    
+          <tr>
+              <td>CAI94725.1</td>
+              <td>putative_aDAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000141.5">BGC0000141.5</a></td>
+              <td>PKS</td>
+              <td>43.0</td>
+              <td>96.2</td>
+              <td>332.0</td>
+              <td>2.85e-110</td>
+          </tr>
+    
+          <tr>
+              <td>AAC01718.1</td>
+              <td>RifH</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000136.5">BGC0000136.5</a></td>
+              <td>PKS</td>
+              <td>43.0</td>
+              <td>93.6</td>
+              <td>330.0</td>
+              <td>2.34e-109</td>
+          </tr>
+    
+          <tr>
+              <td>ASZ00154.1</td>
+              <td>NAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001785.5">BGC0001785.5</a></td>
+              <td>PKS</td>
+              <td>44.0</td>
+              <td>90.4</td>
+              <td>326.0</td>
+              <td>1.75e-108</td>
+          </tr>
+    
+          <tr>
+              <td>CQR60490.1</td>
+              <td>RifH_homologue,_AminoDAHP_synthase,_AHBA_biosynthesis</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001287.5">BGC0001287.5</a></td>
+              <td>PKS</td>
+              <td>42.0</td>
+              <td>94.4</td>
+              <td>323.0</td>
+              <td>3.99e-107</td>
+          </tr>
+    
+          <tr>
+              <td>ABV97159.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000137.3">BGC0000137.3</a></td>
+              <td>PKS</td>
+              <td>42.0</td>
+              <td>93.8</td>
+              <td>323.0</td>
+              <td>1.39e-106</td>
+          </tr>
+    
+          <tr>
+              <td>AYM48695.1</td>
+              <td>T10</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002364.2">BGC0002364.2</a></td>
+              <td>PKS</td>
+              <td>41.0</td>
+              <td>92.7</td>
+              <td>310.0</td>
+              <td>9.06e-102</td>
+          </tr>
+    
+          <tr>
+              <td>AHH25586.1</td>
+              <td>aDAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000957.5">BGC0000957.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>42.0</td>
+              <td>93.3</td>
+              <td>295.0</td>
+              <td>3.26e-96</td>
+          </tr>
+    
+          <tr>
+              <td>WP_018960031.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002010.4">BGC0002010.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>42.0</td>
+              <td>90.9</td>
+              <td>292.0</td>
+              <td>3.69e-95</td>
+          </tr>
+    
+          <tr>
+              <td>AAC64491.1</td>
+              <td>PhzC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000936.5">BGC0000936.5</a></td>
+              <td>other:other</td>
+              <td>41.0</td>
+              <td>93.8</td>
+              <td>284.0</td>
+              <td>7.94e-92</td>
+          </tr>
+    
+          <tr>
+              <td>ADE34506.1</td>
+              <td>SsfI</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000269.5">BGC0000269.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>42.0</td>
+              <td>89.8</td>
+              <td>283.0</td>
+              <td>2.14e-91</td>
+          </tr>
+    
+          <tr>
+              <td>AKC91613.1</td>
+              <td>phenazine_biosynthesis_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001302.5">BGC0001302.5</a></td>
+              <td>other:other</td>
+              <td>42.0</td>
+              <td>90.2</td>
+              <td>281.0</td>
+              <td>3.93e-91</td>
+          </tr>
+    
+          <tr>
+              <td>CAX48671.1</td>
+              <td>putative_3-deoxy-D-arabino-heptulosonic_acid_7-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001080.5">BGC0001080.5</a></td>
+              <td>other:phenazine</td>
+              <td>41.0</td>
+              <td>91.6</td>
+              <td>281.0</td>
+              <td>5.99e-91</td>
+          </tr>
+    
+          <tr>
+              <td>WP_107054275.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001771.4">BGC0001771.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>41.0</td>
+              <td>95.3</td>
+              <td>281.0</td>
+              <td>1.08e-90</td>
+          </tr>
+    
+          <tr>
+              <td>AYV61407.1</td>
+              <td>DAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001965.4">BGC0001965.4</a></td>
+              <td>other:other</td>
+              <td>41.0</td>
+              <td>91.1</td>
+              <td>280.0</td>
+              <td>4.54e-90</td>
+          </tr>
+    
+          <tr>
+              <td>AHW81474.1</td>
+              <td>EpaO</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000934.4">BGC0000934.4</a></td>
+              <td>other:phenazine</td>
+              <td>42.0</td>
+              <td>88.9</td>
+              <td>279.0</td>
+              <td>4.6e-90</td>
+          </tr>
+    
+          <tr>
+              <td>AQW35051.1</td>
+              <td>phospho-2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001675.5">BGC0001675.5</a></td>
+              <td>PKS</td>
+              <td>40.0</td>
+              <td>93.8</td>
+              <td>278.0</td>
+              <td>1.26e-89</td>
+          </tr>
+    
+          <tr>
+              <td>CCA54204.1</td>
+              <td>2-keto-3-deoxy-D-arabino-heptulosonate-7-_phosphate_synthase_II</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000893.5">BGC0000893.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>40.0</td>
+              <td>92.2</td>
+              <td>277.0</td>
+              <td>8.64e-89</td>
+          </tr>
+    
+          <tr>
+              <td>QJS40196.1</td>
+              <td>3-deoxy-D-arabinoheptulosonate-7-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002439.3">BGC0002439.3</a></td>
+              <td>other:other</td>
+              <td>40.0</td>
+              <td>91.3</td>
+              <td>275.0</td>
+              <td>1.4e-88</td>
+          </tr>
+    
+          <tr>
+              <td>KDQ70110.1</td>
+              <td>phospho-2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001444.5">BGC0001444.5</a></td>
+              <td>other:shikimate-derived</td>
+              <td>40.0</td>
+              <td>92.9</td>
+              <td>275.0</td>
+              <td>3.6e-88</td>
+          </tr>
+    
+          <tr>
+              <td>QDJ94208.1</td>
+              <td>SpzC</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002561.3">BGC0002561.3</a></td>
+              <td>other:other</td>
+              <td>40.0</td>
+              <td>94.0</td>
+              <td>275.0</td>
+              <td>7.44e-88</td>
+          </tr>
+    
+          <tr>
+              <td>AFW04567.1</td>
+              <td>PhzC,_DAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001783.5">BGC0001783.5</a></td>
+              <td>other:other</td>
+              <td>41.0</td>
+              <td>90.4</td>
+              <td>276.0</td>
+              <td>9.53e-88</td>
+          </tr>
+    
+          <tr>
+              <td>EWM63063.1</td>
+              <td>phospho-2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000679.5">BGC0000679.5</a></td>
+              <td>terpene</td>
+              <td>38.0</td>
+              <td>93.6</td>
+              <td>272.0</td>
+              <td>6.16e-87</td>
+          </tr>
+    
+          <tr>
+              <td>AEH42482.1</td>
+              <td>3-deoxy-D-arabino-heptulosonate_7-phosphate</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000032.5">BGC0000032.5</a></td>
+              <td>PKS</td>
+              <td>40.0</td>
+              <td>91.8</td>
+              <td>271.0</td>
+              <td>6.67e-87</td>
+          </tr>
+    
+          <tr>
+              <td>QKW60387.1</td>
+              <td>3-deoxy-7-phosphoheptulonate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002288.2">BGC0002288.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>38.0</td>
+              <td>95.6</td>
+              <td>268.0</td>
+              <td>1.74e-85</td>
+          </tr>
+    
+          <tr>
+              <td>AIT42120.1</td>
+              <td>putative_3-deoxy-D-arabino-heptulosonic_acid_7-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001221.5">BGC0001221.5</a></td>
+              <td>other:phenazine</td>
+              <td>40.0</td>
+              <td>89.6</td>
+              <td>266.0</td>
+              <td>6.7e-85</td>
+          </tr>
+    
+          <tr>
+              <td>AIE54188.1</td>
+              <td>Pau21</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001731.5">BGC0001731.5</a></td>
+              <td>other:other</td>
+              <td>40.0</td>
+              <td>91.3</td>
+              <td>266.0</td>
+              <td>1.1e-84</td>
+          </tr>
+    
+          <tr>
+              <td>AIE54241.1</td>
+              <td>PauY21</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001732.5">BGC0001732.5</a></td>
+              <td>other:other</td>
+              <td>40.0</td>
+              <td>91.3</td>
+              <td>266.0</td>
+              <td>1.1e-84</td>
+          </tr>
+    
+          <tr>
+              <td>AAQ84163.1</td>
+              <td>PlmI</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000123.5">BGC0000123.5</a></td>
+              <td>PKS</td>
+              <td>40.0</td>
+              <td>92.7</td>
+              <td>262.0</td>
+              <td>2.94e-83</td>
+          </tr>
+    
+          <tr>
+              <td>AXO35173.1</td>
+              <td>2-keto-3-deoxy-D-arabino-heptulosonate-7-_phosphate_synthase_II</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001848.4">BGC0001848.4</a></td>
+              <td>other:other</td>
+              <td>37.0</td>
+              <td>91.1</td>
+              <td>260.0</td>
+              <td>2.07e-82</td>
+          </tr>
+    
+          <tr>
+              <td>ACN39016.1</td>
+              <td>putative_3-deoxy-D-arabinose-heptulosonic-7-phosphate_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000448.5">BGC0000448.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>39.0</td>
+              <td>92.4</td>
+              <td>259.0</td>
+              <td>4.24e-82</td>
+          </tr>
+    
+          <tr>
+              <td>RZB16706.1</td>
+              <td>phospho-2-dehydro-3-deoxyheptonate_aldolase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001850.4">BGC0001850.4</a></td>
+              <td>other:shikimate-derived</td>
+              <td>40.0</td>
+              <td>93.1</td>
+              <td>263.0</td>
+              <td>4.39e-82</td>
+          </tr>
+    
+          <tr>
+              <td>AOC89002.1</td>
+              <td>putative_3-deoxy-D-arabinoheptulosonate_7-phosphate_(DAHP)_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001652.5">BGC0001652.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>39.0</td>
+              <td>93.1</td>
+              <td>254.0</td>
+              <td>7.49e-80</td>
+          </tr>
+    
+          <tr>
+              <td>ATJ04408.1</td>
+              <td>class-II_DAHP_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001637.3">BGC0001637.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>90.4</td>
+              <td>224.0</td>
+              <td>6.27e-69</td>
+          </tr>
+    
+          <tr>
+              <td>CDG76956.1</td>
+              <td>2-keto-3-deoxy-D-arabino-heptulosonate-7-_phosphate_synthase_II</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000446.5">BGC0000446.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>90.4</td>
+              <td>216.0</td>
+              <td>8.01e-66</td>
+          </tr>
+    
+          <tr>
+              <td>QES95483.1</td>
+              <td>DAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002453.2">BGC0002453.2</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>94.9</td>
+              <td>195.0</td>
+              <td>2.47e-57</td>
+          </tr>
+    
+          <tr>
+              <td>ABP73634.1</td>
+              <td>SalU</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000145.5">BGC0000145.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>54.0</td>
+              <td>21.6</td>
+              <td>120.0</td>
+              <td>5.65e-33</td>
+          </tr>
+    
+          <tr>
+              <td>AQZ26591.1</td>
+              <td>DAHP_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001437.5">BGC0001437.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>70.9</td>
+              <td>126.0</td>
+              <td>2.6e-32</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -13,7 +13,10 @@ from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info, NRP_Variant_ID
 from src.generic.combinatorics import sort_groupby
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
-from src.build_output.html_reporter import create_html_report
+from src.build_output.html_reporter import (
+    create_html_report,
+    HTMLReportConfig
+)
 from src.build_output.draw_graph import draw_molecule, draw_monomer_graph
 from src.pipeline.logging.logger import NerpaLogger
 from pathlib import Path
@@ -190,16 +193,19 @@ def write_matches_details(matches: List[Match],
                          get_id=lambda match: match.nrp_variant_id.nrp_id)
 
 
-def write_results(matches: List[Match],
-                  bgc_variants_info: BGC_Variants_Info,
-                  nrp_variants_info: NRP_Variants_Info,
-                  output_cfg: OutputConfig,
-                  matches_details: bool = True,
-                  html_report: bool = True,
-                  debug_output: bool = False,
-                  write_only_what_is_matched: bool = True,
-                  log: Optional[NerpaLogger] = None,
-                  monomer_names_helper: Optional[MonomerNamesHelper] = None,):
+def write_results(
+        matches: List[Match],
+        bgc_variants_info: BGC_Variants_Info,
+        nrp_variants_info: NRP_Variants_Info,
+        output_cfg: OutputConfig,
+        nerpa_root: Path,
+        matches_details: bool = True,
+        html_report: bool = True,
+        debug_output: bool = False,
+        write_only_what_is_matched: bool = True,
+        log: Optional[NerpaLogger] = None,
+        monomer_names_helper: Optional[MonomerNamesHelper] = None,
+):
     output_cfg.report.write_text(build_report(matches))
 
     if write_only_what_is_matched:
@@ -210,20 +216,35 @@ def write_results(matches: List[Match],
         nrp_ids_to_write = nrp_variants_info.nrp_id_to_repr_id.keys()
 
     output_cfg.bgc_variants.parent.mkdir(exist_ok=True, parents=True)
-    write_bgc_variants(bgc_variants_info,
-                       bgc_ids_to_write,
-                       output_cfg)
+    write_bgc_variants(
+        bgc_variants_info,
+        bgc_ids_to_write,
+        output_cfg
+    )
 
     output_cfg.nrp_variants.parent.mkdir(exist_ok=True, parents=True)
-    monomer_graph_data, molecule_data = write_nrp_variants(nrp_variants_info,
-                       nrp_ids_to_write,
-                       rban_records=nrp_variants_info.rban_records,
-                       output_cfg=output_cfg,
-                       log=log,
-                       monomer_names_helper=monomer_names_helper)
+    write_nrp_variants(
+        nrp_variants_info,
+        nrp_ids_to_write,
+        rban_records=nrp_variants_info.rban_records,
+        output_cfg=output_cfg,
+        log=log,
+        monomer_names_helper=monomer_names_helper
+    )
 
     if matches_details:
         write_matches_details(matches, output_cfg.matches_details)
 
     if html_report:
-        create_html_report(output_cfg, matches, bgc_variants_info, nrp_variants_info, monomer_graph_data, molecule_data, debug_output)
+        html_report_cfg = HTMLReportConfig(
+            main_out_dir=output_cfg.main_out_dir,
+            nerpa_root=nerpa_root,
+            mode='nerpa'
+        )
+        create_html_report(
+            bgc_variants_info=bgc_variants_info,
+            nrp_variants_info=nrp_variants_info,
+            matches=matches,
+            cfg=html_report_cfg,
+            debug_output=debug_output
+        )

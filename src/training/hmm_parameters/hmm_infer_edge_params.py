@@ -9,7 +9,7 @@ from src.general_type_aliases import LogProb
 from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdgeType, GenomicContext, DetailedHMMStateType
 )
-from src.training.hmm_parameters.training_types import EdgeChoices_df, EdgeChoicesSchema
+from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df, HMM_Chosen_Steps_Schema
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
     STATE_TYPE_TO_EDGE_TYPES,
     RELEVANT_GENOMIC_CONTEXT,
@@ -160,15 +160,15 @@ def get_log_probs(edge_choices_per_gc: Dict[GenomicContext, Dict[DetailedHMMEdge
         return log_probs_alt_gc
 
 
-ECS = EdgeChoicesSchema
+ECS = HMM_Chosen_Steps_Schema
 
-def get_num_skip_at_start_runs(edge_choices_df: EdgeChoices_df) -> int:
+def get_num_skip_at_start_runs(edge_choices_df: HMM_Chosen_Steps_df) -> int:
     # return the number unique NRP_IDs with at least one SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START edge type
     mask = (edge_choices_df[ECS.EDGE_TYPE] == ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START)
     nrp_ids_with_skip = edge_choices_df.loc[mask, ECS.NRP_ID].unique()
     return len(nrp_ids_with_skip)
 
-def get_num_skip_at_end_runs(edge_choices_df: EdgeChoices_df) -> int:
+def get_num_skip_at_end_runs(edge_choices_df: HMM_Chosen_Steps_df) -> int:
     # return the number unique NRP_IDs with at least one SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START edge type
     mask = (edge_choices_df[ECS.EDGE_TYPE] == ET.SKIP_MODULES_AT_END)
     nrp_ids_with_skip = edge_choices_df.loc[mask, ECS.NRP_ID].unique()
@@ -192,7 +192,7 @@ def get_log_probs_all_gcs(edge_cnts_per_gc: Dict[GenomicContext, Dict[DetailedHM
 
 
 def assign_skips_at_start_probs(edge_choices_per_state_cntxt: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]],
-                                edge_choices_df: EdgeChoices_df,
+                                edge_choices_df: HMM_Chosen_Steps_df,
                                 log_probs: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, LogProb]]],
                                 min_num_cnts: int,
                                 min_default_probability: float,
@@ -256,7 +256,7 @@ def assign_skips_at_start_probs(edge_choices_per_state_cntxt: Dict[DetailedHMMSt
 
 def assign_skips_at_end_probs(edge_choices_per_state_cntxt: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]],
                               edge_choices_wo_filtering: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]],
-                              edge_choices_df: EdgeChoices_df,
+                              edge_choices_df: HMM_Chosen_Steps_df,
                               log_probs: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, LogProb]]],
                               min_num_cnts: int,
                               min_default_probability: float,
@@ -338,7 +338,7 @@ def assign_skips_at_end_probs(edge_choices_per_state_cntxt: Dict[DetailedHMMStat
 
 def infer_edge_params(edge_choices_per_state_cntxt: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]],
                       edge_choices_wo_filtering: Dict[DetailedHMMStateType, Dict[GenomicContext, Dict[DetailedHMMEdgeType, int]]],
-                      edge_choices_df: EdgeChoices_df,
+                      edge_choices_df: HMM_Chosen_Steps_df,
                       min_default_probability: float = 0.01,
                       min_num_cnts: int = 5,
                       logger: Logger = None) \

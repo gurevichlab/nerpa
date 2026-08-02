@@ -60,3 +60,20 @@ pub fn rounded(f: f64, digits: usize) -> f64 {
     }
     (f * factor).round() / factor
 }
+
+use std::{borrow::Borrow, cmp::Ordering};
+
+pub fn f64_cmp<T: Borrow<f64>>(a: &T, b: &T) -> Ordering {
+    let f1 = a.borrow();
+    let f2 = b.borrow();
+
+    if f1.is_nan() && f2.is_nan() {
+	std::cmp::Ordering::Equal
+    } else if f1.is_nan() {
+	std::cmp::Ordering::Greater
+    } else if f2.is_nan() {
+	std::cmp::Ordering::Less
+    } else {
+	f1.partial_cmp(f2).unwrap()
+    }
+}

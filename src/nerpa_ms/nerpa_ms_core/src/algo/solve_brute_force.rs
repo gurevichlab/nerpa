@@ -1,12 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::data_types::common_types::{LogOdds, MonomerCode};
-use crate::data_types::dag::{Edge, DAG};
+use crate::data_types::mod_graph::{Edge, ModGraph};
 use crate::data_types::discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet};
 use crate::data_types::dp_table::DP_Coords;
 use crate::data_types::hmm::{StateIdx, HMM};
 
-pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &DAG<'a>) -> Vec<Vec<Edge<'a>>> {
+pub fn all_dag_paths_until<'a>(v: usize, w: usize, dag: &ModGraph<'a>) -> Vec<Vec<Edge<'a>>> {
     let mut paths = Vec::new();
     let mut stack = vec![(dag.start, 0, Vec::new())]; // (vertex, weight, path)
 
@@ -84,7 +84,7 @@ pub struct PathsToCoords<'a> {
 
 pub fn dp_brute_force<'a>(
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     max_weight: usize,
 ) -> HashMap<DP_Coords, Vec<PathsToCoords<'a>>> {
     let mut results = HashMap::new();
@@ -158,7 +158,7 @@ pub fn compute_dp_table_brute_force(
 
 pub fn retrieve_paths_brute_force<'a>(
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     paths_to_coords: &HashMap<DP_Coords, Vec<PathsToCoords<'a>>>,
     target_weight: usize,
 ) -> Vec<PathsToCoords<'a>> {

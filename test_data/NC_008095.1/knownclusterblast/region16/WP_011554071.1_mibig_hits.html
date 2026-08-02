@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AQX14446.1</td>
+              <td>bifunctional_ATP_sulfurylase_(ATPS)_/_adenosine_5&#39;-phosphosulfate_kinase_(APSK)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001671.3">BGC0001671.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>37.0</td>
+              <td>65.8</td>
+              <td>108.0</td>
+              <td>1.18e-26</td>
+          </tr>
+    
+          <tr>
+              <td>BBM96666.1</td>
+              <td>sulfate_adenylyltransferase,_large_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002452.2">BGC0002452.2</a></td>
+              <td>PKS</td>
+              <td>34.0</td>
+              <td>66.1</td>
+              <td>101.0</td>
+              <td>5.39e-24</td>
+          </tr>
+    
+          <tr>
+              <td>AQX14498.1</td>
+              <td>adenylyl-sulfate_kinase_(APSK)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001672.3">BGC0001672.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>63.0</td>
+              <td>94.0</td>
+              <td>3.51e-23</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

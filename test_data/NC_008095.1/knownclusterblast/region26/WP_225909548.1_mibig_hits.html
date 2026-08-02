@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ANY57966.1</td>
+              <td>MtcG_beta-hydroxyacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001369.3">BGC0001369.3</a></td>
+              <td>PKS</td>
+              <td>41.0</td>
+              <td>76.3</td>
+              <td>104.0</td>
+              <td>3.17e-28</td>
+          </tr>
+    
+          <tr>
+              <td>QBG38775.1</td>
+              <td>Atr14</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001975.4">BGC0001975.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>83.2</td>
+              <td>75.0</td>
+              <td>4.64e-17</td>
+          </tr>
+    
+          <tr>
+              <td>QYA95686.1</td>
+              <td>beta-hydroxyacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002676.2">BGC0002676.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>78.9</td>
+              <td>70.0</td>
+              <td>3.94e-15</td>
+          </tr>
+    
+          <tr>
+              <td>QNH67546.1</td>
+              <td>Cip18</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002108.3">BGC0002108.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>79.5</td>
+              <td>69.0</td>
+              <td>1.01e-14</td>
+          </tr>
+    
+          <tr>
+              <td>AEA30268.1</td>
+              <td>putative_3-hydroxyacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000429.4">BGC0000429.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>34.0</td>
+              <td>78.4</td>
+              <td>69.0</td>
+              <td>1.08e-14</td>
+          </tr>
+    
+          <tr>
+              <td>QDJ74265.1</td>
+              <td>3-oxoacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002109.3">BGC0002109.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>68.9</td>
+              <td>69.0</td>
+              <td>1.29e-14</td>
+          </tr>
+    
+          <tr>
+              <td>BCN28647.1</td>
+              <td>3-hydroxyacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002441.2">BGC0002441.2</a></td>
+              <td>PKS+NRPS:Type I</td>
+              <td>35.0</td>
+              <td>77.9</td>
+              <td>65.0</td>
+              <td>3.6e-13</td>
+          </tr>
+    
+          <tr>
+              <td>ADQ74612.1</td>
+              <td>beta-hydroxymyristoyl-acyl_carrier_protein_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000921.5">BGC0000921.5</a></td>
+              <td>other:shikimate-derived+PKS+NRPS:Type I</td>
+              <td>36.0</td>
+              <td>55.3</td>
+              <td>59.0</td>
+              <td>3.48e-11</td>
+          </tr>
+    
+          <tr>
+              <td>QMX85614.1</td>
+              <td>SapG</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002510.2">BGC0002510.2</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>78.9</td>
+              <td>59.0</td>
+              <td>5.82e-11</td>
+          </tr>
+    
+          <tr>
+              <td>ALG65300.1</td>
+              <td>Cal36</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001297.4">BGC0001297.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>75.8</td>
+              <td>58.0</td>
+              <td>1.53e-10</td>
+          </tr>
+    
+          <tr>
+              <td>QBA57754.1</td>
+              <td>3-oxoacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002377.2">BGC0002377.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>31.0</td>
+              <td>78.9</td>
+              <td>56.0</td>
+              <td>7.5e-10</td>
+          </tr>
+    
+          <tr>
+              <td>QRG35022.1</td>
+              <td>beta-hydroxyacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002378.3">BGC0002378.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>78.9</td>
+              <td>55.0</td>
+              <td>1.54e-09</td>
+          </tr>
+    
+          <tr>
+              <td>ALG65323.1</td>
+              <td>Cal13</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001297.4">BGC0001297.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>41.0</td>
+              <td>46.3</td>
+              <td>50.0</td>
+              <td>3.01e-07</td>
+          </tr>
+    
+          <tr>
+              <td>QBA57734.1</td>
+              <td>3-hydroxyacyl-ACP_dehydratase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002377.2">BGC0002377.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>40.0</td>
+              <td>46.3</td>
+              <td>48.0</td>
+              <td>1.85e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

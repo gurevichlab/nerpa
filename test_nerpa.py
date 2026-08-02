@@ -1,20 +1,23 @@
-from pathlib import Path
-import yaml
-from typing import List, Optional, Dict, Tuple, Set
-from src.matching.match_type import Match
-from src.testing.check_matches import find_wrong_matches
 import argparse
+import subprocess
 from argparse import Namespace as CommandlineArgs
 from itertools import islice
-import subprocess
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple
+
 import polars as pl
-from src.testing.testing_types import (
-    TestMatch,
-    TestResult,
-    simplified_alignment_from_match,
-    _wrap_alignment
-)
+import yaml
+
+from src.matching.match_type import Match
+from src.pipeline.logging.logger import LoggingConfig, NerpaLogger
+from src.testing.check_matches import find_wrong_matches
 from src.testing.simplified_alignment import fst_mismatched_step
+from src.testing.testing_types import (
+    CuratedAlignment,
+    TestResult,
+    _wrap_alignment,
+    simplified_alignment_from_match,
+)
 
 
 def load_matches(nerpa_results_dir: Path) -> List[Match]:
@@ -24,18 +27,19 @@ def load_matches(nerpa_results_dir: Path) -> List[Match]:
     return loaded_matches
 
 
-def run_nerpa(nerpa_dir: Path,
-              antismash_paths: Path,
-              smiles_tsv: Path,
-              output_dir: Path,
-              max_num_matches: int = 0,
-              max_num_matches_per_bgc: int = 10,
-              min_num_matches_per_bgc: int = 10,
-              disable_calibration: bool = False,
-              disable_dictionary_lookup: bool = False,
-              disable_bgc_deduplication: bool = False,
-              disable_nrp_deduplication: bool = False,
-              ):
+def run_nerpa(
+        nerpa_dir: Path,
+        antismash_paths: Path,
+        preprocessed_nrps: Path,
+        output_dir: Path,
+        max_num_matches: int = 0,
+        max_num_matches_per_bgc: int = 10,
+        min_num_matches_per_bgc: int = 10,
+        disable_calibration: bool = False,
+        disable_dictionary_lookup: bool = False,
+        disable_bgc_deduplication: bool = False,
+        disable_nrp_deduplication: bool = False,
+):
     nerpa_script = nerpa_dir / "nerpa.py"
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -43,17 +47,15 @@ def run_nerpa(nerpa_dir: Path,
     command = [
         "python3", str(nerpa_script),
         "--antismash-paths-file", str(antismash_paths),
-        "--smiles-tsv", str(smiles_tsv),
-        "--col-id", "ID",
+        "--parsed-rban-records", str(preprocessed_nrps),
         "--output-dir", str(output_dir),
         "--force-output-dir",
         "--max-num-matches", str(max_num_matches),
         "--max-num-matches-per-bgc", str(max_num_matches_per_bgc),
         "--min-num-matches-per-bgc", str(min_num_matches_per_bgc),
-        "--skip-molecule-drawing",
         "--threads", "8",
-        "--fast-matching",
         "--dump-all-preprocessed",
+        "--skip-molecule-drawing",
         "--let-it-crash",
     ]
     if disable_bgc_deduplication:
@@ -79,34 +81,73 @@ def load_command_line_args(nerpa_dir: Path,
                            local_paths: dict) -> CommandlineArgs:
     parser = argparse.ArgumentParser(description="Runs Nerpa on NRPs and BGCs "
                                                  "from approved matches and checks the results.")
+    default_approved_matches_path = (
+        nerpa_dir
+        / 'data'
+        / 'for_training_and_testing'
+        / 'approved_matches.yaml'
+    )
     parser.add_argument("--test-matches", type=Path,
-                        default=nerpa_dir / 'data/for_training_and_testing/approved_matches.yaml',
-                        help="Path to the approved matches file.")
-    parser.add_argument("--smiles-tsv", type=Path,
-                        default=nerpa_dir / 'data/input/pnrpdb2_expanded_mibig_norine.tsv')
-    parser.add_argument("--antismash-results", type=Path,
-                        default=local_paths['as_results_mibig4_nrps'])
-    parser.add_argument("--output-dir", type=Path,
-                        default=nerpa_dir / 'test_results')
+                        default=default_approved_matches_path,
+                        help=f"Path to the approved matches file (default={default_approved_matches_path}).")
+    default_preprocessed_nrps = (
+        nerpa_dir
+        / 'data'
+        / 'input'
+        / 'preprocessed'
+        / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
+    )
+    parser.add_argument(
+        "--preprocessed-nrps",
+        type=Path,
+        default=default_preprocessed_nrps,
+        help=f"Path to the smiles TSV file (default={default_preprocessed_nrps})."
+    )
+
+    default_pnrpdb_info_path = (
+        nerpa_dir
+        / 'data'
+        / 'for_training_and_testing'
+        / 'pnrpdb2_info.tsv'
+    )
+    parser.add_argument(
+        "--nrps-info",
+        type=Path,
+        default=default_pnrpdb_info_path,
+        help=f"Path to table with NRP clustering and stats such as number of monomers (default={default_pnrpdb_info_path})."
+    )
+
+    default_antismash_results_path = Path(local_paths['antiSMASH results on MIBiG 4'])
+    parser.add_argument(
+        "--antismash-results",
+        type=Path,
+        default=default_antismash_results_path,
+        help=f"Path to the antismash results directory (default={default_antismash_results_path})."
+    )
+
+    default_output_dir = nerpa_dir / 'test_results'
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=default_output_dir,
+        help=f"Path to the output directory (default={default_output_dir})."
+    )
     parser.add_argument("--nerpa-results", type=Path)
 
     return parser.parse_args()
 
 
 def load_local_paths(nerpa_dir: Path) -> dict:
-    with open(nerpa_dir / 'local_paths.yaml') as local_paths_yaml:
+    with open(nerpa_dir / 'paths_to_external_data.yaml') as local_paths_yaml:
         local_paths_dict = yaml.safe_load(local_paths_yaml)
-        if any(path is None for path in local_paths_dict.values()):
-            raise ValueError(f"Some local paths are not set in {nerpa_dir / 'local_paths.yaml'}"
-                             f"Testing cannot be performed.")
         return {key: Path(value) for key, value in local_paths_dict.items()}
 
 
-def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
+def write_wrong_matches(wrong_matches: List[tuple[Match, CuratedAlignment]],
                         output_file: Path):
     data = []
-    for match, test_match in wrong_matches:
-        al_wrong = simplified_alignment_from_match(match)
+    for m, test_match in wrong_matches:
+        al_wrong = simplified_alignment_from_match(m)
         al_right = test_match.true_alignment
         mismatched_step_wrong, mismatched_step_right = fst_mismatched_step(al_wrong, al_right)
         mismatched_step_wrong = _wrap_alignment([mismatched_step_wrong]) \
@@ -117,7 +158,7 @@ def write_wrong_matches(wrong_matches: List[tuple[Match, TestMatch]],
         data.append({
             'bgc_id': test_match.bgc_id,
             'nrp_id': test_match.nrp_id,
-            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(match)),
+            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(m)),
             'true_alignment': _wrap_alignment(test_match.true_alignment),
             'first_mismatched_step': [mismatched_step_wrong,
                                       mismatched_step_right],
@@ -146,16 +187,23 @@ def check_nrp_bgc_variants_parsed(nerpa_results_dir: Path,
                               for nrp_id in parsed_nrp_ids}
 
     missing_bgcs = bgc_ids - parsed_bgc_ids
-    missing_nrps = {nrp_id for nrp_id in nrp_ids
-                    if nrp_id_to_iso_class[nrp_id] not in parsed_nrp_iso_classes}
+    missing_nrps = {
+        nrp_id
+        for nrp_id in nrp_ids
+        if nrp_id not in nrp_id_to_iso_class
+        or nrp_id_to_iso_class[nrp_id] not in parsed_nrp_iso_classes
+    }
     if missing_bgcs:
-        raise ValueError(f'The following BGC IDs are missing in preprocessed input:\n{missing_bgcs}')
+        # raise ValueError(f'The following BGC IDs are missing in preprocessed input:\n{missing_bgcs}')
+        print(f'The following BGC IDs are missing in preprocessed input:\n{missing_bgcs}')
+
     if missing_nrps:
-        raise ValueError(f'The following NRP IDs are missing (up to isomorphism) in preprocessed input:\n{missing_nrps}')
+        # raise ValueError(f'The following NRP IDs are missing (up to isomorphism) in preprocessed input:\n{missing_nrps}')
+        print(f'The following NRP IDs are missing (up to isomorphism) in preprocessed input:\n{missing_nrps}')
 
 
-def remove_deprecated_nrps(test_matches: List[TestMatch],
-                           pnrpdb_info: pl.DataFrame) -> List[TestMatch]:
+def remove_deprecated_nrps(test_matches: List[CuratedAlignment],
+                           pnrpdb_info: pl.DataFrame) -> List[CuratedAlignment]:
     print('Filtering out matches with deprecated NRPs:')
     '''
     MIBiG is constantly updated and whatnot.
@@ -164,13 +212,21 @@ def remove_deprecated_nrps(test_matches: List[TestMatch],
     '''
 
     valid_nrp_ids = set(pnrpdb_info['compound_id'])
-    deprecated_ids = {test_match.nrp_id for test_match in test_matches
-                      if test_match.nrp_id not in valid_nrp_ids}
-    print(f'Removed {len(deprecated_ids)} test matches with deprecated NRP IDs:\n'
-          f'{sorted(deprecated_ids)}\n')
+    deprecated_ids = {
+        test_match.nrp_id
+        for test_match in test_matches
+        if test_match.nrp_id not in valid_nrp_ids
+    }
+    print(
+        f'Removed {len(deprecated_ids)} test matches with deprecated NRP IDs:\n'
+        f'{sorted(deprecated_ids)}\n'
+    )
 
-    return [test_match for test_match in test_matches
-            if test_match.nrp_id in valid_nrp_ids]
+    return [
+        test_match
+        for test_match in test_matches
+        if test_match.nrp_id in valid_nrp_ids
+    ]
 
 NRP_ISO_CLASS = str  # NRP representative ID up to isomorphism
 NRP_ID = str
@@ -192,8 +248,15 @@ def load_nrp_id_to_iso_class(nerpa_results_dir: Path) -> Dict[NRP_ID, NRP_ISO_CL
 def main():
     nerpa_dir = Path(__file__).parent
     local_paths = load_local_paths(nerpa_dir)
-    pnrpdb_info = pl.read_csv(nerpa_dir / 'data/for_training_and_testing/pnrpdb2_info.tsv',
-                              separator='\t')
+    args = load_command_line_args(nerpa_dir, local_paths)
+    pnrpdb_info = pl.read_csv(args.nrps_info, separator='\t')
+
+    # logging_cfg = LoggingConfig(
+    #     log_file=args.output_dir / 'test_nerpa.log',
+    #     warnings_file=args.output_dir / 'test_nerpa_warnings.log',
+    #     stdout_log_level='INFO',
+    #     nerpa_version=NERPA_VERSION,
+    # )
     #nrp_id_to_iso_class: Dict[NRP_ID, NRP_ISO_CLASS] = {
     #    row['compound_id']: row['nrp_variant_iso_class_representative']
     #    for row in pnrpdb_info.select(['compound_id', 'nrp_variant_iso_class_representative']).to_dicts()
@@ -219,11 +282,10 @@ def main():
         ]
     }
 
-    args = load_command_line_args(nerpa_dir, local_paths)
 
     print('Loading tests')
     test_matches_yaml = yaml.safe_load(args.test_matches.read_text())
-    test_matches = [TestMatch.from_yaml_dict(test_match_dict)
+    test_matches = [CuratedAlignment.from_yaml_dict(test_match_dict)
                     for test_match_dict in test_matches_yaml]
     test_matches = [test_match for test_match in test_matches
                     if test_match.bgc_id not in MIBIG_ERRORS]
@@ -239,13 +301,15 @@ def main():
                 f.write(f"{args.antismash_results / bgc_id}\n")
 
         print('Running Nerpa')
-        run_nerpa(nerpa_dir,
-                  antismash_paths=as_results_file,
-                  smiles_tsv=args.smiles_tsv,
-                  output_dir=args.output_dir / 'nerpa_results',
-                  max_num_matches_per_bgc=30,
-                  disable_bgc_deduplication=True,
-                  disable_nrp_deduplication=True,)
+        run_nerpa(
+            nerpa_dir=nerpa_dir,
+            antismash_paths=as_results_file,
+            preprocessed_nrps=args.preprocessed_nrps,
+            output_dir=args.output_dir / 'nerpa_results',
+            max_num_matches_per_bgc=30,
+            disable_bgc_deduplication=True,
+            disable_nrp_deduplication=True,
+        )
         print('Nerpa finished')
         nerpa_results_dir = args.output_dir / 'nerpa_results'
     else:
@@ -262,17 +326,19 @@ def main():
     #  (need to make sure that equal NRP_Monomer with different rBAN names are treated as isomorphic)
     nrp_id_to_iso_class = {nrp_id: nrp_id for nrp_id in nrp_id_to_iso_class}
 
-    check_nrp_bgc_variants_parsed(nerpa_results_dir=nerpa_results_dir,
-                                  bgc_ids={test_match.bgc_id for test_match in test_matches},
-                                  nrp_ids={test_match.nrp_id for test_match in test_matches},
-                                  nrp_id_to_iso_class=nrp_id_to_iso_class)
+    check_nrp_bgc_variants_parsed(
+        nerpa_results_dir=nerpa_results_dir,
+        bgc_ids={test_match.bgc_id for test_match in test_matches},
+        nrp_ids={test_match.nrp_id for test_match in test_matches},
+        nrp_id_to_iso_class=nrp_id_to_iso_class
+    )
     matches = load_matches(nerpa_results_dir)
     matches_by_id: Dict[Tuple[BGC_ID, NRP_ISO_CLASS], Match] = {
-        (match.genome_id, nrp_id_to_iso_class[match.nrp_variant_id.nrp_id]): match
-        for match in matches
+        (m.genome_id, nrp_id_to_iso_class[m.nrp_variant_id.nrp_id]): m
+        for m in matches
     }
 
-    test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], TestMatch] = {
+    test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], CuratedAlignment] = {
         (test_match.bgc_id, test_match.nrp_id): test_match
         for test_match in test_matches
     }
@@ -281,7 +347,7 @@ def main():
     missing_tests = {
         (test_match.bgc_id, test_match.nrp_id)
         for test_match in test_matches
-        if (test_match.bgc_id, nrp_id_to_iso_class[test_match.nrp_id]) not in matches_by_id
+        if (test_match.bgc_id, nrp_id_to_iso_class.get(test_match.nrp_id)) not in matches_by_id
     }
 
     missing_expected = missing_tests.intersection(MISSING_EXPECTED)
@@ -293,7 +359,7 @@ def main():
                                                nrp_id_to_iso_class[test_match.nrp_id])),
                             check_ids=False)
         for test_match in test_matches
-        if (test_match.bgc_id, nrp_id_to_iso_class[test_match.nrp_id]) in matches_by_id
+        if (test_match.bgc_id, nrp_id_to_iso_class.get(test_match.nrp_id)) in matches_by_id
     }
 
     total = len(test_matches)

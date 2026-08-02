@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AHZ20770.1</td>
+              <td>major_facilitator_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000369.5">BGC0000369.5</a></td>
+              <td>NRPS:Type I+saccharide:hybrid/tailoring</td>
+              <td>37.0</td>
+              <td>89.2</td>
+              <td>263.0</td>
+              <td>7e-83</td>
+          </tr>
+    
+          <tr>
+              <td>AHZ20785.1</td>
+              <td>major_facilitator_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000369.5">BGC0000369.5</a></td>
+              <td>NRPS:Type I+saccharide:hybrid/tailoring</td>
+              <td>34.0</td>
+              <td>94.3</td>
+              <td>238.0</td>
+              <td>1.87e-73</td>
+          </tr>
+    
+          <tr>
+              <td>NHN68326.1</td>
+              <td>MFS_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002719.2">BGC0002719.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>92.3</td>
+              <td>185.0</td>
+              <td>3.26e-53</td>
+          </tr>
+    
+          <tr>
+              <td>QKM21616.1</td>
+              <td>major_facilitator_superfamily_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002351.3">BGC0002351.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>91.4</td>
+              <td>172.0</td>
+              <td>2.52e-48</td>
+          </tr>
+    
+          <tr>
+              <td>AKJ29409.1</td>
+              <td>major_facilitator_superfamily</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001608.4">BGC0001608.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>31.0</td>
+              <td>96.7</td>
+              <td>169.0</td>
+              <td>3.87e-47</td>
+          </tr>
+    
+          <tr>
+              <td>KPN90371.1</td>
+              <td>class_III_aminotransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001416.5">BGC0001416.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>99.8</td>
+              <td>165.0</td>
+              <td>1.32e-45</td>
+          </tr>
+    
+          <tr>
+              <td>AED90000.1</td>
+              <td>putative_MFS_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000443.5">BGC0000443.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>91.6</td>
+              <td>160.0</td>
+              <td>6.97e-44</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

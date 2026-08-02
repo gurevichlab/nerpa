@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>WP_046463487.1</td>
+              <td>catalase_KatB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002571.2">BGC0002571.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>55.0</td>
+              <td>94.5</td>
+              <td>522.0</td>
+              <td>8.63e-183</td>
+          </tr>
+    
+          <tr>
+              <td>ABX02684.1</td>
+              <td>Catalase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001521.3">BGC0001521.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>94.7</td>
+              <td>425.0</td>
+              <td>6.51e-145</td>
+          </tr>
+    
+          <tr>
+              <td>EAL94102.1</td>
+              <td>catalase_Cat</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000811.3">BGC0000811.3</a></td>
+              <td>other:other</td>
+              <td>38.0</td>
+              <td>92.8</td>
+              <td>311.0</td>
+              <td>7.39e-100</td>
+          </tr>
+    
+          <tr>
+              <td>AET79180.1</td>
+              <td>chanoclavine_synthase_catalase_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001241.4">BGC0001241.4</a></td>
+              <td>terpene</td>
+              <td>46.0</td>
+              <td>65.4</td>
+              <td>299.0</td>
+              <td>5.69e-96</td>
+          </tr>
+    
+          <tr>
+              <td>CCE30233.1</td>
+              <td>probable_catalase_isozyme_P</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002232.2">BGC0002232.2</a></td>
+              <td>other:other</td>
+              <td>46.0</td>
+              <td>65.4</td>
+              <td>299.0</td>
+              <td>5.69e-96</td>
+          </tr>
+    
+          <tr>
+              <td>ARB50203.1</td>
+              <td>chanoclavine_synthase_catalase_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001573.3">BGC0001573.3</a></td>
+              <td>other:other</td>
+              <td>38.0</td>
+              <td>88.1</td>
+              <td>283.0</td>
+              <td>1.75e-89</td>
+          </tr>
+    
+          <tr>
+              <td>ABV57821.1</td>
+              <td>putative_catalase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001267.3">BGC0001267.3</a></td>
+              <td>terpene</td>
+              <td>41.0</td>
+              <td>69.5</td>
+              <td>278.0</td>
+              <td>1.45e-87</td>
+          </tr>
+    
+          <tr>
+              <td>KGO40473.1</td>
+              <td>Catalase,_mono-functional,_heme-containing</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001205.3">BGC0001205.3</a></td>
+              <td>PKS</td>
+              <td>37.0</td>
+              <td>90.2</td>
+              <td>266.0</td>
+              <td>1.97e-83</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

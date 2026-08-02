@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>CDM36723.1</td>
+              <td>Probable_inosine-5&#39;-monophosphate_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001360.3">BGC0001360.3</a></td>
+              <td>PKS</td>
+              <td>40.0</td>
+              <td>96.1</td>
+              <td>310.0</td>
+              <td>7.79e-100</td>
+          </tr>
+    
+          <tr>
+              <td>ADY00133.1</td>
+              <td>putative_inosine_monophosphate_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000104.4">BGC0000104.4</a></td>
+              <td>PKS:Type I</td>
+              <td>37.0</td>
+              <td>101.0</td>
+              <td>293.0</td>
+              <td>2.03e-93</td>
+          </tr>
+    
+          <tr>
+              <td>AJG44383.1</td>
+              <td>MpaF&#39;</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002619.2">BGC0002619.2</a></td>
+              <td>PKS</td>
+              <td>36.0</td>
+              <td>105.4</td>
+              <td>284.0</td>
+              <td>1.3e-89</td>
+          </tr>
+    
+          <tr>
+              <td>ACF06636.1</td>
+              <td>ToyE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000879.5">BGC0000879.5</a></td>
+              <td>other:other</td>
+              <td>37.0</td>
+              <td>99.0</td>
+              <td>254.0</td>
+              <td>5.34e-80</td>
+          </tr>
+    
+          <tr>
+              <td>AFV92627.1</td>
+              <td>TymE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000881.3">BGC0000881.3</a></td>
+              <td>other:other</td>
+              <td>37.0</td>
+              <td>98.4</td>
+              <td>249.0</td>
+              <td>2.98e-78</td>
+          </tr>
+    
+          <tr>
+              <td>APT68175.1</td>
+              <td>ToyE</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001808.5">BGC0001808.5</a></td>
+              <td>other:other</td>
+              <td>37.0</td>
+              <td>98.4</td>
+              <td>249.0</td>
+              <td>2.98e-78</td>
+          </tr>
+    
+          <tr>
+              <td>API82662.1</td>
+              <td>putative_inosine_monophosphate_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001677.3">BGC0001677.3</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>95.3</td>
+              <td>247.0</td>
+              <td>3.64e-76</td>
+          </tr>
+    
+          <tr>
+              <td>API82669.1</td>
+              <td>putative_inosine_monophosphate_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002616.2">BGC0002616.2</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>95.3</td>
+              <td>247.0</td>
+              <td>3.64e-76</td>
+          </tr>
+    
+          <tr>
+              <td>AVW83012.1</td>
+              <td>Guanosine_monophosphate_reductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001937.4">BGC0001937.4</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>96.7</td>
+              <td>236.0</td>
+              <td>5.24e-73</td>
+          </tr>
+    
+          <tr>
+              <td>CAJ42313.1</td>
+              <td>putative_inosine_monophosphate_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000273.5">BGC0000273.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>36.0</td>
+              <td>97.1</td>
+              <td>225.0</td>
+              <td>9.25e-68</td>
+          </tr>
+    
+          <tr>
+              <td>SCF06455.1</td>
+              <td>IMP_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002435.3">BGC0002435.3</a></td>
+              <td>other:other</td>
+              <td>34.0</td>
+              <td>97.1</td>
+              <td>220.0</td>
+              <td>8.33e-66</td>
+          </tr>
+    
+          <tr>
+              <td>WP_017947400.1</td>
+              <td>CBS_domain-containing_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001558.5">BGC0001558.5</a></td>
+              <td>PKS</td>
+              <td>27.0</td>
+              <td>23.9</td>
+              <td>46.0</td>
+              <td>8.9e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

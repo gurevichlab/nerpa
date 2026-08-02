@@ -40,6 +40,12 @@ class Chirality(Enum):
     D = auto()
     UNKNOWN = auto()
 
+    def __lt__(self, other):
+        if not isinstance(other, Chirality):
+            return NotImplemented
+        order = {Chirality.L: 0, Chirality.D: 1, Chirality.UNKNOWN: 2}
+        return order[self] < order[other]
+
 
 class NRP_Monomer_Modification(Enum):  # post-translational modification
     METHYLATION = auto()

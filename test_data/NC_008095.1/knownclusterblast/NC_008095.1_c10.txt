@@ -1,0 +1,1007 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS36820	4202140	4203145	+	PD-(D/E)XK motif protein	
+MXAN_RS17490	4203147	4205295	+	AIPR family protein	
+MXAN_RS38405	4205487	4206099	-	hypothetical protein	
+MXAN_RS36825	4206095	4206677	-	response regulator transcription factor	
+MXAN_RS36830	4206673	4208764	-	sensor histidine kinase	
+MXAN_RS17500	4209760	4211071	+	group II intron reverse transcriptase/maturase	
+MXAN_RS17505	4211244	4211655	-	integrase core domain-containing protein	
+MXAN_RS38170	4211963	4212413	+	hypothetical protein	
+MXAN_RS17510	4212521	4213283	-	IS21-like element helper ATPase IstB	
+MXAN_RS17515	4213466	4215005	-	IS21 family transposase	
+MXAN_RS17520	4215248	4216754	+	IS21 family transposase	
+MXAN_RS17525	4216750	4217512	+	IS21-like element helper ATPase IstB	
+MXAN_RS37715	4217691	4217934	-	DDE-type integrase/transposase/recombinase	
+MXAN_RS36845	4218072	4219278	+	IS701 family transposase	
+MXAN_RS38755	4219451	4219634	-	hypothetical protein	
+MXAN_RS17545	4220393	4234097	-	non-ribosomal peptide synthetase	
+MXAN_RS17550	4234157	4238765	-	type I polyketide synthase	
+MXAN_RS17555	4239279	4243803	+	type I polyketide synthase	
+MXAN_RS17560	4243858	4247053	+	type I polyketide synthase	
+MXAN_RS17565	4247154	4248393	-	GNAT family N-acetyltransferase	
+MXAN_RS17570	4248424	4249111	-	glutathione S-transferase	
+MXAN_RS17575	4249182	4251489	+	lantibiotic dehydratase	
+MXAN_RS17580	4251545	4252985	+	hypothetical protein	
+MXAN_RS17585	4253000	4253867	-	cupin-like domain-containing protein	
+MXAN_RS17590	4253889	4254213	-	hypothetical protein	
+MXAN_RS17595	4254239	4254992	-	thioesterase II family protein	
+MXAN_RS17600	4254988	4256266	-	glycosyltransferase family 4 protein	
+MXAN_RS17605	4256300	4259381	-	type I polyketide synthase	
+MXAN_RS17610	4259399	4264004	-	type I polyketide synthase	
+MXAN_RS17615	4264150	4265182	-	LLM class flavin-dependent oxidoreductase	
+MXAN_RS17620	4265411	4266860	-	hypothetical protein	
+MXAN_RS17625	4267161	4284318	+	non-ribosomal peptide synthase/polyketide synthase	
+MXAN_RS17630	4284310	4297456	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS36330	4297459	4333279	+	non-ribosomal peptide synthase/polyketide synthase	
+MXAN_RS17645	4333308	4334601	-	ELWxxDGT repeat protein	
+MXAN_RS17650	4334983	4336906	+	membrane dipeptidase	
+MXAN_RS17655	4337072	4337888	+	siderophore-interacting protein	
+MXAN_RS17660	4337884	4339159	-	myxochelin B biosynthesis transaminase MxcL	
+MXAN_RS17665	4339197	4340424	-	myxochelin export MFS transporter MxcK	
+MXAN_RS17670	4340440	4341793	-	class II 3-deoxy-7-phosphoheptulonate synthase	
+MXAN_RS17675	4341789	4346130	-	myxochelin non-ribosomal peptide synthetase MxcG	
+MXAN_RS17680	4346190	4347090	-	isochorismatase family protein	
+MXAN_RS17685	4347102	4348749	-	(2,3-dihydroxybenzoyl)adenylate synthase	
+MXAN_RS17690	4348745	4349990	-	isochorismate synthase DhbC	
+MXAN_RS17695	4350101	4350875	-	2,3-dihydro-2,3-dihydroxybenzoate dehydrogenase	
+MXAN_RS17700	4351238	4353626	+	ABC transporter permease	
+MXAN_RS17705	4353767	4354295	+	hypothetical protein	
+MXAN_RS17710	4354316	4356797	-	ABC transporter permease	
+MXAN_RS17715	4356884	4357205	-	YetF domain-containing protein	
+MXAN_RS17720	4357338	4358457	+	enolase C-terminal domain-like protein	
+MXAN_RS17725	4358491	4361695	-	FAD-binding and (Fe-S)-binding domain-containing protein	
+MXAN_RS17730	4361929	4363714	+	thiamine pyrophosphate-requiring protein	
+MXAN_RS17735	4363849	4367236	-	DUF4082 domain-containing protein	
+MXAN_RS17740	4367510	4368221	+	hypothetical protein	
+MXAN_RS17745	4368351	4369071	-	helix-turn-helix transcriptional regulator	
+MXAN_RS17750	4369149	4369578	+	VOC family protein	
+MXAN_RS17755	4369602	4370163	+	YdeI/OmpD-associated family protein	
+
+
+Significant hits: 
+1. BGC0002492.3	myxochelin B/myxochelin A
+2. BGC0001345.5	myxochelin A/myxochelin B
+3. BGC0002324.3	myxochelin B/myxochelin N/myxochelin O/myxochelin P/myxochelin Q/myxochelin A
+4. BGC0002528.3	aminochelin/azotochelin/protochelin
+5. BGC0001231.5	microsclerodermin
+6. BGC0000966.5	caerulomycin A
+7. BGC0000973.5	collismycin A
+8. BGC0000401.5	paenibactin
+9. BGC0000309.5	bacillibactin
+10. BGC0002695.2	bacillibactin/bacillibactin E/bacillibactin F
+11. BGC0001185.5	bacillibactin
+12. BGC0000368.5	griseobactin
+13. BGC0000359.5	Fuscachelin A/Fuscachelin B/Fuscachelin C
+14. BGC0001019.5	microsclerodermin M
+15. BGC0001001.5	jamaicamide A/jamaicamide B/jamaicamide C
+16. BGC0001053.5	tubulysin A
+17. BGC0001344.4	tubulysin A/tubulysin B/tubulysin C/tubulysin D/tubulysin E/tubulysin F/tubulysin G/tubulysin H/tubulysin I
+18. BGC0001330.5	BE-43547A1/BE-43547A2/BE-43547B1/BE-43547B2/BE-43547B3/BE-43547C1/BE-43547C2
+19. BGC0001885.3	oxazolepoxidomycin A
+20. BGC0002451.2	inthomycin B
+21. BGC0001039.5	pyridomycin
+22. BGC0000935.5	esmeraldin
+23. BGC0002010.4	streptophenazine B/streptophenazine C/streptophenazine F/streptophenazine G/streptophenazine H
+24. BGC0000392.5	mirubactin
+25. BGC0001106.6	oxazolomycin
+26. BGC0000991.4	epothilone
+27. BGC0002688.2	benarthin/dibenarthin
+28. BGC0002473.3	propanochelin/butanochelin/pentanochelin
+29. BGC0001328.5	rakicidin A/rakicidin B
+30. BGC0002676.2	skyllamycin D/skyllamycin E
+31. BGC0001213.5	nataxazole
+32. BGC0002679.2	chromobactin
+33. BGC0002696.2	heterobactin B/heterobactin S2
+34. BGC0000371.5	heterobactin A/heterobactin S2
+35. BGC0002689.2	2,3-dihydroxybenzoylserine
+36. BGC0002494.3	vibriobactin
+37. BGC0002414.3	trichrysobactin/cyclic trichrysobactin/chrysobactin/dichrysobactin
+38. BGC0002495.2	photobactin
+39. BGC0001033.5	paenilamicin/paenilamicin A2/paenilamicin B1/paenilamicin B2
+40. BGC0002815.2	acidobactamide A/acidobactamide B/acidobactamide C
+41. BGC0002532.3	anachelin
+42. BGC0002107.3	fabrubactin A/fabrubactin B
+43. BGC0001537.5	butyrolactol A
+44. BGC0000964.5	burkholdac A/burkholdac B
+45. BGC0001045.5	spiruchostatin A
+46. BGC0002491.3	myxochelin B/myxochelin A/pseudochelin A
+47. BGC0000972.5	N-myristoyl-D-asparagine/cis-7-tetradecenoyl-D-asparagine/(R)-N1-((S)-5-oxohexan-2-yl)-2-tetradecanamidosuccinamide/colibactin/precolibactin 1489
+48. BGC0001444.5	caboxamycin
+49. BGC0001292.5	A33853
+50. BGC0002493.3	parabactin
+
+
+Details:
+
+>>
+1. BGC0002492.3
+Source: myxochelin B/myxochelin A
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 9
+Cumulative BLAST score: 8869.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17655	MXAN_3639	100	558	100.0	1.07e-204
+MXAN_RS17660	MXAN_3640	100	822	100.0	8.81e-304
+MXAN_RS17665	MXAN_3641	100	776	100.0	3.46e-286
+MXAN_RS17670	MXAN_3642	100	918	100.0	0.0
+MXAN_RS17675	MXAN_3643	100	2847	100.0	0.0
+MXAN_RS17680	MXAN_3644	100	586	100.0	1.42e-214
+MXAN_RS17685	MXAN_3645	100	1083	100.0	0.0
+MXAN_RS17690	MXAN_3646	100	801	100.0	4.82e-296
+MXAN_RS17695	MXAN_3647	100	478	100.0	3.77e-173
+
+
+
+>>
+2. BGC0001345.5
+Source: myxochelin A/myxochelin B
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 9
+Cumulative BLAST score: 6456.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17655	AAG31125.1	64	363	98.1549815498155	2.51e-127
+MXAN_RS17660	AAG31135.1	74	622	99.05660377358491	8.45e-225
+MXAN_RS17665	AAG31134.1	68	531	99.75490196078431	3.15e-189
+MXAN_RS17670	AAG31131.1	74	691	101.77777777777777	7.66e-251
+MXAN_RS17675	AAG31130.1	69	1969	101.10650069156293	0.0
+MXAN_RS17680	AAG31129.1	71	424	101.00334448160535	2.05e-150
+MXAN_RS17685	AAG31128.1	79	873	98.90510948905109	0.0
+MXAN_RS17690	AAG31127.1	82	645	98.06763285024155	1.91e-234
+MXAN_RS17695	AAG31126.1	71	338	99.22178988326849	7.15e-118
+
+
+
+>>
+3. BGC0002324.3
+Source: myxochelin B/myxochelin N/myxochelin O/myxochelin P/myxochelin Q/myxochelin A
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 6
+Cumulative BLAST score: 5120.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17670	JQX13_35825	76	704	101.11111111111111	2.64e-256
+MXAN_RS17675	JQX13_35820	74	2080	99.79253112033194	0.0
+MXAN_RS17680	JQX13_35815	71	423	100.33444816053512	3.11e-150
+MXAN_RS17685	JQX13_35810	82	899	98.35766423357664	0.0
+MXAN_RS17690	JQX13_35805	82	645	97.82608695652173	2.71e-234
+MXAN_RS17695	JQX13_35800	79	369	100.0	3.4e-130
+
+
+
+>>
+4. BGC0002528.3
+Source: aminochelin/azotochelin/protochelin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 2422.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17675	AvCA_21190	51	894	73.582295988935	7.07e-303
+MXAN_RS17680	AvCA_21200	46	250	93.64548494983278	1.85e-82
+MXAN_RS17685	AvCA_21210	66	689	95.62043795620438	5.09e-247
+MXAN_RS17690	AvCA_21220	51	338	96.61835748792271	1.44e-113
+MXAN_RS17695	AvCA_21180	59	251	98.44357976653697	1.92e-83
+
+
+
+>>
+5. BGC0001231.5
+Source: microsclerodermin
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 6
+Cumulative BLAST score: 11488.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AHB82072.1	47	1204	100.13029315960912	0.0
+MXAN_RS17550	AHB82062.1	47	733	59.28338762214984	1.95e-225
+MXAN_RS17555	AHB82072.1	48	1299	102.45520902455209	0.0
+MXAN_RS17555	AHB82062.1	46	757	61.844724618447245	2.39e-234
+MXAN_RS17560	AHB82072.1	56	915	84.11654135338345	3.31e-300
+MXAN_RS17560	AHB82070.1	53	869	85.05639097744361	2.66e-296
+MXAN_RS17560	AHB82062.1	48	758	85.6203007518797	1.89e-240
+MXAN_RS17605	AHB82070.1	53	856	87.13450292397661	8.84e-292
+MXAN_RS17605	AHB82072.1	54	872	86.35477582846003	1.12e-284
+MXAN_RS17605	AHB82062.1	47	702	87.23196881091619	2.37e-221
+MXAN_RS17610	AHB82072.1	47	1236	100.19556714471969	0.0
+MXAN_RS17610	AHB82062.1	48	787	58.735332464146026	1.92e-244
+MXAN_RS17665	AHB82060.1	65	500	99.26470588235294	1.39e-176
+
+
+
+>>
+6. BGC0000966.5
+Source: caerulomycin A
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 6
+Cumulative BLAST score: 5001.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AFD30954.1	50	788	57.719869706840385	1.31e-249
+MXAN_RS17555	AFD30954.1	50	803	58.52687458526875	2.24e-255
+MXAN_RS17560	AFD30954.1	48	834	95.86466165413535	4.22e-273
+MXAN_RS17605	AFD30954.1	50	888	98.05068226120858	4.86e-294
+MXAN_RS17610	AFD30954.1	50	824	58.60495436766623	4.47e-263
+MXAN_RS17685	AEM06018.2	47	432	97.08029197080292	1.87e-146
+MXAN_RS17685	AFD30957.1	47	432	97.08029197080292	5.69e-145
+
+
+
+>>
+7. BGC0000973.5
+Source: collismycin A
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 6
+Cumulative BLAST score: 4568.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	CCC55921.1	49	804	60.91205211726385	5.47e-255
+MXAN_RS17555	CCC55921.1	51	827	58.79230258792303	6.56e-264
+MXAN_RS17560	CCC55921.1	48	844	95.48872180451127	2.34e-276
+MXAN_RS17605	CCC55921.1	50	866	96.78362573099415	4.84e-285
+MXAN_RS17610	CCC55921.1	49	801	58.40938722294654	3.82e-254
+MXAN_RS17685	CCC55917.1	46	426	100.54744525547446	1.92e-143
+
+
+
+>>
+8. BGC0000401.5
+Source: paenibactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1879.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	AEI70244.1	61	364	102.0066889632107	1.02e-126
+MXAN_RS17685	AEI70243.1	71	758	95.8029197080292	2.74e-274
+MXAN_RS17690	AEI70242.1	58	431	96.61835748792271	1.37e-149
+MXAN_RS17695	AEI70241.1	72	326	99.61089494163424	4.25e-113
+
+
+
+>>
+9. BGC0000309.5
+Source: bacillibactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1805.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	BSU_31970	57	354	103.34448160535116	9.78e-123
+MXAN_RS17685	BSU_31980	69	727	96.53284671532847	3.32e-262
+MXAN_RS17690	BSU_31990	59	431	94.92753623188406	4.26e-150
+MXAN_RS17695	BSU_32000	63	293	99.22178988326849	3.48e-100
+
+
+
+>>
+10. BGC0002695.2
+Source: bacillibactin/bacillibactin E/bacillibactin F
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1777.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	HOO54_19920	56	343	97.32441471571906	9.36e-119
+MXAN_RS17685	HOO54_19925	68	721	96.71532846715328	4.79e-260
+MXAN_RS17690	HOO54_19930	57	420	95.89371980676329	1.02e-145
+MXAN_RS17695	HOO54_19935	65	293	97.66536964980544	2.94e-100
+
+
+
+>>
+11. BGC0001185.5
+Source: bacillibactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1773.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	RBAM_029020	54	335	102.0066889632107	2.34e-115
+MXAN_RS17685	RBAM_029030	67	728	98.54014598540147	1.77e-262
+MXAN_RS17690	RBAM_029040	54	408	94.44444444444444	7.47e-141
+MXAN_RS17695	RBAM_029050	65	302	97.66536964980544	6.66e-104
+
+
+
+>>
+12. BGC0000368.5
+Source: griseobactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1572.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	CBA63658.1	51	224	69.56521739130434	3.89e-73
+MXAN_RS17685	CBA63660.1	68	704	97.08029197080292	3.82e-253
+MXAN_RS17690	CBA63662.1	55	374	93.96135265700482	1.21e-127
+MXAN_RS17695	CBA63665.1	59	270	101.55642023346303	1.03e-90
+
+
+
+>>
+13. BGC0000359.5
+Source: Fuscachelin A/Fuscachelin B/Fuscachelin C
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1500.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	Tfu_1870	50	214	70.23411371237458	4.7e-69
+MXAN_RS17685	Tfu_1871	65	680	98.35766423357664	1.32e-243
+MXAN_RS17690	Tfu_1872	50	341	95.65217391304348	9.18e-115
+MXAN_RS17695	Tfu_1873	59	265	97.27626459143968	5.71e-89
+
+
+
+>>
+14. BGC0001019.5
+Source: microsclerodermin M
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 8730.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AHB82059.1	48	1222	99.47882736156352	0.0
+MXAN_RS17555	AHB82059.1	49	1319	102.12342402123424	0.0
+MXAN_RS17560	AHB82059.1	55	903	84.68045112781954	5.52e-296
+MXAN_RS17560	AHB82057.1	52	833	83.55263157894737	1.14e-281
+MXAN_RS17560	AHB82051.1	47	752	86.74812030075188	1.1e-238
+MXAN_RS17605	AHB82059.1	53	875	88.40155945419103	6.71e-286
+MXAN_RS17605	AHB82057.1	53	840	86.8421052631579	4.65e-285
+MXAN_RS17610	AHB82059.1	47	1216	100.52151238591918	0.0
+MXAN_RS17610	AHB82051.1	48	770	58.344198174706655	4.06e-239
+
+
+
+>>
+15. BGC0001001.5
+Source: jamaicamide A/jamaicamide B/jamaicamide C
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 8419.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AAS98784.1	46	748	58.175895765472305	5.42e-250
+MXAN_RS17555	AAS98787.1	46	1292	100.06635700066357	0.0
+MXAN_RS17555	AAS98784.1	47	786	58.92501658925017	6.85e-265
+MXAN_RS17560	AAS98787.1	57	973	83.36466165413535	0.0
+MXAN_RS17560	AAS98784.1	48	808	84.9624060150376	4.17e-279
+MXAN_RS17605	AAS98787.1	56	943	85.38011695906432	0.0
+MXAN_RS17605	AAS98784.1	49	771	86.54970760233918	1.62e-265
+MXAN_RS17610	AAS98787.1	46	1299	100.0	0.0
+MXAN_RS17610	AAS98784.1	47	799	59.45241199478487	1.75e-269
+
+
+
+>>
+16. BGC0001053.5
+Source: tubulysin A
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 7606.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	CAF05651.1	47	962	78.56677524429966	4.49e-312
+MXAN_RS17555	CAF05651.1	50	1032	78.63304578633046	0.0
+MXAN_RS17560	CAF05651.1	51	872	93.89097744360903	6.86e-285
+MXAN_RS17560	CAF05649.1	53	858	83.27067669172934	3.2e-276
+MXAN_RS17605	CAF05651.1	53	855	90.05847953216374	5.56e-279
+MXAN_RS17605	CAF05649.1	52	846	90.74074074074075	2.55e-272
+MXAN_RS17610	CAF05649.1	47	1130	89.70013037809647	0.0
+MXAN_RS17610	CAF05651.1	49	1051	79.00912646675359	0.0
+
+
+
+>>
+17. BGC0001344.4
+Source: tubulysin A/tubulysin B/tubulysin C/tubulysin D/tubulysin E/tubulysin F/tubulysin G/tubulysin H/tubulysin I
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 7449.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	ADH04682.1	48	961	78.0456026058632	1.89e-311
+MXAN_RS17555	ADH04682.1	48	989	78.16854678168546	0.0
+MXAN_RS17560	ADH04682.1	53	854	84.77443609022556	4.26e-278
+MXAN_RS17560	ADH04680.1	51	807	83.83458646616542	6.44e-258
+MXAN_RS17605	ADH04682.1	55	868	86.93957115009746	5.66e-284
+MXAN_RS17605	ADH04680.1	52	825	86.45224171539961	1.08e-264
+MXAN_RS17610	ADH04680.1	47	1099	89.374185136897	0.0
+MXAN_RS17610	ADH04682.1	50	1046	78.03129074315514	0.0
+
+
+
+>>
+18. BGC0001330.5
+Source: BE-43547A1/BE-43547A2/BE-43547B1/BE-43547B2/BE-43547B3/BE-43547C1/BE-43547C2
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 5444.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	ABD52_RS02410	46	1040	87.8827361563518	0.0
+MXAN_RS17555	ABD52_RS02410	46	1074	95.02322495023225	0.0
+MXAN_RS17560	ABD52_RS02410	53	856	83.64661654135338	1.25e-287
+MXAN_RS17605	ABD52_RS02410	52	833	89.37621832358674	3.84e-279
+MXAN_RS17610	ABD52_RS02410	48	1171	90.74315514993481	0.0
+MXAN_RS17610	ABD52_RS02400	46	470	42.503259452411996	1.43e-144
+
+
+
+>>
+19. BGC0001885.3
+Source: oxazolepoxidomycin A
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 4385.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	DAC76728.1	47	508	42.08469055374593	1.36e-157
+MXAN_RS17555	DAC76733.1	51	585	42.866622428666226	4.19e-189
+MXAN_RS17555	DAC76728.1	47	558	47.71068347710683	2.29e-176
+MXAN_RS17560	DAC76728.1	47	527	61.372180451127825	4.05e-169
+MXAN_RS17605	DAC76733.1	50	537	63.450292397660824	7.32e-176
+MXAN_RS17605	DAC76728.1	47	525	63.547758284600384	5.58e-169
+MXAN_RS17610	DAC76733.1	51	605	42.698826597131685	2.61e-196
+MXAN_RS17610	DAC76728.1	48	540	42.04693611473272	1.7e-169
+
+
+
+>>
+20. BGC0002451.2
+Source: inthomycin B
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 3193.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	QGY73446.1	49	516	40.71661237785016	5.74e-163
+MXAN_RS17555	QGY73446.1	51	572	41.27405441274055	1.49e-184
+MXAN_RS17560	QGY73446.1	48	517	58.83458646616542	5.66e-168
+MXAN_RS17560	QGY73449.1	48	526	59.77443609022557	5.51e-160
+MXAN_RS17605	QGY73446.1	49	518	60.81871345029239	5.24e-169
+MXAN_RS17610	QGY73446.1	48	544	40.547588005215125	1.1e-173
+
+
+
+>>
+21. BGC0001039.5
+Source: pyridomycin
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 3636.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AEF33079.1	48	752	58.04560260586319	4.94e-246
+MXAN_RS17560	AEF33079.1	49	760	84.3984962406015	3.77e-255
+MXAN_RS17605	AEF33079.1	48	727	86.15984405458089	4.85e-243
+MXAN_RS17610	AEF33079.1	51	788	57.6271186440678	9.4e-260
+MXAN_RS17685	AEF33098.1	59	609	97.8102189781022	1.12e-215
+
+
+
+>>
+22. BGC0000935.5
+Source: esmeraldin
+Type: other:aminocoumarin+PKS
+Number of proteins with BLAST hits to this cluster: 6
+Cumulative BLAST score: 2930.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AFB35635.1	50	570	42.671009771986974	5.47e-183
+MXAN_RS17560	AFB35635.1	51	577	62.68796992481202	1.17e-190
+MXAN_RS17610	AFB35635.1	49	579	43.089960886571056	3.34e-186
+MXAN_RS17670	AFB35633.1	50	410	99.55555555555556	2.69e-140
+MXAN_RS17680	AFB35627.1	51	234	72.90969899665552	4.76e-77
+MXAN_RS17685	AFB35629.1	53	560	99.45255474452554	3.22e-196
+
+
+
+>>
+23. BGC0002010.4
+Source: streptophenazine B/streptophenazine C/streptophenazine F/streptophenazine G/streptophenazine H
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 5
+Cumulative BLAST score: 2127.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17555	D581_RS01000000137725	47	488	43.19840743198407	1.46e-152
+MXAN_RS17560	D581_RS01000000137725	46	464	62.03007518796993	1.41e-147
+MXAN_RS17605	D581_RS01000000137725	47	474	62.768031189083814	8.44e-152
+MXAN_RS17610	D581_RS01000000137725	47	487	42.76401564537158	8.67e-152
+MXAN_RS17680	D581_RS0125555	50	214	68.89632107023411	2.99e-69
+
+
+
+>>
+24. BGC0000392.5
+Source: mirubactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1104.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17685	Amir_2726	57	569	98.35766423357664	7.77e-200
+MXAN_RS17690	Amir_2727	54	276	69.08212560386472	5.78e-88
+MXAN_RS17695	Amir_2728	60	259	98.44357976653697	4.68e-87
+
+
+
+>>
+25. BGC0001106.6
+Source: oxazolomycin
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 3162.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17555	ABS90478.1	51	548	40.74319840743198	1.06e-175
+MXAN_RS17560	ABS90478.1	50	528	58.27067669172933	9.97e-173
+MXAN_RS17560	ABS90475.1	55	544	51.221804511278194	3.52e-166
+MXAN_RS17605	ABS90478.1	49	496	59.94152046783626	6.77e-161
+MXAN_RS17605	ABS90475.1	53	510	52.14424951267057	6.75e-155
+MXAN_RS17610	ABS90478.1	50	536	40.09126466753585	5.76e-171
+
+
+
+>>
+26. BGC0000991.4
+Source: epothilone
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 2742.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17550	AAF62882.1	46	701	58.241042345276874	1.59e-222
+MXAN_RS17605	AAF62882.1	46	694	86.45224171539961	3.51e-226
+MXAN_RS17605	AAF62883.1	46	608	87.03703703703704	1.02e-188
+MXAN_RS17610	AAF62882.1	47	739	58.93089960886571	1.02e-236
+
+
+
+>>
+27. BGC0002688.2
+Source: benarthin/dibenarthin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1262.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	EV45_RS28700	61	269	70.23411371237458	9.42e-91
+MXAN_RS17685	EV45_RS28695	63	645	96.71532846715328	2.1e-230
+MXAN_RS17690	EV45_RS28690	53	348	101.44927536231884	1.9e-117
+
+
+
+>>
+28. BGC0002473.3
+Source: propanochelin/butanochelin/pentanochelin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 990.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	B090_RS0102685	54	232	70.23411371237458	3.16e-76
+MXAN_RS17685	B090_RS0102680	50	501	98.35766423357664	4.24e-173
+MXAN_RS17690	B090_RS0102675	49	257	67.14975845410628	8.38e-82
+
+
+
+>>
+29. BGC0001328.5
+Source: rakicidin A/rakicidin B
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 2047.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	MCBG_00136	56	530	46.99248120300752	1.59e-177
+MXAN_RS17605	MCBG_00136	54	500	49.512670565302145	2.43e-166
+MXAN_RS17605	MCBG_00137	50	362	42.10526315789473	2.04e-106
+MXAN_RS17610	MCBG_00137	46	655	53.58539765319426	6.64e-210
+
+
+
+>>
+30. BGC0002676.2
+Source: skyllamycin D/skyllamycin E
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1919.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	KZO11_19390	47	702	84.21052631578947	1.02e-232
+MXAN_RS17605	KZO11_19390	47	688	85.4775828460039	9.31e-228
+MXAN_RS17685	KZO11_19365	53	529	97.8102189781022	2.59e-184
+
+
+
+>>
+31. BGC0001213.5
+Source: nataxazole
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 4
+Cumulative BLAST score: 1383.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17670	CF54_07335	47	377	97.55555555555556	1.81e-127
+MXAN_RS17680	CF54_07350	54	233	70.23411371237458	1.76e-76
+MXAN_RS17685	CF54_07370	52	524	97.08029197080292	2.1e-182
+MXAN_RS17695	CF54_07355	59	249	96.88715953307393	7.3e-83
+
+
+
+>>
+32. BGC0002679.2
+Source: chromobactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1344.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17675	CV_1486	48	642	56.43153526970954	4.01e-209
+MXAN_RS17685	CV_1484	50	501	95.98540145985402	3.08e-173
+MXAN_RS17695	CV_1482	49	201	96.88715953307393	4.32e-64
+
+
+
+>>
+33. BGC0002696.2
+Source: heterobactin B/heterobactin S2
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1064.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	AWH04_05490	53	227	72.24080267558529	4e-74
+MXAN_RS17685	AWH04_05495	60	624	96.35036496350365	2.85e-221
+MXAN_RS17695	AWH04_05500	51	213	100.77821011673151	1.86e-68
+
+
+
+>>
+34. BGC0000371.5
+Source: heterobactin A/heterobactin S2
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1063.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	RER_26990	53	228	72.5752508361204	2e-74
+MXAN_RS17685	RER_26980	60	622	96.35036496350365	1.63e-220
+MXAN_RS17695	RER_26970	51	213	100.77821011673151	1.69e-68
+
+
+
+>>
+35. BGC0002689.2
+Source: 2,3-dihydroxybenzoylserine
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1051.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	Smlt2820	48	197	70.23411371237458	2.03e-62
+MXAN_RS17685	Smlt2821	58	606	97.08029197080292	1.66e-214
+MXAN_RS17695	Smlt2817	58	248	97.27626459143968	2.05e-82
+
+
+
+>>
+36. BGC0002494.3
+Source: vibriobactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1000.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	AAC45926.1	48	256	95.31772575250837	2.28e-84
+MXAN_RS17685	AAC45927.1	54	562	95.8029197080292	2.47e-197
+MXAN_RS17695	AAC45924.1	52	182	76.26459143968872	1.31e-56
+
+
+
+>>
+37. BGC0002414.3
+Source: trichrysobactin/cyclic trichrysobactin/chrysobactin/dichrysobactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 964.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	JJO56_07670	52	281	96.65551839464884	3.15e-94
+MXAN_RS17685	JJO56_07675	52	503	96.71532846715328	6.83e-174
+MXAN_RS17695	JJO56_07665	51	180	76.26459143968872	5.53e-56
+
+
+
+>>
+38. BGC0002495.2
+Source: photobactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 945.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	AAK95836.1	48	272	96.32107023411372	6.73e-91
+MXAN_RS17685	AAK95837.1	51	494	96.53284671532847	1.2e-170
+MXAN_RS17695	AAK95835.1	49	179	77.82101167315176	1.1e-55
+
+
+
+>>
+39. BGC0001033.5
+Source: paenilamicin/paenilamicin A2/paenilamicin B1/paenilamicin B2
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 3779.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	ERIC2_c18040	48	798	83.7406015037594	6.33e-259
+MXAN_RS17560	ERIC2_c18050	46	754	83.7406015037594	2.26e-240
+MXAN_RS17605	ERIC2_c18090	46	744	86.74463937621833	4.18e-248
+MXAN_RS17605	ERIC2_c18040	47	742	86.25730994152046	2.02e-238
+MXAN_RS17605	ERIC2_c18050	47	741	87.91423001949317	2.68e-236
+
+
+
+>>
+40. BGC0002815.2
+Source: acidobactamide A/acidobactamide B/acidobactamide C
+Type: NRPS:Type I+PKS:Modular type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 3738.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	J3U88_09315	49	746	82.98872180451127	2.1e-248
+MXAN_RS17560	J3U88_09305	48	759	85.6203007518797	3.36e-240
+MXAN_RS17605	J3U88_09315	48	728	87.23196881091619	5.73e-242
+MXAN_RS17605	J3U88_09305	49	759	87.8167641325536	7.18e-241
+MXAN_RS17605	J3U88_09310	46	746	97.56335282651072	6.83e-238
+
+
+
+>>
+41. BGC0002532.3
+Source: anachelin
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 3198.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	NIES19_13740	51	853	83.17669172932331	5.33e-290
+MXAN_RS17560	NIES19_13750	47	773	84.11654135338345	3.55e-260
+MXAN_RS17605	NIES19_13740	52	853	86.15984405458089	1.47e-290
+MXAN_RS17605	NIES19_13750	46	719	85.57504873294347	9.73e-240
+
+
+
+>>
+42. BGC0002107.3
+Source: fabrubactin A/fabrubactin B
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 2987.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	Atu3681	49	751	85.15037593984962	5.86e-251
+MXAN_RS17560	Atu3672	46	736	84.3984962406015	1.09e-244
+MXAN_RS17605	Atu3681	50	763	85.4775828460039	4.22e-256
+MXAN_RS17605	Atu3672	47	737	88.40155945419103	1.63e-245
+
+
+
+>>
+43. BGC0001537.5
+Source: butyrolactol A
+Type: PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 2406.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	APK71_RS29950	51	784	85.52631578947368	8.4e-251
+MXAN_RS17560	APK71_RS29955	50	437	47.744360902255636	7.56e-135
+MXAN_RS17605	APK71_RS29950	48	739	89.18128654970761	6.47e-235
+MXAN_RS17605	APK71_RS29955	50	446	50.877192982456144	2.11e-138
+
+
+
+>>
+44. BGC0000964.5
+Source: burkholdac A/burkholdac B
+Type: NRPS:Type I+PKS:Trans-AT type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1274.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	BTH_I2363	50	434	47.556390977443606	7.23e-131
+MXAN_RS17605	BTH_I2363	52	432	49.707602339181285	1.08e-130
+MXAN_RS17605	BTH_I2366	47	408	51.94931773879142	6.65e-122
+
+
+
+>>
+45. BGC0001045.5
+Source: spiruchostatin A
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1241.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17560	AFR69335.1	48	420	47.556390977443606	5.19e-126
+MXAN_RS17605	AFR69335.1	51	420	49.61013645224172	2.19e-126
+MXAN_RS17605	AFR69332.1	46	401	51.461988304093566	2.77e-119
+
+
+
+>>
+46. BGC0002491.3
+Source: myxochelin B/myxochelin A/pseudochelin A
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1188.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17660	TW75_20455	62	486	91.98113207547169	5.78e-171
+MXAN_RS17685	TW75_20430	50	496	98.54014598540147	4.69e-171
+MXAN_RS17695	TW75_20450	49	206	97.66536964980544	3.66e-66
+
+
+
+>>
+47. BGC0000972.5
+Source: N-myristoyl-D-asparagine/cis-7-tetradecenoyl-D-asparagine/(R)-N1-((S)-5-oxohexan-2-yl)-2-tetradecanamidosuccinamide/colibactin/precolibactin 1489
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1124.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17605	CAJ76297.1	47	400	50.29239766081871	2.53e-124
+MXAN_RS17610	CAJ76291.1	46	724	59.12646675358539	1.16e-240
+
+
+
+>>
+48. BGC0001444.5
+Source: caboxamycin
+Type: other:shikimate-derived
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 1041.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	DT87_23875	51	227	71.57190635451505	2.92e-74
+MXAN_RS17685	DT87_23850	54	533	97.62773722627736	9.02e-186
+MXAN_RS17695	DT87_23870	62	281	98.0544747081712	1.06e-95
+
+
+
+>>
+49. BGC0001292.5
+Source: A33853
+Type: other:other
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 976.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	ALE27508.1	48	206	69.89966555183946	6.1e-66
+MXAN_RS17685	ALE27504.1	52	522	98.90510948905109	2.35e-181
+MXAN_RS17695	ALE27507.1	56	248	102.7237354085603	4.31e-82
+
+
+
+>>
+50. BGC0002493.3
+Source: parabactin
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 885.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS17680	Pden_2383	46	192	70.5685618729097	1.67e-60
+MXAN_RS17685	Pden_2386	51	482	97.26277372262774	9.22e-166
+MXAN_RS17695	Pden_2384	50	211	99.61089494163424	7.75e-68
+

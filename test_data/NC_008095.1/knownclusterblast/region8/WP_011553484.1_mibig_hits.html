@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>QUS58948.1</td>
+              <td>HAMP_domain-containing_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002123.3">BGC0002123.3</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>29.0</td>
+              <td>72.8</td>
+              <td>100.0</td>
+              <td>1.08e-22</td>
+          </tr>
+    
+          <tr>
+              <td>AFI57016.1</td>
+              <td>QmnRg2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000133.5">BGC0000133.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>74.6</td>
+              <td>97.0</td>
+              <td>1.96e-21</td>
+          </tr>
+    
+          <tr>
+              <td>WP_011104627.1</td>
+              <td>heavy_metal_sensor_histidine_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002571.2">BGC0002571.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>27.0</td>
+              <td>80.8</td>
+              <td>89.0</td>
+              <td>1.03e-18</td>
+          </tr>
+    
+          <tr>
+              <td>CAA60456.1</td>
+              <td>sensory_protein_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001040.5">BGC0001040.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>28.0</td>
+              <td>63.7</td>
+              <td>83.0</td>
+              <td>7.76e-17</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

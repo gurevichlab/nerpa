@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>QXL90853.1</td>
+              <td>TetR_family_transcriptional_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002426.3">BGC0002426.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>98.5</td>
+              <td>71.0</td>
+              <td>3.99e-15</td>
+          </tr>
+    
+          <tr>
+              <td>AAY93360.1</td>
+              <td>transcriptional_regulator,_TetR_family</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000413.5">BGC0000413.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>35.0</td>
+              <td>81.5</td>
+              <td>66.0</td>
+              <td>4.37e-13</td>
+          </tr>
+    
+          <tr>
+              <td>AGH68917.1</td>
+              <td>TetR-like_transcriptional_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001083.5">BGC0001083.5</a></td>
+              <td>PKS:Type III+terpene:Sesquiterpene</td>
+              <td>43.0</td>
+              <td>29.7</td>
+              <td>52.0</td>
+              <td>5.97e-08</td>
+          </tr>
+    
+          <tr>
+              <td>AGN74906.1</td>
+              <td>gamma-butyrolactone_receptor</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000459.5">BGC0000459.5</a></td>
+              <td>NRPS:Type I+PKS:Trans-AT type I</td>
+              <td>43.0</td>
+              <td>29.7</td>
+              <td>51.0</td>
+              <td>9e-08</td>
+          </tr>
+    
+          <tr>
+              <td>AEF33088.1</td>
+              <td>TetR_family_transcriptional_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001039.5">BGC0001039.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>35.0</td>
+              <td>40.0</td>
+              <td>46.0</td>
+              <td>4.53e-06</td>
+          </tr>
+    
+          <tr>
+              <td>WP_141576252.1</td>
+              <td>TetR/AcrR_family_transcriptional_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002686.2">BGC0002686.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>44.0</td>
+              <td>25.6</td>
+              <td>45.0</td>
+              <td>7.68e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

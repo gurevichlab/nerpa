@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ABF91569.1</td>
+              <td>major_facilitator_family_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002492.3">BGC0002492.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>776.0</td>
+              <td>3.46e-286</td>
+          </tr>
+    
+          <tr>
+              <td>AAG31134.1</td>
+              <td>MxcK</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001345.5">BGC0001345.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>68.0</td>
+              <td>99.8</td>
+              <td>531.0</td>
+              <td>3.15e-189</td>
+          </tr>
+    
+          <tr>
+              <td>AHB82060.1</td>
+              <td>MFS_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001231.5">BGC0001231.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>65.0</td>
+              <td>99.3</td>
+              <td>500.0</td>
+              <td>1.39e-176</td>
+          </tr>
+    
+          <tr>
+              <td>AGK13350.1</td>
+              <td>catecholate_siderophore_efflux_pump,_MFS_1_family</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002528.3">BGC0002528.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>38.0</td>
+              <td>97.8</td>
+              <td>199.0</td>
+              <td>2.49e-59</td>
+          </tr>
+    
+          <tr>
+              <td>AEC04346.1</td>
+              <td>major_facilitator_superfamily_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000178.5">BGC0000178.5</a></td>
+              <td>PKS:Trans-AT type I</td>
+              <td>30.0</td>
+              <td>99.3</td>
+              <td>182.0</td>
+              <td>1.04e-52</td>
+          </tr>
+    
+          <tr>
+              <td>CAM86883.1</td>
+              <td>putative_multidrug_resistance_protein_(MFS_superfamily)</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002471.3">BGC0002471.3</a></td>
+              <td>other:other</td>
+              <td>30.0</td>
+              <td>33.6</td>
+              <td>55.0</td>
+              <td>9.68e-08</td>
+          </tr>
+    
+          <tr>
+              <td>AAK57531.1</td>
+              <td>PgaJ</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000262.5">BGC0000262.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>28.0</td>
+              <td>73.3</td>
+              <td>49.0</td>
+              <td>8.8e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

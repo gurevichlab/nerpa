@@ -28,7 +28,7 @@ class TestResult(Enum):
 
 
 @dataclass
-class TestMatch:
+class CuratedAlignment:
     bgc_id: str
     nrp_id: str
     true_alignment: SimplifiedAlignment
@@ -53,7 +53,7 @@ class TestMatch:
         return TestResult.WRONG
 
     @classmethod
-    def from_match(cls, match: Match) -> TestMatch:
+    def from_match(cls, match: Match) -> CuratedAlignment:
         if min(
                 step.bgc_module.a_domain_idx
                 for alignment in match.alignments
@@ -91,7 +91,7 @@ class TestMatch:
 
     # ---- Dump a list of TestMatch instances ----
     @classmethod
-    def dump_list_to_str(cls, matches: List[TestMatch]) -> str:
+    def dump_list_to_str(cls, matches: List[CuratedAlignment]) -> str:
         return yaml.dump(
             [m.to_yaml_obj() for m in matches],
             default_flow_style=False,
@@ -99,7 +99,7 @@ class TestMatch:
         )
 
     @classmethod
-    def from_yaml_dict(cls, data: dict) -> TestMatch:
+    def from_yaml_dict(cls, data: dict) -> CuratedAlignment:
         """Reconstruct a TestMatch instance from a YAML-decoded dictionary."""
 
         def unwrap_alignment(al: List[dict]) -> SimplifiedAlignment:
@@ -138,14 +138,14 @@ def load_matches_from_txt(matches_txt: Path) -> List[Match]:
 if __name__ == '__main__':
     approved_matches_txt = Path('/home/ilianolhin/git/nerpa2/matches_inspection/new_approved_matches.txt')
     approved_matches = load_matches_from_txt(approved_matches_txt)
-    tests = sorted([TestMatch.from_match(match)
+    tests = sorted([CuratedAlignment.from_match(match)
                     for match in approved_matches],
                    key=lambda test: (test.bgc_id, test.nrp_id))
     test_ids = [(test.bgc_id, test.nrp_id) for test in tests]
     assert len(test_ids) == len(set(test_ids)), "Duplicate test cases found!"
 
     old_tests_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/approved_matches_old.yaml')
-    old_tests = [TestMatch.from_yaml_dict(old_test_yaml)
+    old_tests = [CuratedAlignment.from_yaml_dict(old_test_yaml)
                  for old_test_yaml in yaml.safe_load(old_tests_yaml.read_text())]
     old_test_ids = [(test.bgc_id, test.nrp_id) for test in old_tests]
     # q: count num old tests with alternative alignments
@@ -160,4 +160,4 @@ if __name__ == '__main__':
             tests[i] = old_test
 
     approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/new_approved_matches.yaml')
-    approved_matches_yaml.write_text(TestMatch.dump_list_to_str(tests))
+    approved_matches_yaml.write_text(CuratedAlignment.dump_list_to_str(tests))

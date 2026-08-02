@@ -1,11 +1,17 @@
+from __future__ import annotations
 import json
 import math
 import os
 import shutil
 from dataclasses import asdict
 from pathlib import Path
-from typing import List, Dict
-from src.config import OutputConfig
+from typing import (
+    List,
+    Dict,
+    Literal,
+    Optional,
+)
+from src.config import OutputConfig, Config
 from src.matching.match_type import Match
 from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
@@ -190,31 +196,82 @@ def _create_module_dicts(module_data) -> list:
     
     return module_array
 
-def create_html_report(output_cfg: OutputConfig,
-                       matches: List[Match],
-                       bgc_variants_info: BGC_Variants_Info,
-                       nrp_variants_info: NRP_Variants_Info,
-                       monomer_graph_data: dict,
-                       molecule_data: dict[str,dict[str, list | dict]],
-                       debug_output: bool = False,
-                       default_score_field: str = 'log_odds_vs_avg_bgc'):
-    current_dir = Path(__file__).resolve().parent
-    template_main_report_path = current_dir / 'main_report_template.html'
-    main_report_path = output_cfg.html_report
+class HTMLReportConfig:
+    mode: Literal['nerpa', 'nerpa-ms']
+    
+    main_out_dir: Path
+    report_path: Path
+    html_aux_dir: Path
+    report_data_js: Path
+    antismash_results_dir: Path
 
-    with open(template_main_report_path, 'r') as file:
-        main_report_html_template = file.read()
+    nerpa_logo_path: Path
+    report_template_path: Path
+    version: str
 
-    with open(output_cfg.main_out_dir / 'intermediate_files/antismash_bgcs.json', 'r', encoding='utf-8') as f:
-        module_data = json.load(f) 
-  
-    # TODO: Maybe add these paths directly to config_paths
-    html_aux_dir = output_cfg.main_out_dir / 'html_aux'
-    report_data_js_path = html_aux_dir / 'report_data.js'
-    html_aux_dir.mkdir()
-    match_dicts = _create_match_dicts(matches,
-                                      debug_output,
-                                      default_score_field=default_score_field)
+    default_score_field: str
+
+    # nerpa-ms specific fields. Should be not None if mode == 'nerpa-ms', otherwise None
+    generated_candidate_nrps_path: Optional[Path]
+    mass_spec_matching_results_dir: Optional[Path]
+    
+
+    def __init__(
+            self,
+            main_out_dir: Path,
+            nerpa_root: Path,
+            mode: Literal['nerpa', 'nerpa-ms'],
+            generated_candidate_nrps_path: Optional[Path] = None,
+            mass_spec_matching_results_dir: Optional[Path] = None
+    ):
+        self.mode = mode
+        self.version = (nerpa_root / 'VERSION.txt').read_text().strip()
+
+        self.main_out_dir = main_out_dir.resolve()
+        self.html_aux_dir = (
+            main_out_dir / 'html_aux'
+            if mode == 'nerpa'
+            else main_out_dir / 'nerpa_ms_html_aux'
+        )
+        self.report_data_js = self.html_aux_dir / 'report_data.js'
+        self.antismash_results_dir = main_out_dir / 'antismash_results'
+        self.report_path = (
+            main_out_dir / 'report.html'
+            if mode == 'nerpa'
+            else main_out_dir / 'nerpa_ms_report.html'
+        )
+
+        self.report_template_path = (
+            nerpa_root
+            / 'src'
+            / 'build_output'
+            / 'main_report_template.html'
+        )
+        self.nerpa_logo_path = nerpa_root / 'docs' / 'img' / 'logo.png'
+
+        self.default_score_field = 'log_odds_vs_avg_bgc'
+
+        self.generated_candidate_nrps_path = generated_candidate_nrps_path
+        self.mass_spec_matching_results_dir = mass_spec_matching_results_dir
+
+
+def create_html_report(
+        bgc_variants_info: BGC_Variants_Info,
+        nrp_variants_info: NRP_Variants_Info,
+        matches: List[Match],
+        cfg: HTMLReportConfig,
+        debug_output: bool = False,
+):
+    with open(cfg.report_template_path, 'r') as f:
+        main_report_html_template = f.read()
+
+    # TODO: Maybe add these paths directly to config_paths?
+    cfg.html_aux_dir.mkdir()
+    match_dicts = _create_match_dicts(
+        matches,
+        debug_output,
+        default_score_field=cfg.default_score_field
+    )
     bgc_metadata = _create_serializable_bgc_metadata(bgc_variants_info)
     nrp_metadata = _create_serializable_nrp_metadata(nrp_variants_info)
     bgc_representatives = _create_serializable_bgc_representatives(bgc_variants_info)
@@ -224,7 +281,7 @@ def create_html_report(output_cfg: OutputConfig,
     modules = _create_module_dicts(module_data)
 
     # the main (root) HTML report and associated JSON
-    with open(report_data_js_path, 'w') as json_file:
+    with open(cfg.report_data_js, 'w') as json_file:
         json_file.write('var data = ')
         json.dump(match_dicts, json_file, indent=4)
         json_file.write(';\n')
@@ -258,18 +315,11 @@ def create_html_report(output_cfg: OutputConfig,
         json_file.write(';\n')
 
     path_substitutions = {
-        '{{HTML_AUX_DIR}}': str(html_aux_dir.relative_to(output_cfg.main_out_dir)),
-        '{{ANTISMASH_OUT_DIR}}': str(output_cfg.antismash_out_dir.relative_to(output_cfg.main_out_dir))
+        '{{HTML_AUX_DIR}}': str(cfg.html_aux_dir.relative_to(cfg.main_out_dir)),
+        '{{ANTISMASH_OUT_DIR}}': str(cfg.antismash_results_dir.relative_to(cfg.main_out_dir))
     }
     main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
-    with open(main_report_path, 'w') as file:
-        file.write(main_html_report)
+    with open(cfg.report_path, 'w') as f:
+        f.write(main_html_report)
     # copying logo to be embedded in the HTML report
-    shutil.copy(output_cfg.logo, html_aux_dir)
-
-    # copying chemdoodle dependencies to output folder
-    os.mkdir(output_cfg.main_out_dir / 'html_aux/chemdoodle')
-    shutil.copyfile(current_dir / 'static/chemdoodle/ChemDoodleWeb.css',  output_cfg.main_out_dir / 'html_aux/chemdoodle/ChemDoodleWeb.css')
-    shutil.copyfile(current_dir / 'static/chemdoodle/ChemDoodleWeb.js',  output_cfg.main_out_dir / 'html_aux/chemdoodle/ChemDoodleWeb.js')
-    # copying interaction.js to output folder
-    shutil.copyfile(current_dir / 'static/interaction.js',  output_cfg.main_out_dir / 'html_aux/interaction.js')
+    shutil.copy(cfg.nerpa_logo_path, cfg.html_aux_dir)

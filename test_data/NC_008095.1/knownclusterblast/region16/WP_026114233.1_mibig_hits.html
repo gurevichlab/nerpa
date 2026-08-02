@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>APZ78774.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001425.4">BGC0001425.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>100.0</td>
+              <td>100.0</td>
+              <td>312.0</td>
+              <td>7.14e-111</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78787.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001426.4">BGC0001426.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>98.0</td>
+              <td>100.0</td>
+              <td>307.0</td>
+              <td>6.86e-109</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78800.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001427.4">BGC0001427.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>97.0</td>
+              <td>100.0</td>
+              <td>304.0</td>
+              <td>8.01e-108</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78814.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001428.4">BGC0001428.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>94.0</td>
+              <td>100.0</td>
+              <td>295.0</td>
+              <td>5.2e-104</td>
+          </tr>
+    
+          <tr>
+              <td>AQM37589.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001424.4">BGC0001424.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>87.0</td>
+              <td>100.0</td>
+              <td>280.0</td>
+              <td>3.24e-98</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78748.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001422.4">BGC0001422.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>88.0</td>
+              <td>100.0</td>
+              <td>278.0</td>
+              <td>2.66e-97</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78734.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001421.4">BGC0001421.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>84.0</td>
+              <td>100.0</td>
+              <td>266.0</td>
+              <td>1.41e-92</td>
+          </tr>
+    
+          <tr>
+              <td>APZ78761.1</td>
+              <td>peptidyl-prolyl_cis-trans_isomerase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001423.4">BGC0001423.4</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>84.0</td>
+              <td>100.0</td>
+              <td>265.0</td>
+              <td>2.01e-92</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -1,0 +1,5 @@
+"antiSMASH results on MIBiG 4": "/home/ilianolhin/work/data/antismash_mibig4_nrps"
+"NERPA1 results on MIBiG 4 vs MIBIG+NORINE NRPs": "/home/ilianolhin/work/tools/nerpa-2.1.0/data/for_training_and_testing/nerpa1_report_mibig4_vs_mibig_norine.csv"
+"BioCAT results on MIBiG 4 vs MIBIG+NORINE NRPs": "/home/ilianolhin/work/tools/nerpa-2.1.0/data/for_training_and_testing/biocat_results.txt"
+"BiG-SCAPE clustering of MIBiG 4": "/home/ilianolhin/work/data/mibig4_bigscape_clustering/network_files/2025-06-10_16-07-56_hybrids_glocal"
+"MIBiG 3 JSONs": "/home/ilianolhin/work/data/mibig_json_3.1"

@@ -40,7 +40,7 @@ def main():
         .sort(NerpaReport.SCORE, descending=True)
         .group_by(NerpaReport.BGC_ID)
         .agg(
-            pl.col(NerpaReport.is_correct_col(PNRPDB_Compound_Similarity.NERPA_EQUAL_ALLOW_UNK_CHR))
+            pl.col(NerpaReport.is_correct_col(PNRPDB_Compound_Similarity.NERPA_ISO_WEAK_CHR))
             .head(10)
             .any()
             .alias('identified')

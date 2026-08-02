@@ -1,0 +1,1775 @@
+- genome_id: BGC0000985
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+  nrp_variant_id: {nrp_id: BGC0000985.4, variant_idx: 0}
+  raw_score: -21.88899999999999
+  log_odds_vs_avg_nrp: -21.88899999999999
+  log_odds_vs_avg_bgc: 34.95414644766536
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.019, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 0, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -0.572, ResidueScore: 3.196, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 1, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -0.572, ResidueScore: 3.196, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.542, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: ITERATE_GENE, Score: -2.681, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 0, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 14, Alignment_step: MATCH, Score: -0.572, ResidueScore: 3.196, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 1, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Glu, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Glu,
+      rBAN_idx: 10, Alignment_step: MATCH, Score: -5.122, ResidueScore: -1.016, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Lac,
+      rBAN_idx: 9, Alignment_step: START_INSERTING, Score: -1.684, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.071, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0604, A-domain_idx: 0, Top_scoring_residues: Pro, Modifying_domains: '---',
+      NRP_residue: Pro, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Pro,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -0.57, ResidueScore: 2.868, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DVQFAAQVVK, aa34_code: LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.025, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.071, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 0, Top_scoring_residues: Leu, Modifying_domains: 'METHYLATION,EPIMERIZATION',
+      NRP_residue: Leu, NRP_chirality: D, NRP_methylated: 'True', rBAN_name: NMe-Leu,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -0.831, ResidueScore: 2.08, MethylationScore: 3.462,
+      ChiralityScore: 1.483, aa10_code: DAWFLGHVVK, aa34_code: LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 1, Top_scoring_residues: Thr, Modifying_domains: '---',
+      NRP_residue: Thr, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: aThr/Thr,
+      rBAN_idx: 6, Alignment_step: MATCH, Score: -0.564, ResidueScore: 2.28, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DFWNIGMVHK, aa34_code: LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 2, Top_scoring_residues: Ile, Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ist,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -2.91, ResidueScore: -0.087, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAFFLGITFK, aa34_code: RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Hip,
+      rBAN_idx: 12, Alignment_step: START_INSERTING, Score: -1.684, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0609, A-domain_idx: 0, Top_scoring_residues: Leu, Modifying_domains: '---',
+      NRP_residue: Leu, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Leu,
+      rBAN_idx: 11, Alignment_step: MATCH, Score: -0.562, ResidueScore: 2.08, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAWFLGNVVK, aa34_code: LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.118, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0610, A-domain_idx: 0, Top_scoring_residues: Pro, Modifying_domains: '---',
+      NRP_residue: Pro, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Pro,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -0.57, ResidueScore: 2.868, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DVQFAAQVVK, aa34_code: LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0611, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: METHYLATION,
+      NRP_residue: Tyr, NRP_chirality: L, NRP_methylated: 'True', rBAN_name: NMe-OMe-Tyr,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -0.682, ResidueScore: 2.761, MethylationScore: 3.462,
+      ChiralityScore: 0.485, aa10_code: DASTLAAVCK, aa34_code: TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0000359
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+  nrp_variant_id: {nrp_id: BGC0000359.1, variant_idx: 0}
+  raw_score: -23.679999999999986
+  log_odds_vs_avg_nrp: -23.679999999999986
+  log_odds_vs_avg_bgc: 21.392717349152726
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -1.261, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1871, A-domain_idx: 0, Top_scoring_residues: Bza, Modifying_domains: '---',
+      NRP_residue: Bza, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: diOH-Bz,
+      rBAN_idx: 10, Alignment_step: MATCH, Score: -1.334, ResidueScore: 3.706, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: PMPAQGVVNK, aa34_code: SASLFPMSSPGGAVQVGGAQQVFGMAEGLVNYTR}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 0, Top_scoring_residues: Arg, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Arg, NRP_chirality: D, NRP_methylated: 'False', rBAN_name: Arg,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -0.892, ResidueScore: 3.29, MethylationScore: 0.119,
+      ChiralityScore: 1.483, aa10_code: DADDSGCVDK, aa34_code: LAHGFDASWDQGDFSFGGEVNCYGPTENTVDALV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 1, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -0.97, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQFGVIWK, aa34_code: FDMTFDISALELQAFVGGEHNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 2, Top_scoring_residues: Gly, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -1.793, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DILQLGVIWK, aa34_code: FDMTFDISALELQALVGGETNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1866, A-domain_idx: 0, Top_scoring_residues: Ser, Modifying_domains: EPIMERIZATION,
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULE, Score: -3, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DVWHISLVDK, aa34_code: RWMTFDVSVWEWHFIVSGEDNLYGPTEAAVDVTS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1865, A-domain_idx: 0, Top_scoring_residues: Orn, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULE, Score: -3, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DMENLGLINK, aa34_code: MNHVFDMSWEEWNVLLGGEYNLYGPTEYTINTLG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: ITERATE_BGC, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -1.261, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1871, A-domain_idx: 0, Top_scoring_residues: Bza, Modifying_domains: '---',
+      NRP_residue: Bza, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: diOH-Bz,
+      rBAN_idx: 6, Alignment_step: MATCH, Score: -1.334, ResidueScore: 3.706, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: PMPAQGVVNK, aa34_code: SASLFPMSSPGGAVQVGGAQQVFGMAEGLVNYTR}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 0, Top_scoring_residues: Arg, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Arg, NRP_chirality: D, NRP_methylated: 'False', rBAN_name: Arg,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -0.892, ResidueScore: 3.29, MethylationScore: 0.119,
+      ChiralityScore: 1.483, aa10_code: DADDSGCVDK, aa34_code: LAHGFDASWDQGDFSFGGEVNCYGPTENTVDALV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 1, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -0.97, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQFGVIWK, aa34_code: FDMTFDISALELQAFVGGEHNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 2, Top_scoring_residues: Gly, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 9, Alignment_step: MATCH, Score: -1.793, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DILQLGVIWK, aa34_code: FDMTFDISALELQALVGGETNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1866, A-domain_idx: 0, Top_scoring_residues: Ser, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Ser, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Ser,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -2.006, ResidueScore: 2.285, MethylationScore: 0.119,
+      ChiralityScore: -0.956, aa10_code: DVWHISLVDK, aa34_code: RWMTFDVSVWEWHFIVSGEDNLYGPTEAAVDVTS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1865, A-domain_idx: 0, Top_scoring_residues: Orn, Modifying_domains: '---',
+      NRP_residue: Orn, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: OH-Orn,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -0.572, ResidueScore: 3.243, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DMENLGLINK, aa34_code: MNHVFDMSWEEWNVLLGGEYNLYGPTEYTINTLG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0002107
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+  nrp_variant_id: {nrp_id: BGC0002107.0, variant_idx: 0}
+  raw_score: -24.066
+  log_odds_vs_avg_nrp: -24.066
+  log_odds_vs_avg_bgc: 10.470420301765916
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.061, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: X0,
+      rBAN_idx: 6, Alignment_step: START_INSERTING_AT_START, Score: -2.29, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.085, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3670, A-domain_idx: 0, Top_scoring_residues: bAla, Modifying_domains: '---',
+      NRP_residue: bAla, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: bAla,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -1.279, ResidueScore: 3.703, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQLGVIWK, aa34_code: QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3675, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 9, Alignment_step: MATCH, Score: -5.276, ResidueScore: -2.453, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAPTLGAVNK, aa34_code: LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.054, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 0, Top_scoring_residues: Ala, Modifying_domains: '---',
+      NRP_residue: Ala, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ala,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -0.968, ResidueScore: 2.36, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DLFNNALTYK, aa34_code: RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 1, Top_scoring_residues: Cys, Modifying_domains: '---',
+      NRP_residue: Cys, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: dhCys,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -0.973, ResidueScore: 3.15, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DLYNMSLIWK, aa34_code: TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 0, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -0.97, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQLGLIWK, aa34_code: LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 1, Top_scoring_residues: Ala, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Ala, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ala,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -1.791, ResidueScore: 2.36, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DLFNCALTYK, aa34_code: FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: ITERATE_BGC, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.061, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3670, A-domain_idx: 0, Top_scoring_residues: bAla, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -1.972, ResidueScore: 1.629, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQLGVIWK, aa34_code: QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3675, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: X1,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -3.206, ResidueScore: -0.384, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAPTLGAVNK, aa34_code: LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: -2.941, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 0, Top_scoring_residues: Ala, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DLFNNALTYK, aa34_code: RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG}
+    - {Gene: Atu3682, A-domain_idx: 1, Top_scoring_residues: Cys, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DLYNMSLIWK, aa34_code: TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF}
+    - {Gene: Atu3683, A-domain_idx: 0, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DILQLGLIWK, aa34_code: LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC}
+    - {Gene: Atu3683, A-domain_idx: 1, Top_scoring_residues: Ala, Modifying_domains: EPIMERIZATION,
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DLFNCALTYK, aa34_code: FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0002107
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+  nrp_variant_id: {nrp_id: BGC0000359.1, variant_idx: 0}
+  raw_score: -52.605999999999995
+  log_odds_vs_avg_nrp: -52.605999999999995
+  log_odds_vs_avg_bgc: -7.533282650847283
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.061, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3670, A-domain_idx: 0, Top_scoring_residues: bAla, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULE, Score: -3, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DILQLGVIWK, aa34_code: QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3675, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: '---',
+      NRP_residue: Orn, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: OH-Orn,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -3.376, ResidueScore: 0.439, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAPTLGAVNK, aa34_code: LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.054, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 0, Top_scoring_residues: Ala, Modifying_domains: '---',
+      NRP_residue: Bza, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: diOH-Bz,
+      rBAN_idx: 6, Alignment_step: MATCH, Score: -5.479, ResidueScore: -0.799, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DLFNNALTYK, aa34_code: RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 1, Top_scoring_residues: Cys, Modifying_domains: '---',
+      NRP_residue: Arg, NRP_chirality: D, NRP_methylated: 'False', rBAN_name: Arg,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -7.481, ResidueScore: -1.064, MethylationScore: 0.119,
+      ChiralityScore: -0.752, aa10_code: DLYNMSLIWK, aa34_code: TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 0, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -0.97, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQLGLIWK, aa34_code: LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 1, Top_scoring_residues: Ala, Modifying_domains: EPIMERIZATION,
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULE, Score: -3, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DLFNCALTYK, aa34_code: FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: ITERATE_BGC, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.061, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3670, A-domain_idx: 0, Top_scoring_residues: bAla, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 9, Alignment_step: MATCH, Score: -1.972, ResidueScore: 1.629, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQLGVIWK, aa34_code: QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3675, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: '---',
+      NRP_residue: Ser, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Ser,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -4.652, ResidueScore: -1.803, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAPTLGAVNK, aa34_code: LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.054, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 0, Top_scoring_residues: Ala, Modifying_domains: '---',
+      NRP_residue: Bza, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: diOH-Bz,
+      rBAN_idx: 10, Alignment_step: MATCH, Score: -5.479, ResidueScore: -0.799, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DLFNNALTYK, aa34_code: RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 1, Top_scoring_residues: Cys, Modifying_domains: '---',
+      NRP_residue: Arg, NRP_chirality: D, NRP_methylated: 'False', rBAN_name: Arg,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -7.481, ResidueScore: -1.064, MethylationScore: 0.119,
+      ChiralityScore: -0.752, aa10_code: DLYNMSLIWK, aa34_code: TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 0, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -0.97, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQLGLIWK, aa34_code: LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 1, Top_scoring_residues: Ala, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -5.914, ResidueScore: -1.49, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DLFNCALTYK, aa34_code: FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0000359
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 1
+  nrp_variant_id: {nrp_id: BGC0002107.0, variant_idx: 0}
+  raw_score: -42.28799999999999
+  log_odds_vs_avg_nrp: -42.28799999999999
+  log_odds_vs_avg_bgc: -7.7515796982340746
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -1.261, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: X0,
+      rBAN_idx: 6, Alignment_step: START_INSERTING_AT_START, Score: -2.29, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.085, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1871, A-domain_idx: 0, Top_scoring_residues: Bza, Modifying_domains: '---',
+      NRP_residue: bAla, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: bAla,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -6.005, ResidueScore: -0.664, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: PMPAQGVVNK, aa34_code: SASLFPMSSPGGAVQVGGAQQVFGMAEGLVNYTR}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.037, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 9, Alignment_step: START_INSERTING, Score: -3.813, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 0, Top_scoring_residues: Arg, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Ala, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ala,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -5.868, ResidueScore: -1.716, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DADDSGCVDK, aa34_code: LAHGFDASWDQGDFSFGGEVNCYGPTENTVDALV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 1, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Cys, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: dhCys,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -5.353, ResidueScore: -1.229, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQFGVIWK, aa34_code: FDMTFDISALELQAFVGGEHNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 2, Top_scoring_residues: Gly, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -1.793, ResidueScore: 2.631, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DILQLGVIWK, aa34_code: FDMTFDISALELQALVGGETNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1866, A-domain_idx: 0, Top_scoring_residues: Ser, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Ala, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ala,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -5.796, ResidueScore: -1.645, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DVWHISLVDK, aa34_code: RWMTFDVSVWEWHFIVSGEDNLYGPTEAAVDVTS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1865, A-domain_idx: 0, Top_scoring_residues: Orn, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -5.091, ResidueScore: -1.49, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DMENLGLINK, aa34_code: MNHVFDMSWEEWNVLLGGEYNLYGPTEYTINTLG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: X1,
+      rBAN_idx: 8, Alignment_step: START_INSERTING, Score: -3.701, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.248, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0002107
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 2
+  nrp_variant_id: {nrp_id: BGC0000985.4, variant_idx: 0}
+  raw_score: -66.384
+  log_odds_vs_avg_nrp: -66.384
+  log_odds_vs_avg_bgc: -9.540853552334646
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.105, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Lac,
+      rBAN_idx: 9, Alignment_step: START_INSERTING_AT_START, Score: -1.197, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 0, Top_scoring_residues: Ala, Modifying_domains: '---',
+      NRP_residue: Pro, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Pro,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -4.866, ResidueScore: -1.427, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DLFNNALTYK, aa34_code: RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 1, Top_scoring_residues: Cys, Modifying_domains: '---',
+      NRP_residue: Leu, NRP_chirality: D, NRP_methylated: 'True', rBAN_name: NMe-Leu,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -10.543, ResidueScore: -1.721, MethylationScore: -0.214,
+      ChiralityScore: -0.752, aa10_code: DLYNMSLIWK, aa34_code: TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 0, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Thr, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: aThr/Thr,
+      rBAN_idx: 6, Alignment_step: MATCH, Score: -4.479, ResidueScore: -1.636, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DILQLGLIWK, aa34_code: LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 1, Top_scoring_residues: Ala, Modifying_domains: EPIMERIZATION,
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ist,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -3.685, ResidueScore: -0.039, MethylationScore: 0.119,
+      ChiralityScore: -0.547, aa10_code: DLFNCALTYK, aa34_code: FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.118, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3675, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -3.366, ResidueScore: 0.402, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DAPTLGAVNK, aa34_code: LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.177, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3670, A-domain_idx: 0, Top_scoring_residues: bAla, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -5.155, ResidueScore: -1.387, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DILQLGVIWK, aa34_code: QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: ITERATE_BGC, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.105, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 14, Alignment_step: START_INSERTING_AT_START, Score: -5.185, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 0, Top_scoring_residues: Ala, Modifying_domains: '---',
+      NRP_residue: Glu, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Glu,
+      rBAN_idx: 10, Alignment_step: MATCH, Score: -5.122, ResidueScore: -1.016, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DLFNNALTYK, aa34_code: RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3682, A-domain_idx: 1, Top_scoring_residues: Cys, Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Hip,
+      rBAN_idx: 12, Alignment_step: MATCH, Score: -2.861, ResidueScore: -0.039, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DLYNMSLIWK, aa34_code: TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 0, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Leu, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Leu,
+      rBAN_idx: 11, Alignment_step: MATCH, Score: -4.363, ResidueScore: -1.721, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DILQLGLIWK, aa34_code: LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3683, A-domain_idx: 1, Top_scoring_residues: Ala, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Pro, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Pro,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -6.307, ResidueScore: -1.427, MethylationScore: 0.119,
+      ChiralityScore: -0.956, aa10_code: DLFNCALTYK, aa34_code: FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.118, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3675, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: '---',
+      NRP_residue: Tyr, NRP_chirality: L, NRP_methylated: 'True', rBAN_name: NMe-OMe-Tyr,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -4.754, ResidueScore: 2.366, MethylationScore: -0.214,
+      ChiralityScore: 0.485, aa10_code: DAPTLGAVNK, aa34_code: LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: -1.818, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Atu3670, A-domain_idx: 0, Top_scoring_residues: bAla, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DILQLGVIWK, aa34_code: QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0000985
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+  nrp_variant_id: {nrp_id: BGC0002107.0, variant_idx: 0}
+  raw_score: -48.60300000000001
+  log_odds_vs_avg_nrp: -48.60300000000001
+  log_odds_vs_avg_bgc: -14.066579698234094
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.019, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: X0,
+      rBAN_idx: 6, Alignment_step: START_INSERTING_AT_START, Score: -2.29, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.085, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 0, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: bAla, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: bAla,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -5.645, ResidueScore: -0.664, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 1, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 9, Alignment_step: MATCH, Score: -5.091, ResidueScore: -2.268, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: Ala, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ala,
+      rBAN_idx: 2, Alignment_step: START_INSERTING, Score: -5.303, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.071, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0604, A-domain_idx: 0, Top_scoring_residues: Pro, Modifying_domains: '---',
+      NRP_residue: Cys, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: dhCys,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -5.353, ResidueScore: -1.229, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DVQFAAQVVK, aa34_code: LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.025, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.071, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 0, Top_scoring_residues: Leu, Modifying_domains: 'METHYLATION,EPIMERIZATION',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -7.959, ResidueScore: -1.49, MethylationScore: -1.925,
+      ChiralityScore: -0.547, aa10_code: DAWFLGHVVK, aa34_code: LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 1, Top_scoring_residues: Thr, Modifying_domains: '---',
+      NRP_residue: Ala, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ala,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -4.973, ResidueScore: -1.645, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DFWNIGMVHK, aa34_code: LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 2, Top_scoring_residues: Ile, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -5.119, ResidueScore: -1.518, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAFFLGITFK, aa34_code: RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.542, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0609, A-domain_idx: 0, Top_scoring_residues: Leu, Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: X1,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -2.861, ResidueScore: -0.039, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAWFLGNVVK, aa34_code: LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: -2.192, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0610, A-domain_idx: 0, Top_scoring_residues: Pro, Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DVQFAAQVVK, aa34_code: LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE}
+    - {Gene: TMO_c0611, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: METHYLATION,
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: SKIP_MODULES_AT_END, Score: 0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: DASTLAAVCK, aa34_code: TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0000359
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+  nrp_variant_id: {nrp_id: BGC0000985.4, variant_idx: 0}
+  raw_score: -74.29000000000002
+  log_odds_vs_avg_nrp: -74.29000000000002
+  log_odds_vs_avg_bgc: -17.446853552334666
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.006, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Hip,
+      rBAN_idx: 12, Alignment_step: START_INSERTING_AT_START, Score: -2.29, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.085, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 0, Top_scoring_residues: Arg, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Leu, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Leu,
+      rBAN_idx: 11, Alignment_step: MATCH, Score: -5.862, ResidueScore: -1.779, MethylationScore: 0.119,
+      ChiralityScore: -0.956, aa10_code: DADDSGCVDK, aa34_code: LAHGFDASWDQGDFSFGGEVNCYGPTENTVDALV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 1, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: Pro, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Pro,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -4.866, ResidueScore: -1.427, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DILQFGVIWK, aa34_code: FDMTFDISALELQAFVGGEHNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 2, Top_scoring_residues: Gly, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Tyr, NRP_chirality: L, NRP_methylated: 'True', rBAN_name: NMe-OMe-Tyr,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -10.006, ResidueScore: -1.446, MethylationScore: -0.214,
+      ChiralityScore: -0.956, aa10_code: DILQLGVIWK, aa34_code: FDMTFDISALELQALVGGETNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1866, A-domain_idx: 0, Top_scoring_residues: Ser, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -6.402, ResidueScore: -1.193, MethylationScore: 0.119,
+      ChiralityScore: -0.956, aa10_code: DVWHISLVDK, aa34_code: RWMTFDVSVWEWHFIVSGEDNLYGPTEAAVDVTS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1865, A-domain_idx: 0, Top_scoring_residues: Orn, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 3, Alignment_step: MATCH, Score: -4.96, ResidueScore: -1.193, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DMENLGLINK, aa34_code: MNHVFDMSWEEWNVLLGGEYNLYGPTEYTINTLG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.177, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1871, A-domain_idx: 0, Top_scoring_residues: Bza, Modifying_domains: '---',
+      NRP_residue: Gln, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Gln,
+      rBAN_idx: 14, Alignment_step: MATCH, Score: -5.32, ResidueScore: -1.193, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: PMPAQGVVNK, aa34_code: SASLFPMSSPGGAVQVGGAQQVFGMAEGLVNYTR}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: ITERATE_BGC, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.006, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 0, Top_scoring_residues: Arg, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Glu, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Glu,
+      rBAN_idx: 10, Alignment_step: MATCH, Score: -6.691, ResidueScore: -1.143, MethylationScore: 0.119,
+      ChiralityScore: -0.956, aa10_code: DADDSGCVDK, aa34_code: LAHGFDASWDQGDFSFGGEVNCYGPTENTVDALV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 1, Top_scoring_residues: Gly, Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Lac,
+      rBAN_idx: 9, Alignment_step: MATCH, Score: -2.861, ResidueScore: -0.039, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DILQFGVIWK, aa34_code: FDMTFDISALELQAFVGGEHNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1867, A-domain_idx: 2, Top_scoring_residues: Gly, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Pro, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Pro,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -6.307, ResidueScore: -1.427, MethylationScore: 0.119,
+      ChiralityScore: -0.956, aa10_code: DILQLGVIWK, aa34_code: FDMTFDISALELQALVGGETNVYGPTETTIWSTA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1866, A-domain_idx: 0, Top_scoring_residues: Ser, Modifying_domains: EPIMERIZATION,
+      NRP_residue: Leu, NRP_chirality: D, NRP_methylated: 'True', rBAN_name: NMe-Leu,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -8.309, ResidueScore: -1.721, MethylationScore: -0.214,
+      ChiralityScore: 1.483, aa10_code: DVWHISLVDK, aa34_code: RWMTFDVSVWEWHFIVSGEDNLYGPTEAAVDVTS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1865, A-domain_idx: 0, Top_scoring_residues: Orn, Modifying_domains: '---',
+      NRP_residue: Thr, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: aThr/Thr,
+      rBAN_idx: 6, Alignment_step: MATCH, Score: -4.479, ResidueScore: -1.636, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DMENLGLINK, aa34_code: MNHVFDMSWEEWNVLLGGEYNLYGPTEYTINTLG}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.177, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: Tfu_1871, A-domain_idx: 0, Top_scoring_residues: Bza, Modifying_domains: '---',
+      NRP_residue: _UNKNOWN, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Ist,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -3.221, ResidueScore: -0.039, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: PMPAQGVVNK, aa34_code: SASLFPMSSPGGAVQVGGAQQVFGMAEGLVNYTR}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+- genome_id: BGC0000985
+  bgc_variant_id:
+    bgc_id: {antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json, contig_idx: 1,
+      bgc_idx: 1}
+    variant_idx: 0
+  nrp_variant_id: {nrp_id: BGC0000359.1, variant_idx: 0}
+  raw_score: -63.91200000000002
+  log_odds_vs_avg_nrp: -63.91200000000002
+  log_odds_vs_avg_bgc: -18.83928265084731
+  p_value: null
+  alignments:
+  - - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: INITIAL, Score: 0.0, ResidueScore: '---', MethylationScore: '---',
+      ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: START_MATCHING, Score: -0.019, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.259, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 0, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Bza, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: diOH-Bz,
+      rBAN_idx: 10, Alignment_step: MATCH, Score: -5.479, ResidueScore: -0.799, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0602, A-domain_idx: 1, Top_scoring_residues: Gln, Modifying_domains: '---',
+      NRP_residue: Arg, NRP_chirality: D, NRP_methylated: 'False', rBAN_name: Arg,
+      rBAN_idx: 4, Alignment_step: MATCH, Score: -7.481, ResidueScore: -1.064, MethylationScore: 0.119,
+      ChiralityScore: -0.752, aa10_code: DAWQFGLIDK, aa34_code: HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 3, Alignment_step: START_INSERTING, Score: -6.055, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_INSERTING, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.071, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0604, A-domain_idx: 0, Top_scoring_residues: Pro, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 2, Alignment_step: MATCH, Score: -5.091, ResidueScore: -1.49, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DVQFAAQVVK, aa34_code: LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.025, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.071, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 0, Top_scoring_residues: Leu, Modifying_domains: 'METHYLATION,EPIMERIZATION',
+      NRP_residue: Bza, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: diOH-Bz,
+      rBAN_idx: 6, Alignment_step: MATCH, Score: -8.347, ResidueScore: -0.799, MethylationScore: -1.925,
+      ChiralityScore: -0.547, aa10_code: DAWFLGHVVK, aa34_code: LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 1, Top_scoring_residues: Thr, Modifying_domains: '---',
+      NRP_residue: Arg, NRP_chirality: D, NRP_methylated: 'False', rBAN_name: Arg,
+      rBAN_idx: 5, Alignment_step: MATCH, Score: -7.481, ResidueScore: -1.064, MethylationScore: 0.119,
+      ChiralityScore: -0.752, aa10_code: DFWNIGMVHK, aa34_code: LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0605, A-domain_idx: 2, Top_scoring_residues: Ile, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 8, Alignment_step: MATCH, Score: -5.119, ResidueScore: -1.518, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAFFLGITFK, aa34_code: RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.542, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0609, A-domain_idx: 0, Top_scoring_residues: Leu, Modifying_domains: '---',
+      NRP_residue: Gly, NRP_chirality: UNKNOWN, NRP_methylated: 'False', rBAN_name: Gly,
+      rBAN_idx: 9, Alignment_step: MATCH, Score: -5.091, ResidueScore: -1.49, MethylationScore: 0.119,
+      ChiralityScore: 0.277, aa10_code: DAWFLGNVVK, aa34_code: LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: -0.118, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0610, A-domain_idx: 0, Top_scoring_residues: Pro, Modifying_domains: '---',
+      NRP_residue: Ser, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: Ser,
+      rBAN_idx: 7, Alignment_step: MATCH, Score: -4.501, ResidueScore: -1.652, MethylationScore: 0.119,
+      ChiralityScore: 0.485, aa10_code: DVQFAAQVVK, aa34_code: LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CHOOSE_IF_FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: CONTINUE_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.051, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: TMO_c0611, A-domain_idx: 0, Top_scoring_residues: Tyr, Modifying_domains: METHYLATION,
+      NRP_residue: Orn, NRP_chirality: L, NRP_methylated: 'False', rBAN_name: OH-Orn,
+      rBAN_idx: 1, Alignment_step: MATCH, Score: -7.056, ResidueScore: -1.197, MethylationScore: -1.925,
+      ChiralityScore: 0.485, aa10_code: DASTLAAVCK, aa34_code: TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: FINISH_MATCHING, Score: 0.0, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_INSERTIONS, Score: -0.057, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}
+    - {Gene: '---', A-domain_idx: '---', Top_scoring_residues: '---', Modifying_domains: '---',
+      NRP_residue: '---', NRP_chirality: '---', NRP_methylated: '---', rBAN_name: '---',
+      rBAN_idx: '---', Alignment_step: NO_ITERATION, Score: -0.693, ResidueScore: '---',
+      MethylationScore: '---', ChiralityScore: '---', aa10_code: '---', aa34_code: '---'}

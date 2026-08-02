@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>WP_064482085.1</td>
+              <td>response_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001586.3">BGC0001586.3</a></td>
+              <td>saccharide</td>
+              <td>35.0</td>
+              <td>26.6</td>
+              <td>70.0</td>
+              <td>1.89e-14</td>
+          </tr>
+    
+          <tr>
+              <td>AGU42431.1</td>
+              <td>Cmm23</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000842.5">BGC0000842.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>28.0</td>
+              <td>52.9</td>
+              <td>66.0</td>
+              <td>1.48e-11</td>
+          </tr>
+    
+          <tr>
+              <td>AAD21216.2</td>
+              <td>BacR</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000310.5">BGC0000310.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>32.3</td>
+              <td>62.0</td>
+              <td>6.05e-11</td>
+          </tr>
+    
+          <tr>
+              <td>KON97026.1</td>
+              <td>PhoP_family_transcriptional_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002122.2">BGC0002122.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>40.0</td>
+              <td>24.2</td>
+              <td>61.0</td>
+              <td>1.55e-10</td>
+          </tr>
+    
+          <tr>
+              <td>MUL41494.1</td>
+              <td>response_regulator_transcription_factor</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002045.3">BGC0002045.3</a></td>
+              <td>PKS:Type II</td>
+              <td>43.0</td>
+              <td>24.2</td>
+              <td>60.0</td>
+              <td>3.36e-10</td>
+          </tr>
+    
+          <tr>
+              <td>AGU42430.1</td>
+              <td>Cmm22</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000842.5">BGC0000842.5</a></td>
+              <td>other:non-nrp beta-lactam</td>
+              <td>39.0</td>
+              <td>25.1</td>
+              <td>59.0</td>
+              <td>6.01e-10</td>
+          </tr>
+    
+          <tr>
+              <td>QCP68977.1</td>
+              <td>response_regulator</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002296.2">BGC0002296.2</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>37.0</td>
+              <td>24.5</td>
+              <td>58.0</td>
+              <td>6.34e-09</td>
+          </tr>
+    
+          <tr>
+              <td>ACV42481.1</td>
+              <td>putative_adenylate/guanylate_cyclase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000043.5">BGC0000043.5</a></td>
+              <td>PKS</td>
+              <td>36.0</td>
+              <td>24.5</td>
+              <td>57.0</td>
+              <td>1.49e-08</td>
+          </tr>
+    
+          <tr>
+              <td>QKW60381.1</td>
+              <td>response_regulator_transcription_factor</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002288.2">BGC0002288.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>49.2</td>
+              <td>49.0</td>
+              <td>2.82e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

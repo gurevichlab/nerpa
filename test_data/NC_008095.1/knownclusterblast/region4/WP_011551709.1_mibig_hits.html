@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>CBJ82068.1</td>
+              <td>conserved_hypothetical_protein;_putative_membrane_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001872.3">BGC0001872.3</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>108.2</td>
+              <td>143.0</td>
+              <td>2.61e-39</td>
+          </tr>
+    
+          <tr>
+              <td>PHM26617.1</td>
+              <td>ABC_transporter</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001130.5">BGC0001130.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>27.0</td>
+              <td>107.9</td>
+              <td>139.0</td>
+              <td>5.23e-38</td>
+          </tr>
+    
+          <tr>
+              <td>CCM44341.1</td>
+              <td>putative_ABC_transporter_permease</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001056.5">BGC0001056.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>30.0</td>
+              <td>109.1</td>
+              <td>139.0</td>
+              <td>5.89e-38</td>
+          </tr>
+    
+          <tr>
+              <td>AZF85927.1</td>
+              <td>ABC_transporter_permease</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001963.2">BGC0001963.2</a></td>
+              <td>PKS:Type I</td>
+              <td>32.0</td>
+              <td>60.4</td>
+              <td>86.0</td>
+              <td>6.42e-19</td>
+          </tr>
+    
+          <tr>
+              <td>OAP25823.1</td>
+              <td>Daunorubicin/doxorubicin_resistance_ABC_transporter_permease_protein_DrrB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001658.3">BGC0001658.3</a></td>
+              <td>PKS</td>
+              <td>26.0</td>
+              <td>57.2</td>
+              <td>51.0</td>
+              <td>4.96e-07</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

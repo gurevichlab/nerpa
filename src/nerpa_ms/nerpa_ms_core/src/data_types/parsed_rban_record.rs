@@ -101,3 +101,39 @@ pub struct Parsed_rBAN_Record {
 
     pub metadata: NRP_Metadata,
 }
+
+use anyhow::Result;
+
+impl Parsed_rBAN_Record {
+    pub fn get_monomers(&self, monomer_indices: &[MonomerIdx]) -> Result<Vec<MonomerInfo>> {
+	let mut result = Vec::new();
+	for mon_idx in monomer_indices {
+	    if let Some(monomer_info) = self.monomers.get(mon_idx) {
+		result.push(monomer_info.clone());
+	    } else {
+		return Err(anyhow::anyhow!("Monomer index {} not found in record", mon_idx));
+	    }
+	}
+	Ok(result)
+    }
+    
+    pub fn show_linearization(&self, linearization: &[MonomerIdx]) -> Result<String> {
+	let mut result = String::new();
+	for (i, mon_idx) in linearization.iter().enumerate() {
+	    if i > 0 {
+		result.push_str(", ");
+	    }
+	    if let Some(monomer_info) = self.monomers.get(mon_idx) {
+		result.push_str(
+		    &format!("{}({})",
+			     monomer_info.name.0,
+		    	     mon_idx
+		    ));
+	    } else {
+		return Err(anyhow::anyhow!("Monomer index {} not found in record", mon_idx));
+	    }
+	}
+	Ok(result)
+    }
+}
+

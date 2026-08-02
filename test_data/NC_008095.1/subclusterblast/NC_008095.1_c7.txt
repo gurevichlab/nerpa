@@ -1,0 +1,25 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS13795	3318245	3318941	-	hypothetical protein	
+MXAN_RS13800	3319076	3319964	-	ATP-grasp domain-containing protein	
+MXAN_RS38150	3320075	3321890	-	NUDIX hydrolase	
+MXAN_RS13810	3321953	3323225	+	proprotein convertase P-domain-containing protein	
+MXAN_RS13815	3323278	3324733	-	amidase	
+MXAN_RS13820	3324820	3327022	-	peptidase domain-containing ABC transporter	
+MXAN_RS13825	3327018	3327234	-	hypothetical protein	
+MXAN_RS13830	3327302	3327512	-	mersacidin/lichenicidin family type 2 lantibiotic	
+MXAN_RS13835	3327543	3327759	-	mersacidin/lichenicidin family type 2 lantibiotic	
+MXAN_RS13840	3327755	3331079	-	type 2 lanthipeptide synthetase LanM family protein	
+MXAN_RS38155	3331205	3331382	+	hypothetical protein	
+MXAN_RS13845	3331473	3334425	+	DEAD/DEAH box helicase	
+MXAN_RS13850	3334421	3336242	+	DUF885 domain-containing protein	
+MXAN_RS13855	3336255	3337515	-	DmpA family aminopeptidase	
+MXAN_RS13860	3337627	3339295	+	HEAT repeat domain-containing protein	
+MXAN_RS13865	3339523	3340534	+	hypothetical protein	
+
+
+Significant hits: 
+
+
+Details:

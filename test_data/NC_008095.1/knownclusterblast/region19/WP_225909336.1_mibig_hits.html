@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>ATJ00797.1</td>
+              <td>putative_methyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001802.5">BGC0001802.5</a></td>
+              <td>ribosomal:RiPP:Thioamidide</td>
+              <td>30.0</td>
+              <td>89.8</td>
+              <td>128.0</td>
+              <td>8.91e-33</td>
+          </tr>
+    
+          <tr>
+              <td>BBC15203.1</td>
+              <td>methyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001696.5">BGC0001696.5</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>29.0</td>
+              <td>88.9</td>
+              <td>126.0</td>
+              <td>4.44e-32</td>
+          </tr>
+    
+          <tr>
+              <td>KPC82468.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002560.3">BGC0002560.3</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>30.0</td>
+              <td>89.8</td>
+              <td>124.0</td>
+              <td>9.4e-32</td>
+          </tr>
+    
+          <tr>
+              <td>WP_234331922.1</td>
+              <td>50S_ribosomal_protein_L11_methyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002669.2">BGC0002669.2</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>29.0</td>
+              <td>89.6</td>
+              <td>119.0</td>
+              <td>1.38e-29</td>
+          </tr>
+    
+          <tr>
+              <td>ACY13421.1</td>
+              <td>Histone-arginine_N-methyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001367.5">BGC0001367.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>32.0</td>
+              <td>74.6</td>
+              <td>116.0</td>
+              <td>5.05e-29</td>
+          </tr>
+    
+          <tr>
+              <td>BAN83922.1</td>
+              <td>putative_methyltransferase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000625.5">BGC0000625.5</a></td>
+              <td>ribosomal:RiPP</td>
+              <td>29.0</td>
+              <td>69.5</td>
+              <td>92.0</td>
+              <td>6.09e-20</td>
+          </tr>
+    
+          <tr>
+              <td>QDA77059.1</td>
+              <td>polyketide_synthase/nonribosomal_peptide_synthetase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002026.3">BGC0002026.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>33.0</td>
+              <td>46.2</td>
+              <td>73.0</td>
+              <td>2.42e-13</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

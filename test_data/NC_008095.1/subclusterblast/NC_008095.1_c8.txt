@@ -1,0 +1,39 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS16715	4013493	4014603	+	efflux RND transporter periplasmic adaptor subunit	
+MXAN_RS16720	4014599	4017689	+	efflux RND transporter permease subunit	
+MXAN_RS16725	4017711	4018392	+	response regulator transcription factor	
+MXAN_RS16730	4018388	4019747	+	sensor histidine kinase	
+MXAN_RS16735	4019865	4022418	+	excinuclease ABC subunit UvrA	
+MXAN_RS16740	4022491	4024591	-	methyl-accepting chemotaxis protein	
+MXAN_RS16745	4024939	4025806	+	2-oxo acid dehydrogenase subunit E2	
+MXAN_RS16750	4025828	4026878	-	formylglycine-generating enzyme family protein	
+MXAN_RS16755	4026868	4028170	-	radical SAM protein	
+MXAN_RS16760	4028166	4028766	-	hypothetical protein	
+MXAN_RS38160	4028851	4028998	+	hypothetical protein	
+MXAN_RS16765	4029027	4029519	+	GFA family protein	
+MXAN_RS16770	4029632	4030748	+	Gfo/Idh/MocA family protein	
+MXAN_RS16775	4030882	4032388	+	SDR family oxidoreductase	
+MXAN_RS16780	4032411	4039062	+	type I polyketide synthase	
+MXAN_RS16785	4039086	4040172	+	fatty acid desaturase family protein	
+MXAN_RS16790	4040346	4042425	-	zinc metalloprotease	
+MXAN_RS16795	4042947	4044474	-	histidine ammonia-lyase	
+MXAN_RS16800	4044609	4045887	+	aspartate kinase	
+MXAN_RS16805	4045891	4046308	+	ComEA family DNA-binding protein	
+MXAN_RS38745	4046412	4046826	-	hypothetical protein	
+MXAN_RS38750	4047190	4048651	+	tetratricopeptide repeat protein	
+MXAN_RS16820	4048817	4049999	+	glycosyltransferase family 2 protein	
+MXAN_RS16825	4050017	4050866	-	CHAP domain-containing protein	
+MXAN_RS16830	4051001	4052693	+	hypothetical protein	
+MXAN_RS16835	4052737	4054816	+	ATP-dependent helicase	
+MXAN_RS16840	4054906	4056529	+	Hsp70 family protein	
+MXAN_RS16845	4056537	4056963	+	SCP2 sterol-binding domain-containing protein	
+MXAN_RS16850	4056975	4057245	+	hypothetical protein	
+MXAN_RS16860	4057554	4058514	-	TerC family protein	
+
+
+Significant hits: 
+
+
+Details:

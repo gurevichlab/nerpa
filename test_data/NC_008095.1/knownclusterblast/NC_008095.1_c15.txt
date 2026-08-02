@@ -1,0 +1,42 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS19385	4855908	4856883	-	NAD-dependent epimerase/dehydratase family protein	
+MXAN_RS19390	4856983	4857514	+	FHA domain-containing protein	
+MXAN_RS19395	4857533	4858064	-	hypothetical protein	
+MXAN_RS19400	4858116	4859628	-	Y-family DNA polymerase	
+MXAN_RS19405	4859636	4860509	-	ImuA family protein	
+MXAN_RS19410	4860651	4861866	-	vWA domain-containing protein	
+MXAN_RS19415	4862102	4864586	+	endopeptidase La	
+MXAN_RS19420	4864674	4865643	-	LysM peptidoglycan-binding domain-containing protein	
+MXAN_RS19425	4865666	4868216	-	hypothetical protein	
+MXAN_RS19430	4868215	4872889	-	hypothetical protein	
+MXAN_RS19435	4873163	4874315	-	SH3 domain-containing protein	
+MXAN_RS19440	4874487	4875351	+	N-acetylmuramoyl-L-alanine amidase family protein	
+MXAN_RS19445	4875469	4889056	-	amino acid adenylation domain-containing protein	
+MXAN_RS19450	4889052	4900395	-	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS19455	4900405	4905739	-	non-ribosomal peptide synthetase	
+MXAN_RS19460	4905995	4906976	+	aldo/keto reductase	
+MXAN_RS19465	4907069	4908320	-	DUF4130 domain-containing protein	
+MXAN_RS19470	4908390	4909359	-	FHA domain-containing protein	
+MXAN_RS19475	4909346	4910669	-	S1C family serine protease	
+MXAN_RS19480	4910842	4912243	+	DUF3943 domain-containing protein	
+MXAN_RS19485	4912266	4912941	-	hypothetical protein	
+MXAN_RS19490	4913104	4913758	+	hypothetical protein	
+MXAN_RS38180	4913774	4913942	-	hypothetical protein	
+MXAN_RS19495	4914399	4914747	+	hypothetical protein	
+MXAN_RS19500	4914759	4915293	+	GNAT family N-acetyltransferase	
+MXAN_RS19505	4915301	4915970	-	hypothetical protein	
+MXAN_RS19510	4915966	4916308	-	protealysin inhibitor emfourin	
+MXAN_RS19515	4916327	4917482	-	M4 family metallopeptidase	
+MXAN_RS19520	4917844	4919062	+	sialidase family protein	
+MXAN_RS19525	4919292	4919775	+	tetratricopeptide repeat protein	
+MXAN_RS19530	4919927	4921013	+	6-phosphofructokinase	
+MXAN_RS19535	4921031	4922963	+	serine/threonine-protein kinase	
+MXAN_RS19540	4922959	4923967	+	hypothetical protein	
+
+
+Significant hits: 
+
+
+Details:

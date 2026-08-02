@@ -1,0 +1,95 @@
+- nrp_variant_id: {nrp_id: BGC0000359.1, variant_idx: 0}
+  fragments:
+  - monomers:
+    - {residue: Orn, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: OH-Orn,
+      rban_idx: 1}
+    is_cyclic: false
+  - monomers:
+    - {residue: Bza, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: diOH-Bz, rban_idx: 10}
+    - {residue: Arg, methylated: false, chirality: D, is_pks_hybrid: false, rban_name: Arg,
+      rban_idx: 4}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Gly, rban_idx: 3}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Gly, rban_idx: 2}
+    is_cyclic: false
+  - monomers:
+    - {residue: Bza, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: diOH-Bz, rban_idx: 6}
+    - {residue: Arg, methylated: false, chirality: D, is_pks_hybrid: false, rban_name: Arg,
+      rban_idx: 5}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Gly, rban_idx: 8}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Gly, rban_idx: 9}
+    - {residue: Ser, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Ser,
+      rban_idx: 7}
+    is_cyclic: false
+  isolated_monomers: []
+  metadata: {name: Fuscachelin B, smiles: 'C1=CC(=C(C(=C1)O)O)C(=O)N[C@H](CCCN=C(N)N)C(=O)NCC(=O)NCC(=O)N[C@@H](CCCN(C(=O)[C@H](CO)NC(=O)CNC(=O)CNC(=O)[C@@H](CCCN=C(N)N)NC(=O)C2=C(C(=CC=C2)O)O)O)C(=O)O',
+    origin: Thermobifida fusca YX, inchikey: RCJSTCNOAKCESX-XPGKHFPBSA-N, source: MIBiG4.0}
+- nrp_variant_id: {nrp_id: BGC0002107.0, variant_idx: 0}
+  fragments:
+  - monomers:
+    - {residue: _UNKNOWN, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: X0, rban_idx: 6}
+    - {residue: bAla, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: bAla, rban_idx: 5}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: true, rban_name: Gly,
+      rban_idx: 9}
+    - {residue: Ala, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Ala, rban_idx: 2}
+    - {residue: Cys, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: dhCys, rban_idx: 1}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Gly, rban_idx: 7}
+    - {residue: Ala, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Ala, rban_idx: 4}
+    - {residue: Gly, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Gly, rban_idx: 3}
+    - {residue: _UNKNOWN, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: X1, rban_idx: 8}
+    is_cyclic: false
+  isolated_monomers: []
+  metadata: {name: fabrubactin A, smiles: 'CCCCCCCC(O)CC(O)(C(=O)O)C(=O)NCCC(=O)NCCC(O)(C(=O)O)C(=O)NC(C)C1=NC(C(=O)NCC(=O)NC(C)C(=O)NCC(=O)NC2CC3=CC(O)=C(O)C=C3[N+](C)(C)C2)=CS1',
+    origin: Agrobacterium fabrum str. C58, inchikey: SXOKUPQNHVTMPJ-UHFFFAOYSA-O,
+    source: MIBiG4.0}
+- nrp_variant_id: {nrp_id: BGC0000985.4, variant_idx: 0}
+  fragments:
+  - monomers:
+    - {residue: _UNKNOWN, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Hip, rban_idx: 12}
+    - {residue: Leu, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Leu,
+      rban_idx: 11}
+    - {residue: Pro, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Pro,
+      rban_idx: 2}
+    - {residue: Tyr, methylated: true, chirality: L, is_pks_hybrid: false, rban_name: NMe-OMe-Tyr,
+      rban_idx: 1}
+    is_cyclic: false
+  - monomers:
+    - {residue: Gln, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Gln,
+      rban_idx: 4}
+    - {residue: Gln, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Gln,
+      rban_idx: 3}
+    - {residue: Gln, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Gln,
+      rban_idx: 14}
+    - {residue: Glu, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Glu,
+      rban_idx: 10}
+    is_cyclic: false
+  - monomers:
+    - {residue: _UNKNOWN, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Lac, rban_idx: 9}
+    - {residue: Pro, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: Pro,
+      rban_idx: 8}
+    - {residue: Leu, methylated: true, chirality: D, is_pks_hybrid: false, rban_name: NMe-Leu,
+      rban_idx: 7}
+    - {residue: Thr, methylated: false, chirality: L, is_pks_hybrid: false, rban_name: aThr/Thr,
+      rban_idx: 6}
+    - {residue: _UNKNOWN, methylated: false, chirality: UNKNOWN, is_pks_hybrid: false,
+      rban_name: Ist, rban_idx: 5}
+    is_cyclic: false
+  isolated_monomers: []
+  metadata: {name: didemnin Y, smiles: 'CCCCCCC[C@H](CC(=O)N[C@@H](CCC(=O)N)C(=O)N[C@@H](CCC(=O)N)C(=O)N[C@@H](CCC(=O)N)C(=O)N[C@@H](CCC(=O)O)C(=O)O[C@@H](C)C(=O)N1CCC[C@H]1C(=O)N(C)[C@H](CC(C)C)C(=O)N[C@H]2[C@@H](OC(=O)[C@@H](N(C(=O)[C@@H]3CCCN3C(=O)[C@@H](NC(=O)[C@H](C(=O)[C@@H](OC(=O)C[C@@H]([C@@H](NC2=O)[C@@H](C)CC)O)C(C)C)C)CC(C)C)C)CC4=CC=C(C=C4)OC)C)O',
+    origin: Tistrella mobilis KA081020-065, inchikey: GXKAOWYTJPGGBI-BHTIDRDUSA-N,
+    source: MIBiG4.0}

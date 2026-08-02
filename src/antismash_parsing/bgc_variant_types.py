@@ -45,21 +45,47 @@ class BGC_Module:
     @classmethod
     def from_dict(cls, data: dict) -> BGC_Module:  # TODO: use dacite from_dict or smth
         try:
-            res = cls(gene_id=data['gene_id'],
-                      fragment_idx=data['fragment_idx'],
-                      a_domain_idx=data['a_domain_idx'],
-                      genomic_context=tuple(ModuleGenomicContextFeature[context_feature]
-                                            for context_feature in data['genomic_context']),
-                      residue_score=data['residue_score'],
-                      modifications=tuple(BGC_Module_Modification[mod]
-                                          for mod in data['modifications']),
-                      iterative_module=data['iterative_module'],
-                      iterative_gene=data['iterative_gene'],
-                      aa10_code=data.get('aa10_code') if data.get('aa10_code') != '---'  else None,
-                      aa34_code=data.get('aa34_code') if data.get('aa34_code') != '---' else None)
+            res = cls(
+                gene_id=data['gene_id'],
+                fragment_idx=data['fragment_idx'],
+                a_domain_idx=data['a_domain_idx'],
+                genomic_context=frozenset(
+                    ModuleGenomicContextFeature[context_feature]
+                    for context_feature in data['genomic_context']
+                ),
+                residue_score=data['residue_score'],
+                modifications=tuple(BGC_Module_Modification[mod]
+                                    for mod in data['modifications']),
+                iterative_module=data['iterative_module'],
+                iterative_gene=data['iterative_gene'],
+                aa10_code=(
+                    data.get('aa10_code')
+                    if data.get('aa10_code') != '---'
+                    else None
+                ),
+                aa34_code=(
+                    data.get('aa34_code')
+                    if data.get('aa34_code') != '---'
+                    else None
+                ),
+            )
         except:
             raise  # for debugging
         return res
+
+    def to_dict(self) -> dict:
+        return {
+            'gene_id': self.gene_id,
+            'fragment_idx': self.fragment_idx,
+            'a_domain_idx': self.a_domain_idx,
+            'genomic_context': [feature.name for feature in self.genomic_context],
+            'residue_score': self.residue_score,
+            'modifications': [mod.name for mod in self.modifications],
+            'iterative_module': self.iterative_module,
+            'iterative_gene': self.iterative_gene,
+            'aa10_code': self.aa10_code if self.aa10_code is not None else '---',
+            'aa34_code': self.aa34_code if self.aa34_code is not None else '---'
+        }
 
     def __eq__(self, other: BGC_Module) -> bool:
         features_coincide = all([
@@ -128,7 +154,7 @@ class BGC_Variant:
     metadata: Optional[antiSMASH_metadata]
 
     @classmethod
-    def from_yaml_dict(cls, data: dict) -> BGC_Variant:
+    def from_dict(cls, data: dict) -> BGC_Variant:
         try:
             metadata = antiSMASH_metadata(**data['metadata'])
         except:
@@ -140,10 +166,16 @@ class BGC_Variant:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        data = asdict(self)
-        data['bgc_variant_id'] = self.bgc_variant_id.to_dict()  # Convert NamedTuple manually
-        data['metadata'] = self.metadata.to_dict()
-        return data
+
+        return {
+            'bgc_variant_id': self.bgc_variant_id.to_dict(),
+            'modules': [module.to_dict() for module in self.modules],
+            'metadata': (
+                self.metadata.to_dict()
+                if self.metadata
+                else None
+            ),
+        }
 
 
     def has_pks_domains(self) -> bool:

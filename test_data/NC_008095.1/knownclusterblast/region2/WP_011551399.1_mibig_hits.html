@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>XP_020058096.1</td>
+              <td>uncharacterized_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001220.4">BGC0001220.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>41.0</td>
+              <td>103.4</td>
+              <td>445.0</td>
+              <td>7.48e-148</td>
+          </tr>
+    
+          <tr>
+              <td>QIW91870.1</td>
+              <td>HtyD</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002543.3">BGC0002543.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>41.0</td>
+              <td>104.0</td>
+              <td>450.0</td>
+              <td>2.03e-147</td>
+          </tr>
+    
+          <tr>
+              <td>AKJ70936.1</td>
+              <td>aconitase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002611.2">BGC0002611.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>41.0</td>
+              <td>104.0</td>
+              <td>437.0</td>
+              <td>9.06e-143</td>
+          </tr>
+    
+          <tr>
+              <td>AMM63164.1</td>
+              <td>AniB</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001371.4">BGC0001371.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>40.0</td>
+              <td>104.1</td>
+              <td>427.0</td>
+              <td>1.22e-138</td>
+          </tr>
+    
+          <tr>
+              <td>EPE34343.1</td>
+              <td>Aconitase_iron-sulfur</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001035.5">BGC0001035.5</a></td>
+              <td>PKS+NRPS:Type I</td>
+              <td>37.0</td>
+              <td>108.1</td>
+              <td>388.0</td>
+              <td>1.12e-123</td>
+          </tr>
+    
+          <tr>
+              <td>QUJ09160.1</td>
+              <td>Lon13</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002440.3">BGC0002440.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>27.0</td>
+              <td>72.9</td>
+              <td>141.0</td>
+              <td>1.06e-35</td>
+          </tr>
+    
+          <tr>
+              <td>AXG49818.1</td>
+              <td>3-isopropylmalate_dehydratase_large_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000383.5">BGC0000383.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>27.0</td>
+              <td>63.7</td>
+              <td>139.0</td>
+              <td>2.61e-35</td>
+          </tr>
+    
+          <tr>
+              <td>QWT72271.1</td>
+              <td>3-isopropylmalate_dehydratase_large_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002430.3">BGC0002430.3</a></td>
+              <td>NRPS:Type I+saccharide</td>
+              <td>29.0</td>
+              <td>72.7</td>
+              <td>139.0</td>
+              <td>6.05e-35</td>
+          </tr>
+    
+          <tr>
+              <td>QWT72270.1</td>
+              <td>3-isopropylmalate_dehydratase_small_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002430.3">BGC0002430.3</a></td>
+              <td>NRPS:Type I+saccharide</td>
+              <td>38.0</td>
+              <td>23.0</td>
+              <td>66.0</td>
+              <td>6.66e-12</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

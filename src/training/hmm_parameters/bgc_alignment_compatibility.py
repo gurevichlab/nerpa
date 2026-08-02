@@ -9,7 +9,7 @@ from src.generic.combinatorics import is_subsequence, filter_unique, remove_runs
 from itertools import pairwise, groupby, chain, takewhile
 from more_itertools import peekable
 
-from src.testing.testing_types import TestMatch
+from src.testing.testing_types import CuratedAlignment
 from src.testing.simplified_alignment import split_into_bgc_iterations, SimplifiedAlignment
 
 
@@ -23,7 +23,7 @@ def remove_gene_module_iterations(a_domains: List[A_Domain_ID]) -> List[A_Domain
     return list(remove_runs_of_equal_elements(result))
 
 def bgc_variant_match_compatible(bgc_variant: BGC_Variant,
-                                 match: TestMatch) -> bool:
+                                 match: CuratedAlignment) -> bool:
     def aids_from_alignment(alignment: SimplifiedAlignment) -> List[A_Domain_ID]:
         return [a_domain_id
                 for a_domain_id, _ in alignment

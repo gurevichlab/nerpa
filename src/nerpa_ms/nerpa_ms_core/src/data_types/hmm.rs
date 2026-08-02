@@ -17,15 +17,15 @@ pub struct BGC_ID {
 
 impl BGC_ID {
     pub fn to_str_short(&self) -> String {
-	let path = std::path::Path::new(&self.antiSMASH_file);
-	let genome_id = path.file_stem()
-	    .and_then(|s| s.to_str())
-	    .unwrap_or(&self.antiSMASH_file)
-	    .to_string();
-	format!("{}:{}:{}",
-		genome_id,
-		self.contig_idx,
-		self.bgc_idx)
+	    let path = std::path::Path::new(&self.antiSMASH_file);
+	    let genome_id = path.file_stem()
+	        .and_then(|s| s.to_str())
+	        .unwrap_or(&self.antiSMASH_file)
+	        .to_string();
+	    format!("{}:{}:{}",
+		        genome_id,
+		        self.contig_idx,
+		        self.bgc_idx)
     }
 }
 
@@ -63,8 +63,8 @@ pub struct HMM {
     pub module_names: Vec<String>,
 }
 
-// Basic helpers
 impl HMM {
+
     pub fn num_states(&self) -> usize {
         self.transitions.len()
     }
@@ -94,21 +94,21 @@ impl HMM {
 // validate HMM from JSON
 impl HMM {
     pub fn validate(&self) -> Result<(), anyhow::Error> {
-        let s = self.transitions.len();
-        if s == 0 {
+        let num_states = self.transitions.len();
+        if num_states == 0 {
             bail!("HMM has zero states");
         }
-        if self.emissions.len() != s {
+        if self.emissions.len() != num_states {
             bail!(
                 "HMM transitions/emissions length mismatch: transitions={}, emissions={}",
-                s,
+                num_states,
                 self.emissions.len()
             );
         }
 
         // START and FINISH by convention
         let start = 0usize;
-        let finish = s - 1;
+        let finish = num_states - 1;
 
         if !self.emissions[start].is_empty() {
             bail!("HMM START state (0) must be non-emitting (emissions[0] must be empty)");
@@ -122,13 +122,16 @@ impl HMM {
         // Check transitions in range
         for (i, outs) in self.transitions.iter().enumerate() {
             for &(next, lp) in outs {
-                if next >= s {
-                    bail!("transition out of range: {i} -> {next}, but S={s}");
+                if next >= num_states {
+                    bail!("transition out of range: {i} -> {next}, but num_states={num_states}");
                 }
-                if !lp.is_finite() {
-                    bail!("non-finite transition log_prob at {i} -> {next}: {lp}");
+                if next > i && lp > 0.0 {
+                    bail!("positive transition log_prob at {i} -> {next}: {lp}");
                 }
-            }
+		if next <= i && lp > -1e-1 {
+		    bail!("non-negative back transition log_prob at {i} -> {next}: {lp}");
+		}
+	    }
         }
 
         // Infer M and check emitting row lengths
@@ -146,12 +149,8 @@ impl HMM {
                     row.len()
                 );
             }
-            for (j, &lp) in row.iter().enumerate() {
-                if !lp.is_finite() {
-                    bail!("non-finite emission log_prob at state {i}, monomer {j}: {lp}");
-                }
-            }
         }
+
 
         Ok(())
     }

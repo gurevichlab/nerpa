@@ -1,0 +1,387 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS21280	5387897	5388725	-	3-keto-5-aminohexanoate cleavage enzyme	
+MXAN_RS21285	5388721	5389120	-	3-aminobutyryl-CoA ammonia lyase	
+MXAN_RS21290	5389116	5389902	-	lysine 5,6-aminomutase subunit beta	
+MXAN_RS21295	5389906	5390386	-	hypothetical protein	
+MXAN_RS21300	5390382	5391933	-	lysine 5,6-aminomutase subunit alpha	
+MXAN_RS21305	5392194	5393730	+	catalase	
+MXAN_RS21310	5393907	5394525	+	ankyrin repeat domain-containing protein	
+MXAN_RS21315	5394613	5395645	-	L-erythro-3,5-diaminohexanoate dehydrogenase	
+MXAN_RS21320	5395819	5396827	-	alpha/beta hydrolase	
+MXAN_RS38785	5396855	5397932	-	uracil-DNA glycosylase	
+MXAN_RS21330	5398131	5398563	+	PaaI family thioesterase	
+MXAN_RS21335	5398559	5399780	-	bifunctional phosphopantothenoylcysteine decarboxylase/phosphopantothenate--cysteine ligase CoaBC	
+MXAN_RS21340	5399831	5402801	-	carboxypeptidase regulatory-like domain-containing protein	
+MXAN_RS21345	5402903	5403284	-	hypothetical protein	
+MXAN_RS21350	5403391	5404675	-	Stp1/IreP family PP2C-type Ser/Thr phosphatase	
+MXAN_RS21355	5404736	5405249	-	FHA domain-containing protein	
+MXAN_RS21360	5405296	5405902	-	hypothetical protein	
+MXAN_RS21365	5406048	5406252	+	hypothetical protein	
+MXAN_RS21370	5406276	5407221	-	arginine deiminase family protein	
+MXAN_RS21375	5407415	5415644	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS21380	5415640	5419081	+	non-ribosomal peptide synthetase	
+MXAN_RS21385	5419173	5433414	+	non-ribosomal peptide synthetase	
+MXAN_RS21390	5433406	5437567	+	non-ribosomal peptide synthetase	
+MXAN_RS21395	5437563	5438892	+	MFS transporter	
+MXAN_RS21400	5438931	5440677	+	fatty acyl-AMP ligase	
+MXAN_RS21405	5440711	5441041	-	YnfA family protein	
+MXAN_RS21410	5441339	5443160	+	AsmA family protein	
+MXAN_RS21420	5443739	5444606	-	cupin-like domain-containing protein	
+MXAN_RS21425	5444806	5445769	+	CmcI family methyltransferase	
+MXAN_RS21430	5445840	5446728	-	cupin-like domain-containing protein	
+MXAN_RS21435	5446981	5448223	+	50S ribosomal protein L11 methyltransferase	
+MXAN_RS21440	5448250	5449651	+	hypothetical protein	
+MXAN_RS21445	5449705	5461426	+	non-ribosomal peptide synthetase	
+MXAN_RS21450	5461418	5468927	+	hybrid non-ribosomal peptide synthetase/type I polyketide synthase	
+MXAN_RS21455	5468923	5469559	+	cephalosporin hydroxylase family protein	
+MXAN_RS21460	5469594	5470398	-	GNAT family N-acetyltransferase	
+MXAN_RS21465	5470394	5471135	-	MFS transporter	
+MXAN_RS21470	5471340	5472165	+	aspartyl/asparaginyl beta-hydroxylase domain-containing protein	
+MXAN_RS21475	5472187	5472622	-	VOC family protein	
+MXAN_RS21480	5472735	5473266	-	hypothetical protein	
+MXAN_RS21485	5473385	5473958	-	TMEM165/GDT1 family protein	
+MXAN_RS21490	5474339	5474597	+	ribbon-helix-helix domain-containing protein	
+MXAN_RS38205	5474593	5474767	+	hypothetical protein	
+MXAN_RS21495	5474854	5475346	+	hypothetical protein	
+MXAN_RS21500	5475392	5476460	-	lysylphosphatidylglycerol synthase transmembrane domain-containing protein	
+MXAN_RS21505	5476477	5477209	-	tyrosine-protein phosphatase	
+MXAN_RS21510	5477205	5477415	-	DNA gyrase inhibitor YacG	
+MXAN_RS21515	5477497	5478487	+	NAD(P)H-quinone oxidoreductase	
+MXAN_RS21520	5478517	5479621	+	ankyrin repeat domain-containing protein	
+MXAN_RS21525	5479664	5480702	+	agmatinase family protein	
+MXAN_RS21530	5480745	5481741	-	ATP-binding response regulator	
+MXAN_RS21535	5481984	5483331	+	trypsin-like peptidase domain-containing protein	
+MXAN_RS21540	5483399	5485574	+	protein kinase domain-containing protein	
+MXAN_RS21545	5485658	5486918	+	saccharopine dehydrogenase family protein	
+MXAN_RS21550	5486945	5488241	-	GspE/PulE/PilB domain-containing protein	
+MXAN_RS21555	5488306	5488693	-	VOC family protein	
+
+
+Significant hits: 
+1. BGC0001125.5	puwainaphycin A/puwainaphycin B/puwainaphycin C/puwainaphycin D
+2. BGC0001953.4	puwainaphycin F/minutissamide A/minutissamide B/minutissamide C/minutissamide D
+3. BGC0001952.3	minutissamide A/minutissamide C/minutissamide D
+4. BGC0002484.3	scytocyclamide A/scytocyclamide B/scytocyclamide B3/scytocyclamide C/scytocyclamide A2/scytocyclamide B2
+5. BGC0001951.4	puwainaphycin F/minutissamide A
+6. BGC0001950.4	puwainaphycin F/minutissamide A
+7. BGC0001467.5	hapalosin A/hapalosin C/hapalosin D/hapalosin E/hapalosin F/hapalosin G
+8. BGC0001028.5	nostopeptolide A2
+9. BGC0001822.4	vioprolide A/vioprolide B/vioprolide C/vioprolide D
+10. BGC0002623.2	microginin 755/microginin 721/microginin 773/microginin 739/microginin 705/microginin 803/microginin 769/microginin 735/microginin 626/microginin 592/microginin 558/microginin 789
+11. BGC0001331.5	BE-43547A1/BE-43547A2/BE-43547B1/BE-43547B2/BE-43547B3/BE-43547C1/BE-43547C2
+12. BGC0001330.5	BE-43547A1/BE-43547A2/BE-43547B1/BE-43547B2/BE-43547B3/BE-43547C1/BE-43547C2
+13. BGC0002411.3	cyanochelin A
+14. BGC0001328.5	rakicidin A/rakicidin B
+15. BGC0002433.3	azotobactin D
+16. BGC0001327.5	rakicidin A/rakicidin B
+17. BGC0001758.4	rhizomide A/rhizomide B/rhizomide C
+18. BGC0001164.3	1-heptadecene
+19. BGC0001160.5	1-nonadecene/(14Z)-1,14-nonadecadiene
+
+
+Details:
+
+>>
+1. BGC0001125.5
+Source: puwainaphycin A/puwainaphycin B/puwainaphycin C/puwainaphycin D
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 8606.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	AIW82283.1	47	928	97.73123909249564	2.36e-308
+MXAN_RS21380	AIW82284.1	46	874	92.49563699825481	1.05e-280
+MXAN_RS21380	AIW82277.1	46	834	94.06631762652705	3.6e-269
+MXAN_RS21385	AIW82284.1	50	3217	73.93594605983986	0.0
+MXAN_RS21385	AIW82283.1	50	2183	48.67256637168141	0.0
+MXAN_RS21400	AIW82280.1	51	570	97.93459552495698	6.84e-199
+
+
+
+>>
+2. BGC0001953.4
+Source: puwainaphycin F/minutissamide A/minutissamide B/minutissamide C/minutissamide D
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 8059.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	AXN93615.1	49	953	92.67015706806284	5.08e-313
+MXAN_RS21380	AXN93614.1	46	884	98.51657940663176	1.48e-287
+MXAN_RS21385	AXN93614.1	50	2600	58.61778339654445	0.0
+MXAN_RS21385	AXN93615.1	47	2582	63.31647703329119	0.0
+MXAN_RS21400	AXN93608.1	52	580	99.1394148020654	1.95e-201
+MXAN_RS21400	AXN93611.1	48	460	83.99311531841653	2.33e-157
+
+
+
+>>
+3. BGC0001952.3
+Source: minutissamide A/minutissamide C/minutissamide D
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 5337.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	AXN93602.1	49	943	92.67015706806284	1.42e-302
+MXAN_RS21385	AXN93602.1	48	3262	78.023598820059	0.0
+MXAN_RS21400	AXN93595.1	53	586	97.93459552495698	7.15e-204
+MXAN_RS21400	AXN93598.1	49	546	97.93459552495698	8.79e-190
+
+
+
+>>
+4. BGC0002484.3
+Source: scytocyclamide A/scytocyclamide B/scytocyclamide B3/scytocyclamide C/scytocyclamide A2/scytocyclamide B2
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 5164.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	WA1_15540	49	958	91.97207678883072	7.67e-308
+MXAN_RS21380	WA1_15565	46	845	94.4153577661431	1.7e-269
+MXAN_RS21380	WA1_15530	46	835	92.75741710296684	4.19e-265
+MXAN_RS21390	WA1_15540	46	1129	97.76334776334777	0.0
+MXAN_RS21390	WA1_15565	46	869	77.27272727272727	7.22e-275
+MXAN_RS21400	WA1_15520	48	528	98.79518072289156	9.33e-181
+
+
+
+>>
+5. BGC0001951.4
+Source: puwainaphycin F/minutissamide A
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 3412.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	AXN93590.1	47	920	97.73123909249564	7.74e-295
+MXAN_RS21380	AXN93584.1	46	832	94.06631762652705	1.86e-268
+MXAN_RS21390	AXN93584.1	46	1101	97.11399711399712	0.0
+MXAN_RS21400	AXN93587.1	50	559	97.93459552495698	9.29e-195
+
+
+
+>>
+6. BGC0001950.4
+Source: puwainaphycin F/minutissamide A
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 3410.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	AXN93581.1	47	918	97.73123909249564	4.89e-294
+MXAN_RS21380	AXN93575.1	46	832	94.06631762652705	1.86e-268
+MXAN_RS21390	AXN93575.1	46	1101	97.11399711399712	0.0
+MXAN_RS21400	AXN93578.1	50	559	97.93459552495698	9.29e-195
+
+
+
+>>
+7. BGC0001467.5
+Source: hapalosin A/hapalosin C/hapalosin D/hapalosin E/hapalosin F/hapalosin G
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 3
+Cumulative BLAST score: 2085.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	FIS9431_RS32925	47	766	81.76265270506107	1.92e-255
+MXAN_RS21390	FIS9431_RS32925	47	749	66.16161616161617	1.11e-245
+MXAN_RS21400	FIS9431_RS0128795	52	570	98.79518072289156	1.36e-197
+
+
+
+>>
+8. BGC0001028.5
+Source: nostopeptolide A2
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 2687.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	AAF17280.1	48	943	98.60383944153578	4.12e-307
+MXAN_RS21380	AAF17281.1	46	857	93.804537521815	1.29e-280
+MXAN_RS21390	AAF15891.2	46	887	79.87012987012987	3.74e-280
+
+
+
+>>
+9. BGC0001822.4
+Source: vioprolide A/vioprolide B/vioprolide C/vioprolide D
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 3142.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21385	AWI62628.1	48	2607	68.26801517067004	0.0
+MXAN_RS21400	AWI62626.1	51	535	98.62306368330465	1.3e-169
+
+
+
+>>
+10. BGC0002623.2
+Source: microginin 755/microginin 721/microginin 773/microginin 739/microginin 705/microginin 803/microginin 769/microginin 735/microginin 626/microginin 592/microginin 558/microginin 789
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 2771.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21375	IQ234_09880	47	2225	99.78118161925602	0.0
+MXAN_RS21400	IQ234_09865	49	546	99.48364888123923	9.19e-190
+
+
+
+>>
+11. BGC0001331.5
+Source: BE-43547A1/BE-43547A2/BE-43547B1/BE-43547B2/BE-43547B3/BE-43547C1/BE-43547C2
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 2141.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	F583_RS01000000127210	47	833	90.57591623036649	1.68e-274
+MXAN_RS21380	F583_RS01000000127205	50	796	79.23211169284468	1.11e-262
+MXAN_RS21400	F583_RS01000000127215	49	512	98.62306368330465	1.73e-162
+
+
+
+>>
+12. BGC0001330.5
+Source: BE-43547A1/BE-43547A2/BE-43547B1/BE-43547B2/BE-43547B3/BE-43547C1/BE-43547C2
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 2128.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	ABD52_RS02405	46	831	90.75043630017451	1.74e-273
+MXAN_RS21380	ABD52_RS02415	50	799	79.31937172774869	7.22e-264
+MXAN_RS21400	ABD52_RS02395	48	498	98.62306368330465	1.59e-157
+
+
+
+>>
+13. BGC0002411.3
+Source: cyanochelin A
+Type: NRPS:Type I+PKS
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1485.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	Riv7116_6169	49	954	92.84467713787086	5.36e-308
+MXAN_RS21400	Riv7116_6173	49	531	98.10671256454388	1.02e-181
+
+
+
+>>
+14. BGC0001328.5
+Source: rakicidin A/rakicidin B
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1355.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	MCBG_00138	49	805	79.23211169284468	1.83e-276
+MXAN_RS21400	MCBG_00130	51	550	99.82788296041308	4e-182
+
+
+
+>>
+15. BGC0002433.3
+Source: azotobactin D
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1353.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	Avin_25580	47	871	94.06631762652705	8.2e-278
+MXAN_RS21400	Avin_25650	49	482	98.45094664371773	3.62e-151
+
+
+
+>>
+16. BGC0001327.5
+Source: rakicidin A/rakicidin B
+Type: NRPS:Type I+PKS:Type I
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 1344.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	IH31_RS0100595	49	801	79.23211169284468	1.66e-268
+MXAN_RS21400	IH31_RS0100575	51	543	96.72977624784855	2.27e-172
+
+
+
+>>
+17. BGC0001758.4
+Source: rhizomide A/rhizomide B/rhizomide C
+Type: NRPS:Type I
+Number of proteins with BLAST hits to this cluster: 1
+Cumulative BLAST score: 811.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21380	RBRH_RS12370	48	811	91.09947643979058	4.17e-257
+
+
+
+>>
+18. BGC0001164.3
+Source: 1-heptadecene
+Type: PKS:Type I
+Number of proteins with BLAST hits to this cluster: 1
+Cumulative BLAST score: 558.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21400	Cyan7822_1847	50	558	100.17211703958692	5.32e-178
+
+
+
+>>
+19. BGC0001160.5
+Source: 1-nonadecene/(14Z)-1,14-nonadecadiene
+Type: PKS:Type I
+Number of proteins with BLAST hits to this cluster: 1
+Cumulative BLAST score: 552.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS21400	SYNPCC7002_A1173	50	552	97.24612736660929	9.47e-176
+

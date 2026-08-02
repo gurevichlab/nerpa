@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>BAQ21934.1</td>
+              <td>putative_TDP-sugar_reductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001204.5">BGC0001204.5</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>88.0</td>
+              <td>108.0</td>
+              <td>2.89e-27</td>
+          </tr>
+    
+          <tr>
+              <td>ABD59206.1</td>
+              <td>InkL</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000813.3">BGC0000813.3</a></td>
+              <td>other:other</td>
+              <td>34.0</td>
+              <td>89.7</td>
+              <td>103.0</td>
+              <td>1.87e-25</td>
+          </tr>
+    
+          <tr>
+              <td>ACN29711.1</td>
+              <td>dTDP-dihydrostreptose_synthase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000814.3">BGC0000814.3</a></td>
+              <td>other:other</td>
+              <td>34.0</td>
+              <td>89.7</td>
+              <td>103.0</td>
+              <td>1.87e-25</td>
+          </tr>
+    
+          <tr>
+              <td>WP_196237059.1</td>
+              <td>dTDP-4-dehydrorhamnose_reductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000198.5">BGC0000198.5</a></td>
+              <td>PKS:Type II+saccharide:hybrid/tailoring</td>
+              <td>34.0</td>
+              <td>91.7</td>
+              <td>98.0</td>
+              <td>1.35e-23</td>
+          </tr>
+    
+          <tr>
+              <td>CAB01952.1</td>
+              <td>ExpA10</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000801.5">BGC0000801.5</a></td>
+              <td>saccharide</td>
+              <td>33.0</td>
+              <td>67.0</td>
+              <td>96.0</td>
+              <td>1.15e-22</td>
+          </tr>
+    
+          <tr>
+              <td>AAC44075.1</td>
+              <td>dTDP-6-deoxy-L-mannose-dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000797.5">BGC0000797.5</a></td>
+              <td>saccharide</td>
+              <td>34.0</td>
+              <td>70.3</td>
+              <td>93.0</td>
+              <td>1e-21</td>
+          </tr>
+    
+          <tr>
+              <td>ABW74898.1</td>
+              <td>dTDP-6-deoxy-L-mannose-dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000759.5">BGC0000759.5</a></td>
+              <td>saccharide</td>
+              <td>35.0</td>
+              <td>70.0</td>
+              <td>91.0</td>
+              <td>5.04e-21</td>
+          </tr>
+    
+          <tr>
+              <td>AAF67512.1</td>
+              <td>NovS</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000834.5">BGC0000834.5</a></td>
+              <td>saccharide:hybrid/tailoring+other:aminocoumarin</td>
+              <td>29.0</td>
+              <td>94.0</td>
+              <td>87.0</td>
+              <td>1.73e-19</td>
+          </tr>
+    
+          <tr>
+              <td>CAB65207.1</td>
+              <td>RmlD_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000775.3">BGC0000775.3</a></td>
+              <td>saccharide</td>
+              <td>30.0</td>
+              <td>70.3</td>
+              <td>83.0</td>
+              <td>6.2e-18</td>
+          </tr>
+    
+          <tr>
+              <td>AAG29801.1</td>
+              <td>dTDP-4-keto-6-deoxyhexose_reductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000833.4">BGC0000833.4</a></td>
+              <td>saccharide:hybrid/tailoring+other:aminocoumarin</td>
+              <td>29.0</td>
+              <td>87.7</td>
+              <td>82.0</td>
+              <td>7.87e-18</td>
+          </tr>
+    
+          <tr>
+              <td>AAN65241.1</td>
+              <td>dTDP-4-keto-6-deoxyhexose_reductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000832.4">BGC0000832.4</a></td>
+              <td>saccharide:hybrid/tailoring+other:aminocoumarin</td>
+              <td>29.0</td>
+              <td>87.7</td>
+              <td>79.0</td>
+              <td>1.35e-16</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AHY86402.1</td>
+              <td>membrane_fusion_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000329.5">BGC0000329.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>89.8</td>
+              <td>69.0</td>
+              <td>1.77e-12</td>
+          </tr>
+    
+          <tr>
+              <td>CCJ67641.1</td>
+              <td>macrolide-specific_efflux_protein_macA</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000447.5">BGC0000447.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>24.0</td>
+              <td>91.1</td>
+              <td>68.0</td>
+              <td>4.22e-12</td>
+          </tr>
+    
+          <tr>
+              <td>AFH75323.1</td>
+              <td>macrolide-specific_efflux_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000425.5">BGC0000425.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>24.0</td>
+              <td>89.5</td>
+              <td>67.0</td>
+              <td>7.53e-12</td>
+          </tr>
+    
+          <tr>
+              <td>QLY89265.1</td>
+              <td>membrane_fusion_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002522.3">BGC0002522.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>26.0</td>
+              <td>88.3</td>
+              <td>66.0</td>
+              <td>1.34e-11</td>
+          </tr>
+    
+          <tr>
+              <td>ABX37393.1</td>
+              <td>efflux_transporter,_RND_family,_MFP_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000984.4">BGC0000984.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>29.0</td>
+              <td>56.4</td>
+              <td>64.0</td>
+              <td>6.14e-11</td>
+          </tr>
+    
+          <tr>
+              <td>SDT49920.1</td>
+              <td>membrane_fusion_protein,_macrolide-specific_efflux_system</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002752.2">BGC0002752.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>24.0</td>
+              <td>88.5</td>
+              <td>62.0</td>
+              <td>3.2e-10</td>
+          </tr>
+    
+          <tr>
+              <td>CAY48790.1</td>
+              <td>putative_drug-efflux_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001312.5">BGC0001312.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>23.0</td>
+              <td>87.5</td>
+              <td>59.0</td>
+              <td>2.39e-09</td>
+          </tr>
+    
+          <tr>
+              <td>WP_039806867.1</td>
+              <td>efflux_RND_transporter_periplasmic_adaptor_subunit</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002001.3">BGC0002001.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>27.0</td>
+              <td>56.4</td>
+              <td>56.0</td>
+              <td>2.36e-08</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

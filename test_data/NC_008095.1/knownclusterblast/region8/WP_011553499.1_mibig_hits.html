@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AAK57182.1</td>
+              <td>putative_aspartokinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001022.5">BGC0001022.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>78.0</td>
+              <td>99.3</td>
+              <td>633.0</td>
+              <td>8.04e-229</td>
+          </tr>
+    
+          <tr>
+              <td>QOP59287.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002504.2">BGC0002504.2</a></td>
+              <td>PKS</td>
+              <td>49.0</td>
+              <td>96.2</td>
+              <td>371.0</td>
+              <td>1.78e-125</td>
+          </tr>
+    
+          <tr>
+              <td>BCD58484.1</td>
+              <td>aspartate_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002535.2">BGC0002535.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>43.0</td>
+              <td>96.2</td>
+              <td>282.0</td>
+              <td>4.48e-91</td>
+          </tr>
+    
+          <tr>
+              <td>AXO35186.1</td>
+              <td>aspartokinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001848.4">BGC0001848.4</a></td>
+              <td>other:other</td>
+              <td>39.0</td>
+              <td>99.5</td>
+              <td>253.0</td>
+              <td>8.81e-80</td>
+          </tr>
+    
+          <tr>
+              <td>EWM63050.1</td>
+              <td>aspartate_kinase_2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000679.5">BGC0000679.5</a></td>
+              <td>terpene</td>
+              <td>38.0</td>
+              <td>99.5</td>
+              <td>252.0</td>
+              <td>2.08e-79</td>
+          </tr>
+    
+          <tr>
+              <td>BAJ08170.1</td>
+              <td>putative_aspartokinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000885.3">BGC0000885.3</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>95.5</td>
+              <td>232.0</td>
+              <td>9.64e-72</td>
+          </tr>
+    
+          <tr>
+              <td>BAG21079.1</td>
+              <td>putative_aspartokinase_homologue</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000662.5">BGC0000662.5</a></td>
+              <td>terpene</td>
+              <td>37.0</td>
+              <td>95.3</td>
+              <td>229.0</td>
+              <td>1.44e-70</td>
+          </tr>
+    
+          <tr>
+              <td>AEF33090.1</td>
+              <td>aspartate_kinase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001039.5">BGC0001039.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>37.0</td>
+              <td>100.0</td>
+              <td>211.0</td>
+              <td>2.46e-63</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

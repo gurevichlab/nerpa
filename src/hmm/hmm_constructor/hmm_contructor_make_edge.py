@@ -5,6 +5,7 @@ from typing import Tuple, Literal
 
 from src.antismash_parsing.genomic_context import ModuleGenomicContextFeature
 from src.general_type_aliases import LogProb
+from src.antismash_parsing.genomic_context import ModuleGenomicContext
 from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType,
@@ -12,18 +13,21 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdge,
 )
 
-from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import RELEVANT_GENOMIC_CONTEXT
+from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
+    RELEVANT_GENOMIC_CONTEXT,
+    filter_relevant_genomic_context,
+)
 
-GenomicContext = Tuple[ModuleGenomicContextFeature, ...]
-GC = GenomicContext
+GC = ModuleGenomicContext
 ET = DetailedHMMEdgeType
 ST = DetailedHMMStateType
 MCF = ModuleGenomicContextFeature
 
-def make_edge(helper,  # type: HMM_Constructor,
-              state: DetailedHMMState,
-              edge_type: DetailedHMMEdgeType,
-              ) -> DetailedHMMEdge:
+def make_edge(
+        helper,  # type: HMM_Constructor,
+        state: DetailedHMMState,
+        edge_type: DetailedHMMEdgeType,
+) -> DetailedHMMEdge:
     # 0. Aliases for brevity
     bgc_variant = helper.bgc_variant
     hmm_helper = helper.hmm_helper
@@ -38,41 +42,51 @@ def make_edge(helper,  # type: HMM_Constructor,
         else None
     )
 
-    full_genomic_context = current_module.genomic_context if current_module is not None else ()
-    relevant_genomic_context = tuple(f
-                                     for f in full_genomic_context
-                                     if f in RELEVANT_GENOMIC_CONTEXT[state.state_type])
+    full_genomic_context = (
+        current_module.genomic_context
+        if current_module is not None
+        else frozenset()
+    )
+    relevant_genomic_context = filter_relevant_genomic_context(full_genomic_context, state.state_type)
 
     # 1. Sanity checks
     if edge_type == ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START:
-        start_marker_present = (MCF.ASSEMBLY_LINE_START_MARKER in full_genomic_context
-                                or state.related_module_idx == 0)
+        start_marker_present = (
+            MCF.ASSEMBLY_LINE_START_MARKER in full_genomic_context
+            or state.related_module_idx == 0
+        )
         if (not start_marker_present
                 and helper.construction_cfg.ASSEMBLY_LINE_BORDERS_ONLY_AT_MARKERS):
-            raise ValueError('Skipping until the end of assembly line '
-             'should start after a tentative assembly line finish')
+            raise ValueError(
+                'Skipping until the end of assembly line '
+                'should start after a tentative assembly line finish'
+            )
 
     if edge_type == ET.SKIP_MODULES_AT_END:
         finish_marker_present = MCF.ASSEMBLY_LINE_FINISH_MARKER in full_genomic_context
         if (not finish_marker_present
                 and helper.construction_cfg.ASSEMBLY_LINE_BORDERS_ONLY_AT_MARKERS):
-            raise ValueError('Skipping until the end of assembly line '
-                             'should start after a tentative assembly line finish')
+            raise ValueError(
+                'Skipping until the end of assembly line '
+                'should start after a tentative assembly line finish'
+            )
 
     # 2. Helper function
     def skip_at_start_cost(module_idx: int) -> LogProb:
-        module_ctxt = tuple(f
-                            for f in bgc_variant.modules[module_idx].genomic_context
-                            if f in RELEVANT_GENOMIC_CONTEXT[ST.CHOOSE_IF_START_MATCHING])
+        module_ctxt = filter_relevant_genomic_context(
+            gc=bgc_variant.modules[module_idx].genomic_context,
+            state_type=ST.CHOOSE_IF_START_MATCHING
+        )
         if (MCF.START_OF_BGC not in module_ctxt
                 and MCF.ASSEMBLY_LINE_START_MARKER not in module_ctxt):
-            module_ctxt = tuple(sorted(module_ctxt + (MCF.ASSEMBLY_LINE_START_MARKER,)))
+            module_ctxt = module_ctxt | {MCF.ASSEMBLY_LINE_START_MARKER}
         return WEIGHT_PARAMS[ST.CHOOSE_IF_START_MATCHING][module_ctxt][ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START]
 
     def skip_at_end_cost(module_idx: int) -> LogProb:
-        module_ctxt = tuple(f
-                            for f in bgc_variant.modules[module_idx].genomic_context
-                            if f in RELEVANT_GENOMIC_CONTEXT[ST.SKIPPING_MODULES_AT_END])
+        module_ctxt = filter_relevant_genomic_context(
+            gc=bgc_variant.modules[module_idx].genomic_context,
+            state_type=ST.SKIPPING_MODULES_AT_END
+        )
         return WEIGHT_PARAMS[ST.SKIPPING_MODULES_AT_END][module_ctxt][ET.SKIP_MODULES_AT_END]
 
 

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>AGS77325.1</td>
+              <td>Halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001178.5">BGC0001178.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>61.4</td>
+              <td>159.0</td>
+              <td>3.09e-42</td>
+          </tr>
+    
+          <tr>
+              <td>CAG15020.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000441.4">BGC0000441.4</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>61.4</td>
+              <td>159.0</td>
+              <td>4.24e-42</td>
+          </tr>
+    
+          <tr>
+              <td>AAK81830.1</td>
+              <td>non-heme_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000326.5">BGC0000326.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>75.9</td>
+              <td>159.0</td>
+              <td>4.68e-42</td>
+          </tr>
+    
+          <tr>
+              <td>CAE53362.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000440.5">BGC0000440.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>61.4</td>
+              <td>159.0</td>
+              <td>5.4e-42</td>
+          </tr>
+    
+          <tr>
+              <td>AQZ69237.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001635.4">BGC0001635.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>34.0</td>
+              <td>59.3</td>
+              <td>156.0</td>
+              <td>2.97e-41</td>
+          </tr>
+    
+          <tr>
+              <td>AAN65237.1</td>
+              <td>putative_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000832.4">BGC0000832.4</a></td>
+              <td>saccharide:hybrid/tailoring+other:aminocoumarin</td>
+              <td>32.0</td>
+              <td>66.2</td>
+              <td>156.0</td>
+              <td>6.41e-41</td>
+          </tr>
+    
+          <tr>
+              <td>WP_082417547.1</td>
+              <td>tryptophan_7-halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002014.3">BGC0002014.3</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>29.0</td>
+              <td>78.6</td>
+              <td>154.0</td>
+              <td>4.08e-40</td>
+          </tr>
+    
+          <tr>
+              <td>ONK09690.1</td>
+              <td>tricarballylate_dehydrogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001647.3">BGC0001647.3</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>81.2</td>
+              <td>153.0</td>
+              <td>4.75e-40</td>
+          </tr>
+    
+          <tr>
+              <td>ALD82533.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001212.4">BGC0001212.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>28.0</td>
+              <td>79.8</td>
+              <td>152.0</td>
+              <td>7.46e-40</td>
+          </tr>
+    
+          <tr>
+              <td>MCC5036789.1</td>
+              <td>tryptophan_7-halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002638.3">BGC0002638.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>59.8</td>
+              <td>152.0</td>
+              <td>7.57e-40</td>
+          </tr>
+    
+          <tr>
+              <td>AAM80532.1</td>
+              <td>StaI</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000290.5">BGC0000290.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>32.0</td>
+              <td>65.6</td>
+              <td>152.0</td>
+              <td>9.04e-40</td>
+          </tr>
+    
+          <tr>
+              <td>RSO11550.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002637.3">BGC0002637.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>33.0</td>
+              <td>60.0</td>
+              <td>151.0</td>
+              <td>3.07e-39</td>
+          </tr>
+    
+          <tr>
+              <td>ABY66006.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001008.5">BGC0001008.5</a></td>
+              <td>PKS:Iterative type I</td>
+              <td>29.0</td>
+              <td>80.3</td>
+              <td>151.0</td>
+              <td>3.43e-39</td>
+          </tr>
+    
+          <tr>
+              <td>BBE36474.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001922.4">BGC0001922.4</a></td>
+              <td>PKS</td>
+              <td>36.0</td>
+              <td>58.8</td>
+              <td>149.0</td>
+              <td>3.76e-39</td>
+          </tr>
+    
+          <tr>
+              <td>AFV52210.1</td>
+              <td>aryl-ACP_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000081.5">BGC0000081.5</a></td>
+              <td>NRPS:Type I+PKS:Iterative type I</td>
+              <td>31.0</td>
+              <td>74.2</td>
+              <td>150.0</td>
+              <td>5.93e-39</td>
+          </tr>
+    
+          <tr>
+              <td>CAQ43074.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000970.5">BGC0000970.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>29.0</td>
+              <td>77.9</td>
+              <td>147.0</td>
+              <td>5.21e-38</td>
+          </tr>
+    
+          <tr>
+              <td>OKA09430.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001459.5">BGC0001459.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>82.9</td>
+              <td>147.0</td>
+              <td>5.28e-38</td>
+          </tr>
+    
+          <tr>
+              <td>EME52983.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001460.5">BGC0001460.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>82.9</td>
+              <td>147.0</td>
+              <td>5.28e-38</td>
+          </tr>
+    
+          <tr>
+              <td>AGC09515.1</td>
+              <td>FAD_dependent_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001183.5">BGC0001183.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>65.0</td>
+              <td>145.0</td>
+              <td>1.56e-37</td>
+          </tr>
+    
+          <tr>
+              <td>CAA76550.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000311.6">BGC0000311.6</a></td>
+              <td>saccharide+NRPS:Type I</td>
+              <td>28.0</td>
+              <td>78.3</td>
+              <td>145.0</td>
+              <td>1.84e-37</td>
+          </tr>
+    
+          <tr>
+              <td>AEI58871.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000455.6">BGC0000455.6</a></td>
+              <td>saccharide+NRPS:Type I</td>
+              <td>27.0</td>
+              <td>82.9</td>
+              <td>144.0</td>
+              <td>4.67e-37</td>
+          </tr>
+    
+          <tr>
+              <td>OLZ50890.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001461.5">BGC0001461.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>77.9</td>
+              <td>143.0</td>
+              <td>1.18e-36</td>
+          </tr>
+    
+          <tr>
+              <td>ATL73049.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001807.4">BGC0001807.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>31.0</td>
+              <td>65.0</td>
+              <td>143.0</td>
+              <td>1.38e-36</td>
+          </tr>
+    
+          <tr>
+              <td>QYC40296.1</td>
+              <td>Halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002344.2">BGC0002344.2</a></td>
+              <td>NRPS:Type I</td>
+              <td>32.0</td>
+              <td>59.1</td>
+              <td>143.0</td>
+              <td>1.59e-36</td>
+          </tr>
+    
+          <tr>
+              <td>OLZ52450.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001462.5">BGC0001462.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>28.0</td>
+              <td>78.3</td>
+              <td>142.0</td>
+              <td>2.2e-36</td>
+          </tr>
+    
+          <tr>
+              <td>ABM21576.1</td>
+              <td>CrpH</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000975.5">BGC0000975.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>29.0</td>
+              <td>72.1</td>
+              <td>142.0</td>
+              <td>3e-36</td>
+          </tr>
+    
+          <tr>
+              <td>AFP87533.1</td>
+              <td>FADH2-dependent_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001159.5">BGC0001159.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>30.0</td>
+              <td>69.1</td>
+              <td>141.0</td>
+              <td>3.97e-36</td>
+          </tr>
+    
+          <tr>
+              <td>CAD91205.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000289.5">BGC0000289.5</a></td>
+              <td>NRPS:Type I+saccharide:hybrid/tailoring</td>
+              <td>31.0</td>
+              <td>64.8</td>
+              <td>141.0</td>
+              <td>5.42e-36</td>
+          </tr>
+    
+          <tr>
+              <td>AMK51270.1</td>
+              <td>Hex13</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001376.5">BGC0001376.5</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>75.2</td>
+              <td>140.0</td>
+              <td>7.69e-36</td>
+          </tr>
+    
+          <tr>
+              <td>ABS50488.1</td>
+              <td>NapH2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000652.5">BGC0000652.5</a></td>
+              <td>terpene</td>
+              <td>34.0</td>
+              <td>56.9</td>
+              <td>139.0</td>
+              <td>9.65e-36</td>
+          </tr>
+    
+          <tr>
+              <td>ACZ87065.1</td>
+              <td>putative_tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002732.3">BGC0002732.3</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>75.2</td>
+              <td>140.0</td>
+              <td>1.05e-35</td>
+          </tr>
+    
+          <tr>
+              <td>ADE22292.1</td>
+              <td>putative_non-heme_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000279.5">BGC0000279.5</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>73.5</td>
+              <td>140.0</td>
+              <td>1.06e-35</td>
+          </tr>
+    
+          <tr>
+              <td>ABS50460.1</td>
+              <td>NapH2</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001079.5">BGC0001079.5</a></td>
+              <td>PKS:Type III+terpene:Monoterpene</td>
+              <td>34.0</td>
+              <td>56.9</td>
+              <td>139.0</td>
+              <td>1.36e-35</td>
+          </tr>
+    
+          <tr>
+              <td>ALU98528.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001397.5">BGC0001397.5</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>32.0</td>
+              <td>61.9</td>
+              <td>140.0</td>
+              <td>1.94e-35</td>
+          </tr>
+    
+          <tr>
+              <td>AAL06656.1</td>
+              <td>alkylhalidase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000965.5">BGC0000965.5</a></td>
+              <td>PKS:Iterative type I</td>
+              <td>32.0</td>
+              <td>61.9</td>
+              <td>140.0</td>
+              <td>1.99e-35</td>
+          </tr>
+    
+          <tr>
+              <td>AYA22327.1</td>
+              <td>KhaI</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001955.4">BGC0001955.4</a></td>
+              <td>saccharide+NRPS:Type I</td>
+              <td>28.0</td>
+              <td>77.6</td>
+              <td>138.0</td>
+              <td>5.99e-35</td>
+          </tr>
+    
+          <tr>
+              <td>ANY94426.1</td>
+              <td>alkylhalidase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001584.5">BGC0001584.5</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>61.9</td>
+              <td>138.0</td>
+              <td>6.83e-35</td>
+          </tr>
+    
+          <tr>
+              <td>WP_015031693.1</td>
+              <td>NAD(P)/FAD-dependent_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001819.3">BGC0001819.3</a></td>
+              <td>PKS</td>
+              <td>33.0</td>
+              <td>59.5</td>
+              <td>135.0</td>
+              <td>2.97e-34</td>
+          </tr>
+    
+          <tr>
+              <td>AAZ77674.1</td>
+              <td>ChlB4</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000036.5">BGC0000036.5</a></td>
+              <td>PKS:Type I+saccharide:oligosaccharide</td>
+              <td>31.0</td>
+              <td>71.1</td>
+              <td>135.0</td>
+              <td>3.16e-34</td>
+          </tr>
+    
+          <tr>
+              <td>CAM34371.1</td>
+              <td>putative_non-heme_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000242.5">BGC0000242.5</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>73.7</td>
+              <td>134.0</td>
+              <td>9.63e-34</td>
+          </tr>
+    
+          <tr>
+              <td>AUI41030.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001512.5">BGC0001512.5</a></td>
+              <td>PKS</td>
+              <td>34.0</td>
+              <td>64.8</td>
+              <td>134.0</td>
+              <td>1.03e-33</td>
+          </tr>
+    
+          <tr>
+              <td>QKO28701.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002315.2">BGC0002315.2</a></td>
+              <td>PKS</td>
+              <td>35.0</td>
+              <td>60.3</td>
+              <td>133.0</td>
+              <td>1.52e-33</td>
+          </tr>
+    
+          <tr>
+              <td>AAM80530.1</td>
+              <td>StaK</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000290.5">BGC0000290.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>68.0</td>
+              <td>133.0</td>
+              <td>1.64e-33</td>
+          </tr>
+    
+          <tr>
+              <td>AZY92002.1</td>
+              <td>putative_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002022.4">BGC0002022.4</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>62.6</td>
+              <td>133.0</td>
+              <td>1.96e-33</td>
+          </tr>
+    
+          <tr>
+              <td>QXL90832.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002426.3">BGC0002426.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>34.0</td>
+              <td>62.7</td>
+              <td>132.0</td>
+              <td>2.6e-33</td>
+          </tr>
+    
+          <tr>
+              <td>ABO15865.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000130.5">BGC0000130.5</a></td>
+              <td>PKS</td>
+              <td>30.0</td>
+              <td>69.4</td>
+              <td>132.0</td>
+              <td>3.63e-33</td>
+          </tr>
+    
+          <tr>
+              <td>ABD65950.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000341.5">BGC0000341.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>29.0</td>
+              <td>73.8</td>
+              <td>133.0</td>
+              <td>5.59e-33</td>
+          </tr>
+    
+          <tr>
+              <td>BAQ25509.1</td>
+              <td>FADH2-dependent_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001288.5">BGC0001288.5</a></td>
+              <td>PKS</td>
+              <td>32.0</td>
+              <td>68.9</td>
+              <td>131.0</td>
+              <td>1.22e-32</td>
+          </tr>
+    
+          <tr>
+              <td>ACE80255.1</td>
+              <td>HrmQ</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000374.5">BGC0000374.5</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>68.7</td>
+              <td>130.0</td>
+              <td>1.71e-32</td>
+          </tr>
+    
+          <tr>
+              <td>ACU71639.1</td>
+              <td>tryptophan_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001154.3">BGC0001154.3</a></td>
+              <td>other:other</td>
+              <td>32.0</td>
+              <td>61.5</td>
+              <td>131.0</td>
+              <td>1.93e-32</td>
+          </tr>
+    
+          <tr>
+              <td>MBA0053741.1</td>
+              <td>NAD(P)/FAD-dependent_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002096.3">BGC0002096.3</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>68.7</td>
+              <td>128.0</td>
+              <td>1.46e-31</td>
+          </tr>
+    
+          <tr>
+              <td>AAD24884.1</td>
+              <td>putative_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000127.5">BGC0000127.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>61.0</td>
+              <td>124.0</td>
+              <td>4.21e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AAQ90172.1</td>
+              <td>putative_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000128.3">BGC0000128.3</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>69.1</td>
+              <td>124.0</td>
+              <td>4.21e-30</td>
+          </tr>
+    
+          <tr>
+              <td>ctg1_orf12</td>
+              <td></td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001366.5">BGC0001366.5</a></td>
+              <td>PKS</td>
+              <td>33.0</td>
+              <td>66.3</td>
+              <td>123.0</td>
+              <td>4.81e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AEU17894.1</td>
+              <td>putative_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001072.5">BGC0001072.5</a></td>
+              <td>PKS:Type I+saccharide+other:aminocoumarin</td>
+              <td>31.0</td>
+              <td>60.2</td>
+              <td>124.0</td>
+              <td>4.86e-30</td>
+          </tr>
+    
+          <tr>
+              <td>AHA12077.1</td>
+              <td>flavin-dependent_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001172.5">BGC0001172.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>28.0</td>
+              <td>69.1</td>
+              <td>121.0</td>
+              <td>2.56e-29</td>
+          </tr>
+    
+          <tr>
+              <td>WP_020636835.1</td>
+              <td>NAD(P)/FAD-dependent_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002011.3">BGC0002011.3</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>78.5</td>
+              <td>121.0</td>
+              <td>3.17e-29</td>
+          </tr>
+    
+          <tr>
+              <td>QGJ79663.1</td>
+              <td>Halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002552.2">BGC0002552.2</a></td>
+              <td>PKS</td>
+              <td>29.0</td>
+              <td>78.5</td>
+              <td>121.0</td>
+              <td>3.17e-29</td>
+          </tr>
+    
+          <tr>
+              <td>AQP25570.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001590.5">BGC0001590.5</a></td>
+              <td>PKS:Type II aromatic</td>
+              <td>32.0</td>
+              <td>58.6</td>
+              <td>120.0</td>
+              <td>5.03e-29</td>
+          </tr>
+    
+          <tr>
+              <td>AAM70353.1</td>
+              <td>CalO3</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000033.5">BGC0000033.5</a></td>
+              <td>PKS</td>
+              <td>31.0</td>
+              <td>63.2</td>
+              <td>118.0</td>
+              <td>2.71e-28</td>
+          </tr>
+    
+          <tr>
+              <td>ATG32073.1</td>
+              <td>FADH2/O2_dependent_halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001750.4">BGC0001750.4</a></td>
+              <td>NRPS:Type I+PKS</td>
+              <td>28.0</td>
+              <td>68.5</td>
+              <td>117.0</td>
+              <td>5.2e-28</td>
+          </tr>
+    
+          <tr>
+              <td>ADM46362.1</td>
+              <td>halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000106.5">BGC0000106.5</a></td>
+              <td>PKS</td>
+              <td>30.0</td>
+              <td>67.2</td>
+              <td>108.0</td>
+              <td>6.56e-25</td>
+          </tr>
+    
+          <tr>
+              <td>QVQ62867.1</td>
+              <td>tryptophan_7-halogenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002373.3">BGC0002373.3</a></td>
+              <td>NRPS:Type I</td>
+              <td>30.0</td>
+              <td>56.9</td>
+              <td>103.0</td>
+              <td>3.91e-23</td>
+          </tr>
+    
+          <tr>
+              <td>AGC24274.1</td>
+              <td>PrlT</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0001038.5">BGC0001038.5</a></td>
+              <td>NRPS:Type I+PKS:Type I</td>
+              <td>28.0</td>
+              <td>50.4</td>
+              <td>72.0</td>
+              <td>4.07e-13</td>
+          </tr>
+    
+          <tr>
+              <td>CAE17524.1</td>
+              <td>oxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000210.5">BGC0000210.5</a></td>
+              <td>PKS:Type II+saccharide:oligosaccharide</td>
+              <td>26.0</td>
+              <td>62.1</td>
+              <td>52.0</td>
+              <td>1.13e-06</td>
+          </tr>
+    
+          <tr>
+              <td>AEI98667.1</td>
+              <td>CtcX</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000209.5">BGC0000209.5</a></td>
+              <td>PKS</td>
+              <td>30.0</td>
+              <td>42.1</td>
+              <td>52.0</td>
+              <td>1.49e-06</td>
+          </tr>
+    
+          <tr>
+              <td>MBV7329453.1</td>
+              <td>NAD(P)/FAD-dependent_oxidoreductase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002131.4">BGC0002131.4</a></td>
+              <td>NRPS:Type I+PKS:Type I+saccharide:hybrid/tailoring</td>
+              <td>23.0</td>
+              <td>59.0</td>
+              <td>51.0</td>
+              <td>2.52e-06</td>
+          </tr>
+    
+          <tr>
+              <td>AHD25936.1</td>
+              <td>putative_oxygenase</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000208.5">BGC0000208.5</a></td>
+              <td>PKS</td>
+              <td>27.0</td>
+              <td>39.8</td>
+              <td>50.0</td>
+              <td>4.45e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

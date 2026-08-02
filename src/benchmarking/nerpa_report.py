@@ -31,8 +31,8 @@ class NerpaReport(pl.DataFrame):
 
     @classmethod
     def is_correct_col(cls, cmp_method: str) -> str:
-        assert cmp_method in [PCS.NERPA_EQUAL_ALLOW_UNK_CHR,
-                              PCS.NERPA_NO_MORE_ONE_SUB_ALLOW_UNK_CHR], \
+        assert cmp_method in [PCS.NERPA_ISO_WEAK_CHR,
+                              PCS.NERPA_NO_MORE_ONE_SUB_WEAK_CHR], \
             f"Unsupported comparison method: {cmp_method}"
 
         return f'{cls.IS_CORRECT}_{cmp_method}'
@@ -166,14 +166,16 @@ def prepare_data_for_benchmarking(_report: pl.DataFrame,
     return truncate_output(NerpaReport(report, report_name=report_name), out_size_cfg)
 
 
-def load_nerpa_report(report_path: Path,
-                      bgc_ids_to_keep: Set[str],
-                      nrp_classes_to_keep: Set[str],
-                      nrp_id_to_iso_class: Dict[str, str],
-                      out_size_cfg: OutputSizeConfig,
-                      report_name: str = 'REPORT_NAME_MISSING',
-                      score_column: str = NerpaReport.SCORE,
-                      tool_version: Literal['Nerpa 1', 'Nerpa 2', 'BioCAT'] = 'Nerpa 2') -> NerpaReport:
+def load_nerpa_report(
+        report_path: Path,
+        bgc_ids_to_keep: Set[str],
+        nrp_classes_to_keep: Set[str],
+        nrp_id_to_iso_class: Dict[str, str],
+        out_size_cfg: OutputSizeConfig,
+        report_name: str = 'REPORT_NAME_MISSING',
+        score_column: str = NerpaReport.SCORE,
+        tool_version: Literal['Nerpa 1', 'Nerpa 2', 'BioCAT'] = 'Nerpa 2'
+) -> NerpaReport:
     print(f"Loading report from {report_path} with tool version {tool_version}...")
     match tool_version:
         case 'Nerpa 2':

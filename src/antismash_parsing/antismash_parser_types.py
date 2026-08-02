@@ -99,13 +99,17 @@ class DomainType(Enum):
     E = auto()
     MT = auto()
 
-    TE_TD = auto()
+    TD = auto()
+    TE = auto()
 
     CTERM = auto()
     NTERM = auto()
 
     def in_c_domain_group(self) -> bool:
         return self in {DomainType.C, DomainType.C_STARTER, DomainType.C_LCL, DomainType.C_DCL, DomainType.C_DUAL}
+
+    def is_t_domain(self) -> bool:
+        return self in {DomainType.TD, DomainType.TE}
 
 
 class BGC_Module_ID(NamedTuple):

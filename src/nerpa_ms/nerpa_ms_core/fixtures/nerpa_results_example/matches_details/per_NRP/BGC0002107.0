@@ -1,0 +1,76 @@
+Genome: BGC0002107
+antiSMASH_file: test_data/antismash/BGC0002107/BGC0002107.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002107.0
+NRP_variant: 0
+RawScore: -24.066
+LogOdds_vs_avg_BGC: 10.470420301765916
+LogOdds_vs_avg_NRP: -24.066
+P-value: None
+Alignment:
+ Gene     A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step            Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---      ---           ---                   ---                _UNKNOWN     UNKNOWN        False           X0         6         START_INSERTING_AT_START  -2.29   ---           ---               ---             ---         ---                                
+ Atu3670  0             bAla                  ---                bAla         UNKNOWN        False           bAla       5         MATCH                     -1.279  3.703         0.119             0.277           DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ Atu3675  0             Tyr                   ---                Gly          UNKNOWN        False           Gly        9         MATCH                     -5.276  -2.453        0.119             0.277           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3682  0             Ala                   ---                Ala          UNKNOWN        False           Ala        2         MATCH                     -0.968  2.36          0.119             0.277           DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                Cys          UNKNOWN        False           dhCys      1         MATCH                     -0.973  3.15          0.119             0.277           DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                Gly          UNKNOWN        False           Gly        7         MATCH                     -0.97   2.631         0.119             0.277           DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      Ala          UNKNOWN        False           Ala        4         MATCH                     -1.791  2.36          0.119             -0.547          DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+ Atu3670  0             bAla                  ---                Gly          UNKNOWN        False           Gly        3         MATCH                     -1.972  1.629         0.119             0.277           DILQLGVIWK  QSMTFDISVLEWQALCGGEWNVYGPTETTIWAGA 
+ Atu3675  0             Tyr                   ---                _UNKNOWN     UNKNOWN        False           X1         8         MATCH                     -3.206  -0.384        0.119             0.277           DAPTLGAVNK  LDKFFDASIPEMTMLVGGEINAYGPTETTVNASM 
+ Atu3682  0             Ala                   ---                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DLFNNALTYK  RWTTFDLSIFEGNTNLAGEHNLYGPSEDTTYSTG 
+ Atu3682  1             Cys                   ---                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DLYNMSLIWK  TDISFDLSVYDGNSMMSGDISLGGATEASIWSIF 
+ Atu3683  0             Gly                   ---                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DILQLGLIWK  LSMTFDIATLEMQALCGGEWNLYGPTETTIWSTC 
+ Atu3683  1             Ala                   EPIMERIZATION      ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DLFNCALTYK  FWCTFDLSIFEANTCLAGEYNLYGPSEDTTYSTV 
+
+
+Genome: BGC0000359
+antiSMASH_file: test_data/antismash/BGC0000359/BGC0000359.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 1
+NRP: BGC0002107.0
+NRP_variant: 0
+RawScore: -42.28799999999999
+LogOdds_vs_avg_BGC: -7.7515796982340746
+LogOdds_vs_avg_NRP: -42.28799999999999
+P-value: None
+Alignment:
+ Gene      A-domain_idx  Top_scoring_residues  Modifying_domains  NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step            Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---       ---           ---                   ---                _UNKNOWN     UNKNOWN        False           X0         6         START_INSERTING_AT_START  -2.29   ---           ---               ---             ---         ---                                
+ Tfu_1871  0             Bza                   ---                bAla         UNKNOWN        False           bAla       5         MATCH                     -6.005  -0.664        0.119             0.277           PMPAQGVVNK  SASLFPMSSPGGAVQVGGAQQVFGMAEGLVNYTR 
+ ---       ---           ---                   ---                Gly          UNKNOWN        False           Gly        9         START_INSERTING           -3.813  ---           ---               ---             ---         ---                                
+ Tfu_1867  0             Arg                   EPIMERIZATION      Ala          UNKNOWN        False           Ala        2         MATCH                     -5.868  -1.716        0.119             -0.547          DADDSGCVDK  LAHGFDASWDQGDFSFGGEVNCYGPTENTVDALV 
+ Tfu_1867  1             Gly                   ---                Cys          UNKNOWN        False           dhCys      1         MATCH                     -5.353  -1.229        0.119             0.277           DILQFGVIWK  FDMTFDISALELQAFVGGEHNVYGPTETTIWSTA 
+ Tfu_1867  2             Gly                   EPIMERIZATION      Gly          UNKNOWN        False           Gly        7         MATCH                     -1.793  2.631         0.119             -0.547          DILQLGVIWK  FDMTFDISALELQALVGGETNVYGPTETTIWSTA 
+ Tfu_1866  0             Ser                   EPIMERIZATION      Ala          UNKNOWN        False           Ala        4         MATCH                     -5.796  -1.645        0.119             -0.547          DVWHISLVDK  RWMTFDVSVWEWHFIVSGEDNLYGPTEAAVDVTS 
+ Tfu_1865  0             Orn                   ---                Gly          UNKNOWN        False           Gly        3         MATCH                     -5.091  -1.49         0.119             0.277           DMENLGLINK  MNHVFDMSWEEWNVLLGGEYNLYGPTEYTINTLG 
+ ---       ---           ---                   ---                _UNKNOWN     UNKNOWN        False           X1         8         START_INSERTING           -3.701  ---           ---               ---             ---         ---                                
+
+
+Genome: BGC0000985
+antiSMASH_file: test_data/antismash/BGC0000985/BGC0000985.json
+Contig_idx: 1
+BGC_idx: 1
+BGC_variant: 0
+NRP: BGC0002107.0
+NRP_variant: 0
+RawScore: -48.60300000000001
+LogOdds_vs_avg_BGC: -14.066579698234094
+LogOdds_vs_avg_NRP: -48.60300000000001
+P-value: None
+Alignment:
+ Gene       A-domain_idx  Top_scoring_residues  Modifying_domains          NRP_residue  NRP_chirality  NRP_methylated  rBAN_name  rBAN_idx  Alignment_step            Score   ResidueScore  MethylationScore  ChiralityScore  aa10_code   aa34_code                          
+ ---        ---           ---                   ---                        _UNKNOWN     UNKNOWN        False           X0         6         START_INSERTING_AT_START  -2.29   ---           ---               ---             ---         ---                                
+ TMO_c0602  0             Gln                   ---                        bAla         UNKNOWN        False           bAla       5         MATCH                     -5.645  -0.664        0.119             0.277           DAWQFGLIDK  HWMTFDASIWEAQAFAGGEINLYGPTECCIDASA 
+ TMO_c0602  1             Gln                   ---                        Gly          UNKNOWN        False           Gly        9         MATCH                     -5.091  -2.268        0.119             0.277           DAWQFGLIDK  HWMTFDASVWEAQAFIGGEINLYGPTECCIDATA 
+ ---        ---           ---                   ---                        Ala          UNKNOWN        False           Ala        2         START_INSERTING           -5.303  ---           ---               ---             ---         ---                                
+ TMO_c0604  0             Pro                   ---                        Cys          UNKNOWN        False           dhCys      1         MATCH                     -5.353  -1.229        0.119             0.277           DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0605  0             Leu                   METHYLATION,EPIMERIZATION  Gly          UNKNOWN        False           Gly        7         MATCH                     -7.959  -1.49         -1.925            -0.547          DAWFLGHVVK  LWHAFDAAGWEPFVLTGGEINHYGPTETAVVATA 
+ TMO_c0605  1             Thr                   ---                        Ala          UNKNOWN        False           Ala        4         MATCH                     -4.973  -1.645        0.119             0.277           DFWNIGMVHK  LATHFDFSVWEGNQIFGGEVNMYGITETTVHVTH 
+ TMO_c0605  2             Ile                   ---                        Gly          UNKNOWN        False           Gly        3         MATCH                     -5.119  -1.518        0.119             0.277           DAFFLGITFK  RAGSFDAATFEGFVLVGGEANIYGPTETTTFATV 
+ TMO_c0609  0             Leu                   ---                        _UNKNOWN     UNKNOWN        False           X1         8         MATCH                     -2.861  -0.039        0.119             0.277           DAWFLGNVVK  LWHAFDAAVWEPFMLAGGEVNNYGPTEAAVVASS 
+ TMO_c0610  0             Pro                   ---                        ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DVQFAAQVVK  LWHAFDVSMQELFLATAGEDNQYGPTETHVVAAE 
+ TMO_c0611  0             Tyr                   METHYLATION                ---          ---            ---             ---        ---       SKIP_MODULES_AT_END       0       ---           ---               ---             DASTLAAVCK  TAQAFDAALSEMTLLVAGEVNAYGPTECAVCATM 

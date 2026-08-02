@@ -33,7 +33,7 @@ def main():
 
     print(f'Loading rBAN records and NRP variants from {preprocessed_dir}...')
     nrp_variants = [
-        NRP_Variant.from_yaml_dict(nrp_dict)
+        NRP_Variant.from_dict(nrp_dict)
         for nrp_dict in yaml.safe_load(open(pnrpdb_nrp_variants, 'r'))
         if nrp_dict['nrp_variant_id']['nrp_id'] in ('PNPdb04158', 'BGC0001358.0')
     ]

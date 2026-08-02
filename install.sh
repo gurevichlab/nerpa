@@ -1,36 +1,80 @@
-#!/bin/bash
-# q: if CWD is not the root directory of the project (this script dir), exit with an error message
-if [ "$(pwd -P)" != "$(cd "$(dirname "$0")"; pwd -P)" ]; then
-    echo "Error: The current working directory is not Nerpa root directory." >&2
-    echo "Please run this script from $(cd "$(dirname "$0")"; pwd -P)" >&2
-    exit 1
-fi
+#!/usr/bin/env bash
 
 # Exit immediately if a command fails
-set -e
+set -euo pipefail
 
-paras_model_link='https://zenodo.org/records/13165500/files/model.paras?download=1'
-# q: if ./external_tools/paras/model.paras doesn't exist, download it
-if [ ! -f "./external_tools/paras/model.paras" ]; then
-    echo "Downloading model.paras from $paras_model_link..."
-    mkdir -p ./external_tools/paras
-    wget -O ./external_tools/paras/model.paras $paras_model_link
+# Set the repository root directory to the directory of this script
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$repo_root"
+
+# Exit immediately if a command fails
+set -euo pipefail
+
+# ===== 1. Clone kakapo repository if it doesn't exist
+kakapo_repo_dir="$repo_root/external_tools/kakapo"
+
+if [[ ! -d "$kakapo_repo_dir" ]]; then
+    echo "Cloning kakapo repository to $kakapo_repo_dir..."
+    git clone --branch kakapo-ilya git@github.com:gurevichlab/nerpa-ms-varquest.git "$kakapo_repo_dir"
+    echo "Kakapo repository cloned"
 fi
+
+# ===== 2. Set up Nerpa and Kakapo environments
+
+nerpa_env_prefix="$repo_root/envs/nerpa"
+kakapo_env_prefix="$repo_root/envs/kakapo"
+bin_dir="$repo_root/bin"
+
+mkdir -p "$bin_dir"
+
+# 2.1 Create the Nerpa environment if it doesn't exist
+if [[ ! -d "$nerpa_env_prefix" ]]; then
+  conda env create -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
+fi
+
+# 2.2 Create the Kakapo environment if it doesn't exist
+if [[ ! -d "$kakapo_env_prefix" ]]; then
+  conda create -y -p "$kakapo_env_prefix" python=3.12 pip
+fi
+
+"$kakapo_env_prefix/bin/python" -m pip install -U pip
+"$kakapo_env_prefix/bin/python" -m pip install -e "$repo_root/external_tools/kakapo"
+
+
+## ===== 3. Build C++ code
 
 # Remove the build directory if it exists
-if [ -d "./build" ]; then
+build_dir="$repo_root/build"
+
+if [[ -d "$build_dir" ]]; then
     echo "Removing existing build directory..."
-    rm -rf ./build
-fi
+    rm -rf "$build_dir"
+ fi
 
 # Create and enter the build directory
 mkdir build && cd build
 
 # Run CMake and Make
 echo "Running CMake..."
-cmake ..
+cmake -S "$repo_root" -B "$build_dir"
 
 echo "Building project..."
-make
+cmake --build "$build_dir"
 
-echo "Build completed successfully! Installation finished"
+echo "Build completed successfully!"
+
+
+# ===== 4. Download PARAS model if not present
+paras_model_link='https://zenodo.org/records/13165500/files/model.paras?download=1'
+
+paras_model_path="$repo_root/external_tools/paras/model.paras"
+
+if [[ ! -f "$paras_model_path" ]]; then
+    echo "Downloading model.paras from $paras_model_link..."
+    mkdir -p "$(dirname -- "$paras_model_path")"
+    curl -L --fail -o "$paras_model_path" "$paras_model_link"
+    echo "PARAS model downloaded"
+fi
+
+echo "Installation finished successfully!"
+

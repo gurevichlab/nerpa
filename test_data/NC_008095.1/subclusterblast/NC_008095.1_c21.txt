@@ -1,0 +1,255 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS22220	5716369	5718484	+	two-component system sensor histidine kinase NtrB	
+MXAN_RS22225	5718473	5719847	+	sigma-54-dependent transcriptional regulator	
+MXAN_RS22230	5719936	5720452	+	OmpA family protein	
+MXAN_RS22235	5720566	5721298	+	type IV toxin-antitoxin system AbiEi family antitoxin domain-containing protein	
+MXAN_RS22240	5721548	5722415	-	alpha/beta fold hydrolase	
+MXAN_RS22245	5722568	5723420	-	tRNA (5-methylaminomethyl-2-thiouridine)(34)-methyltransferase MnmD	
+MXAN_RS22250	5723416	5724586	-	tRNA guanosine(34) transglycosylase Tgt	
+MXAN_RS22255	5724901	5726500	+	ABC-F family ATP-binding cassette domain-containing protein	
+MXAN_RS22260	5726594	5729624	-	chitobiase/beta-hexosaminidase C-terminal domain-containing protein	
+MXAN_RS22265	5729876	5730956	-	YihY/virulence factor BrkB family protein	
+MXAN_RS22270	5731202	5732753	+	PEGA domain-containing protein	
+MXAN_RS22275	5732742	5733735	+	tetratricopeptide repeat protein	
+MXAN_RS22280	5733771	5735541	+	serine/threonine protein kinase	
+MXAN_RS22285	5735537	5741813	-	non-ribosomal peptide synthetase	
+MXAN_RS22290	5742087	5743398	+	PLP-dependent aminotransferase family protein	
+MXAN_RS22295	5743459	5744470	+	GNAT family N-acetyltransferase	
+MXAN_RS22300	5744577	5747865	+	non-ribosomal peptide synthetase	
+MXAN_RS22305	5747861	5754008	+	non-ribosomal peptide synthetase	
+MXAN_RS22310	5754139	5755819	+	PhpK family radical SAM P-methyltransferase	
+MXAN_RS22315	5755832	5760380	+	non-ribosomal peptide synthetase	
+MXAN_RS22320	5760518	5762855	+	M28 family metallopeptidase	
+MXAN_RS22325	5762865	5764893	-	RiPP maturation radical SAM C-methyltransferase	
+MXAN_RS22330	5765033	5774912	+	non-ribosomal peptide synthetase	
+MXAN_RS22335	5775024	5775999	+	hypothetical protein	
+MXAN_RS22340	5776040	5777807	+	B12-binding domain-containing radical SAM protein	
+MXAN_RS22345	5777830	5778733	+	cupin-like domain-containing protein	
+MXAN_RS22350	5778729	5780049	+	MFS transporter	
+MXAN_RS22355	5780055	5782017	-	glycoside hydrolase family 183 protein	
+MXAN_RS22360	5782129	5782579	-	SRPBCC family protein	
+MXAN_RS22365	5782717	5783788	+	hypothetical protein	
+MXAN_RS22370	5783798	5785154	-	MFS transporter	
+MXAN_RS22375	5785235	5785787	-	dTDP-4-dehydrorhamnose 3,5-epimerase	
+MXAN_RS22380	5785783	5786665	-	glucose-1-phosphate thymidylyltransferase RfbA	
+MXAN_RS22385	5786680	5787583	-	SDR family oxidoreductase	
+MXAN_RS22390	5787586	5788612	-	dTDP-glucose 4,6-dehydratase	
+MXAN_RS22395	5788732	5790373	+	glycosyltransferase	
+MXAN_RS22400	5790362	5790884	+	hypothetical protein	
+MXAN_RS22405	5791017	5793249	+	glycosyltransferase	
+MXAN_RS22410	5793294	5794488	-	DUF2304 family protein	
+
+
+Significant hits: 
+1. AF187532	nogalamycin nogalose
+2. AF187532	nogalamycin nogalamine
+3. AY509120	chalcomycin NDP-6-deoxy-D-allose
+4. AY509120	chalcomycin NDP-chalcose
+5. AB032523	avermectin oleandrose
+6. EU255259	spectinomycin dTDP-actinospectose
+7. DQ149987	concanamycin 4'-O-carbamoyl-2'-deoxyrhamnose
+8. DQ230532	phenalinolactone deoxyhexose L-amicetose
+9. AF322256	simocyclinone dTDP-D-olivose
+10. AF170880	novobiocin noviose deoxysugar
+11. AF329398	clorobiocin noviose deoxysugar
+12. AF235050	coumermycin noviose deoxysugar
+13. AF497482	calicheamicin 4 nucleotide sugars
+
+
+Details:
+
+>>
+1. AF187532
+Source: nogalamycin nogalose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 682.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF187532_2_snogJ	58	361	98.29351535836177	7.61e-128
+MXAN_RS22390	AF187532_2_snogK	53	321	96.48093841642229	1.8e-110
+
+
+
+>>
+2. AF187532
+Source: nogalamycin nogalamine
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 682.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF187532_1_snogJ	58	361	98.29351535836177	7.61e-128
+MXAN_RS22390	AF187532_1_snogK	53	321	96.48093841642229	1.8e-110
+
+
+
+>>
+3. AY509120
+Source: chalcomycin NDP-6-deoxy-D-allose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 680.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AY509120_2_chmAI	54	333	99.65870307167235	8.57e-117
+MXAN_RS22390	AY509120_2_chmAII	54	347	95.30791788856305	2.53e-121
+
+
+
+>>
+4. AY509120
+Source: chalcomycin NDP-chalcose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 680.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AY509120_1_chmAI	54	333	99.65870307167235	8.57e-117
+MXAN_RS22390	AY509120_1_chmAII	54	347	95.30791788856305	2.53e-121
+
+
+
+>>
+5. AB032523
+Source: avermectin oleandrose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 678.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AB032523_1_aveBIII	56	346	97.61092150170649	6.82e-122
+MXAN_RS22390	AB032523_1_aveBII	53	332	94.42815249266863	6.45e-115
+
+
+
+>>
+6. EU255259
+Source: spectinomycin dTDP-actinospectose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 677.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	EU255259_2_spcD	57	343	98.29351535836177	7.9e-121
+MXAN_RS22390	EU255259_2_spcE	53	334	94.13489736070382	4.27e-116
+
+
+
+>>
+7. DQ149987
+Source: concanamycin 4'-O-carbamoyl-2'-deoxyrhamnose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 644.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	DQ149987_2_ORF6*	54	317	96.24573378839591	2.89e-110
+MXAN_RS22390	DQ149987_2_ORF5*	54	327	94.72140762463343	2.17e-113
+
+
+
+>>
+8. DQ230532
+Source: phenalinolactone deoxyhexose L-amicetose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 639.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	DQ230532_3_plaA4	53	313	96.24573378839591	4.28e-109
+MXAN_RS22390	DQ230532_3_plaA3	54	326	96.18768328445748	7.34e-113
+
+
+
+>>
+9. AF322256
+Source: simocyclinone dTDP-D-olivose
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 597.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF322256_1_sim23	54	317	97.61092150170649	1.61e-110
+MXAN_RS22390	AF322256_1_sim24	50	280	94.13489736070382	8.99e-95
+
+
+
+>>
+10. AF170880
+Source: novobiocin noviose deoxysugar
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 663.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF170880_2_novV	60	353	96.24573378839591	8.28e-125
+MXAN_RS22390	AF170880_2_novT	52	310	95.60117302052787	3.05e-106
+
+
+
+>>
+11. AF329398
+Source: clorobiocin noviose deoxysugar
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 648.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF329398_2_cloV	59	345	98.63481228668942	1.66e-121
+MXAN_RS22390	AF329398_2_cloT	52	303	94.42815249266863	7.52e-104
+
+
+
+>>
+12. AF235050
+Source: coumermycin noviose deoxysugar
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 645.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF235050_2_couV	60	345	96.24573378839591	1.94e-121
+MXAN_RS22390	AF235050_2_couT	52	300	94.42815249266863	2.36e-102
+
+
+
+>>
+13. AF497482
+Source: calicheamicin 4 nucleotide sugars
+Type: sugar
+Number of proteins with BLAST hits to this cluster: 2
+Cumulative BLAST score: 588.0
+
+Table of genes, locations, strands and annotations of subject cluster:
+
+Table of Blast hits (query gene, subject gene, %identity, blast score, %coverage, e-value):
+MXAN_RS22380	AF497482_3_calS7	50	276	96.24573378839591	2.62e-94
+MXAN_RS22390	AF497482_3_calS3	53	312	94.42815249266863	3.66e-107
+

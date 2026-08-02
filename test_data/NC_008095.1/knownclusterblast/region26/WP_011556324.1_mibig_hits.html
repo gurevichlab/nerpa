@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.tablesorter.min.js"></script>
+
+<script type="text/javascript" >
+var counter = 1;
+function addInput(divName){
+     var newdiv = document.createElement('div');
+     newdiv.innerHTML = "<b>Locus " + (counter + 1) + "</b><br> GenBank accession: <input type='text' required name='myInputs[]'> Start nt: <input type='number' name='myStartCoords[]' placeholder='N/A'> End nt: <input type='number' name='myEndCoords[]' placeholder='N/A'> <br><br>";
+     document.getElementById(divName).appendChild(newdiv);
+     counter++;
+}
+</script>
+
+<script>
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+<style>
+table {
+    border-width: thin;
+    border-spacing: 2px;
+    border-style: none;
+    border-color: black;
+}
+</style>
+</head>
+<body>
+    <table id="myTable" class="tablesorter" border=1>
+    <thead>
+    <tr>
+        <th>MIBiG Protein</th>
+        <th>Description</th>
+        <th>MIBiG Cluster</th>
+        <th>MiBiG Product</th>
+        <th>% ID</th>
+        <th>% Coverage</th>
+        <th>BLAST Score</th>
+        <th>E-value</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+          <tr>
+              <td>WP_045972709.1</td>
+              <td>phosphopantetheine-binding_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0002008.3">BGC0002008.3</a></td>
+              <td>other:other</td>
+              <td>38.0</td>
+              <td>83.5</td>
+              <td>54.0</td>
+              <td>1.1e-10</td>
+          </tr>
+    
+          <tr>
+              <td>ABQ04122.1</td>
+              <td>hypothetical_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000838.3">BGC0000838.3</a></td>
+              <td>PKS</td>
+              <td>39.0</td>
+              <td>82.5</td>
+              <td>51.0</td>
+              <td>1.75e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AAW85341.1</td>
+              <td>acyl_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000837.4">BGC0000837.4</a></td>
+              <td>other:other</td>
+              <td>43.0</td>
+              <td>79.6</td>
+              <td>51.0</td>
+              <td>2.34e-09</td>
+          </tr>
+    
+          <tr>
+              <td>AAN79662.1</td>
+              <td>Putative_acyl_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000836.5">BGC0000836.5</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>78.6</td>
+              <td>49.0</td>
+              <td>1.39e-08</td>
+          </tr>
+    
+          <tr>
+              <td>AAG38843.1</td>
+              <td>putative_acyl_carrier_protein</td>
+              <td><a target="_new" href="https://mibig.secondarymetabolites.org/go/BGC0000840.5">BGC0000840.5</a></td>
+              <td>other:other</td>
+              <td>36.0</td>
+              <td>68.0</td>
+              <td>43.0</td>
+              <td>3.92e-06</td>
+          </tr>
+    
+    </tbody>
+  </table>
+</body>

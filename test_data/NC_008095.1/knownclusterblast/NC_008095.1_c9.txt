@@ -1,0 +1,17 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS17220	4135537	4136368	+	16S rRNA (cytidine(1402)-2'-O)-methyltransferase	
+MXAN_RS17225	4136410	4137706	-	hypothetical protein	
+MXAN_RS17230	4137802	4138969	-	peptidoglycan DD-metalloendopeptidase family protein	
+MXAN_RS17235	4138916	4140341	-	sigma-54-dependent transcriptional regulator	
+MXAN_RS17240	4140371	4141235	-	encapsulin nanocompartment shell protein EncA	
+MXAN_RS17245	4141281	4141758	-	encapsulin nanocompartment cargo protein EncB	
+MXAN_RS17250	4141863	4143561	+	murein biosynthesis integral membrane protein MurJ	
+MXAN_RS17255	4143833	4145774	+	S1 RNA-binding domain-containing protein	
+
+
+Significant hits: 
+
+
+Details:

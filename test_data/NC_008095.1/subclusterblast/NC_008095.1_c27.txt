@@ -1,0 +1,49 @@
+ClusterBlast scores for NC_008095.1
+
+Table of genes, locations, strands and annotations of query cluster:
+MXAN_RS32040	8148324	8149827	+	ATPase domain-containing protein	
+MXAN_RS32045	8149829	8150195	+	response regulator	
+MXAN_RS32050	8150295	8151405	+	beta-N-acetylhexosaminidase	
+MXAN_RS32055	8151498	8151990	-	hypothetical protein	
+MXAN_RS32060	8152293	8153112	-	thioredoxin-dependent thiol peroxidase	
+MXAN_RS32065	8153173	8153674	-	hypothetical protein	
+MXAN_RS32070	8153741	8154389	+	hypothetical protein	
+MXAN_RS32075	8154440	8155760	-	response regulator	
+MXAN_RS32080	8155874	8156225	+	MXAN_6627.5 family MYXO-CTERM protein	
+MXAN_RS32085	8156235	8157279	+	class I SAM-dependent methyltransferase	
+MXAN_RS32090	8157390	8158836	+	UbiA family prenyltransferase	
+MXAN_RS32095	8158849	8160244	+	FAD-binding oxidoreductase	
+MXAN_RS32100	8160268	8161006	+	SDR family oxidoreductase	
+MXAN_RS32105	8161187	8162480	+	DoxX family membrane protein	
+MXAN_RS32110	8162481	8163519	-	MBL fold metallo-hydrolase	
+MXAN_RS32115	8163752	8164850	-	NAD(P)/FAD-dependent oxidoreductase	
+MXAN_RS32120	8164931	8166710	-	fatty acyl-AMP ligase	
+MXAN_RS32125	8166706	8166988	-	acyl carrier protein	
+MXAN_RS32130	8166980	8167556	-	isoprenylcysteine carboxyl methyltransferase family protein	
+MXAN_RS32135	8167549	8168632	-	type III polyketide synthase	
+MXAN_RS32140	8168871	8170428	-	MXAN_6640 family putative metalloprotease	
+MXAN_RS32145	8170424	8171345	-	HmuY family protein	
+MXAN_RS39195	8171760	8171883	+	hypothetical protein	
+MXAN_RS32155	8172482	8173553	-	molybdenum ABC transporter ATP-binding protein	
+MXAN_RS32160	8173549	8174203	-	molybdate ABC transporter permease subunit	
+MXAN_RS32165	8174223	8174982	-	molybdate ABC transporter substrate-binding protein	
+MXAN_RS32170	8175078	8175588	+	MarR family winged helix-turn-helix transcriptional regulator	
+MXAN_RS32175	8175704	8177243	+	trypsin-like peptidase domain-containing protein	
+MXAN_RS32180	8177223	8177865	-	YdcF family protein	
+MXAN_RS32185	8178157	8178544	+	hypothetical protein	
+MXAN_RS32190	8178660	8179212	+	hypothetical protein	
+MXAN_RS32195	8179236	8180100	-	endonuclease/exonuclease/phosphatase family protein	
+MXAN_RS32205	8180373	8180595	+	hypothetical protein	
+MXAN_RS32210	8180633	8181260	-	MXAN_6652 family MXYO-CTERM-anchored protein	
+MXAN_RS39200	8181332	8182070	-	TetR/AcrR family transcriptional regulator	
+MXAN_RS32220	8182050	8182725	-	DUF4336 domain-containing protein	
+MXAN_RS32225	8182884	8184336	+	proline--tRNA ligase	
+MXAN_RS32230	8184516	8185074	+	RNA 2',3'-cyclic phosphodiesterase	
+MXAN_RS32235	8185153	8185771	+	YiiX family permuted papain-like enzyme	
+MXAN_RS32240	8185824	8187888	+	putative metal-binding motif-containing protein	
+
+
+Significant hits: 
+
+
+Details:

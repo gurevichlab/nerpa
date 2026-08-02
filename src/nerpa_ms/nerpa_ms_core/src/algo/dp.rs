@@ -1,5 +1,5 @@
 use crate::data_types::common_types::LogOdds;
-use crate::data_types::dag::{Edge, DAG};
+use crate::data_types::mod_graph::{Edge, ModGraph};
 use crate::data_types::discrete_log_prob::{DiscreteLogOdds, DiscreteLogOddsSet};
 use crate::data_types::dp_table::{DP_Coords, DP_Table};
 use crate::data_types::hmm::{StateIdx, HMM};
@@ -37,7 +37,7 @@ fn relax_non_emitting_states(dp: &mut DP_Table, hmm: &HMM, v: usize, w: usize) {
 fn advance_dag_unlabeled<'a>(
     dp: &mut DP_Table<'a>,
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     v: usize,
     w: usize,
     max_weight: usize,
@@ -76,7 +76,7 @@ fn advance_dag_unlabeled<'a>(
 fn advance_dag_labeled<'a>(
     dp: &mut DP_Table<'a>,
     hmm: &HMM,
-    dag: &DAG<'a>,
+    dag: &ModGraph<'a>,
     v: usize,
     w: usize,
     max_weight: usize,
@@ -122,7 +122,7 @@ fn advance_dag_labeled<'a>(
 
 /// dp[v][w][s] stores reachable discrete log-probabilities at DAG vertex v with total deviation
 /// weight w and HMM state s, before consuming label[v] (if any).
-pub fn compute_dp_table<'a>(hmm: &HMM, dag: &DAG<'a>, max_weight: usize) -> DP_Table<'a> {
+pub fn compute_dp_table<'a>(hmm: &HMM, dag: &ModGraph<'a>, max_weight: usize) -> DP_Table<'a> {
     let n_vertices = dag.num_nodes();
     let n_states = hmm.num_states();
 

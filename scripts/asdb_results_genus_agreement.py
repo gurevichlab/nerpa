@@ -34,7 +34,7 @@ def main():
     bgc_variants_path = args.nerpa_results / 'preprocessed_input' / 'BGC_variants.yaml'
     with open(bgc_variants_path, 'r') as f:
         bgc_variants = [
-            BGC_Variant.from_yaml_dict(record)
+            BGC_Variant.from_dict(record)
             for record in yaml.safe_load(f)
         ]
 
