@@ -169,7 +169,7 @@ function buildDrawData(geneList, match, r=false){
             reversed: g.coords.strand === 'REVERSE' && r,
             modules: g.modules.map((m, idx)=> {
                 return{
-                    id: idx,
+                    id: idx +1,
                     nid: m["a_domain"] != null ? 
                                 (r ? m.alignment.map(al => al["rBAN_idx"]) : m.alignment["rBAN_idx"]): [''],
                     domains: m.domains_sequence, 
