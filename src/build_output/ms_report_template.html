@@ -368,7 +368,7 @@
         </div>
 
         <div class="logo-container">
-            <img src="html_aux/logo.png" alt="Logo" class="nerpa-logo">
+            <img src="{{HTML_AUX_DIR}}/logo.png" alt="Logo" class="nerpa-logo">
             <button id="toggleReprBtn" style="display:block; margin-left:auto;">
                 Show all BGCs/NRPs (incl. duplicates)
             </button>
@@ -683,13 +683,31 @@
                             </canvas>
 
                         </div>
-                        
 
-                        <div id="graphImage" style="display: none;
-                            background: #ffffff; 
-                            width: 100%; 
+                        <div id="graphContainer" style="
+                            display: none;
+                            background: #ffffff;
+                            width: 100%;
                             height: 100%;
-                            position: relative;">
+                            position: relative;
+                            display: flex;
+                            flex-direction: column;
+                        ">
+
+                            <div id="modTable" style="
+                                flex: 0 0 auto;
+                                padding: 4px 8px;
+                                background: #ffffff;
+                            ">
+                            </div>
+
+                            <div id="graphImage" style="
+                                flex: 1;
+                                position: relative;
+                                background: #ffffff;
+                                overflow: hidden;
+                            ">
+                            </div>
                             
                         </div>
                     </div>
@@ -707,10 +725,10 @@
     
 </div>
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
-<script src="{{HTML_AUX_DIR}}/report_data_MS.js"></script>
+<script src="{{HTML_AUX_DIR}}/report_data_ms.js"></script>
 
-<script src="html_aux/interaction.js"></script>
-<script src="html_aux/interaction_MS.js"></script>
+<script src="{{HTML_AUX_DIR}}/interaction.js"></script>
+<script src="{{HTML_AUX_DIR}}/interaction_ms.js"></script>
 <!-- vis-network -->
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <!-- chemdoodle -->
@@ -871,6 +889,16 @@
         // all fields in "bgc_id" are always present; no need for null checks
         return `${bgc_id.antiSMASH_file}::${bgc_id.contig_idx}::${bgc_id.bgc_idx}`;
     }
+    
+    function extractNrpID(key){
+        
+        const nrpLabel = 'NRP_ID-';
+        const startIndex = key.indexOf(nrpLabel);
+        const fromIndex = startIndex + nrpLabel.length;
+        const endIndex = key.indexOf( '___', fromIndex);
+     
+        return key.substring(fromIndex, endIndex);
+    }
 
     if (Array.isArray(bgc_metadata)) {
         bgc_metadata.forEach(m => {
@@ -961,6 +989,22 @@
     if (Array.isArray(nrp_representatives)) {
         nrp_representatives.forEach(group => {
             nrpReprIndex.set(group.repr.nrp_id, group.members);
+        });
+    }
+    
+    // a lookup dictionary: NRP ID -> spectrum ID
+    const nrpSpectrumID= new Map();
+
+    if (Array.isArray(spectra_matching_results)) {
+        spectra_matching_results.forEach(match => {
+            const nrpID = extractNrpID(match.structure_id);
+            if(monomer_graph[nrpID].nodes.length === match.monomer_count){
+                nrpSpectrumID.set(nrpID, {
+                                        structure_id: match.structure_id,
+                                        spectrum_id: match.spectrum_id
+                }
+            );
+            }
         });
     }
 
@@ -1433,7 +1477,7 @@
    // Toggle function for NRP images
     function toggleNrpViewer(hide, nrpID, userHide = false) {
         const frame = document.getElementById('nrpViewerContainer');
-        const graph = document.getElementById('graphImage');
+        const graph = document.getElementById('graphContainer');
         const molecule = document.getElementById('moleculeImage');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
         const showBtn = document.getElementById('showNrpViewerBtn');
@@ -1448,52 +1492,26 @@
             frame.style.display = 'block';
             label.style.display = 'none';
             hideBtn.style.display = 'block';
-            graph.style.display = 'block';
+            graph.style.display = 'flex';
             molecule.style.display = 'block';
 
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleNrpViewer(hide, nrpID);
-
-            /* 
-            ---------------------------------------------------------------------------
-            only for testing purposes until nerpaMS provides the necessary information
             
-            map structureIDs and spectrumIDs to nrpID (arbitrary selected)
-            map structureID -> nrpID
-                myxoprincomide_c506 -> "BGC0000359.1"
-                myxochromide_A -> "BGC0000985.4" 
+            const idMatch = nrpSpectrumID.get(nrpID);
 
-            map spectrumID -> nrpID
-                10736 -> "BGC0000359.1"
-                41238 -> "BGC0000985.4" 
-            */
-            const arbitraryMap = {
-                'BGC0000359.1': {
-                    spectrumID: '10736',
-                },
-                'BGC0000985.4':{
-                    spectrumID: '41238',
-                },
-
-            };
-            const structureID = nrpID; 
-            const spectrumID = arbitraryMap[nrpID].spectrumID;
-            const generatedMol = prepareDataMol(structureID);
-            const generatedGraph = prepareDataGraph(structureID);
-            molecule_image[nrpID] = generatedMol;
-            monomer_graph[nrpID] = generatedGraph;
-            /* 
-            ---------------------------------------------------------------------------
-            */
+            const structureID = idMatch.structure_id; 
+            const spectrumID = idMatch.spectrum_id;
             
             drawGraph(nrpID);
             drawMolecule(nrpID);
+            molecule.style.display = 'none';
 
             displayVarquestMod(spectrumID, structureID);
             toggleModificationViewer(hide, nrpID, userHide);
            
             loadSpectrum(spectrumID, structureID);
-            molecule.style.display = 'none';
+
         }
     }
 
@@ -1676,7 +1694,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         // After DOM ready, populate table headers and rows, and apply visibility
-        document.getElementById('version').innerHTML = "version 0.0.0";
+        document.getElementById('version').innerHTML = `version ${version}`;
         buildMainTableHeader();
         ensureMetadataHeaders(nrpMetadataColumns, 'NRP ID');
         ensureMetadataHeaders(bgcMetadataColumns, 'BGC ID');

@@ -68,19 +68,20 @@ pub fn get_inserts_for_linearization<'a>(
 	};
 
 	// 1. Try inserting in the edge between linearization[lin_idx-1] and linearization[lin_idx] (if lin_idx > 0)
-	if let Some(prev_idx) = maybe_prev_idx
-	    && let Some(bond) = monomer_graph.get_bond(prev_idx, monomer_idx) {
-		inserts.extend(
-		    get_insert_mods_edge(
-			monomer_graph,
-			bond,
-			monomers_db,
-			max_inserts
-		    )
-		);
-		inserts_per_position.push(inserts);
-		continue;
-	    }
+	if let Some(prev_idx) = maybe_prev_idx {
+		if let Some(bond) = monomer_graph.get_bond(prev_idx, monomer_idx) {
+			inserts.extend(
+				get_insert_mods_edge(
+				monomer_graph,
+				bond,
+				monomers_db,
+				max_inserts
+				)
+			);
+			inserts_per_position.push(inserts);
+			continue;
+		}
+	}
 
 	// 2. No C->N bond (prev_idx, mon_idx) but a C->N bond (parent, mon_idx) -- try inserting there
 	let cn_bonds_to_mon: Vec<Bond> = {
@@ -145,19 +146,19 @@ pub fn get_inserts_for_linearization<'a>(
 
 	// 5. If prev_monomer_idx is a leaf, try attaching a new monomer to it with an AMINO bond
 	// Applied to leaves only not to produce unrealistic graphs
-	if let Some(prev_idx) = maybe_prev_idx
-	    && monomer_graph.degree(prev_idx) == 1
-	    && allow_attaching_leaves {
-		inserts.extend(
-		    get_insert_mods_leaf(
-			monomer_graph,
-			prev_idx,
-			&*AMINO_BINDING_SITE_C,
-			monomers_db,
-			max_inserts
-		    )
-		);
-	    }
+	if let Some(prev_idx) = maybe_prev_idx {
+		if monomer_graph.degree(prev_idx) == 1 && allow_attaching_leaves {
+			inserts.extend(
+				get_insert_mods_leaf(
+					monomer_graph,
+					prev_idx,
+					&*AMINO_BINDING_SITE_C,
+					monomers_db,
+					max_inserts,
+				)
+			);
+		}
+	}
 
 	inserts_per_position.push(inserts);
     }

@@ -23,6 +23,7 @@ from pathlib import Path
 from io import StringIO
 import csv
 import yaml
+import json
 
 
 def write_yaml(data, out_file: Path):
@@ -38,6 +39,49 @@ def write_yaml(data, out_file: Path):
     with open(out_file, 'w') as out:
         yaml.dump(data, out,
                   default_flow_style=None, sort_keys=False)
+
+def create_interaction_json(monomer_graph_data, molecule_data, output_cfg):
+
+    graph_dict = {}
+    for compID, graph in monomer_graph_data:
+        graphJson = json.loads(graph.pipe(format='json0').decode('utf-8'))
+        entry = {}
+        entry["nodes"] = []
+        entry["edges"] = []
+        for node in graphJson["objects"]:
+            entry["nodes"].append({
+                "id": node["name"],
+                "label":node["label"],
+                "color" : node["color"],
+                "font" : node["fontsize"],
+                "borderWidthSelected": 4,
+                "x": float(node["pos"].split(",")[0]),
+                "y": - float(node["pos"].split(",")[1]),
+            })
+        
+        for edge in graphJson["edges"]:
+            entry["edges"].append({
+                "id": edge["_gvid"],
+                "from": next(filter(lambda n: n["_gvid"] == edge["tail"], graphJson["objects"]))["name"],
+                "to" : next(filter(lambda n: n["_gvid"] == edge["head"], graphJson["objects"]))["name"],
+                "color" : edge["color"],
+                "width": edge["penwidth"],
+                "selectionWidth": edge["penwidth"],
+                "hoverWidth": edge["penwidth"], 
+                "arrows": '' if (edge["color"] == "red") else 'to',
+            })
+
+        graph_dict[compID] = entry
+
+    mol_dict = {}
+    for compID, mol in molecule_data:
+        mol_dict[compID] = mol
+    
+    with open(output_cfg.main_out_dir / 'intermediate_files/graph.json', "w", encoding="utf-8") as f:
+            json.dump(graph_dict, f, indent=4)
+
+    with open(output_cfg.main_out_dir / 'intermediate_files/molecule.json', "w", encoding="utf-8") as f:
+                json.dump(mol_dict, f, indent=4)
 
 
 def draw_hmms_with_optimal_paths(hmms: List[DetailedHMM],
@@ -97,7 +141,7 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                        output_cfg: OutputConfig,
                        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
                        log: Optional[NerpaLogger] = None,
-                       monomer_names_helper: Optional[MonomerNamesHelper] = None,) -> tuple[dict, dict[str,dict[str, list | dict]]]:
+                       monomer_names_helper: Optional[MonomerNamesHelper] = None,):
     if rban_records is None:
         rban_records = []
 
@@ -153,8 +197,8 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
     else:
         if log is not None:
             log.info('rBAN records not provided, skipping writing rBAN graphs and drawing molecules')
-    
-    return monomer_graph_data, molecule_data
+
+    create_interaction_json(monomer_graph_data, molecule_data, output_cfg)
 
 
 def write_bgc_variants(bgc_variants_info: BGC_Variants_Info,
@@ -239,7 +283,7 @@ def write_results(
         html_report_cfg = HTMLReportConfig(
             main_out_dir=output_cfg.main_out_dir,
             nerpa_root=nerpa_root,
-            mode='nerpa'
+            mode='nerpa',
         )
         create_html_report(
             bgc_variants_info=bgc_variants_info,

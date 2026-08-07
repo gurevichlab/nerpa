@@ -421,6 +421,12 @@
     <!-- antiSMASH (Genome/BGC) Viewer -->
     <div>
         <div id="genomeViewerControls" deselect-trigger>
+            <div class="table-container" style="display: none;">
+                <p class="matchDetailedInfoLabel">General information</p>
+                <!-- everything is populated here by JavaScript -->
+                <table id="matchTable">
+                </table>
+            </div>
             <button class="hide-button" id="hideGenomeViewerBtn" onclick="toggleGenomeViewer(true,'','', true)" style="display: none;">Hide Genome/BGC annotation</button>
             <button class="hide-button" id="showGenomeViewerBtn" style="display: none;">Show Genome/BGC annotation</button>
             <p id="genomeViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its antiSMASH annotation</p>
@@ -495,7 +501,7 @@
 </div>
 
 <script src="{{HTML_AUX_DIR}}/report_data.js"></script>
-<script src="html_aux/interaction.js"></script>
+<script src="{{HTML_AUX_DIR}}/interaction.js"></script>
 <!-- vis-network -->
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <!-- chemdoodle -->
@@ -1398,7 +1404,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         // After DOM ready, populate table headers and rows, and apply visibility
-        document.getElementById('version').innerHTML = "version 0.0.0";
+        document.getElementById('version').innerHTML = `version ${version}`;
         buildMainTableHeader();
         ensureMetadataHeaders(nrpMetadataColumns, 'NRP ID');
         ensureMetadataHeaders(bgcMetadataColumns, 'BGC ID');

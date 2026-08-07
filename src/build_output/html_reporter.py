@@ -140,49 +140,6 @@ def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
         template = template.replace(placeholder, value)
     return template
 
-def _create_graph_dicts(monomer_graph_data) -> Dict:
-
-    graph_dict = {}
-    for compID, graph in monomer_graph_data:
-        graphJson = json.loads(graph.pipe(format='json0').decode('utf-8'))
-        entry = {}
-        entry["nodes"] = []
-        entry["edges"] = []
-        for node in graphJson["objects"]:
-            entry["nodes"].append({
-                "id": node["name"],
-                "label":node["label"],
-                "color" : node["color"],
-                "font" : node["fontsize"],
-                "borderWidthSelected": 4,
-                "x": float(node["pos"].split(",")[0]),
-                "y": - float(node["pos"].split(",")[1]),
-            })
-        
-        for edge in graphJson["edges"]:
-            entry["edges"].append({
-                "id": edge["_gvid"],
-                "from": next(filter(lambda n: n["_gvid"] == edge["tail"], graphJson["objects"]))["name"],
-                "to" : next(filter(lambda n: n["_gvid"] == edge["head"], graphJson["objects"]))["name"],
-                "color" : edge["color"],
-                "width": edge["penwidth"],
-                "selectionWidth": edge["penwidth"],
-                "hoverWidth": edge["penwidth"], 
-                "arrows": '' if (edge["color"] == "red") else 'to',
-            })
-
-        graph_dict[compID] = entry
-
-    return graph_dict
-
-def _create_molecule_dicts(molecule_data) -> Dict:
-
-    mol_dict = {}
-    for compID, mol in molecule_data:
-        mol_dict[compID] = mol
-
-    return mol_dict
-
 
 def _create_module_dicts(module_data) -> list:
 
@@ -203,17 +160,29 @@ class HTMLReportConfig:
     report_path: Path
     html_aux_dir: Path
     report_data_js: Path
+    interaction_js: Path
     antismash_results_dir: Path
 
     nerpa_logo_path: Path
     report_template_path: Path
+    chemdoodle_dir: Path
     version: str
+
+    monomer_graph_data_path: Path
+    molecule_data_path: Path
 
     default_score_field: str
 
     # nerpa-ms specific fields. Should be not None if mode == 'nerpa-ms', otherwise None
     generated_candidate_nrps_path: Optional[Path]
     mass_spec_matching_results_dir: Optional[Path]
+    spectra: Optional[Path]
+
+    report_ms_path: Path
+    report_ms_template_path: Optional[Path]
+    report_data_ms_js: Optional[Path]
+    interaction_ms_js: Optional[Path]
+
     
 
     def __init__(
@@ -234,11 +203,16 @@ class HTMLReportConfig:
             else main_out_dir / 'nerpa_ms_html_aux'
         )
         self.report_data_js = self.html_aux_dir / 'report_data.js'
+        self.interaction_js = (
+            nerpa_root
+            / 'src'
+            / 'build_output'
+            / 'static'
+            / 'interaction.js'
+        )
         self.antismash_results_dir = main_out_dir / 'antismash_results'
         self.report_path = (
             main_out_dir / 'report.html'
-            if mode == 'nerpa'
-            else main_out_dir / 'nerpa_ms_report.html'
         )
 
         self.report_template_path = (
@@ -247,13 +221,43 @@ class HTMLReportConfig:
             / 'build_output'
             / 'main_report_template.html'
         )
+        self.chemdoodle_dir = (
+            nerpa_root
+            / 'src'
+            / 'build_output'
+            / 'static'
+            / 'chemdoodle'
+        )
         self.nerpa_logo_path = nerpa_root / 'docs' / 'img' / 'logo.png'
+
+        self.monomer_graph_data_path = main_out_dir / 'intermediate_files/graph.json'
+        self.molecule_data_path = main_out_dir / 'intermediate_files/molecule.json'
 
         self.default_score_field = 'log_odds_vs_avg_bgc'
 
         self.generated_candidate_nrps_path = generated_candidate_nrps_path
         self.mass_spec_matching_results_dir = mass_spec_matching_results_dir
 
+        self.spectra = None
+
+        self.report_ms_path = (
+            main_out_dir / 'nerpa_ms_report.html'
+        )
+        
+        self.report_ms_template_path = None if mode == 'nerpa' else (
+            nerpa_root
+            / 'src'
+            / 'build_output'
+            / 'ms_report_template.html'
+        )
+        self.report_data_ms_js = None if mode == 'nerpa' else self.html_aux_dir / 'report_data_ms.js'
+        self.interaction_ms_js = None if mode == 'nerpa' else (
+            nerpa_root
+            / 'src'
+            / 'build_output'
+            / 'static'
+            / 'interaction_ms.js'
+        )
 
 def create_html_report(
         bgc_variants_info: BGC_Variants_Info,
@@ -262,8 +266,8 @@ def create_html_report(
         cfg: HTMLReportConfig,
         debug_output: bool = False,
 ):
-    with open(cfg.report_template_path, 'r') as f:
-        main_report_html_template = f.read()
+    with open(cfg.main_out_dir / 'intermediate_files/antismash_bgcs.json', 'r', encoding='utf-8') as f:
+        module_data = json.load(f) 
 
     # TODO: Maybe add these paths directly to config_paths?
     cfg.html_aux_dir.mkdir()
@@ -276,12 +280,14 @@ def create_html_report(
     nrp_metadata = _create_serializable_nrp_metadata(nrp_variants_info)
     bgc_representatives = _create_serializable_bgc_representatives(bgc_variants_info)
     nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
-    monomer_graph = _create_graph_dicts(monomer_graph_data)
-    molecule = _create_molecule_dicts(molecule_data)
     modules = _create_module_dicts(module_data)
 
     # the main (root) HTML report and associated JSON
     with open(cfg.report_data_js, 'w') as json_file:
+        json_file.write('var version = ')
+        json.dump(cfg.version, json_file)
+        json_file.write(';\n')
+         
         json_file.write('var data = ')
         json.dump(match_dicts, json_file, indent=4)
         json_file.write(';\n')
@@ -303,23 +309,70 @@ def create_html_report(
         json_file.write(';\n')
 
         json_file.write('var monomer_graph = ')
-        json.dump(monomer_graph, json_file, indent=4)
+        json_file.write(cfg.monomer_graph_data_path.read_text(encoding="utf-8"))
         json_file.write(';\n')
 
         json_file.write('var molecule_image  = ')
-        json.dump(molecule, json_file, indent=4)
+        json_file.write(cfg.molecule_data_path.read_text(encoding="utf-8"))
         json_file.write(';\n')
 
         json_file.write('var modules_data  = ')
         json.dump(modules, json_file, indent=4)
+        json_file.write(';\n') 
+
+    if(cfg.mode == 'nerpa-ms'):
+        create_html_report_ms(cfg)
+    else:
+        with open(cfg.report_template_path, 'r') as f:
+                main_report_html_template = f.read()
+
+        path_substitutions = {
+            '{{HTML_AUX_DIR}}': str(cfg.html_aux_dir.relative_to(cfg.main_out_dir)),
+            '{{ANTISMASH_OUT_DIR}}': str(cfg.antismash_results_dir.relative_to(cfg.main_out_dir))
+        }
+        main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
+        with open(cfg.report_path, 'w') as f:
+            f.write(main_html_report)   
+    
+    # copying logo to be embedded in the HTML report
+    shutil.copy(cfg.nerpa_logo_path, cfg.html_aux_dir)
+    # copying chemdoodle dependencies to output folder
+    chemdoodle_out_path = cfg.html_aux_dir / 'chemdoodle'
+    shutil.copytree(cfg.chemdoodle_dir,  chemdoodle_out_path,  dirs_exist_ok=True)
+
+    # copying interaction.js to output folder
+    shutil.copyfile(cfg.interaction_js,  cfg.html_aux_dir / 'interaction.js')
+    
+
+def create_html_report_ms(cfg: HTMLReportConfig):
+    with open(cfg.report_ms_template_path, 'r') as f:
+            main_report_ms_html_template = f.read()
+
+    spectra_data = cfg.mass_spec_matching_results_dir / 'spectra.json'
+    results_data = cfg.mass_spec_matching_results_dir / 'results.json'
+    # the main (root) HTML report and associated JSON
+    with open(cfg.report_data_ms_js, 'w') as json_file:
+        json_file.write('var candidate_NRPs = ')
+        json_file.write(cfg.generated_candidate_nrps_path.read_text(encoding="utf-8"))
+        json_file.write(';\n')
+
+        json_file.write('var spectra_matching_results = ')
+        json_file.write(results_data.read_text(encoding="utf-8"))
+        json_file.write(';\n')
+
+        json_file.write('var spectra = ')
+        json_file.write(spectra_data.read_text(encoding="utf-8"))
         json_file.write(';\n')
 
     path_substitutions = {
         '{{HTML_AUX_DIR}}': str(cfg.html_aux_dir.relative_to(cfg.main_out_dir)),
         '{{ANTISMASH_OUT_DIR}}': str(cfg.antismash_results_dir.relative_to(cfg.main_out_dir))
     }
-    main_html_report = _apply_substitutions(main_report_html_template, path_substitutions)
-    with open(cfg.report_path, 'w') as f:
-        f.write(main_html_report)
-    # copying logo to be embedded in the HTML report
-    shutil.copy(cfg.nerpa_logo_path, cfg.html_aux_dir)
+    main_html_report_ms = _apply_substitutions(main_report_ms_html_template, path_substitutions)
+    with open(cfg.report_ms_path, 'w') as f:
+        f.write(main_html_report_ms)
+    # copying interaction_ms.js to output folder
+    shutil.copyfile(cfg.interaction_ms_js,  cfg.html_aux_dir / 'interaction_ms.js')
+    
+
+    
