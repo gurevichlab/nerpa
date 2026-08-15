@@ -38,17 +38,47 @@ def hamiltonian_path(G: nx.DiGraph,
         return None
 
 
-def parse_as_simple_cycle(G: nx.DiGraph) -> Union[List[int], None]:
-    try:
-        cycle_edges = nx.find_cycle(G)
-        cycle_uv = [(e[0], e[1]) for e in cycle_edges]  # tolerate possible 3-tuples from NetworkX
-        cycle_set = set(cycle_uv)
+def hamiltonian_cycle(G: nx.DiGraph,
+                      source: int) -> Optional[List[int]]:
+    ''' finds a hamiltonian cycle in G through source in an exhaustive manner '''
+    visited = set()
 
-        # Allow extra edges only if they're the reverse of an edge on the cycle (bidirectional edges).
-        if all(((u, v) in cycle_set) or ((v, u) in cycle_set)
-               for u, v in G.edges()):
-            return [u for u, v in cycle_uv]
-    except nx.NetworkXNoCycle:
+    def dfs(u: int) -> Optional[List[int]]:
+        visited.add(u)
+        if len(visited) == len(G.nodes()):
+            if G.has_edge(u, source):
+                return [u]
+        else:
+            for v in G.successors(u):
+                if v not in visited and (path := dfs(v)):
+                    return path + [u]
+
+        visited.remove(u)
+        return None
+
+    if path := dfs(source):
+        return path[::-1]
+    else:
+        return None
+
+
+def parse_as_simple_cycle(G: nx.DiGraph) -> Union[List[int], None]:
+    ''' parses G as a cycle spanning all of its nodes '''
+    if len(G) < 2:
+        return None
+
+    # a hamiltonian cycle visits every node, so any of them will do as a starting point
+    cycle = hamiltonian_cycle(G, min(G.nodes()))
+    if cycle is None:
+        return None
+
+    cycle_edges = set(pairwise(cycle)) | {(cycle[-1], cycle[0])}
+    # non-peptide backbone bonds are stored as two opposite edges,
+    # so an edge off the cycle is fine as long as it reverses one on the cycle
+    if all(((u, v) in cycle_edges) or ((v, u) in cycle_edges)
+           for u, v in G.edges()):
+        return cycle
+    else:
         return None
 
 
