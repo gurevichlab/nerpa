@@ -19,6 +19,9 @@ from src.build_output.html_reporter import HTMLReportConfig, create_html_report
 from src.matching.match_type import Match
 import subprocess
 import yaml
+import json
+from collections import Counter
+
 
 def parse_args() -> argparse.Namespace:
     nerpa_default_config = load_nerpa_config()
@@ -53,6 +56,20 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=10,
         help="Maximum number of NERPA matches to consider for candidate generation (default: 10)"
+    )
+
+    nerpa_ms_parser.add_argument(
+        "--max-spectra-matches-per-nrp-variant",
+        type=int,
+        default=1,
+        help="Maximum number of spectra matches to report per NRP variant (default: 1)"
+    )
+
+    nerpa_ms_parser.add_argument(
+        "--max-total-nrp-spectra-matches",
+        type=int,
+        default=100,
+        help="Maximum number of NRP-spectra matches to report (default: 100)"
     )
 
     args = nerpa_ms_parser.parse_args()
@@ -94,7 +111,7 @@ def nerpa_ms_core(
     subprocess.run(command, cwd=nerpa_ms_root, check=True)
 
 
-def nerpa_ms_varquest(
+def kakapo(
         nerpa_root: Path,
         nerpa_ms_core_results_dir: Path,
         spectra_path: Path,
@@ -212,14 +229,14 @@ def build_html_report(
         nerpa_root: Path,
         nerpa_results: Path,
         nerpa_ms_core_results: Path,
-        nerpa_ms_varquest_results: Path
+        kakapo_results: Path
 ) -> None:
    cfg = HTMLReportConfig(
         main_out_dir=nerpa_results,
         nerpa_root=nerpa_root,
         mode='nerpa-ms',
         generated_candidate_nrps_path=nerpa_ms_core_results / "nerpa-ms-output.json",
-        mass_spec_matching_results_dir=nerpa_ms_varquest_results
+        mass_spec_matching_results_dir=kakapo_results
     )
    bgc_variants_info = load_bgc_variants_info(nerpa_results)
    nrp_variants_info = load_nrp_variants_info(nerpa_results)
@@ -233,6 +250,26 @@ def build_html_report(
         debug_output=False
     )
     
+def deduplicate_kakapo_results(
+        kakapo_results_path: Path,
+        kakapo_results_filtered_path: Path,
+        max_spectra_matches_per_nrp_variant: int,
+        max_total_nrp_spectra_matches: int
+) -> None:
+    results = json.loads(kakapo_results_path.read_text())
+    filtered_results = []
+    added_matches_per_nrp_variant = Counter()
+    for record in results:
+        nrp_variant_id = record['structure_id']
+        if added_matches_per_nrp_variant[nrp_variant_id] < max_spectra_matches_per_nrp_variant:
+            filtered_results.append(record)
+            added_matches_per_nrp_variant[nrp_variant_id] += 1
+        if len(filtered_results) >= max_total_nrp_spectra_matches:
+            break
+
+    with open(kakapo_results_filtered_path, 'w') as f:
+        json.dump(filtered_results, f, indent=2)
+
        
 def main():
     nerpa_root = Path(__file__).parent.resolve()
@@ -250,19 +287,28 @@ def main():
         max_nerpa_matches=args.max_nerpa_matches_for_candidate_generation
     )
 
-    nerpa_ms_varquest_out = args.output_dir / "nerpa_ms_varquest_results"
-    nerpa_ms_varquest(
+    kakapo_out = args.output_dir / "kakapo_results"
+    kakapo(
         nerpa_root=nerpa_root,
         nerpa_ms_core_results_dir=nerpa_ms_core_out,
         spectra_path=args.spectra,
-        output_dir=nerpa_ms_varquest_out
+        output_dir=kakapo_out
+    )
+
+    kakapo_results_filtered = kakapo_out / "results-filtered.json"
+
+    deduplicate_kakapo_results(
+        kakapo_results_path=kakapo_out / "results.json",
+        kakapo_results_filtered_path=kakapo_results_filtered,
+        max_spectra_matches_per_nrp_variant=args.max_spectra_matches_per_nrp_variant,
+        max_total_nrp_spectra_matches=args.max_total_nrp_spectra_matches
     )
 
     build_html_report(
         nerpa_root=nerpa_root,
         nerpa_results=args.output_dir,
         nerpa_ms_core_results=nerpa_ms_core_out,
-        nerpa_ms_varquest_results=nerpa_ms_varquest_out
+        kakapo_results=kakapo_out
     )
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ dependencies:
     - pulp
     - scikit-learn=1.2.0
     - pandas>=1.5
-    - polars=0.19
+    - polars>=1.42.1
     - pyarrow
     - rdkit>=2022.09
     - networkx

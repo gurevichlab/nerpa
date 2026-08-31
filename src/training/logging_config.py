@@ -3,9 +3,12 @@ import sys
 from pathlib import Path
 
 
-def configure_logging(output_dir: Path) -> logging.Logger:
+def configure_logging(log_file: Path) -> logging.Logger:
     # ensure output dir exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    if log_file.exists():
+        log_file.unlink()
+
 
     logger = logging.getLogger('train_nerpa')
     logger.setLevel(logging.DEBUG)  # overall logger level: DEBUG
@@ -14,7 +17,10 @@ def configure_logging(output_dir: Path) -> logging.Logger:
     if logger.handlers:
         logger.handlers.clear()
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s:%(lineno)d: %(message)s')
+    formatter = logging.Formatter(
+        "%(levelname)s\n%(filename)s:%(lineno)d\n%(funcName)s\n\n%(message)s\n"
+        "----------------------------------------------------------\n"
+    )
 
     # stdout handler set to INFO
     stream_handler = logging.StreamHandler(sys.stdout)
@@ -22,7 +28,7 @@ def configure_logging(output_dir: Path) -> logging.Logger:
     stream_handler.setFormatter(formatter)
 
     # file handler set to DEBUG
-    file_handler = logging.FileHandler(str(output_dir / 'train_nerpa.log'))
+    file_handler = logging.FileHandler(str(log_file))
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 

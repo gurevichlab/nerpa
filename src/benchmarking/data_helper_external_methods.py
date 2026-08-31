@@ -22,7 +22,7 @@ def interval_str_to_tuple(interval_str: str) -> tuple[float, float]:
 def compute_num_correct_matches(data_helper: 'PlotsDataHelper',
                                 nerpa_report: NerpaReport) -> pl.Series:
     """Returns cumulative count of correct matches."""
-    sorted_report = nerpa_report.sort(NerpaReport.SCORE, descending=True)
+    sorted_report = nerpa_report.df.sort(NerpaReport.SCORE, descending=True)
     cumsum = sorted_report[NerpaReport.IS_CORRECT].cast(pl.Int64).cum_sum()
 
     # Prepend 0 for N=0 point
@@ -32,21 +32,21 @@ def compute_num_correct_matches(data_helper: 'PlotsDataHelper',
 def compute_score_correctness(data_helper: 'PlotsDataHelper',
                               nerpa_report: NerpaReport,
                               num_bins: int = 20,
-                              bin_edges: list[float] = None) -> pl.DataFrame:
+                              bin_edges: list[float] | None = None) -> pl.DataFrame:
     """Returns counts of correct and incorrect matches per score bin."""
     if bin_edges is not None:
-        df = nerpa_report.with_columns(
+        df = nerpa_report.df.with_columns(
             pl.col(NerpaReport.SCORE)
             .cut(breaks=bin_edges, left_closed=True)
             .alias('score_bin')
         )
     else:
         # Create equal-width bins
-        min_score = nerpa_report[NerpaReport.SCORE].min()
-        max_score = nerpa_report[NerpaReport.SCORE].max()
+        min_score = nerpa_report.df[NerpaReport.SCORE].min()
+        max_score = nerpa_report.df[NerpaReport.SCORE].max()
         step = (max_score - min_score) / num_bins
         edges = [min_score + i * step for i in range(num_bins + 2)]  # extra empty bin at the end to avoid inf
-        df = nerpa_report.with_columns(
+        df = nerpa_report.df.with_columns(
             pl.col(NerpaReport.SCORE).cut(breaks=edges, left_closed=True).alias('score_bin')
         )
 
@@ -86,7 +86,7 @@ def compute_num_identified(data_helper: 'PlotsDataHelper',
 
     # Compute table (ID -> best score)
     best_scores = (
-        nerpa_report
+        nerpa_report.df
         .group_by(id_column)
         .agg(
             pl.col(NerpaReport.SCORE)
@@ -98,7 +98,7 @@ def compute_num_identified(data_helper: 'PlotsDataHelper',
 
     # Compute table (ID -> identified) (if any of top_k matches is correct)
     identified = (
-        nerpa_report
+        nerpa_report.df
         .sort(NerpaReport.SCORE, descending=True)
         .group_by(id_column)
         .agg(
@@ -125,12 +125,14 @@ def compute_num_identified(data_helper: 'PlotsDataHelper',
     return pl.Series([0]).extend(result)
 
 
-def compute_total_identified(data_helper: 'PlotsDataHelper',
-                             nerpa_report: NerpaReport,
-                             id_column: str,
-                             max_top_k: int = 10,
-                             y_axis: Literal['Count', 'Percentage'] = 'Count',
-                             cmp_method: str = PCS.NERPA_ISO_WEAK_CHR) -> pl.Series:
+def compute_total_identified(
+        data_helper: 'PlotsDataHelper',
+        nerpa_report: NerpaReport,
+        id_column: str,
+        max_top_k: int = 10,
+        y_axis: Literal['Count', 'Percentage'] = 'Count',
+        cmp_method: str = PCS.NERPA_ISO_WEAK_CHR
+) -> pl.Series:
     """Compute total identified for various top_k values."""
     total_ids = (
         len(data_helper.test_bgcs)
@@ -154,7 +156,7 @@ def get_identified_ids(data_helper: 'PlotsDataHelper',
                        id_column: str) -> Sequence[str]:
     """Get list of identified IDs."""
     id_to_identified = (
-        report.group_by(id_column)
+        report.df.group_by(id_column)
         .agg(
             pl.col(NerpaReport.IS_CORRECT)
             .any()
@@ -171,7 +173,7 @@ def promiscuity_handling_stats(data_helper: 'PlotsDataHelper',
                                nerpa_report: NerpaReport) -> pl.DataFrame:
     """Compute promiscuity handling statistics."""
     # Add num_nrp_classes and rank columns
-    report = nerpa_report.with_columns([
+    report = nerpa_report.df.with_columns([
         pl.col(NerpaReport.BGC_ID)
         .map_elements(lambda bgc_id: len(data_helper.bgc_to_nrp_iso_classes.get(bgc_id, [])), return_dtype=pl.Int64)
         .alias('num_nrp_classes'),
@@ -233,7 +235,7 @@ def group_by_bgc_length(data_helper: 'PlotsDataHelper',
     }
 
     # Add BGC length column
-    df = report.with_columns(
+    df = report.df.with_columns(
         pl.col(NerpaReport.BGC_ID)
         .map_elements(lambda bgc_id: bgc_len_map.get(bgc_id), return_dtype=pl.Int64)
         .alias('_bgc_len')
@@ -294,7 +296,7 @@ def compute_precision_recall_curve(data_helper: 'PlotsDataHelper',
     """
     # Sort by score descending
 
-    _report = nerpa_report.sort(NerpaReport.SCORE, descending=True)
+    _report = nerpa_report.df.sort(NerpaReport.SCORE, descending=True)
     if top_matches_per_bgc is not None:
         _report = _report.filter(
             pl.col(NerpaReport.MATCH_RANK_FOR_BGC) <= top_matches_per_bgc
@@ -357,9 +359,9 @@ def extra_false_positives(data_helper: 'PlotsDataHelper',
         else:
             return df.with_row_count(index_name)
 
-    sorted_report1 = report1.sort(NerpaReport.SCORE, descending=True)
+    sorted_report1 = report1.df.sort(NerpaReport.SCORE, descending=True)
     sorted_report1 = _with_row_index(sorted_report1, f'index_in_{report1.name}')
-    sorted_report2 = report2.sort(NerpaReport.SCORE, descending=True)
+    sorted_report2 = report2.df.sort(NerpaReport.SCORE, descending=True)
     sorted_report2 = _with_row_index(sorted_report2, f'index_in_{report2.name}')
 
     extra_fps = []

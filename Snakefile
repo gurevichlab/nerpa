@@ -21,8 +21,10 @@ def ext_path(key: str) -> Path:
     return Path(str(val)).expanduser()
 
 # ===== Source data files -- these are not produced by any rule
+MONOMER_NAMES_TABLE = NERPA_ROOT / 'data' / 'nerpa_internal' / 'monomer_names_table.tsv'
 CURATED_ALIGNMENTS = NERPA_ROOT / 'data/for_training_and_testing/approved_matches.yaml'
 PNRPDB2_RAW = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_raw.tsv'
+NORINE_GRAPHS = NERPA_ROOT / 'data/for_training_and_testing/norine_graphs.csv'
 ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 BIGSCAPE_RESULTS_ON_MIBIG = ext_path('BiG-SCAPE clustering of MIBiG 4')
 MIBIG3_JSONS = ext_path('MIBiG 3 JSONs')
@@ -31,6 +33,8 @@ NERPA1_RESULTS_ON_MIBIG = ext_path('NERPA1 results on MIBiG 4 vs MIBIG+NORINE NR
 BIOCAT_RESULTS_ON_MIBIG = ext_path('BioCAT results on MIBiG 4 vs MIBIG+NORINE NRPs')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
+# information about the monomers in the Norine database
+NORINE_INFO = NERPA_ROOT / 'data/nerpa_internal/norine_monomers_info.tsv'
 MIBIG_INFO = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'mibig_bgcs_info.tsv'
 # PNRPDB2 without the compounds Nerpa is unable to process
 PNRPDB2 = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2.tsv'
@@ -129,8 +133,8 @@ rule preprocess_pnrpdb2:
 rule compute_pnrpdb2_info:
     params:
         build_pnrpdb2_info_script=NERPA_ROOT / 'scripts' / 'pnrpdb_info.py',
-        pnrpdb2_raw=PNRPDB2_RAW,
     input:
+        pnrpdb2_raw=PNRPDB2_RAW,
         pnrpdb2_preprocessed=NRP_PREPROCESSED_DIR / 'pnrpdb2_raw_parsed_rban_records.yaml',
     output:
         pnrpdb2_info=PNRPDB2_INFO,
@@ -138,7 +142,7 @@ rule compute_pnrpdb2_info:
         r"""
         PYTHONPATH={NERPA_ROOT} python {params.build_pnrpdb2_info_script} \
             --pnrpdb2-preprocessed {input.pnrpdb2_preprocessed} \
-            --pnrpdb2-raw {params.pnrpdb2_raw} \
+            --pnrpdb2-raw {input.pnrpdb2_raw} \
             --out {output.pnrpdb2_info}
         """
 
@@ -176,6 +180,7 @@ rule train_nerpa:
         mibig_no_calib_variants=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
         pnrpdb2_info=PNRPDB2_INFO,
         mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
+        norine_monomers_info=NORINE_INFO,
     output:
         train_nerpa_done=NERPA_ROOT / 'training_results' / '.done',
     log:
@@ -187,6 +192,7 @@ rule train_nerpa:
           --nerpa-results-on-mibig-no-calibration {params.nerpa_results_on_mibig_no_calibration} \
           --pnrpdb2-info {input.pnrpdb2_info} \
           --mibig-norine-preprocessed {input.mibig_norine_preprocessed} \
+          --norine-monomers-info {input.norine_monomers_info} \
           --output-dir {params.output_dir} \
           > {log} 2>&1
         touch {output.train_nerpa_done}
@@ -225,8 +231,8 @@ rule benchmarking_plots:
     params:
         benchmarking_script=NERPA_ROOT / 'benchmarking_plots.py',
         outdir=lambda wildcards: BENCHMARKING_PLOTS_DIR / wildcards.bgc_test_set,
-        curated_alignments=CURATED_ALIGNMENTS,
     input:
+        curated_alignments=CURATED_ALIGNMENTS,
         nerpa1_report=NERPA1_RESULTS_ON_MIBIG,
         nerpa2_report=NERPA2_RESULTS_ON_MIBIG_VS_MIBIG_NORINE / 'report.tsv',
         biocat_report=BIOCAT_RESULTS_ON_MIBIG,
@@ -247,7 +253,7 @@ rule benchmarking_plots:
            --mibig-bgcs-info {input.mibig_info} \
            --pnrpdb2-info {input.pnrpdb2_info} \
            --pnrpdb2-compound-similarity {input.pnrpdb2_compound_similarity} \
-           --curated-alignments {params.curated_alignments} \
+           --curated-alignments {input.curated_alignments} \
            --output-dir {params.outdir} \
            --bgc-test-set {wildcards.bgc_test_set} \
            > {log} 2>&1
@@ -274,20 +280,36 @@ rule compute_mibig_info:
     params:
         mibig_info_script=NERPA_ROOT / 'scripts' / 'mibig_bgcs_info.py',
         nerpa_root=NERPA_ROOT,
-        bigscape_results_on_mibig4=BIGSCAPE_RESULTS_ON_MIBIG,
-        mibig3_jsons=MIBIG3_JSONS,
-        pnrpdb2_info=PNRPDB2_RAW,
     input:
-        NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
+        mibig3_jsons=MIBIG3_JSONS,
+        bigscape_results_on_mibig4=BIGSCAPE_RESULTS_ON_MIBIG,
+        pnrpdb2_info=PNRPDB2_RAW,
+        preprocessed_bgcs=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
     output:
         mibig_info=MIBIG_INFO,
     shell:
         r"""
         PYTHONPATH={params.nerpa_root} python {params.mibig_info_script} \
-            --bigscape-results-dir {params.bigscape_results_on_mibig4} \
-            --preprocessed-bgcs {input} \
-            --nrps-info {params.pnrpdb2_info} \
-            --mibig3-jsons {params.mibig3_jsons} \
+            --bigscape-results-dir {input.bigscape_results_on_mibig4} \
+            --preprocessed-bgcs {input.preprocessed_bgcs} \
+            --nrps-info {input.pnrpdb2_info} \
+            --mibig3-jsons {input.mibig3_jsons} \
             --out {output.mibig_info}
         """
         
+rule compute_norine_monomers_info:
+    params:
+        script=NERPA_ROOT / 'scripts' / 'data_preprocessing' / 'compute_norine_monomers_info.py',
+    input:
+        names_table=MONOMER_NAMES_TABLE,
+        norine_graphs=NORINE_GRAPHS,
+    output:
+        norine_info=NORINE_INFO,
+    shell:
+        r"""
+        PYTHONPATH={NERPA_ROOT} python {params.script} \
+            --norine-graphs {input.norine_graphs} \
+            --monomer-names-table {input.names_table} \
+            --out {output.norine_info}
+        """
+    

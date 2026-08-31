@@ -123,9 +123,11 @@ class BGC_ID(NamedTuple):
     bgc_idx: int
 
     def to_dict(self):
-        return {'antiSMASH_file': str(self.antiSMASH_file),
-                'contig_idx': self.contig_idx,
-                'bgc_idx': self.bgc_idx}
+        return {
+            'antiSMASH_file': str(self.antiSMASH_file),
+            'contig_idx': self.contig_idx,
+            'bgc_idx': self.bgc_idx
+        }
 
     @classmethod
     def from_dict(cls, data: dict) -> BGC_ID:
@@ -139,7 +141,7 @@ class BGC_ID(NamedTuple):
         return f'{self.antiSMASH_file}_{self.contig_idx}_{self.bgc_idx}'
 
     def to_str_short(self):
-        return f'{self.antiSMASH_file.stem}_{self.contig_idx}_{self.bgc_idx}'
+        return f'{self.antiSMASH_file.stem}:{self.contig_idx}:{self.bgc_idx}'
 
     def _genome_id(self) -> str:
         return self.antiSMASH_file.stem

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import argparse
 from argparse import Namespace as CommandlineArgs
 from collections import defaultdict
@@ -18,66 +19,99 @@ from src.config import Config, load_config, load_monomer_names_helper
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
     MATCHING_STATE_TYPES,
 )
-from src.hmm.hmm_scoring_config import load_hmm_scoring_config
 from src.hmm.hmm_scoring_helper import HMMHelper
 from src.matching.matcher import NRP_ID
 from src.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
-from src.testing.testing_types import CuratedAlignment
+from src.testing.testing_types import (
+    CuratedAlignment,
+    CuratedAlignmentId,
+)
 from src.training.hmm_parameters.bgc_alignment_compatibility import (
     bgc_variant_match_compatible,
 )
 from src.training.hmm_parameters.extract_data_for_training import (
-    DataForTraining,
     extract_data_for_training,
 )
-from src.training.hmm_parameters.hmm_infer_edge_params import infer_edge_params
-from src.training.hmm_parameters.hmm_infer_emission_params import infer_emission_params
-from src.training.hmm_parameters.norine_stats import load_norine_stats
-from src.training.hmm_parameters.training_types import EmissionInfo, AlignmentWithBGCNRP
-from src.training.hmm_parameters.write_results import write_params
+from src.training.hmm_parameters.transition_probabilities.estimate_transition_probs import estimate_hmm_transition_logprobs
+from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import infer_emission_params
+from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
+from src.training.hmm_parameters.training_types import AlignmentWithBGCNRP
+from src.training.write_results import write_params
 from src.training.logging_config import configure_logging
 from test_nerpa import load_local_paths, remove_deprecated_nrps, run_nerpa
+from src.training.hmm_parameters.transition_probabilities.estimate_transition_probs import (
+    estimate_hmm_transition_logprobs,
+)
+from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import EstimateEventProbGivenContextConfig
+from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import StepFunctionEstimationConfig
+from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
+from src.training.hmm_parameters.short_aliases import *
+from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import EmissionParams
+from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df
+from src.general_type_aliases import LogProb, Prob
+from src.hmm.hmm_scoring_config import HMMScoringConfig
 
 
-def load_all_bgc_variants(bgc_variants_yaml: Path) -> Dict[BGC_ID, List[BGC_Variant]]:  # bgc_id -> bgc_variants
+MIBIG_ID = str
+
+def load_bgc_variants_by_mibig_id(
+        nerpa_results: Path,
+        mibig_ids_to_include: Optional[Set[str]]=None,
+) -> Dict[MIBIG_ID, List[BGC_Variant]]:
+    if mibig_ids_to_include is None:
+        mibig_ids_to_include = set()
+        
+    bgc_variants_yaml = nerpa_results / 'preprocessed_input' / 'BGC_variants.yaml'
     bgc_variants = defaultdict(list)
-    yaml_variants = [BGC_Variant.from_yaml_dict(bgc_variant_dict)
-                     for bgc_variant_dict in yaml.safe_load(bgc_variants_yaml.read_text())]
+    yaml_variants = [
+        BGC_Variant.from_dict(bgc_variant_dict)
+        for bgc_variant_dict in yaml.safe_load(bgc_variants_yaml.read_text())
+    ]
     for bgc_variant in yaml_variants:
-        bgc_variants[bgc_variant.bgc_variant_id.bgc_id].append(bgc_variant)
+        genome_id = bgc_variant.bgc_variant_id.bgc_id._genome_id()
+        if genome_id in mibig_ids_to_include:
+            bgc_variants[genome_id].append(bgc_variant)
     return bgc_variants
 
 
-def load_bgc_variants_for_matches(
-        bgc_id_to_bgc_variants: Dict[BGC_ID, List[BGC_Variant]],
-        matches: List[CuratedAlignment],
+def get_alignment_id_to_bgc_variant(
+        mibig_id_to_bgc_variants: Dict[MIBIG_ID, List[BGC_Variant]],
+        curated_alignments: List[CuratedAlignment],
         log: Logger
-) -> Dict[NRP_ID, BGC_Variant]:  # nrp_id -> bgc_variant
-    nrp_id_to_bgc_variant = {}
-    for m in matches:
-        nrp_id = m.nrp_id
-        genome_id = m.bgc_id
+) -> Dict[CuratedAlignmentId, BGC_Variant]:
+    alignment_id_to_bgc_variant = {}
+    for m in curated_alignments:
         try:
-            # TestMatches come from MIBiG, and math.bgc_id is genome id, e.g. BGC0001234
-            # conversely, Nerpa uses tuples (antiSMASH_file, contig_idx, bgc_idx)
-            bgc_id = next(bgc_id
-                          for bgc_id in bgc_id_to_bgc_variants.keys()
-                          if bgc_id._genome_id() == genome_id)
-
-            bgc_variant = next(bgc_variant
-                               for bgc_variant in bgc_id_to_bgc_variants[bgc_id]
-                               if bgc_variant_match_compatible(bgc_variant, m))
+            bgc_variant = next(
+                bgc_variant
+                for bgc_variant in mibig_id_to_bgc_variants[m.mibig_id]
+                if bgc_variant_match_compatible(bgc_variant, m)
+            )
         except StopIteration:
-            log.warning(f'Cannot find appropriate BGC variant for {nrp_id}')
+            log.warning(f'Cannot find appropriate BGC variant for {m.nrp_id}')
             log.debug(f'Match that failed to find variant: {m}')
             continue
 
-        nrp_id_to_bgc_variant[nrp_id] = bgc_variant
+        alignment_id_to_bgc_variant[m.get_id()] = bgc_variant
 
-    return nrp_id_to_bgc_variant
+    return alignment_id_to_bgc_variant
+
+
+def get_nrp_id_to_nrp_variant(parsed_rban_records_yaml: Path) -> Dict[NRP_ID, NRP_Variant]:
+     with open (parsed_rban_records_yaml, 'r') as f:
+         parsed_rban_records = [
+             Parsed_rBAN_Record.from_dict(record)
+             for record in yaml.safe_load(f)
+         ]
+
+     nrp_variants = rban_records_to_nrp_variants(parsed_rban_records)
+     return {
+         variant.nrp_variant_id.nrp_id: variant
+         for variant in nrp_variants
+     }
 
 
 def dump_emissions_training_data(data_for_training: DataForTraining, output_dir: Path):
@@ -99,7 +133,27 @@ def dump_emissions_training_data(data_for_training: DataForTraining, output_dir:
                   match_emissions_file)
 
 
-def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
+def load_hmm_helper(
+        cfg: Config,
+        monomer_names_helper: MonomerNamesHelper,
+        norine_monomers_info: NorineMonomersInfo
+) -> HMMHelper:
+    specificity_prediction_helper = SpecificityPredictionHelper(
+        cfg.specificity_prediction_config,
+        monomer_names_helper
+    )
+
+    hmm_scoring_config = HMMScoringConfig(
+        nerpa_dir=cfg.nerpa_dir,
+        path_to_config=cfg.hmm_scoring_config,
+        specificity_prediction_helper=specificity_prediction_helper,
+        norine_monomers_info=norine_monomers_info
+    )
+
+    return HMMHelper(hmm_scoring_config, monomer_names_helper)
+
+
+def parse_cli_args(nerpa_dir: Path) -> CommandlineArgs:
     parser = argparse.ArgumentParser(description="Estimates Nerpa parameters "
                                                  "based on Nerpa results on approved matches")
     default_approved_matches = (
@@ -155,54 +209,16 @@ def load_command_line_args(nerpa_dir: Path) -> CommandlineArgs:
         default=default_mibig_norine_preprocessed,
         help=f"Path to the preprocessed PNRPDB2 data (default: {default_mibig_norine_preprocessed})",
     )
+    parser.add_argument(
+        "--norine-monomers-info",
+        type=Path,
+        help=f"Path to the TSV file containing Norine monomers info",
+    )
         
     parser.add_argument("--output-dir", type=Path,
                         default=nerpa_dir / 'training_results')
     parser.add_argument("--draw-hmms", action='store_true')
     return parser.parse_args()
-
-
-def load_hmm_helper(cfg: Config,
-                    monomer_names_helper: MonomerNamesHelper) -> HMMHelper:
-    specificity_prediction_helper = SpecificityPredictionHelper(cfg.specificity_prediction_config,
-                                                                monomer_names_helper)
-
-    hmm_scoring_config = load_hmm_scoring_config(cfg.nerpa_dir,
-                                                 cfg.hmm_scoring_config,
-                                                 specificity_prediction_helper,
-                                                 monomer_names_helper)
-
-    return HMMHelper(hmm_scoring_config, monomer_names_helper)
-
-
-def get_bgc_variants(
-        nerpa_results: Path,
-        genome_ids: Optional[Set[str]]=None,
-) -> List[BGC_Variant]:
-    bgc_variants_yaml = nerpa_results / 'preprocessed_input' / 'BGC_variants.yaml'
-    with open(bgc_variants_yaml, 'r') as f:
-        bgc_variants = [
-            BGC_Variant.from_yaml_dict(bgc_variant_dict)
-            for bgc_variant_dict in yaml.safe_load(f)
-        ]
-    return [
-        bgc_variant for bgc_variant in bgc_variants
-        if genome_ids is None or bgc_variant.bgc_variant_id.bgc_id._genome_id() in genome_ids
-    ]
-
-
-def get_nrp_variants(parsed_rban_records_yaml: Path) -> Dict[NRP_ID, NRP_Variant]:
-     with open (parsed_rban_records_yaml, 'r') as f:
-         parsed_rban_records = [
-             Parsed_rBAN_Record.from_dict(record)
-             for record in yaml.safe_load(f)
-         ]
-
-     nrp_variants = rban_records_to_nrp_variants(parsed_rban_records)
-     return {
-         variant.nrp_variant_id.nrp_id: variant
-         for variant in nrp_variants
-     }
 
 
 def check_bgcs_with_many_variants(bgc_variants: List[BGC_Variant]):
@@ -212,96 +228,113 @@ def check_bgcs_with_many_variants(bgc_variants: List[BGC_Variant]):
 
     for bgc_id, variant_ids in bgc_id_to_variants.items():
         if len(variant_ids) > 1:
-            print(f'Warning: BGC {bgc_id} has {len(variant_ids)} variants used for training:\n'
-                  f'{variant_ids}\n')
+            print(
+                f'Warning: BGC {bgc_id} has {len(variant_ids)} '
+                f'variants used for training:\n {variant_ids}\n'
+            )
 
-# TODO: load paths from config instead of hardcoding them
+
 def main():
     nerpa_dir = Path(__file__).parent
     assert (nerpa_dir / 'nerpa.py').exists(), f"nerpa.py not found in {nerpa_dir}. Please ensure the script is run from the correct directory."
 
-    args = load_command_line_args(nerpa_dir)
+    args = parse_cli_args(nerpa_dir)
 
-    logger = configure_logging(args.output_dir)
+    logger = configure_logging(args.output_dir / 'train_nerpa.log')
 
     # 1. Load configs and helpers
     nerpa_cfg = load_config()
-    monomer_names_helper = load_monomer_names_helper(nerpa_cfg.monomers_config,
-                                                     nerpa_dir)
-    hmm_helper = load_hmm_helper(nerpa_cfg, monomer_names_helper)
+    monomer_names_helper = load_monomer_names_helper(nerpa_cfg.monomers_config, nerpa_dir)
+    norine_monomers_info: NorineMonomersInfo = (
+       NorineMonomersInfo.from_tsv(args.norine_monomers_info)
+    )
+    hmm_helper = load_hmm_helper(
+        nerpa_cfg,
+        monomer_names_helper,
+        norine_monomers_info
+    )
     pnrpdb_info = pl.read_csv(args.pnrpdb2_info, separator='\t')
 
-    # 2. Load approved matches and corresponding BGC variants
-    logger.info('Loading approved matches')
-    approved_matches = [
+    # 2. Load curated alignments and corresponding BGC variants
+    logger.info('Loading curated alignments')
+    curated_alignments = [
         CuratedAlignment.from_yaml_dict(test_match_dict)
         for test_match_dict in yaml.safe_load(args.approved_matches.read_text())
     ]
-    approved_matches = remove_deprecated_nrps(approved_matches, pnrpdb_info)
+    curated_alignments = remove_deprecated_nrps(curated_alignments, pnrpdb_info)
 
     logger.info('Loading BGC variants')
     test_matches_genome_ids = {
-        m.bgc_id
-        for m in approved_matches
+        m.mibig_id
+        for m in curated_alignments
     }
-    bgc_variants = get_bgc_variants(
+    mibig_id_to_bgc_variants = load_bgc_variants_by_mibig_id(
         args.nerpa_results_on_mibig_no_calibration,
         test_matches_genome_ids,
     )
 
-    bgc_id_to_bgc_variants = defaultdict(list)
-    for bgc_variant in bgc_variants:
-        bgc_id_to_bgc_variants[bgc_variant.bgc_variant_id.bgc_id].append(bgc_variant)
-
-    nrp_id_to_bgc_variant: Dict[NRP_ID, BGC_Variant] = load_bgc_variants_for_matches(
-        bgc_id_to_bgc_variants,
-        approved_matches,
+    alignment_id_to_bgc_variant: Dict[CuratedAlignmentId, BGC_Variant] = get_alignment_id_to_bgc_variant(
+        mibig_id_to_bgc_variants,
+        curated_alignments,
         logger
     )
-    check_bgcs_with_many_variants(list(nrp_id_to_bgc_variant.values()))
+    check_bgcs_with_many_variants(list(alignment_id_to_bgc_variant.values()))
 
-    nrp_id_to_nrp_variant = get_nrp_variants(args.mibig_norine_preprocessed)
+    nrp_id_to_nrp_variant = get_nrp_id_to_nrp_variant(args.mibig_norine_preprocessed)
 
     # note: alignments are taken from "old" approved matches while bgc predictions are taken from current matches
-    matches_with_bgcs_nrps_for_training = [
+    alignments_with_bgcs_nrps_for_training = [
         AlignmentWithBGCNRP(
-            m,
-            nrp_id_to_bgc_variant[m.nrp_id],
-            nrp_id_to_nrp_variant[m.nrp_id]
+            al,
+            alignment_id_to_bgc_variant[al.get_id()],
+            nrp_id_to_nrp_variant[al.nrp_id]
         )
-        for m in approved_matches
-        if m.nrp_id in nrp_id_to_bgc_variant
-        and m.nrp_id in nrp_id_to_nrp_variant
+        for al in curated_alignments
+        if al.get_id() in alignment_id_to_bgc_variant
+        and al.nrp_id in nrp_id_to_nrp_variant
     ]
 
-    logger.info(f'Number of matches with BGC and NRP variants for training: {len(matches_with_bgcs_nrps_for_training)}')
+    logger.info(f'Number of matches with BGC and NRP variants for training: {len(alignments_with_bgcs_nrps_for_training)}')
 
-    data_for_training = extract_data_for_training(
-        matches_with_bgcs_nrps_for_training,
+    hmm_chosen_steps: HMM_Chosen_Steps_df = extract_data_for_training(
+        alignments_with_bgcs_nrps_for_training,
         hmm_helper,
-        dir_for_hmm_figures=args.output_dir if args.draw_hmms else None
+        logger,
+        dir_for_hmm_figures=(
+            args.output_dir
+            if args.draw_hmms
+            else None
+        )
     )
 
-    # intermediate results for debug
-    dump_emissions_training_data(data_for_training, args.output_dir)
-    write_yaml(data_for_training.to_dict(), args.output_dir / 'data_for_training.yaml')
+    # Dump extracted data for debug
+    hmm_chosen_steps.write_tsv(args.output_dir / 'hmm_chosen_steps.tsv')
+    hmm_chosen_steps.write_transition_cnts_tsv(args.output_dir / 'hmm_transition_counts.tsv')
 
 
-    norine_stats = load_norine_stats(nerpa_dir / 'data/nerpa_internal/norine_monomers_info.yaml')
-    edge_params = infer_edge_params(data_for_training.edge_choices_per_state_cntxt,
-                                    data_for_training.edge_choices_wo_filtering,
-                                    data_for_training.edge_choices_df,
-                                    logger=logger)
+    hmm_transition_probs_cfg = EstimateEventProbGivenContextConfig()
+    transtition_logprobs: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
+        estimate_hmm_transition_logprobs(
+            hmm_chosen_steps,
+            cfg=hmm_transition_probs_cfg,
+            logger=logger,
+        )
+    )
 
-    emission_params = infer_emission_params(data_for_training.emissions,
-                                            norine_stats,
-                                            args.output_dir,
-                                            monomer_names_helper)  # for plotting step function
-    write_params(edge_params=edge_params,
-                 emission_params=emission_params,
-                 data_for_training=data_for_training,
-                 old_configs_dir=nerpa_dir / 'configs',
-                 output_dir=args.output_dir)
+    emission_params: EmissionParams = infer_emission_params(
+        hmm_chosen_steps_df=hmm_chosen_steps,
+        norine_monomers_info=norine_monomers_info,
+        step_function_cfg=StepFunctionEstimationConfig(),
+        logger=logger,
+        output_dir=args.output_dir,   # for plotting step function
+    )
+    write_params(
+        edge_params=transtition_logprobs,
+        emission_params=emission_params,
+        data_for_training=hmm_chosen_steps,
+        old_configs_dir=nerpa_dir / 'configs',
+        output_dir=args.output_dir
+    )
 
 
 if __name__ == "__main__":

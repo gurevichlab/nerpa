@@ -20,7 +20,7 @@ class PNRPDB_Compound_Similarity(pl.DataFrame):
     def from_csv(cls, filepath: Path) -> PNRPDB_Compound_Similarity:
         """Load MIBiG BGCs info from a CSV file."""
         df = pl.read_csv(filepath, separator='\t')
-        return df
+        return PNRPDB_Compound_Similarity(df)
 
 NRP_CMP_METHOD = str
 
@@ -46,7 +46,7 @@ class MIBiG_BGCs_Info(pl.DataFrame):
     def from_csv(cls, filepath: Path) -> MIBiG_BGCs_Info:
         """Load MIBiG BGCs info from a CSV file."""
         df = pl.read_csv(filepath, separator='\t')
-        return df
+        return MIBiG_BGCs_Info(df)
 
 
 class PNRPDB_Info(pl.DataFrame):
@@ -62,5 +62,5 @@ class PNRPDB_Info(pl.DataFrame):
     def from_csv(cls, filepath: Path) -> PNRPDB_Info:
         """Load PNRPDB info from a CSV file."""
         df = pl.read_csv(filepath, separator='\t')
-        return df
+        return PNRPDB_Info(df)
 

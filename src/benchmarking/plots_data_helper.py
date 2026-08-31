@@ -202,7 +202,7 @@ class PlotsDataHelper:
             for test_match_dict in yaml.safe_load(curated_alignments_path.open('r'))
         ]
         self.training_bgcs = set(
-            test_match.bgc_id
+            test_match.mibig_id
             for test_match in curated_alignments
         )
 
@@ -376,7 +376,7 @@ class PlotsDataHelper:
         )
 
         # Add is_correct column
-        report = report.with_columns([
+        report = report.df.with_columns([
             pl.struct([NerpaReport.NRP_ISO_CLASS, NerpaReport.BGC_ID])
             .map_elements(lambda row: self.match_is_correct(row[NerpaReport.NRP_ISO_CLASS], row[NerpaReport.BGC_ID]),
                          return_dtype=pl.Boolean)
@@ -435,7 +435,7 @@ class PlotsDataHelper:
         # add row index
         report = report.with_row_count(name=NerpaReport.MATCH_RANK)
 
-        return NerpaReport(report, report_name=report_name)
+        return NerpaReport(report, name=report_name)
 
     def compute_precision_recall_curve(self,
                                        nerpa_report: NerpaReport,

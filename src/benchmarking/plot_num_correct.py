@@ -40,7 +40,7 @@ def _plot_num_correct_matches(ax: Axes,
     #print(f"Total matches after filtering: {report.height}")
     #print(f'Number of unique scores: {report[NerpaReport.SCORE].n_unique()}')
 
-    report = _with_row_index(report, offset=1)
+    report = _with_row_index(report.df, offset=1)
 
     # 2. Compute cumulative num correct matches
     report = report.with_columns(

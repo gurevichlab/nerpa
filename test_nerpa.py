@@ -156,7 +156,7 @@ def write_wrong_matches(wrong_matches: List[tuple[Match, CuratedAlignment]],
             if mismatched_step_right is not None else None
 
         data.append({
-            'bgc_id': test_match.bgc_id,
+            'bgc_id': test_match.mibig_id,
             'nrp_id': test_match.nrp_id,
             'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(m)),
             'true_alignment': _wrap_alignment(test_match.true_alignment),
@@ -288,12 +288,12 @@ def main():
     test_matches = [CuratedAlignment.from_yaml_dict(test_match_dict)
                     for test_match_dict in test_matches_yaml]
     test_matches = [test_match for test_match in test_matches
-                    if test_match.bgc_id not in MIBIG_ERRORS]
+                    if test_match.mibig_id not in MIBIG_ERRORS]
     test_matches = remove_deprecated_nrps(test_matches, pnrpdb_info)
 
     if args.nerpa_results is None:
         # create a file with paths to antismash results for run_nerpa
-        test_matches_bgcs = {match.bgc_id for match in test_matches}
+        test_matches_bgcs = {match.mibig_id for match in test_matches}
         as_results_file = nerpa_dir / args.output_dir / 'antismash_results_paths.txt'
         as_results_file.parent.mkdir(parents=True, exist_ok=True)
         with open(as_results_file, 'w') as f:
@@ -328,7 +328,7 @@ def main():
 
     check_nrp_bgc_variants_parsed(
         nerpa_results_dir=nerpa_results_dir,
-        bgc_ids={test_match.bgc_id for test_match in test_matches},
+        bgc_ids={test_match.mibig_id for test_match in test_matches},
         nrp_ids={test_match.nrp_id for test_match in test_matches},
         nrp_id_to_iso_class=nrp_id_to_iso_class
     )
@@ -339,27 +339,27 @@ def main():
     }
 
     test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], CuratedAlignment] = {
-        (test_match.bgc_id, test_match.nrp_id): test_match
+        (test_match.mibig_id, test_match.nrp_id): test_match
         for test_match in test_matches
     }
 
     print('Checking matches')
     missing_tests = {
-        (test_match.bgc_id, test_match.nrp_id)
+        (test_match.mibig_id, test_match.nrp_id)
         for test_match in test_matches
-        if (test_match.bgc_id, nrp_id_to_iso_class.get(test_match.nrp_id)) not in matches_by_id
+        if (test_match.mibig_id, nrp_id_to_iso_class.get(test_match.nrp_id)) not in matches_by_id
     }
 
     missing_expected = missing_tests.intersection(MISSING_EXPECTED)
     missing_unexpected: Set[Tuple[BGC_ID, NRP_ISO_CLASS]] = missing_tests - missing_expected
 
     verdicts = {
-        (test_match.bgc_id, test_match.nrp_id):
-            test_match.test(matches_by_id.get((test_match.bgc_id,
+        (test_match.mibig_id, test_match.nrp_id):
+            test_match.test(matches_by_id.get((test_match.mibig_id,
                                                nrp_id_to_iso_class[test_match.nrp_id])),
                             check_ids=False)
         for test_match in test_matches
-        if (test_match.bgc_id, nrp_id_to_iso_class.get(test_match.nrp_id)) in matches_by_id
+        if (test_match.mibig_id, nrp_id_to_iso_class.get(test_match.nrp_id)) in matches_by_id
     }
 
     total = len(test_matches)

@@ -28,8 +28,12 @@ def _alignment_to_hmm_path(hmm: DetailedHMM, alignment: List[AlignmentStepLight]
     #print(f'Reconstructing hmm path for {hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}')
     #print(f'Alignment: \n{show_alignment(alignment)}')
     #hmm.draw(Path(f'hmm_{hmm.bgc_variant.bgc_variant_id.bgc_id.genome_id}.png'))
-    match_steps_alignment_idxs = [i for i, step in enumerate(alignment)
-                                  if step.a_domain_id is not None and step.nrp_monomer is not None]
+    match_steps_alignment_idxs = [
+        i
+        for i, step in enumerate(alignment)
+        if (step.a_domain_id is not None
+            and step.nrp_monomer is not None)
+    ]
     match_steps = [alignment[i] for i in match_steps_alignment_idxs]
 
     # it could be that the same module is matched multiple times in case of iterations, I need all occurrences

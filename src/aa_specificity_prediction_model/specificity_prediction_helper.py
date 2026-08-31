@@ -32,6 +32,7 @@ def create_step_function(steps: List[float]) -> Callable[[Prob], float]:
 
 class SpecificityPredictionHelper:
     config: SpecificityPredictionConfig
+    monomer_names_helper: MonomerNamesHelper
     KNOWN_SPECIFICITIES: Dict[AA34, List[NerpaResidue]]
     external_predictions: Dict[AA34, Dict[NerpaResidue, LogProb]]
     DEFAULT_MODEL: Literal['nerpa', 'paras']
@@ -44,10 +45,12 @@ class SpecificityPredictionHelper:
     paras_model_wrapper: Optional[ParasWrapper] = None
 
 
-    def __init__(self,
-                 config: SpecificityPredictionConfig,
-                 monomer_names_helper: MonomerNamesHelper,
-                 external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None):
+    def __init__(
+            self,
+            config: SpecificityPredictionConfig,
+            monomer_names_helper: MonomerNamesHelper,
+            external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None
+    ):
         self.config = config
         self.monomer_names_helper = monomer_names_helper
         self.external_predictions = external_predictions\
@@ -174,10 +177,17 @@ class SpecificityPredictionHelper:
 
         return cal_predictions
 
-    def paras_predictions_to_nerpa_predictions(self,
-                                               paras_predictions: Dict[PARAS_RESIDUE, Prob]) -> Dict[NerpaResidue, Prob]:
-        nerpa_predictions = {res: 0.0
-                             for res in self.monomer_names_helper.supported_residues + [UNKNOWN_RESIDUE]}
+    def paras_predictions_to_nerpa_predictions(
+            self,
+            paras_predictions: Dict[PARAS_RESIDUE, Prob]
+    ) -> Dict[NerpaResidue, Prob]:
+        nerpa_predictions = {
+            res: 0.0
+            for res in (
+                    self.monomer_names_helper.supported_residues
+                    + [UNKNOWN_RESIDUE]
+            )
+        }
 
         for paras_residue, prob in paras_predictions.items():
             nerpa_res = self.monomer_names_helper.parsed_name(paras_residue,

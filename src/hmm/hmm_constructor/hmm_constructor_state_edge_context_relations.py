@@ -167,6 +167,33 @@ def all_possible_genomic_contexts(state_type: DetailedHMMStateType) -> Iterable[
         powerset
     )
 
+def get_normal_flow_edge(
+        state_type: DetailedHMMStateType,
+) -> DetailedHMMEdgeType:
+    normal_flow_edges: Set[DetailedHMMEdgeType] = (
+        STATE_TYPE_TO_EDGE_TYPES[state_type]
+        & NORMAL_FLOW_EDGE_TYPES
+    )
+    assert len(normal_flow_edges) == 1, (
+        "Expected exactly one normal flow edge "
+        f"for state type {state_type}, but found {normal_flow_edges}"
+    )
+    return next(iter(normal_flow_edges))
+
+
+def get_abnormal_flow_edge(
+        state_type: DetailedHMMStateType,
+) -> DetailedHMMEdgeType:
+    abnormal_flow_edges: Set[DetailedHMMEdgeType] = (
+        STATE_TYPE_TO_EDGE_TYPES[state_type]
+        - NORMAL_FLOW_EDGE_TYPES
+    )
+    assert len(abnormal_flow_edges) == 1, (
+        "Expected exactly one abnormal flow edge "
+        f"for state type {state_type}, but found {abnormal_flow_edges}"
+    )
+    return next(iter(abnormal_flow_edges))
+
 
 MATCHING_STATE_TYPES: Set[DetailedHMMStateType] = {
     DetailedHMMStateType.MATCH,

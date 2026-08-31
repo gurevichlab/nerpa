@@ -19,6 +19,9 @@ from src.hmm.hmm_scoring_config import (
 )
 from src.matching.alignment_step_type import MatchDetailedScore
 from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
+from src.general_type_aliases import Prob
+from src.training.hmm_parameters.emission_probabilities.modifications_schema import MODIFICATION_TYPE as MT
+
 from dataclasses import dataclass
 from math import log, isnan
 from enum import Enum, auto
@@ -33,10 +36,12 @@ class HMMHelper:
     scoring_config: HMMScoringConfig
     monomer_names_helper: MonomerNamesHelper
 
-    def match_residue_score(self,
-                            bgc_module: BGC_Module,
-                            nrp_monomer: NRP_Monomer,
-                            pks_domains_in_bgc: bool) -> LogProb:
+    def match_residue_score(
+            self,
+            bgc_module: BGC_Module,
+            nrp_monomer: NRP_Monomer,
+            pks_domains_in_bgc: bool
+    ) -> LogProb:
         if nrp_monomer.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
             return float('-inf')  # PKS residues are never matched to BGC modules
 
@@ -47,24 +52,30 @@ class HMMHelper:
             nrp_residue = nrp_monomer.residue
         return bgc_module.residue_score[nrp_residue]
 
-    def match_methylation_score(self,
-                                bgc_module: BGC_Module,
-                                nrp_monomer: NRP_Monomer) -> LogProb:
+    def match_methylation_score(
+            self,
+            bgc_module: BGC_Module,
+            nrp_monomer: NRP_Monomer
+    ) -> LogProb:
         mod_match = MethylationMatch(BGC_Module_Modification.METHYLATION in bgc_module.modifications,
                                      nrp_monomer.methylated)
         return self.scoring_config.methylation_score[mod_match]
 
-    def match_chirality_score(self,
-                              bgc_module: BGC_Module,
-                              nrp_monomer: NRP_Monomer) -> LogProb:
+    def match_chirality_score(
+            self,
+            bgc_module: BGC_Module,
+            nrp_monomer: NRP_Monomer
+    ) -> LogProb:
         chirality_match = ChiralityMatch(BGC_Module_Modification.EPIMERIZATION in bgc_module.modifications,
                                          nrp_monomer.chirality)
         return self.scoring_config.chirality_score[chirality_match]
 
-    def match_detailed_score(self,
-                             bgc_module: BGC_Module,
-                             nrp_monomer: NRP_Monomer,
-                             pks_domains_in_bgc: bool = False) -> MatchDetailedScore:
+    def match_detailed_score(
+            self,
+            bgc_module: BGC_Module,
+            nrp_monomer: NRP_Monomer,
+            pks_domains_in_bgc: bool = False
+    ) -> MatchDetailedScore:
         residue_score = self.match_residue_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
         methylation_score = self.match_methylation_score(bgc_module, nrp_monomer)
         chirality_score = self.match_chirality_score(bgc_module, nrp_monomer)
@@ -73,14 +84,21 @@ class HMMHelper:
                                   methylation_score,
                                   chirality_score)
 
-    def match(self,
-              bgc_module: BGC_Module,
-              nrp_monomer: NRP_Monomer,
-              pks_domains_in_bgc: bool = False) -> LogProb:
-        return sum(self.match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc))
+    def match_score(
+            self,
+            bgc_module: BGC_Module,
+            nrp_monomer: NRP_Monomer,
+            pks_domains_in_bgc: bool = False
+    ) -> LogProb:
+        detailed_score: MatchDetailedScore = (
+            self.match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
+        )
+        return detailed_score.total_score()
 
-    def monomer_detailed_default_score(self,
-                                       nrp_monomer: NRP_Monomer) -> MatchDetailedScore:
+    def monomer_detailed_default_score(
+            self,
+            nrp_monomer: NRP_Monomer
+    ) -> MatchDetailedScore:
         if nrp_monomer.residue in (PKS_RESIDUE, NOT_NRPS_RESIDUE):
             return MatchDetailedScore(float('-inf'), 0, 0)
         if nrp_monomer.is_pks_hybrid:
@@ -89,18 +107,22 @@ class HMMHelper:
                               chirality=nrp_monomer.chirality,
                               methylated=nrp_monomer.methylated,
                               is_pks_hybrid=False)
-            return self.scoring_config.monomer_detailed_default_score[mon]
+            return self.scoring_config.monomer_avg_detailed_score[mon]
         else:
-            return self.scoring_config.monomer_detailed_default_score[nrp_monomer]
+            return self.scoring_config.monomer_avg_detailed_score[nrp_monomer]
 
-    def monomer_default_score(self,
-                              nrp_monomer: NRP_Monomer) -> LogProb:
-        return sum(self.monomer_detailed_default_score(nrp_monomer))
+    def monomer_default_score(
+            self,
+            nrp_monomer: NRP_Monomer
+    ) -> LogProb:
+        return self.monomer_detailed_default_score(nrp_monomer).total_score()
 
-    def normalized_match_detailed_score(self,
-                                        bgc_module: BGC_Module,
-                                        nrp_monomer: NRP_Monomer,
-                                        pks_domains_in_bgc: bool = False) -> MatchDetailedScore:
+    def normalized_match_detailed_score(
+            self,
+            bgc_module: BGC_Module,
+            nrp_monomer: NRP_Monomer,
+            pks_domains_in_bgc: bool = False
+    ) -> MatchDetailedScore:
           """
           Returns the match detailed score normalized by the sum of the default scores.
           """
@@ -127,7 +149,7 @@ class HMMHelper:
         for nrp_monomer in self.monomer_names_helper.mon_to_int:
             match scoring_scheme:
                 case ScoringScheme.NERPA:
-                     emission_scores[nrp_monomer] = self.match(bgc_module, nrp_monomer, pks_domains_in_bgc)
+                     emission_scores[nrp_monomer] = self.match_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
                 case ScoringScheme.NERPA_MS:
                     detailed_score = self.normalized_match_detailed_score(bgc_module, nrp_monomer, pks_domains_in_bgc)
                     emission_scores[nrp_monomer] = detailed_score.residue_score + detailed_score.methylation_score
@@ -140,21 +162,31 @@ class HMMHelper:
         return emission_scores
 
     # TODO: precompute once and cache
-    def get_insert_emissions(self,
-                             bgc_module: Optional[BGC_Module],
-                             scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
-                             pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
+    def get_insert_emissions(
+            self,
+            bgc_module: Optional[BGC_Module],
+            scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
+            pks_domains_in_bgc: bool = False
+    ) -> Dict[NRP_Monomer, LogProb]:
         # adjust default monomer frequencies to force the probability of UNKNOWN_RESIDUE to be UNKNOWN_INSERT_FREQ
-        UNKNOWN_INSERT_FREQ = self.scoring_config.insert_unknown_freq
-        scale_factor = (1 - UNKNOWN_INSERT_FREQ) / (1 - self.monomer_names_helper.default_frequencies.residue[UNKNOWN_RESIDUE])
-        default_insert_freqs = {res: freq * scale_factor
-                                for res, freq in self.monomer_names_helper.default_frequencies.residue.items()}
+        UNKNOWN_INSERT_FREQ: Prob = self.scoring_config.insert_unknown_freq
+        scale_factor: float = (
+            (1 - UNKNOWN_INSERT_FREQ)
+            / (1 - self.scoring_config.norine_residue_freqs[UNKNOWN_RESIDUE])
+        )
+        default_insert_freqs = {
+            res: freq * scale_factor
+            for res, freq in self.scoring_config.norine_residue_freqs.items()
+        }
         default_insert_freqs[UNKNOWN_RESIDUE] = UNKNOWN_INSERT_FREQ
 
         assert math.isclose(sum(default_insert_freqs.values()), 1.0), \
             f'Default insert frequencies do not sum to 1: {sum(default_insert_freqs.values())}'
 
-        mon_helper_residues = {mon.residue for mon in self.monomer_names_helper.mon_to_int}
+        mon_helper_residues = {
+            mon.residue
+            for mon in self.monomer_names_helper.mon_to_int
+        }
         assert set(default_insert_freqs.keys()) == mon_helper_residues, \
             ('Default insert frequencies do not match monomer names helper residues.\n'
              'Probably some nerpa residues are missing in the Norine database.\n'
@@ -172,13 +204,13 @@ class HMMHelper:
             res_freq = default_insert_freqs[res]
             res_score = log(res_freq)
             meth_freq = (
-                self.monomer_names_helper.default_frequencies.methylation
+                self.scoring_config.norine_mods_freqs[MT.METHYLATION]
                 if nrp_monomer.methylated else
-                1 - self.monomer_names_helper.default_frequencies.methylation
+                1 - self.scoring_config.norine_mods_freqs[MT.METHYLATION]
             )
             meth_score = log(meth_freq)
 
-            d_chr_freq = self.monomer_names_helper.default_frequencies.d_chirality
+            d_chr_freq = self.scoring_config.norine_mods_freqs[MT.EPIMERIZATION]
             match nrp_monomer.chirality:
                 case Chirality.D:
                     chr_score = log(d_chr_freq)
@@ -216,8 +248,10 @@ class HMMHelper:
                 raise ValueError(f'Invalid scoring scheme: {scoring_scheme}')
 
         # assert that all scores sum to 1
-        total_score = sum(math.e ** emission_scores[mon]
-                          for mon in distinct_proper_monomers)
+        total_score = sum(
+            math.e ** emission_scores[mon]
+            for mon in distinct_proper_monomers
+        )
 
         assert math.isclose(total_score, 1.0), \
             f'Total score of insert emissions is {total_score}, expected 1.0'
@@ -228,7 +262,9 @@ class HMMHelper:
                                       bgc_module: BGC_Module,
                                       scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
                                       pks_domains_in_bgc: bool = False) -> Dict[NRP_Monomer, LogProb]:
-        return self.get_insert_emissions(bgc_module,
-                                         scoring_scheme=scoring_scheme,
-                                         pks_domains_in_bgc=pks_domains_in_bgc)
+        return self.get_insert_emissions(
+            bgc_module,
+            scoring_scheme=scoring_scheme,
+            pks_domains_in_bgc=pks_domains_in_bgc
+        )
 

@@ -3,7 +3,7 @@ ENABLE_CALIBRATION: true
 nerpa_specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
 paras_model: external_tools/paras/model.paras
 a_domains_signatures: data/nerpa_internal/signatures.tsv
-norine_monomers_info: data/nerpa_internal/norine_monomers_info.yaml
+norine_monomers_info: data/nerpa_internal/norine_monomers_info.tsv
 SVM_SUBSTRATES: [dHpg, Asn, Iva, Ile, Glu, Cys, Abu, Gly, Gln, Val, Ser, Arg, Asp,
   Hpg, Leu, Trp, Ala, Lys, Phe, Orn, Thr, Tyr, Aad, Bza, Pip, Pro]
 SVM_NOT_SUPPORTED_SCORE: -1.0

@@ -47,6 +47,7 @@ from src.pipeline.paras_parsing import get_paras_results_all
 from src.rban_parsing.get_linearizations import get_all_nrp_linearizations, NRP_Linearizations
 from src.matching.hmm_match import HMM_Match, convert_to_detailed_matches
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
+from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 
 
 def load_parsed_rban_records(parsed_rban_records_path: Path) -> List[Parsed_rBAN_Record]:
@@ -101,6 +102,15 @@ class PipelineHelper:
 
 
         # ==== Initialize helpers for different parts of the pipeline ====
+        norine_monomers_info_path = (
+            yaml.safe_load(self.config.monomers_config.read_text())
+            .get('norine_monomers_info')
+        )
+        norine_monomers_info: NorineMonomersInfo = (
+            NorineMonomersInfo.from_tsv(
+                norine_monomers_info_path
+            )
+        )
         self.monomer_names_helper = load_monomer_names_helper(
             self.config.monomers_config,
             self.config.nerpa_dir
@@ -125,7 +135,8 @@ class PipelineHelper:
             self.config.nerpa_dir,
             self.config.hmm_scoring_config,
             self.specificity_prediction_helper,
-            self.monomer_names_helper
+            self.monomer_names_helper,
+            norine_monomers_info
         )
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
 
