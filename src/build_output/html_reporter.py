@@ -364,6 +364,14 @@ def create_html_report_ms(cfg: HTMLReportConfig):
         json_file.write(spectra_data.read_text(encoding="utf-8"))
         json_file.write(';\n')
 
+        json_file.write('var variant_monomer_graph = ')
+        json.dump({}, json_file, indent=4)
+        json_file.write(';\n')
+
+        json_file.write('var variant_molecule_image = ')
+        json.dump({}, json_file, indent=4)
+        json_file.write(';\n')
+
     path_substitutions = {
         '{{HTML_AUX_DIR}}': str(cfg.html_aux_dir.relative_to(cfg.main_out_dir)),
         '{{ANTISMASH_OUT_DIR}}': str(cfg.antismash_results_dir.relative_to(cfg.main_out_dir))

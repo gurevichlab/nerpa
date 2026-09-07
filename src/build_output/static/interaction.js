@@ -1,7 +1,7 @@
 // -- local variables --
 const svgns = "http://www.w3.org/2000/svg";
 // --- Module Viewer ---
-function buildModuleViewerAlign(bgcID, nrpID){
+function drawModuleViewerAlign(bgcID, nrpID){
     const svg = document.getElementById("moduleViewerAlign");
 
     const bgcKey = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
@@ -9,7 +9,7 @@ function buildModuleViewerAlign(bgcID, nrpID){
                             makeBgcKey(item["bgc_variant_id"]["bgc_id"]) === bgcKey &&
                             item["nrp_variant_id"]["nrp_id"] === nrpID);
     
-    // this is necessary because match.alignments is currently saved as a list within a list of lenth 1
+    // this is necessary because match.alignments is currently saved as a list within a list of length 1
     const array_in_array =  Array.isArray(match.alignments) && 
                             match.alignments.length === 1 &&
                             Array.isArray(match.alignments[0])
@@ -17,7 +17,7 @@ function buildModuleViewerAlign(bgcID, nrpID){
          
     const genes = prepareGenesAlign(bgcKey, alignments);
 
-    const drawData = buildDrawData(genes, match);
+    const drawData = buildDrawData(genes);
 
     const lastGene = drawData[drawData.length - 1];
     const viewerWidth = lastGene.position.x + lastGene.length + 15;
@@ -25,10 +25,10 @@ function buildModuleViewerAlign(bgcID, nrpID){
     svg.innerHTML = "";
 
     drawModuleViewer(drawData, svg);
-    addClickHandler(svg, nrpID);
+    addClickHandler(svg);
 }
 
-function buildModuleViewerBGC(bgcID, nrpID){
+function drawModuleViewerBGC(bgcID, nrpID){
     const svgBGC = document.getElementById("moduleViewerBGC");
     
     const bgcKey = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
@@ -43,7 +43,7 @@ function buildModuleViewerBGC(bgcID, nrpID){
     const alignments = array_in_array ? match.alignments[0] : match.alignments;
     const genes = prepareGenesBGC(bgcKey, alignments);
 
-    const drawData = buildDrawData(genes, match, true);
+    const drawData = buildDrawData(genes, true);
 
     const lastGene = drawData[drawData.length - 1];
     const viewerWidth = lastGene.position.x + lastGene.length + 15;
@@ -51,7 +51,7 @@ function buildModuleViewerBGC(bgcID, nrpID){
     svgBGC.innerHTML = "";
 
     drawModuleViewer(drawData, svgBGC);
-    addClickHandler(svgBGC, nrpID);
+    addClickHandler(svgBGC);
 }
 function prepareGenesAlign(bgcKey, alignments){
     const genesMatch = structuredClone(bgcModuleIndex.get(bgcKey));
@@ -130,7 +130,7 @@ function prepareGenesBGC(bgcKey, alignments){
     }
     return genes
 }
-function buildDrawData(geneList, match, r=false){
+function buildDrawData(geneList, r=false){
     /* gene object
     {
         id: Number,
@@ -409,23 +409,24 @@ function drawGeneArrow(id, nid, x, y, length, displayed, reversed, svg){
     // set arrow description
     const arrowDes = document.createElementNS(svgns, 'text');
     arrowDes.setAttribute('x',  geneStart + (length / 2));
+ arrowDes.setAttribute('y', y - 50);
+    arrowDes.setAttribute('font-family', 'Arial');
+    arrowDes.setAttribute('font-size', '14');
+    arrowDes.setAttribute('fill', 'white');
+    arrowDes.setAttribute('text-anchor', 'middle');
+    arrowDes.setAttribute('dominant-baseline', 'central');
     if(id.length * 7 > length) {
-        arrowDes.setAttribute('y', y - 68);
-        arrowDes.setAttribute('font-family', 'Arial');
-        arrowDes.setAttribute('font-size', '10');
-        arrowDes.setAttribute('fill', 'black');
-        arrowDes.setAttribute('text-anchor', 'middle');
-        arrowDes.setAttribute('dominant-baseline', 'central');
+        const separator = "...";
+        const available = (length / 7 ) - separator.length;
+        const prefixLength = Math.floor(available / 2);
+        const suffixLength = available  - prefixLength;
+        const preffix = id.slice(0, prefixLength) 
+        const suffix =  id.slice(-suffixLength);
+        arrowDes.textContent = preffix + separator + suffix;
     }
-    else{ 
-        arrowDes.setAttribute('y', y - 50);
-        arrowDes.setAttribute('font-family', 'Arial');
-        arrowDes.setAttribute('font-size', '14');
-        arrowDes.setAttribute('fill', 'white');
-        arrowDes.setAttribute('text-anchor', 'middle');
-        arrowDes.setAttribute('dominant-baseline', 'central');
+    else { 
+        arrowDes.textContent = id;
     }
-    arrowDes.textContent = id;
     geneArr.appendChild(arrowDes);
 
     if(!displayed) {
@@ -484,13 +485,13 @@ function selectResidue(m, bgc){
     }
 }
 
-function addClickHandler(svg, nrpID){
+function addClickHandler(svg){
     svg.childNodes.forEach(c => {
         const nid = splitId(c.id).nid.filter(n => n != '');
         if(nid.length > 0){
             c.addEventListener('click', e => {
                 c.setAttribute('clicked', 'true');
-                select(nid,nrpID);
+                select(nid);
                 c.removeAttribute('clicked');
             });
         }
@@ -506,15 +507,44 @@ let hasSelectedNodes = false;
 // a lookup dictionary: node ID -> node label
 const nodeIdLabel = new Map(); 
 
-function drawGraph(nrpID) {
+function drawGraph(nrpID){
     const graph = monomer_graph[nrpID];
+    const graph_div = document.getElementById("graphImage");
+    const [graph_data, graph_options] = buildGraph(graph);
+    network = new vis.Network(graph_div, graph_data, graph_options);
+    
+    network.addEventListener('click',  e => {
+        if(e.nodes.length === 0){ 
+            deselect();
+            network.fit();
+        } else {
+            select(e.nodes);
+        }
+    });
+
+    maxZoomGraph();
+    
+    const idsToUpdate = chiralityCheck(nrpID);
+    for(const id of idsToUpdate){
+        const node = nodes.get(id);
+        node.label = `D-${node.label}`;
+    }
+    nodeIdLabel.clear();
+
+    for(const entry of graph.nodes){
+        nodeIdLabel.set(entry.id, entry.label);
+    }
+}
+
+function buildGraph(data) {
+    
     nodes = new vis.DataSet(
-                graph.nodes.map(n => ({...n}))
+                data.nodes.map(n => ({...n}))
             );
     edges = new vis.DataSet(
-                graph.edges.map(e => ({...e}))
+                data.edges.map(e => ({...e}))
             );
-    const graph_div = document.getElementById("graphImage");
+    
     const graph_data = { nodes: nodes, edges: edges };
     const graph_options = { 
         physics: { enabled: false},
@@ -526,37 +556,17 @@ function drawGraph(nrpID) {
                 enabled: true,
                 type: 'dynamic', 
                 roundness: 0.5      
-            }
+            },
+            arrowStrikethrough: false,
         },
         interaction:{
             zoomView:true,
             multiselect: true,
         },
     };
+ 
+    return [graph_data, graph_options]
 
-    nodeIdLabel.clear();
-
-    for(const entry of graph.nodes){
-        nodeIdLabel.set(entry.id, entry.label);
-    }
-
-    const idsToUpdate = chiralityCheck(nrpID);
-    for(const id of idsToUpdate){
-        const node = nodes.get(id);
-        node.label = `D-${node.label}`;
-    }
-
-    network = new vis.Network(graph_div, graph_data, graph_options);
-    
-    network.addEventListener('click',  e => {
-        if(e.nodes.length === 0){ 
-            deselect();
-            network.fit();
-        } else {
-            select(e.nodes, nrpID);
-        }
-    });
-    maxZoomGraph();
 }
 
 function maxZoomGraph(){
@@ -580,18 +590,16 @@ function maxZoomGraph(){
         lastPosition = network.getViewPosition();
     });
 }
-function increaseTranparency(nodeIDs){
+function increaseTranparency(nodeIDs, networkNodes = nodes, networkEdges = edges){
+    const realNodes = networkNodes.get({filter: n => n.id >= 0})
     // reset
-    if(hasSelectedNodes){
-        nodes.get().forEach(n => nodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
-        edges.get().forEach(e => edges.update({id: e.id, color: e.color === '#E0A59D' ?'red' : 'blue'}));
-    } 
+    realNodes.forEach(n => networkNodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
+    networkEdges.get().forEach(e => networkEdges.update({id: e.id, color: e.color === '#E0A59D' || e.color === 'red' ?'red' : 'blue'}));
     // color graph transparent expect selected node
     if(!(nodeIDs.length === 0)){
-        nodes.get().forEach(n => !nodeIDs.includes(n.id) ? nodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
-        edges.get().forEach(e => edges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
+        realNodes.forEach(n => !nodeIDs.includes(n.id) && n.id >= 0 ? networkNodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
+        networkEdges.get().forEach(e => networkEdges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
     }
-    hasSelectedNodes = !(nodeIDs.length === 0);
 }
 
 function chiralityCheck(nrpID){
@@ -611,17 +619,20 @@ function chiralityCheck(nrpID){
 // --- Molecule ---
 // -- molecule variables --
 let molCanvas;
+
 window.addEventListener("resize", (event) => {
         resizeMol();
 });    
-function drawMolecule(nrpID){
+function drawMolecule(data){
     document.getElementById('moleculeImageCanvas').innerHTML = "";
     const rect = document.getElementById('moleculeImage').getBoundingClientRect();
-    molCanvas = new ChemDoodle.ViewerCanvas('moleculeImageCanvas', rect.width, rect.height);
+    molCanvas = new ChemDoodle.ViewerCanvas('moleculeImageCanvas', Math.round(rect.width), Math.round(rect.height));
     
-    const mol = new ChemDoodle.io.JSONInterpreter().molFrom(molecule_image[nrpID]);
-    mol.name = nrpID;
+    const mol = new ChemDoodle.io.JSONInterpreter().molFrom(data);
     mol.selected = false;
+    mol.highlightBonds = data.highlightBonds;
+    mol.highlightAtomColors = data.highlightAtomColors;
+    mol.monomers = data.monomers;
 
     for(const atom of mol.atoms){
         if(atom.label.includes('_')) {
@@ -629,8 +640,8 @@ function drawMolecule(nrpID){
             atom.residue = atom.label;
             atom.label = 'C';
         }    
-        atom.backgroundColor = molecule_image[nrpID].highlightAtomColors[atom.tmpid];
     }
+  
     molCanvas.styles.bonds_width_2D = .9;
     molCanvas.styles.bonds_saturationWidthAbs_2D = 2.6;
     molCanvas.styles.bonds_hashSpacing_2D = 2.5;
@@ -644,16 +655,16 @@ function drawMolecule(nrpID){
     molCanvas.loadMolecule(mol);
     paintMolecule(mol);
 
-    enableZoomMol(document.getElementById('moleculeImageCanvas'),mol);
-        
+    enableZoomMol(document.getElementById('moleculeImageCanvas'),mol);    
 }
+
 function resizeMol(){
     if(molCanvas === undefined) return;
 
     const mol = molCanvas.getMolecule();
     const div = document.getElementById('moleculeImage');
-    const width = div.offsetWidth;
-    const height = div.offsetHeight;
+    const width = Math.round(div.offsetWidth);
+    const height = Math.round(div.offsetHeight);
     const maxBondLen = getMaxBondLen(mol, width, height);
     mol.scaleToAverageBondLength(maxBondLen);
     molCanvas.resize(width,height);
@@ -674,7 +685,9 @@ function getMaxBondLen(mol, width, height){
     );
 
     const safescale = scale * 0.9;
+
     const current = mol.getAverageBondLength();
+
     const target = current * safescale;
 
     return target;
@@ -683,20 +696,24 @@ function getMaxBondLen(mol, width, height){
 function paintMolecule(mol){
         const colorCanvas = document.getElementById('moleculeImageCanvas');
         const ctx = colorCanvas.getContext("2d");
-        ctx.globalCompositeOperation='destination-over'; //https://stackoverflow.com/questions/9165766/html5-canvas-set-z-index
-        const nrpID = mol.name;
+        ctx.globalCompositeOperation='destination-over'; 
         for(const bond of mol.bonds){
-            if(! bond.tmpid)bond.tmpid = 1;                                         // could be buggy !!
-            if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
-            colorAtom(bond.a1, nrpID);
-            colorAtom(bond.a2, nrpID);
-            colorBond(bond, nrpID);
+            if(!bond.tmpid) bond.tmpid = 0;                                         // could be buggy !!
+            if(!bond.a1.tmpid) bond.a1.tmpid = 0;   
+            if(!bond.a2.tmpid) bond.a2.tmpid = 0;   
+            if(!mol.highlightBonds.includes(bond.tmpid)) continue;
+            bond.a1.backgroundColor = mol.highlightAtomColors[bond.a1.tmpid];
+            bond.a2.backgroundColor = mol.highlightAtomColors[bond.a2.tmpid];
+            bond.backgroundColor = mol.highlightAtomColors[bond.a1.tmpid];
+            colorAtom(bond.a1);
+            colorAtom(bond.a2);
+            colorBond(bond);
         }
         ctx.fillStyle = "white"; 
         ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
 }   
 
-function colorAtom(atom, nrpID, saturation = 0){ 
+function colorAtom(atom, saturation = 0){ 
     const ctx = document.getElementById('moleculeImageCanvas').getContext("2d");  
     let label = atom.label;
     if (!(atom.altLabel ===  undefined)) {
@@ -721,13 +738,13 @@ function colorAtom(atom, nrpID, saturation = 0){
     ctx.stroke();
 }
 
-function colorBond(bond, nrpID, saturation = 0){  
+function colorBond(bond, saturation = 0){  
     const ctx = document.getElementById('moleculeImageCanvas').getContext("2d");
     const sX = bond.a1.x;
     const sY = bond.a1.y;
     const eX = bond.a2.x;
     const eY = bond.a2.y;
-    const color = molecule_image[nrpID].highlightAtomColors[bond.a1.tmpid];
+    const color = bond.backgroundColor;
     ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
     ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
     ctx.lineCap = "round";
@@ -736,6 +753,7 @@ function colorBond(bond, nrpID, saturation = 0){
     ctx.lineTo(eX, eY);
     ctx.stroke();
 }  
+
 function hideLabels(){
     const mol = molCanvas.getMolecule();
     // if atom has a label, set it to undefined such that it is not displayed anymore
@@ -751,7 +769,7 @@ function hideLabels(){
     }
 }
 
-function selectMol(nid, nrpID){
+function selectMol(nid){
     const mol = molCanvas.getMolecule();
     mol.selected = nid;
     
@@ -760,22 +778,30 @@ function selectMol(nid, nrpID){
     nid.forEach(n => nodeLabels.push(nodeIdLabel.get(n)));
     const selected_atoms = new Set();
     for(const label of nodeLabels){
-        molecule_image[nrpID].monomers[label].forEach(a => selected_atoms.add(a));
+        mol.monomers[label].forEach(a => selected_atoms.add(a));
     }
     
     // paint molecule in pale color and selected residue in standard color
     let paleStyle = new ChemDoodle.structures.Styles();
     paleStyle.atoms_color = '#D3D3D3';
     paleStyle.bonds_color = '#D3D3D3';
+    paleStyle.bonds_width_2D = .9;
+    paleStyle.bonds_saturationWidthAbs_2D = 2.6;
+    paleStyle.bonds_hashSpacing_2D = 2.5;
+    paleStyle.atoms_font_size_2D = 10;
     let standardStyle = new ChemDoodle.structures.Styles();
     standardStyle.atoms_color = 'black';
     standardStyle.bonds_color = 'black';
+    standardStyle.bonds_width_2D = .9;
+    standardStyle.bonds_saturationWidthAbs_2D = 2.6;
+    standardStyle.bonds_hashSpacing_2D = 2.5;
+    standardStyle.atoms_font_size_2D = 10;
 
     let visited = new Set();
     const selected_bonds = new Set();
 
     for(const bond of mol.bonds){
-        const nonColorBond = !molecule_image[nrpID].highlightBonds.includes(bond.tmpid)
+        const nonColorBond = !mol.highlightBonds.includes(bond.tmpid)
         if(nonColorBond){
             bond.styles = paleStyle;
             continue;
@@ -798,17 +824,17 @@ function selectMol(nid, nrpID){
     molCanvas.repaint(mol);
     // selected bonds must be painted first to be in the first layer
     for(const bond of selected_bonds){
-        colorAtom(bond.a1, nrpID);
-        colorAtom(bond.a2, nrpID);
-        colorBond(bond, nrpID);
+        colorAtom(bond.a1);
+        colorAtom(bond.a2);
+        colorBond(bond);
     }
 
     for(const bond of mol.bonds){
         if(!selected_atoms.has(Number(bond.a1.tmpid)) && !selected_atoms.has(Number(bond.a2.tmpid))){
-            if(!molecule_image[nrpID].highlightBonds.includes(bond.tmpid)) continue;
-            colorAtom(bond.a1, nrpID, 60);
-            colorAtom(bond.a2,nrpID, 60);
-            colorBond(bond, nrpID, 60);
+            if(!mol.highlightBonds.includes(bond.tmpid)) continue;
+            colorAtom(bond.a1, 60);
+            colorAtom(bond.a2, 60);
+            colorBond(bond, 60);
         }
     }
     // set background color back to white
@@ -824,6 +850,11 @@ function deselectMol(){
     let st = new ChemDoodle.structures.Styles();
     st.atoms_color = 'black';
     st.bonds_color = 'black';
+    st.bonds_width_2D = .9;
+    st.bonds_saturationWidthAbs_2D = 2.6;
+    st.bonds_hashSpacing_2D = 2.5;
+    st.atoms_font_size_2D = 10;
+    
     for(const bond of mol.bonds){
         bond.a1.styles = st;
         bond.a2.styles = st;
@@ -883,16 +914,20 @@ function deselect(){
     if(network === undefined) return;
 
     // deselect module viewer
-    const svgNRP = document.getElementById("moduleViewerAlign");
+    const svgAlign = document.getElementById("moduleViewerAlign");
     const svgBGC = document.getElementById("moduleViewerBGC");
     for(const el of svgBGC.childNodes){
         if(!el.id || !el.displayed) continue;
         el.setAttribute("opacity", "1");
     }
-    for(const el of svgNRP.childNodes){
+    for(const el of svgAlign.childNodes){
         if(!el.id || !el.displayed) continue;
         el.setAttribute("opacity", "1");
     }
+
+     // deselect alignment Table
+    const alignmentTableBody = document.querySelector('#alignmentTable tbody');
+    [...alignmentTableBody['rows']].forEach(r => r.style.cssText = "")
 
     // deselect graph
     network.selectNodes([]); 
@@ -901,26 +936,22 @@ function deselect(){
     // deselect molecule
     deselectMol();
     
-    // deselect alignment Table
-    const alignmentTableBody = document.querySelector('#alignmentTable tbody');
-    [...alignmentTableBody['rows']].forEach(r => r.style.cssText = "")
-    
     // deselect nerpa MS if in nerpa MS report 
     if(document.title === 'Nerpa MS Report'){
         deselectMS();
     }
 }
 // -- select handling --
-function select(nid,nrpID){
-if(network === undefined) return;
+function select(nid){
+    if(network === undefined) return;
 
-const svgNRP = document.getElementById("moduleViewerAlign");
-const svgBGC = document.getElementById("moduleViewerBGC");
-let nidString = nid.map(String);
-let nidInt = nid.map(Number);
-const hasInvalidIdx = nidInt.some(Number.isNaN);
+    const svgAlign = document.getElementById("moduleViewerAlign");
+    const svgBGC = document.getElementById("moduleViewerBGC");
+    let nidString = nid.map(String);
+    let nidInt = nid.map(Number);
+    const hasInvalidIdx = nidInt.some(Number.isNaN);
 
-// select module viewer
+    // select module viewer
     const cM = Array.from(svgBGC.childNodes).find(m => m.getAttribute('clicked') === 'true');
     const moduleClicked = cM != undefined;
     const clickedGene = moduleClicked ? splitId(cM.id).gid : '';
@@ -936,7 +967,7 @@ const hasInvalidIdx = nidInt.some(Number.isNaN);
             el.setAttribute("opacity", "0.3");
         }
     }
-    for(const el of svgNRP.childNodes){
+    for(const el of svgAlign.childNodes){
         if(!el.id) continue;
         const split = splitId(el.id);
         const noNidCondition = moduleClicked && noNid && split.gid != clickedGene;
@@ -970,12 +1001,9 @@ const hasInvalidIdx = nidInt.some(Number.isNaN);
         network.selectNodes(nidString);  
         increaseTranparency(nidString);
     }
-    // select molecule
-    selectMol(nidString, nrpID);
-
-    // select nerpa MS if in nerpa MS report 
-    if(document.title === 'Nerpa MS Report'){
-        selectMS(nid);
+    // select molecule only if nerpa Report, in nerp MS no connection betwenn graph and molecule
+    if(document.title === 'Nerpa Report'){
+        selectMol(nidString);
     }
     
 }

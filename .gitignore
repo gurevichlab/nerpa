@@ -30,6 +30,6 @@ local_paths.yaml
 data/input/preprocessed/
 nerpa_results/
 test_run/
-nerpa_ms_test_run/
+test_run_nerpa_ms/
 .kakapo_cache/
 envs/

@@ -505,8 +505,8 @@
 <!-- vis-network -->
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <!-- chemdoodle -->
-<link rel="stylesheet" href="html_aux/chemdoodle/ChemDoodleWeb.css" type="text/css">
-<script type="text/javascript" src="html_aux/chemdoodle/ChemDoodleWeb.js"></script>
+<link rel="stylesheet" href="{{HTML_AUX_DIR}}/chemdoodle/ChemDoodleWeb.css" type="text/css">
+<script type="text/javascript" src="{{HTML_AUX_DIR}}/chemdoodle/ChemDoodleWeb.js"></script>
 
 
 <script>
@@ -1003,7 +1003,7 @@
                     });
                     tr.addEventListener('click', e =>{
                         const nid = tr.cells[6].textContent;
-                        select([nid],nrp_id);
+                        select([nid]);
                     });
                     alignmentTableBody.appendChild(tr);
                 });
@@ -1215,10 +1215,10 @@
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID, align);
             bgcFrame.style.display = 'block';
-            buildModuleViewerBGC(bgcID, nrpID);
+            drawModuleViewerBGC(bgcID, nrpID);
             if(align) {
                 alignFrame.style.display = 'block';
-                buildModuleViewerAlign(bgcID, nrpID);
+                drawModuleViewerAlign(bgcID, nrpID);
             }
         }
     }
@@ -1243,8 +1243,9 @@
             hideLabelBtn.style.display = 'block';
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleNrpViewer(hide, nrpID);
+
             drawGraph(nrpID);
-            drawMolecule(nrpID);
+            drawMolecule(molecule_image[nrpID]);
         }
     }
 
