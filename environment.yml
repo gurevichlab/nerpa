@@ -5,6 +5,7 @@ channels:
     - rdkit
     - defaults
 dependencies:
+    - openbabel
     - cairosvg
     - python>=3.10
     - biopython

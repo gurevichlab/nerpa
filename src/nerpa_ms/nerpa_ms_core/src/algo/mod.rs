@@ -12,3 +12,5 @@ pub mod rban_records_isomorphic;
 pub mod compare_linearizations;
 pub mod viterbi;
 pub mod monomer_masses;
+pub mod monomer_graph_smiles;
+pub mod monomer_graph_canonize;

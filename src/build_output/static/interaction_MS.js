@@ -204,9 +204,26 @@ function generateID(spectrumID, peakMass){
 }
 
 // -- Nerpa MS modification graph --
-function drawModGraph(nrpID) {
-    const graphMod = Object.values(candidate_NRPs).find(entry => entry.compound_id === nrpID);
-    const graphData_new = Object.values(graphMod.new_variants)[1].new_record;
+function drawModGraph(nrpID, structureID) {
+    const graphMod = Object.values(candidate_NRPs).find(entry =>
+        entry.compound_id === nrpID &&
+        Object.prototype.hasOwnProperty.call(
+            entry.new_variants ?? {},
+            structureID
+        )
+    );
+    const variant = graphMod?.new_variants?.[structureID];
+
+    if (!graphMod || !variant) {
+        console.error("Candidate variant not found", {
+            nrpID,
+            structureID
+        });
+        return;
+    }
+
+    const graphData_new = variant.new_record;
+
     const nodesData_new = [];
     const edgesData_new = [];
     Object.entries(graphData_new.monomers).forEach(mon => {
@@ -297,7 +314,7 @@ function drawModGraph(nrpID) {
 
     const networkOld = new vis.Network(graph_div_old, graph_data_old, graph_options);
     const networkNew = new vis.Network(graph_div_new, graph_data_new, graph_options);
-    Object.values(graphMod.new_variants)[1].old_to_new_mon_map.forEach(tup => {
+    variant.old_to_new_mon_map.forEach(tup => {
         if(tup[1] === null){
             //(old_idx, null) -- the monomer old_idx was removed
             nodes_old.update({

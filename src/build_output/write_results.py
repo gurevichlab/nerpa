@@ -1,7 +1,9 @@
 from typing import (
     Callable,
     List,
-    Optional, Set
+    Optional,
+    Set,
+    Tuple,
 )
 
 from src.hmm.detailed_hmm import DetailedHMM
@@ -17,13 +19,17 @@ from src.build_output.html_reporter import (
     create_html_report,
     HTMLReportConfig
 )
-from src.build_output.draw_graph import draw_molecule, draw_monomer_graph
+from src.build_output.draw_graph import (
+    GraphDrawingHelper,
+    MoleculeDrawingHelper
+)
 from src.pipeline.logging.logger import NerpaLogger
 from pathlib import Path
 from io import StringIO
 import csv
 import yaml
 import json
+import graphviz
 
 
 def write_yaml(data, out_file: Path):
@@ -136,12 +142,14 @@ def write_matches_per_id(matches: List[Match],
         (output_dir / Path(id_)).write_text('\n\n'.join(map(str, id_matches)))
 
 
-def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
-                       nrp_ids_to_write: Set[NRP_Variant_ID],
-                       output_cfg: OutputConfig,
-                       rban_records: Optional[List[Parsed_rBAN_Record]] = None,
-                       log: Optional[NerpaLogger] = None,
-                       monomer_names_helper: Optional[MonomerNamesHelper] = None,):
+def write_nrp_variants(
+        nrp_variants_info: NRP_Variants_Info,
+        nrp_ids_to_write: Set[NRP_Variant_ID],
+        output_cfg: OutputConfig,
+        rban_records: Optional[List[Parsed_rBAN_Record]] = None,
+        log: Optional[NerpaLogger] = None,
+        monomer_names_helper: Optional[MonomerNamesHelper] = None,
+):
     if rban_records is None:
         rban_records = []
 
@@ -170,27 +178,50 @@ def write_nrp_variants(nrp_variants_info: NRP_Variants_Info,
                     if rban_record.compound_id in compound_ids_to_write],
                    output_cfg.parsed_rban_records)
         if output_cfg.draw_molecules:
-            monomer_graph_data = []
-            molecule_data = []
+            monomer_graph_data: List[Tuple[str, graphviz.Digraph]] = []
+            molecule_data: List[Tuple[str, dict]] = []
             for rban_record in filter(lambda r: r.compound_id in compound_ids_to_write,
                                       rban_records):
                 try:
-                    graph = draw_monomer_graph(rban_record,
-                                       output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
-                                       with_rban_indexes=True,
-                                       monomer_names_helper=monomer_names_helper)
-                    monomer_graph_data.append((rban_record.compound_id,graph))
+                    graph: graphviz.Digraph = GraphDrawingHelper(
+                        rban_record,
+                        with_rban_indexes=True,
+                        monomer_names_helper=monomer_names_helper
+                    ).save_fig(
+                        output_cfg.nrp_images_dir / f'graphs/{rban_record.compound_id}.svg',
+                    )
+                        
+
+                    monomer_graph_data.append(
+                        (
+                            rban_record.compound_id,
+                            graph
+                        )
+                    )
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw monomer graph for {rban_record.compound_id}: {e}')
 
                 try:
-                    mol = draw_molecule(rban_record,
-                                  rban_indexes=True,
-                                  monomer_labels=True,
-                                  output_file=output_cfg.nrp_images_dir / f'molecules/{rban_record.compound_id}.svg',
-                                  monomer_names_helper=monomer_names_helper)
-                    molecule_data.append((rban_record.compound_id,mol))
+                    drawing_helper = MoleculeDrawingHelper(
+                        rban_record,
+                        monomer_names_helper=monomer_names_helper,
+                        with_rban_indexes=True,
+                        with_monomer_labels=True
+                    ) 
+                    drawing_helper.render(
+                        output_path=(
+                            output_cfg.nrp_images_dir
+                            / f'molecules/{rban_record.compound_id}.svg'
+                        )
+                    )
+                    molecule_data.append(
+                        (
+                            rban_record.compound_id,
+                            drawing_helper.get_drawing_data()
+                        )
+                    )
+
                 except Exception as e:
                     if log is not None:
                         log.info(f'Failed to draw molecule for {rban_record.compound_id}: {e}')
@@ -242,13 +273,13 @@ def write_results(
         bgc_variants_info: BGC_Variants_Info,
         nrp_variants_info: NRP_Variants_Info,
         output_cfg: OutputConfig,
+        monomer_names_helper: MonomerNamesHelper,
         nerpa_root: Path,
         matches_details: bool = True,
         html_report: bool = True,
         debug_output: bool = False,
         write_only_what_is_matched: bool = True,
         log: Optional[NerpaLogger] = None,
-        monomer_names_helper: Optional[MonomerNamesHelper] = None,
 ):
     output_cfg.report.write_text(build_report(matches))
 
@@ -290,5 +321,6 @@ def write_results(
             nrp_variants_info=nrp_variants_info,
             matches=matches,
             cfg=html_report_cfg,
+            monomer_names_helper=monomer_names_helper,
             debug_output=debug_output
         )

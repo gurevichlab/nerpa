@@ -1,11 +1,20 @@
 import io
-from typing import Dict, Tuple, List, NewType, Optional, Literal
+from typing import (
+    Dict,
+    Tuple,
+    List,
+    NewType,
+    Optional,
+    Literal,
+    NamedTuple,
+)
 from collections import defaultdict
 from pathlib import Path
 
 import graphviz
 from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem import rdDepictor
+from rdkit import Chem
 
 from src.monomer_names_helper import MonomerNamesHelper
 from src.build_output.chem_helper import MolRecord
@@ -88,9 +97,10 @@ def make_color_dict(labels: List[str],
     return defaultdict(lambda: default_color,
                        dict(zip(labels, colors)))
 
-
-def get_atom_id_to_display_name(record: Parsed_rBAN_Record,
-                                mon_idx: MonomerIdx) -> AtomId:
+def get_atom_id_to_display_name(
+        record: Parsed_rBAN_Record,
+        mon_idx: MonomerIdx
+) -> AtomId:
     atoms_on_border: List[AtomId] = [
         mon_to_atom[mon_idx]
         for _mon_edge, mon_to_atom_lst in record.monomer_bonds.items()
@@ -99,11 +109,13 @@ def get_atom_id_to_display_name(record: Parsed_rBAN_Record,
     ]
 
     # Choose any carbon atom which is not on the border
-    repr_id = next((atom_id
-                    for atom_id in record.monomers[mon_idx].atoms
-                    if record.atoms[atom_id].name == 'C' and atom_id not in atoms_on_border
-                    ),
-                   None)
+    repr_id = next(
+        (atom_id
+         for atom_id in record.monomers[mon_idx].atoms
+         if record.atoms[atom_id].name == 'C' and atom_id not in atoms_on_border
+         ),
+        None
+    )
 
     if repr_id is not None:
         return repr_id
@@ -111,7 +123,10 @@ def get_atom_id_to_display_name(record: Parsed_rBAN_Record,
         # Fallback: just choose any atom
         return record.monomers[mon_idx].atoms[0]
 
-def get_node_colors(record: Parsed_rBAN_Record, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> Dict[MonomerIdx, RGB]:
+def get_node_colors(
+        record: Parsed_rBAN_Record,
+        monomer_names_helper: Optional[MonomerNamesHelper] = None
+) -> Dict[MonomerIdx, RGB]:
     residues_with_colors = (
         monomer_names_helper.supported_residues
         if monomer_names_helper else
@@ -121,15 +136,22 @@ def get_node_colors(record: Parsed_rBAN_Record, monomer_names_helper: Optional[M
     monomer_colors = dict()
     for mon_idx, mon_info in record.monomers.items():
         residue = (
-            monomer_names_helper.parsed_name(mon_info.name, name_format='rBAN/Norine').residue            if monomer_names_helper else
-            mon_info.name.split('-')[-1].lower()
+            monomer_names_helper.parsed_name(
+                mon_info.name,
+                name_format='rBAN/Norine'
+            ).residue
+            if monomer_names_helper
+            else mon_info.name.split('-')[-1].lower()
         )
         monomer_colors[mon_idx] = aa_color[residue]
 
     return monomer_colors
 
-def get_node_labels(record: Parsed_rBAN_Record,
-                    with_rban_indexes: bool = True) -> Dict[MonomerIdx, str]:
+
+def get_node_labels(
+        record: Parsed_rBAN_Record,
+        with_rban_indexes: bool = True
+) -> Dict[MonomerIdx, str]:
     labels = dict()
     for mon_idx, mon_info in record.monomers.items():
         labels[mon_idx] = (
@@ -139,214 +161,286 @@ def get_node_labels(record: Parsed_rBAN_Record,
         )
     return labels
 
-                         
 
-def draw_molecule_colors(record: Parsed_rBAN_Record,
-                         ext: Literal['svg', 'png', 'dot_json'],
-                         mon_colors: Dict[MonomerIdx, RGB],
-                         rban_indexes: bool = True,
-                         monomer_labels: bool = True,
-                         size: Tuple[int, int] = (1000, 1000)) -> tuple[str | bytes, dict]:
-    mon_labels = get_node_labels(record, with_rban_indexes=rban_indexes)
-    mol, atom_id_to_index = MolRecord.from_rban_record(record)
+class MoleculeDrawingHelper:
+    # required
+    record: Parsed_rBAN_Record
 
-    atom_colors = dict()
-    bonds_to_highlight = list()
-    atom_labels = dict()
-    atom_monomers = dict()
-    for mon_idx, mon_info in record.monomers.items():
-        if monomer_labels:
-            monomer_repr = get_atom_id_to_display_name(record, mon_idx)
-            repr_atom_index = atom_id_to_index[monomer_repr]
-            atom_labels[repr_atom_index] = mon_labels[mon_idx]
+    # computed
+    mol: Chem.rdchem.Mol
+    mon_colors: Dict[MonomerIdx, RGB]
+    mon_labels: Dict[MonomerIdx, str]
+    atom_labels: Dict[AtomId, str]
+    atom_colors: Dict[AtomId, RGB]
+    bonds_to_highlight: List[int]
 
-        for atom_id in mon_info.atoms:  # set atoms colors
-            atom_index = atom_id_to_index[atom_id]
-            atom_colors[atom_index] = mon_colors[mon_idx]
-            atom_monomers[atom_id] = mon_labels[mon_idx]
+    def __init__(
+            self,
+            record: Parsed_rBAN_Record,
+            mon_colors: Optional[Dict[MonomerIdx, RGB]] = None,
+            with_rban_indexes: bool = True,
+            with_monomer_labels: bool = True,
+            monomer_names_helper: Optional[MonomerNamesHelper] = None,
+    ) -> None:
+        self.record = record
+        self.mol: Chem.rdchem.Mol = MolRecord.from_rban_record(record).mol
+        self.mon_colors = (
+            mon_colors
+            if mon_colors is not None
+            else get_node_colors(record, monomer_names_helper)
+        )
+        self.mon_labels: Dict[MonomerIdx, str] = get_node_labels(
+            record,
+            with_rban_indexes=with_rban_indexes,
+        )
+        self.atom_labels: Dict[AtomId, str] = {}
+        self.atom_colors: Dict[AtomId, RGB] = {}
+        self.bonds_to_highlight: List[int] = []
 
-        for atom1_id, atom2_id in record.atomic_bonds:  # set bonds to highlight (color is deduced automatically)
-            if atom1_id not in mon_info.atoms or atom2_id not in mon_info.atoms:
-                continue  # only highlight bonds internal to the monomer
+        for mon_idx, mon_info in record.monomers.items():
+            if with_monomer_labels:
+                repr_atom = get_atom_id_to_display_name(record, mon_idx)
+                self.atom_labels[repr_atom] = self.mon_labels[mon_idx]
 
-            index1, index2 = [atom_id_to_index[atom_id]
-                              for atom_id in (atom1_id, atom2_id)]
+            for atom_id in mon_info.atoms:
+                self.atom_colors[atom_id] = self.mon_colors[mon_idx]
 
-            bond_idx = mol.GetBondBetweenAtoms(index1, index2).GetIdx()
-            bonds_to_highlight.append(bond_idx)
+            for atom1_id, atom2_id in record.atomic_bonds:
+                if atom1_id not in mon_info.atoms or atom2_id not in mon_info.atoms:
+                    continue
 
-    w, h = size
-    match ext:
-        case "svg":
-            drawer = rdMolDraw2D.MolDraw2DSVG(w, h)
-        case "png":
-            drawer = rdMolDraw2D.MolDraw2DCairo(w, h)
-        case "dot_json":
-            raise NotImplementedError("dot_json format is not implemented yet. Please use 'svg' or 'png'.")
-        case _:
-            raise ValueError(f"Unsupported format: {ext}. Use 'svg' or 'png'.")
+                bond = self.mol.GetBondBetweenAtoms(atom1_id, atom2_id)
+                self.bonds_to_highlight.append(bond.GetIdx())
 
-    opts = drawer.drawOptions()
-    for atom_index, label in atom_labels.items():  # write names of monomers
-        opts.atomLabels[atom_index] = label
+    def render(
+            self,
+            ext: Literal["svg", "png"] | None = "svg",
+            output_path: Optional[Path] = None,
+            size: Tuple[int, int] = (1000, 1000),
+    ) -> str | bytes:
+        if ext is None:
+            if output_path is None:
+                raise ValueError(
+                    "Either ext or output_path must be specified."
+                )
+            ext = output_path.suffix[1:].lower()
 
-    drawer.DrawMolecule(mol,
-                        highlightAtoms=atom_colors.keys(),
-                        highlightAtomColors=atom_colors,
-                        highlightBonds=bonds_to_highlight)
+        if ext not in ["svg", "png"]:
+            raise ValueError(
+                f"Unsupported format: {ext}. Use 'svg' or 'png'."
+            )
+        if (output_path is not None
+            and output_path.suffix[1:].lower() != ext):
+            raise ValueError(
+                f"Output path extension {output_path.suffix} "
+                f"does not match the specified format {ext}."
+            )
 
-    drawer.FinishDrawing()
+        width, height = size
 
-    moleculeData = {
-        "a": [],   
-        "b": [], 
-        "monomers": {},
-    }
-
-    rdDepictor.Compute2DCoords(mol)
-    for atom in mol.GetAtoms():
-        positions = mol.GetConformer().GetAtomPosition(atom.GetIdx())
-
-        moleculeData["a"].append({
-            "i": str(atom.GetIdx()),
-            "l": atom_labels.get(atom.GetIdx(), atom.GetSymbol()),
-            "x": positions.x,
-            "y": -1 * positions.y, # otherwise the molecule will be upside down  
-            "z": positions.z,
-        })
-    
-    for bond in mol.GetBonds():
-        moleculeData["b"].append({
-            "i": bond.GetIdx(),
-            "b": bond.GetBeginAtomIdx(),
-            "e": bond.GetEndAtomIdx(),
-            "o": bond.GetBondTypeAsDouble()
-        })
-    for mon_idx, mon_info in record.monomers.items():
-        moleculeData["monomers"][mon_labels[mon_idx]] = mon_info.atoms
-    
-    moleculeData["highlightAtomColors"] = atom_colors
-    moleculeData["highlightBonds"] = bonds_to_highlight
-
-    return drawer.GetDrawingText(), moleculeData
-
-    
-
-def draw_monomer_graph_colors(record: Parsed_rBAN_Record,
-                              mon_colors: Dict[MonomerIdx, RGB],
-                              with_rban_indexes: bool = True,
-                              size: Tuple[int, int] = (1000, 1000),
-                              dpi: int = 300) -> graphviz.Digraph:
-    mon_labels = get_node_labels(record, with_rban_indexes=with_rban_indexes)
-
-    w_inches, h_inches = size[0] / dpi, size[1] / dpi
-    fig = graphviz.Digraph(format='svg',
-                           #engine='neato',
-                           engine='dot',
-                           graph_attr={
-                               'splines': 'true',  # tell Graphviz to eliminate overlaps/crossings where possible
-                               'overlap': 'false',  # splines='true' gives you smooth curved edges instead of straight lines
-                               'size': f'{w_inches},{h_inches}',
-                               'ratio': 'fill',  # fill the whole image
-                               'margin': '0',
-                               'dpi': str(dpi),
-                               #'K': '4.0',  # increase this to make the graph more spread out
-                           })
-
-    # make every edge use a 2‑point pen and 1.5× bigger arrowheads
-    fig.attr('edge', penwidth='2', arrowsize='1.5')
-
-    for u in sorted(record.monomers.keys()):
-        color = rgb_to_hex(mon_colors[u])
-        fig.node(str(u),
-                 label=mon_labels[u],
-                 color=color,
-                 style='filled',
-                 fontsize='26')
-
-    # print(f'Drawing {len(record.monomer_bonds)} monomer bonds...')
-    # print(record.monomer_bonds)
-
-    for u, v in sorted(record.monomer_bonds.keys()):
-        amino_bond_dir = get_bond_direction((u, v), record)
-        if amino_bond_dir is not None:
-            if amino_bond_dir == (u, v):
-                fig.edge(str(u), str(v), color='blue', dir='forward', arrowhead='normal')
-            else:
-                fig.edge(str(v), str(u), color='blue', dir='forward', arrowhead='normal')
+        if ext == "svg":
+            drawer = rdMolDraw2D.MolDraw2DSVG(width, height)
         else:
-            fig.edge(str(u), str(v), color='red', dir='none', arrowhead='none')
+            drawer = rdMolDraw2D.MolDraw2DCairo(width, height)
+
+        options = drawer.drawOptions()
+        for atom_id, label in self.atom_labels.items():
+            options.atomLabels[atom_id] = label
+
+        drawer.DrawMolecule(
+            self.mol,
+            highlightAtoms=list(self.atom_colors),
+            highlightAtomColors=self.atom_colors,
+            highlightBonds=self.bonds_to_highlight,
+        )
+        drawer.FinishDrawing()
+
+        drawing: str | bytes = drawer.GetDrawingText()
+
+        if output_path is not None:
+            # output_path = ensure_image_ext(output_path, ext)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            if isinstance(drawing, str):
+                output_path.write_text(drawing, encoding="utf-8")
+            else:
+                output_path.write_bytes(drawing)
+
+        return drawing
+
+    def get_drawing_data(self) -> dict:
+        """Return drawing data with the following structure:
+
+        {
+            "a": [
+                {
+                    "i": str,    # atom index
+                    "l": str,    # atom label
+                    "x": float,
+                    "y": float,
+                    "z": float,
+                },
+                ...
+            ],
+            "b": [
+                {
+                    "i": int,    # bond index
+                    "b": int,    # beginning atom index
+                    "e": int,    # ending atom index
+                    "o": float,  # bond order
+                },
+                ...
+            ],
+            "monomers": {
+                str: list[int],  # monomer label -> atom indices
+            },
+            "highlightAtomColors": {
+                int: tuple[float, float, float],  # RGB
+            },
+            "highlightBonds": list[int],
+        }
+        """
+        drawing_data = {
+            "a": [],
+            "b": [],
+            "monomers": {},
+            "highlightAtomColors": self.atom_colors,
+            "highlightBonds": self.bonds_to_highlight,
+        }
+
+        rdDepictor.Compute2DCoords(self.mol)
+        conformer = self.mol.GetConformer()
+
+        for atom in self.mol.GetAtoms():
+            atom_id = atom.GetIdx()
+            position = conformer.GetAtomPosition(atom_id)
+
+            drawing_data["a"].append({
+                "i": str(atom_id),
+                "l": self.atom_labels.get(atom_id, atom.GetSymbol()),
+                "x": position.x,
+                "y": -position.y,
+                "z": position.z,
+            })
+
+        for bond in self.mol.GetBonds():
+            drawing_data["b"].append({
+                "i": bond.GetIdx(),
+                "b": bond.GetBeginAtomIdx(),
+                "e": bond.GetEndAtomIdx(),
+                "o": bond.GetBondTypeAsDouble(),
+            })
+
+        for mon_idx, mon_info in self.record.monomers.items():
+            monomer_label = self.mon_labels[mon_idx]
+            drawing_data["monomers"][monomer_label] = mon_info.atoms
+
+        return drawing_data
 
 
-    return fig
+class GraphDrawingHelper:
+    record: Parsed_rBAN_Record
+    mon_colors: Dict[MonomerIdx, RGB]
+    mon_labels: Dict[MonomerIdx, str]
 
+    def __init__(
+            self,
+            record: Parsed_rBAN_Record,
+            mon_colors: Optional[Dict[MonomerIdx, RGB]] = None,
+            with_rban_indexes: bool = True,
+            monomer_names_helper: Optional[MonomerNamesHelper] = None,
+    ) -> None:
+        self.record = record
+        self.mon_colors = (
+            mon_colors
+            if mon_colors is not None
+            else get_node_colors(record, monomer_names_helper)
+        )
+        self.mon_labels = get_node_labels(
+            record,
+            with_rban_indexes=with_rban_indexes,
+        )
 
-def draw_molecule(record: Parsed_rBAN_Record,
-                  output_file: Path,
-                  rban_indexes: bool = True,
-                  monomer_labels: bool = True,
-                  size: Tuple[int, int] = (1000, 1000),
-                  monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
-    ext = output_file.suffix[1:].lower()
-    if ext not in ['svg', 'png']:
-        raise ValueError(f'Unsupported file extension: {ext}. Use .svg or .png.')
+    def render(
+            self,
+            size: Tuple[int, int] = (1000, 1000),
+            dpi: int = 300,
+    ) -> graphviz.Digraph:
+        w_inches, h_inches = size[0] / dpi, size[1] / dpi
+        fig = graphviz.Digraph(
+            format='svg',
+            #engine='neato',
+            engine='dot',
+            graph_attr={
+                'splines': 'true',  # tell Graphviz to eliminate overlaps/crossings where possible
+                'overlap': 'false',  # splines='true' gives you smooth curved edges instead of straight lines
+                'size': f'{w_inches},{h_inches}',
+                'ratio': 'fill',  # fill the whole image
+                'margin': '0',
+                'dpi': str(dpi),
+                #'K': '4.0',  # increase this to make the graph more spread out
+            }
+        )
 
-    mon_colors = get_node_colors(record, monomer_names_helper)
+        # make every edge use a 2‑point pen and 1.5× bigger arrowheads
+        fig.attr('edge', penwidth='2', arrowsize='1.5')
 
-    # str for SVG, bytes for PNG
-    data, mol_dict = draw_molecule_colors(record=record,
-                                ext=ext,
-                                mon_colors=mon_colors,
-                                rban_indexes=rban_indexes,
-                                monomer_labels=monomer_labels,
-                                size=size)
-    if isinstance(data, str):  # SVG is text
-        data = data.encode("utf-8")
+        for u in sorted(self.record.monomers.keys()):
+            color = rgb_to_hex(self.mon_colors[u])
+            fig.node(str(u),
+                    label=self.mon_labels[u],
+                    color=color,
+                    style='filled',
+                    fontsize='26')
 
-    output_file = ensure_image_ext(output_file, ext)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_bytes(data)
+        # print(f'Drawing {len(record.monomer_bonds)} monomer bonds...')
+        # print(record.monomer_bonds)
 
-    return mol_dict
+        for u, v in sorted(self.record.monomer_bonds.keys()):
+            amino_bond_dir = get_bond_direction((u, v), self.record)
+            if amino_bond_dir is not None:
+                if amino_bond_dir == (u, v):
+                    fig.edge(str(u), str(v), color='blue', dir='forward', arrowhead='normal')
+                else:
+                    fig.edge(str(v), str(u), color='blue', dir='forward', arrowhead='normal')
+            else:
+                fig.edge(str(u), str(v), color='red', dir='none', arrowhead='none')
 
-def draw_monomer_graph(record: Parsed_rBAN_Record,
-                       output_path: Path,
-                       with_rban_indexes: bool = True,
-                       size: Tuple[int, int] = (1000, 1000),
-                       dpi: int = 300,
-                       monomer_names_helper: Optional[MonomerNamesHelper] = None) -> graphviz.Digraph:
-    mon_colors = get_node_colors(record, monomer_names_helper)
-    fig = draw_monomer_graph_colors(record=record,
-                                    mon_colors=mon_colors,
-                                    with_rban_indexes=with_rban_indexes,
-                                    size=size,
-                                    dpi=dpi)
+        return fig
 
-    ext = output_path.suffix[1:].lower()
-    output_path.parent.mkdir(exist_ok=True, parents=True)
+    def save_fig(
+            self,
+            output_path: Path,
+            size: Tuple[int, int] = (1000, 1000),
+            dpi: int = 300,
+    ) -> graphviz.Digraph:
+        ext = output_path.suffix[1:].lower()
+        output_path.parent.mkdir(exist_ok=True, parents=True)
 
-    match ext:
-        case 'svg':
-            svg_bytes = fig.pipe(format='svg')
-            svg_bytes = force_svg_pixel_size(svg_bytes, size[0], size[1], stretch=False)
-            output_path.write_bytes(svg_bytes)
-        case 'png':
-            png_bytes = fig.pipe(format='png')
-            img = Image.open(io.BytesIO(png_bytes))
-            w_tgt, h_tgt = size
-            canvas = Image.new('RGBA', (w_tgt, h_tgt), (255, 255, 255, 255))
-            w_cur, h_cur = img.size
-            x_off = max((w_tgt - w_cur) // 2, 0)
-            y_off = max((h_tgt - h_cur) // 2, 0)
-            canvas.paste(img, (x_off, y_off))
-            canvas.save(output_path, format='PNG')
-        case 'json':
-            output_path.write_text(fig.pipe(format='dot_json').decode('utf-8'),
-                                   encoding='utf-8')
-        case _:
-            raise ValueError(f'Unsupported format: {ext}. Use "svg", "png", or "json".')
-    
-    return fig
+        fig = self.render(size=size, dpi=dpi)
+
+        match ext:
+            case 'svg':
+                svg_bytes = fig.pipe(format='svg')
+                svg_bytes = force_svg_pixel_size(svg_bytes, size[0], size[1], stretch=False)
+                output_path.write_bytes(svg_bytes)
+            case 'png':
+                png_bytes = fig.pipe(format='png')
+                img = Image.open(io.BytesIO(png_bytes))
+                w_tgt, h_tgt = size
+                canvas = Image.new('RGBA', (w_tgt, h_tgt), (255, 255, 255, 255))
+                w_cur, h_cur = img.size
+                x_off = max((w_tgt - w_cur) // 2, 0)
+                y_off = max((h_tgt - h_cur) // 2, 0)
+                canvas.paste(img, (x_off, y_off))
+                canvas.save(output_path, format='PNG')
+            case 'json':
+                output_path.write_text(fig.pipe(format='dot_json').decode('utf-8'),
+                                       encoding='utf-8')
+            case _:
+                raise ValueError(f'Unsupported format: {ext}. Use "svg", "png", or "json".')
+
+        return fig
 
 
 class GraphDiffColors:
@@ -412,18 +506,20 @@ def get_monomer_graph_diff(
 ) -> GraphDiffOut:
     colors = get_diff_colors(original, modified, old_to_new_map)
 
-    original_fig = draw_monomer_graph_colors(
+    original_fig = GraphDrawingHelper(
         record=original,
         mon_colors=colors.original,
         with_rban_indexes=with_rban_indexes,
+    ).render(
         size=size,
         dpi=dpi,
     )
 
-    modified_fig = draw_monomer_graph_colors(
+    modified_fig = GraphDrawingHelper(
         record=modified,
         mon_colors=colors.modified,
         with_rban_indexes=with_rban_indexes,
+    ).render(
         size=size,
         dpi=dpi,
     )
@@ -433,7 +529,7 @@ def get_monomer_graph_diff(
     out.modified_diff_fig = modified_fig
     return out
 
-class MoleculeDiffOut:
+class MoleculeDiffOut(NamedTuple):
     ext: Literal['svg', 'png']
     original_diff_data: str | bytes
     modified_diff_data: str | bytes
@@ -450,29 +546,25 @@ def get_molecule_diff(
 ) -> MoleculeDiffOut:
     colors = get_diff_colors(original, modified, old_to_new_map)
 
-    original_diff_data = draw_molecule_colors(
+    original_diff_data = MoleculeDrawingHelper(
         record=original,
-        ext=ext,
         mon_colors=colors.original,
-        rban_indexes=rban_indexes,
-        monomer_labels=monomer_labels,
-        size=size,
-    )
+        with_rban_indexes=rban_indexes,
+        with_monomer_labels=monomer_labels,
+    ).render(ext=ext, size=size)
 
-    modified_diff_data = draw_molecule_colors(
+    modified_diff_data = MoleculeDrawingHelper(
         record=modified,
-        ext=ext,
         mon_colors=colors.modified,
-        rban_indexes=rban_indexes,
-        monomer_labels=monomer_labels,
-        size=size,
-    )
+        with_rban_indexes=rban_indexes,
+        with_monomer_labels=monomer_labels,
+    ).render(ext=ext, size=size)
 
-    out = MoleculeDiffOut()
-    out.ext = ext
-    out.original_diff_data = original_diff_data
-    out.modified_diff_data = modified_diff_data
-    return out
+    return MoleculeDiffOut(
+        ext=ext,
+        original_diff_data=original_diff_data,
+        modified_diff_data=modified_diff_data,
+    )
 
 
 def draw_molecule_diff(
@@ -496,24 +588,26 @@ def draw_molecule_diff(
         size=(size[0]//2, size[1]//2),  # each molecule gets half of the total size
         ext='svg',
     )
-    orig_colors = get_node_colors(original, monomer_names_helper)
-    original_fig = draw_molecule_colors(
+    original_fig = MoleculeDrawingHelper(
         record=original,
-        ext='svg',
-        mon_colors=orig_colors,
-        rban_indexes=rban_indexes,
-        monomer_labels=monomer_labels,
-        size=(size[0]//2, size[1]//2),
+        with_rban_indexes=rban_indexes,
+        with_monomer_labels=monomer_labels,
+        monomer_names_helper=monomer_names_helper,
+    ).render(
+        ext="svg",
+        size=(size[0] // 2, size[1] // 2),
     )
-    modified_colors = get_node_colors(modified, monomer_names_helper)
-    modified_fig = draw_molecule_colors(
+
+    modified_fig = MoleculeDrawingHelper(
         record=modified,
-        ext='svg',
-        mon_colors=modified_colors,
-        rban_indexes=rban_indexes,
-        monomer_labels=monomer_labels,
-        size=(size[0]//2, size[1]//2),
+        with_rban_indexes=rban_indexes,
+        with_monomer_labels=monomer_labels,
+        monomer_names_helper=monomer_names_helper,
+    ).render(
+        ext="svg",
+        size=(size[0] // 2, size[1] // 2),
     )
+
     left_side_svg = join_svgs_in_rectangle([[original_fig], [diff_out.original_diff_data]])
     left_side_svg = svg_with_label(svg=left_side_svg,
                                    label=f"Original (score={original_score:.2f})",
@@ -553,26 +647,24 @@ def draw_monomer_graph_diff(
         dpi=dpi,
     )
 
-    orig_colors = get_node_colors(original, monomer_names_helper)
-    original_fig = draw_monomer_graph_colors(
+    original_fig = GraphDrawingHelper(
         record=original,
-        mon_colors=orig_colors,
         with_rban_indexes=with_rban_indexes,
+    ).render(
         size=cell_size,
         dpi=dpi,
     )
     original_svg = force_svg_pixel_size(
-        original_fig.pipe(format='svg'),
+        original_fig.pipe(format="svg"),
         cell_size[0],
         cell_size[1],
-        stretch=False
-    ).decode('utf-8')
+        stretch=False,
+    ).decode("utf-8")
 
-    modified_colors = get_node_colors(modified, monomer_names_helper)
-    modified_fig = draw_monomer_graph_colors(
+    modified_fig = GraphDrawingHelper(
         record=modified,
-        mon_colors=modified_colors,
         with_rban_indexes=with_rban_indexes,
+    ).render(
         size=cell_size,
         dpi=dpi,
     )

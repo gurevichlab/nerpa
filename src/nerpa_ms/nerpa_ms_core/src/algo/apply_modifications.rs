@@ -1,8 +1,7 @@
-use crate::data_types::{common_types::MonomerIdx, config::DebugConfig, mod_graph::{ModGraph, Edge, VertexId}, graph_modifications::{GraphModification, InsertionSite}, monomer_graph::MonomerGraph, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::Parsed_rBAN_Record};
+use crate::data_types::{common_types::MonomerIdx, config::DebugConfig, mod_graph::{ModGraph, Edge, VertexId}, graph_modifications::{GraphModification, InsertionSite}, monomer_graph::MonomerGraph, monomers_db::{MonomersDB, MonomersDB_Entry}, parsed_rban_record::{Parsed_rBAN_Record, NRP_Metadata}};
 
 use std::collections::{HashMap, HashSet};
 use chrono::Local;
-
 
 #[derive(Debug, Clone)]
 pub struct AlteredMonomerGraph {
@@ -199,6 +198,9 @@ pub fn apply_modifications(
 	        now,
 	    );
     }
+
+    new_monomer_graph.canonize().ok()?;
+    new_monomer_graph.metadata.smiles = new_monomer_graph.to_smiles().ok();
 
     Some(AlteredMonomerGraph {
 	    new_monomer_graph,

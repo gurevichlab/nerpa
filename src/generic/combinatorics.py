@@ -205,9 +205,11 @@ def filter_unique(xs: Iterable[T],
             yield x
 
 
-def sort_groupby(items: Iterable[T],
-                 key: Callable[[T], U],
-                 reverse: bool=False) -> Iterable[Tuple[U, Iterable[T]]]:
+def sort_groupby(
+        items: Iterable[T],
+        key: Callable[[T], U],
+        reverse: bool=False
+) -> Iterable[Tuple[U, Iterable[T]]]:
     return groupby(sorted(items, key=key, reverse=reverse), key=key)
 
 

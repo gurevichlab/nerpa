@@ -1508,14 +1508,19 @@
             molecule.style.display = 'none';
 
             displayVarquestMod(spectrumID, structureID);
-            toggleModificationViewer(hide, nrpID, userHide);
+            toggleModificationViewer(hide, nrpID, userHide, structureID);
            
             loadSpectrum(spectrumID, structureID);
 
         }
     }
 
-    function toggleModificationViewer(hide, nrpID, userHide = false){
+    function toggleModificationViewer(
+        hide,
+        nrpID,
+        userHide = false,
+        structureID = ""
+    ){
         const frame = document.getElementById('graphModContainer');
         const hideBtn = document.getElementById('hideModificationViewerBtn');
         const showBtn = document.getElementById('showModificationViewerBtn');
@@ -1532,9 +1537,11 @@
             hideBtn.style.display = 'block';
 
             showBtn.style.display = 'none';
-            showBtn.onclick = () => toggleModificationViewer(hide, nrpID);
+            showBtn.onclick = () => {
+                toggleModificationViewer(false, nrpID, false, structureID);
+            };
 
-            drawModGraph(nrpID);
+            drawModGraph(nrpID, structureID);
         }
     }
 
