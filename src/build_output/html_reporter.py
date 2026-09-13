@@ -10,11 +10,17 @@ from typing import (
     Dict,
     Literal,
     Optional,
+    Tuple,
+    Iterable
 )
 from src.config import OutputConfig, Config
 from src.matching.match_type import Match
 from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
+from src.monomer_names_helper import MonomerNamesHelper
+from src.build_output.extract_data_for_report import GeneratedNRPs_DataForReport
+from src.generic.combinatorics import sort_groupby
+from itertools import islice
 
 
 def _create_match_dicts(matches: List[Match],
@@ -176,6 +182,7 @@ class HTMLReportConfig:
     # nerpa-ms specific fields. Should be not None if mode == 'nerpa-ms', otherwise None
     generated_candidate_nrps_path: Optional[Path]
     mass_spec_matching_results_dir: Optional[Path]
+    max_spectra_matches_per_nerpa_match: Optional[int]
     spectra: Optional[Path]
 
     report_ms_path: Path
@@ -183,7 +190,6 @@ class HTMLReportConfig:
     report_data_ms_js: Optional[Path]
     interaction_ms_js: Optional[Path]
 
-    
 
     def __init__(
             self,
@@ -256,7 +262,13 @@ class HTMLReportConfig:
             / 'src'
             / 'build_output'
             / 'static'
-            / 'interaction_ms.js'
+            / 'interaction_MS.js'
+        )
+
+        self.max_spectra_matches_per_nerpa_match = (  # TODO: make this configurable via CLI or config file
+            None
+            if mode == 'nerpa'
+            else 10
         )
 
 def create_html_report(
@@ -264,6 +276,7 @@ def create_html_report(
         nrp_variants_info: NRP_Variants_Info,
         matches: List[Match],
         cfg: HTMLReportConfig,
+        monomer_names_helper: MonomerNamesHelper,
         debug_output: bool = False,
 ):
     with open(cfg.main_out_dir / 'intermediate_files/antismash_bgcs.json', 'r', encoding='utf-8') as f:
@@ -320,8 +333,8 @@ def create_html_report(
         json.dump(modules, json_file, indent=4)
         json_file.write(';\n') 
 
-    if(cfg.mode == 'nerpa-ms'):
-        create_html_report_ms(cfg)
+    if cfg.mode == 'nerpa-ms':
+        create_html_report_ms(cfg, monomer_names_helper)
     else:
         with open(cfg.report_template_path, 'r') as f:
                 main_report_html_template = f.read()
@@ -343,25 +356,69 @@ def create_html_report(
     # copying interaction.js to output folder
     shutil.copyfile(cfg.interaction_js,  cfg.html_aux_dir / 'interaction.js')
     
+def filter_kakapo_results(results_data_all: list[dict], max_spectra_matches_per_nerpa_match: int) -> list[dict]:
+    def structure_id_to_match_id(structure_id: str) -> str:
+        """
+        structure_id format: "BGC_ID-{bgc_id}___NRP_ID-{nrp_id}___NUM-MODS-{num_mods}___RANK-{rank}"
+        """
+        return "___".join(structure_id.split("___")[:2])
 
-def create_html_report_ms(cfg: HTMLReportConfig):
+    grouped_results: Iterable[Tuple[str, Iterable[dict]]] = sort_groupby(
+        results_data_all,
+        key=lambda result: structure_id_to_match_id(result["structure_id"]),
+    )
+    return [
+        result
+        for _, results in grouped_results
+        for result in islice(results, max_spectra_matches_per_nerpa_match)
+    ]
+    
+
+def create_html_report_ms(
+        cfg: HTMLReportConfig,
+        monomer_names_helper: MonomerNamesHelper
+):
     with open(cfg.report_ms_template_path, 'r') as f:
-            main_report_ms_html_template = f.read()
+        main_report_ms_html_template = f.read()
 
-    spectra_data = cfg.mass_spec_matching_results_dir / 'spectra.json'
-    results_data = cfg.mass_spec_matching_results_dir / 'results.json'
+    results_data_all: list[dict] = (
+        json.loads((cfg.mass_spec_matching_results_dir / 'results.json').read_text(encoding="utf-8"))
+    )
+
+    # TODO (!) a more intelligent filtering of results -- take into account Nerpa score, etc
+    results_data: list[dict] = (
+        filter_kakapo_results(results_data_all, cfg.max_spectra_matches_per_nerpa_match)
+    )
+    nrp_ids_with_results: set[str] = {item["structure_id"] for item in results_data}
+    spectra_with_results: set[str] = {item["spectrum_id"] for item in results_data}
+
+    spectra_data_all: dict = (
+        json.loads((cfg.mass_spec_matching_results_dir / 'spectra.json').read_text(encoding="utf-8"))
+    )
+    spectra_data: dict = {
+        item_id: item
+        for item_id, item in spectra_data_all.items()
+        if item_id in spectra_with_results
+    }
+
+    generated_nrps_data = GeneratedNRPs_DataForReport(
+        cfg.generated_candidate_nrps_path,
+        ids_to_keep=nrp_ids_with_results,
+        monomer_names_helper=monomer_names_helper
+    )
+
     # the main (root) HTML report and associated JSON
     with open(cfg.report_data_ms_js, 'w') as json_file:
         json_file.write('var candidate_NRPs = ')
-        json_file.write(cfg.generated_candidate_nrps_path.read_text(encoding="utf-8"))
+        json.dump(generated_nrps_data.raw_data_filtered, json_file)
         json_file.write(';\n')
 
         json_file.write('var spectra_matching_results = ')
-        json_file.write(results_data.read_text(encoding="utf-8"))
+        json.dump(results_data, json_file)
         json_file.write(';\n')
 
         json_file.write('var spectra = ')
-        json_file.write(spectra_data.read_text(encoding="utf-8"))
+        json.dump(spectra_data, json_file)
         json_file.write(';\n')
 
         json_file.write('var variant_monomer_graph = ')

@@ -1615,7 +1615,9 @@
             hideBtn.style.display = 'block';
 
             showBtn.style.display = 'none';
-            showBtn.onclick = () => toggleModificationViewer(hide, nrpID);
+            showBtn.onclick = () => {
+                toggleModificationViewer(false, nrpID, false, structureID);
+            };
 
             drawOrigGraph(nrpID, variant);
             drawModGraph(nrpID, variant);

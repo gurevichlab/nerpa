@@ -17,6 +17,8 @@ from src.rban_parsing.nrp_variant_types import (
 )
 from src.build_output.html_reporter import HTMLReportConfig, create_html_report
 from src.matching.match_type import Match
+from src.monomer_names_helper import MonomerNamesHelper
+from src.config import load_monomer_names_helper, load_config
 import subprocess
 import yaml
 
@@ -212,7 +214,8 @@ def build_html_report(
         nerpa_root: Path,
         nerpa_results: Path,
         nerpa_ms_core_results: Path,
-        nerpa_ms_varquest_results: Path
+        nerpa_ms_varquest_results: Path,
+        monomer_names_helper: MonomerNamesHelper
 ) -> None:
    cfg = HTMLReportConfig(
         main_out_dir=nerpa_results,
@@ -230,9 +233,17 @@ def build_html_report(
         nrp_variants_info=nrp_variants_info,
         matches=matches,
         cfg=cfg,
-        debug_output=False
+        monomer_names_helper=monomer_names_helper,
+        debug_output=False,
     )
     
+
+def get_monomer_names_helper() -> MonomerNamesHelper:
+    cfg = load_config()
+    return load_monomer_names_helper(
+        cfg.monomers_config,
+        cfg.nerpa_dir
+    )
        
 def main():
     nerpa_root = Path(__file__).parent.resolve()
@@ -257,12 +268,15 @@ def main():
         spectra_path=args.spectra,
         output_dir=nerpa_ms_varquest_out
     )
+    print(f"NERPA-MS results written to: {nerpa_ms_varquest_out}")
 
+    monomer_names_helper = get_monomer_names_helper()
     build_html_report(
         nerpa_root=nerpa_root,
         nerpa_results=args.output_dir,
         nerpa_ms_core_results=nerpa_ms_core_out,
-        nerpa_ms_varquest_results=nerpa_ms_varquest_out
+        nerpa_ms_varquest_results=nerpa_ms_varquest_out,
+        monomer_names_helper=monomer_names_helper
     )
 
 if __name__ == "__main__":

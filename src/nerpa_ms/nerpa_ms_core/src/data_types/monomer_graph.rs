@@ -60,38 +60,38 @@ impl MonomerGraph {
                     }
                 };
 
-		if let Some(side) = bs_side {
+		        if let Some(side) = bs_side {
                     Some(
                         (BindingSiteType {
                             bond_templ: bond.bond_templ.clone(),
                             side,
                         },
-                        bond.clone())
+                         bond.clone())
                     )
                 }
-		else {
-		    None
-		}
+		        else {
+		            None
+		        }
             })
             .collect();
 
-	BondsByBSType::new(bonds_by_bs)
+	    BondsByBSType::new(bonds_by_bs)
     }
 
     pub fn get_bond(&self, mon1: MonomerIdx, mon2: MonomerIdx) -> Option<&Bond> {
-	self.monomer_bonds.iter().find(|bond| {
-	    (bond.monomers.0 == mon1 && bond.monomers.1 == mon2)
-		|| (bond.monomers.0 == mon2 && bond.monomers.1 == mon1)
-	})
+	    self.monomer_bonds.iter().find(|bond| {
+	        (bond.monomers.0 == mon1 && bond.monomers.1 == mon2)
+		        || (bond.monomers.0 == mon2 && bond.monomers.1 == mon1)
+	    })
     }
 
     pub fn degree(&self, monomer_idx: MonomerIdx) -> usize {
-	self.monomer_bonds.iter()
-	    .filter(|bond| {
-		bond.monomers.0 == monomer_idx
-		    || bond.monomers.1 == monomer_idx
-	    })
-	    .count()
+	    self.monomer_bonds.iter()
+	        .filter(|bond| {
+		        bond.monomers.0 == monomer_idx
+		            || bond.monomers.1 == monomer_idx
+	        })
+	        .count()
     }
 
 	

@@ -33,3 +33,5 @@ test_run/
 test_run_nerpa_ms/
 .kakapo_cache/
 envs/
+/src/nerpa_ms/nerpa_ms_core/stderr.txt
+/stderr.txt

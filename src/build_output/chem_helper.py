@@ -97,7 +97,7 @@ def get_isomorphism(
 
 class MolRecord(NamedTuple):
     mol: Chem.rdchem.Mol
-    atom_id_to_mol_idx: Dict[AtomId, int]
+    atom_id_to_mol_idx: Dict[AtomId, int]  # exists for backwards compatibility but should always be {atom_id: atom_id} for atom_id in record.atoms.keys() if the Mol was built from the rBAN record
 
 
     @classmethod
