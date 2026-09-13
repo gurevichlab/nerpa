@@ -25,13 +25,15 @@ function drawSpectrum(spectrumID, variantID){
     spectrumCanvas.styles.text_font_families[2] = 'sans-serif';
     
 
-    const matchedPeaks = findMatchedPeaks(spectrumID, variantID);
+    const match = getSpectrumVariantMatch(spectrumID, variantID);
+
+    const matchedPeaks = findMatchedPeaks(match, spectrumID);
     const matchedSpectrumJcampFile = peakArrayToJcamp(matchedPeaks);
     spectrum = ChemDoodle.readJCAMP(matchedSpectrumJcampFile); 
    
     spectrumCanvas.loadSpectrum(spectrum);
 
-    const notMatchedPeaks = findNotMatchedPeaks(spectrumID, variantID);
+    const notMatchedPeaks = findNotMatchedPeaks(match, spectrumID);
     const notMatchedSpectrumJcampFile = peakArrayToJcamp(notMatchedPeaks);
     spectrumNotMatched = ChemDoodle.readJCAMP(notMatchedSpectrumJcampFile); 
 
@@ -57,11 +59,19 @@ function drawSpectrum(spectrumID, variantID){
     
     const infoDiv = document.getElementById("spectrumInfo");
     if(spectra[spectrumID].charge != null){
-        infoDiv.innerHTML = `<span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>
+        infoDiv.innerHTML = `<span style="color: #000000; line-height: 2;"><strong>Spectrum ID: ${spectrumID}</strong></span>
+                            <br> <span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>
                              <span style="margin: 0 10px; color: #bbb;">|</span> 
-                             <span><strong>Charge:</strong> +${spectra[spectrumID].charge}</span>`;
+                              <span><strong>MS Score:</strong> ${match.score}</span> 
+                               <span style="margin: 0 10px; color: #bbb;">|</span> 
+                             <span><strong>Charge:</strong> +${spectra[spectrumID].charge}</span> 
+                             `;
     } else {
-        infoDiv.innerHTML = `<span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>`;
+        infoDiv.innerHTML = `<span style="color: #000000; line-height: 2;"><strong>Spectrum ID: ${spectrumID}</strong></span>
+                            <br> <span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>
+                            <span style="margin: 0 10px; color: #bbb;">|</span> 
+                             <span><strong>MS Score:</strong> ${match.score}</span> 
+                            `;
     }
 
     initPeakTable(svgSpectrum);
@@ -73,7 +83,6 @@ function resizeSpectrum(){
     const canvasHeight = Math.round(rect.height * 0.7);
     spectrumCanvas.resize(canvasWidth,canvasHeight);
     spectrumCanvas.loadSpectrum(spectrumNotMatched); 
-    
 }
 function initPeakTable(svgSpectrum){
     const tbPeak = document.querySelector("#peakTable tbody");
@@ -93,7 +102,10 @@ function initPeakTable(svgSpectrum){
         peakMzCell.innerHTML = peak.getAttribute('mass');  
 
         const peakIntensityCell = line.insertCell();
-        peakIntensityCell.innerHTML = peak.getAttribute('intensity');;  
+        peakIntensityCell.innerHTML = peak.getAttribute('intensity');
+        
+        const chargeCell = line.insertCell();
+        chargeCell.innerHTML = peak.getAttribute('charge');  
   
         const peakMassErrorAbsCell = line.insertCell();
         peakMassErrorAbsCell.innerHTML = `${peak.getAttribute('massErrorAbs')}`;;  
@@ -111,8 +123,7 @@ function peakArrayToJcamp(peaks){
     }
     return jcamp + '##END=\n';
 }
-function findMatchedPeaks(spectrumID, variantID){
-    const match = spectra_matching_results.find((entry) => entry.spectrum_id === spectrumID && entry.structure_id === variantID);
+function findMatchedPeaks(match, spectrumID){
     const resultsPeaks = [];
     for(const peak of match.matched_peaks){
         const matchedPeak = spectra[spectrumID].peaks.find(p => p.mass === peak.experimental_mz)
@@ -122,8 +133,7 @@ function findMatchedPeaks(spectrumID, variantID){
     }
     return resultsPeaks
 }
-function findNotMatchedPeaks(spectrumID, variantID){
-    const match = spectra_matching_results.find((entry) => entry.spectrum_id === spectrumID && entry.structure_id === variantID);
+function findNotMatchedPeaks(match, spectrumID){
     const resultsPeaks = [];
     for(const peak of spectra[spectrumID].peaks){
         const matchedPeak = match.matched_peaks.find(p => p.experimental_mz === peak.mass)
@@ -136,6 +146,11 @@ function findNotMatchedPeaks(spectrumID, variantID){
 function colorMatchedPeaks(spectrumCan, spectrumID, variantID){
     const svgSpectrum = document.getElementById('spectrumSvg');
     svgSpectrum.innerHTML = "";
+
+    const variantObjet = getVariantObject(variantID);
+    const old_to_new_mon_map = variantObjet.old_to_new_mon_map
+    const match = spectra_matching_results.find((entry) => entry.spectrum_id === spectrumID && entry.structure_id === variantID);
+
     
     const specWidth = spectrumNotMatched.memory.width;
     const specHeight = spectrumNotMatched.memory.height;
@@ -152,13 +167,14 @@ function colorMatchedPeaks(spectrumCan, spectrumID, variantID){
 
         const pid = generateID(spectrumID, peak.x);
 
-        const match = spectra_matching_results.find((entry) => entry.spectrum_id === spectrumID && entry.structure_id === variantID);
         const matched_peak = match.matched_peaks.find(peak => peak.experimental_peak_idx === pid); 
-        const nid = translateMask(matched_peak.theoretical_fragment_mask);
+        const nid = translateMask(matched_peak.theoretical_fragment_mask, old_to_new_mon_map);
         const mass = parseFloat(peak.x).toFixed(3);
         const intensity = parseFloat(spectra[spectrumID].peaks[matched_peak.experimental_peak_idx].intensity).toFixed(1);
         const massErrorAbs = parseFloat(matched_peak.theoretical_mz - matched_peak.experimental_mz).toFixed(3);
         const massErrorRel = parseFloat((massErrorAbs / matched_peak.experimental_mz ) * 1000000).toFixed(1);
+        const charge = matched_peak.charge;
+ 
 
         const peakLine = document.createElementNS(svgns, 'line');
         peakLine.setAttribute("id", `${peak.x}`);
@@ -168,6 +184,7 @@ function colorMatchedPeaks(spectrumCan, spectrumID, variantID){
         peakLine.setAttribute("intensity", `${intensity}`);
         peakLine.setAttribute("massErrorAbs", `${massErrorAbs}`);
         peakLine.setAttribute("massErrorRel", `${massErrorRel}`);
+        peakLine.setAttribute("charge", `${charge}`);
         peakLine.setAttribute('x1', coordx);
         peakLine.setAttribute('y1', origY);
         peakLine.setAttribute('x2', coordx);
@@ -203,10 +220,14 @@ function updatePeaks(spectrumCan){
         peakLine.setAttribute('y2', coordy);
     }
 }
-function translateMask(mask){
+function translateMask(mask, old_to_new_mon_map){
+    const deletedIDs = old_to_new_mon_map.filter(t => t[0] != null && t[1] === null).map(t => t[0]);
     const results = [];
     let id = 1;
     for(const char of mask.split('')){
+        if(deletedIDs.includes(id)){
+            id++;
+        }
         const digit = parseInt(char);
         if(digit === 1){
             results.push(id);
@@ -226,73 +247,39 @@ function generateID(spectrumID, peakMass){
 }
 
 // -- Nerpa MS modification graph --
-let origNetwork;
-let newNetwork;
-
-
 function drawOrigGraph(nrpID, variant){
-    const graph = monomer_graph[nrpID];
-    const variantIDs = extractIDs(variant);
-    const [graphModKey, graphMod] = Object.entries(candidate_NRPs).find(([key]) => {
-        const entryIDs = extractIDs(key);
-        return entryIDs.nrpID === variantIDs.nrpID &&
-            entryIDs.bgcID === variantIDs.bgcID;
-    });
-    const mod_map = graphMod.new_variants[variant].old_to_new_mon_map;
+   
+    drawGraph(nrpID);
 
-    const graph_div = document.getElementById("graphModOld");
-    const [graph_data, graph_options] = buildGraph(graph);
-    network = new vis.Network(graph_div, graph_data, graph_options);
-
-    nodes.forEach(n => nodes.update({
-        id: n.id, color: getNodeColorOrig(n.id, mod_map )
-    }));
-    
-    network.addEventListener('click',  e => {
-        if(e.nodes.length === 0){ 
-            deselect();
-            network.fit();
-        } else {
-            select(e.nodes);
-        }
-    });
-
-    nodeIdLabel.clear();
-
-    for(const entry of graph.nodes){
-        nodeIdLabel.set(entry.id, entry.label);
-    }
-  
+    const variantObj = getVariantObject(variant);
+    const mod_map = variantObj.old_to_new_mon_map;
+    network.nodes.forEach(n => network.nodes.update(
+        { id: n.id, color: getNodeColorOrig(n.id, mod_map) }
+    ));
 }
 
 function drawModGraph(nrpID, variant) {
-    const variantIDs = extractIDs(variant);
+    const variantObj = getVariantObject(variant);
 
-    const [graphModKey, graphMod] = Object.entries(candidate_NRPs).find(([key]) => {
-        const entryIDs = extractIDs(key);
-        return entryIDs.nrpID === variantIDs.nrpID &&
-            entryIDs.bgcID === variantIDs.bgcID;
-    });
+    const graphData_variant = variantObj.new_record;
+    const mod_map = variantObj.old_to_new_mon_map;
 
-    const graphData_new = graphMod.new_variants[variant].new_record;
-    const modMap = graphMod.new_variants[variant].old_to_new_mon_map;
-
-    const nodesData_new = [];
-    const edgesData_new = [];
-    Object.entries(graphData_new.monomers).forEach(mon => {
+    const nodesData_mod = [];
+    const edgesData_mod = [];
+    Object.entries(graphData_variant.monomers).forEach(mon => {
         const coords = getCoords(mon[0], nrpID);
-        nodesData_new.push({
+        nodesData_mod.push({
             "id" : mon[0],
             "label" : `${mon[1].name}_${mon[0]}`,
-            "color" : getNodeColorNew(mon[0], modMap),
+            "color" : getNodeColorNew(mon[0], mod_map),
             "font" : "26",
             "borderWidthSelected" : 4,
             "x": coords.x,
             "y": coords.y
         });
     });
-    graphData_new.monomer_bonds.forEach(bond => {
-        edgesData_new.push({
+    graphData_variant.monomer_bonds.forEach(bond => {
+        edgesData_mod.push({
             "from" :bond[0][0].toString(),
             "to" : bond[0][1].toString(),
             "color" : bond[1][0].atomic_edge.bond_type === 'AMINO' ? 'blue' : 'red',
@@ -303,43 +290,21 @@ function drawModGraph(nrpID, variant) {
         });
     });  
 
-    const graph_div = document.getElementById("graphModNew");
-    
-    const nodes = new vis.DataSet(
-                 nodesData_new.map(n => ({...n}))
-            );
-    const edges = new vis.DataSet(
-                edgesData_new.map(e => ({...e}))
-            );
-    
-    const graph_data = { nodes: nodes, edges: edges };
-    const graph_options = { 
-        physics: { enabled: false},
-        edges: {
-            arrows: {
-                to: {enabled: true, scaleFactor: 1.5, type: 'arrow'},
-            },
-            smooth: {
-                enabled: true,
-                type: 'dynamic', 
-                roundness: 0.5      
-            },
-            arrowStrikethrough: false,
-        },
-        interaction:{
-            zoomView:true,
-            multiselect: true,
-        },
-    };
+    const vis_network = buildVisGraph(nodesData_mod, edgesData_mod, "graphModNew", nrpID);
  
-    newNetwork = new vis.Network(graph_div, graph_data, graph_options);
-
-    newNetwork.addEventListener('click',  e => {
+    vis_network.addEventListener('click',  e => {
         deselect();
-        newNetwork.fit();
-        newNetwork.selectNodes([]);  
+        vis_network.fit();
+        vis_network.selectNodes([]);  
     });
-
+    
+    const p = document.getElementById("graphModP");
+    const variantIDs = extractIDs(variant);
+    p.innerHTML =`Modified Monomer Graph <span style="margin: 0 10px; color: #bbb;">|</span> 
+                    <span>rank: ${variantIDs.rank}</span>
+                    <span style="margin: 0 10px; color: #bbb;">|</span> 
+                    <span>number of modifications:${variantIDs.numMods}</span>
+                `; 
 }
 
 function getNodeColorOrig(id, mod_map){
@@ -422,7 +387,6 @@ function getMoleculeVariantData(variantID, nrpID){
     }
    
 }
-
 function getVariantObject(variantID){
     const variantIDs = extractIDs(variantID);
     const [variantkey, variantObject] = Object.entries(candidate_NRPs).find(([key]) => {
@@ -443,15 +407,15 @@ function getAtomCoords(id, data){
 // -- variant Graph ---
 let variantNetwork;
 function drawVariantGraph(nrpID, variantID, spectrumID){
-    const variantObjet = getVariantObject(variantID);
+    const variantObj = getVariantObject(variantID);
 
-    const graphData_new = variantObjet.new_record;
+    const graphData_variant = variantObj.new_record;
 
-    const nodesData_new = [];
-    const edgesData_new = [];
-    Object.entries(graphData_new.monomers).forEach(mon => {
+    const nodesData_variant = [];
+    const edgesData_variant = [];
+    Object.entries(graphData_variant.monomers).forEach(mon => {
         const coords = getCoords(mon[0], nrpID);
-        nodesData_new.push({
+        nodesData_variant.push({
             "id" : mon[0],
             "label" : `${mon[1].name}_${mon[0]}`,
             "color" : getNodeColorVariant(mon[0], nrpID),
@@ -461,8 +425,8 @@ function drawVariantGraph(nrpID, variantID, spectrumID){
             "y": coords.y
         });
     });
-    graphData_new.monomer_bonds.forEach(bond => {
-        edgesData_new.push({
+    graphData_variant.monomer_bonds.forEach(bond => {
+        edgesData_variant.push({
             "from" :bond[0][0].toString(),
             "to" : bond[0][1].toString(),
             "color" : bond[1][0].atomic_edge.bond_type === 'AMINO' ? 'blue' : 'red',
@@ -473,48 +437,24 @@ function drawVariantGraph(nrpID, variantID, spectrumID){
         });
     });  
 
-    const graph_div = document.getElementById("graphImage");
-    const nodes_new = new vis.DataSet(
-                nodesData_new.map(n => ({...n}))
-            );
-    const edges_new = new vis.DataSet(
-                edgesData_new.map(e => ({...e}))
-            );
+    const vis_network = buildVisGraph(nodesData_variant, edgesData_variant, "variantGraphImage", nrpID);
+    variantNetwork = vis_network;
     
-    const graph_data = { nodes: nodes_new, edges: edges_new };
-    const graph_options = { 
-        physics: { enabled: false},
-        edges: {
-            arrows: {
-                to: {enabled: true, scaleFactor: 1.5, type: 'arrow'},
-            },
-            smooth: {
-                enabled: true,
-                type: 'dynamic', 
-                roundness: 0.5      
-            },
-            arrowStrikethrough: false,
-        },
-        interaction:{
-            zoomView:true,
-            multiselect: true,
-        },
-    };
-
-    variantNetwork = new vis.Network(graph_div, graph_data, graph_options);
-    variantNetwork.nodes = nodes_new;
-    variantNetwork.edges = edges_new;
-
     variantNetwork.addEventListener('click',  e => {
         if(e.nodes.length === 0){ 
             deselectMS();
-            network.fit();
+            variantNetwork.fit();
         } else {
             selectMS(e.nodes);
         }
     });
 
-    displayVarquestMod(spectrumID, variantID, nodes_new)
+    nodeIdLabel.clear();
+    for(const entry of nodesData_variant){
+        nodeIdLabel.set(entry.id, entry.label);
+    }
+
+    displayVarquestMod(spectrumID, variantID);
 }
 function getNodeColorVariant(id, nrpID){
     const origNode = monomer_graph[nrpID].nodes.find(n => n.id === id);
@@ -524,84 +464,51 @@ function getNodeColorVariant(id, nrpID){
         return "#cbcbcb"
     }
 }
-function displayVarquestMod(spectrumID, variantID, nodes){
-    const match = spectra_matching_results.find((entry) => entry.spectrum_id === spectrumID && entry.structure_id === variantID);
+function displayVarquestMod(spectrumID, variantID){
+    const match = getSpectrumVariantMatch(spectrumID, variantID);
 
+    let modSum = 0;
     let subText = '';
     for(const mod of match.modifications){
         if(subText != '') subText += ' + ';
-        const initMass = mod.initial_monomer_mass.toFixed(3);
-        const mass_diff = mod.mass_difference.toFixed(3);
-        const modMonNode = nodes.get(mod.monomer_idx.toString())
-        const color = modMonNode.color;
-        const borderColor = darkenColor(color, 10);
+
+        const initMass = mod.initial_monomer_mass;
+        const mass_diff = mod.mass_difference;
+        modSum += (initMass + mass_diff);
+
+        const modified_node = variantNetwork.nodes.get(mod.monomer_idx.toString());
+
+        let mass_diff_string;
         if (mass_diff < 0){
-            subText += `<span style="
-                            background-color: ${color};
+            mass_diff_string = `- ${mass_diff.toFixed(3) * -1} Da`;
+        } else{
+            mass_diff_string = `+ ${mass_diff.toFixed(3)} Da`;
+        }
+        subText += `<span style="
+                            background-color: ${modified_node.color};
                             background-clip: padding-box;
-                            border: 4px dashed ${borderColor};
+                            border: 4px dashed ${darkenColor(modified_node.color)};
                             border-radius: 999px;
                             padding: 2px 6px;
-                            ">${modMonNode.label}</span>
-                             - ${mass_diff * -1} Da`;
-        } else {
-            subText += `<span style="background-color: ${color};
-                            background-clip: padding-box;
-                            border: 4px dashed ${borderColor};
-                            border-radius: 999px;
-                            padding: 2px 6px;">${modMonNode.label}</span>
-                                     + ${mass_diff} Da`;
-        }
-        nodes.update({
-            id: modMonNode.id,
+                            ">${modified_node.label}</span>
+                            ${mass_diff_string}`;
+
+        variantNetwork.nodes.update({
+            id: modified_node.id,
+            label: `${modified_node.label}<i>${mass_diff_string}</i>`,
             shapeProperties: {
                 borderDashes: [5, 5] 
             },
             borderWidth: 8,  
-            borderWidthSelected: 8,
+            borderWidthSelected: 8
         });
-        const box = variantNetwork.getBoundingBox(modMonNode.id);
-        nodes.add({
-            id: -1,
-            label: `${mass_diff} Da`,
-            "fixed": true,
-            "physics": false, 
-            x: box.right + 10,
-            y: box.bottom + 10,
-            shape: "text",                                    
-            font: { 
-                color: '#444',
-                size: 16, 
-                mod: 'bold'
-            },
-            chosen: false
-        }); 
     }
 
-    const spectrumMass = match.spectrum_mass.toFixed(3);
-
-    const textHtml = `${subText} = ${spectrumMass} Da`;
-
-    const gdiv = document.getElementById('modTable');
-    gdiv.innerHTML = '';
-
-    const tMod = document.createElement("table");
-  
-    const tHead = tMod.createTHead();
-    const hLine = document.createElement("tr");
-    const thLabel = document.createElement("th");
-    thLabel.textContent = 'MS-based mod:';
-    hLine.appendChild(thLabel);
-    tHead.appendChild(hLine);
-    const line = tMod.insertRow();
-    const lineContent = line.insertCell(0);
-    lineContent.innerHTML = textHtml;  
-    gdiv.appendChild(tMod);
-
-
+    const modLine = document.getElementById('modLine');
+    modLine.innerHTML = `${subText} = ${modSum.toFixed(3)} Da`;
 }
-// AI
-function darkenColor(hex, percent) {
+
+function darkenColor(hex, percent = 10) {
   hex = hex.replace(/^\s*#|\s*$/g, '');
   
   const num = parseInt(hex, 16);
@@ -615,9 +522,19 @@ function darkenColor(hex, percent) {
 
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
 }
+
+function getSpectrumVariantMatch(spectrumID, variantID){
+    return spectra_matching_results.find(
+            (entry) => 
+                entry.spectrum_id === spectrumID &&
+                entry.structure_id === variantID
+            );
+
+}
+
 // -- graph/mol --
 function switchGraphMol(){
-    const graph = document.getElementById('graphImage');
+    const graph = document.getElementById('variantGraphImage');
     const molecule = document.getElementById('moleculeImage');
     const showLabelBtn = document.getElementById('showLabelBtn');
 

@@ -403,8 +403,7 @@
     </div>
 
     <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;" deselect-trigger></div>
-
-
+    
     <!-- Match Viewer -->
     <div>
         <div id="matchViewerControls" deselect-trigger>
@@ -412,7 +411,7 @@
             <p id="matchViewerLabel" style="display: block;">Click on a Match ID to view the detailed match report and the corresponding BGC and NRP annotations</p>
         </div>
         <div id="matchViewerContainer" class="viewer" style="display: none;" deselect-trigger>
-            <p class="matchDetailedInfoLabel">Match general information</p>
+            <p class="matchDetailedInfoLabel">Nerpa Match general information</p>
             <div class="table-container">
                 <!-- everything is populated here by JavaScript -->
                 <table id="matchTable">
@@ -533,8 +532,8 @@
            <div style="display: flex;  gap:10px;" deselect-trigger>
 
                 <div style="flex: 1; min-width:0;" deselect-trigger>
-                     <p class="orderLabel">Original monomer graph</p>
-                    <div id="graphModOld" style="background: #ffffff; 
+                    <p class="orderLabel">Original Monomer Graph</p>
+                    <div id="graphImage" style="background: #ffffff; 
                         width: 100%; 
                         height: 40vh; 
                         border: 1px;">
@@ -542,7 +541,7 @@
                </div>
 
                 <div style="flex: 1; min-width:0;" deselect-trigger>
-                    <p class="orderLabel">Modified monomer graph</p>
+                    <p id="graphModP" class="orderLabel">Modified monomer graph</p>
                     <div id="graphModNew" style="background: #ffffff; 
                         width: 100%; 
                         height: 40vh; 
@@ -610,8 +609,9 @@
                                 <tr>
                                     <th style=" padding:2px 8px;  text-align:left;">m/z</th>
                                     <th style=" padding:2px 8px; text-align:right;">Intensity</th>
-                                    <th style="padding:2px 8px;  text-align:right;">absolute mass error (Da)</th>
-                                    <th style=" padding:2px 8px;  text-align:right;">relative mass error (ppm)</th>
+                                    <th style=" padding:2px 8px; text-align:right;">Charge</th>
+                                    <th style="padding:2px 8px;  text-align:right;">&Delta;(<em>m/z</em>)<sub>abs</sub> (Da)</th>
+                                    <th style=" padding:2px 8px;  text-align:right;">&Delta;(<em>m/z</em>)<sub>rel</sub> (ppm)</th>
                                 </tr>
                             </thead>
                                 <tbody>
@@ -665,14 +665,26 @@
                             flex-direction: column;
                         " deselect-trigger>
 
-                            <div id="modTable" style="
+                            <div style="
                                 flex: 0 0 auto;
                                 padding: 4px 8px;
                                 background: #ffffff;
                             " deselect-trigger>
+                                 <table>
+                                    <thead>
+                                        <tr>
+                                            <th>MS-based modification:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="modLine"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
 
-                            <div id="graphImage" style="
+                            <div id="variantGraphImage" style="
                                 flex: 1;
                                 position: relative;
                                 background: #ffffff;
@@ -707,6 +719,7 @@
 <script type="text/javascript" src="{{HTML_AUX_DIR}}/chemdoodle/ChemDoodleWeb.js"></script>
 
 <script>
+
   // Function to detect if a value is numeric
     function isNumeric(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
@@ -756,8 +769,8 @@
     // List of column names and visibility for the main report table and the corresponding checkboxes
     const mainColumns = [
         {
-            header: "Match ID",
-            title: "Unique identifier of the match",
+            header: "Row Idx",
+            title: "Unique identifier of the row",
             hidden: false
         },
         {
@@ -766,8 +779,8 @@
             hidden: false
         },
         {
-            header: "Score",
-            title: "Default score of the match. Coincides with one of the other score columns (hidden by default)",
+            header: "Nerpa Score",
+            title: "Default score of the match between BGC and NRP from Nerpa report. Coincides with one of the other score columns (hidden by default)",
             hidden: false
         },
         {
@@ -801,13 +814,23 @@
             hidden: false
         },
         {
-            header: "Variant rank",
-            title: "Rank at which the variant ID is found",
-            hidden: false
+           header: "Variant Rank",
+           title: "Variant rank at which the variant can be found", 
+           hidden: false
+        },
+        {
+           header: "Num Mods",
+           title: "Number of modifications to the original NRP", 
+           hidden: false
         },
         {
             header: "Spectrum ID",
             title: "Spectrum identifier",
+            hidden: false
+        },
+        {
+            header: "MS Score",
+            title: "MS Score?", // !!! was ist MS Score?
             hidden: false
         },
     ];
@@ -1009,7 +1032,7 @@
         for (let i = 0; i < 4; i++) {
             const spectrumMatch= spectra_matches[i]; 
             matches_with_spectrum.push( 
-                { ...match, spectrumID: spectrumMatch.spectrum_id}
+                { ...match, spectrumID: spectrumMatch.spectrum_id, scoreMS: spectrumMatch.score}
             )
         }
         return matches_with_spectrum
@@ -1043,6 +1066,7 @@
                 dataExpand[idx] = {
                     matchID: m.Match_ID,
                     spectrumID: m.spectrumID,
+                    scoreMS: m.scoreMS,
                     variantID: m.variant
                 }
             });
@@ -1110,8 +1134,10 @@
 
         // Variant rank + Spectrum ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="ms-link" data-variant="${item.variant}">${extractIDs(item.variant).rank}.${extractIDs(item.variant).numMods}</a></td>
-            <td><a href="#" class="ms-link">${item.spectrumID}</a></td>
+            <td>${extractIDs(item.variant).rank}</td>
+            <td>${extractIDs(item.variant).numMods}</td>
+            <td>${item.spectrumID}</td>
+            <td>${item.scoreMS}</td>
         `);
 
         return row;
@@ -1348,10 +1374,10 @@
             nerpaReportlink.href = `${nerpaReportlink.href}#${matchID}`
            
             toggleAlignmentTable(true);
-            toggleGenomeViewer(true, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`, true);  
-            toggleVariantSpectrumViewer(false, nrp_id, spectrum_id, variant_id);
+            toggleGenomeViewer(true, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`, true); 
             toggleModuleViewer(false, nrp_id, bgc_id);
-            toggleModificationViewer(false, nrp_id, variant_id);
+            toggleModificationViewer(false, nrp_id, variant_id); 
+            toggleVariantSpectrumViewer(false, nrp_id, spectrum_id, variant_id);
         }
     }
 
@@ -1367,8 +1393,10 @@
         nrpIDLink.className = 'nrp-link';
         nrpIDLink.dataset.nrp = nrp_id;
         nrpIDLink.textContent = nrp_id;
+
         const nrpMetadataSpans = createMetadataNodes(nrpMetadataColumns, getNrpMetadata(nrp_id), { wrap: "span" });
         const nrpCells = [nrpIDLink, ...nrpMetadataSpans];
+
         const nrpTable = buildSingleRowTable({
             id: 'matchTableNrp',
             headers: nrpHeaders,
@@ -1393,14 +1421,17 @@
         genomeLink.dataset.genome = genome_folder;
         genomeLink.dataset.bgc = '';
         genomeLink.textContent = genome_id;
+
         const regionLink = document.createElement('a');
         regionLink.href = '#';
         regionLink.className = 'genome-link';
         regionLink.dataset.genome = genome_folder;
         regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
         regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+
         const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id), { wrap: "span" });
         const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
+
         const bgcTable = buildSingleRowTable({
             id: 'matchTableBgc',
             headers: bgcHeaders,
@@ -1412,7 +1443,7 @@
 
     function getGeneralTabel(item){
         // --- General info (everything before NRP ID)
-        const generalHeaders = ["Match ID", "Score", "Raw score", "NRP score", "BGC score"];
+        const generalHeaders = ["Nerpa Match ID", "Nerpa Score", "Raw score", "NRP score", "BGC score"];
         const generalCells   = [
             item.Match_ID,
             fmtNum(item.score),
@@ -1456,6 +1487,7 @@
 
         // Append the three compact tables (stacked one under another)
         container.append(generalTable, nrpTable, bgcTable);
+
         // Handlers for the NRP-ID, Genome and BGC-ID links in the detailed match info tables
         container.querySelectorAll('.nrp-link').forEach(link => {
             link.addEventListener('click', (e) => {

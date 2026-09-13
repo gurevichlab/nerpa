@@ -449,7 +449,7 @@
             <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                <p class="orderLabel">BGC order</p>
                 <svg id="moduleViewerBGC"
-                    style="background: #ffffff;" deselect-trigger>
+                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
                 </svg>
             </div>
             
@@ -860,7 +860,7 @@
                     event.preventDefault();
                     const matchID = link.dataset.match;
                     toggleMatchViewer(false, matchID);
-                     history.pushState("", "", `#${matchID}`);
+                    history.pushState("", "", `#${matchID}`);
                 });
             });
 
@@ -1243,7 +1243,7 @@
             hideLabelBtn.style.display = 'block';
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleNrpViewer(hide, nrpID);
-
+            
             drawGraph(nrpID);
             drawMolecule(molecule_image[nrpID]);
         }

@@ -409,7 +409,7 @@ function drawGeneArrow(id, nid, x, y, length, displayed, reversed, svg){
     // set arrow description
     const arrowDes = document.createElementNS(svgns, 'text');
     arrowDes.setAttribute('x',  geneStart + (length / 2));
- arrowDes.setAttribute('y', y - 50);
+    arrowDes.setAttribute('y', y - 50);
     arrowDes.setAttribute('font-family', 'Arial');
     arrowDes.setAttribute('font-size', '14');
     arrowDes.setAttribute('fill', 'white');
@@ -501,18 +501,16 @@ function addClickHandler(svg){
 
 // -- graph variables -- 
 let network;
-let nodes;
-let edges; 
-let hasSelectedNodes = false;
+
 // a lookup dictionary: node ID -> node label
 const nodeIdLabel = new Map(); 
 
 function drawGraph(nrpID){
-    const graph = monomer_graph[nrpID];
-    const graph_div = document.getElementById("graphImage");
-    const [graph_data, graph_options] = buildGraph(graph);
-    network = new vis.Network(graph_div, graph_data, graph_options);
-    
+    const graphData = monomer_graph[nrpID];
+  
+    const vis_network = buildVisGraph(graphData.nodes, graphData.edges, "graphImage", nrpID);
+    network = vis_network;
+
     network.addEventListener('click',  e => {
         if(e.nodes.length === 0){ 
             deselect();
@@ -523,29 +521,23 @@ function drawGraph(nrpID){
     });
 
     maxZoomGraph();
-    
-    const idsToUpdate = chiralityCheck(nrpID);
-    for(const id of idsToUpdate){
-        const node = nodes.get(id);
-        node.label = `D-${node.label}`;
-    }
-    nodeIdLabel.clear();
 
-    for(const entry of graph.nodes){
+    nodeIdLabel.clear();
+    for(const entry of graphData.nodes){
         nodeIdLabel.set(entry.id, entry.label);
     }
 }
 
-function buildGraph(data) {
-    
-    nodes = new vis.DataSet(
-                data.nodes.map(n => ({...n}))
+function buildVisGraph(nodes_set, edges_set, graph_div_id, nrpID){
+    const vis_nodes = new vis.DataSet(
+                 nodes_set.map(n => ({...n}))
             );
-    edges = new vis.DataSet(
-                data.edges.map(e => ({...e}))
+    const vis_edges = new vis.DataSet(
+                edges_set.map(e => ({...e}))
             );
     
-    const graph_data = { nodes: nodes, edges: edges };
+    const graph_div = document.getElementById(graph_div_id);
+    const graph_data = { "nodes": vis_nodes, "edges": vis_edges };
     const graph_options = { 
         physics: { enabled: false},
         edges: {
@@ -563,10 +555,28 @@ function buildGraph(data) {
             zoomView:true,
             multiselect: true,
         },
+        nodes:{
+            font: {
+                multi: true,
+                ital:{
+                    size:12,
+                    vadjust: 10
+                }
+            }
+        }
     };
+    const idsToUpdate = chiralityCheck(nrpID);
+    for(const id of idsToUpdate){
+        const node = vis_nodes.get(id);
+        node.label = `D-${node.label}`;
+    }
  
-    return [graph_data, graph_options]
+    const vis_network = new vis.Network(graph_div, graph_data, graph_options);
 
+    vis_network.nodes = vis_nodes;
+    vis_network.edges = vis_edges;
+
+    return vis_network
 }
 
 function maxZoomGraph(){
@@ -590,14 +600,13 @@ function maxZoomGraph(){
         lastPosition = network.getViewPosition();
     });
 }
-function increaseTranparency(nodeIDs, networkNodes = nodes, networkEdges = edges){
-    const realNodes = networkNodes.get({filter: n => n.id >= 0})
+function increaseTranparency(nodeIDs, networkNodes = network.nodes, networkEdges = network.edges){
     // reset
-    realNodes.forEach(n => networkNodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
+    networkNodes.forEach(n => networkNodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
     networkEdges.get().forEach(e => networkEdges.update({id: e.id, color: e.color === '#E0A59D' || e.color === 'red' ?'red' : 'blue'}));
     // color graph transparent expect selected node
     if(!(nodeIDs.length === 0)){
-        realNodes.forEach(n => !nodeIDs.includes(n.id) && n.id >= 0 ? networkNodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
+        networkNodes.forEach(n => !nodeIDs.includes(n.id) && n.id >= 0 ? networkNodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
         networkEdges.get().forEach(e => networkEdges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
     }
 }
@@ -720,7 +729,7 @@ function colorAtom(atom, saturation = 0){
         label = atom.altLabel;
     }
     if (label === 'C') return; 
-    const color = atom.backgroundColor;
+    const color = atom.backgroundColor === undefined? [128,128,128] :atom.backgroundColor; // Weg wenn daten da !!!!!!!
     const x = atom.x;
     const y = atom.y;
     
@@ -744,7 +753,7 @@ function colorBond(bond, saturation = 0){
     const sY = bond.a1.y;
     const eX = bond.a2.x;
     const eY = bond.a2.y;
-    const color = bond.backgroundColor;
+    const color =  bond.backgroundColor === undefined? [128,128,128] : bond.backgroundColor; // Weg wenn daten da !!!!!!!
     ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
     ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
     ctx.lineCap = "round";
