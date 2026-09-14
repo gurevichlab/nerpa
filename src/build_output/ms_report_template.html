@@ -1598,7 +1598,7 @@
         }
     }
 
-    function toggleModificationViewer(hide, nrpID, variant, userHide = false){
+    function toggleModificationViewer(hide, nrpID, variantID, userHide = false){
         const frame = document.getElementById('graphModContainer');
         const hideBtn = document.getElementById('hideModificationViewerBtn');
         const showBtn = document.getElementById('showModificationViewerBtn');
@@ -1615,12 +1615,10 @@
             hideBtn.style.display = 'block';
 
             showBtn.style.display = 'none';
-            showBtn.onclick = () => {
-                toggleModificationViewer(false, nrpID, false, structureID);
-            };
+            showBtn.onclick = () => toggleModificationViewer(hide, nrpID);
 
-            drawOrigGraph(nrpID, variant);
-            drawModGraph(nrpID, variant);
+            drawOrigGraph(nrpID, variantID);
+            drawModGraph(nrpID, variantID);
         }
     }
 

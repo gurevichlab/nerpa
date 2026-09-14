@@ -1,9 +1,6 @@
 // -- spectrum --
 let spectrum;
-let spectrumNotMatched;
 let spectrumCanvas;
-// a lookup dictionary: mass value -> experimental_peak_idx
-const massPeakIdx = new Map(); 
 
 window.addEventListener("resize", (event) => {
     resizeSpectrum();
@@ -11,7 +8,6 @@ window.addEventListener("resize", (event) => {
 
 function drawSpectrum(spectrumID, variantID){
     document.getElementById('spectrumCanvas').innerHTML = "";
-    const svgSpectrum = document.getElementById('spectrumSvg');
 
     const rect = document.getElementById('spectrum').getBoundingClientRect()
     const canvasWidth = Math.round(rect.width * 0.9);
@@ -20,34 +16,21 @@ function drawSpectrum(spectrumID, variantID){
     spectrumCanvas.styles.plots_color="grey";
     spectrumCanvas.styles.plots_width= 1;
     spectrumCanvas.styles.text_font_size = 14;
-    spectrumCanvas.styles.text_font_families[0] = "Arial";
-    spectrumCanvas.styles.text_font_families[1] = "Charcoal";
-    spectrumCanvas.styles.text_font_families[2] = 'sans-serif';
-    
+    spectrumCanvas.styles.text_font_families = ["Arial", "Charcoal", "sans-serif"];
 
-    const match = getSpectrumVariantMatch(spectrumID, variantID);
-
-    const matchedPeaks = findMatchedPeaks(match, spectrumID);
-    const matchedSpectrumJcampFile = peakArrayToJcamp(matchedPeaks);
-    spectrum = ChemDoodle.readJCAMP(matchedSpectrumJcampFile); 
-   
-    spectrumCanvas.loadSpectrum(spectrum);
-
-    const notMatchedPeaks = findNotMatchedPeaks(match, spectrumID);
-    const notMatchedSpectrumJcampFile = peakArrayToJcamp(notMatchedPeaks);
-    spectrumNotMatched = ChemDoodle.readJCAMP(notMatchedSpectrumJcampFile); 
-
-    spectrumCanvas.loadSpectrum(spectrumNotMatched); 
-    colorMatchedPeaks(spectrumCanvas, spectrumID, variantID);
+    const peakArray = spectra[spectrumID].peaks;
+    const spectrumJcampFile = peakArrayToJcamp(peakArray);
+    spectrum = ChemDoodle.readJCAMP(spectrumJcampFile); 
+    spectrumCanvas.loadSpectrum(spectrum); 
+    colorMatchedPeaks(spectrumID, variantID);
 
     const oldRepaint = spectrumCanvas.repaint;
     spectrumCanvas.repaint = function(e) {
         oldRepaint.call(this,e);
-        updatePeaks(spectrumCanvas);
+        updatePeaks();
     };  
 
-
-    
+    const svgSpectrum = document.getElementById('spectrumSvg');
     svgSpectrum.childNodes.forEach(peakLine => {
         peakLine.addEventListener('click', e => {
             const nid = peakLine.getAttribute('nid').split(',');
@@ -55,24 +38,20 @@ function drawSpectrum(spectrumID, variantID){
             selectMS(nid);
         });
     });
- 
     
     const infoDiv = document.getElementById("spectrumInfo");
+    const match = getSpectrumVariantMatch(spectrumID, variantID);
+
+    let infoText = `<span style="color: #000000; line-height: 2;"><strong>Spectrum ID: ${spectrumID}</strong></span>
+                    <br> <span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>
+                    <span style="margin: 0 10px; color: #bbb;">|</span> 
+                    <span><strong>MS Score:</strong> ${match.score}</span>`;
+            
     if(spectra[spectrumID].charge != null){
-        infoDiv.innerHTML = `<span style="color: #000000; line-height: 2;"><strong>Spectrum ID: ${spectrumID}</strong></span>
-                            <br> <span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>
-                             <span style="margin: 0 10px; color: #bbb;">|</span> 
-                              <span><strong>MS Score:</strong> ${match.score}</span> 
-                               <span style="margin: 0 10px; color: #bbb;">|</span> 
-                             <span><strong>Charge:</strong> +${spectra[spectrumID].charge}</span> 
-                             `;
-    } else {
-        infoDiv.innerHTML = `<span style="color: #000000; line-height: 2;"><strong>Spectrum ID: ${spectrumID}</strong></span>
-                            <br> <span><strong>Precursor:</strong> ${spectra[spectrumID].precursor_mass.toFixed(3)} Da</span>
-                            <span style="margin: 0 10px; color: #bbb;">|</span> 
-                             <span><strong>MS Score:</strong> ${match.score}</span> 
-                            `;
-    }
+        infoText += `<span style="margin: 0 10px; color: #bbb;">|</span> 
+                     <span><strong>Charge:</strong> +${spectra[spectrumID].charge}</span>`;
+    } 
+    infoDiv.innerHTML = infoText;
 
     initPeakTable(svgSpectrum);
 }
@@ -82,7 +61,7 @@ function resizeSpectrum(){
     const canvasWidth = Math.round(rect.width * 0.9);
     const canvasHeight = Math.round(rect.height * 0.7);
     spectrumCanvas.resize(canvasWidth,canvasHeight);
-    spectrumCanvas.loadSpectrum(spectrumNotMatched); 
+    spectrumCanvas.loadSpectrum(spectrum); 
 }
 function initPeakTable(svgSpectrum){
     const tbPeak = document.querySelector("#peakTable tbody");
@@ -99,7 +78,7 @@ function initPeakTable(svgSpectrum){
             selectMS(nid);
         });
         const peakMzCell = line.insertCell();
-        peakMzCell.innerHTML = peak.getAttribute('mass');  
+        peakMzCell.innerHTML = peak.getAttribute('mz');  
 
         const peakIntensityCell = line.insertCell();
         peakIntensityCell.innerHTML = peak.getAttribute('intensity');
@@ -108,14 +87,14 @@ function initPeakTable(svgSpectrum){
         chargeCell.innerHTML = peak.getAttribute('charge');  
   
         const peakMassErrorAbsCell = line.insertCell();
-        peakMassErrorAbsCell.innerHTML = `${peak.getAttribute('massErrorAbs')}`;;  
+        peakMassErrorAbsCell.innerHTML = peak.getAttribute('massErrorAbs');  
 
         const peakMassErrorRelCell = line.insertCell();
-        peakMassErrorRelCell.innerHTML = `${peak.getAttribute('massErrorRel')}`;
+        peakMassErrorRelCell.innerHTML = peak.getAttribute('massErrorRel');
     }
 }
 function peakArrayToJcamp(peaks){
-    let jcamp = `##TITLE=${''}\n##DATA TYPE= MASS SPECTRUM\n##XUNITS= m/z\n##YUNITS= relative abundance\n##PEAK TABLE= (XY..XY)`;
+    let jcamp = `##TITLE=${''}\n##DATA TYPE= MASS SPECTRUM\n##XUNITS= m/z\n##YUNITS= relative abundance\n##PEAK TABLE= (XY..XY)\n`;
     for (const p of peaks) {
         const x = p.mass;
         const y = p.intensity;
@@ -123,68 +102,48 @@ function peakArrayToJcamp(peaks){
     }
     return jcamp + '##END=\n';
 }
-function findMatchedPeaks(match, spectrumID){
-    const resultsPeaks = [];
-    for(const peak of match.matched_peaks){
-        const matchedPeak = spectra[spectrumID].peaks.find(p => p.mass === peak.experimental_mz)
-        if (matchedPeak){
-            resultsPeaks.push(matchedPeak);
-        }
-    }
-    return resultsPeaks
-}
-function findNotMatchedPeaks(match, spectrumID){
-    const resultsPeaks = [];
-    for(const peak of spectra[spectrumID].peaks){
-        const matchedPeak = match.matched_peaks.find(p => p.experimental_mz === peak.mass)
-        if (matchedPeak === undefined ){
-            resultsPeaks.push(peak);
-        }
-    }
-    return resultsPeaks
-}
-function colorMatchedPeaks(spectrumCan, spectrumID, variantID){
+function colorMatchedPeaks(spectrumID, variantID){
     const svgSpectrum = document.getElementById('spectrumSvg');
     svgSpectrum.innerHTML = "";
 
-    const variantObjet = getVariantObject(variantID);
-    const old_to_new_mon_map = variantObjet.old_to_new_mon_map
-    const match = spectra_matching_results.find((entry) => entry.spectrum_id === spectrumID && entry.structure_id === variantID);
+    const variantObject = getVariantObject(variantID);
+    const old_to_new_mon_map = variantObject.old_to_new_mon_map;
+    const match = getSpectrumVariantMatch(spectrumID, variantID);
 
-    
-    const specWidth = spectrumNotMatched.memory.width;
-    const specHeight = spectrumNotMatched.memory.height;
-    const specOffsetLeft = spectrumNotMatched.memory.offsetLeft;
-    const specOffsetBottom = spectrumNotMatched.memory.offsetBottom;
-    const specOffsetTop = spectrumNotMatched.memory.offsetTop;
+    const specWidth = spectrum.memory.width;
+    const specHeight = spectrum.memory.height;
+    const specOffsetLeft = spectrum.memory.offsetLeft;
+    const specOffsetBottom = spectrum.memory.offsetBottom;
+    const specOffsetTop = spectrum.memory.offsetTop;
 
-    const origY = spectrumNotMatched.getTransformedY(0,  spectrumCan.styles, specHeight, specOffsetBottom, specOffsetTop);
-
+    const origY = spectrum.getTransformedY(0,  spectrumCanvas.styles, specHeight, specOffsetBottom, specOffsetTop);
+  
     for(const peak of spectrum.data){
-       
-        const coordx = spectrumNotMatched.getTransformedX(peak.x, spectrumCan.styles, specWidth,specOffsetLeft);
-        const coordy = spectrumNotMatched.getTransformedY(peak.y,  spectrumCan.styles, specHeight, specOffsetBottom, specOffsetTop);
+        const matchedPeak = getMatchObject(match.matched_peaks, peak.x);
+        if(matchedPeak === undefined) continue;
+      
+        const coordx = spectrum.getTransformedX(peak.x, spectrumCanvas.styles, specWidth,specOffsetLeft);
+        const coordy = spectrum.getTransformedY(peak.y,  spectrumCanvas.styles, specHeight, specOffsetBottom, specOffsetTop);
+      
+        const nid = translateMask(matchedPeak.theoretical_fragment_mask, old_to_new_mon_map);
 
-        const pid = generateID(spectrumID, peak.x);
-
-        const matched_peak = match.matched_peaks.find(peak => peak.experimental_peak_idx === pid); 
-        const nid = translateMask(matched_peak.theoretical_fragment_mask, old_to_new_mon_map);
-        const mass = parseFloat(peak.x).toFixed(3);
-        const intensity = parseFloat(spectra[spectrumID].peaks[matched_peak.experimental_peak_idx].intensity).toFixed(1);
-        const massErrorAbs = parseFloat(matched_peak.theoretical_mz - matched_peak.experimental_mz).toFixed(3);
-        const massErrorRel = parseFloat((massErrorAbs / matched_peak.experimental_mz ) * 1000000).toFixed(1);
-        const charge = matched_peak.charge;
+        const mz = peak.x;
+        const intensity = spectra[spectrumID].peaks[matchedPeak.experimental_peak_idx].intensity; //peak.y is abs abundance not intensity
+        const charge = matchedPeak.charge;
+        const massErrorAbs = parseFloat(matchedPeak.theoretical_mz - matchedPeak.experimental_mz);
+        const massErrorRel = parseFloat((massErrorAbs / matchedPeak.experimental_mz ) * 1000000);
  
-
         const peakLine = document.createElementNS(svgns, 'line');
         peakLine.setAttribute("id", `${peak.x}`);
         peakLine.setAttribute("nid", `${nid}`);
         peakLine.setAttribute("clicked", false);
-        peakLine.setAttribute("mass", `${mass}`);
-        peakLine.setAttribute("intensity", `${intensity}`);
-        peakLine.setAttribute("massErrorAbs", `${massErrorAbs}`);
-        peakLine.setAttribute("massErrorRel", `${massErrorRel}`);
+        // set peak info to prepare for initialisation of peak table.
+        peakLine.setAttribute("mz", `${mz.toFixed(3)}`);
+        peakLine.setAttribute("intensity", `${intensity.toFixed(1)}`);
         peakLine.setAttribute("charge", `${charge}`);
+        peakLine.setAttribute("massErrorAbs", `${massErrorAbs.toFixed(3)}`);
+        peakLine.setAttribute("massErrorRel", `${massErrorRel.toFixed(1)}`);
+
         peakLine.setAttribute('x1', coordx);
         peakLine.setAttribute('y1', origY);
         peakLine.setAttribute('x2', coordx);
@@ -194,25 +153,24 @@ function colorMatchedPeaks(spectrumCan, spectrumID, variantID){
         svgSpectrum.appendChild(peakLine);
     }
 }
-function updatePeaks(spectrumCan){
+function updatePeaks(){
     
-    const specWidth = spectrumNotMatched.memory.width;
-    const specHeight = spectrumNotMatched.memory.height;
-    const specOffsetLeft = spectrumNotMatched.memory.offsetLeft;
-    const specOffsetBottom = spectrumNotMatched.memory.offsetBottom;
-    const specOffsetTop = spectrumNotMatched.memory.offsetTop;
+    const specWidth = spectrum.memory.width;
+    const specHeight = spectrum.memory.height;
+    const specOffsetLeft = spectrum.memory.offsetLeft;
+    const specOffsetBottom = spectrum.memory.offsetBottom;
+    const specOffsetTop = spectrum.memory.offsetTop;
 
-    const origY = spectrumNotMatched.getTransformedY(0,  spectrumCan.styles, specHeight,specOffsetBottom, specOffsetTop);
-    const origX = spectrumNotMatched.getTransformedX(0,  spectrumCan.styles, specWidth, specOffsetLeft);
-
+    const origY = spectrum.getTransformedY(0,  spectrumCanvas.styles, specHeight,specOffsetBottom, specOffsetTop);
+    const origX = spectrum.getTransformedX(0,  spectrumCanvas.styles, specWidth, specOffsetLeft);
 
     for(const peak of spectrum.data){
-       
-        const coordx = spectrumNotMatched.getTransformedX(peak.x, spectrumCan.styles, specWidth, specOffsetLeft);
-        const coordy = spectrumNotMatched.getTransformedY(peak.y,  spectrumCan.styles, specHeight, specOffsetBottom, specOffsetTop);
 
-        if (coordx < origX) continue;
+        const coordx = spectrum.getTransformedX(peak.x, spectrumCanvas.styles, specWidth, specOffsetLeft);
+        const coordy = spectrum.getTransformedY(peak.y,  spectrumCanvas.styles, specHeight, specOffsetBottom, specOffsetTop);
+
         const peakLine = document.getElementById(`${peak.x}`);
+        if(peakLine === null || coordx < origX) continue;
 
         peakLine.setAttribute('x1', coordx);
         peakLine.setAttribute('y1', origY);
@@ -237,15 +195,16 @@ function translateMask(mask, old_to_new_mon_map){
 
     return results;
 }
-function generateID(spectrumID, peakMass){
-    const spectrum = spectra[spectrumID];
-    for(const [peakIdx, peakValues] of spectrum.peaks.entries()){
-        if(peakValues.mass === peakMass){
-            return peakIdx
-        }
-    }
+function getSpectrumVariantMatch(spectrumID, variantID){
+    return spectra_matching_results.find(
+            (entry) => 
+                entry.spectrum_id === spectrumID &&
+                entry.structure_id === variantID
+            );
 }
-
+function getMatchObject(matchedPeaks, mz){
+    return matchedPeaks.find(p => p.experimental_mz === mz);   
+}
 // -- Nerpa MS modification graph --
 function drawOrigGraph(nrpID, variant){
    
@@ -523,14 +482,6 @@ function darkenColor(hex, percent = 10) {
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
 }
 
-function getSpectrumVariantMatch(spectrumID, variantID){
-    return spectra_matching_results.find(
-            (entry) => 
-                entry.spectrum_id === spectrumID &&
-                entry.structure_id === variantID
-            );
-
-}
 
 // -- graph/mol --
 function switchGraphMol(){
