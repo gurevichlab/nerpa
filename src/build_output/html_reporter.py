@@ -159,6 +159,41 @@ def _create_module_dicts(module_data) -> list:
     
     return module_array
 
+def _create_graph_dicts(monomer_graph_data) -> Dict:
+    
+    graph_dict = {}
+    for compID, graph in monomer_graph_data.items():
+        graphJson = json.loads(graph.pipe(format='json0').decode('utf-8'))
+        entry = {}
+        entry["nodes"] = []
+        entry["edges"] = []
+        for node in graphJson["objects"]:
+            entry["nodes"].append({
+                "id": node["name"],
+                "label":node["label"],
+                "color" : node["color"],
+                "font" : node["fontsize"],
+                "borderWidthSelected": 4,
+                "x": float(node["pos"].split(",")[0]),
+                "y": - float(node["pos"].split(",")[1]),
+            })
+
+        for edge in graphJson["edges"]:
+            entry["edges"].append({
+                "id": edge["_gvid"],
+                "from": next(filter(lambda n: n["_gvid"] == edge["tail"], graphJson["objects"]))["name"],
+                "to" : next(filter(lambda n: n["_gvid"] == edge["head"], graphJson["objects"]))["name"],
+                "color" : edge["color"],
+                "width": edge["penwidth"],
+                "selectionWidth": edge["penwidth"],
+                "hoverWidth": edge["penwidth"], 
+                "arrows": '' if (edge["color"] == "red") else 'to',
+            })
+
+        graph_dict[compID] = entry
+
+    return graph_dict
+
 class HTMLReportConfig:
     mode: Literal['nerpa', 'nerpa-ms']
     
@@ -407,6 +442,8 @@ def create_html_report_ms(
         monomer_names_helper=monomer_names_helper
     )
 
+    generated_nrps_graph_data_dict = _create_graph_dicts(generated_nrps_data.generated_nrps_graph_data)
+
     # the main (root) HTML report and associated JSON
     with open(cfg.report_data_ms_js, 'w') as json_file:
         json_file.write('var candidate_NRPs = ')
@@ -421,12 +458,12 @@ def create_html_report_ms(
         json.dump(spectra_data, json_file)
         json_file.write(';\n')
 
-        json_file.write('var variant_monomer_graph = ')
-        json.dump({}, json_file, indent=4)
+        json_file.write('var molecule_image_variants = ')
+        json.dump(generated_nrps_data.generated_nrps_molecule_data, json_file)
         json_file.write(';\n')
 
-        json_file.write('var variant_molecule_image = ')
-        json.dump({}, json_file, indent=4)
+        json_file.write('var monomer_graph_variants = ')
+        json.dump(generated_nrps_graph_data_dict, json_file)
         json_file.write(';\n')
 
     path_substitutions = {

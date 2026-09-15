@@ -217,40 +217,18 @@ function drawOrigGraph(nrpID, variant){
     ));
 }
 
-function drawModGraph(nrpID, variant) {
-    const variantObj = getVariantObject(variant);
+function drawModGraph(nrpID, variantID) {
 
-    const graphData_variant = variantObj.new_record;
+    const graphData = monomer_graph_variants[variantID];
+  
+    const vis_network = buildVisGraph(graphData.nodes, graphData.edges, "graphModNew", nrpID);
+
+    const variantObj = getVariantObject(variantID);
     const mod_map = variantObj.old_to_new_mon_map;
+    vis_network.nodes.forEach(n => vis_network.nodes.update(
+        { id: n.id, color: getNodeColorNew(n.id, mod_map) }
+    ));
 
-    const nodesData_mod = [];
-    const edgesData_mod = [];
-    Object.entries(graphData_variant.monomers).forEach(mon => {
-        const coords = getCoords(mon[0], nrpID);
-        nodesData_mod.push({
-            "id" : mon[0],
-            "label" : `${mon[1].name}_${mon[0]}`,
-            "color" : getNodeColorNew(mon[0], mod_map),
-            "font" : "26",
-            "borderWidthSelected" : 4,
-            "x": coords.x,
-            "y": coords.y
-        });
-    });
-    graphData_variant.monomer_bonds.forEach(bond => {
-        edgesData_mod.push({
-            "from" :bond[0][0].toString(),
-            "to" : bond[0][1].toString(),
-            "color" : bond[1][0].atomic_edge.bond_type === 'AMINO' ? 'blue' : 'red',
-            "width" : "2",
-            "selectionWidth" : "2",
-            "hoverWidth" : "2",
-            "arrows" : bond[1][0].atomic_edge.bond_type === 'AMINO' ? 'to' : '',
-        });
-    });  
-
-    const vis_network = buildVisGraph(nodesData_mod, edgesData_mod, "graphModNew", nrpID);
- 
     vis_network.addEventListener('click',  e => {
         deselect();
         vis_network.fit();
@@ -258,13 +236,14 @@ function drawModGraph(nrpID, variant) {
     });
     
     const p = document.getElementById("graphModP");
-    const variantIDs = extractIDs(variant);
+    const variantIDs = extractIDs(variantID);
     p.innerHTML =`Modified Monomer Graph <span style="margin: 0 10px; color: #bbb;">|</span> 
                     <span>rank: ${variantIDs.rank}</span>
                     <span style="margin: 0 10px; color: #bbb;">|</span> 
                     <span>number of modifications:${variantIDs.numMods}</span>
                 `; 
 }
+
 
 function getNodeColorOrig(id, mod_map){
 
@@ -298,54 +277,6 @@ function getNodeColorNew(id, mod_map){
     }
 }
 
-function getCoords(id, nrpID){
-    const node = monomer_graph[nrpID].nodes.find(n => n.id === id)
-    return {
-        x: node ? node.x : null,
-        y: node ? node.y : null
-    }
-}
-//molecule
-function getMoleculeVariantData(variantID, nrpID){
-    const variantObjet = getVariantObject(variantID);
-    const molData = variantObjet.new_record;
-    const data = molecule_image[nrpID];
-    const aArray = []
-    Object.entries(molData.atoms).forEach(a => {
-        const coords = getAtomCoords( a[0], data);
-        aArray.push({
-            "i" : a[0],
-            "l" : a[1].name,
-            "x": coords.x,
-            "y": coords.y,
-            "z": 0.0
-        });
-    });
-    const bArray = [];
-    Object.entries(molData.atomic_bonds).forEach(([idx, b]) => {
-        bArray.push({
-            "i" : parseInt(idx),
-            "b" : aArray.findIndex(a => parseInt(a.i) === b[0][0]),
-            "e" : aArray.findIndex(a => parseInt(a.i) === b[0][1]),
-            "o":  parseInt(b[1].arity)
-        });
-    });
-    const monomerDict = {};
-    Object.entries(molData.monomers).forEach(m => 
-        monomerDict[`${m[1].name}_${m[0]}`] = m[1].atoms
-    );
-    
-    // !! change highlightAtomColors, highlightBonds when colors are included !!
-
-    return {
-        a: aArray,
-        b: bArray,
-        monomers: monomerDict,
-        highlightAtomColors: data.highlightAtomColors,
-        highlightBonds: data.highlightBonds
-    }
-   
-}
 function getVariantObject(variantID){
     const variantIDs = extractIDs(variantID);
     const [variantkey, variantObject] = Object.entries(candidate_NRPs).find(([key]) => {
@@ -355,48 +286,13 @@ function getVariantObject(variantID){
     });
     return variantObject.new_variants[variantID]
 }
-function getAtomCoords(id, data){
-    const atom = data.a.find(a => a.i === id)
-    return {
-        x: atom ? atom.x : null,
-        y: atom ? atom.y : null
-    }
 
-}
 // -- variant Graph ---
 let variantNetwork;
 function drawVariantGraph(nrpID, variantID, spectrumID){
-    const variantObj = getVariantObject(variantID);
-
-    const graphData_variant = variantObj.new_record;
-
-    const nodesData_variant = [];
-    const edgesData_variant = [];
-    Object.entries(graphData_variant.monomers).forEach(mon => {
-        const coords = getCoords(mon[0], nrpID);
-        nodesData_variant.push({
-            "id" : mon[0],
-            "label" : `${mon[1].name}_${mon[0]}`,
-            "color" : getNodeColorVariant(mon[0], nrpID),
-            "font" : "26",
-            "borderWidthSelected" : 4,
-            "x": coords.x,
-            "y": coords.y
-        });
-    });
-    graphData_variant.monomer_bonds.forEach(bond => {
-        edgesData_variant.push({
-            "from" :bond[0][0].toString(),
-            "to" : bond[0][1].toString(),
-            "color" : bond[1][0].atomic_edge.bond_type === 'AMINO' ? 'blue' : 'red',
-            "width" : "2",
-            "selectionWidth" : "2",
-            "hoverWidth" : "2",
-            "arrows" : bond[1][0].atomic_edge.bond_type === 'AMINO' ? 'to' : '',
-        });
-    });  
-
-    const vis_network = buildVisGraph(nodesData_variant, edgesData_variant, "variantGraphImage", nrpID);
+    const graphData = monomer_graph_variants[variantID];
+  
+    const vis_network = buildVisGraph(graphData.nodes, graphData.edges, "variantGraphImage", nrpID);
     variantNetwork = vis_network;
     
     variantNetwork.addEventListener('click',  e => {
@@ -409,20 +305,13 @@ function drawVariantGraph(nrpID, variantID, spectrumID){
     });
 
     nodeIdLabel.clear();
-    for(const entry of nodesData_variant){
+    for(const entry of graphData.nodes){
         nodeIdLabel.set(entry.id, entry.label);
     }
 
     displayVarquestMod(spectrumID, variantID);
 }
-function getNodeColorVariant(id, nrpID){
-    const origNode = monomer_graph[nrpID].nodes.find(n => n.id === id);
-    if(origNode){
-        return origNode.color
-    } else {
-        return "#cbcbcb"
-    }
-}
+
 function displayVarquestMod(spectrumID, variantID){
     const match = getSpectrumVariantMatch(spectrumID, variantID);
 
@@ -482,18 +371,17 @@ function darkenColor(hex, percent = 10) {
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
 }
 
-
 // -- graph/mol --
 function switchGraphMol(){
-    const graph = document.getElementById('variantGraphImage');
+    const graph = document.getElementById('graphContainer');
     const molecule = document.getElementById('moleculeImage');
     const showLabelBtn = document.getElementById('showLabelBtn');
 
-    const toMolecule = graph.style.display === 'block';
+    const toMolecule = graph.style.display === 'flex';
   
     molecule.style.display = toMolecule ? 'block' : 'none';
     showLabelBtn.style.display = toMolecule ? 'block' : 'none';
-    graph.style.display = toMolecule ? 'none' : 'block';
+    graph.style.display = toMolecule ? 'none' : 'flex';
 
     document.getElementById('switchBtn').textContent = toMolecule ? "Switch to graph view" : "Switch to molecule view";
 }
@@ -570,7 +458,7 @@ function deselectMS(){
         if(!peak.id) continue;
         peak.setAttribute("opacity", "1");
         peak.removeAttribute('stroke-dasharray');
-        peak.removeAttribute('clicked');
+        peak.setAttribute('clicked', false);
     }
 
     // deselect peak Table

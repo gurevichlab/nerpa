@@ -1016,64 +1016,48 @@
             const nrpID = group.repr.nrp_id;
             const candidate = Object.values(candidate_NRPs).find(value => value.compound_id === nrpID);
             const variants = Object.keys(candidate.new_variants);
-            nrpIDVariants[nrpID] = variants
+            nrpIDVariants.set(nrpID, variants);
         });
     };
 
     // Array index = ID; object at index = corresponding match, spectrum, and variant data.
     const dataExpand = [];
 
-    function expandSpectra(match){
-        const nrpID = match.nrp_variant_id.nrp_id;
-        const matches_with_spectrum = [];
-  
-        const spectra_matches = spectra_matching_results.filter(specMatch => specMatch.structure_id === match.variant);
-            
-        for (let i = 0; i < 4; i++) {
-            const spectrumMatch= spectra_matches[i]; 
-            matches_with_spectrum.push( 
-                { ...match, spectrumID: spectrumMatch.spectrum_id, scoreMS: spectrumMatch.score}
-            )
-        }
-        return matches_with_spectrum
-    }
+    const spectraByStructure = new Map();
 
-    function expandVariants(match){
-        const nrpID = match.nrp_variant_id.nrp_id;
-        const matches_with_spectrum_and_variant = [];
- 
-        for (let i = 0; i < 4; i++) {
-            const variant = nrpIDVariants[nrpID][i]; 
-            matches_with_spectrum_and_variant.push( 
-                { ...match, variant: variant}
-            )
+    for (const spectrum of spectra_matching_results) {
+        if (!spectraByStructure.has(spectrum.structure_id)) {
+            spectraByStructure.set(spectrum.structure_id, []);
         }
-        return matches_with_spectrum_and_variant
-    }
 
-    function expandMatchesWithSpectraAndVariants(data){
-        const final_matches = [];
+        spectraByStructure.get(spectrum.structure_id).push(spectrum);
+    }
+    function expandMatchesWithSpectraAndVariants(){
+        let idx = 0;
         if (Array.isArray(data)) {
+            dataExpand.length = 0;
             data.forEach(match => {
-                const matches_with_variant = expandVariants(match);
-                matches_with_variant.forEach(matche_with_variant => {
-                    const  matches_with_spectrum_and_variant = expandSpectra(matche_with_variant);
-                    final_matches.push(...matches_with_spectrum_and_variant);
-                });
-            });
-            final_matches.forEach((m, idx) => {
-                m.matchExpandedID = idx;
-                dataExpand[idx] = {
-                    matchID: m.Match_ID,
-                    spectrumID: m.spectrumID,
-                    scoreMS: m.scoreMS,
-                    variantID: m.variant
+                const nrpID = match.nrp_variant_id.nrp_id;
+                const variants = nrpIDVariants.get(nrpID) ?? []; 
+
+                for(const variant of variants){
+                    const spectra = spectraByStructure.get(variant) ?? [];
+
+                    for(const spectrum of spectra){
+                        dataExpand.push({ 
+                            ...match,
+                            matchID: match.Match_ID,
+                            matchExpandedID: idx++,
+                            variantID: variant,
+                            spectrumID: spectrum.spectrum_id, 
+                            scoreMS: spectrum.score
+                        });
+                    }
                 }
+
             });
         }
-        return final_matches
     }
-    
 
     // Default view: show only representative BGCs
     let showRepresentativesOnly = true;
@@ -1123,7 +1107,7 @@
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="${makeBgcKey(bgc_id)}::">${genome_id}</a></td>
             <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
@@ -1134,8 +1118,8 @@
 
         // Variant rank + Spectrum ID
         row.insertAdjacentHTML('beforeend', `
-            <td>${extractIDs(item.variant).rank}</td>
-            <td>${extractIDs(item.variant).numMods}</td>
+            <td>${extractIDs(item.variantID).rank}</td>
+            <td>${extractIDs(item.variantID).numMods}</td>
             <td>${item.spectrumID}</td>
             <td>${item.scoreMS}</td>
         `);
@@ -1149,8 +1133,8 @@
         tableBody.innerHTML = '';
 
         if (data && Array.isArray(data)) {
-            const data_expand = expandMatchesWithSpectraAndVariants(data);
-            data_expand.forEach(item => {
+            expandMatchesWithSpectraAndVariants();
+            dataExpand.forEach(item => {
                 const repr_nrp_id = item.nrp_variant_id.nrp_id;
                 const repr_bgc_id = item.bgc_variant_id.bgc_id;
 
@@ -1207,9 +1191,7 @@
                     const genomeID = link.dataset.genome;
                     const bgcID = link.dataset.bgc;
                     const nrpID = link.dataset.nrp;
-                    const bgcIDM = link.dataset.bgcm; 
                     toggleGenomeViewer(false, genomeID, bgcID, false);
-                    //if(bgcID != '') toggleModuleViewer(false, nrpID, bgcIDM, false);
                     deselectTable(tableBody);
                     [...tableBody['rows']].forEach(r => {
                         const bgcIDMatch = r.cells[12].textContent;
@@ -1219,9 +1201,17 @@
                             c.style.background = '#6ca4ba';
                         } 
                     });
-                    const bgc_id = bgcIDM === '' ? genomeID : bgcIDM;
-                    fillGeneralMatchInfo('', '', bgc_id);
-         
+                    const bgcM = link.dataset.bgcm;
+                    const split = bgcM.split('::'); 
+                    const bgcDict = {
+                        antiSMASH_file: split[0],
+                        contig_idx: split[1],
+                        bgc_idx: split[2],
+                        genome: split[3]
+                    }
+                    
+                    fillGeneralMatchInfo('', '', bgcDict);
+
                 });
             });
 
@@ -1231,7 +1221,6 @@
                     event.preventDefault();
                     toggleMatchViewer(true);
                     const nrpID = link.dataset.nrp;
-                    toggleNrpViewer(false, nrpID);
                     fillGeneralMatchInfo('', nrpID, '');
 
                     deselectTable(tableBody);
@@ -1312,9 +1301,11 @@
             hideBtn.style.display = 'none';
             nerpaReport.style.display = 'none';
 
-            toggleGenomeViewer(hide);
-            toggleNrpViewer(hide);
+            toggleAlignmentTable(hide);
+            toggleGenomeViewer(hide); 
             toggleModuleViewer(hide);
+            toggleModificationViewer(hide); 
+            toggleVariantSpectrumViewer(hide);
             deselectTable(document.querySelector('#reportTable tbody'));
         } else {
             // Basic match info // TODO: maybe split into three rows: basic info, NRP-related & BGC-related metadata
@@ -1423,13 +1414,17 @@
         genomeLink.textContent = genome_id;
 
         const regionLink = document.createElement('a');
-        regionLink.href = '#';
         regionLink.className = 'genome-link';
         regionLink.dataset.genome = genome_folder;
         regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
-        regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
-
-        const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id), { wrap: "span" });
+        if(bgc_id.genome != undefined){
+            regionLink.textContent = `NaN`;
+        } else {
+            regionLink.href = '#';
+            regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+        }
+        const { genome, ...bgc_id_ } = bgc_id;
+        const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id_), { wrap: "span" });
         const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
 
         const bgcTable = buildSingleRowTable({
@@ -1590,7 +1585,7 @@
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleVariantSpectrumViewer(hide, nrpID, spectrumID, variantID);
             
-            const moleculeData = getMoleculeVariantData(variantID, nrpID);
+            const moleculeData = molecule_image_variants[variantID];
             drawMolecule(moleculeData);
             molecule.style.display = 'none';
             drawVariantGraph(nrpID, variantID, spectrumID);

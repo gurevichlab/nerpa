@@ -15,6 +15,7 @@ import graphviz
 from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem import rdDepictor
 from rdkit import Chem
+from rdkit.Chem.rdchem import BondDir
 
 from src.monomer_names_helper import MonomerNamesHelper
 from src.build_output.chem_helper import MolRecord
@@ -161,6 +162,16 @@ def get_node_labels(
         )
     return labels
 
+def rdkit_to_chemdoodle_stereo(bond):
+    direction = bond.GetBondDir()
+    if direction == BondDir.BEGINWEDGE:
+        return "protruding"
+    if direction == BondDir.BEGINDASH:
+        return "recessed"
+    if direction == BondDir.UNKNOWN:
+        return "none"
+    return "none"
+    
 
 class MoleculeDrawingHelper:
     # required
@@ -310,6 +321,8 @@ class MoleculeDrawingHelper:
 
         rdDepictor.Compute2DCoords(self.mol)
         conformer = self.mol.GetConformer()
+        Chem.AssignStereochemistry(self.mol, cleanIt=True, force=True)
+        Chem.WedgeMolBonds(self.mol, conformer)
 
         for atom in self.mol.GetAtoms():
             atom_id = atom.GetIdx()
@@ -322,13 +335,14 @@ class MoleculeDrawingHelper:
                 "y": -position.y,
                 "z": position.z,
             })
-
+        
         for bond in self.mol.GetBonds():
             drawing_data["b"].append({
                 "i": bond.GetIdx(),
                 "b": bond.GetBeginAtomIdx(),
                 "e": bond.GetEndAtomIdx(),
                 "o": bond.GetBondTypeAsDouble(),
+                "s": rdkit_to_chemdoodle_stereo(bond)
             })
 
         for mon_idx, mon_info in self.record.monomers.items():

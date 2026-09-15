@@ -729,11 +729,10 @@ function colorAtom(atom, saturation = 0){
         label = atom.altLabel;
     }
     if (label === 'C') return; 
-    const color = atom.backgroundColor === undefined? [128,128,128] :atom.backgroundColor; // Weg wenn daten da !!!!!!!
+    const color = atom.backgroundColor; 
     const x = atom.x;
     const y = atom.y;
     
-    //if (atom.getImplicitHydrogenCount() > 0) label = `${atom.label}H2`;
     const h = molCanvas.styles.atoms_font_size_2D;
     ctx.font = `${h}px Arial`;
     const l = ctx.measureText(label).width;
@@ -753,7 +752,7 @@ function colorBond(bond, saturation = 0){
     const sY = bond.a1.y;
     const eX = bond.a2.x;
     const eY = bond.a2.y;
-    const color =  bond.backgroundColor === undefined? [128,128,128] : bond.backgroundColor; // Weg wenn daten da !!!!!!!
+    const color =  bond.backgroundColor;
     ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
     ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
     ctx.lineCap = "round";

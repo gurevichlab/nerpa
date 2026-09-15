@@ -797,7 +797,7 @@
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="">${genome_id}</a></td>
+            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="${makeBgcKey(bgc_id)}::">${genome_id}</a></td>
             <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
@@ -864,7 +864,7 @@
                 });
             });
 
-             // Genome/BGC links
+            // Genome/BGC links
             document.querySelectorAll('.genome-link').forEach(link => {
                 link.addEventListener('click', event => {
                     event.preventDefault();
@@ -872,9 +872,7 @@
                     const genomeID = link.dataset.genome;
                     const bgcID = link.dataset.bgc;
                     const nrpID = link.dataset.nrp;
-                    const bgcIDM = link.dataset.bgcm; 
                     toggleGenomeViewer(false, genomeID, bgcID, false);
-                    //if(bgcID != '') toggleModuleViewer(false, nrpID, bgcIDM, false);
                     deselectTable(tableBody);
                     [...tableBody['rows']].forEach(r => {
                         const bgcIDMatch = r.cells[11].textContent;
@@ -883,9 +881,17 @@
                             c.style.border = "2px solid #6ca4ba";
                             c.style.background = '#6ca4ba';
                         } 
-                    });       
-                    const bgc_id = bgcIDM === '' ? genomeID : bgcIDM;
-                    fillGeneralMatchInfo('', '', bgc_id);
+                    });
+                    const bgcM = link.dataset.bgcm;
+                    const split = bgcM.split('::'); 
+                    const bgcDict = {
+                        antiSMASH_file: split[0],
+                        contig_idx: split[1],
+                        bgc_idx: split[2],
+                        genome: split[3]
+                    }
+                    
+                    fillGeneralMatchInfo('', '', bgcDict);
 
                 });
             });
@@ -989,6 +995,8 @@
 
             fillGeneralMatchInfo(item, nrp_id, bgc_id);
 
+
+
             // Match alignment info
             const alignmentTableBody = document.querySelector('#alignmentTable tbody');
             alignmentTableBody.innerHTML = '';
@@ -1077,13 +1085,17 @@
         genomeLink.textContent = genome_id;
 
         const regionLink = document.createElement('a');
-        regionLink.href = '#';
         regionLink.className = 'genome-link';
         regionLink.dataset.genome = genome_folder;
         regionLink.dataset.bgc = `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`;
-        regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
-
-        const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id), { wrap: "span" });
+        if(bgc_id.genome != undefined){
+            regionLink.textContent = `NaN`;
+        } else {
+            regionLink.href = '#';
+            regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
+        }
+        const { genome, ...bgc_id_ } = bgc_id;
+        const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id_), { wrap: "span" });
         const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
 
         const bgcTable = buildSingleRowTable({
