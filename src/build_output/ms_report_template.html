@@ -1015,7 +1015,7 @@
         nrp_representatives.forEach(group => {
             const nrpID = group.repr.nrp_id;
             const candidate = Object.values(candidate_NRPs).find(value => value.compound_id === nrpID);
-            const variants = Object.keys(candidate.new_variants);
+            const variants = Object.keys(candidate?.new_variants ?? {});
             nrpIDVariants.set(nrpID, variants);
         });
     };

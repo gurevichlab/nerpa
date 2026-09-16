@@ -7,4 +7,6 @@ python nerpa_ms.py \
        --output-dir nerpa_results/nerpa_ms_test_run \
        --force-output-dir \
        --let-it-crash \
+       --max-nerpa-matches-for-candidate-generation 3 \
+       --num-variants-per-num-edits 10
 

@@ -138,6 +138,42 @@ class Parsed_rBAN_Record:
     atomic_bonds: Dict[AtomicEdge, AtomicEdgeInfo]
     metadata: NRP_metadata
 
+    def canonize(self):
+        """
+        Sort and reindex monomers by their minimum atom index to avoid ambiguity
+        rBAN monomer indexing is non-deterministic, but atom indexing is ---
+        it corresponds to the order of atoms in the input SMILES
+        """
+        sorted_monomers: List[Tuple[MonomerIdx, MonomerInfo]] = sorted(
+            self.monomers.items(),
+            key=lambda item: min(item[1].atoms),
+        )
+        old_to_new_mon_idx: Dict[MonomerIdx, MonomerIdx] = {
+            old_idx: new_idx
+            for new_idx, (old_idx, _) in enumerate(sorted_monomers, start=1)
+        }
+
+        self.monomers = {
+            old_to_new_mon_idx[old_idx]: monomer_info
+            for old_idx, monomer_info in sorted_monomers
+        }
+
+        canonized_bonds: Dict[MonomerEdge, MonomerEdgeInfo] = {}
+        for (old_u, old_v), edge_info_list in self.monomer_bonds.items():
+            new_u, new_v = sorted((old_to_new_mon_idx[old_u], old_to_new_mon_idx[old_v]))
+            canonized_bonds[(new_u, new_v)] = [
+                MonomerEdgeInfoSingle(
+                    monomer_to_atom={
+                        old_to_new_mon_idx[old_idx]: atom_id
+                        for old_idx, atom_id in edge_info.monomer_to_atom.items()
+                    },
+                    atomic_edge=edge_info.atomic_edge,
+                )
+                for edge_info in edge_info_list
+            ]
+
+        self.monomer_bonds = dict(sorted(canonized_bonds.items()))
+
     def __init__(self, rban_record: Raw_rBAN_Record,
                  hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
                  chiralities: Dict[MonomerIdx, Chirality],
@@ -194,6 +230,7 @@ class Parsed_rBAN_Record:
                 MonomerEdgeInfoSingle(monomer_to_atom={mon1: atom1, mon2: atom2},
                                       atomic_edge=bond_info)
             )
+        self.canonize()
 
     def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         return {'compound_id': self.compound_id,
