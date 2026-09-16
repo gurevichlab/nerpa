@@ -297,7 +297,7 @@ class HTMLReportConfig:
             / 'src'
             / 'build_output'
             / 'static'
-            / 'interaction_MS.js'
+            / 'interaction_ms.js'
         )
 
         self.max_spectra_matches_per_nerpa_match = (  # TODO: make this configurable via CLI or config file
