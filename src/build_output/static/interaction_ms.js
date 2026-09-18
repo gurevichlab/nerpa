@@ -107,7 +107,7 @@ function colorMatchedPeaks(spectrumID, variantID){
     svgSpectrum.innerHTML = "";
 
     const variantObject = getVariantObject(variantID);
-    const old_to_new_mon_map = variantObject.old_to_new_mon_map;
+    const mod_map = variantObject.old_to_new_mon_map;
     const match = getSpectrumVariantMatch(spectrumID, variantID);
 
     const specWidth = spectrum.memory.width;
@@ -125,7 +125,7 @@ function colorMatchedPeaks(spectrumID, variantID){
         const coordx = spectrum.getTransformedX(peak.x, spectrumCanvas.styles, specWidth,specOffsetLeft);
         const coordy = spectrum.getTransformedY(peak.y,  spectrumCanvas.styles, specHeight, specOffsetBottom, specOffsetTop);
       
-        const nid = translateMask(matchedPeak.theoretical_fragment_mask, old_to_new_mon_map);
+        const nid = translateMask(matchedPeak.theoretical_fragment_mask, mod_map);
 
         const mz = peak.x;
         const intensity = spectra[spectrumID].peaks[matchedPeak.experimental_peak_idx].intensity; //peak.y is abs abundance not intensity
@@ -178,8 +178,8 @@ function updatePeaks(){
         peakLine.setAttribute('y2', coordy);
     }
 }
-function translateMask(mask, old_to_new_mon_map){
-    const deletedIDs = old_to_new_mon_map.filter(t => t[0] != null && t[1] === null).map(t => t[0]);
+function translateMask(mask, mod_map){
+    const deletedIDs = mod_map.filter(t => t[0] != null && t[1] === null).map(t => t[0]);
     const results = [];
     let id = 1;
     for(const char of mask.split('')){
@@ -240,7 +240,7 @@ function drawModGraph(nrpID, variantID) {
     p.innerHTML =`Modified Monomer Graph <span style="margin: 0 10px; color: #bbb;">|</span> 
                     <span>rank: ${variantIDs.rank}</span>
                     <span style="margin: 0 10px; color: #bbb;">|</span> 
-                    <span>number of modifications:${variantIDs.numMods}</span>
+                    <span>number of modifications: ${variantIDs.numMods}</span>
                 `; 
 }
 
@@ -314,6 +314,9 @@ function drawVariantGraph(nrpID, variantID, spectrumID){
 
 function displayVarquestMod(spectrumID, variantID){
     const match = getSpectrumVariantMatch(spectrumID, variantID);
+    const variantObj = getVariantObject(variantID);
+    const mod_map = variantObj.old_to_new_mon_map;
+    const vidToNid = varquestIdToNid(variantObj.linearization.length, mod_map);
 
     let modSum = 0;
     let subText = '';
@@ -324,7 +327,7 @@ function displayVarquestMod(spectrumID, variantID){
         const mass_diff = mod.mass_difference;
         modSum += (initMass + mass_diff);
 
-        const modified_node = variantNetwork.nodes.get(mod.monomer_idx.toString());
+        const modified_node = variantNetwork.nodes.get(vidToNid[mod.monomer_idx].toString());
 
         let mass_diff_string;
         if (mass_diff < 0){
@@ -369,6 +372,22 @@ function darkenColor(hex, percent = 10) {
   b = Math.max(0, b);
 
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+}
+
+function varquestIdToNid(length, mod_map){
+    // varquestID -> nid
+    const result = {};
+    let nidCounter = 1;
+    const deletedIDs = mod_map.filter(t => t[0] != null && t[1] === null).map(t => t[0]);
+   
+    for (let id = 0; id < length; id++) {
+        if(deletedIDs.includes(nidCounter)){
+            nidCounter ++;
+        }
+        result[id] = nidCounter;
+        nidCounter ++;
+    }
+    return result;
 }
 
 // -- graph/mol --

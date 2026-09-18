@@ -439,7 +439,7 @@
     <div>
         
         <div id="moduleViewerControls" deselect-trigger>
-            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true, true)" style="display: none;">Hide module annotation</button>
+            <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true)" style="display: none;">Hide module annotation</button>
             <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show BGC module annotation</button>
             <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
         </div>
@@ -1205,7 +1205,7 @@
 
 
      // Toggle function for module viewer
-     function toggleModuleViewer(hide, nrpID, bgcID, align = true, userHide = false) {
+     function toggleModuleViewer(hide, nrpID, bgcID, userHide = false) {
         const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
         const showBtn = document.getElementById('showModuleViewerBtn');
@@ -1225,13 +1225,11 @@
             label.style.display = 'none';
             hideBtn.style.display = 'block';
             showBtn.style.display = 'none';
-            showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID, align);
+            showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID);
             bgcFrame.style.display = 'block';
+            alignFrame.style.display = 'block';
             drawModuleViewerBGC(bgcID, nrpID);
-            if(align) {
-                alignFrame.style.display = 'block';
-                drawModuleViewerAlign(bgcID, nrpID);
-            }
+            drawModuleViewerAlign(bgcID, nrpID);
         }
     }
    // Toggle function for NRP images
