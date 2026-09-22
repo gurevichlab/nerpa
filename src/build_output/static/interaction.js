@@ -1,7 +1,7 @@
 // -- local variables --
 const svgns = "http://www.w3.org/2000/svg";
 // --- Module Viewer ---
-function drawModuleViewerAlign(bgcID, nrpID){
+function drawModulesAlign(bgcID, nrpID){
     const svg = document.getElementById("moduleViewerAlign");
 
     const bgcKey = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
@@ -28,7 +28,7 @@ function drawModuleViewerAlign(bgcID, nrpID){
     addClickHandler(svg);
 }
 
-function drawModuleViewerBGC(bgcID, nrpID){
+function drawModulesBGC(bgcID, nrpID){
     const svgBGC = document.getElementById("moduleViewerBGC");
     
     const bgcKey = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
@@ -60,6 +60,17 @@ function prepareGenesAlign(bgcKey, alignments){
     let lastGeneID = undefined;
 
     // assign each module its corresponding alignment 
+
+    // To determine the order of genes and modules in the Module Viewer (alignment order), 
+    // the genes of the BGC are arranged according to their occurrence in the alignments.
+    // A gene may occur multiple times if it is reused in the NRPS.
+
+    // The alignments are processed sequentially. Alignments belonging to
+    // the same gene are collected in pendingAlignments. When a new gene
+    // occurrence starts (indicated by A-domain_idx === 0), the collected
+    // alignments are assigned to the modules of the previous gene.
+    // This process is repeated until all alignments have been processed.
+
     for(const al of alignments){
         // no A domain idx -> no module
         if(al["A-domain_idx"] === "---") {
@@ -72,7 +83,7 @@ function prepareGenesAlign(bgcKey, alignments){
             continue;
         }
         
-        if(al["A-domain_idx"] === 0){
+        if(al["A-domain_idx"] === 0){ //i.e. new gene occurrence starts
             const g = structuredClone(genesMatch.find(item => item.gene_id === lastGeneID));
             let idx = 0;
             for(const m of g.modules){
@@ -113,6 +124,7 @@ function prepareGenesBGC(bgcKey, alignments){
     const genes = structuredClone(bgcModuleIndex.get(bgcKey));
 
     // assign each module its corresponding alignment
+    // a module could have multiple alignments if it reused in the NRPS (applies only for BGC order)
     for(const g of genes){
         let idx = 0;
         for(const m of g.modules){
@@ -169,7 +181,8 @@ function buildDrawData(geneList, r=false){
             reversed: g.coords.strand === 'REVERSE' && r,
             modules: g.modules.map((m, idx)=> {
                 return{
-                    id: idx +1,
+                    // module ids should start at 1; Nerpa starts at 0. This may (but does not have to) be changed when Nerpa is adapted.
+                    id: idx + 1,
                     nid: m["a_domain"] != null ? 
                                 (r ? m.alignment.map(al => al["rBAN_idx"]) : m.alignment["rBAN_idx"]): [''],
                     domains: m.domains_sequence, 
@@ -287,14 +300,8 @@ function drawModule(gid, mid, nid, x, y, length, domains, residue, displayed, sk
                 y_circ = y - 12;
                 domainName = 'nMT';
                 break;
-            case 'CTERM':
-                // color? 
-                break;
-            case 'NTERM':
-                // color? 
-                break;
             default:
-                throw new Error(`'${d}'' is no domain.`);
+                throw new Error(`'${d}' is no domain.`);
         }
         circle.setAttribute('cx', xi);
         circle.setAttribute('cy', y_circ);
@@ -343,13 +350,13 @@ function drawModule(gid, mid, nid, x, y, length, domains, residue, displayed, sk
     res.setAttribute('y', y + 56);
     res.setAttribute('font-family', 'Arial');
     res.setAttribute('font-size', '15');
-    res.setAttribute('fill',  `rgb(${85}, ${85}, ${85})`);
+    res.setAttribute('fill', `rgb(${85}, ${85}, ${85})`);
     res.setAttribute('text-anchor', 'middle');
     res.setAttribute('dominant-baseline', 'central');
     res.textContent = residue;
     module.appendChild(res);
 
-    // rectangles
+    // brackets if module is skipped
     if(skipped){
         const bracketL = document.createElementNS(svgns, 'path');
         bracketL.setAttribute("d", `M ${x + 5} ${y + 61} L${x - 3} ${y + 61} L${x - 3} ${y - 30} L${x + 5} ${y - 30}`);
@@ -373,8 +380,6 @@ function drawModule(gid, mid, nid, x, y, length, domains, residue, displayed, sk
         skipWord.setAttribute('dominant-baseline', 'central');
         skipWord.textContent = 'skipped';
         module.appendChild(skipWord); 
-
-
     }
     
     if(!displayed) {
@@ -415,7 +420,9 @@ function drawGeneArrow(id, nid, x, y, length, displayed, reversed, svg){
     arrowDes.setAttribute('fill', 'white');
     arrowDes.setAttribute('text-anchor', 'middle');
     arrowDes.setAttribute('dominant-baseline', 'central');
-    if(id.length * 7 > length) {
+    // 1 letter ≈ 7px
+    if(id.length * 7 > length) {    
+        // gene description exceeds length of gene arrow
         const separator = "...";
         const available = (length / 7 ) - separator.length;
         const prefixLength = Math.floor(available / 2);
@@ -490,6 +497,7 @@ function addClickHandler(svg){
         const nid = splitId(c.id).nid.filter(n => n != '');
         if(nid.length > 0){
             c.addEventListener('click', e => {
+                // ‘clicked’ attribute helps ‘select’ function to determine whether module/gen was selected via BGC Module Viewer.
                 c.setAttribute('clicked', 'true');
                 select(nid);
                 c.removeAttribute('clicked');
@@ -522,6 +530,7 @@ function drawGraph(nrpID){
 
     maxZoomGraph();
 
+    // helps 'selectMol' functions 
     nodeIdLabel.clear();
     for(const entry of graphData.nodes){
         nodeIdLabel.set(entry.id, entry.label);
@@ -602,11 +611,11 @@ function maxZoomGraph(){
 }
 function increaseTranparency(nodeIDs, networkNodes = network.nodes, networkEdges = network.edges){
     // reset
-    networkNodes.forEach(n => networkNodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
+    networkNodes.get().forEach(n => networkNodes.update({ id: n.id, opacity: 1, font: '26 arial black'}));
     networkEdges.get().forEach(e => networkEdges.update({id: e.id, color: e.color === '#E0A59D' || e.color === 'red' ?'red' : 'blue'}));
     // color graph transparent expect selected node
     if(!(nodeIDs.length === 0)){
-        networkNodes.forEach(n => !nodeIDs.includes(n.id) && n.id >= 0 ? networkNodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
+        networkNodes.get().forEach(n => !nodeIDs.includes(n.id) && n.id >= 0 ? networkNodes.update({ id: n.id, opacity: 0.3, font: '26 arial #D3D3D3'}) : '');
         networkEdges.get().forEach(e => networkEdges.update({id: e.id, color: e.color === 'red' ? '#E0A59D' : '#94ACD4'}));
     }
 }
@@ -629,22 +638,21 @@ function chiralityCheck(nrpID){
 // -- molecule variables --
 let molCanvas;
 
-window.addEventListener("resize", (event) => {
-        resizeMol();
-});    
 function drawMolecule(data){
     document.getElementById('moleculeImageCanvas').innerHTML = "";
     const rect = document.getElementById('moleculeImage').getBoundingClientRect();
     molCanvas = new ChemDoodle.ViewerCanvas('moleculeImageCanvas', Math.round(rect.width), Math.round(rect.height));
     
     const mol = new ChemDoodle.io.JSONInterpreter().molFrom(data);
-    mol.selected = false;
+    mol.selected = false; // required for 'hideLabels' function, to keep selection status when repainted
     mol.highlightBonds = data.highlightBonds;
     mol.highlightAtomColors = data.highlightAtomColors;
     mol.monomers = data.monomers;
 
     for(const atom of mol.atoms){
-        if(atom.label.includes('_')) {
+        // check if the atom displays the label of the monomer
+        if(atom.label.includes('_')) {  
+            // ensures that monomer labels can be shown and hidden (see function 'hideLabels()')
             atom.altLabel = atom.label;
             atom.residue = atom.label;
             atom.label = 'C';
@@ -658,13 +666,17 @@ function drawMolecule(data){
     molCanvas.styles.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif'];
     molCanvas.styles.backgroundColor = 'transparent';
 
+    // Calculates average bond length at which molecule is at its largest possible size without exceeding boundaries of the canvas
     const bondLen = getMaxBondLen(mol, molCanvas.width, molCanvas.height);
     mol.scaleToAverageBondLength(bondLen);
 
     molCanvas.loadMolecule(mol);
     paintMolecule(mol);
 
-    enableZoomMol(document.getElementById('moleculeImageCanvas'),mol);    
+    enableZoomMol(document.getElementById('moleculeImageCanvas'),mol); 
+    window.addEventListener("resize", (event) => {
+        resizeMol();
+    });  
 }
 
 function resizeMol(){
@@ -678,7 +690,12 @@ function resizeMol(){
     mol.scaleToAverageBondLength(maxBondLen);
     molCanvas.resize(width,height);
     molCanvas.loadMolecule(mol);
-    paintMolecule(mol);
+
+    if(mol.selected){
+        selectMol(mol.selected);
+    } else {
+        paintMolecule(mol); 
+    }
 }
 
 function getMaxBondLen(mol, width, height){
@@ -707,7 +724,8 @@ function paintMolecule(mol){
         const ctx = colorCanvas.getContext("2d");
         ctx.globalCompositeOperation='destination-over'; 
         for(const bond of mol.bonds){
-            if(!bond.tmpid) bond.tmpid = 0;                                         // could be buggy !!
+            // somehow ChemDoodle does not assign a tmpid to the first atom
+            if(!bond.tmpid) bond.tmpid = 0;                      
             if(!bond.a1.tmpid) bond.a1.tmpid = 0;   
             if(!bond.a2.tmpid) bond.a2.tmpid = 0;   
             if(!mol.highlightBonds.includes(bond.tmpid)) continue;
@@ -723,7 +741,8 @@ function paintMolecule(mol){
 }   
 
 function colorAtom(atom, saturation = 0){ 
-    const ctx = document.getElementById('moleculeImageCanvas').getContext("2d");  
+    const ctx = document.getElementById('moleculeImageCanvas').getContext("2d"); 
+    ctx.globalCompositeOperation='destination-over';  
     let label = atom.label;
     if (!(atom.altLabel ===  undefined)) {
         label = atom.altLabel;
@@ -748,13 +767,14 @@ function colorAtom(atom, saturation = 0){
 
 function colorBond(bond, saturation = 0){  
     const ctx = document.getElementById('moleculeImageCanvas').getContext("2d");
+    ctx.globalCompositeOperation='destination-over'; 
     const sX = bond.a1.x;
     const sY = bond.a1.y;
     const eX = bond.a2.x;
     const eY = bond.a2.y;
     const color =  bond.backgroundColor;
     ctx.strokeStyle = `rgb(${color[0] * 255 + saturation}, ${color[1] * 255 + saturation}, ${color[2] * 255 + saturation})`; 
-    ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  
+    ctx.lineWidth = molCanvas.styles.bonds_width_2D * 8;  // background color line should be thicker than bond line
     ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(sX, sY);
@@ -771,7 +791,7 @@ function hideLabels(){
 
     molCanvas.repaint(mol);
     if(mol.selected){
-        selectMol(mol.selected, mol.name);
+        selectMol(mol.selected);
     } else {
         paintMolecule(mol); 
     }
@@ -823,6 +843,7 @@ function selectMol(nid){
             visited.add(bond.a2);
             selected_bonds.add(bond);
         } else {
+            //‘visited’ ensures that atoms are not assigned the wrong colour when they are connected by a bond leading to other monomers
             if(!visited.has(bond.a1)) bond.a1.styles = paleStyle;
             if(!visited.has(bond.a2)) bond.a2.styles = paleStyle;
             bond.styles = paleStyle;
@@ -915,7 +936,6 @@ function enableZoomMol(el,mol){
     el.addEventListener('mouseleave', e => 
         dragging = false
     );
-
 }
 // -- deselect handling --
 function deselect(){
@@ -968,6 +988,8 @@ function select(nid){
     for(const el of svgBGC.childNodes){
         if(!el.id) continue;
         const split = splitId(el.id);
+        // If gene i selected via module viewer BGC, but has a non-existent nid (---) (gene encodes skipped module),
+        // only genes/modules related to that gene should be highlighted (not all modules/genes that have a nid === (---).
         const noNidCondition = moduleClicked && noNid && split.gid != clickedGene;
         if(split.nid.some(n => nidString.includes(n)) && !noNidCondition){
             el.setAttribute("opacity", "1");
@@ -1009,7 +1031,7 @@ function select(nid){
         network.selectNodes(nidString);  
         increaseTranparency(nidString);
     }
-    // select molecule only if nerpa Report, in nerp MS no connection betwenn graph and molecule
+    // select molecule only if nerpa Report, in Nerpa-MS is no connection between graph and molecule
     if(document.title === 'Nerpa Report'){
         selectMol(nidString);
     }

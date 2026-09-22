@@ -495,7 +495,7 @@
         <div id="moduleViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true)" style="display: none;">Hide module annotation</button>
             <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show BGC module annotation</button>
-            <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
+            <p id="moduleViewerLabel" style="display: block;"></p>
         </div>
 
         <div id="moduleViewerContainer"  style="display: none" deselect-trigger>
@@ -511,7 +511,7 @@
             <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                 <p class="orderLabel">Alignment order</p>
                 <svg id="moduleViewerAlign"
-                    style="background: #ffffff;" deselect-trigger>
+                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
                 </svg>
             </div>
         </div>
@@ -522,7 +522,7 @@
         <div id="modificationViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModificationViewerBtn" onclick="toggleModificationViewer(true, '', '', true)" style="display: none;">Hide modification annotation</button>
             <button class="hide-button" id="showModificationViewerBtn" style="display: none;">Show modification annotation</button>
-            <p id="modificationViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its modification annotation</p>
+            <p id="modificationViewerLabel" style="display: block;"></p>
         </div>
         <div id="graphModContainer" class="viewer" style="display: none; margin-bottom: 20px;" deselect-trigger>
            <div style="display: flex;  gap:10px;" deselect-trigger>
@@ -557,9 +557,9 @@
                 <table id="matchTable">
                 </table>
             </div>
-            <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleVariantSpectrumViewer(true, '', '', '', true) " style="display: none;">Hide NRP annotation</button>
-            <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show NRP annotation</button>
-            <p id="nrpViewerLabel" style="display: block;">Click on an NRP ID to view its annotated molecular structure and monomer graph</p>
+            <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleVariantSpectrumViewer(true, '', '', '', true) " style="display: none;">Hide Variant annotation</button>
+            <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show Variant annotation</button>
+            <p id="nrpViewerLabel" style="display: block;"></p>
         </div>
         
         <div id="nrpViewerContainer" class="viewer" style="display: none;" deselect-trigger>
@@ -606,8 +606,8 @@
                                     <th style=" padding:2px 8px;  text-align:left;">m/z</th>
                                     <th style=" padding:2px 8px; text-align:right;">Intensity</th>
                                     <th style=" padding:2px 8px; text-align:right;">Charge</th>
-                                    <th style="padding:2px 8px;  text-align:right;">&Delta;(<em>m/z</em>)<sub>abs</sub> (Da)</th>
-                                    <th style=" padding:2px 8px;  text-align:right;">&Delta;(<em>m/z</em>)<sub>rel</sub> (ppm)</th>
+                                    <th style="padding:2px 8px;  text-align:right;">&Delta;<sub>abs</sub> (Da)</th>
+                                    <th style=" padding:2px 8px;  text-align:right;">&Delta;<sub>rel</sub> (ppm)</th>
                                 </tr>
                             </thead>
                                 <tbody>
@@ -776,6 +776,11 @@
         {
             header: "Nerpa Score",
             title: "Default score of the match between BGC and NRP from Nerpa report. Coincides with one of the other score columns (hidden by default)",
+            hidden: false
+        },
+        {
+            header: "Nerpa-MS Score",
+            title: "Default score of the match between BGC and NRP Variant from Nerpa MS.",
             hidden: false
         },
         {
@@ -1024,9 +1029,9 @@
         if (!spectraByStructure.has(spectrum.structure_id)) {
             spectraByStructure.set(spectrum.structure_id, []);
         }
-
         spectraByStructure.get(spectrum.structure_id).push(spectrum);
     }
+
     function expandMatchesWithSpectraAndVariants(){
         let idx = 0;
         if (Array.isArray(data)) {
@@ -1036,6 +1041,7 @@
                 const variants = nrpIDVariants.get(nrpID) ?? []; 
 
                 for(const variant of variants){
+                    const variantObj = getVariantObject(variant);
                     const spectra = spectraByStructure.get(variant) ?? [];
 
                     for(const spectrum of spectra){
@@ -1045,7 +1051,8 @@
                             matchExpandedID: idx++,
                             variantID: variant,
                             spectrumID: spectrum.spectrum_id, 
-                            scoreMS: spectrum.score
+                            scoreMS: spectrum.score,
+                            scoreNerpaMS: variantObj.score
                         });
                     }
                 }
@@ -1091,10 +1098,11 @@
             <td class="match-expanded-id">${matchCellExpanded}</td>
             <td class="match-id">${matchCell}</td>
             <td class="score">${fmtNum(item.score)}</td>
+            <td class="score">${fmtNum(item.scoreNerpaMS)}</td>
             <td class="score">${fmtNum(item.raw_score)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
+            <td type="selectableNRP"><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
         `;
 
         // NRP metadata
@@ -1102,8 +1110,8 @@
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="${makeBgcKey(bgc_id)}::">${genome_id}</a></td>
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
+            <td type="selectableGenome"><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="${makeBgcKey(bgc_id)}::">${genome_id}</a></td>
+            <td type="selectableBGC"><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
         `);
@@ -1188,13 +1196,16 @@
                     const nrpID = link.dataset.nrp;
                     toggleGenomeViewer(false, genomeID, bgcID, false);
                     deselectTable(tableBody);
+
+                    const selectable = bgcID != '' ? 'selectableBGC' : 'selectableGenome';
                     [...tableBody['rows']].forEach(r => {
-                        const bgcIDMatch = r.cells[12].textContent;
-                        const c = bgcID != '' ? r.cells[13] : r.cells[12];
-                        if (bgcIDMatch === genomeID){
-                            c.style.border = "2px solid #6ca4ba";
-                            c.style.background = '#6ca4ba';
-                        } 
+                        const rightRow = [...r.cells].some(c => c.textContent === genomeID);
+                        [...r.cells].forEach(c => {
+                            if (c.getAttribute('type') === selectable && rightRow){
+                                c.style.border = "2px solid #6ca4ba";
+                                c.style.background = '#6ca4ba';
+                            }
+                        }); 
                     });
                     const bgcM = link.dataset.bgcm;
                     const split = bgcM.split('::'); 
@@ -1220,14 +1231,13 @@
 
                     deselectTable(tableBody);
                     [...tableBody['rows']].forEach(r => {
-                        const nrpIDMatch = r.cells[6].textContent;
-                        const c = r.cells[6];
-                        if (nrpIDMatch === nrpID){
-                            c.style.border = "2px solid #6ca4ba";
-                            c.style.background = '#6ca4ba';
-                        }
+                        [...r.cells].forEach(c => {
+                            if (c.getAttribute('type') === 'selectableNRP' && c.textContent === nrpID){
+                                c.style.border = "2px solid #6ca4ba";
+                                c.style.background = '#6ca4ba';
+                            }
+                        });
                     });
-                    
                 });
             });
         } else {
@@ -1273,12 +1283,11 @@
 
     function deselectTable(tableBody){
         [...tableBody['rows']].forEach(r => {
-            const cG = r.cells[12];
-            const cB = r.cells[13];
-            const cN = r.cells[6];
-            cG.style.cssText = "";
-            cB.style.cssText = "";
-            cN.style.cssText = "";
+            [...r.cells].forEach(c => {
+                if (c.getAttribute('type')?.includes('selectable')) {
+                    c.style.cssText = "";
+                }
+            });
             r.style.cssText = "";
         });
     }
@@ -1506,6 +1515,7 @@
                         iframe.state.genomeFolderID != genomeFolderID && genomeFolderID != '';
 
         if(notInit){
+            // necessary because genome viewer is hidden by default, but must be initialized for the show button to work
             showBtn.onclick = () => toggleGenomeViewer(false, genomeFolderID, bgcID);
             iframe.src = `antismash_output/${genomeFolderID}/index.html?timestamp=${Date.now()}#${bgcID}`; 
             iframe.state = {
@@ -1552,8 +1562,16 @@
             showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID);
             bgcFrame.style.display = 'block';
             alignFrame.style.display = 'block';
-            drawModuleViewerBGC(bgcID, nrpID);
-            drawModuleViewerAlign(bgcID, nrpID);
+            // If the output data structure of Nerpa/Nerpa-MS changes but the implementation has not yet been adapted,
+            // the drawing functions could fail, as they strictly rely on the data structure.
+            // This ensures that the other components are still loaded successfully and applies to all toggle functions.
+            try{
+                drawModulesBGC(bgcID, nrpID);
+                drawModulesAlign(bgcID, nrpID);
+            } catch(error) {
+                console.error('Failed to draw Module viewer', error)
+                toggleModuleViewer(true);
+            }
         }
     }
    // Toggle function for NRP images
@@ -1580,11 +1598,16 @@
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleVariantSpectrumViewer(false, nrpID, spectrumID, variantID);
             
-            const moleculeData = molecule_image_variants[variantID];
-            drawMolecule(moleculeData);
-            molecule.style.display = 'none';
-            drawVariantGraph(nrpID, variantID, spectrumID);
-            drawSpectrum(spectrumID, variantID);
+            try{
+                const moleculeData = molecule_image_variants[variantID];
+                drawMolecule(moleculeData);
+                molecule.style.display = 'none';
+                drawVariantGraph(nrpID, variantID, spectrumID);
+                drawSpectrum(spectrumID, variantID);
+            } catch(error) {
+                console.error('Failed to draw Variant and Spectrum viewer', error)
+                toggleVariantSpectrumViewer(true);
+            }
         }
     }
 
@@ -1606,9 +1629,14 @@
 
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleModificationViewer(false, nrpID, variantID);
-          
-            drawOrigGraph(nrpID, variantID);
-            drawModGraph(nrpID, variantID);
+
+            try{
+                drawOrigGraph(nrpID, variantID);
+                drawModGraph(nrpID, variantID);
+            }catch(error){
+                console.error('Failed to draw Modification viewer', error)
+                toggleModificationViewer(true);
+            }
         }
     }
 

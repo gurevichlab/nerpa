@@ -2,16 +2,12 @@
 let spectrum;
 let spectrumCanvas;
 
-window.addEventListener("resize", (event) => {
-    resizeSpectrum();
-});    
-
 function drawSpectrum(spectrumID, variantID){
     document.getElementById('spectrumCanvas').innerHTML = "";
 
     const rect = document.getElementById('spectrum').getBoundingClientRect()
     const canvasWidth = Math.round(rect.width * 0.9);
-    const canvasHeight = Math.round(rect.height * 0.7);
+    const canvasHeight = Math.round(rect.height * 0.5);
     spectrumCanvas = new ChemDoodle.PerspectiveCanvas('spectrumCanvas', canvasWidth, canvasHeight);
     spectrumCanvas.styles.plots_color="grey";
     spectrumCanvas.styles.plots_width= 1;
@@ -34,6 +30,7 @@ function drawSpectrum(spectrumID, variantID){
     svgSpectrum.childNodes.forEach(peakLine => {
         peakLine.addEventListener('click', e => {
             const nid = peakLine.getAttribute('nid').split(',');
+            // Important, because peaks are highlighted differently depending on whether they were selected directly from a peak/peak row or from a monomer.
             peakLine.setAttribute("clicked", true);
             selectMS(nid);
         });
@@ -54,12 +51,15 @@ function drawSpectrum(spectrumID, variantID){
     infoDiv.innerHTML = infoText;
 
     initPeakTable(svgSpectrum);
+    window.addEventListener("resize", (event) => {
+        resizeSpectrum();
+    }); 
 }
 function resizeSpectrum(){
     if(spectrumCanvas === undefined) return;
     const rect = document.getElementById('spectrum').getBoundingClientRect()
     const canvasWidth = Math.round(rect.width * 0.9);
-    const canvasHeight = Math.round(rect.height * 0.7);
+    const canvasHeight = Math.round(rect.height * 0.5);
     spectrumCanvas.resize(canvasWidth,canvasHeight);
     spectrumCanvas.loadSpectrum(spectrum); 
 }
@@ -74,6 +74,7 @@ function initPeakTable(svgSpectrum){
         line.setAttribute("nid", peak.getAttribute("nid"));
         line.addEventListener('click', e => {
             const nid = peak.getAttribute("nid").split(',');
+            // Important, because peaks are highlighted differently depending on whether they were selected directly from a peak/peak row or from a monomer.
             peak.setAttribute("clicked", true);
             selectMS(nid);
         });
@@ -120,7 +121,7 @@ function colorMatchedPeaks(spectrumID, variantID){
   
     for(const peak of spectrum.data){
         const matchedPeak = getMatchObject(match.matched_peaks, peak.x);
-        if(matchedPeak === undefined) continue;
+        if(matchedPeak === undefined) continue; // i.e. peak is not matched 
       
         const coordx = spectrum.getTransformedX(peak.x, spectrumCanvas.styles, specWidth,specOffsetLeft);
         const coordy = spectrum.getTransformedY(peak.y,  spectrumCanvas.styles, specHeight, specOffsetBottom, specOffsetTop);
@@ -137,7 +138,7 @@ function colorMatchedPeaks(spectrumID, variantID){
         peakLine.setAttribute("id", `${peak.x}`);
         peakLine.setAttribute("nid", `${nid}`);
         peakLine.setAttribute("clicked", false);
-        // set peak info to prepare for initialisation of peak table.
+        // set peak info to prepare for initialization of peak table.
         peakLine.setAttribute("mz", `${mz.toFixed(3)}`);
         peakLine.setAttribute("intensity", `${intensity.toFixed(1)}`);
         peakLine.setAttribute("charge", `${charge}`);
@@ -170,7 +171,7 @@ function updatePeaks(){
         const coordy = spectrum.getTransformedY(peak.y,  spectrumCanvas.styles, specHeight, specOffsetBottom, specOffsetTop);
 
         const peakLine = document.getElementById(`${peak.x}`);
-        if(peakLine === null || coordx < origX) continue;
+        if(peakLine === null || coordx < origX) continue;       // peak is not matched or outside of visible area 
 
         peakLine.setAttribute('x1', coordx);
         peakLine.setAttribute('y1', origY);
@@ -226,7 +227,7 @@ function drawModGraph(nrpID, variantID) {
     const variantObj = getVariantObject(variantID);
     const mod_map = variantObj.old_to_new_mon_map;
     vis_network.nodes.forEach(n => vis_network.nodes.update(
-        { id: n.id, color: getNodeColorNew(n.id, mod_map) }
+        { id: n.id, color: getNodeColorNew(n.id, mod_map), fixed: true, chosen: false}
     ));
 
     vis_network.addEventListener('click',  e => {
@@ -316,7 +317,7 @@ function displayVarquestMod(spectrumID, variantID){
     const match = getSpectrumVariantMatch(spectrumID, variantID);
     const variantObj = getVariantObject(variantID);
     const mod_map = variantObj.old_to_new_mon_map;
-    const vidToNid = varquestIdToNid(variantObj.linearization.length, mod_map);
+    const vidToNid = varquestIdToNid(variantObj.linearization.length, mod_map); //varquest (now kakapo) reindexes indeces of monomer graph 
 
     let modSum = 0;
     let subText = '';
@@ -390,42 +391,11 @@ function varquestIdToNid(length, mod_map){
     return result;
 }
 
-// -- graph/mol --
-function switchGraphMol(){
-    const graph = document.getElementById('graphContainer');
-    const molecule = document.getElementById('moleculeImage');
-    const showLabelBtn = document.getElementById('showLabelBtn');
-
-    const toMolecule = graph.style.display === 'flex';
-  
-    molecule.style.display = toMolecule ? 'block' : 'none';
-    showLabelBtn.style.display = toMolecule ? 'block' : 'none';
-    graph.style.display = toMolecule ? 'none' : 'flex';
-
-    document.getElementById('switchBtn').textContent = toMolecule ? "Switch to graph view" : "Switch to molecule view";
-}
-
 function selectMS(nid){
     let nidString = nid.map(String);
     let nidInt = nid.map(Number);
     const hasInvalidIdx = nidInt.some(Number.isNaN);
 
-    // select variant graph 
-    if(hasInvalidIdx) {
-        nidString = nidInt.filter(nid => !Number.isNaN(nid)).map(String);
-    } 
-    if(nidString.length === 0){
-        // deselect variant graph 
-        variantNetwork.selectNodes([]);  
-        increaseTranparency(nidInt, variantNetwork.nodes, variantNetwork.edges);
-    } else {
-        // select variant graph 
-        variantNetwork.selectNodes(nidString);  
-        increaseTranparency(nidString, variantNetwork.nodes, variantNetwork.edges);
-    } 
-
-    // select variant molecule
-    selectMol(nidString);
 
     // select peaks
     const svgSpectrum = document.getElementById('spectrumSvg');
@@ -436,15 +406,18 @@ function selectMS(nid){
         const sameNids = nidPeak.length === nidString.length && nidPeak.every(val => nidString.includes(val));
         const containNids = nidPeak.some(val => nidString.includes(val));
         if(sameNids){
+            // all nids are explained by this peak 
             peak.setAttribute("opacity", "1");
             peak.removeAttribute('stroke-dasharray');
         } else if (containNids && !spectrumClick){
+            // not all nids are explained by this peak and peak was selected via variant graph
             peak.setAttribute("opacity", "1");
             peak.setAttribute('stroke-dasharray', '2 2');
         } else {
             peak.setAttribute("opacity", "0.3");
             peak.removeAttribute('stroke-dasharray');
         }
+        // ensures that peak is reset to default when selected again 
         peak.setAttribute('clicked', false);
     }
      
@@ -464,6 +437,23 @@ function selectMS(nid){
             r.style.cssText = "";
         }
     });
+    
+    // select variant graph 
+    if(hasInvalidIdx) {
+        nidString = nidInt.filter(nid => !Number.isNaN(nid)).map(String);
+    } 
+    if(nidString.length === 0){
+        // deselect variant graph 
+        variantNetwork.selectNodes([]);  
+        increaseTranparency(nidInt, variantNetwork.nodes, variantNetwork.edges);
+    } else {
+        // select variant graph 
+        variantNetwork.selectNodes(nidString);  
+        increaseTranparency(nidString, variantNetwork.nodes, variantNetwork.edges);
+    } 
+
+    // select variant molecule
+    selectMol(nidString);
 
 }
 function deselectMS(){

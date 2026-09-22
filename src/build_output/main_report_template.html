@@ -57,7 +57,7 @@
 
         .header nav a:hover {
             background-color: rgba(255,255,255,0.15);
-        }        
+        }
 
         .filter-section {
             margin-bottom: 10px;
@@ -221,7 +221,7 @@
             margin-bottom: 5px;
         }
 
-         button.hide-button-label {
+        button.hide-button-label {
             margin-top: 0px;
             margin-bottom: 5px;
         }
@@ -233,7 +233,7 @@
             margin-bottom: 0px;
         }
 
-         .orderLabel{
+        .orderLabel{
             font-weight: bold;
             font-size: 13px;
             text-align: left;
@@ -457,7 +457,7 @@
             <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                 <p class="orderLabel">Alignment order</p>
                 <svg id="moduleViewerAlign"
-                    style="background: #ffffff;" deselect-trigger>
+                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
                 </svg>
             </div>
         </div>
@@ -789,7 +789,7 @@
             <td class="score">${fmtNum(item.raw_score)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_nrp)}</td>
             <td class="score">${fmtNum(item.log_odds_vs_avg_bgc)}</td>
-            <td><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
+            <td type="selectableNRP"><a href="#" class="nrp-link" data-nrp="${nrp_id}">${nrp_id}</a></td>
         `;
 
         // NRP metadata
@@ -797,8 +797,8 @@
 
         // Genome + BGC ID
         row.insertAdjacentHTML('beforeend', `
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="${makeBgcKey(bgc_id)}::">${genome_id}</a></td>
-            <td><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
+            <td type="selectableGenome"><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="" data-nrp="" data-bgcm="${makeBgcKey(bgc_id)}::">${genome_id}</a></td>
+            <td type="selectableBGC"><a href="#" class="genome-link" data-genome="${genome_folder}" data-bgc="r${bgc_id.contig_idx}c${bgc_id.bgc_idx}" data-nrp="${nrp_id}" data-bgcm="${makeBgcKey(bgc_id)}">
                 Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}
             </a></td>
         `);
@@ -874,13 +874,16 @@
                     const nrpID = link.dataset.nrp;
                     toggleGenomeViewer(false, genomeID, bgcID, false);
                     deselectTable(tableBody);
+
+                    const selectable = bgcID != '' ? 'selectableBGC' : 'selectableGenome';
                     [...tableBody['rows']].forEach(r => {
-                        const bgcIDMatch = r.cells[11].textContent;
-                        const c = bgcID != '' ? r.cells[12] : r.cells[11];
-                        if (bgcIDMatch === genomeID){
-                            c.style.border = "2px solid #6ca4ba";
-                            c.style.background = '#6ca4ba';
-                        } 
+                        const rightRow = [...r.cells].some(c => c.textContent === genomeID);
+                        [...r.cells].forEach(c => {
+                            if (c.getAttribute('type') === selectable && rightRow){
+                                c.style.border = "2px solid #6ca4ba";
+                                c.style.background = '#6ca4ba';
+                            }
+                        }); 
                     });
                     const bgcM = link.dataset.bgcm;
                     const split = bgcM.split('::'); 
@@ -907,12 +910,12 @@
 
                     deselectTable(tableBody);
                     [...tableBody['rows']].forEach(r => {
-                        const nrpIDMatch = r.cells[5].textContent;
-                        const c = r.cells[5];
-                        if (nrpIDMatch === nrpID){
-                            c.style.border = "2px solid #6ca4ba";
-                            c.style.background = '#6ca4ba';
-                        }
+                        [...r.cells].forEach(c => {
+                            if (c.getAttribute('type') === 'selectableNRP' && c.textContent === nrpID){
+                                c.style.border = "2px solid #6ca4ba";
+                                c.style.background = '#6ca4ba';
+                            }
+                        });        
                     });
                 });
             });
@@ -959,12 +962,11 @@
 
     function deselectTable(tableBody){
         [...tableBody['rows']].forEach(r => {
-            const cG = r.cells[11];
-            const cB = r.cells[12];
-            const cN = r.cells[5];
-            cG.style.cssText = "";
-            cB.style.cssText = "";
-            cN.style.cssText = "";
+            [...r.cells].forEach(c => {
+                if (c.getAttribute('type')?.includes('selectable')) {
+                    c.style.cssText = "";
+                }
+            });
             r.style.cssText = "";
         });
     }
@@ -1032,14 +1034,12 @@
 
             frame.style.display = 'block';
             label.style.display = 'none';
-            hideBtn.style.display = 'block';
-            
-
+            hideBtn.style.display = 'block';   
            
             toggleAlignmentTable(true);
             toggleGenomeViewer(true, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`, true);
-            toggleNrpViewer(false, nrp_id);
             toggleModuleViewer(false, nrp_id, bgc_id);
+            toggleNrpViewer(false, nrp_id);
         }
     }
 
@@ -1182,6 +1182,7 @@
                         iframe.state.genomeFolderID != genomeFolderID && genomeFolderID != '';
 
         if(notInit){
+            // necessary because genome viewer is hidden by default, but must be initialized for the show button to work
             showBtn.onclick = () => toggleGenomeViewer(false, genomeFolderID, bgcID);
             iframe.src = `antismash_output/${genomeFolderID}/index.html?timestamp=${Date.now()}#${bgcID}`; 
             iframe.state = {
@@ -1228,8 +1229,17 @@
             showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID);
             bgcFrame.style.display = 'block';
             alignFrame.style.display = 'block';
-            drawModuleViewerBGC(bgcID, nrpID);
-            drawModuleViewerAlign(bgcID, nrpID);
+            // If the output data structure of Nerpa/Nerpa-MS changes but the implementation has not yet been adapted,
+            // the drawing functions could fail, as they strictly rely on the data structure.
+            // This ensures that the other components are still loaded successfully and applies to all toggle functions.
+            try {
+                drawModulesBGC(bgcID, nrpID);
+                drawModulesAlign(bgcID, nrpID);
+            } catch(error){
+                console.error('Failed to draw Module viewer', error)
+                toggleModuleViewer(true);
+            }
+            
         }
     }
    // Toggle function for NRP images
@@ -1254,8 +1264,13 @@
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleNrpViewer(hide, nrpID);
             
-            drawGraph(nrpID);
-            drawMolecule(molecule_image[nrpID]);
+            try {
+                drawGraph(nrpID);
+                drawMolecule(molecule_image[nrpID]);
+            } catch(error){
+                console.error('Failed to draw NRP viewer', error)
+                toggleNrpViewer(true);
+            }
         }
     }
 
