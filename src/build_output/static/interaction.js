@@ -143,6 +143,7 @@ function prepareGenesBGC(bgcKey, alignments){
     return genes
 }
 function buildDrawData(geneList, r=false){
+    // r indicates if the gene could be reversed (only in BGC order possible)
     /* gene object
     {
         id: Number,
@@ -181,6 +182,7 @@ function buildDrawData(geneList, r=false){
             reversed: g.coords.strand === 'REVERSE' && r,
             modules: g.modules.map((m, idx)=> {
                 return{
+                    // m["a_domain"] === null means the module is most likely a PKS/no NRPS module and therefore displayed in pale color
                     // module ids should start at 1; Nerpa starts at 0. This may (but does not have to) be changed when Nerpa is adapted.
                     id: idx + 1,
                     nid: m["a_domain"] != null ? 
@@ -191,7 +193,7 @@ function buildDrawData(geneList, r=false){
                     position: {x: undefined, y: yFixed}, 
                     length: m.domains_sequence.length * radFixed * 2,     
                     rad: radFixed,
-                    skipped: r ? false : !Number.isInteger(m.alignment.rBAN_idx),               
+                    skipped: r ? false : (m["a_domain"] != null ? !Number.isInteger(m.alignment.rBAN_idx) : false),               
                 };
             }),              
         };
@@ -451,7 +453,7 @@ function splitId(id){
     sDict.nid = [];
     for(const s of split){
         if(s.startsWith("M")) sDict.mid = s;
-        else if(s.startsWith("G")) sDict.gid = s;
+        else if(s.startsWith("G")) sDict.gid = s.slice(1);
         else sDict.nid.push(s);
     }
     
@@ -497,7 +499,7 @@ function addClickHandler(svg){
         const nid = splitId(c.id).nid.filter(n => n != '');
         if(nid.length > 0){
             c.addEventListener('click', e => {
-                // ‘clicked’ attribute helps ‘select’ function to determine whether module/gen was selected via BGC Module Viewer.
+                // ‘clicked’ attribute helps ‘select’ function to determine which module/gen was selected.
                 c.setAttribute('clicked', 'true');
                 select(nid);
                 c.removeAttribute('clicked');
@@ -851,7 +853,7 @@ function selectMol(nid){
     }
 
     molCanvas.repaint(mol);
-    // selected bonds must be painted first to be in the first layer
+    // selected bonds must be painted first to be in the first layer when a molecule is very dense and atoms/bonds overlap
     for(const bond of selected_bonds){
         colorAtom(bond.a1);
         colorAtom(bond.a2);
@@ -980,17 +982,18 @@ function select(nid){
     const hasInvalidIdx = nidInt.some(Number.isNaN);
 
     // select module viewer
-    const cM = Array.from(svgBGC.childNodes).find(m => m.getAttribute('clicked') === 'true');
-    const moduleClicked = cM != undefined;
-    const clickedGene = moduleClicked ? splitId(cM.id).gid : '';
+    const bgcMG = Array.from(svgBGC.childNodes).find(m => m.getAttribute('clicked') === 'true');
+    const alignMG = Array.from(svgAlign.childNodes).find(m => m.getAttribute('clicked') === 'true');
+    const mvClicked = bgcMG != undefined || alignMG != undefined;
+    const clickedGene = bgcMG != undefined ? splitId(bgcMG.id).gid : (alignMG != undefined ? splitId(alignMG.id).gid : '');
     const noNid = nid.includes('---');
 
     for(const el of svgBGC.childNodes){
         if(!el.id) continue;
         const split = splitId(el.id);
-        // If gene i selected via module viewer BGC, but has a non-existent nid (---) (gene encodes skipped module),
-        // only genes/modules related to that gene should be highlighted (not all modules/genes that have a nid === (---).
-        const noNidCondition = moduleClicked && noNid && split.gid != clickedGene;
+        // If gene/module is selected, but has a non-existent nid (---) (gene encodes skipped module/module is skipped),
+        // only genes/modules related to that gene/module should be highlighted (not all modules/genes that have a nid === (---).
+        const noNidCondition = noNid && split.gid != clickedGene && mvClicked;
         if(split.nid.some(n => nidString.includes(n)) && !noNidCondition){
             el.setAttribute("opacity", "1");
         } else {
@@ -1000,7 +1003,7 @@ function select(nid){
     for(const el of svgAlign.childNodes){
         if(!el.id) continue;
         const split = splitId(el.id);
-        const noNidCondition = moduleClicked && noNid && split.gid != clickedGene;
+        const noNidCondition = noNid && split.gid != clickedGene && mvClicked;
         if(split.nid.some(n => nidString.includes(n)) && !noNidCondition){
             el.setAttribute("opacity", "1");
         } else {
@@ -1011,7 +1014,9 @@ function select(nid){
     const alignmentTableBody = document.querySelector('#alignmentTable tbody');
     [...alignmentTableBody['rows']].forEach(r => {
         const rid = r.cells[6].textContent;
-        if (nidString.includes(rid)){
+        const rgene = r.cells[0].textContent;
+        const noNidCondition = noNid && rgene != clickedGene && mvClicked;
+        if (nidString.includes(rid) && !noNidCondition){
             r.style.border = "2px solid #9EC37B";
             r.style.background = '#ddfcdb';
         } else {

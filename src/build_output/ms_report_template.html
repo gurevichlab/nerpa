@@ -314,10 +314,6 @@
             cursor: pointer;
         }
 
-        #moduleViewerAlign g { 
-            cursor: pointer;
-        }
-
         #peakTable tbody tr:hover {
             background-color: #e6f7ff;
         }
@@ -327,6 +323,12 @@
             top: 0;
             background-color: #f2f2f2;
             box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
+        #moduleViewerBGC * {
+            cursor: pointer;
+        }
+        #moduleViewerAlign * {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -503,7 +505,7 @@
             <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                <p class="orderLabel">BGC order</p>
                 <svg id="moduleViewerBGC"
-                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
+                    style="background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
             
@@ -511,7 +513,7 @@
             <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                 <p class="orderLabel">Alignment order</p>
                 <svg id="moduleViewerAlign"
-                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
+                    style="background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
         </div>
@@ -1197,11 +1199,12 @@
                     toggleGenomeViewer(false, genomeID, bgcID, false);
                     deselectTable(tableBody);
 
-                    const selectable = bgcID != '' ? 'selectableBGC' : 'selectableGenome';
                     [...tableBody['rows']].forEach(r => {
-                        const rightRow = [...r.cells].some(c => c.textContent === genomeID);
                         [...r.cells].forEach(c => {
-                            if (c.getAttribute('type') === selectable && rightRow){
+                            const a = c.querySelector('a')?.dataset.genome;
+                            const rightColumn = c.getAttribute('type') === 'selectableBGC' && c.querySelector('a')?.dataset.bgc === bgcID &&  bgcID != ''||
+                                                c.getAttribute('type') === 'selectableGenome' && c.querySelector('a')?.dataset.genome === genomeID && bgcID === ''; 
+                            if (rightColumn){
                                 c.style.border = "2px solid #6ca4ba";
                                 c.style.background = '#6ca4ba';
                             }
@@ -1363,11 +1366,9 @@
             hideBtn.style.display = 'block';
 
             nerpaReport.style.display = 'block';
-
-            const nerpaReportlink = nerpaReport.querySelector("a")
-
-            nerpaReportlink.href = `${nerpaReportlink.href}#${matchID}`
-           
+            const nerpaReportlink = nerpaReport.querySelector("a");
+            nerpaReportlink.href = `report.html#${matchID}`;
+     
             toggleAlignmentTable(true);
             toggleGenomeViewer(true, genome_folder, `r${bgc_id.contig_idx}c${bgc_id.bgc_idx}`, true); 
             toggleModuleViewer(false, nrp_id, bgc_id);

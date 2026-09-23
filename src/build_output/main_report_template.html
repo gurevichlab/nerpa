@@ -440,8 +440,7 @@
         
         <div id="moduleViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true)" style="display: none;">Hide module annotation</button>
-            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show BGC module annotation</button>
-            <p id="moduleViewerLabel" style="display: block;">Click on a Genome or BGC ID to display its module annotation</p>
+            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show module annotation</button>
         </div>
 
         <div id="moduleViewerContainer"  style="display: none" deselect-trigger>
@@ -875,11 +874,12 @@
                     toggleGenomeViewer(false, genomeID, bgcID, false);
                     deselectTable(tableBody);
 
-                    const selectable = bgcID != '' ? 'selectableBGC' : 'selectableGenome';
                     [...tableBody['rows']].forEach(r => {
-                        const rightRow = [...r.cells].some(c => c.textContent === genomeID);
                         [...r.cells].forEach(c => {
-                            if (c.getAttribute('type') === selectable && rightRow){
+                            const a = c.querySelector('a')?.dataset.genome;
+                            const rightColumn = c.getAttribute('type') === 'selectableBGC' && c.querySelector('a')?.dataset.bgc === bgcID &&  bgcID != ''||
+                                                c.getAttribute('type') === 'selectableGenome' && c.querySelector('a')?.dataset.genome === genomeID && bgcID === ''; 
+                            if (rightColumn){
                                 c.style.border = "2px solid #6ca4ba";
                                 c.style.background = '#6ca4ba';
                             }
@@ -1210,7 +1210,6 @@
         const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
         const showBtn = document.getElementById('showModuleViewerBtn');
-        const label = document.getElementById('moduleViewerLabel');
         const bgcFrame = document.getElementById('moduleViewerBGCDiv');
         const alignFrame = document.getElementById('moduleViewerAlignDiv');
 
@@ -1218,12 +1217,10 @@
             frame.style.display = 'none';
             bgcFrame.style.display = 'none';
             alignFrame.style.display = 'none';
-            label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
             showBtn.style.display = userHide ? 'block' : 'none';
         } else {
             frame.style.display = 'block';
-            label.style.display = 'none';
             hideBtn.style.display = 'block';
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID);

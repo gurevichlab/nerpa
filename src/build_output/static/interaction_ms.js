@@ -298,7 +298,7 @@ function drawVariantGraph(nrpID, variantID, spectrumID){
     
     variantNetwork.addEventListener('click',  e => {
         if(e.nodes.length === 0){ 
-            deselectMS();
+            deselect();
             variantNetwork.fit();
         } else {
             selectMS(e.nodes);
@@ -414,7 +414,7 @@ function selectMS(nid){
             peak.setAttribute("opacity", "1");
             peak.setAttribute('stroke-dasharray', '2 2');
         } else {
-            peak.setAttribute("opacity", "0.3");
+            peak.setAttribute("opacity", "0.5");
             peak.removeAttribute('stroke-dasharray');
         }
         // ensures that peak is reset to default when selected again 
@@ -462,6 +462,7 @@ function deselectMS(){
     variantNetwork.selectNodes([]); 
     increaseTranparency([], variantNetwork.nodes, variantNetwork.edges);
 
+    // deselect peaks
     const svgSpectrum = document.getElementById('spectrumSvg');
     for(const peak of svgSpectrum.childNodes){
         if(!peak.id) continue;
