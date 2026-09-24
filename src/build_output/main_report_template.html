@@ -138,10 +138,6 @@
         }
 
         th {
-            background-color: #f2f2f2;
-        }
-
-        th {
             text-align: center;
             cursor: pointer;
             background-color: #f2f2f2;
@@ -273,8 +269,12 @@
             overflow-x: auto;
             overflow-y: hidden;
         }
-
-
+        #moduleViewerBGC * {
+            cursor: pointer;
+        }
+        #moduleViewerAlign * {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -326,6 +326,7 @@
             </button>
         </div>
     </div>
+
 
     <div class="explanation" deselect-trigger>
         Click a column name to sort the rows; click again to toggle the sort direction (▲/▼).
@@ -437,7 +438,7 @@
 
     <!-- module viewer-->
     <div>
-        
+
         <div id="moduleViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true)" style="display: none;">Hide module annotation</button>
             <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show module annotation</button>
@@ -446,17 +447,17 @@
         <div id="moduleViewerContainer"  style="display: none" deselect-trigger>
             
             <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
-               <p class="orderLabel">BGC order</p>
+               <p class="orderLabel" deselect-trigger>BGC order</p>
                 <svg id="moduleViewerBGC"
-                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
+                    style="background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
             
             
             <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
-                <p class="orderLabel">Alignment order</p>
+                <p class="orderLabel" deselect-trigger>Alignment order</p>
                 <svg id="moduleViewerAlign"
-                    style="background: #ffffff; cursor: pointer;" deselect-trigger>
+                    style="background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
         </div>
@@ -507,9 +508,7 @@
 <link rel="stylesheet" href="{{HTML_AUX_DIR}}/chemdoodle/ChemDoodleWeb.css" type="text/css">
 <script type="text/javascript" src="{{HTML_AUX_DIR}}/chemdoodle/ChemDoodleWeb.js"></script>
 
-
 <script>
-    
     // Function to detect if a value is numeric
     function isNumeric(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);

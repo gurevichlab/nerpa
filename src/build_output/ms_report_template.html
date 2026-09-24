@@ -61,7 +61,7 @@
 
         .header nav a:hover {
             background-color: rgba(255,255,255,0.15);
-        }        
+        }
 
         .filter-section {
             margin-bottom: 10px;
@@ -232,8 +232,7 @@
             margin-top: 10px;
             margin-bottom: 0px;
         }
-
-         .orderLabel{
+        .orderLabel{
             font-weight: bold;
             font-size: 13px;
             text-align: left;
@@ -401,7 +400,7 @@
     </div>
 
     <div id="rowCounter" style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;" deselect-trigger></div>
-    
+
     <!-- Match Viewer -->
     <div>
         <div id="matchViewerControls" deselect-trigger>
@@ -496,14 +495,13 @@
 
         <div id="moduleViewerControls" deselect-trigger>
             <button class="hide-button" id="hideModuleViewerBtn" onclick="toggleModuleViewer(true, '', '', true)" style="display: none;">Hide module annotation</button>
-            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show BGC module annotation</button>
-            <p id="moduleViewerLabel" style="display: block;"></p>
+            <button class="hide-button" id="showModuleViewerBtn" style="display: none;">Show module annotation</button>
         </div>
 
         <div id="moduleViewerContainer"  style="display: none" deselect-trigger>
             
             <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
-               <p class="orderLabel">BGC order</p>
+               <p class="orderLabel" deselect-trigger>BGC order</p>
                 <svg id="moduleViewerBGC"
                     style="background: #ffffff;" deselect-trigger>
                 </svg>
@@ -511,7 +509,7 @@
             
             
             <div id="moduleViewerAlignDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
-                <p class="orderLabel">Alignment order</p>
+                <p class="orderLabel" deselect-trigger>Alignment order</p>
                 <svg id="moduleViewerAlign"
                     style="background: #ffffff;" deselect-trigger>
                 </svg>
@@ -550,7 +548,7 @@
         </div>
     </div>
 
-    <!-- NRP Viewer -->
+    <!-- Variant Spectrum Viewer -->
     <div>
         <div id="nrpViewerControls" deselect-trigger>
             <div class="table-container" style="display: none;">
@@ -561,7 +559,6 @@
             </div>
             <button class="hide-button" id="hideNrpViewerBtn" onclick="toggleVariantSpectrumViewer(true, '', '', '', true) " style="display: none;">Hide Variant annotation</button>
             <button class="hide-button" id="showNrpViewerBtn" style="display: none;">Show Variant annotation</button>
-            <p id="nrpViewerLabel" style="display: block;"></p>
         </div>
         
         <div id="nrpViewerContainer" class="viewer" style="display: none;" deselect-trigger>
@@ -716,8 +713,7 @@
 <script type="text/javascript" src="{{HTML_AUX_DIR}}/chemdoodle/ChemDoodleWeb.js"></script>
 
 <script>
-
-  // Function to detect if a value is numeric
+    // Function to detect if a value is numeric
     function isNumeric(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }
@@ -1544,7 +1540,6 @@
         const frame = document.getElementById('moduleViewerContainer');
         const hideBtn = document.getElementById('hideModuleViewerBtn');
         const showBtn = document.getElementById('showModuleViewerBtn');
-        const label = document.getElementById('moduleViewerLabel');
         const bgcFrame = document.getElementById('moduleViewerBGCDiv');
         const alignFrame = document.getElementById('moduleViewerAlignDiv');
 
@@ -1552,12 +1547,10 @@
             frame.style.display = 'none';
             bgcFrame.style.display = 'none';
             alignFrame.style.display = 'none';
-            label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
             showBtn.style.display = userHide ? 'block' : 'none';
         } else {
             frame.style.display = 'block';
-            label.style.display = 'none';
             hideBtn.style.display = 'block';
             showBtn.style.display = 'none';
             showBtn.onclick = () => toggleModuleViewer(false, nrpID, bgcID);
@@ -1582,16 +1575,13 @@
         const molecule = document.getElementById('moleculeImage');
         const hideBtn = document.getElementById('hideNrpViewerBtn');
         const showBtn = document.getElementById('showNrpViewerBtn');
-        const label = document.getElementById('nrpViewerLabel');
         
         if (hide) {
             frame.style.display = 'none';
-            label.style.display = userHide ? 'none' : 'block';
             hideBtn.style.display = 'none';
             showBtn.style.display = userHide ? 'block' : 'none';
         } else {
             frame.style.display = 'block';
-            label.style.display = 'none';
             hideBtn.style.display = 'block';
             graph.style.display = 'flex';
             molecule.style.display = 'block';
