@@ -98,7 +98,12 @@ rule preprocess_pnrpdb2:
     params:
         tables_dir=NERPA_ROOT / 'data' / 'input',
         preprocessed_dir=NERPA_ROOT / 'data' / 'input' / 'preprocessed',
-        preprocess_script=NERPA_ROOT / 'scripts' / 'preprocess_pnrpdb2.py',
+        preprocess_script=(
+            NERPA_ROOT
+            / 'scripts'
+            / 'data_preprocessing'
+            / 'preprocess_pnrpdb2.py'
+        ),
         nerpa_output_dir=NERPA_ROOT / 'nerpa_results' / 'preprocessed_pnrpdb2',
     input:
         pnrpdb2_raw=PNRPDB2_RAW,
@@ -183,8 +188,6 @@ rule train_nerpa:
         norine_monomers_info=NORINE_INFO,
     output:
         train_nerpa_done=NERPA_ROOT / 'training_results' / '.done',
-    log:
-        NERPA_ROOT / 'training_results' / 'train_nerpa.log',
     shell:
         r"""
         PYTHONPATH={NERPA_ROOT} python {params.train_script} \
@@ -193,8 +196,8 @@ rule train_nerpa:
           --pnrpdb2-info {input.pnrpdb2_info} \
           --mibig-norine-preprocessed {input.mibig_norine_preprocessed} \
           --norine-monomers-info {input.norine_monomers_info} \
-          --output-dir {params.output_dir} \
-          > {log} 2>&1
+          --output-dir {params.output_dir}
+
         touch {output.train_nerpa_done}
         """
    

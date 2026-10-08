@@ -1,6 +1,7 @@
 from logging import Logger
 from typing import (
     Dict,
+    List,
 )
 from src.antismash_parsing.genomic_context import (
     ModuleGenomicContextFeature,
@@ -12,9 +13,15 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMStateType
 )
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
-    all_possible_genomic_contexts
+    all_possible_genomic_contexts,
+    filter_relevant_genomic_context
 )
-from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df, HMM_Chosen_Steps_Schema
+from src.training.hmm_parameters.training_types import (
+    HMM_Chosen_Steps_df,
+    HMM_Chosen_Steps_Schema,
+    Estimated_Transition_Probs,
+    Estimated_Transition_Probs_Schema,
+)
 from src.training.hmm_parameters.training_types import SuccessCnts
 from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import (
     EstimateEventProbGivenContextConfig,
@@ -24,25 +31,20 @@ from src.training.hmm_parameters.transition_probabilities.estimate_skips_at_star
 from src.training.hmm_parameters.transition_probabilities.estimate_transition_probs_conditioned import (
     estimate_transition_probs_for_state_conditioned,
 )
+from src.training.hmm_parameters.short_aliases import *
 
 from math import log
 from scipy.stats import beta
 from scipy.special import betaln, expit
 import polars as pl
 
-MCF = ModuleGenomicContextFeature
-GC = ModuleGenomicContext
-ST = DetailedHMMStateType
-ET = DetailedHMMEdgeType
-SC = HMM_Chosen_Steps_Schema
-
 
 def estimate_probs_finish_matching(
         edge_choices_df: HMM_Chosen_Steps_df,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger
-) -> Dict[GC, Dict[ET, Prob]]:
-    transition_probs: Dict[GC, Dict[ET, Prob]] = {}
+) -> Estimated_Transition_Probs:
+    transition_probs: Estimated_Transition_Probs = Estimated_Transition_Probs()
 
     # 1. With the finish marker
     # standard estimation conditioned on the presence of the finish marker in the genomic context
@@ -59,16 +61,20 @@ def estimate_probs_finish_matching(
 
     # 1.2. Without the finish marker
     # finishing is disallowed; the only possible edge is CONTINUE_MATCHING
-    transition_probs.update(
-        {
+    probs_wo_finish_marker: Dict[GC, Dict[ET, Prob]] = {
             gc: {
                 ET.FINISH_MATCHING: 0.0,
                 ET.CONTINUE_MATCHING: 1.0
             }
             for gc in all_possible_genomic_contexts(ST.CHOOSE_IF_FINISH_MATCHING)
             if MCF.ASSEMBLY_LINE_FINISH_MARKER not in gc
-        }
-    ) 
+    }
+
+    transition_probs.update(
+        Estimated_Transition_Probs.from_dict(
+            {ST.CHOOSE_IF_FINISH_MATCHING: probs_wo_finish_marker}
+        )
+    )
 
     return transition_probs
 
@@ -77,15 +83,12 @@ def estimate_probs_skip_at_end_with_marker(
         edge_choices_df: HMM_Chosen_Steps_df,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger
-) -> Dict[GC, Dict[ET, Prob]]:
+) -> Estimated_Transition_Probs:
     # 1. Define auxiliary columns for filtering edge_choices_df
     aux_columns: Dict[str, pl.Expr] = {}
     aux_columns["finish_marker_present"] = (
-            pl.col(SC.GENOMIC_CONTEXT)
-            .map_elements(
-                lambda gc: MCF.ASSEMBLY_LINE_FINISH_MARKER in gc,
-                return_dtype=pl.Boolean
-            )
+        pl.lit(MCF.ASSEMBLY_LINE_FINISH_MARKER.name)
+        .is_in(pl.col(SC.GENOMIC_CONTEXT))
     )
     aux_columns["matching_finished"] = (
             (pl.col(SC.STATE_TYPE) == ST.CHOOSE_IF_FINISH_MATCHING.name)
@@ -94,6 +97,21 @@ def estimate_probs_skip_at_end_with_marker(
     aux_columns["skip_at_end"] = (
             (pl.col(SC.STATE_TYPE) == ST.SKIPPING_MODULES_AT_END.name)
             & (pl.col(SC.EDGE_TYPE) == ET.SKIP_MODULES_AT_END.name)
+    )
+    def filter_skipping_relevant_gc(gc: List[str]) -> List[str]:
+        proper_gc: GC = SC.GENOMIC_CONTEXT.from_polars_dtype(gc)
+        filtered_gc: GC = filter_relevant_genomic_context(
+            proper_gc,
+            state_type=ST.SKIPPING_MODULES_AT_END
+        )
+        return SC.GENOMIC_CONTEXT.to_polars_dtype(filtered_gc)
+    
+    aux_columns["skipping_relevant_gc"] = (
+            pl.col(SC.GENOMIC_CONTEXT)
+            .map_elements(
+                filter_skipping_relevant_gc,
+                return_dtype=pl.List(pl.Utf8)
+            )
     )
 
     # 2. Gather relevant transitions:
@@ -110,7 +128,7 @@ def estimate_probs_skip_at_end_with_marker(
 
     marker_skip_counts_df: pl.DataFrame = (
         marker_decisions_df
-        .group_by(SC.GENOMIC_CONTEXT)
+        .group_by(pl.col("skipping_relevant_gc"))
         .agg(
             skips_cnt=pl.sum("skip_at_end"),
             finish_matching_cnt=pl.sum("matching_finished")
@@ -119,7 +137,8 @@ def estimate_probs_skip_at_end_with_marker(
     
     marker_skip_cnts_by_gc: Dict[GC, SuccessCnts] = {}
     for row in marker_skip_counts_df.iter_rows(named=True):
-        gc = row[SC.GENOMIC_CONTEXT]
+        gc: GC = SC.GENOMIC_CONTEXT.from_polars_dtype(row["skipping_relevant_gc"])
+        gc |= {MCF.ASSEMBLY_LINE_FINISH_MARKER}
         marker_skip_cnts_by_gc[gc] = SuccessCnts(
             successes=row["skips_cnt"],
             failures=row["finish_matching_cnt"]
@@ -127,7 +146,7 @@ def estimate_probs_skip_at_end_with_marker(
 
     # 3. Estimate the probability of skipping marker modules at the end,
     # conditioned on the presence of the finish marker in the genomic context
-    marker_skip_probs_by_gc: Dict[GC, Prob] = (
+    marker_skip_probs_by_gc: Dict[GC, ProbabilityEstimate] = (
         estimate_event_prob_given_context_conditioned(
             success_cnts=marker_skip_cnts_by_gc,
             conditioning_feature=MCF.ASSEMBLY_LINE_FINISH_MARKER,
@@ -137,17 +156,19 @@ def estimate_probs_skip_at_end_with_marker(
         )
     )
 
-    return {
-        gc: {ET.SKIP_MODULES_AT_END: skip_prob}
-        for gc, skip_prob in marker_skip_probs_by_gc.items()
-    }
+    return Estimated_Transition_Probs.from_dict({
+        ST.SKIPPING_MODULES_AT_END: {
+            gc: {ET.SKIP_MODULES_AT_END: skip_prob}
+            for gc, skip_prob in marker_skip_probs_by_gc.items()
+        }
+    })
 
 
 def estimate_skips_at_end_probs(
         edge_choices_df: HMM_Chosen_Steps_df,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger
-) -> Dict[ST, Dict[GC, Dict[ET, Prob]]]:
+) -> Estimated_Transition_Probs:
     """
     Estimate probabilities associated with skipping modules at the end
     of an assembly line.
@@ -173,26 +194,44 @@ def estimate_skips_at_end_probs(
     3. For non-marker modules we calculate a length penalty based on the geometric distribution,
     treating each run (e.g. "g2, g3") as a sequence of Bernoulli trials with probability q of the next module being another non-marker module.
     """
-    transition_probs: Dict[ST, Dict[GC, Dict[ET, Prob]]] = {}
+    transition_probs: Estimated_Transition_Probs = Estimated_Transition_Probs()
 
     # 1. ST.CHOOSE_IF_FINISH_MATCHING
     # choose whether to finish matching; forward view
-    transition_probs[ST.CHOOSE_IF_FINISH_MATCHING] = estimate_probs_finish_matching(
-        edge_choices_df=edge_choices_df,
-        cfg=cfg,
-        logger=logger
+    logger.info(
+        "Estimating probabilities of finishing assembly-line "
+        "for modules with finish markers."
+    )
+    transition_probs.update(
+        estimate_probs_finish_matching(
+            edge_choices_df=edge_choices_df,
+            cfg=cfg,
+            logger=logger
+        )
     )
 
     # 2. ST.SKIPPING_MODULES_AT_END with the finish marker
     # choose whether to skip or "start matching"; reverse view
-    transition_probs[ST.SKIPPING_MODULES_AT_END] = estimate_probs_skip_at_end_with_marker(
-        edge_choices_df=edge_choices_df,
-        cfg=cfg,
-        logger=logger
+    logger.info(
+        "Estimating probabilities of skipping modules "
+        "with finish markers at the end. "
+        "Calculating it as 1-probability to start matching in reverse view."
+    )
+    transition_probs.update(
+        estimate_probs_skip_at_end_with_marker(
+            edge_choices_df=edge_choices_df,
+            cfg=cfg,
+            logger=logger
+        )
     )
 
     # 3. ST.SKIPPING_MODULES_AT_END without the finish marker
     # a length penalty based on the geometric distribution
+    logger.info(
+        "Estimating probabilities of skipping modules "
+        "without finish markers at the end. "
+        "Calculating it as a geometric length penalty."
+    )
     skip_prob_non_marker = estimate_prob_non_marker_skipping(
         edge_choices_df=edge_choices_df,
         state_type=ST.SKIPPING_MODULES_AT_END,
@@ -202,10 +241,9 @@ def estimate_skips_at_end_probs(
         logger=logger
     )
 
-    transition_probs[ST.SKIPPING_MODULES_AT_END].update(
-        {
+    skip_probs_non_marker: Dict[GC, Dict[ET, Prob]] = {
             gc: {
-                ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START:
+                ET.SKIP_MODULES_AT_END:
                     skip_prob_non_marker,
             }
             for gc in all_possible_genomic_contexts(
@@ -213,8 +251,13 @@ def estimate_skips_at_end_probs(
             )
             if MCF.ASSEMBLY_LINE_START_MARKER not in gc
         }
-    )
 
+    transition_probs.update(
+        Estimated_Transition_Probs.from_dict(
+            {ST.SKIPPING_MODULES_AT_END: skip_probs_non_marker}
+        )
+    )
+    
     return transition_probs
 
         

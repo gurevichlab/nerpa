@@ -15,6 +15,7 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType
 )
+from src.generic.numeric import safe_log
 from src.training.hmm_parameters.training_types import (
     HMM_Chosen_Steps_df,
     HMM_Chosen_Steps_Schema
@@ -36,27 +37,31 @@ from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_gi
 from src.training.hmm_parameters.transition_probabilities.estimate_skips_at_start_probs import estimate_skips_at_start_probs
 from src.training.hmm_parameters.transition_probabilities.estimate_skips_at_end_probs import estimate_skips_at_end_probs
 from src.training.hmm_parameters.transition_probabilities.validate import transition_weights_errors
-
-MCF = ModuleGenomicContextFeature
-GC = ModuleGenomicContext
-ST = DetailedHMMStateType
-ET = DetailedHMMEdgeType
-SC = HMM_Chosen_Steps_Schema
+from src.training.hmm_parameters.short_aliases import *
+from src.training.hmm_parameters.training_types import (
+    SuccessCnts,
+    Estimated_Transition_Probs,
+    Estimated_Transition_Probs_Schema,
+    ProbabilityEstimate,
+)
 
 def estimate_transition_probs_for_state(
         state_type: DetailedHMMStateType,
         hmm_chosen_steps_df: HMM_Chosen_Steps_df,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger
-) -> Dict[GC, Dict[ET, Prob]]:
+) -> Estimated_Transition_Probs:
+    logger.info(f"Estimating transition probabilities for state type: {state_type.name}")
     edge_types = list(STATE_TYPE_TO_EDGE_TYPES[state_type])
     if len(edge_types) == 0:
-        return {}
+        return Estimated_Transition_Probs()
     if len(edge_types) == 1:
-        return {
-            gc: { edge_types[0]: 1.0 }
-            for gc in all_possible_genomic_contexts(state_type)
-        }
+        return Estimated_Transition_Probs.from_dict({
+            state_type: {
+                gc: { edge_types[0]: 1.0 }
+                for gc in all_possible_genomic_contexts(state_type)
+            }
+        })
 
     assert len(edge_types) == 2, \
         "each state should have at most two outgoing edges"
@@ -77,11 +82,14 @@ def estimate_transition_probs_for_state(
 
     edge_counts_df = (
         hmm_chosen_steps_df.df
-        .filter(pl.col(SC.STATE_TYPE) == state_type)
+        .filter(pl.col(SC.STATE_TYPE) == state_type.name)
         .with_columns(
-            normal_flow_edge_chosen=(pl.col(SC.EDGE_TYPE) == normal_flow_edge_t).cast(pl.Int64)
+            normal_flow_edge_chosen=(
+                (pl.col(SC.EDGE_TYPE) == normal_flow_edge_t.name)
+                .cast(pl.Int64)
+            )
         )
-        .group_by(SC.GENOMIC_CONTEXT)
+        .group_by(SC.RELEVANT_GC)
         .agg(
             normal_flow_edge_chosen_count=pl.sum("normal_flow_edge_chosen"),
             total_count=pl.count()
@@ -91,38 +99,52 @@ def estimate_transition_probs_for_state(
         )
     )
 
-    edge_counts_by_gc: Dict[GenomicContext, SuccessCnts] = {
-        row[SC.GENOMIC_CONTEXT]: SuccessCnts(
+    edge_counts_by_gc: Dict[GC, SuccessCnts] = {
+        SC.RELEVANT_GC.from_polars_dtype(row[SC.RELEVANT_GC]):
+        SuccessCnts(
             failures=row["normal_flow_edge_chosen_count"],
             successes=row["abnormal_flow_edge_chosen_count"]
         )
         for row in edge_counts_df.iter_rows(named=True)
     }
 
-    abnormal_edge_probs_by_gc: Dict[GC, Prob] = (
+    abnormal_edge_probs_by_gc: Dict[GC, ProbabilityEstimate] = (
         estimate_event_prob_given_context(
             success_cnts=edge_counts_by_gc,
             cfg=cfg,
             logger=logger,
-            state_type=state_type
+            event_label=state_type.name
         )
     )
 
-    return {
-        gc: {
-            normal_flow_edge_t: 1 - abnormal_edge_probs_by_gc[gc],
-            abnormal_flow_edge_t: abnormal_edge_probs_by_gc[gc]
-        }
-        for gc in all_possible_genomic_contexts(state_type)
-    }
+    # Convert to a polars table for easier inspection and logging
+    ETPS = Estimated_Transition_Probs_Schema
+    rows = []
+    for gc in all_possible_genomic_contexts(state_type):
+        prob_est = abnormal_edge_probs_by_gc[gc]
+        rows.append({
+            ETPS.STATE_TYPE: state_type,
+            ETPS.RELEVANT_GC: gc,
+            ETPS.EDGE_TYPE: abnormal_flow_edge_t,
+            ETPS.PROB: prob_est.prob,
+            ETPS.COMMENTS: prob_est.comments,
+        })
+        rows.append({
+            ETPS.STATE_TYPE: state_type,
+            ETPS.RELEVANT_GC: gc,
+            ETPS.EDGE_TYPE: normal_flow_edge_t,
+            ETPS.PROB: 1 - prob_est.prob,
+            ETPS.COMMENTS: prob_est.comments,
+        })
 
+    return Estimated_Transition_Probs.from_rows(rows)
 
 
 def estimate_hmm_transition_probs(
         hmm_chosen_steps_df: HMM_Chosen_Steps_df,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger,
-) -> Dict[ST, Dict[GC, Dict[ET, Prob]]]:
+) -> Estimated_Transition_Probs:
     """
     Infer log probabilities of HMM transitions from the chosen steps data.
 
@@ -138,10 +160,10 @@ def estimate_hmm_transition_probs(
     so I have to treat this events specially.
     """
 
-    transtition_probs: Dict[ST, Dict[GC, Dict[ET, Prob]]] = {}
+    transition_probs: Estimated_Transition_Probs = Estimated_Transition_Probs()
 
     # Special cases
-    transtition_probs.update(
+    transition_probs.update(
         estimate_skips_at_start_probs(
             hmm_chosen_steps_df,
             cfg,
@@ -149,7 +171,7 @@ def estimate_hmm_transition_probs(
         )
     )
 
-    transtition_probs.update(
+    transition_probs.update(
         estimate_skips_at_end_probs(
             hmm_chosen_steps_df,
             cfg,
@@ -159,42 +181,30 @@ def estimate_hmm_transition_probs(
 
     # General case
     for state_type in STATE_TYPE_TO_EDGE_TYPES:
-        if state_type not in transtition_probs:
-            transtition_probs[state_type] = estimate_transition_probs_for_state(
-                state_type,
-                hmm_chosen_steps_df,
-                cfg,
-                logger
+        state_processed: bool = (
+            transition_probs.df
+            .get_column(SC.STATE_TYPE)
+            .eq(state_type.name)
+            .any()
+        )
+        if not state_processed:
+            transition_probs.update(
+                estimate_transition_probs_for_state(
+                    state_type,
+                    hmm_chosen_steps_df,
+                    cfg,
+                    logger
+                )
             )
 
-    if (errors := transition_weights_errors(transtition_probs)):
+
+    if (errors := transition_weights_errors(transition_probs.to_dict())):
         for error_msg in errors:
             logger.warning(error_msg)
         raise ValueError("Couldn't estimate transition probabilities")
 
-    return transtition_probs
+    return transition_probs
             
 
-def estimate_hmm_transition_logprobs(
-        hmm_chosen_steps_df: HMM_Chosen_Steps_df,
-        cfg: EstimateEventProbGivenContextConfig,
-        logger: Logger,
-) -> Dict[ST, Dict[GC, Dict[ET, LogProb]]]:
-    transition_probs = estimate_hmm_transition_probs(
-        hmm_chosen_steps_df,
-        cfg,
-        logger
-    )
-    transition_logprobs: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = {
-        state_type: {
-            gc: {
-                edge_type: math_ln(prob)
-                for edge_type, prob in edge_probs.items()
-            }
-            for gc, edge_probs in gc_edge_probs.items()
-        }
-        for state_type, gc_edge_probs in transition_probs.items()
-    }
-    return transition_logprobs
 
 

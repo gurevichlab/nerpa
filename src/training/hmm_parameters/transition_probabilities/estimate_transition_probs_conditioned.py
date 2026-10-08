@@ -12,7 +12,11 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMStateType
 )
 from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df, HMM_Chosen_Steps_Schema
-from src.training.hmm_parameters.training_types import SuccessCnts
+from src.training.hmm_parameters.training_types import (
+    SuccessCnts,
+    Estimated_Transition_Probs,
+    Estimated_Transition_Probs_Schema,
+)
 from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import (
     EstimateEventProbGivenContextConfig,
     estimate_event_prob_given_context_conditioned
@@ -24,14 +28,12 @@ from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import
     get_normal_flow_edge,
     get_abnormal_flow_edge,
 )
+from src.training.hmm_parameters.short_aliases import *
+from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import (
+    ProbabilityEstimate,
+)
 
 import polars as pl
-
-MCF = ModuleGenomicContextFeature
-GC = ModuleGenomicContext
-ST = DetailedHMMStateType
-ET = DetailedHMMEdgeType
-SC = HMM_Chosen_Steps_Schema
 
 def estimate_transition_probs_for_state_conditioned(
         state_type: DetailedHMMStateType,
@@ -40,38 +42,23 @@ def estimate_transition_probs_for_state_conditioned(
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger,
         include_conditioning_feature_in_context: bool = True,
-) -> Dict[GC, Dict[ET, Prob]]:
+) -> Estimated_Transition_Probs:
     logger.info(
         f"Estimating transition probabilities for state type {state_type} "
         f"conditioned on genomic context feature {conditioning_feature}"
     )
-    # Filter the rows corresponding to the state type state_type
-    # and with conditioning_feature in the genomic context
-    logger.debug(f"edge_choices_df size before filtering: {edge_choices_df.df.shape}")
-    # Debug: filter step-by-step so we can see which condition is dropping rows
     edge_choices_state_only: pl.DataFrame = edge_choices_df.df.filter(
         pl.col(SC.STATE_TYPE) == state_type.name
     )
-    logger.debug(
-        "edge_choices_df size after filtering by state type: "
-        f"{edge_choices_state_only.shape}"
-    )
 
     edge_choices_with_cond_col: pl.DataFrame = edge_choices_state_only.with_columns(
-        pl.col(SC.GENOMIC_CONTEXT)
-        .map_elements(
-            lambda gc: conditioning_feature in gc,
-            return_dtype=pl.Boolean,
-        )
+        pl.lit(conditioning_feature.name)
+        .is_in(pl.col(SC.GENOMIC_CONTEXT))
         .alias("_cond_feature_present")
     )
 
     edge_choices_with_cond_feature: pl.DataFrame = edge_choices_with_cond_col.filter(
         pl.col("_cond_feature_present")
-    )
-    logger.debug(
-        "edge_choices_df size after filtering by conditioning feature: "
-        f"{edge_choices_with_cond_feature.shape}"
     )
 
     normal_flow_edge: ET = get_normal_flow_edge(state_type)
@@ -87,7 +74,7 @@ def estimate_transition_probs_for_state_conditioned(
         .group_by(SC.RELEVANT_GC)
         .agg(
             abnormal_edge_cnt=pl.sum("_abnormal_flow_edge_chosen"),
-            total=pl.len(),
+            total=pl.count(),
         )
         .with_columns(
             normal_edge_cnt=pl.col("total") - pl.col("abnormal_edge_cnt")
@@ -96,27 +83,40 @@ def estimate_transition_probs_for_state_conditioned(
 
     abnormal_choices_by_gc: Dict[GC, SuccessCnts] = {}
     for row in edge_choices_cnts.iter_rows(named=True):
-        gc = row[SC.RELEVANT_GC]
+        gc = SC.RELEVANT_GC.from_polars_dtype(row[SC.RELEVANT_GC])
         abnormal_choices_by_gc[gc] = SuccessCnts(
             failures=int(row["normal_edge_cnt"]),
             successes=int(row["abnormal_edge_cnt"]),
         )
 
-    abnormal_edge_probs_by_gc: Dict[GC, Prob] = (
+    abnormal_edge_probs_by_gc: Dict[GC, ProbabilityEstimate] = (
         estimate_event_prob_given_context_conditioned(
             success_cnts=abnormal_choices_by_gc,
             conditioning_feature=conditioning_feature,
             include_conditioning_feature_in_context=include_conditioning_feature_in_context,
-            state_type=state_type,
+            event_label=state_type.name,
             cfg=cfg,
             logger=logger,
         )
     )
 
-    return {
-        gc: {
-            normal_flow_edge: 1 - prob,
-            abnormal_flow_edge: prob
-        }
-        for gc, prob in abnormal_edge_probs_by_gc.items()
-    }
+    # Convert to a polars table for easier inspection and logging
+    ETPS = Estimated_Transition_Probs_Schema
+    rows = []
+    for gc, prob_est in abnormal_edge_probs_by_gc.items():
+        rows.append({
+            ETPS.STATE_TYPE: state_type,
+            ETPS.RELEVANT_GC: gc,
+            ETPS.EDGE_TYPE: abnormal_flow_edge,
+            ETPS.PROB: prob_est.prob,
+            ETPS.COMMENTS: prob_est.comments,
+        })
+        rows.append({
+            ETPS.STATE_TYPE: state_type,
+            ETPS.RELEVANT_GC: gc,
+            ETPS.EDGE_TYPE: normal_flow_edge,
+            ETPS.PROB: 1 - prob_est.prob,
+            ETPS.COMMENTS: prob_est.comments,
+        })
+
+    return Estimated_Transition_Probs.from_rows(rows)

@@ -43,10 +43,13 @@ class StepFunctionEstimationConfig(NamedTuple):
     step_range: int = 1000
 
 def get_match_emissions(hmm_chosen_steps_df: HMM_Chosen_Steps_df) -> List[Tuple[BGC_Module, NRP_Monomer]]:
+    matching_state_types_names = [
+        state_type.name for state_type in MATCHING_STATE_TYPES
+    ]
     emissions_info_df = (
         hmm_chosen_steps_df.df
         .filter(
-            pl.col(SC.STATE_TYPE).is_in(MATCHING_STATE_TYPES)
+            pl.col(SC.STATE_TYPE).is_in(matching_state_types_names)
         )
         .select([SC.MODULE, SC.EMISSION])
     )
@@ -100,14 +103,20 @@ def fit_step_function(
 
 
 def get_insert_unknown_prob(hmm_chosen_steps: HMM_Chosen_Steps_df) -> Prob:
+    insert_state_types_names = [
+        state_type.name for state_type in INSERT_STATE_TYPES
+    ]
     inserts_df = (
         hmm_chosen_steps.df
         .filter(
-            pl.col(SC.STATE_TYPE).is_in(INSERT_STATE_TYPES)
+            pl.col(SC.STATE_TYPE).is_in(insert_state_types_names)
         )
         .with_columns(
-            pl.col(SC.EMISSION).apply(
-                lambda emission: emission.nrp_monomer.residue == UNKNOWN_RESIDUE)
+            pl.col(SC.EMISSION)
+            .map_elements(
+                lambda emission: emission.to_base_mon().residue == UNKNOWN_RESIDUE,
+                return_dtype=pl.Boolean
+            )
             .alias("inserted_unknown")
         )
     )
@@ -251,7 +260,7 @@ def infer_emission_params(
     return EmissionParams(
         step_function=step_function_steps,
         modifications_frequences=(
-            list(modification_probs.df.iterrows(named=True))
+            list(modification_probs.df.iter_rows(named=True))
         ),
         default_modifications_frequencies=default_mod_freqs,
         default_residue_frequencies=default_residue_freqs,

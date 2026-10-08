@@ -1,3 +1,4 @@
+from collections import defaultdict
 import math
 from math import log
 from typing import (
@@ -127,23 +128,34 @@ import math
 from src.generic.numeric import clamp
 
 def load_edge_weight_params(cfg: dict) -> Dict[ST, Dict[ModuleGenomicContext, Dict[ET, LogProb]]]:
-    edge_weights_cfg = cfg['edge_weight_parameters']
+    edge_weights_cfg = pl.read_csv(cfg['edge_weight_parameters'], separator='\t')
     ET = DetailedHMMEdgeType
     MGF = ModuleGenomicContextFeature
     min_allowed_log_prob = -3  # a quick fix because I am too lazy to update training right now
     max_allowed_log_prob = math.log(1 - math.e ** min_allowed_log_prob)
 
-    parsed_data = {}
-    for state_type_name, ctxt_dict in edge_weights_cfg.items():
-        parsed_data[ST[state_type_name]] = {}
-        for gc_str, edge_types_dict in ctxt_dict.items():
-            gc = frozenset(MGF[feature_str] for feature_str in eval(gc_str))
-            parsed_data[ST[state_type_name]][gc] = {}
+    parsed_data: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
+        defaultdict(lambda: defaultdict(dict))
+    )
+    for row in edge_weights_cfg.iter_rows(named=True):
+        state_type = ST[row["STATE"]]
+        edge_type = ET[row["EDGE_TYPE"]]
+        gc = frozenset(MGF[feature_str] for feature_str in eval(row["RELEVANT_GC"]))
 
-            for edge_type_name, log_prob in edge_types_dict.items():
-                if log_prob != float('-inf') and log_prob != 0.0:
-                    log_prob = clamp(log_prob, min_allowed_log_prob, max_allowed_log_prob)
-                parsed_data[ST[state_type_name]][gc][ET[edge_type_name]] = log_prob
+        prob: float = row["PROB"]
+        match prob:
+            case 0.0:
+                log_prob = -math.inf
+            case 1.0:
+                log_prob = 0.0
+            case _:
+                log_prob = clamp(
+                    math.log(prob),
+                    min_allowed_log_prob,
+                    max_allowed_log_prob,
+                )
+
+        parsed_data[state_type][gc][edge_type] = log_prob
 
     return parsed_data
 
@@ -260,8 +272,9 @@ class HMMScoringConfig:
     ):
         cfg = yaml.safe_load(path_to_config.open('r'))
         mod_freqs_df = ModificationsProbs_df(
-            pl.from_dicts(
-                cfg['emission_parameters']['modification_frequencies']
+            pl.read_csv(
+                cfg['emission_parameters']['modification_likelihoods'],
+                separator='\t'
             )
         )
 
@@ -282,8 +295,8 @@ class HMMScoringConfig:
         self.monomer_avg_detailed_score: Dict[NRP_Monomer, MatchDetailedScore] = (
             compute_monomers_default_detailed_score(
                 paras_default_residue_freqs=paras_avg_residue_scores,
-                methylation_freq=cfg['mibig_methylation_freq'],
-                epimerization_freq=cfg['mibig_epimerization_freq'],
+                methylation_freq=cfg['emission_parameters']['mibig_methylation_freq'],
+                epimerization_freq=cfg['emission_parameters']['mibig_epimerization_freq'],
                 methylation_score=self.methylation_score,
                 chirality_score=self.chirality_score
             )
@@ -301,7 +314,7 @@ class HMMScoringConfig:
         self.norine_mods_freqs: Dict[MODIFICATION_TYPE, Prob] = (
             norine_monomers_info.modification_frequencies()
         )
-        self.insert_unknown_freq: Prob = cfg['insert_unknown_freq']
+        self.insert_unknown_freq: Prob = cfg['emission_parameters']['insert_unknown_freq']
         self.edge_weight_parameters: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
             load_edge_weight_params(cfg)
         )

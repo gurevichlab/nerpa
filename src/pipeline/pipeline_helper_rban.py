@@ -112,25 +112,37 @@ class PipelineHelper_rBAN:
                 chiralities_dict[i] = defaultdict(lambda: Chirality.UNKNOWN)
         return chiralities_dict
 
-    def get_rban_results(self) -> List[Parsed_rBAN_Record]:
+    def get_rban_results(
+            self,
+            monomer_names_helper: MonomerNamesHelper | None = None
+    ) -> List[Parsed_rBAN_Record]:
         rban_records, metadata = self.get_raw_rban_results()
         hybrid_monomers_per_record = self.rban_helper.get_hybrid_monomers_per_record(rban_records, self.log)
         chiralities_per_record = self.get_chiralities_per_record(rban_records)
 
         self.log.info("\n======= Done with Structures preprocessing with rBAN")
-        return [Parsed_rBAN_Record(rban_record,
-                                   hybrid_monomers_per_record[i],
-                                   chiralities_per_record[i],
-                                   metadata)
-                for i, rban_record in enumerate(rban_records)]
+        return [
+            Parsed_rBAN_Record(
+                rban_record,
+                hybrid_monomers_per_record[i],
+                chiralities_per_record[i],
+                metadata,
+                monomer_names_helper=monomer_names_helper
+            )
+            for i, rban_record in enumerate(rban_records)
+        ]
 
-    def get_nrp_variants_info(self,
-                              parsed_rban_records: List[Parsed_rBAN_Record]) -> List[NRP_Variant]:
+    def get_nrp_variants_info(
+            self,
+            parsed_rban_records: List[Parsed_rBAN_Record]
+    ) -> List[NRP_Variant]:
         self.log.info('\n======= Processing rBAN output')
         self.log.info(f'results will be in {self.config.output_config.nrp_variants}')
-        nrp_variants = rban_records_to_nrp_variants(parsed_rban_records,
-                                                    self.monomer_names_helper,
-                                                    self.config.rban_processing_config,
-                                                    self.log)
+        nrp_variants = rban_records_to_nrp_variants(
+            parsed_rban_records,
+            self.monomer_names_helper,
+            self.config.rban_processing_config,
+            self.log
+        )
         self.log.info('\n======= Done with Processing rBAN output')
         return nrp_variants

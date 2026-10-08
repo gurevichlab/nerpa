@@ -36,7 +36,7 @@ from src.hmm.detailed_hmm import DetailedHMM
 from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
-from src.hmm.hmm_scoring_config import load_hmm_scoring_config
+from src.hmm.hmm_scoring_config import HMMScoringConfig
 from src.hmm.hmm_scoring_helper import HMMHelper
 import src.build_output.write_results as write_results
 
@@ -131,11 +131,10 @@ class PipelineHelper:
             external_specificity_predictions
         )
 
-        hmm_scoring_config = load_hmm_scoring_config(
+        hmm_scoring_config = HMMScoringConfig(
             self.config.nerpa_dir,
             self.config.hmm_scoring_config,
             self.specificity_prediction_helper,
-            self.monomer_names_helper,
             norine_monomers_info
         )
         self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
@@ -184,7 +183,9 @@ class PipelineHelper:
             self.log.info(f"Loading preprocessed rBAN records from {self.args.parsed_rban_records}...")
             rban_records = load_parsed_rban_records(self.args.parsed_rban_records)
         else:
-            rban_records = self.pipeline_helper_rban.get_rban_results()
+            rban_records = self.pipeline_helper_rban.get_rban_results(
+                monomer_names_helper=self.monomer_names_helper
+            )
         nrp_variants = self.pipeline_helper_rban.get_nrp_variants_info(rban_records)
 
         if not nrp_variants:

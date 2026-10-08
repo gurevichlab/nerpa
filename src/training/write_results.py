@@ -8,12 +8,18 @@ from src.hmm.hmm_auxiliary_types import DetailedHMMEdgeType
 from src.build_output.write_results import write_yaml
 from src.training.hmm_parameters.short_aliases import *
 from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import EmissionParams
-from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df
+from src.training.hmm_parameters.training_types import (
+    HMM_Chosen_Steps_df,
+    Estimated_Transition_Probs,
+)
 
 
 def edge_params_to_yaml(
-        edge_params: Dict[ST, Dict[GC, Dict[ET, LogProb]]]
+        estimated_transition_probs: Estimated_Transition_Probs
 ) -> dict:
+    edge_params: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
+        estimated_transition_probs.to_dict(log_probs=True)
+    )
     edge_params_yaml: Dict[str, Dict[str, Dict[str, float]]] = {}
 
     for state_type, edges_by_gc in edge_params.items():
@@ -56,7 +62,7 @@ def create_new_configs(old_configs_dir: Path,
 
 
 def write_params(
-        edge_params: Dict[ST, Dict[GC, Dict[ET, LogProb]]],
+        estimated_transition_probs: Estimated_Transition_Probs,
         emission_params: EmissionParams,
         data_for_training: HMM_Chosen_Steps_df,
         old_configs_dir: Path,
@@ -64,6 +70,7 @@ def write_params(
 ):
     output_dir.mkdir(exist_ok=True, parents=True)
     data_for_training.write_tsv(output_dir / 'data_for_training.tsv')
+    estimated_transition_probs.write_tsv(output_dir / 'estimated_transition_probs.tsv')
 
     write_yaml(emission_params._asdict(), output_dir / 'emission_params.yaml')
 
@@ -80,7 +87,7 @@ def write_params(
         'emission_parameters': {
             'modification_frequencies': emission_params.modifications_frequences
         },
-        'edge_weight_parameters': edge_params_to_yaml(edge_params)
+        'edge_weight_parameters': edge_params_to_yaml(estimated_transition_probs)
     }
     write_yaml(hmm_scoring_config, config_updates_dir / 'hmm_scoring_config.yaml')
 

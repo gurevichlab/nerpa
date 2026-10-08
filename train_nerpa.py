@@ -4,6 +4,7 @@ from argparse import Namespace as CommandlineArgs
 from collections import defaultdict
 from logging import Logger
 from pathlib import Path
+import traceback
 from typing import Dict, List, NamedTuple, Set, Optional
 
 import polars as pl
@@ -35,22 +36,22 @@ from src.training.hmm_parameters.bgc_alignment_compatibility import (
 from src.training.hmm_parameters.extract_data_for_training import (
     extract_data_for_training,
 )
-from src.training.hmm_parameters.transition_probabilities.estimate_transition_probs import estimate_hmm_transition_logprobs
+from src.training.hmm_parameters.transition_probabilities.estimate_transition_probs import estimate_hmm_transition_probs
 from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import infer_emission_params
 from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 from src.training.hmm_parameters.training_types import AlignmentWithBGCNRP
 from src.training.write_results import write_params
 from src.training.logging_config import configure_logging
 from test_nerpa import load_local_paths, remove_deprecated_nrps, run_nerpa
-from src.training.hmm_parameters.transition_probabilities.estimate_transition_probs import (
-    estimate_hmm_transition_logprobs,
-)
 from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import EstimateEventProbGivenContextConfig
 from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import StepFunctionEstimationConfig
 from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 from src.training.hmm_parameters.short_aliases import *
 from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import EmissionParams
-from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df
+from src.training.hmm_parameters.training_types import (
+    HMM_Chosen_Steps_df,
+    Estimated_Transition_Probs,
+)
 from src.general_type_aliases import LogProb, Prob
 from src.hmm.hmm_scoring_config import HMMScoringConfig
 
@@ -313,8 +314,8 @@ def main():
 
 
     hmm_transition_probs_cfg = EstimateEventProbGivenContextConfig()
-    transtition_logprobs: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
-        estimate_hmm_transition_logprobs(
+    estimated_transition_probs: Estimated_Transition_Probs = (
+        estimate_hmm_transition_probs(
             hmm_chosen_steps,
             cfg=hmm_transition_probs_cfg,
             logger=logger,
@@ -329,7 +330,7 @@ def main():
         output_dir=args.output_dir,   # for plotting step function
     )
     write_params(
-        edge_params=transtition_logprobs,
+        estimated_transition_probs=estimated_transition_probs,
         emission_params=emission_params,
         data_for_training=hmm_chosen_steps,
         old_configs_dir=nerpa_dir / 'configs',
@@ -338,4 +339,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        with Path("train_nerpa_err.log").open("w") as error_file:
+            traceback.print_exc(file=error_file)
+        raise
+

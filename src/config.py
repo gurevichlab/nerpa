@@ -281,9 +281,11 @@ def load_monomer_names_helper(
 ) -> MonomerNamesHelper:
     monomers_cfg = yaml.safe_load(monomers_cfg_file.open('r'))
     monomers_names_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
-    names_table = pl.read_csv(monomers_names_table_tsv,
-                              separator='\t',
-                              comment_prefix='#',)
+    names_table = pl.read_csv(
+        monomers_names_table_tsv,
+        separator='\t',
+        comment_prefix='#',
+    )
     return MonomerNamesHelper(
         names_table=names_table,
         supported_residues=monomers_cfg['supported_residues'],
@@ -327,15 +329,17 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
     matching_cfg = MatchingConfig(matching_cfg_dict, args)
 
-    return Config(antismash_processing_config=antismash_processing_cfg,
-                  configs_dir=configs_dir,
-                  nerpa_dir=nerpa_dir,
-                  specificity_prediction_config=specificity_prediction_cfg,
-                  rban_config=rban_cfg,
-                  rban_processing_config=rban_processing_cfg,
-                  hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
-                  output_config=output_cfg,
-                  logging_config=logging_cfg,
-                  monomers_config=nerpa_dir / cfg['monomers_config'],
-                  matching_config=matching_cfg,
-                  cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec'])
+    return Config(
+        antismash_processing_config=antismash_processing_cfg,
+        configs_dir=configs_dir,
+        nerpa_dir=nerpa_dir,
+        specificity_prediction_config=specificity_prediction_cfg,
+        rban_config=rban_cfg,
+        rban_processing_config=rban_processing_cfg,
+        hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
+        output_config=output_cfg,
+        logging_config=logging_cfg,
+        monomers_config=nerpa_dir / cfg['monomers_config'],
+        matching_config=matching_cfg,
+        cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec']
+    )

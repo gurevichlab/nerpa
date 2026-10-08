@@ -11,8 +11,12 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType
 )
-from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df, HMM_Chosen_Steps_Schema
-from src.training.hmm_parameters.training_types import SuccessCnts
+from src.training.hmm_parameters.training_types import (
+    HMM_Chosen_Steps_df,
+    HMM_Chosen_Steps_Schema,
+    Estimated_Transition_Probs,
+    Estimated_Transition_Probs_Schema,
+)
 from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import (
     EstimateEventProbGivenContextConfig,
     estimate_event_prob_given_context
@@ -81,11 +85,8 @@ def estimate_prob_non_marker_skipping(
             & (pl.col(SC.EDGE_TYPE) == skip_edge_type.name)
         )
         .with_columns(
-            pl.col(SC.GENOMIC_CONTEXT)
-            .map_elements(
-                lambda gc: marker_feature in gc,
-                return_dtype=pl.Boolean
-            )
+            pl.lit(marker_feature.name)
+            .is_in(pl.col(SC.GENOMIC_CONTEXT))
             .alias("marker_present")
         )
     )
@@ -142,7 +143,7 @@ def estimate_skips_at_start_probs(
         edge_choices_df: HMM_Chosen_Steps_df,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger
-) -> Dict[ST, Dict[GC, Dict[ET, Prob]]]:
+) -> Estimated_Transition_Probs:
     """
     Estimate probabilities associated with skipping modules at the beginning
     of an assembly line.
@@ -171,8 +172,12 @@ def estimate_skips_at_start_probs(
     #   * skipping this candidate start and continuing to the next one.
     #
     # Estimate this probability conditioned on the genomic context of the
-    # marker module.
-    transition_probs: Dict[GC, Dict[ET, Prob]] = (
+    # 1. marker module.
+    logger.info(
+        "Estimating probabilities of skipping assembly-line "
+        "for modules with start markers."
+    )
+    transition_probs: Estimated_Transition_Probs = (
         estimate_transition_probs_for_state_conditioned(
             state_type=ST.CHOOSE_IF_START_MATCHING,
             conditioning_feature=MCF.ASSEMBLY_LINE_START_MARKER,
@@ -188,10 +193,17 @@ def estimate_skips_at_start_probs(
     # modules must also be skipped. Their contribution is therefore a
     # length penalty rather than an independent skip/start decision.
     #
+    # I treat all non-marker modules as equivalent, regardless of their genomic context, due to the lack of data.
+    #
     # If q is the estimated probability of extending the run by one
     # additional non-marker module, a run containing k such modules
     # contributes q**k.
-    skip_prob_non_marker = estimate_prob_non_marker_skipping(
+    logger.info(
+        "Estimating probabilities of skipping assembly-line "
+        "for modules without start markers."
+    )
+        
+    skip_prob_non_marker: Prob = estimate_prob_non_marker_skipping(
         edge_choices_df=edge_choices_df,
         state_type=ST.CHOOSE_IF_START_MATCHING,
         skip_edge_type=ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START,
@@ -200,7 +212,7 @@ def estimate_skips_at_start_probs(
         logger=logger
     )
 
-    transition_probs.update(
+    nonmarker_probs: Dict[GC, Dict[ET, Prob]] = (
         {
             gc: {
                 ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START:
@@ -220,6 +232,11 @@ def estimate_skips_at_start_probs(
         }
     )
 
-    return {ST.CHOOSE_IF_START_MATCHING: transition_probs}
+    transition_probs.update(
+        Estimated_Transition_Probs.from_dict(
+            {ST.CHOOSE_IF_START_MATCHING: nonmarker_probs}
+        )
+    )
+    return transition_probs
 
         

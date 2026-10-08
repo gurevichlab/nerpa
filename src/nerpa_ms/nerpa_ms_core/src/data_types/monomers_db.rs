@@ -52,34 +52,33 @@ pub fn create_monomers_db_unfiltered(rban_records: &[Parsed_rBAN_Record]) -> Mon
 }
 
 fn filter_db_entries(entries: &[MonomersDB_Entry]) -> Vec<MonomersDB_Entry> {
-    // q: 1. Discard all entries with is_pks_hybrid==true
+    // 1. Discard all entries with is_pks_hybrid==true or unknown nerpa_core
     // 2. Group entries by (monomer.nerpa_core, monomer.methylated) pair
-    // 3. For each group, keep only the entry with the most common monomer.name. In case of ties, keep any one with the shortest name.
+    // 3. For each group, keep only the entry with the shortest monomer.name
     let mut groups: HashMap<(NerpaCoreResidue, bool), Vec<&MonomersDB_Entry>> = HashMap::new();
     entries
         .iter()
-        .filter(|entry| !entry.monomer.features.is_pks_hybrid && !entry.monomer.features.nerpa_core.is_unknown())
+        .filter(|entry| {
+            !entry.monomer.features.is_pks_hybrid
+                && !entry.monomer.features.nerpa_core.is_unknown()
+        })
         .for_each(|entry| {
-            let key = (entry.monomer.features.nerpa_core.clone(), entry.monomer.features.methylated);
+            let key = (
+                entry.monomer.features.nerpa_core.clone(),
+                entry.monomer.features.methylated,
+            );
             groups.entry(key).or_default().push(entry);
         });
 
     let mut result: Vec<MonomersDB_Entry> = Vec::new();
 
-    // 2. For each group (by nerpa_core, methylated), pick the entry whose monomer.name is most common,
-    //    breaking ties by choosing an entry with the shortest name.
     for (_key, group_entries) in groups {
-        // Count name frequencies
-        let name_freq = group_entries.iter().map(|e| &e.monomer.features.name).counts();
-
-        let group_repr = group_entries
-            .iter()
-            .sorted_by_key(|e| {
-                let name = &e.monomer.features.name;
-                (Reverse(name_freq.get(name).unwrap()), name.0.len())
-            })
-            .next()
-            .unwrap();
+        let group_repr = {
+            group_entries
+                .iter()
+                .min_by_key(|entry| entry.monomer.features.name.0.len())
+                .unwrap()
+        };
 
         result.push((*group_repr).clone());
     }
@@ -121,49 +120,49 @@ impl Monomer {
 
 impl MonomersDB_Entry {
     pub fn get_monomer_idx(&self) -> MonomerIdx {
-	let (bs, bond) = self.bonds_by_bs.iter().next().unwrap_or_else(|| {
-	    panic!(
-		"MonomersDB_Entry has no bonds, cannot determine monomer idx",
-	    )
-	});
-	match bs.side {
-	    BondSide::Left => bond.monomers.0,
-	    BondSide::Right => bond.monomers.1,
-	}
+	    let (bs, bond) = self.bonds_by_bs.iter().next().unwrap_or_else(|| {
+	        panic!(
+		        "MonomersDB_Entry has no bonds, cannot determine monomer idx",
+	        )
+	    });
+	    match bs.side {
+	        BondSide::Left => bond.monomers.0,
+	        BondSide::Right => bond.monomers.1,
+	    }
     }
 
     pub fn set_monomer_idx(&mut self, new_idx: MonomerIdx) {
-	let new_bonds_by_bs = self.bonds_by_bs.iter()
-	    .map(|(bs, bond)| {
-		let mut new_bond = bond.clone();
-		match bs.side {
-		    BondSide::Left => {
-			new_bond.monomers.0 = new_idx;
-			new_bond.monomers.1 = MonomerIdx(bond.monomers.1.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
-		    },
-		    BondSide::Right => {
-			new_bond.monomers.1 = new_idx;
-			new_bond.monomers.0 = MonomerIdx(bond.monomers.0.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
-		    },
-		}
-		(bs.clone(), new_bond)
-	    })
-	    .collect();
+	    let new_bonds_by_bs = self.bonds_by_bs.iter()
+	        .map(|(bs, bond)| {
+		        let mut new_bond = bond.clone();
+		        match bs.side {
+		            BondSide::Left => {
+			            new_bond.monomers.0 = new_idx;
+			            new_bond.monomers.1 = MonomerIdx(bond.monomers.1.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
+		            },
+		            BondSide::Right => {
+			            new_bond.monomers.1 = new_idx;
+			            new_bond.monomers.0 = MonomerIdx(bond.monomers.0.0 + new_idx.0 + 1); // shift the other monomer idx to avoid collisions with the new_idx
+		            },
+		        }
+		        (bs.clone(), new_bond)
+	        })
+	        .collect();
 
-	self.bonds_by_bs = BondsByBSType::new(new_bonds_by_bs);
+	    self.bonds_by_bs = BondsByBSType::new(new_bonds_by_bs);
     }
 
     pub fn shift_atom_ids(&mut self, shift: u32) {
-	self.monomer.shift_atom_ids(shift);
-	self.bonds_by_bs = {
-	    let mut shifted_bonds = Vec::new();
-		for (bs, bond) in self.bonds_by_bs.iter() {
-		    let mut shifted_bond = bond.clone();
-		    shifted_bond.shift_atom_ids(shift);
-		    shifted_bonds.push((bs.clone(), shifted_bond));
-		}
-	    BondsByBSType::new(shifted_bonds)
-	};
+	    self.monomer.shift_atom_ids(shift);
+	    self.bonds_by_bs = {
+	        let mut shifted_bonds = Vec::new();
+		    for (bs, bond) in self.bonds_by_bs.iter() {
+		        let mut shifted_bond = bond.clone();
+		        shifted_bond.shift_atom_ids(shift);
+		        shifted_bonds.push((bs.clone(), shifted_bond));
+		    }
+	        BondsByBSType::new(shifted_bonds)
+	    };
     }
 }
 

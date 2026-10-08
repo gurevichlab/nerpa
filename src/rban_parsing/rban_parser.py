@@ -64,7 +64,11 @@ class MonomerInfo(NamedTuple):
                    is_pks_hybrid=data.get('is_pks_hybrid', False),
                    nerpa_core=NerpaResidue(data['nerpa_core']) if data.get('nerpa_core') else None,
                    methylated=data.get('methylated'),
-                   mon_code=MonCode(data['mon_code']) if data.get('mon_code') else None)
+                   mon_code=(
+                       MonCode(data["mon_code"])
+                       if data.get("mon_code") is not None
+                       else None
+                   ))
 
     def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         d = self._asdict()
@@ -138,10 +142,16 @@ class Parsed_rBAN_Record:
     atomic_bonds: Dict[AtomicEdge, AtomicEdgeInfo]
     metadata: NRP_metadata
 
-    def __init__(self, rban_record: Raw_rBAN_Record,
-                 hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
-                 chiralities: Dict[MonomerIdx, Chirality],
-                 metadata: Dict[str, NRP_metadata]):
+    def __init__(
+            self,
+            rban_record: Raw_rBAN_Record,
+            hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
+            chiralities: Dict[MonomerIdx, Chirality],
+            metadata: Dict[str, NRP_metadata],
+            monomer_names_helper: Optional[MonomerNamesHelper] = None
+    ):
+        if monomer_names_helper is None:
+            raise ValueError("DEBUG: monomer_names_helper must be provided to Parsed_rBAN_Record.__init__")
 
         def get_monomer_name(idx: MonomerIdx) -> NorineMonomerName:
             if idx in hybrid_monomers:
@@ -155,17 +165,29 @@ class Parsed_rBAN_Record:
             return NorineMonomerName(name)
 
         self.compound_id = rban_record['id']
-        self.metadata = metadata.get(self.compound_id, NRP_metadata(None, None, None, None, None))
-        self.atoms = {atom['cdk_idx']: AtomInfo(name=atom['name'],
-                                                hydrogens=atom['hydrogens'])
-                      for atom in rban_record['atomicGraph']['atomicGraph']['atoms']}
+        self.metadata = metadata.get(
+            self.compound_id,
+            NRP_metadata(None, None, None, None, None)
+        )
+        self.atoms = {
+            atom['cdk_idx']: AtomInfo(name=atom['name'],
+                                      hydrogens=atom['hydrogens'])
+            for atom in rban_record['atomicGraph']['atomicGraph']['atoms']
+        }
 
         self.monomers = {
             MonomerIdx(idx := monomer['monomer']['index']):
-            MonomerInfo(name=get_monomer_name(idx),
-                        atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
-                        chirality=chiralities[idx],
-                        is_pks_hybrid=idx in hybrid_monomers)
+            MonomerInfo(
+                name=get_monomer_name(idx),
+                atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
+                chirality=chiralities[idx],
+                is_pks_hybrid=idx in hybrid_monomers,
+                mon_code=(
+                    monomer_names_helper.mon_to_int[monomer_names_helper.parsed_name(get_monomer_name(idx), name_format='rBAN/Norine')]
+                    if monomer_names_helper is not None
+                    else None
+                )
+            )
             for monomer in rban_record['monomericGraph']['monomericGraph']['monomers']
         }
 

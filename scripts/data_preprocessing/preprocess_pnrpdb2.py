@@ -144,7 +144,7 @@ class TableData(NamedTuple):
     readme: str
 
 def main():
-    nerpa_dir = Path(__file__).resolve().parent.parent
+    nerpa_dir = Path(__file__).resolve().parent.parent.parent
     assert (nerpa_dir / 'nerpa.py').exists(), f"nerpa.py not found in {nerpa_dir}"
 
     args = parse_args(nerpa_dir)

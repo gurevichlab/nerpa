@@ -27,6 +27,7 @@ from src.hmm.hmm_auxiliary_types import (
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
     filter_relevant_genomic_context
 )
+from src.general_type_aliases import Prob, LogProb
 from dataclasses import dataclass, asdict
 
 from src.monomer_names_helper import NerpaResidue
@@ -36,12 +37,22 @@ from src.rban_parsing.nrp_variant_types import (
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.monomer_names_helper import NRP_Monomer
-from src.antismash_parsing.genomic_context import ModuleGenomicContext
+from src.antismash_parsing.genomic_context import (
+    ModuleGenomicContext,
+    ModuleGenomicContextFeature
+)
 from src.testing.testing_types import CuratedAlignment
+from src.generic.numeric import safe_log
     
 import polars as pl
 from pathlib import Path
 import numpy as np
+
+# can't import short_aliases here because of circular import, so we define them here
+MCF = ModuleGenomicContextFeature
+GC = ModuleGenomicContext
+ST = DetailedHMMStateType
+ET = DetailedHMMEdgeType
 
 
 class AlignmentWithBGCNRP(NamedTuple):
@@ -111,8 +122,8 @@ class HMM_Chosen_Steps_Schema(StrEnum):
             SCHEMA.EDGE_FROM: pl.Int64,
             SCHEMA.EDGE_TO: pl.Int64,
             SCHEMA.IDX_IN_INSERT_RUN: pl.Int64,
-            SCHEMA.GENOMIC_CONTEXT: pl.Object,
-            SCHEMA.RELEVANT_GC: pl.Object,
+            SCHEMA.GENOMIC_CONTEXT: pl.List(pl.Utf8),
+            SCHEMA.RELEVANT_GC: pl.List(pl.Utf8),
         }
 
         assert set(field_to_type.keys()) == set(SCHEMA), "Mismatch between enum members and type mapping"
@@ -132,11 +143,35 @@ class HMM_Chosen_Steps_Schema(StrEnum):
                     if value is not None
                     else None
                 )
+            case SC.GENOMIC_CONTEXT | SC.RELEVANT_GC:
+                return sorted(f.name for f in value)
+            case _:
+                return value
+
+    def from_polars_dtype(self, value) -> object:
+        SC = HMM_Chosen_Steps_Schema
+        match self:
+            case SC.STATE_TYPE:
+                return (
+                    DetailedHMMStateType[value]
+                    if value is not None
+                    else None
+                )
+            case SC.EDGE_TYPE:
+                return (
+                    DetailedHMMEdgeType[value]
+                    if value is not None
+                    else None
+                )
+            case SC.GENOMIC_CONTEXT | SC.RELEVANT_GC:
+                return (
+                    frozenset({ModuleGenomicContextFeature[f] for f in value})
+                    if value is not None
+                    else None
+                )
             case _:
                 return value
         
-        
-
     def is_derived(self) -> bool:
         # Columns not present in the original data;
         # computed from other columns
@@ -170,16 +205,18 @@ class HMM_Chosen_Steps_Schema(StrEnum):
             SC.IDX_IN_INSERT_RUN: lambda x: str(x) if x is not None else "",
             SC.MODULE_IDX: lambda x: str(x) if x is not None else "",
             SC.GENOMIC_CONTEXT: (
-                lambda x: (
-                    gc_representer(x)
-                    if x is not None
-                    else "")
+                lambda gc: (
+                    '[' + ', '.join(gc) + ']'
+                    if gc is not None
+                    else ""
+                )
             ),
             SC.RELEVANT_GC: (
-                lambda x: (
-                    gc_representer(x)
-                    if x is not None
-                    else "")
+                lambda gc: (
+                    '[' + ', '.join(gc) + ']'
+                    if gc is not None
+                    else ""
+                )
             ),
         }
         return str_representer[self]
@@ -201,33 +238,61 @@ class HMM_Chosen_Steps_df:
     def _fill_derived_columns(self):
         SC = HMM_Chosen_Steps_Schema
 
-        genomic_context: List[ModuleGenomicContext | None] = [
-            m.genomic_context if m is not None else None
+        genomic_context: List[ModuleGenomicContext] = [
+            (m.genomic_context if m is not None else frozenset())
             for m in self.df[SC.MODULE]
         ]
 
-        relevant_gc: List[ModuleGenomicContext | None] = [
-            (
-                filter_relevant_genomic_context(
-                    gc,
-                    DetailedHMMStateType[state_type]
-                )
-                if gc is not None
-                else None
+        relevant_gc: List[ModuleGenomicContext] = [
+            filter_relevant_genomic_context(
+                gc,
+                DetailedHMMStateType[state_type]
             )
             for state_type, gc in zip(self.df[SC.STATE_TYPE], genomic_context)
         ]
 
+        genomic_context_plain: List[List[str]] = [
+            [f.name for f in gc]
+            for gc in genomic_context
+        ]
+        relevant_gc_plain: List[List[str]] = [
+            [f.name for f in gc]
+            for gc in relevant_gc
+        ]
+
         self.df = self.df.with_columns(
-            pl.Series(SC.GENOMIC_CONTEXT, genomic_context, dtype=pl.Object),
-            pl.Series(SC.RELEVANT_GC, relevant_gc, dtype=pl.Object),
+            pl.Series(
+                SC.GENOMIC_CONTEXT,
+                genomic_context_plain,
+                dtype=pl.List(pl.Utf8)
+            ),
+            pl.Series(
+                SC.RELEVANT_GC,
+                relevant_gc_plain,
+                dtype=pl.List(pl.Utf8)
+            ),
         )
 
     def __init__(
             self,
-            df: pl.DataFrame,
+            df: pl.DataFrame | None = None,
             derive_columns: bool = True
     ):
+        if df is None:
+            # Create an empty DataFrame with the expected schema
+            SC = HMM_Chosen_Steps_Schema
+            df = pl.DataFrame(
+                {
+                    col.name: (
+                        pl.Series(
+                            col.name,
+                            [],
+                            dtype=SC._polars_schema()[col.name]
+                        )
+                    )
+                    for col in SC
+                }
+            )
         if (missing_cols := HMM_Chosen_Steps_Schema.missing_columns_in_df(df)):
             raise ValueError(
                 f"HMM_Chosen_Steps_df DataFrame is missing required columns: "
@@ -244,10 +309,9 @@ class HMM_Chosen_Steps_df:
             rows: List[Dict[HMM_Chosen_Steps_Schema, object]],
             derive_columns: bool = True
     ) -> HMM_Chosen_Steps_df:
-        # Polars' row-wise constructor ("from dicts") will normalize dataclasses /
-        # namedtuple-ish objects into plain Python dicts. Build column-wise to
-        # preserve exact Python objects in pl.Object columns.
-        from enum import Enum, IntEnum, StrEnum
+        if not rows:
+            return HMM_Chosen_Steps_df()
+
         SC = HMM_Chosen_Steps_Schema
         schema: Dict[str, pl.DataType] = (
             SC._polars_schema(with_derived=not derive_columns)
@@ -257,20 +321,9 @@ class HMM_Chosen_Steps_df:
                 col.to_polars_dtype(row[col])
                 for row in rows
             ]
-            for col in SC
+            for col in rows[0].keys()
         }
 
-        print(
-            "Num gc context == None: "
-            f"{len([v for v in column_data[SC.GENOMIC_CONTEXT.name] if v is None])}"
-        )
-
-        print(
-            "Checking schema match\n"
-            f"column_data-schema:\n{column_data.keys() - schema.keys()}\n\n"
-            f"schema-column_data:\n{schema.keys() - column_data.keys()}\n"
-            f"Keys match: {schema.keys() == column_data.keys()}"
-        )
 
         df = pl.DataFrame(
             column_data,
@@ -341,3 +394,166 @@ class SuccessCnts(NamedTuple):
         if self.total() == 0:
             raise ValueError('Cannot estimate probability with zero total counts.')
         return self.successes / self.total()
+
+
+class Estimated_Transition_Probs_Schema(StrEnum):
+    STATE_TYPE = 'STATE_TYPE'  # DetailedHMMStateType
+    RELEVANT_GC = 'RELEVANT_GC'  # GenomicContext
+    EDGE_TYPE = 'EDGE_TYPE'  # DetailedHMMEdgeType
+    PROB = 'PROB'  # Prob
+    COMMENTS = 'COMMENTS'  # List[str]
+
+    def to_polars_dtype(
+            self,
+            value: object,
+    ) -> object:
+        match self:
+            case Estimated_Transition_Probs_Schema.STATE_TYPE:
+                return value.name if value is not None else None
+            case Estimated_Transition_Probs_Schema.RELEVANT_GC:
+                return sorted(f.name for f in value) if value is not None else None
+            case Estimated_Transition_Probs_Schema.EDGE_TYPE:
+                return value.name if value is not None else None
+            case Estimated_Transition_Probs_Schema.PROB:
+                return float(value) if value is not None else None
+            case Estimated_Transition_Probs_Schema.COMMENTS:
+                return sorted(value) if value is not None else None
+            case _:
+                raise ValueError(f"Unknown column: {col}")
+    
+class ProbabilityEstimate(NamedTuple):
+    prob: Prob
+    comments: list[str]
+
+class Estimated_Transition_Probs:
+    df: pl.DataFrame
+
+    def __init__(self, df: pl.DataFrame | None = None):
+        if df is not None:
+            self.df = df
+            return
+
+        # Ensure an empty instance still has the expected columns + dtypes.
+        SC = Estimated_Transition_Probs_Schema
+        self.df = pl.DataFrame(
+            {
+                SC.STATE_TYPE: pl.Series(SC.STATE_TYPE, [], dtype=pl.Utf8),
+                SC.RELEVANT_GC: pl.Series(SC.RELEVANT_GC, [], dtype=pl.List(pl.Utf8)),
+                SC.EDGE_TYPE: pl.Series(SC.EDGE_TYPE, [], dtype=pl.Utf8),
+                SC.PROB: pl.Series(SC.PROB, [], dtype=pl.Float64),
+                SC.COMMENTS: pl.Series(SC.COMMENTS, [], dtype=pl.List(pl.Utf8)),
+            }
+        )
+
+    @classmethod
+    def from_rows(
+            cls,
+            rows: List[Dict[Estimated_Transition_Probs_Schema, object]]
+    ) -> Estimated_Transition_Probs:
+        SC = Estimated_Transition_Probs_Schema
+        schema: Dict[str, pl.DataType] = {
+            SC.STATE_TYPE: pl.Utf8,
+            SC.RELEVANT_GC: pl.List(pl.Utf8),
+            SC.EDGE_TYPE: pl.Utf8,
+            SC.PROB: pl.Float64,
+            SC.COMMENTS: pl.List(pl.Utf8),
+        }
+        column_data: Dict[str, List[object]] = {
+            col.name: [
+                col.to_polars_dtype(row[col])
+                for row in rows
+            ]
+            for col in SC
+        }
+
+        df = pl.DataFrame(
+            column_data,
+            schema=schema
+        )
+
+        return Estimated_Transition_Probs(df)
+
+
+    def to_dict(
+            self,
+            log_probs: bool = False
+    ) -> Dict[ST, Dict[GC, Dict[ET, Prob | LogProb]]]:
+        SC = Estimated_Transition_Probs_Schema
+        transition_probs: Dict[ST, Dict[GC, Dict[ET, Prob]]] = {}
+        for row in self.df.iter_rows(named=True):
+            state_type: ST = ST[row[SC.STATE_TYPE]]
+            relevant_gc: GC = frozenset({ModuleGenomicContextFeature[f] for f in row[SC.RELEVANT_GC]})
+            edge_type: ET = ET[row[SC.EDGE_TYPE]]
+            prob: Prob = row[SC.PROB]
+            if log_probs:
+                prob = safe_log(prob)
+
+            if state_type not in transition_probs:
+                transition_probs[state_type] = {}
+            if relevant_gc not in transition_probs[state_type]:
+                transition_probs[state_type][relevant_gc] = {}
+            transition_probs[state_type][relevant_gc][edge_type] = prob
+
+        return transition_probs
+
+    @classmethod
+    def from_dict(
+            cls,
+            transition_probs: Dict[ST, Dict[GC, Dict[ET, Prob | ProbabilityEstimate]]]
+    ) -> Estimated_Transition_Probs:
+        ETPS = Estimated_Transition_Probs_Schema
+        rows: List[Dict[ETPS, object]] = []
+        for state_type, gc_dict in transition_probs.items():
+            for relevant_gc, edge_dict in gc_dict.items():
+                for edge_type, prob_est in edge_dict.items():
+                    if isinstance(prob_est, ProbabilityEstimate):
+                        prob = prob_est.prob
+                        comments = prob_est.comments
+                    else:
+                        prob = prob_est
+                        comments = []
+                    rows.append({
+                        ETPS.STATE_TYPE: state_type,
+                        ETPS.RELEVANT_GC: relevant_gc,
+                        ETPS.EDGE_TYPE: edge_type,
+                        ETPS.PROB: prob,
+                        ETPS.COMMENTS: comments,
+                    })
+        return cls.from_rows(rows)
+                    
+    def update(self, other: Estimated_Transition_Probs) -> None:
+        self.df = pl.concat([self.df, other.df], how='vertical').unique()
+
+    def write_tsv(self, file_path: Path) -> None:
+        SC = Estimated_Transition_Probs_Schema
+
+        # Polars writes List columns in a non-TSV-friendly way; stringify them.
+        df_to_write = self.df.with_columns(
+            pl.when(pl.col(SC.RELEVANT_GC).is_null())
+            .then(pl.lit(""))
+            .otherwise(
+                pl.concat_str(
+                    [
+                        pl.lit("["),
+                        pl.col(SC.RELEVANT_GC).list.join(", "),
+                        pl.lit("]"),
+                    ]
+                )
+            )
+            .alias(SC.RELEVANT_GC),
+            pl.when(pl.col(SC.COMMENTS).is_null())
+            .then(pl.lit(""))
+            .otherwise(
+                pl.concat_str(
+                    [
+                        pl.lit("['"),
+                        pl.col(SC.COMMENTS).list.join("', '"),
+                        pl.lit("']"),
+                    ]
+                )
+            )
+            .alias(SC.COMMENTS),
+        )
+
+        df_to_write.write_csv(file_path, separator="\t")
+

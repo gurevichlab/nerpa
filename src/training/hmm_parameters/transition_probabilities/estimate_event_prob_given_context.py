@@ -18,6 +18,7 @@ from src.hmm.hmm_auxiliary_types import (
 )
 from src.training.hmm_parameters.training_types import (
     SuccessCnts,
+    ProbabilityEstimate
 )
 from src.training.hmm_parameters.statistics_helpers import (
     beta_posterior_mean,
@@ -104,8 +105,8 @@ def estimate_event_prob_given_context(
         success_cnts: Dict[ModuleGenomicContext, SuccessCnts],
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger,
-        state_type: Optional[DetailedHMMStateType] = None,  # for logging purposes
-) -> Dict[ModuleGenomicContext, Prob]:
+        event_label: str = "NA",  # for logging purposes
+) -> Dict[ModuleGenomicContext, ProbabilityEstimate]:
     """
     Model:
     each nonempty context has a probability of having any effect at all 
@@ -114,24 +115,24 @@ def estimate_event_prob_given_context(
 
     The empty context is assumed to always have effect, and its probability of success is estimated from the counts for the empty context.
     """
-    state_name = (
-        state_type.name
-        if state_type
-        else "NA state"
-    )
     all_features = set().union(*success_cnts.keys())
 
+    comments_by_gc: Dict[ModuleGenomicContext, list[str]] = defaultdict(list)
+
     # 1. Estimate the success probability for the empty context (base case)
-    base_cnts = success_cnts.get(frozenset(), SuccessCnts(0, 0))
+    base_cnts: SuccessCnts = success_cnts.get(frozenset(), SuccessCnts(0, 0))
     if base_cnts.total() < cfg.min_num_cnts_for_empty_context:
+        comments_by_gc[frozenset()].append("too little data")
         logger.warning(
-            f'{state_name} '
-            'Not enough data for base case (empty context): '
-            f'{base_cnts.total()} counts.'
+            f'{event_label} '
+            'Too little data for base case (empty context): '
+            f'{base_cnts.total()} counts. '
+            f'Minimum required: {cfg.min_num_cnts_for_empty_context}.'
         )
     if base_cnts.successes == 0:
+        comments_by_gc[frozenset()].append("no successes")
         logger.warning(
-            f'{state_name}: '
+            f'{event_label}: '
             'No successes for base case (empty context).'
         )
 
@@ -146,9 +147,10 @@ def estimate_event_prob_given_context(
         
         gc_cnts = success_cnts.get(gc, SuccessCnts(0, 0))
         if gc_cnts.total() < cfg.min_num_cnts_for_nonempty_context:
+            comments_by_gc[gc].append("too little data")
             logger.warning(
-                f'{state_name}: '
-                f'Too little data for context {[f.name for f in gc]}:'
+                f'{event_label}: '
+                f'Too little data for context {[f.name for f in gc]}: '
                 f'{gc_cnts.total()} counts.'
             )
 
@@ -161,8 +163,9 @@ def estimate_event_prob_given_context(
         if (cfg.unclear_effect_prob_range[0]
             < posterior_gc_has_effect[gc]
             < cfg.unclear_effect_prob_range[1]):
+            comments_by_gc[gc].append("unclear effect")
             logger.warning(
-                f'{state_name}: '
+                f'{event_label}: '
                 f'Unclear effect of context {[f.name for f in gc]}:'
                 f'posterior probability of effect = {posterior_gc_has_effect[gc]:.3f}.'
             )
@@ -187,7 +190,7 @@ def estimate_event_prob_given_context(
             )
             if little_data_unclear_effect:
                 logger.info(
-                    f'{state_name}: '
+                    f'{event_label}: '
                     f'Trying to estimate effect of context {[f.name for f in gc]} indirectly.'
                 )
             else:
@@ -202,14 +205,25 @@ def estimate_event_prob_given_context(
                 logger=logger
             )
             if indirect_p_success_estimate is not None:
+                comments_by_gc[gc].append("estimated indirectly")
                 posterior_p_success_with_gc[gc] = indirect_p_success_estimate
             else:
-                raise NotImplementedError(
-                    f'{state_name}: '
-                    f'Cannot estimate effect of context {[f.name for f in gc]} indirectly.'
+                comments_by_gc[gc].append("could not estimate indirectly")
+                logger.warning(
+                    f'{event_label}: '
+                    f'Could not estimate effect of context {[f.name for f in gc]} indirectly. '
+                    f'Using direct estimate with little data and unclear effect.'
                 )
 
-    return posterior_p_success_with_gc
+    # 4. Merge the probabilities with the comments into a single result
+    results: Dict[ModuleGenomicContext, ProbabilityEstimate] = {}
+    for gc in posterior_p_success_with_gc:
+        results[gc] = ProbabilityEstimate(
+            prob=posterior_p_success_with_gc[gc],
+            comments=comments_by_gc[gc]
+        )
+
+    return results
 
 def gc_to_str_short(gc: GC) -> str:
     return str([f.name for f in gc])
@@ -219,11 +233,12 @@ def estimate_event_prob_given_context_conditioned(
         conditioning_feature: ModuleGenomicContextFeature,
         cfg: EstimateEventProbGivenContextConfig,
         logger: Logger,
-        state_type: Optional[DetailedHMMStateType] = None,  # for logging purposes
+        event_label: str = "NA",  # for logging purposes
         include_conditioning_feature_in_context: bool = True
-) -> Dict[ModuleGenomicContext, Prob]:
+) -> Dict[ModuleGenomicContext, ProbabilityEstimate]:
     logger.debug(
-        f"Estimating even prob given {conditioning_feature.name}"
+        f"Estimating even prob given {conditioning_feature.name}.\n"
+        f"state_type: {event_label}\n"
     )
     logger.debug(
         "successs_cnts:\n" +
@@ -236,19 +251,21 @@ def estimate_event_prob_given_context_conditioned(
             success_cnts_conditioned[gc_wo_cond_feature] = cnts
         else:
             logger.warning(
-                f'{state_type.name if state_type else "Unknown state"}: '
+                f'{event_label}: '
                 f'Context {[f.name for f in gc]} does not contain conditioning feature {conditioning_feature.name}.'
             )
     logger.debug(
-        "successs_cnts_conditioned:\n"
-        '\n'.join(f"{k}: {v}" for k, v in success_cnts_conditioned.items())
+        "successs_cnts_conditioned:\n" +
+        '\n'.join(f"{gc_to_str_short(k)}: {v}" for k, v in success_cnts_conditioned.items())
     )
 
-    posterior_p_success_with_gc_conditioned = estimate_event_prob_given_context(
-        success_cnts=success_cnts_conditioned,
-        cfg=cfg,
-        logger=logger,
-        state_type=state_type
+    posterior_p_success_with_gc_conditioned: Dict[GC, ProbabilityEstimate] = (
+        estimate_event_prob_given_context(
+            success_cnts=success_cnts_conditioned,
+            cfg=cfg,
+            logger=logger,
+            event_label=event_label
+        )
     )
 
     if include_conditioning_feature_in_context:
@@ -257,5 +274,6 @@ def estimate_event_prob_given_context_conditioned(
             for gc, p_success in posterior_p_success_with_gc_conditioned.items()
         }
 
+    
     return posterior_p_success_with_gc_conditioned
     

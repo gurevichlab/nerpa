@@ -3,10 +3,15 @@
 
 from typing import Dict, List, Sequence, Any
 from pathlib import Path
+from importlib.metadata import version
+import sys
+import warnings
 import joblib
 import numpy as np
 from src.general_type_aliases import AA34, Prob
 from src.pipeline.paras_parsing import PARAS_RESIDUE
+
+PARAS_SKLEARN_VERSION = '1.8.0'
 
 
 class ParasFeaturizer(object):
@@ -71,7 +76,37 @@ class ParasWrapper(object):
         model_dump : Path
             Path to joblib.dump'ed RandomForestClassifier model.
         """
-        self.model = joblib.load(model_dump)
+        installed_version = version('scikit-learn')
+        repair_hint = (
+            'Run bash install.sh to update the Nerpa environment and model, '
+            'then run Nerpa using envs/nerpa/bin/python. '
+            f'Current Python: {sys.executable}.'
+        )
+        # Check metadata before importing sklearn: old builds can fail to import
+        # with NumPy 2 before a model-version warning can be emitted.
+        if installed_version != PARAS_SKLEARN_VERSION:
+            raise RuntimeError(
+                f'PARAS requires scikit-learn {PARAS_SKLEARN_VERSION}; '
+                f'found {installed_version}. {repair_hint}'
+            )
+
+        try:
+            from sklearn.exceptions import InconsistentVersionWarning
+        except (ImportError, ValueError) as exc:
+            raise RuntimeError(
+                f'Cannot import the PARAS scikit-learn runtime. {repair_hint}'
+            ) from exc
+
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter('error', InconsistentVersionWarning)
+                self.model = joblib.load(model_dump)
+        except InconsistentVersionWarning as exc:
+            raise RuntimeError(
+                f'PARAS model {model_dump} was saved with scikit-learn '
+                f'{exc.original_sklearn_version}, but the runtime is '
+                f'{installed_version}. {repair_hint}'
+            ) from exc
         self.featurizer = ParasFeaturizer()
 
     def predict_as_json(self, signatures: List[AA34], sort=False) -> List[Dict[str, Any]]:
