@@ -339,7 +339,7 @@ rule train_nerpa:
         nerpa_results_on_mibig_no_calibration=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION,
         output_dir=TRAINING_RESULTS_DIR,
     input:
-        approved_matches=CURATED_ALIGNMENTS,
+        curated_alignments=CURATED_ALIGNMENTS,
         # ensure we have preprocessed BGC variants available for training
         mibig_no_calib_variants=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION / 'preprocessed_input' / 'BGC_variants.yaml',
         pnrpdb2_info=PNRPDB2_INFO,
@@ -350,7 +350,7 @@ rule train_nerpa:
     shell:
         r"""
         PYTHONPATH={NERPA_ROOT} python {params.train_script} \
-          --approved-matches {input.approved_matches} \
+          --curated-alignments {input.curated_alignments} \
           --nerpa-results-on-mibig-no-calibration {params.nerpa_results_on_mibig_no_calibration} \
           --pnrpdb2-info {input.pnrpdb2_info} \
           --mibig-norine-preprocessed {input.mibig_norine_preprocessed} \

@@ -9,6 +9,7 @@ from typing import Dict, List, NamedTuple, Set, Optional
 
 import polars as pl
 import yaml
+import json
 
 from src.aa_specificity_prediction_model.specificity_prediction_helper import (
     SpecificityPredictionHelper,
@@ -42,7 +43,6 @@ from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 from src.training.hmm_parameters.training_types import AlignmentWithBGCNRP
 from src.training.write_results import write_params
 from src.training.logging_config import configure_logging
-from test_nerpa import load_local_paths, remove_deprecated_nrps, run_nerpa
 from src.training.hmm_parameters.transition_probabilities.estimate_event_prob_given_context import EstimateEventProbGivenContextConfig
 from src.training.hmm_parameters.emission_probabilities.hmm_infer_emission_params import StepFunctionEstimationConfig
 from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
@@ -157,17 +157,17 @@ def load_hmm_helper(
 def parse_cli_args(nerpa_dir: Path) -> CommandlineArgs:
     parser = argparse.ArgumentParser(description="Estimates Nerpa parameters "
                                                  "based on Nerpa results on approved matches")
-    default_approved_matches = (
+    default_curated_alignments = (
         nerpa_dir
         / 'data'
         / 'for_training_and_testing'
-        / 'approved_matches.yaml'
+        / 'curated_alignments.json'
     )
     parser.add_argument(
-        "--approved-matches",
+        "--curated-alignments",
         type=Path,
-        default=default_approved_matches,
-        help=f"Path to the approved matches YAML file (default: {default_approved_matches})",
+        default=default_curated_alignments,
+        help=f"Path to the JSON with curated alignments file (default: {default_curated_alignments})",
     )
 
     parser.add_argument(
@@ -258,11 +258,12 @@ def main():
 
     # 2. Load curated alignments and corresponding BGC variants
     logger.info('Loading curated alignments')
-    curated_alignments = [
-        CuratedAlignment.from_yaml_dict(test_match_dict)
-        for test_match_dict in yaml.safe_load(args.approved_matches.read_text())
+    curated_alignments_data = json.loads(args.curated_alignments.read_text(encoding="utf-8"))
+    curated_alignments: List[CuratedAlignment] = [
+        CuratedAlignment.from_yaml_dict(ca)
+        for ca in curated_alignments_data["curated_alignments"]
     ]
-    curated_alignments = remove_deprecated_nrps(curated_alignments, pnrpdb_info)
+    # curated_alignments = remove_deprecated_nrps(curated_alignments, pnrpdb_info)
 
     logger.info('Loading BGC variants')
     test_matches_genome_ids = {
