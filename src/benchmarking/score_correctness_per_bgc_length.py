@@ -26,7 +26,14 @@ def score_correctness_per_bgc_length(
     out: dict[str, pl.DataFrame] = {"all": all_correctness}
     for interval_key, group in grouped.items():
         interval_str = str(interval_key)
-        out[interval_str] = data_helper.compute_score_correctness(group, bin_edges=bin_edges)
+        grouped_report = NerpaReport(
+            group,
+            name=f"{report.name} BGC length {interval_str}",
+        )
+        out[interval_str] = data_helper.compute_score_correctness(
+            grouped_report,
+            bin_edges=bin_edges,
+        )
 
     return out
 

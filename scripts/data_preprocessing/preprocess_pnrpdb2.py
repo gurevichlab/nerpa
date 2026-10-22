@@ -1,7 +1,7 @@
 import os
 import sys
 
-import pandas as pd
+import polars as pl
 import json
 import subprocess
 from pathlib import Path
@@ -12,6 +12,7 @@ import yaml
 
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 import re
+import shutil
 
 
 def run_nerpa_on_pnrpdb2(
@@ -19,7 +20,7 @@ def run_nerpa_on_pnrpdb2(
         pnrpdb2_path: Path,
         output_dir: Path,
         deduplicate: bool = True,
-):
+) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     nerpa_script = nerpa_dir / "nerpa.py"
 
@@ -57,7 +58,9 @@ def run_nerpa_on_pnrpdb2(
         print(f"Error running Nerpa:\n{e.stderr}")
         raise
 
-def load_nrp_to_representative(nerpa_results: Path) -> Dict[str, str]:
+def load_nrp_to_representative(
+        nerpa_results: Path,
+) -> Dict[str, str]:
     import yaml
     nrp_representatives_path = (
         nerpa_results
@@ -69,6 +72,38 @@ def load_nrp_to_representative(nerpa_results: Path) -> Dict[str, str]:
     nrp_id_to_repr_id = {entry['nrp_id'][0]: entry['representative_id'][0]
                          for entry in nrp_representatives}
     return nrp_id_to_repr_id
+
+
+def rotate_represantative_mapping(
+        nrp_id_to_repr_id: Dict[str, str],
+        allowed_representatives: set[str],
+) -> Dict[str, str]:
+    """
+    Given a mapping from NRP IDs to their representative IDs, and a set of allowed representatives,
+    this function rotates the mapping so that each NRP ID maps to the first representative in its
+    isomorphic group that is also in the allowed representatives set. If no representative in the
+    group is allowed, an error is raised. The function returns a new mapping from NRP IDs to their allowed representative IDs.
+    """
+    # Create a reverse mapping from representative IDs to their corresponding NRP IDs
+    repr_id_to_nrp_ids: Dict[str, List[str]] = {}
+    for nrp_id, repr_id in nrp_id_to_repr_id.items():
+        if repr_id not in repr_id_to_nrp_ids:
+            repr_id_to_nrp_ids[repr_id] = []
+        repr_id_to_nrp_ids[repr_id].append(nrp_id)
+
+    # Create a new mapping from NRP IDs to their allowed representative IDs
+    rotated_mapping: Dict[str, str] = {}
+    for repr_id, nrp_ids in repr_id_to_nrp_ids.items():
+        # Find the first allowed representative in this group
+        allowed_repr = next((r for r in nrp_ids if r in allowed_representatives), None)
+        if allowed_repr:
+            for nrp_id in nrp_ids:
+                rotated_mapping[nrp_id] = allowed_repr
+        else:
+            raise ValueError(f"No allowed representative found for the isomorphic group of representative ID '{repr_id}'.")
+            
+
+    return rotated_mapping
 
 
 def parse_args(nerpa_dir: Path) -> argparse.Namespace:
@@ -114,36 +149,89 @@ def parse_args(nerpa_dir: Path) -> argparse.Namespace:
     return args
 
 
-def expand_pnrpdb2_df(pnrpdb2_df: pd.DataFrame) -> pd.DataFrame:
+def expand_pnrpdb2_df(pnrpdb2_df: pl.DataFrame) -> pl.DataFrame:
     """
     PNRPDB2 rows have a column "Alternative IDs" which contains a comma-separated list of alternative IDs for the same compound.
     This function expands the DataFrame so that each alternative ID gets its own row, while keeping the other columns the same.
     """
-    expanded_rows = []
-    for _, row in pnrpdb2_df.iterrows():
-        alt_ids = row.get('Alternative IDs', '')
-        alt_ids_list = [
-            s.strip()
-            for s in re.split(r'[,;| ]+', alt_ids)  # treat any of "," ";", "|", " " as separators
-            if s.strip()
-        ]
-        if not alt_ids_list:
-            expanded_rows.append(row)
-        else:
-            for alt_id in alt_ids_list:
-                new_row = row.copy()
-                new_row['ID'] = alt_id
-                expanded_rows.append(new_row)
-    expanded_df = pd.DataFrame(expanded_rows)
-    return expanded_df
+    alternative_ids = (
+        pl.col("Alternative IDs")
+        .fill_null("")
+        .cast(pl.String)
+        .str.extract_all(r"[^,;| ]+")
+    )
+
+    return (
+        pnrpdb2_df
+        .with_columns(
+            pl.concat_list(
+                pl.col("ID").cast(pl.String),
+                alternative_ids,
+            ).alias("_expanded_id")
+        )
+        .explode("_expanded_id")
+        .with_columns(pl.col("_expanded_id").alias("ID"))
+        .drop("_expanded_id")
+        .sort("ID")
+    )
 
 
 class TableData(NamedTuple):
     name: str
-    df: pd.DataFrame
+    df: pl.DataFrame
     readme: str
 
-def main():
+
+def handle_pnrpdb_expanded(
+        pnrpdb2_raw_df: pl.DataFrame,
+        tables_dir: Path,
+        preprocessed_dir: Path,
+        table_name_prefix: str,
+        nerpa_output_dir: Path,
+        nerpa_dir: Path,
+) -> None:
+    pnrpdb2_raw_expanded_df = expand_pnrpdb2_df(pnrpdb2_raw_df)
+    pnrpdb2_raw_expanded_path = tables_dir / f'{table_name_prefix}_expanded.tsv'
+    pnrpdb2_raw_expanded_df.write_csv(
+        pnrpdb2_raw_expanded_path,
+        separator='\t',
+    )
+
+    with open(pnrpdb2_raw_expanded_path.with_suffix('.tsv.readme'), 'w') as f:
+        f.write(
+            "This file is an expanded version of the original PNRPDB2 raw data, where each alternative ID has its own row.\n"
+            "The 'ID' column contains the alternative ID, while other columns are copied from the original row.\n"
+            "The original 'Alternative IDs' column is preserved in each row."
+        )
+
+    nerpa_output_dir_expanded = nerpa_output_dir.with_name(
+        f"{nerpa_output_dir.name}_expanded"
+    )
+    print(
+        f"Running Nerpa on {pnrpdb2_raw_expanded_path} "
+        f"and storing results in {nerpa_output_dir_expanded}"
+    )
+
+    run_nerpa_on_pnrpdb2(
+        nerpa_dir=nerpa_dir,
+        pnrpdb2_path=pnrpdb2_raw_expanded_path,
+        output_dir=nerpa_output_dir_expanded
+    )
+
+    # copy the parsed_rban_records.yaml from the nerpa output to the preprocessed directory
+    source_path = (
+        nerpa_output_dir_expanded
+        / "preprocessed_input"
+        / "parsed_rban_records.yaml"
+    )
+    destination_path = (
+        preprocessed_dir
+        / f"{table_name_prefix}_expanded_parsed_rban_records.yaml"
+    )
+    shutil.copy2(source_path, destination_path)
+
+
+def main() -> None:
     nerpa_dir = Path(__file__).resolve().parent.parent.parent
     assert (nerpa_dir / 'nerpa.py').exists(), f"nerpa.py not found in {nerpa_dir}"
 
@@ -154,19 +242,18 @@ def main():
         else args.pnrpdb2_raw.stem + '_filtered'
     )
     print(f'Using pnrpdb2 path: {args.pnrpdb2_raw}, prefix for output tables: {pnrpdb_pref}')
-    pnrpdb2_raw_df = pd.read_csv(args.pnrpdb2_raw, sep='\t')
+    pnrpdb2_raw_df = pl.read_csv(args.pnrpdb2_raw, separator='\t')
 
-    # pnrpdb2_raw_expanded_df = expand_pnrpdb2_df(pnrpdb2_raw_df)
-    # pnrpdb2_raw_expanded_path = args.preprocessed_dir / f'{args.pnrpdb_raw.stem}_expanded.tsv'
-    # with pnrpdb2_raw_expanded_path.open('w') as f:
-    #     pnrpdb2_raw_expanded_df.to_csv(f, sep='\t', index=False)
-    # with open(args.preprocessed_dir / f'{args.pnrpdb_raw.stem}_expanded.tsv.readme', 'w') as f:
-    #     f.write(
-    #         "This file is an expanded version of the original PNRPDB2 raw data, where each alternative ID has its own row.\n"
-    #         "The 'ID' column contains the alternative ID, while other columns are copied from the original row.\n"
-    #         "The original 'Alternative IDs' column is preserved in each row."
-    #     )
-
+    # pnrpdb2_expanded is different from other tables because it's not a filtered version of pnrpdb2_raw, but an expanded version of it.
+    # So it was the least headache to handle it completely independently
+    handle_pnrpdb_expanded(
+        pnrpdb2_raw_df=pnrpdb2_raw_df,
+        tables_dir=args.filtered_tables_dir,
+        preprocessed_dir=args.preprocessed_dir,
+        table_name_prefix=pnrpdb_pref,
+        nerpa_output_dir=args.output_for_nerpa_run,
+        nerpa_dir=nerpa_dir,
+    )
 
     nerpa_results = args.output_for_nerpa_run
     print(
@@ -180,19 +267,20 @@ def main():
         output_dir=args.output_for_nerpa_run,
     )
 
-    nrp_id_to_repr_id = load_nrp_to_representative(nerpa_results)
-    rban_records = [
+    # pnrpdb2_raw_nrps = set(pnrpdb2_raw_df.get_column("ID").to_list())
+    nrp_id_to_repr_id: Dict[str, str] = load_nrp_to_representative(nerpa_results)
+    # nrp_id_to_repr_id = rotate_represantative_mapping(nrp_id_to_repr_id, pnrpdb2_raw_nrps)
+
+    rban_records: List[Parsed_rBAN_Record] = [
         Parsed_rBAN_Record.from_dict(record)
-        for record in yaml.safe_load((nerpa_results / 'preprocessed_input' / 'parsed_rban_records.yaml').open())
+        for record in yaml.safe_load(
+            (nerpa_results / "preprocessed_input" / "parsed_rban_records.yaml").open()
+        )
     ]
-    processed_ids = set(nrp_id_to_repr_id.keys())  # IDs that Nerpa was able to process
-    pnrpdb2_df = pnrpdb2_raw_df[pnrpdb2_raw_df['ID'].isin(processed_ids)]
-
-    def is_mibig_norine(nrp_id: str) -> bool:
-        return nrp_id.startswith('BGC') or nrp_id.startswith('NOR')
-
-    def is_representative(nrp_id: str) -> bool:
-        return nrp_id in nrp_id_to_repr_id.values()
+    processed_ids: set[str] = set(nrp_id_to_repr_id)
+    pnrpdb2_df: pl.DataFrame = pnrpdb2_raw_df.filter(
+        pl.col("ID").is_in(list(processed_ids))
+    )
 
     tables: List[TableData] = []
 
@@ -209,8 +297,10 @@ def main():
     )
 
     # 2. Only the subset of pnrpdb2 that are in MIBiG or Norine
-    is_mibig_norine_col = pnrpdb2_df['ID'].apply(is_mibig_norine)
-    df_mibig_norine = pnrpdb2_df[is_mibig_norine_col]
+    df_mibig_norine = pnrpdb2_df.filter(
+        pl.col("ID").str.starts_with("BGC")
+        | pl.col("ID").str.starts_with("NOR")
+    )
     tables.append(
         TableData(
             name=f'{pnrpdb_pref}_mibig_norine',
@@ -223,8 +313,10 @@ def main():
     )
 
     # 3. Only the representatives from nerpa deduplication
-    is_representative_col = pnrpdb2_df['ID'].apply(is_representative)
-    df_representatives = pnrpdb2_df[is_representative_col]
+    representative_ids = list(nrp_id_to_repr_id.values())
+    df_representatives = pnrpdb2_df.filter(
+        pl.col("ID").is_in(representative_ids)
+    )
     tables.append(
         TableData(
             name=f'{pnrpdb_pref}_deduplicated',
@@ -237,12 +329,15 @@ def main():
     )
 
     # 3. Only the MIBiG or Norine NRPs with distinct representatives (i.e. deduplicated)
-    repr_ids = df_mibig_norine['ID'].map(nrp_id_to_repr_id)
     df_mibig_norine_deduplicated = (
         df_mibig_norine
-        .assign(_repr_id=repr_ids)
-        .drop_duplicates(subset='_repr_id', keep='first')
-        .drop(columns=['_repr_id'])
+        .with_columns(
+            pl.col("ID")
+            .replace_strict(nrp_id_to_repr_id)
+            .alias("_repr_id")
+        )
+        .unique(subset="_repr_id", keep="first", maintain_order=True)
+        .drop("_repr_id")
     )
     tables.append(
         TableData(
@@ -258,11 +353,11 @@ def main():
 
     # 4. Dump tables and preprocessed rBAN records
     for table in tables:
-        nrp_ids_in_table = set(table.df['ID'])
+        nrp_ids_in_table = set(table.df.get_column("ID").to_list())
 
         # Dump the table
         tsv_path = args.filtered_tables_dir / f'{table.name}.tsv'
-        table.df.to_csv(tsv_path, sep='\t', index=False)
+        table.df.write_csv(tsv_path, separator='\t')
 
         # Dump the README for the table
         readme_path = args.filtered_tables_dir / f'{table.name}.tsv.readme'

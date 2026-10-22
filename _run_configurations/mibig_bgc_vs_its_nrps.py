@@ -45,6 +45,20 @@ def parse_args(nerpa_dir: Path) -> argparse.Namespace:
         default=nerpa_dir / "nerpa_results/mibig_bgc_vs_its_nrps",
         help="Output directory (default: nerpa_results/mibig_bgc_vs_its_nrps)"
     )
+    parser.add_argument(
+        "--pnrpdb",
+        type=Path,
+        default=nerpa_dir / "data/input/pnrpdb2_expanded.tsv",
+        help="Path to the PNRP database TSV",
+    )
+    parser.add_argument(
+        "--antismash-results",
+        type=Path,
+        help=(
+            "Directory containing antiSMASH results for all BGCs. "
+            "If not provided, will look for the directory specified in local_paths.yaml"
+        )
+    )
 
     return parser.parse_args()
 
@@ -60,7 +74,7 @@ def main():
 
     bgc_id = index_to_id(args.bgc_id)
 
-    pnrpdb = pl.read_csv(nerpa_dir / 'data/input/pnrpdb2_expanded.tsv', separator='\t')
+    pnrpdb = pl.read_csv(args.pnrpdb, separator="\t")
     smiles_tsv_path: Path = nerpa_dir / 'tmp' / f'{bgc_id}_nrps.tsv'
     smiles_tsv_path.parent.mkdir(parents=True, exist_ok=True)
     nrps_table: pl.DataFrame = pnrpdb.filter(pl.col('ID').str.starts_with(bgc_id))
@@ -71,8 +85,11 @@ def main():
     print(f'Matching BGC {bgc_id} against {len(nrps)} NRPs:\n{nrps}')
 
 
-    local_paths = yaml.safe_load((nerpa_dir / "local_paths.yaml").read_text())
-    antismash_results_all = Path(local_paths['as_results_mibig4_nrps'])
+    if args.antismash_results:
+        antismash_results_all = args.antismash_results
+    else:
+        local_paths = yaml.safe_load((nerpa_dir / "local_paths.yaml").read_text())
+        antismash_results_all = Path(local_paths['as_results_mibig4_nrps'])
     antismash_results = antismash_results_all / bgc_id
 
     # Construct the command

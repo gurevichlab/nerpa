@@ -18,18 +18,30 @@ from src.pipeline.deduplication import (
 )
 from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Variant_ID
 from src.rban_parsing.rban_parser import (
+    MonomerEdgeInfo,
     Parsed_rBAN_Record,
     NorineMonomerName
 )
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 from collections import Counter
 
+def get_bond_type(edge_info: MonomerEdgeInfo) -> str | None:
+    bond_types: list[str] = [
+        single_bond.atomic_edge.bond_type
+        for single_bond in edge_info
+    ]
+    return (
+        bond_types[0]
+        if len(bond_types) == 1
+        else None
+    )
+
 def rban_record_to_nx_graph(rban_record: Parsed_rBAN_Record) -> nx.Graph:
     graph = nx.Graph()
     for monomer_idx, monomer_info in rban_record.monomers.items():
         graph.add_node(monomer_idx, name=monomer_info.name)
     for (mon1_idx, mon2_idx), edge_info in rban_record.monomer_bonds.items():
-        bond_type = edge_info.bondType
+        bond_type = get_bond_type(edge_info)
         graph.add_edge(mon1_idx, mon2_idx, bond_type=bond_type)
     return graph
 
@@ -127,7 +139,7 @@ def parse_args(nerpa_root: Path) -> argparse.Namespace:
         / 'data'
         / 'input'
         / 'preprocessed'
-        / 'pnrpdb2_raw_parsed_rban_records.yaml'
+        / 'pnrpdb2_expanded_parsed_rban_records.yaml'
     )
     parser.add_argument(
         '--pnrpdb2-preprocessed',
@@ -137,18 +149,18 @@ def parse_args(nerpa_root: Path) -> argparse.Namespace:
         help=f'Path to the preprocessed PNRPDB2 data (default: {default_pnrpdb2_preprocessed})',
     )
 
-    default_pnrpdb2_raw = (
+    default_pnrpdb2_expanded = (
         nerpa_root
         / 'data'
         / 'input'
-        / 'pnrpdb2_raw.tsv'
+        / 'pnrpdb2_expanded.tsv'
     )
     parser.add_argument(
-        '--pnrpdb2-raw',
+        '--pnrpdb2-expanded',
         type=Path,
-        default=default_pnrpdb2_raw,
+        default=default_pnrpdb2_expanded,
         help=(
-            f'Path to the raw PNRPDB2 data (default: {default_pnrpdb2_raw}). '
+            f'Path to the raw PNRPDB2 data (default: {default_pnrpdb2_expanded}). '
             'Used to extract IDs of compounds that rBAN was unable to process.'
         ),
     )
@@ -169,7 +181,7 @@ def parse_args(nerpa_root: Path) -> argparse.Namespace:
 
 
 def main():
-    nerpa_dir = Path(__file__).parent.parent
+    nerpa_dir = Path(__file__).parent.parent.parent
     assert (nerpa_dir / 'nerpa.py').exists(), f'Could not find nerpa.py in {nerpa_dir}'
 
     monomers_cfg_file = (
@@ -254,8 +266,8 @@ def main():
         })
 
     # Add compounds that Nerpa was unable to process
-    pnrpdb_raw = pl.read_csv(args.pnrpdb2_raw, separator='\t')
-    all_ids = set(pnrpdb_raw['ID'].to_list())
+    pnrpdb_expanded = pl.read_csv(args.pnrpdb2_expanded, separator='\t')
+    all_ids = set(pnrpdb_expanded['ID'].to_list())
     missing_ids = all_ids - set(record.compound_id for record in rban_records)
     for compound_id in missing_ids:
         pnrpdb_info_rows.append({

@@ -175,7 +175,8 @@ def main() -> None:
                 for bgc_id in bgc_ids
             ],
         }
-    )
+    ).sort('bgc_id')
+    
 
     table.write_csv(args.out, separator='\t')
 

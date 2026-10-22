@@ -26,13 +26,8 @@ class NerpaReport:
             df: pl.DataFrame,
             name: str = 'REPORT_NAME_MISSING'
     ):
-        self.df = df.with_columns([
-            pl.col('antiSMASH_input')
-            .map_elements(lambda p: Path(p).stem, return_dtype=pl.Utf8)
-            .alias(self.BGC_ID),
-        ])
+        self.df = df
         self.name = name
-
 
     @classmethod
     def is_correct_col(cls, cmp_method: str) -> str:
@@ -98,7 +93,7 @@ def truncate_output(report: NerpaReport,
     report.df = report.df.sort(NerpaReport.SCORE, descending=True)
 
     # Add counters for each BGC and NRP
-    report = report.df.with_columns([
+    report.df = report.df.with_columns([
         pl.col(NerpaReport.BGC_ID)
         .cum_count()
         .over(NerpaReport.BGC_ID)
@@ -205,6 +200,13 @@ def load_nerpa_report(
         pl.col(score_column)
         .alias(NerpaReport.SCORE)
     )
+    if (NerpaReport.BGC_ID not in report.columns
+        and 'antiSMASH_input' in report.columns):
+            report = report.with_columns([
+                pl.col('antiSMASH_input')
+                .map_elements(lambda path: Path(path).stem, return_dtype=pl.Utf8)
+                .alias(NerpaReport.BGC_ID),
+            ])
 
     return prepare_data_for_benchmarking(
         _report=report,

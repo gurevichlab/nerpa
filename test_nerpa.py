@@ -19,136 +19,80 @@ from src.testing.testing_types import (
     simplified_alignment_from_match,
 )
 
+NRP_ISO_CLASS = str  # NRP representative ID up to isomorphism
+NRP_ID = str
+BGC_ID = str
 
-def load_matches(nerpa_results_dir: Path) -> List[Match]:
-    with open(nerpa_results_dir / 'matches_details/matches.yaml') as matches_file:
-        loaded_matches = [Match.from_dict(match_dict)
-                          for match_dict in yaml.safe_load(matches_file)]
-    return loaded_matches
+def load_matches(
+        nerpa_results_dir: Path,
+        nrp_id_to_iso_class: dict[NRP_ID, NRP_ISO_CLASS]
+) -> dict[tuple[BGC_ID, NRP_ISO_CLASS], Match]:
+    result = {}
+    for results_for_bgc in nerpa_results_dir.iterdir():
+        if not results_for_bgc.is_dir():
+            continue
 
+        with open(results_for_bgc / 'matches_details/matches.yaml') as matches_file:
+            loaded_matches: list[Match] = [
+                Match.from_dict(match_dict)
+                for match_dict in yaml.safe_load(matches_file)
+            ]
 
-def run_nerpa(
-        nerpa_dir: Path,
-        antismash_paths: Path,
-        preprocessed_nrps: Path,
-        output_dir: Path,
-        max_num_matches: int = 0,
-        max_num_matches_per_bgc: int = 10,
-        min_num_matches_per_bgc: int = 10,
-        disable_calibration: bool = False,
-        disable_dictionary_lookup: bool = False,
-        disable_bgc_deduplication: bool = False,
-        disable_nrp_deduplication: bool = False,
-):
-    nerpa_script = nerpa_dir / "nerpa.py"
-    output_dir.mkdir(parents=True, exist_ok=True)
+        for m in loaded_matches:
+            bgc_id = m.genome_id
+            if bgc_id.endswith('.gbk'):
+                bgc_id = bgc_id[:-4]
+            iso_class = nrp_id_to_iso_class[m.nrp_variant_id.nrp_id]
+            if (bgc_id, iso_class) not in result:
+                result[(bgc_id, iso_class)] = m
 
-    # Construct the command
-    command = [
-        "python3", str(nerpa_script),
-        "--antismash-paths-file", str(antismash_paths),
-        "--parsed-rban-records", str(preprocessed_nrps),
-        "--output-dir", str(output_dir),
-        "--force-output-dir",
-        "--max-num-matches", str(max_num_matches),
-        "--max-num-matches-per-bgc", str(max_num_matches_per_bgc),
-        "--min-num-matches-per-bgc", str(min_num_matches_per_bgc),
-        "--threads", "8",
-        "--dump-all-preprocessed",
-        "--skip-molecule-drawing",
-        "--let-it-crash",
-    ]
-    if disable_bgc_deduplication:
-        command.append("--disable-bgc-deduplication")
-    if disable_nrp_deduplication:
-        command.append("--disable-nrp-deduplication")
-    if disable_calibration:
-        command.append("--disable-calibration")
-    if disable_dictionary_lookup:
-        command.append("--disable-dictionary-lookup")
-
-    # Execute the command and capture output
-    print('Executing command:', ' '.join(command))
-    try:
-        result = subprocess.run(command, check=True)
-        print(f"Nerpa run completed successfully")
-    except subprocess.CalledProcessError as e:
-        print(f"Error running Nerpa:\n{e.stderr}")
-        raise
+    return result
 
 
-def load_command_line_args(nerpa_dir: Path,
-                           local_paths: dict) -> CommandlineArgs:
-    parser = argparse.ArgumentParser(description="Runs Nerpa on NRPs and BGCs "
-                                                 "from approved matches and checks the results.")
-    default_approved_matches_path = (
-        nerpa_dir
-        / 'data'
-        / 'for_training_and_testing'
-        / 'approved_matches.yaml'
-    )
-    parser.add_argument("--test-matches", type=Path,
-                        default=default_approved_matches_path,
-                        help=f"Path to the approved matches file (default={default_approved_matches_path}).")
-    default_preprocessed_nrps = (
-        nerpa_dir
-        / 'data'
-        / 'input'
-        / 'preprocessed'
-        / 'pnrpdb2_mibig_norine_deduplicated_parsed_rban_records.yaml'
+def load_command_line_args() -> CommandlineArgs:
+    parser = argparse.ArgumentParser(description="Compares the curated alignments with the alignments produced by Nerpa.")
+    parser.add_argument("--curated-alignments", type=Path,
+                        help=f"Path to the file with curated alignments.")
+    parser.add_argument(
+        "--nerpa-results-individual",
+        type=Path,
+        help="The directory with Nerpa results -- each training BGC against its NRPs from the curated alignments."
     )
     parser.add_argument(
-        "--preprocessed-nrps",
+        "--nerpa-results-combined",
         type=Path,
-        default=default_preprocessed_nrps,
-        help=f"Path to the smiles TSV file (default={default_preprocessed_nrps})."
-    )
-
-    default_pnrpdb_info_path = (
-        nerpa_dir
-        / 'data'
-        / 'for_training_and_testing'
-        / 'pnrpdb2_info.tsv'
+        help=(
+            "The directory with Nerpa results -- all training BGCs together against MIBiG+Norine. "
+            "Used to determine match ranks"
+        )
     )
     parser.add_argument(
-        "--nrps-info",
+        "--pnrpdb-info",
         type=Path,
-        default=default_pnrpdb_info_path,
-        help=f"Path to table with NRP clustering and stats such as number of monomers (default={default_pnrpdb_info_path})."
+        help=(
+            "Path to pnrpdb2_info.tsv file with information about NRPs. "
+            "Used to identify isomorphic NRPs."
+        )
     )
 
-    default_antismash_results_path = Path(local_paths['antiSMASH results on MIBiG 4'])
-    parser.add_argument(
-        "--antismash-results",
-        type=Path,
-        default=default_antismash_results_path,
-        help=f"Path to the antismash results directory (default={default_antismash_results_path})."
-    )
-
-    default_output_dir = nerpa_dir / 'test_results'
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=default_output_dir,
-        help=f"Path to the output directory (default={default_output_dir})."
     )
-    parser.add_argument("--nerpa-results", type=Path)
 
     return parser.parse_args()
 
 
-def load_local_paths(nerpa_dir: Path) -> dict:
-    with open(nerpa_dir / 'paths_to_external_data.yaml') as local_paths_yaml:
-        local_paths_dict = yaml.safe_load(local_paths_yaml)
-        return {key: Path(value) for key, value in local_paths_dict.items()}
-
-
-def write_wrong_matches(wrong_matches: List[tuple[Match, CuratedAlignment]],
-                        output_file: Path):
+def write_wrong_matches(
+        wrong_matches: list[dict[str, object]],
+        output_file: Path
+):
     data = []
-    for m, test_match in wrong_matches:
-        al_wrong = simplified_alignment_from_match(m)
-        al_right = test_match.true_alignment
+    for wrong_match_data in wrong_matches:
+        ca: CuratedAlignment = wrong_match_data['curated_alignment']
+        nm: Match = wrong_match_data['nerpa_match']
+        al_wrong = simplified_alignment_from_match(nm)
+        al_right = ca.true_alignment
         mismatched_step_wrong, mismatched_step_right = fst_mismatched_step(al_wrong, al_right)
         mismatched_step_wrong = _wrap_alignment([mismatched_step_wrong]) \
             if mismatched_step_wrong is not None else None
@@ -156,12 +100,14 @@ def write_wrong_matches(wrong_matches: List[tuple[Match, CuratedAlignment]],
             if mismatched_step_right is not None else None
 
         data.append({
-            'bgc_id': test_match.mibig_id,
-            'nrp_id': test_match.nrp_id,
-            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(m)),
-            'true_alignment': _wrap_alignment(test_match.true_alignment),
-            'first_mismatched_step': [mismatched_step_wrong,
-                                      mismatched_step_right],
+            'bgc_id': ca.mibig_id,
+            'nrp_id': ca.nrp_id,
+            'wrong_alignment': _wrap_alignment(simplified_alignment_from_match(nm)),
+            'true_alignment': _wrap_alignment(ca.true_alignment),
+            'first_mismatched_step': [
+                mismatched_step_wrong,
+                mismatched_step_right
+            ],
         })
     output_file.write_text(yaml.dump(data, default_flow_style=False, sort_keys=False))
 
@@ -228,9 +174,6 @@ def remove_deprecated_nrps(test_matches: List[CuratedAlignment],
         if test_match.nrp_id in valid_nrp_ids
     ]
 
-NRP_ISO_CLASS = str  # NRP representative ID up to isomorphism
-NRP_ID = str
-BGC_ID = str
 
 # TODO: load paths from config instead of hardcoding them
 
@@ -245,11 +188,55 @@ def load_nrp_id_to_iso_class(nerpa_results_dir: Path) -> Dict[NRP_ID, NRP_ISO_CL
         for entry in d
     }
 
+
+def load_match_ranks(
+        nerpa_results_combined: Path,
+        nrp_id_to_iso_class: dict[NRP_ID, NRP_ISO_CLASS]
+) -> dict[Tuple[BGC_ID, NRP_ISO_CLASS], int]:
+    report = pl.read_csv(nerpa_results_combined / "report.tsv", separator="\t")
+
+    # Rank each NRP against other matches reported for the same BGC.
+    ranked_report = (
+        report
+        .with_columns(
+            pl.col("antiSMASH_input")
+            .map_elements(lambda path: Path(path).stem, return_dtype=pl.String)
+            .alias("BGC_ID")
+        )
+        .with_columns(
+            pl.col("Score")
+            .rank(method="ordinal", descending=True)
+            .over("BGC_ID")
+            .cast(pl.Int64)
+            .alias("rank")
+        )
+    )
+
+    best_ranks = (
+        ranked_report
+        .with_columns(
+            pl.col("NRP_ID")
+            .replace_strict(nrp_id_to_iso_class)
+            .alias("NRP_ISO_CLASS")
+        )
+        .group_by("BGC_ID", "NRP_ISO_CLASS")
+        .agg(pl.col("rank").min())
+    )
+
+    return {
+        (bgc_id, iso_class): rank
+        for bgc_id, iso_class, rank in best_ranks.iter_rows()
+    }
+
+
 def main():
     nerpa_dir = Path(__file__).parent
-    local_paths = load_local_paths(nerpa_dir)
-    args = load_command_line_args(nerpa_dir, local_paths)
-    pnrpdb_info = pl.read_csv(args.nrps_info, separator='\t')
+    args = load_command_line_args()
+    pnrpdb_info: pl.DataFrame = pl.read_csv(args.pnrpdb_info, separator='\t')
+    nrp_id_to_iso_class: dict[NRP_ID, NRP_ISO_CLASS] = {
+        row['compound_id']: row['nrp_variant_iso_class_representative']
+        for row in pnrpdb_info.select(['compound_id', 'nrp_variant_iso_class_representative']).to_dicts()
+    }
 
     # logging_cfg = LoggingConfig(
     #     log_file=args.output_dir / 'test_nerpa.log',
@@ -262,126 +249,108 @@ def main():
     #    for row in pnrpdb_info.select(['compound_id', 'nrp_variant_iso_class_representative']).to_dicts()
     #}
 
-    MIBIG_ERRORS: Set[BGC_ID] = {
-        'BGC0002379',  # the compound is wrong.
-    }
-    WRONG_EXPECTED: Set[Tuple[BGC_ID, NRP_ID]] = {
-        (bgc_id, nrp_id)
-        for bgc_id, nrp_id in
-        [
-            ('BGC0000342', 'BGC0000342.0'),  # Nerpa incorrectly chooses to skip two monomers instead of iterating a gene
-        ]
-    }
-    MISSING_EXPECTED: Set[Tuple[BGC_ID, NRP_ID]] = {
-        (bgc_id, nrp_id)
-        for bgc_id, nrp_id in
-        [
-            ('BGC0001667', 'BGC0001667.4'),   # NRP aligns poorly to its true BGC
-            ('BGC0000395', 'BGC0000395.0'),  # NRP aligns poorly to its true BGC
-            ('BGC0001344', 'BGC0001344.8'),  # NRP aligns poorly to its true BGC
-        ]
-    }
+    # MISSING_EXPECTED: Set[Tuple[BGC_ID, NRP_ID]] = {
+    #     (bgc_id, nrp_id)
+    #     for bgc_id, nrp_id in
+    #     [
+    #         ('BGC0001667', 'BGC0001667.4'),   # NRP aligns poorly to its true BGC
+    #         ('BGC0000395', 'BGC0000395.0'),  # NRP aligns poorly to its true BGC
+    #         ('BGC0001344', 'BGC0001344.8'),  # NRP aligns poorly to its true BGC
+    #     ]
+    # }
 
 
     print('Loading tests')
-    test_matches_yaml = yaml.safe_load(args.test_matches.read_text())
-    test_matches = [CuratedAlignment.from_yaml_dict(test_match_dict)
-                    for test_match_dict in test_matches_yaml]
-    test_matches = [test_match for test_match in test_matches
-                    if test_match.mibig_id not in MIBIG_ERRORS]
-    test_matches = remove_deprecated_nrps(test_matches, pnrpdb_info)
+    curated_alignments_data = yaml.safe_load(args.curated_alignments.read_text(encoding='utf-8'))
+    curated_alignments: list[CuratedAlignment] = [
+        CuratedAlignment.from_yaml_dict(ca)
+        for ca in curated_alignments_data["curated_alignments"]
+    ]
+    # curated_alignments = remove_deprecated_nrps(curated_alignments, pnrpdb_info)
+    curated_alignments_by_id: Dict[Tuple[BGC_ID, NRP_ISO_CLASS], CuratedAlignment] = {
+        (test_match.mibig_id, nrp_id_to_iso_class[test_match.nrp_id]): test_match
+        for test_match in curated_alignments
+    }
 
-    if args.nerpa_results is None:
-        # create a file with paths to antismash results for run_nerpa
-        test_matches_bgcs = {match.mibig_id for match in test_matches}
-        as_results_file = nerpa_dir / args.output_dir / 'antismash_results_paths.txt'
-        as_results_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(as_results_file, 'w') as f:
-            for bgc_id in test_matches_bgcs:
-                f.write(f"{args.antismash_results / bgc_id}\n")
-
-        print('Running Nerpa')
-        run_nerpa(
-            nerpa_dir=nerpa_dir,
-            antismash_paths=as_results_file,
-            preprocessed_nrps=args.preprocessed_nrps,
-            output_dir=args.output_dir / 'nerpa_results',
-            max_num_matches_per_bgc=30,
-            disable_bgc_deduplication=True,
-            disable_nrp_deduplication=True,
-        )
-        print('Nerpa finished')
-        nerpa_results_dir = args.output_dir / 'nerpa_results'
-    else:
-        print(f'Using existing Nerpa results from {args.nerpa_results}')
-        nerpa_results_dir = args.nerpa_results
-        nerpa_log = (nerpa_results_dir / 'nerpa.log').read_text()
-        run_command = next(line for line in nerpa_log.splitlines()
-                           if line.startswith('Started with command:')).split('Started with command: ')[1]
-        print(f'Nerpa was run with command:\n{run_command}')
-
-    print('Loading Nerpa results')
-    nrp_id_to_iso_class = load_nrp_id_to_iso_class(nerpa_results_dir)
-    # TODO: remove this line when NRP isomorphism is fully supported in tests
-    #  (need to make sure that equal NRP_Monomer with different rBAN names are treated as isomorphic)
-    nrp_id_to_iso_class = {nrp_id: nrp_id for nrp_id in nrp_id_to_iso_class}
-
-    check_nrp_bgc_variants_parsed(
-        nerpa_results_dir=nerpa_results_dir,
-        bgc_ids={test_match.mibig_id for test_match in test_matches},
-        nrp_ids={test_match.nrp_id for test_match in test_matches},
-        nrp_id_to_iso_class=nrp_id_to_iso_class
+    match_ranks: dict[Tuple[BGC_ID, NRP_ISO_CLASS], int] = (
+        load_match_ranks(args.nerpa_results_combined, nrp_id_to_iso_class)
     )
-    matches = load_matches(nerpa_results_dir)
-    matches_by_id: Dict[Tuple[BGC_ID, NRP_ISO_CLASS], Match] = {
-        (m.genome_id, nrp_id_to_iso_class[m.nrp_variant_id.nrp_id]): m
-        for m in matches
-    }
 
-    test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], CuratedAlignment] = {
-        (test_match.mibig_id, test_match.nrp_id): test_match
-        for test_match in test_matches
-    }
+    nerpa_matches_by_id: dict[Tuple[BGC_ID, NRP_ISO_CLASS], Match] = (
+        load_matches(args.nerpa_results_individual, nrp_id_to_iso_class)
+    )
 
-    print('Checking matches')
-    missing_tests = {
-        (test_match.mibig_id, test_match.nrp_id)
-        for test_match in test_matches
-        if (test_match.mibig_id, nrp_id_to_iso_class.get(test_match.nrp_id)) not in matches_by_id
-    }
+    # check_nrp_bgc_variants_parsed(
+    #     nerpa_results_dir=nerpa_results_dir,
+    #     bgc_ids={test_match.mibig_id for test_match in curated_alignments},
+    #     nrp_ids={test_match.nrp_id for test_match in curated_alignments},
+    #     nrp_id_to_iso_class=nrp_id_to_iso_class
+    # )
+    # matches = load_matches(nerpa_results_dir)
+    # matches_by_id: Dict[Tuple[BGC_ID, NRP_ISO_CLASS], Match] = {
+    #     (m.genome_id, nrp_id_to_iso_class[m.nrp_variant_id.nrp_id]): m
+    #     for m in matches
+    # }
 
-    missing_expected = missing_tests.intersection(MISSING_EXPECTED)
-    missing_unexpected: Set[Tuple[BGC_ID, NRP_ISO_CLASS]] = missing_tests - missing_expected
+    # test_matches_by_id: Dict[Tuple[BGC_ID, NRP_ID], CuratedAlignment] = {
+    #     (test_match.mibig_id, test_match.nrp_id): test_match
+    #     for test_match in curated_alignments
+    # }
+
+    # print('Checking matches')
+    # missing_tests = {
+    #     (test_match.mibig_id, test_match.nrp_id)
+    #     for test_match in curated_alignments
+    #     if (test_match.mibig_id, nrp_id_to_iso_class.get(test_match.nrp_id)) not in matches_by_id
+    # }
+
+    # missing_expected = missing_tests.intersection(MISSING_EXPECTED)
+    # missing_unexpected: Set[Tuple[BGC_ID, NRP_ISO_CLASS]] = missing_tests - missing_expected
 
     verdicts = {
-        (test_match.mibig_id, test_match.nrp_id):
-            test_match.test(matches_by_id.get((test_match.mibig_id,
-                                               nrp_id_to_iso_class[test_match.nrp_id])),
-                            check_ids=False)
-        for test_match in test_matches
-        if (test_match.mibig_id, nrp_id_to_iso_class.get(test_match.nrp_id)) in matches_by_id
+        (ca.mibig_id, nrp_id_to_iso_class[ca.nrp_id]):
+            ca.test(nerpa_matches_by_id[(ca.mibig_id, nrp_id_to_iso_class[ca.nrp_id])],
+                    check_ids=False)
+        for ca in curated_alignments
+        # if (ca.mibig_id, nrp_id_to_iso_class.get(ca.nrp_id)) in matches_by_id
     }
 
-    total = len(test_matches)
+    total = len(curated_alignments)
     verdicts_lst = list(verdicts.values())
-    verdicts_wrong = verdicts_lst.count(TestResult.WRONG)
-    wrong_expected = len({(bgc_id, nrp_id)
-                          for (bgc_id, nrp_id), verdict in verdicts.items()
-                          if verdict == TestResult.WRONG and (bgc_id, nrp_id) in WRONG_EXPECTED})
-    print(f'Correct: {verdicts_lst.count(TestResult.CORRECT)}/{total}\n'
-          f'Acceptable alternative: {verdicts_lst.count(TestResult.ACCEPTABLE_ALTERNATIVE)}/{total}\n'
-          f'Wrong (expected): {wrong_expected}/{total}\n'
-          f'Wrong (unexpected): {verdicts_wrong - wrong_expected}/{total}\n'
-          f'Missing (expected): {len(missing_expected)}/{total}\n'
-          f'Missing (unexpected): {len(missing_unexpected)}/{total}\n')
+    # verdicts_wrong = verdicts_lst.count(TestResult.WRONG)
+    # wrong_expected = len({(bgc_id, nrp_id)
+    #                       for (bgc_id, nrp_id), verdict in verdicts.items()
+    #                       if verdict == TestResult.WRONG and (bgc_id, nrp_id) in WRONG_EXPECTED})
+    print(
+        f'Correct: {verdicts_lst.count(TestResult.CORRECT)}/{total}\n'
+        f'Acceptable alternative: {verdicts_lst.count(TestResult.ACCEPTABLE_ALTERNATIVE)}/{total}\n'
+        f'Wrong: {verdicts_lst.count(TestResult.WRONG)}/{total}\n'
+    )
 
-    print(f'Missing matches (unexpected):\n{sorted(nrp_id for bgc_id, nrp_id in missing_unexpected)}')
+    # Missing ranks are treated as falling beyond the reported top 50.
+    ranks: list[int] = [
+        match_ranks.get(match_id, 51)
+        for match_id in verdicts
+    ]
+    print(
+        f"Rank 1: {sum(rank == 1 for rank in ranks)}/{total}\n"
+        f"Rank <= 5: {sum(rank <= 5 for rank in ranks)}/{total}\n"
+        f"Rank <= 10: {sum(rank <= 10 for rank in ranks)}/{total}\n"
+        f"Rank <= 20: {sum(rank <= 20 for rank in ranks)}/{total}\n"
+        f"Rank <= 50: {sum(rank <= 50 for rank in ranks)}/{total}\n"
+        f"Rank > 50: {sum(rank > 50 for rank in ranks)}/{total}\n"
+    )
+    
+
+    # print(f'Missing matches (unexpected):\n{sorted(nrp_id for bgc_id, nrp_id in missing_unexpected)}')
 
     wrong_matches_file = args.output_dir / 'wrong_matches.yaml'
     write_wrong_matches(
         [
-            (matches_by_id[(bgc_id, nrp_id_to_iso_class[nrp_id])],
-             test_matches_by_id[(bgc_id, nrp_id)])
+            {
+                "nerpa_match": nerpa_matches_by_id[(bgc_id, nrp_id_to_iso_class[nrp_id])],
+                "curated_alignment": curated_alignments_by_id[(bgc_id, nrp_id_to_iso_class[nrp_id])]
+            }
             for (bgc_id, nrp_id), verdict in verdicts.items()
             if verdict == TestResult.WRONG
         ],

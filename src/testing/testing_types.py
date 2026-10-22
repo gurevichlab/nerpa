@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 
 import yaml
-from enum import Enum
+from enum import Enum, StrEnum
 from itertools import chain
 from pathlib import Path
 from typing import (
@@ -35,6 +35,12 @@ class CuratedAlignmentId(NamedTuple):
     mibig_id: str
     nrp_id: str
 
+class TestExpectedOutcome(StrEnum):
+    SHOULD_PASS = 'SHOULD_PASS'
+    MAY_FAIL = 'MAY_FAIL'
+    EXPECTED_TO_FAIL = 'EXPECTED_TO_FAIL'
+    
+
 
 @dataclass
 class CuratedAlignment:
@@ -42,6 +48,8 @@ class CuratedAlignment:
     nrp_id: str
     true_alignment: SimplifiedAlignment
     acceptable_alternative_alignments: List[SimplifiedAlignment]
+    test_expected_outcome: TestExpectedOutcome = TestExpectedOutcome.SHOULD_PASS
+    comment: Optional[str] = None
 
     def get_id(self) -> CuratedAlignmentId:
         return CuratedAlignmentId(mibig_id=self.mibig_id, nrp_id=self.nrp_id)
