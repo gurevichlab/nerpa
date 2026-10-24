@@ -18,7 +18,6 @@ from src.rban_parsing.rban_parser import MonomerInfo
 from src.rban_parsing.monomer_features import get_monomer_features
 from src.generic.graphs import (
     BackboneSequence,
-    close_ester_cycles,
     putative_backbones
 )
 from src.pipeline.logging.logger import NerpaLogger
@@ -27,6 +26,29 @@ from src.config import rBAN_Processing_Config, load_config, load_monomer_names_h
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 NerpaMonomerGraph = nx.DiGraph
+
+# Alpha-hydroxy acids that stand in the chain where an amino acid would have its NH2.
+# An ESTER touching one of these is the backbone bond, so it goes into the graph.
+# Thr, Ser and other side-chain OH groups are not in this set.
+_HYDROXY_ACID_CORES = {'Hiv', 'Hva', 'Lac', 'Hmp', 'Hic', 'GlyA', 'Ph-Lac'}
+_HYDROXY_ACID_PREFIXES = ('4OH-', '4Me-', 'D-', 'L-')
+
+
+def is_hydroxy_acid_monomer(name: str) -> bool:
+    '''True for Hiv, Hva, Lac, Hmp, Hic, GlyA, Ph-Lac and the same cores with D-/L-/4Me-/4OH-.'''
+    name = str(name)
+    if ':' in name or not name:
+        return False
+    base = name
+    changed = True
+    while changed:
+        changed = False
+        for prefix in _HYDROXY_ACID_PREFIXES:
+            if base.startswith(prefix):
+                base = base[len(prefix):]
+                changed = True
+                break
+    return base in _HYDROXY_ACID_CORES
 
 
 def build_monomer(mon_info: MonomerInfo,
@@ -52,13 +74,18 @@ def build_nx_graph(rban_record: Parsed_rBAN_Record,
                          if monomer_idx not in lipid_monomers)
 
     for (start, end), edge_info in rban_record.monomer_bonds.items():
-        if all([start not in lipid_monomers,
-                end not in lipid_monomers,
-                edge_info.bond_type in backbone_bonds]):
-
-            graph.add_edge(start, end, data=edge_info)
-            if edge_info.bond_type != 'AMINO':
-                graph.add_edge(end, start, data=edge_info)
+        if start in lipid_monomers or end in lipid_monomers or start == end:
+            continue
+        hydroxy_ester = (
+            edge_info.bond_type == 'ESTER'
+            and (is_hydroxy_acid_monomer(rban_record.monomers[start].name)
+                 or is_hydroxy_acid_monomer(rban_record.monomers[end].name))
+        )
+        if edge_info.bond_type not in backbone_bonds and not hydroxy_ester:
+            continue
+        graph.add_edge(start, end, data=edge_info)
+        if edge_info.bond_type != 'AMINO':
+            graph.add_edge(end, start, data=edge_info)
 
     return graph
 
@@ -93,21 +120,6 @@ def trim_unrecognized_monomers(backbone: BackboneSequence, G: NerpaMonomerGraph)
                             is_cyclic=False)
 
 
-def ester_edges(rban_record: Parsed_rBAN_Record) -> List[tuple]:
-    '''Undirected ESTER pairs. A repeated bond in the opposite direction is stored once.'''
-    seen = set()
-    edges = []
-    for (start, end), edge_info in rban_record.monomer_bonds.items():
-        if edge_info.bond_type != 'ESTER' or start == end:
-            continue
-        key = (start, end) if start < end else (end, start)
-        if key in seen:
-            continue
-        seen.add(key)
-        edges.append(key)
-    return edges
-
-
 def process_single_record(rban_record: Parsed_rBAN_Record,
                           backbone_bond_types: List[str],
                           monomer_names_helper: MonomerNamesHelper,
@@ -117,9 +129,6 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
     backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, monomer_names_helper=monomer_names_helper)
 
     backbones = putative_backbones(graph, compound_id=rban_record.compound_id)
-    backbones = close_ester_cycles(backbones,
-                                   ester_edges(rban_record),
-                                   compound_id=rban_record.compound_id)
     all_fragments = [backbone_to_fragment(backbone) for backbone in backbones]
     proper_fragments = [fragment
                         for fragment in all_fragments

@@ -93,53 +93,6 @@ def putative_backbones(G_: nx.DiGraph,
     return backbone_sequences
 
 
-def close_ester_cycles(backbones: List[BackboneSequence],
-                       ester_edges: Iterable[Tuple],
-                       compound_id: str = 'NA') -> List[BackboneSequence]:
-    '''
-    An ester whose both ends already lie on one linear backbone closes that stretch into a cycle.
-    Residues before and after the stretch stay linear fragments, in path order.
-    An ester with an end off the backbone is a side branch and is left unused.
-    Several esters on one backbone are left unused: there is no single ring to pick.
-    '''
-    undirected: List[Edge] = []
-    seen = set()
-    for u, v in ester_edges:
-        if u == v:
-            continue
-        key = (u, v) if u < v else (v, u)
-        if key in seen:
-            continue
-        seen.add(key)
-        undirected.append(key)
-
-    closed: List[BackboneSequence] = []
-    for backbone in backbones:
-        if backbone.is_cyclic or len(backbone.node_idxs) < 2:
-            closed.append(backbone)
-            continue
-
-        position = {node: i for i, node in enumerate(backbone.node_idxs)}
-        on_path = [(u, v) for u, v in undirected if u in position and v in position]
-        if len(on_path) != 1:
-            if len(on_path) > 1:
-                print(f'WARNING! Multiple ESTER bonds on one backbone for compound {compound_id}. '
-                      'Leaving the backbone linear')
-            closed.append(backbone)
-            continue
-
-        u, v = on_path[0]
-        left, right = sorted((position[u], position[v]))
-        nodes = backbone.node_idxs
-        prefix, cycle, suffix = nodes[:left], nodes[left:right + 1], nodes[right + 1:]
-        if prefix:
-            closed.append(BackboneSequence(node_idxs=prefix, is_cyclic=False))
-        closed.append(BackboneSequence(node_idxs=list(cycle), is_cyclic=True))
-        if suffix:
-            closed.append(BackboneSequence(node_idxs=suffix, is_cyclic=False))
-    return closed
-
-
 def permuted_backbones(backbones: List[BackboneSequence]) -> List[BackboneSequence]:
     if 2 <= len(backbones) <= 3 and not any(backbone.is_cyclic for backbone in backbones):
         joined_paths = (list(chain(*(backbone.node_idxs for backbone in perm_backbones)))
