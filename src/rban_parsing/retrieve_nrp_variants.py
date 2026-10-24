@@ -18,6 +18,7 @@ from src.rban_parsing.rban_parser import MonomerInfo
 from src.rban_parsing.monomer_features import get_monomer_features
 from src.generic.graphs import (
     BackboneSequence,
+    close_ester_cycles,
     putative_backbones
 )
 from src.pipeline.logging.logger import NerpaLogger
@@ -92,6 +93,21 @@ def trim_unrecognized_monomers(backbone: BackboneSequence, G: NerpaMonomerGraph)
                             is_cyclic=False)
 
 
+def ester_edges(rban_record: Parsed_rBAN_Record) -> List[tuple]:
+    '''Undirected ESTER pairs. A repeated bond in the opposite direction is stored once.'''
+    seen = set()
+    edges = []
+    for (start, end), edge_info in rban_record.monomer_bonds.items():
+        if edge_info.bond_type != 'ESTER' or start == end:
+            continue
+        key = (start, end) if start < end else (end, start)
+        if key in seen:
+            continue
+        seen.add(key)
+        edges.append(key)
+    return edges
+
+
 def process_single_record(rban_record: Parsed_rBAN_Record,
                           backbone_bond_types: List[str],
                           monomer_names_helper: MonomerNamesHelper,
@@ -100,9 +116,11 @@ def process_single_record(rban_record: Parsed_rBAN_Record,
 
     backbone_to_fragment = partial(backbone_sequence_to_fragment, G=graph, monomer_names_helper=monomer_names_helper)
 
-    all_fragments = [backbone_to_fragment(backbone)
-                     for backbone in putative_backbones(graph,
-                                                        compound_id=rban_record.compound_id,)]
+    backbones = putative_backbones(graph, compound_id=rban_record.compound_id)
+    backbones = close_ester_cycles(backbones,
+                                   ester_edges(rban_record),
+                                   compound_id=rban_record.compound_id)
+    all_fragments = [backbone_to_fragment(backbone) for backbone in backbones]
     proper_fragments = [fragment
                         for fragment in all_fragments
                         if len(fragment.monomers) > 1 or fragment.monomers[0].residue != UNKNOWN_RESIDUE]
