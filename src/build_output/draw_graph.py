@@ -192,6 +192,7 @@ class MoleculeDrawingHelper:
             with_rban_indexes: bool = True,
             with_monomer_labels: bool = True,
             monomer_names_helper: Optional[MonomerNamesHelper] = None,
+            with_colors: bool = True,
     ) -> None:
         self.record = record
         self.mol: Chem.rdchem.Mol = MolRecord.from_rban_record(record).mol
@@ -222,6 +223,10 @@ class MoleculeDrawingHelper:
 
                 bond = self.mol.GetBondBetweenAtoms(atom1_id, atom2_id)
                 self.bonds_to_highlight.append(bond.GetIdx())
+
+        if not with_colors:
+            self.atom_colors = {}
+            self.bonds_to_highlight = []
 
     def render(
             self,

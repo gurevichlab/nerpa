@@ -7,6 +7,8 @@ python nerpa_ms.py \
        --output-dir nerpa_results/nerpa_ms_test_run \
        --force-output-dir \
        --let-it-crash \
-       --max-nerpa-matches-for-candidate-generation 3 \
-       --num-variants-per-num-edits 10
+       --max-edits 1 \
+       --max-nerpa-matches-for-candidate-generation 5
+#       --num-variants-per-num-edits 10
+#       --smiles-tsv test_data/myxochromides_wo_A.tsv \
 

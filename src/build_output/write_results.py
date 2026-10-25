@@ -206,8 +206,9 @@ def write_nrp_variants(
                     drawing_helper = MoleculeDrawingHelper(
                         rban_record,
                         monomer_names_helper=monomer_names_helper,
-                        with_rban_indexes=True,
-                        with_monomer_labels=True
+                        with_rban_indexes=False,
+                        with_monomer_labels=False,
+                        with_colors=True
                     ) 
                     drawing_helper.render(
                         output_path=(

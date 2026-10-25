@@ -28,9 +28,9 @@ PARAS_MonomerName = NewType('PARAS_MonomerName', str)
 NerpaResidue = NewType('NerpaResidue', str)
 
 # Special "residues"
-UNKNOWN_RESIDUE = NerpaResidue('_UNKNOWN')
-NOT_NRPS_RESIDUE = NerpaResidue('_NOT_NRPS')  # residue that can't be attracted by an A domain, e.g. PKS
-PKS_RESIDUE = NerpaResidue('_PKS')  # PKS residue in a PKS-NRPS hybrid
+UNKNOWN_RESIDUE = NerpaResidue('unk')
+NOT_NRPS_RESIDUE = NerpaResidue('not-nrps')  # residue that can't be attracted by an A domain, e.g. PKS
+PKS_RESIDUE = NerpaResidue('pks')  # PKS residue in a PKS-NRPS hybrid
 SPECIAL_RESIDUES = [UNKNOWN_RESIDUE, NOT_NRPS_RESIDUE, PKS_RESIDUE]
 
 MonCode = NewType('MonCode', int)

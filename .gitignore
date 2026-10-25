@@ -35,3 +35,4 @@ test_run_nerpa_ms/
 envs/
 /src/nerpa_ms/nerpa_ms_core/stderr.txt
 /stderr.txt
+/test.sh

@@ -60,7 +60,23 @@ def main():
 
     bgc_id = index_to_id(args.bgc_id)
 
-    pnrpdb = pl.read_csv(nerpa_dir / 'data/input/pnrpdb2_expanded.tsv', separator='\t')
+    pnrpdb = pl.read_csv(nerpa_dir / 'data/input/pnrpdb2.tsv', separator='\t')
+
+    # Give every primary and alternative identifier its own uniquely keyed row.
+    alternative_rows: pl.DataFrame = (
+        pnrpdb.with_columns(pl.col("Alternative IDs").str.split(";"))
+        .explode("Alternative IDs")
+        .with_columns(
+            pl.col("Alternative IDs").str.strip_chars().alias("ID"),
+        )
+        .filter(pl.col("ID").is_not_null() & (pl.col("ID") != ""))
+    )
+    pnrpdb = pl.concat([pnrpdb, alternative_rows]).unique(
+        subset="ID",
+        keep="first",
+        maintain_order=True,
+    )
+
     smiles_tsv_path: Path = nerpa_dir / 'tmp' / f'{bgc_id}_nrps.tsv'
     smiles_tsv_path.parent.mkdir(parents=True, exist_ok=True)
     nrps_table: pl.DataFrame = pnrpdb.filter(pl.col('ID').str.starts_with(bgc_id))
@@ -71,8 +87,8 @@ def main():
     print(f'Matching BGC {bgc_id} against {len(nrps)} NRPs:\n{nrps}')
 
 
-    local_paths = yaml.safe_load((nerpa_dir / "local_paths.yaml").read_text())
-    antismash_results_all = Path(local_paths['as_results_mibig4_nrps'])
+    local_paths = yaml.safe_load((nerpa_dir / "paths_to_external_data.yaml").read_text())
+    antismash_results_all = Path(local_paths['antiSMASH results on MIBiG 4'])
     antismash_results = antismash_results_all / bgc_id
 
     # Construct the command

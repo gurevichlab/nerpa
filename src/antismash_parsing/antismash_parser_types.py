@@ -166,10 +166,10 @@ class BGC_ID(NamedTuple):
         )
 
     def __str__(self):
-        return f'{self.antiSMASH_file}_{self.contig_idx}_{self.bgc_idx}'
+        return f'{self.antiSMASH_file}:{self.contig_idx}:{self.bgc_idx}'
 
     def to_str_short(self):
-        return f'{self.antiSMASH_file.stem}_{self.contig_idx}_{self.bgc_idx}'
+        return f'{self.antiSMASH_file.stem}:{self.contig_idx}:{self.bgc_idx}'
 
     def _genome_id(self) -> str:
         return self.antiSMASH_file.stem
