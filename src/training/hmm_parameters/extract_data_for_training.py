@@ -173,10 +173,11 @@ def get_hmms_with_paths_with_emissions(
                                       highlight_path=[state for state, _ in path_with_emissions])  # for debugging
             except Exception as e:
                 logger.warning(
-                    f'WARNING: alignment {i} for match {al.get_id()} '
-                    f'could not be converted to path with emissions'
+                    f"WARNING: alignment {i} for match {al.get_id()} "
+                    f"could not be converted to path with emissions: {e}"
                 )
                 continue
+
             hmms_with_paths_with_emissions.append(HMM_Match_Data(
                 detailed_hmm,
                 nrp_variant,

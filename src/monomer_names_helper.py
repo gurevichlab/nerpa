@@ -1,3 +1,4 @@
+from __future__ import annotations
 import math
 from collections import defaultdict
 from math import log
@@ -73,10 +74,36 @@ class NRP_Monomer:
 
     def to_str_short(self) -> str:
         return (
-            f'{self.residue}'
-            "_Me" if self.methylated else ""
-            f"_Chr-{self.chirality.name}"
-            "_PKS" if self.is_pks_hybrid else ""
+            f"{self.residue}"
+            + ("_Me" if self.methylated else "")
+            + f"_Chr-{self.chirality.name}"
+            + ("_PKS" if self.is_pks_hybrid else "")
+        )
+
+    @classmethod
+    def from_str_short(cls, s: str) -> NRP_Monomer:
+        parts = s.split('_')
+        # quick fix to handle special residues that start with '_'
+        if s.startswith('_'):
+            residue = NerpaResidue('_' + parts[1])
+            rest = parts[2:]
+        else:
+            residue = NerpaResidue(parts[0])
+            rest = parts[1:]
+            
+        methylated = any(part == "Me" for part in rest)
+        chirality = next(
+            (Chirality[part.split('-')[1]]
+             for part in rest
+             if part.startswith("Chr-")),
+            Chirality.UNKNOWN
+        )
+        is_pks_hybrid = any(part == "PKS" for part in rest)
+        return cls(
+            residue=residue,
+            methylated=methylated,
+            chirality=chirality,
+            is_pks_hybrid=is_pks_hybrid
         )
 
 

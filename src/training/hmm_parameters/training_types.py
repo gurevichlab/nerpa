@@ -85,6 +85,7 @@ class HMM_Chosen_Steps_Schema(StrEnum):
     # these columns are derived from MODULE and STATE_TYPE, and are not part of the original data
     GENOMIC_CONTEXT = 'GENOMIC_CONTEXT'  # GenomicContext
     RELEVANT_GC = 'RELEVANT_GC'  # GenomicContext
+    AA34 = 'AA34'  # str
 
     def _type(self) -> object:
         SCHEMA = HMM_Chosen_Steps_Schema
@@ -124,6 +125,7 @@ class HMM_Chosen_Steps_Schema(StrEnum):
             SCHEMA.IDX_IN_INSERT_RUN: pl.Int64,
             SCHEMA.GENOMIC_CONTEXT: pl.List(pl.Utf8),
             SCHEMA.RELEVANT_GC: pl.List(pl.Utf8),
+            SCHEMA.AA34: pl.Utf8,
         }
 
         assert set(field_to_type.keys()) == set(SCHEMA), "Mismatch between enum members and type mapping"
@@ -179,13 +181,12 @@ class HMM_Chosen_Steps_Schema(StrEnum):
         derived_columns = {
             SCHEMA.GENOMIC_CONTEXT,
             SCHEMA.RELEVANT_GC,
+            SCHEMA.AA34,
         }
         return self in derived_columns
 
     def tsv_str_converter(self) -> Callable[[object], str]:
         SC = HMM_Chosen_Steps_Schema
-        def gc_representer(gc: ModuleGenomicContext) -> str:
-            return str(sorted(f.name for f in gc))
 
         str_representer = {
             SC.BGC_ID: BGC_Variant_ID.to_str_short,
@@ -218,6 +219,7 @@ class HMM_Chosen_Steps_Schema(StrEnum):
                     else ""
                 )
             ),
+            SC.AA34: lambda x: x if x is not None else "",
         }
         return str_representer[self]
 
@@ -260,6 +262,11 @@ class HMM_Chosen_Steps_df:
             for gc in relevant_gc
         ]
 
+        aa34s: List[str | None] = [
+            m.aa34_code if m is not None else None
+            for m in self.df[SC.MODULE]
+        ]
+
         self.df = self.df.with_columns(
             pl.Series(
                 SC.GENOMIC_CONTEXT,
@@ -271,6 +278,11 @@ class HMM_Chosen_Steps_df:
                 relevant_gc_plain,
                 dtype=pl.List(pl.Utf8)
             ),
+            pl.Series(
+                SC.AA34,
+                aa34s,
+                dtype=pl.Utf8
+            )
         )
 
     def __init__(
@@ -370,7 +382,6 @@ class HMM_Chosen_Steps_df:
         )
         
         df.write_csv(file_path, separator='\t')
-        
 
 
 class SuccessCnts(NamedTuple):

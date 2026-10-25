@@ -11,9 +11,6 @@ import numpy as np
 from src.general_type_aliases import AA34, Prob
 from src.pipeline.paras_parsing import PARAS_RESIDUE
 
-PARAS_SKLEARN_VERSION = '1.8.0'
-
-
 class ParasFeaturizer(object):
     aa_params: Dict[str, Sequence[float]] = {
         "-": [0.00, 0.00, 0.00, 1, 8.3, 0.21, 13.59, 145.2, 1.00, 1.03, 0.99, 6.03, 0.06, 0.00, 0.10],
@@ -68,8 +65,11 @@ class ParasFeaturizer(object):
 
 
 class ParasWrapper(object):
-    def __init__(self, 
-                 model_dump: Path):
+    def __init__(
+            self, 
+            model_dump: Path,
+            sklearn_version: str
+    ):
         """
         Parameters
         ----------
@@ -84,29 +84,32 @@ class ParasWrapper(object):
         )
         # Check metadata before importing sklearn: old builds can fail to import
         # with NumPy 2 before a model-version warning can be emitted.
-        if installed_version != PARAS_SKLEARN_VERSION:
+        if installed_version != sklearn_version:
             raise RuntimeError(
-                f'PARAS requires scikit-learn {PARAS_SKLEARN_VERSION}; '
+                f'PARAS requires scikit-learn {sklearn_version}; '
                 f'found {installed_version}. {repair_hint}'
             )
 
         try:
             from sklearn.exceptions import InconsistentVersionWarning
-        except (ImportError, ValueError) as exc:
+        except ImportError:
+            # sklearn before 1.3 does not expose this warning class.
+            self.model = joblib.load(model_dump)
+        except ValueError as exc:
             raise RuntimeError(
                 f'Cannot import the PARAS scikit-learn runtime. {repair_hint}'
             ) from exc
-
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter('error', InconsistentVersionWarning)
-                self.model = joblib.load(model_dump)
-        except InconsistentVersionWarning as exc:
-            raise RuntimeError(
-                f'PARAS model {model_dump} was saved with scikit-learn '
-                f'{exc.original_sklearn_version}, but the runtime is '
-                f'{installed_version}. {repair_hint}'
-            ) from exc
+        else:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("error", InconsistentVersionWarning)
+                    self.model = joblib.load(model_dump)
+            except InconsistentVersionWarning as exc:
+                raise RuntimeError(
+                    f'PARAS model {model_dump} was saved with scikit-learn '
+                    f'{exc.original_sklearn_version}, but the runtime is '
+                    f'{installed_version}. {repair_hint}'
+                ) from exc
         self.featurizer = ParasFeaturizer()
 
     def predict_as_json(self, signatures: List[AA34], sort=False) -> List[Dict[str, Any]]:

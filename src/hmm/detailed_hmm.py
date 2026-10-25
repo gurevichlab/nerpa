@@ -221,7 +221,8 @@ class DetailedHMM:
             if alignment_type == 'full'
             else alignment
         )
-        return alignment_to_hmm_path(self, _alignment)
+        result = alignment_to_hmm_path(self, _alignment)
+        return result
 
     def draw(self,
              filename: Path,

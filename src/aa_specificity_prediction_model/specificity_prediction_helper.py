@@ -49,7 +49,7 @@ class SpecificityPredictionHelper:
             self,
             config: SpecificityPredictionConfig,
             monomer_names_helper: MonomerNamesHelper,
-            external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None
+            external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None,
     ):
         self.config = config
         self.monomer_names_helper = monomer_names_helper
@@ -63,7 +63,7 @@ class SpecificityPredictionHelper:
 
         if config.paras_model is not None:
             self.DEFAULT_MODEL = 'paras'
-            self.paras_model_wrapper = ParasWrapper(config.paras_model)
+            self.paras_model_wrapper = ParasWrapper(config.paras_model, config.paras_model_sklearn_version)
         else:
             self.DEFAULT_MODEL = 'nerpa'
             self.nerpa_model_wrapper = ModelWrapper(config.nerpa_specificity_prediction_model)
@@ -73,11 +73,13 @@ class SpecificityPredictionHelper:
 
         self._cache = {}
 
-    def predict(self,
-                a_domain: A_Domain,
-                _no_cache: bool = False,  # for debugging/training purposes
-                _no_calibration: bool = False,
-                log: Optional[NerpaLogger | BufferedLogger] = None) -> Dict[NerpaResidue, Prob]:
+    def predict(
+            self,
+            a_domain: A_Domain,
+            _no_cache: bool = False,  # for debugging/training purposes
+            _no_calibration: bool = False,
+            log: Optional[NerpaLogger | BufferedLogger] = None,
+    ) -> Dict[NerpaResidue, Prob]:
         if a_domain.aa34 in self._cache and not _no_cache:
             return self._cache[a_domain.aa34]
 

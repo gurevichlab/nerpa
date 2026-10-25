@@ -39,8 +39,11 @@ from scipy.optimize import minimize_scalar, brentq
 from scipy.stats import chi2
 
 class StepFunctionEstimationConfig(NamedTuple):
-    num_bins: int = 20
-    step_range: int = 1000
+    # input resolution -- the scores are rounded to the nearest multiple of 1/num_bins
+    num_bins: int = 10
+
+    # output resolution -- the steps take values at multiples of 1/step_range
+    step_range: int = 100
 
 def get_match_emissions(hmm_chosen_steps_df: HMM_Chosen_Steps_df) -> List[Tuple[BGC_Module, NRP_Monomer]]:
     matching_state_types_names = [

@@ -77,6 +77,7 @@ def get_aa_codes(
 class SpecificityPredictionConfig:
     nerpa_specificity_prediction_model: Path
     paras_model: Optional[Path]
+    paras_model_sklearn_version: Optional[str]
     a_domains_signatures: Path
     norine_monomers_info_tsv: Path
     KNOWN_AA10_CODES: Dict[NerpaResidue, List[AA10]]

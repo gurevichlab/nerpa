@@ -2,6 +2,7 @@ ENABLE_DICTIONARY_LOOKUP: true
 ENABLE_CALIBRATION: true
 nerpa_specificity_prediction_model: src/aa_specificity_prediction_model/specificity-model-unbalanced.joblib
 paras_model: external_tools/paras/model.paras
+paras_model_sklearn_version: 1.8.0
 a_domains_signatures: data/nerpa_internal/signatures.tsv
 norine_monomers_info: data/nerpa_internal/norine_monomers_info.tsv
 SVM_SUBSTRATES: [dHpg, Asn, Iva, Ile, Glu, Cys, Abu, Gly, Gln, Val, Ser, Arg, Asp,
