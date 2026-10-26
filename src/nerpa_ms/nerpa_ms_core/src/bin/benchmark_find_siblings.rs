@@ -73,7 +73,7 @@ fn load_nerpa_matches_by_bgc_nrp(nerpa_results_dir: &PathBuf) -> HashMap<String,
 	};
 	let maybe_input_items: Result<Vec<InputItem>> =
 	    get_input_from_nerpa_results(
-		&subdir, None, None
+		    &subdir, None, None, None
 	    );
 
 	match maybe_input_items {

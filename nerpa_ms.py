@@ -1,3 +1,4 @@
+import shutil
 from typing import List
 import argparse
 from pathlib import Path
@@ -23,15 +24,32 @@ import subprocess
 import yaml
 
 def parse_args() -> argparse.Namespace:
-    nerpa_default_config = load_nerpa_config()
-    nerpa_parser: argparse.ArgumentParser = \
-        build_nerpa_args_parser(nerpa_default_config, add_help=False)
+    # Detect if nerpa_results are provided before constructing the complete argument parser.
+    prelim_parser = argparse.ArgumentParser(add_help=False)
+    prelim_parser.add_argument("--nerpa-results", type=Path)
+    prelim_args, _unknown_args = prelim_parser.parse_known_args()
+    use_existing_results: bool = prelim_args.nerpa_results is not None
+
+    parent_parsers: list[argparse.ArgumentParser] = []
+    if not use_existing_results:
+        nerpa_default_config = load_nerpa_config()
+        parent_parsers.append(
+            build_nerpa_args_parser(nerpa_default_config, add_help=False)
+        )
 
     nerpa_ms_parser = argparse.ArgumentParser(
         description="Run NERPA-MS pipeline",
-        parents=[nerpa_parser],
-        add_help=True
+        parents=parent_parsers,
+        add_help=True,
     )
+
+    if use_existing_results:
+        nerpa_ms_parser.add_argument(
+            "--output-dir",
+            type=Path,
+            required=True,
+            help="Directory in which to write NERPA-MS results",
+        )
     nerpa_ms_parser.add_argument(
         '--spectra',
         type=Path,
@@ -54,10 +72,35 @@ def parse_args() -> argparse.Namespace:
         '--max-nerpa-matches-for-candidate-generation',
         type=int,
         default=10,
-        help="Maximum number of NERPA matches to consider for candidate generation (default: 10)"
+        help="Maximum number of Nerpa matches to consider for candidate generation (default: 10)"
+    )
+    nerpa_ms_parser.add_argument(
+        '--nerpa-results',
+        type=Path,
+        help="Path to the directory with Nerpa results"
+    )
+    nerpa_ms_parser.add_argument(
+        '--nerpa-match-ids-for-candidate-generation',
+        type=str,
+        help=(
+            'The 0-based match IDs used for candidate generation in the format of a list of indices and ranges (e.g. "0, 2-4, 5"). '
+            'Overrides --max-nerpa-matches-for-candidate-generation. '
+            'Requires --nerpa-results'
+        )
+    )
+    nerpa_ms_parser.add_argument(
+        '--max-spectra-matches-per-nerpa-match',
+        type=int,
+        help="Maximum number of spectra matches to display per Nerpa match in the HTML report (default: 5)",
+        default=5
     )
 
     args = nerpa_ms_parser.parse_args()
+
+    if args.nerpa_results is None and args.nerpa_match_ids_for_candidate_generation is not None:
+        nerpa_ms_parser.error(
+            "--nerpa-match-ids-for-candidate-generation requires --nerpa-results"
+        )
 
     args.output_dir = args.output_dir.resolve()
     args.spectra = args.spectra.resolve()
@@ -69,6 +112,7 @@ def nerpa_ms_core(
         nerpa_root: Path,
         nerpa_results: Path,
         output_dir: Path,
+        nerpa_match_ids: str | None = None,
         max_nerpa_matches: int = 100,
         max_edits: int = 2,
         num_variants_per_num_edits: int = 5
@@ -92,6 +136,9 @@ def nerpa_ms_core(
         '--monomers-db-json', str(nerpa_ms_root / 'data/monomers_db.json'),
         '--nerpa-root', str(nerpa_root),
     ]
+    if nerpa_match_ids is not None:
+        command.extend(['--nerpa-match-ids', nerpa_match_ids])
+
     print(f"Running in {nerpa_ms_root}:\n  {' '.join(command)}")
     subprocess.run(command, cwd=nerpa_ms_root, check=True)
 
@@ -215,14 +262,16 @@ def build_html_report(
         nerpa_results: Path,
         nerpa_ms_core_results: Path,
         nerpa_ms_varquest_results: Path,
-        monomer_names_helper: MonomerNamesHelper
+        monomer_names_helper: MonomerNamesHelper,
+        max_spectra_matches_per_nerpa_match: int,
 ) -> None:
    cfg = HTMLReportConfig(
         main_out_dir=nerpa_results,
         nerpa_root=nerpa_root,
         mode='nerpa-ms',
         generated_candidate_nrps_path=nerpa_ms_core_results / "nerpa-ms-output.json",
-        mass_spec_matching_results_dir=nerpa_ms_varquest_results
+        mass_spec_matching_results_dir=nerpa_ms_varquest_results,
+        max_spectra_matches_per_nerpa_match=max_spectra_matches_per_nerpa_match,
     )
    bgc_variants_info = load_bgc_variants_info(nerpa_results)
    nrp_variants_info = load_nrp_variants_info(nerpa_results)
@@ -249,7 +298,15 @@ def main():
     nerpa_root = Path(__file__).parent.resolve()
     args = parse_args()
 
-    nerpa_main(args=args)
+    if args.nerpa_results is None:
+        nerpa_main(args=args)
+    else:
+        if args.output_dir.exists():
+            print(f"Removing existing output directory: {args.output_dir}")
+            shutil.rmtree(args.output_dir)
+
+        print(f"Copying Nerpa results from: {args.nerpa_results}")
+        shutil.copytree(args.nerpa_results, args.output_dir)
 
     nerpa_ms_core_out = args.output_dir / "nerpa_ms_results"
     nerpa_ms_core(
@@ -258,7 +315,8 @@ def main():
         output_dir=nerpa_ms_core_out,
         max_edits=args.max_edits,
         num_variants_per_num_edits=args.num_variants_per_num_edits,
-        max_nerpa_matches=args.max_nerpa_matches_for_candidate_generation
+        max_nerpa_matches=args.max_nerpa_matches_for_candidate_generation,
+        nerpa_match_ids=args.nerpa_match_ids_for_candidate_generation,
     )
 
     nerpa_ms_varquest_out = args.output_dir / "nerpa_ms_varquest_results"
@@ -276,7 +334,8 @@ def main():
         nerpa_results=args.output_dir,
         nerpa_ms_core_results=nerpa_ms_core_out,
         nerpa_ms_varquest_results=nerpa_ms_varquest_out,
-        monomer_names_helper=monomer_names_helper
+        monomer_names_helper=monomer_names_helper,
+        max_spectra_matches_per_nerpa_match=args.max_spectra_matches_per_nerpa_match
     )
 
 if __name__ == "__main__":

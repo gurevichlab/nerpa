@@ -21,6 +21,12 @@ pub struct Cli {
     )]
     pub input_json: Option<PathBuf>,
 
+    /// Nerpa match IDs to check, using 0-based indices and inclusive ranges (for example: "1, 2-4, 6")
+    ///
+    /// When provided, this overrides --max-nerpa-matches and --min-nerpa-score.
+    #[arg(long, requires = "nerpa_results")]
+    pub nerpa_match_ids: Option<String>,
+
     /// Maximum number of Nerpa matches to check
     #[arg(long,
     	  requires = "nerpa_results")]

@@ -1006,17 +1006,28 @@
         });
     }
 
-     // a lookup dictionary: nrp ID -> variants
-    const nrpIDVariants = new Map();
+    // Map each original Nerpa match to the variants generated specifically
+    // from its complete BGC variant and NRP pair.
+    function makeNerpaMatchKey(bgcVariantID, nrpID) {
+        return [
+            makeBgcKey(bgcVariantID.bgc_id),
+            bgcVariantID.variant_idx,
+            nrpID
+        ].join("::");
+    }
 
-    if (Array.isArray(nrp_representatives)) {
-        nrp_representatives.forEach(group => {
-            const nrpID = group.repr.nrp_id;
-            const candidate = Object.values(candidate_NRPs).find(value => value.compound_id === nrpID);
-            const variants = Object.keys(candidate?.new_variants ?? {});
-            nrpIDVariants.set(nrpID, variants);
-        });
-    };
+    const candidateVariantsByMatch = new Map();
+
+    Object.values(candidate_NRPs).forEach(candidate => {
+        const matchKey = makeNerpaMatchKey(
+            candidate.bgc_variant_id,
+            candidate.compound_id
+        );
+        candidateVariantsByMatch.set(
+            matchKey,
+            Object.keys(candidate.new_variants ?? {})
+        );
+    });
 
     // Array index = ID; object at index = corresponding match, spectrum, and variant data.
     const dataExpand = [];
@@ -1036,7 +1047,11 @@
             dataExpand.length = 0;
             data.forEach(match => {
                 const nrpID = match.nrp_variant_id.nrp_id;
-                const variants = nrpIDVariants.get(nrpID) ?? []; 
+                const matchKey = makeNerpaMatchKey(
+                    match.bgc_variant_id,
+                    nrpID
+                );
+                const variants = candidateVariantsByMatch.get(matchKey) ?? [];
 
                 for(const variant of variants){
                     const variantObj = getVariantObject(variant);

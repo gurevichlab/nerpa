@@ -171,8 +171,10 @@ def get_all_hmm_matches(hmms: List[DetailedHMM],
 
 NRP_ID = str
 
-def filter_and_sort_matches(matches: List[HMM_Match],
-                            config: MatchingConfig) -> List[HMM_Match]:
+def filter_and_sort_matches(
+        matches: List[HMM_Match],
+        config: MatchingConfig
+) -> List[HMM_Match]:
     """
     nrps_null_hypothesis_scores = {
         linearizations.nrp_id: null_hypothesis_score(linearizations, hmms[0].hmm_helper)
@@ -187,25 +189,31 @@ def filter_and_sort_matches(matches: List[HMM_Match],
     # Step 0: Keep only the top match per (BGC, NRP) pair
     matches_map: Dict[Tuple[BGC_ID, NRP_ID], List[HMM_Match]] = defaultdict(list)
 
-    for match in matches:
-        nrp_id = match.nrp_id
-        bgc_id = match.bgc_variant_id.bgc_id
-        matches_map[(bgc_id, nrp_id)].append(match)
+    for m in matches:
+        nrp_id = m.nrp_id
+        bgc_id = m.bgc_variant_id.bgc_id
+        matches_map[(bgc_id, nrp_id)].append(m)
 
-    unique_matches = [max(matches_for_bgc_nrp, key=lambda m: normalized_match_score(m))
-                      for matches_for_bgc_nrp in matches_map.values()]
+    unique_matches: list[HMM_Match] = [
+        max(matches_for_bgc_nrp, key=lambda m: normalized_match_score(m))
+        for matches_for_bgc_nrp in matches_map.values()
+    ]
 
     # Step 1: Sort all matches by descending score
-    sorted_matches = sorted(unique_matches, key=lambda m: normalized_match_score(m), reverse=True)
+    sorted_matches: list[HMM_Match] = sorted(
+        unique_matches,
+        key=lambda m: normalized_match_score(m),
+        reverse=True
+    )
 
     # Step 2: Keep only top matches per BGC and top matches per NRP
     bgc_counts: Dict[BGC_ID, int] = Counter()
     nrp_counts: Dict[NRP_ID, int] = Counter()
-    top_matches = []
+    top_matches: list[HMM_Match] = []
 
-    for match in sorted_matches:
-        bgc_id = match.bgc_variant_id.bgc_id
-        nrp_id = match.nrp_id
+    for m in sorted_matches:
+        bgc_id = m.bgc_variant_id.bgc_id
+        nrp_id = m.nrp_id
 
         can_add_for_bgc = bgc_counts[bgc_id] < config.max_num_matches_per_bgc or config.max_num_matches_per_bgc == 0
         can_add_for_nrp = nrp_counts[nrp_id] < config.max_num_matches_per_nrp or config.max_num_matches_per_nrp == 0
@@ -213,7 +221,7 @@ def filter_and_sort_matches(matches: List[HMM_Match],
         should_add_for_nrp = nrp_counts[nrp_id] < config.min_num_matches_per_bgc
 
         if (can_add_for_bgc and can_add_for_nrp) or should_add_for_bgc or should_add_for_nrp:
-            top_matches.append(match)
+            top_matches.append(m)
             bgc_counts[bgc_id] += 1
             nrp_counts[nrp_id] += 1
 

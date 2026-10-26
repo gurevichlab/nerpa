@@ -232,7 +232,8 @@ class HTMLReportConfig:
             nerpa_root: Path,
             mode: Literal['nerpa', 'nerpa-ms'],
             generated_candidate_nrps_path: Optional[Path] = None,
-            mass_spec_matching_results_dir: Optional[Path] = None
+            mass_spec_matching_results_dir: Optional[Path] = None,
+            max_spectra_matches_per_nerpa_match: Optional[int] = None
     ):
         self.mode = mode
         self.version = (nerpa_root / 'VERSION.txt').read_text().strip()
@@ -300,11 +301,8 @@ class HTMLReportConfig:
             / 'interaction_ms.js'
         )
 
-        self.max_spectra_matches_per_nerpa_match = (  # TODO: make this configurable via CLI or config file
-            None
-            if mode == 'nerpa'
-            else 10
-        )
+        self.max_spectra_matches_per_nerpa_match = max_spectra_matches_per_nerpa_match
+
 
 def create_html_report(
         bgc_variants_info: BGC_Variants_Info,
@@ -372,7 +370,7 @@ def create_html_report(
         create_html_report_ms(cfg, monomer_names_helper)
     else:
         with open(cfg.report_template_path, 'r') as f:
-                main_report_html_template = f.read()
+            main_report_html_template = f.read()
 
         path_substitutions = {
             '{{HTML_AUX_DIR}}': str(cfg.html_aux_dir.relative_to(cfg.main_out_dir)),
