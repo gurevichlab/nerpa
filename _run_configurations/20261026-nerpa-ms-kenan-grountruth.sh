@@ -3,7 +3,7 @@
     cd -- "$(dirname -- "$0")/.." || exit
     python nerpa_ms.py \
            --nerpa-results nerpa_results/for_kenan_2026-10-08 \
-           --spectra /share2/data/hmsb_data/nerpa-ms-kenan/msms_biyan/msms \
+           --spectra /share2/data/hmsb_data/nerpa-ms-kenan/msms_biyan/msms/mgf \
            --output-dir nerpa_results/20261026-nerpa-ms-kenan-groundtruth \
            --max-edits 1 \
            --nerpa-match-ids-for-candidate-generation "4, 6" \
