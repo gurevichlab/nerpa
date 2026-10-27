@@ -8,7 +8,7 @@ from src.benchmarking.data_frames import PNRPDB_Info, PNRPDB_Compound_Similarity
 
 PCS = PNRPDB_Compound_Similarity
 
-class NerpaReport(pl.DataFrame):
+class NerpaReport:
     NRP_ISO_CLASS = 'nrp_iso_class_representative'
     NRP_ID = 'NRP_ID'
     BGC_ID = 'Genome_ID'
@@ -19,15 +19,15 @@ class NerpaReport(pl.DataFrame):
     MATCH_RANK = 'match_rank'
 
     name: str
+    df: pl.DataFrame
 
-    def __init__(self, *args, report_name: str = 'REPORT_NAME_MISSING', **kwargs):
-        if len(args) == 1 and isinstance(args[0], pl.DataFrame) and not kwargs:
-            # Convert to something older Polars constructors accept
-            data = args[0].to_dict(as_series=False)  # dict[str, list]
-            super().__init__(data)
-        else:
-            super().__init__(*args, **kwargs)
-        self.name = report_name
+    def __init__(
+            self,
+            df: pl.DataFrame,
+            name: str = 'REPORT_NAME_MISSING'
+    ):
+        self.df = df
+        self.name = name
 
     @classmethod
     def is_correct_col(cls, cmp_method: str) -> str:
@@ -90,10 +90,10 @@ def truncate_output(report: NerpaReport,
     """Truncate the report to satisfy the output size configuration."""
     name = report.name
     # Sort by score
-    report = report.sort(NerpaReport.SCORE, descending=True)
+    report.df = report.df.sort(NerpaReport.SCORE, descending=True)
 
     # Add counters for each BGC and NRP
-    report = report.with_columns([
+    report.df = report.df.with_columns([
         pl.col(NerpaReport.BGC_ID)
         .cum_count()
         .over(NerpaReport.BGC_ID)
@@ -106,10 +106,10 @@ def truncate_output(report: NerpaReport,
     ])
 
     # For the case when out_size_cfg.max_num_matches_per_bgc = float('inf')
-    max_num_matches = min(out_size_cfg.max_num_matches, len(report))
+    max_num_matches = min(out_size_cfg.max_num_matches, len(report.df))
 
     # Filter based on configuration
-    filtered = report.filter(
+    filtered = report.df.filter(
         (
             (pl.col('_match_rank_for_bgc') < out_size_cfg.max_num_matches_per_bgc)  # < because match_rank starts from 0
             &
@@ -121,17 +121,24 @@ def truncate_output(report: NerpaReport,
         (pl.col('_match_rank_for_nrp') < out_size_cfg.min_num_matches_per_nrp)
     ).head(max_num_matches)
 
-    print(f"Truncated report {name} from {len(report)} matches to {len(filtered)} matches based on output size configuration")
-    return NerpaReport(filtered.drop(['_match_rank_for_bgc', '_match_rank_for_nrp']),
-                       report_name=name)
+    print(
+        f"Truncated report {name} from {len(report.df)} matches to {len(filtered)} "
+        "matches based on output size configuration"
+    )
+    return NerpaReport(
+        df=filtered.drop(['_match_rank_for_bgc', '_match_rank_for_nrp']),
+        name=name
+    )
 
 
-def prepare_data_for_benchmarking(_report: pl.DataFrame,
-                                  bgc_ids_to_keep: Set[str],
-                                  nrp_classes_to_keep: Set[str],
-                                  nrp_id_to_iso_class: Dict[str, str],
-                                  out_size_cfg: OutputSizeConfig,
-                                  report_name: str = 'REPORT_NAME_MISSING') -> NerpaReport:
+def prepare_data_for_benchmarking(
+        _report: pl.DataFrame,
+        bgc_ids_to_keep: Set[str],
+        nrp_classes_to_keep: Set[str],
+        nrp_id_to_iso_class: Dict[str, str],
+        out_size_cfg: OutputSizeConfig,
+        report_name: str = 'REPORT_NAME_MISSING'
+) -> NerpaReport:
     # Filter BGCs and NRPs
     report = _report.filter(
         pl.col(NerpaReport.BGC_ID).is_in(list(bgc_ids_to_keep))
@@ -163,7 +170,7 @@ def prepare_data_for_benchmarking(_report: pl.DataFrame,
                            keep='first')
 
 
-    return truncate_output(NerpaReport(report, report_name=report_name), out_size_cfg)
+    return truncate_output(NerpaReport(df=report, name=report_name), out_size_cfg)
 
 
 def load_nerpa_report(
@@ -193,6 +200,13 @@ def load_nerpa_report(
         pl.col(score_column)
         .alias(NerpaReport.SCORE)
     )
+    if (NerpaReport.BGC_ID not in report.columns
+        and 'antiSMASH_input' in report.columns):
+            report = report.with_columns([
+                pl.col('antiSMASH_input')
+                .map_elements(lambda path: Path(path).stem, return_dtype=pl.Utf8)
+                .alias(NerpaReport.BGC_ID),
+            ])
 
     return prepare_data_for_benchmarking(
         _report=report,
@@ -204,14 +218,16 @@ def load_nerpa_report(
     )
 
 
-def check_reports_discrepancy(data_helper,
-                              report1: NerpaReport,
-                              report2: NerpaReport) -> None:
+def check_reports_discrepancy(
+        data_helper,
+        report1: NerpaReport,
+        report2: NerpaReport
+) -> None:
     """Check for discrepancies between two reports."""
     print(f'Checking report discrepancies between {report1.name} and {report2.name}...')
 
-    bgc_ids_1 = set(report1[NerpaReport.BGC_ID])
-    bgc_ids_2 = set(report2[NerpaReport.BGC_ID])
+    bgc_ids_1 = set(report1.df[NerpaReport.BGC_ID])
+    bgc_ids_2 = set(report2.df[NerpaReport.BGC_ID])
 
     if bgc_ids_1 != bgc_ids_2:
         print(f"Warning! Genome IDs in reports {report1.name} and {report2.name} do not match")

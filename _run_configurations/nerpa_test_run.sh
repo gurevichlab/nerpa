@@ -1,5 +1,8 @@
 # ARGS=""
-python nerpa.py \
+(
+ cd -- "$(dirname -- "$0")/.." && \
+
+ PYTHONPATH=. python nerpa.py \
        -a test_data/antismash \
        --smiles-tsv test_data/smiles.tsv \
        --col-id ID \
@@ -7,4 +10,5 @@ python nerpa.py \
        --force-output-dir \
        --disable-deduplication \
        --let-it-crash
+)
 

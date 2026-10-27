@@ -31,10 +31,10 @@ def calculate_error_counts(matches: List[SimplifiedMatch],
 
     error_counts = []
     for tm in tests:
-        key = (tm.bgc_id, tm.nrp_id)
+        key = (tm.mibig_id, tm.nrp_id)
         m = matches_by_bgc_nrp.get(key)
         if m is None:
-            print(f"Warning: No match for ({tm.bgc_id}, {tm.nrp_id}) in {matches_label}")
+            print(f"Warning: No match for ({tm.mibig_id}, {tm.nrp_id}) in {matches_label}")
             continue
 
         mismatches = get_mismatched_steps(tm.true_alignment, m.alignment)
@@ -115,11 +115,11 @@ def benchmark_alignments(match_sets: Dict[str, List[SimplifiedMatch]],
         plots_dir: Path to save the plots
     """
     if take_only_tests_processed_by_all:
-        test_keys = {(test.bgc_id, test.nrp_id) for test in tests}
+        test_keys = {(test.mibig_id, test.nrp_id) for test in tests}
         for name, matches in match_sets.items():
             match_keys = {(m.bgc_id, m.nrp_id) for m in matches}
             test_keys = test_keys.intersection(match_keys)
-        tests = [test for test in tests if (test.bgc_id, test.nrp_id) in test_keys]
+        tests = [test for test in tests if (test.mibig_id, test.nrp_id) in test_keys]
 
     error_counts_dict = {}
     for name, matches in match_sets.items():
@@ -250,7 +250,7 @@ def filter_matches_for_testing(matches_yaml: Path,
         CuratedAlignment.from_yaml_dict(match_dict)
         for match_dict in yaml.safe_load(approved_matches_yaml.read_text())
     ]
-    approved_keys = {(tm.bgc_id, tm.nrp_id) for tm in approved_matches}
+    approved_keys = {(tm.mibig_id, tm.nrp_id) for tm in approved_matches}
 
     matches = yaml.safe_load(matches_yaml.read_text())
     filtered_matches = [match_dict for match_dict in matches

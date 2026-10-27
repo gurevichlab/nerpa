@@ -215,7 +215,7 @@ class PlotsHelper:
 
         fig, ax = plt.subplots(figsize=(10, 6))
         boxplots = ax.boxplot(scores_to_plot,
-                              labels=labels,
+                              tick_labels=labels,
                               showfliers=False,
                               patch_artist=True,  # needed to color the boxes
                               )
@@ -259,8 +259,8 @@ class PlotsHelper:
             "bgc_len": list(bgc_len.values()),
         }).with_columns(pl.col("bgc_len").cast(pl.Int64))
 
-        # attach lengths
-        df = nerpa_report.join(bgc_len_df, on=NerpaReport.BGC_ID, how="left")
+        # Attach lengths to the report's underlying Polars dataframe.
+        df = nerpa_report.df.join(bgc_len_df, on=NerpaReport.BGC_ID, how="left")
 
         bgc_lengths = list(
             df.group_by(NerpaReport.BGC_ID)

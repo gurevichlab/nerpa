@@ -32,6 +32,9 @@ class NRP_Variant_ID(NamedTuple):
     nrp_id: NRP_ID
     variant_idx: int = 0
 
+    def to_str_short(self) -> str:
+        return f'{self.nrp_id}'
+
 
 @dataclass
 class NRP_Fragment:

@@ -2,6 +2,7 @@ import time
 from typing import (
     Dict,
     List,
+    NamedTuple,
     Optional,
     Tuple
 )
@@ -22,7 +23,9 @@ from src.monomer_names_helper import (
     MonomerNamesHelper,
     UNKNOWN_RESIDUE, NOT_NRPS_RESIDUE, PKS_RESIDUE
 )
+from src.monomer_names_helper import MonomerNamesHelper
 from src.pipeline.logging.logger import LoggingConfig
+from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 
 @dataclass
 class antiSMASH_Processing_Config:
@@ -43,19 +46,23 @@ class antiSMASH_Processing_Config:
         if args is not None:
             self.DEBUG_MODE = args.debug
 
+class AACodes(NamedTuple):
+    aa10_codes: Dict[NerpaResidue, List[AA10]]
+    aa34_codes: Dict[NerpaResidue, List[AA34]]
 
-def get_aa_codes(aa_codes_tsv: Path,
-                 monomer_names_helper: MonomerNamesHelper) \
-        -> Tuple[
-            Dict[NerpaResidue, List[AA10]],
-            Dict[NerpaResidue, List[AA34]]]:
+def get_aa_codes(
+        aa_codes_tsv: Path,
+        monomer_names_helper: MonomerNamesHelper
+) -> AACodes:
     aa_codes = pd.read_csv(aa_codes_tsv, sep='\t')
     aa10_codes = defaultdict(list)
     aa34_codes = defaultdict(list)
     for _, row in aa_codes.iterrows():
         as_names: List[antiSMASH_MonomerName] = row['predictions_loose'].split('|')
-        residues = {monomer_names_helper.parsed_name(as_name, 'antiSMASH_short').residue
-                    for as_name in as_names}
+        residues = {
+            monomer_names_helper.parsed_name(as_name, 'antiSMASH_short').residue
+            for as_name in as_names
+        }
 
         assert not any(residue in (NOT_NRPS_RESIDUE, PKS_RESIDUE) for residue in residues), \
             f'Non-NRP residues provided as A domain specificities: {row["predictions_loose"]}'
@@ -63,68 +70,16 @@ def get_aa_codes(aa_codes_tsv: Path,
         for residue in residues:
             aa10_codes[residue].append(AA10(row['aa10']))
             aa34_codes[residue].append(AA34(row['aa34']))
-    return aa10_codes, aa34_codes
-
-RESIDUE_FREQS = {
-    'Aad': 0.0032,
-    'Aib': 0.0056,
-    'Ala': 0.0659,
-    'Arg': 0.0167,
-    'Asn': 0.0275,
-    'Asp': 0.0214,
-    'Bza': 0.0176,
-    'Cys': 0.0275,
-    'Dab': 0.0176,
-    'Gln': 0.0267,
-    'Glu': 0.0144,
-    'Gly': 0.0524,
-    'His': 0.0050,
-    'Hpg': 0.0255,
-    'Ile': 0.0398,
-    'Leu': 0.0940,
-    'Lys': 0.0126,
-    'Orn': 0.0226,
-    'Phe': 0.0310,
-    'Pip': 0.0059,
-    'Pro': 0.0349,
-    'Ser': 0.0747,
-    'Thr': 0.0776,
-    'Trp': 0.0243,
-    'Tyr': 0.0434,
-    'Val': 0.0823,
-    'bAla': 0.0064,
-    'dHpg': 0.0114,
-    UNKNOWN_RESIDUE: 0.1122,
-}
-
-def get_residue_frequencies(norine_monomers_info: Path,
-                            monomer_names_helper: MonomerNamesHelper) -> Dict[NerpaResidue, Prob]:
-     norine_monomers = yaml.safe_load(open(norine_monomers_info))
-     residue_frequencies: Dict[NerpaResidue, Prob] = defaultdict(float)
-     for mon_name, frequency in norine_monomers['residue_frequencies'].items():
-         residue = monomer_names_helper.parsed_name(mon_name, 'rBAN/Norine').residue
-         residue_frequencies[residue] += frequency
-
-     # assign minimal frequencies to residues not present in the table and normalize
-     min_freq = min(residue_frequencies.values())
-     for residue in monomer_names_helper.supported_residues:
-         if residue not in residue_frequencies:
-             residue_frequencies[residue] = min_freq
-
-     total = sum(residue_frequencies.values())
-     for residue in residue_frequencies:
-         residue_frequencies[residue] /= total
-
-     return RESIDUE_FREQS
-#     return residue_frequencies
+    return AACodes(aa10_codes=aa10_codes, aa34_codes=aa34_codes)
 
 
 @dataclass
 class SpecificityPredictionConfig:
     nerpa_specificity_prediction_model: Path
     paras_model: Optional[Path]
+    paras_model_sklearn_version: Optional[str]
     a_domains_signatures: Path
-    norine_monomers_info: Path
+    norine_monomers_info_tsv: Path
     KNOWN_AA10_CODES: Dict[NerpaResidue, List[AA10]]
     KNOWN_AA34_CODES: Dict[NerpaResidue, List[AA34]]
     SVM_SUBSTRATES: List[str]
@@ -140,11 +95,13 @@ class SpecificityPredictionConfig:
     ENABLE_DICTIONARY_LOOKUP: bool  # if True, use the dictionary lookup for known aa34 codes
     ENABLE_CALIBRATION: bool
 
-    def __init__(self,
-                 nerpa_dir: Path,
-                 cfg_dict: dict,
-                 monomer_names_helper: MonomerNamesHelper,
-                 args: Optional[CommandLineArgs] = None):
+    def __init__(
+            self,
+            nerpa_dir: Path,
+            cfg_dict: dict,
+            monomer_names_helper: MonomerNamesHelper,
+            args: Optional[CommandLineArgs] = None
+    ):
         for k, v in cfg_dict.items():
             setattr(self, k, v)
         self.nerpa_specificity_prediction_model = nerpa_dir / Path(cfg_dict['nerpa_specificity_prediction_model'])
@@ -152,9 +109,14 @@ class SpecificityPredictionConfig:
         self.a_domains_signatures = nerpa_dir / Path(cfg_dict['a_domains_signatures'])
         self.KNOWN_AA10_CODES, self.KNOWN_AA34_CODES = get_aa_codes(self.a_domains_signatures,
                                                                     monomer_names_helper)
-        self.norine_monomers_info = nerpa_dir / Path(cfg_dict['norine_monomers_info'])
-        self.APRIORI_RESIDUE_PROB = get_residue_frequencies(self.norine_monomers_info,
-                                                            monomer_names_helper)
+        self.norine_monomers_info_tsv = nerpa_dir / Path(cfg_dict['norine_monomers_info'])
+        norine_monomers_info = NorineMonomersInfo.from_tsv(self.norine_monomers_info_tsv)
+        self.APRIORI_RESIDUE_PROB = (
+            norine_monomers_info.residue_frequencies(
+                supported_residues=monomer_names_helper.supported_residues,
+                min_allowed_freq=0.01
+            )
+        )
 
         if args is not None and args.disable_dictionary_lookup is not None:
             self.ENABLE_DICTIONARY_LOOKUP = not args.disable_dictionary_lookup
@@ -315,18 +277,21 @@ def get_default_output_dir(cfg: dict) -> Path:
     return out_dir
 
 
-def load_monomer_names_helper(monomers_cfg_file: Path,
-                              nerpa_dir: Path) -> MonomerNamesHelper:
+def load_monomer_names_helper(
+        monomers_cfg_file: Path,
+        nerpa_dir: Path
+) -> MonomerNamesHelper:
     monomers_cfg = yaml.safe_load(monomers_cfg_file.open('r'))
-    monomers_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
-    norine_monomers_cnts_file = nerpa_dir / monomers_cfg['norine_monomers_cnts']
-    norine_monomers_cnts = yaml.safe_load(norine_monomers_cnts_file.open('r'))
-    names_table = pl.read_csv(monomers_table_tsv,
-                              separator='\t',
-                              comment_prefix='#',)
-    return MonomerNamesHelper(names_table=names_table,
-                              supported_residues=monomers_cfg['supported_residues'],
-                              norine_monomer_cnts=norine_monomers_cnts)
+    monomers_names_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
+    names_table = pl.read_csv(
+        monomers_names_table_tsv,
+        separator='\t',
+        comment_prefix='#',
+    )
+    return MonomerNamesHelper(
+        names_table=names_table,
+        supported_residues=monomers_cfg['supported_residues'],
+    )
 
 
 def load_config(args: Optional[CommandLineArgs] = None) -> Config:
@@ -336,8 +301,10 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     main_out_dir = args.output_dir.resolve() \
         if args is not None and args.output_dir is not None \
         else get_default_output_dir(cfg)
-    monomer_names_helper = load_monomer_names_helper(nerpa_dir / cfg['monomers_config'],
-                                                     nerpa_dir)
+    monomer_names_helper = load_monomer_names_helper(
+        nerpa_dir / cfg['monomers_config'],
+        nerpa_dir
+    )
 
     antismash_processing_cfg_dict = yaml.safe_load((nerpa_dir / cfg['antismash_processing_config']).open('r'))
     antismash_processing_cfg = antiSMASH_Processing_Config(antismash_processing_cfg_dict,
@@ -364,15 +331,17 @@ def load_config(args: Optional[CommandLineArgs] = None) -> Config:
     matching_cfg_dict = yaml.safe_load((nerpa_dir / cfg['matching_config']).open('r'))
     matching_cfg = MatchingConfig(matching_cfg_dict, args)
 
-    return Config(antismash_processing_config=antismash_processing_cfg,
-                  configs_dir=configs_dir,
-                  nerpa_dir=nerpa_dir,
-                  specificity_prediction_config=specificity_prediction_cfg,
-                  rban_config=rban_cfg,
-                  rban_processing_config=rban_processing_cfg,
-                  hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
-                  output_config=output_cfg,
-                  logging_config=logging_cfg,
-                  monomers_config=nerpa_dir / cfg['monomers_config'],
-                  matching_config=matching_cfg,
-                  cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec'])
+    return Config(
+        antismash_processing_config=antismash_processing_cfg,
+        configs_dir=configs_dir,
+        nerpa_dir=nerpa_dir,
+        specificity_prediction_config=specificity_prediction_cfg,
+        rban_config=rban_cfg,
+        rban_processing_config=rban_processing_cfg,
+        hmm_scoring_config=nerpa_dir / cfg['hmm_scoring_config'],
+        output_config=output_cfg,
+        logging_config=logging_cfg,
+        monomers_config=nerpa_dir / cfg['monomers_config'],
+        matching_config=matching_cfg,
+        cpp_matcher_exec=nerpa_dir / cfg['cpp_matcher_exec']
+    )

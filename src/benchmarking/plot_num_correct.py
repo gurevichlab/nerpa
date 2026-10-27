@@ -31,7 +31,7 @@ def _plot_num_correct_matches(ax: Axes,
     #print(f"Total matches before filtering: {_report.height}")
     #print(f"Total number of BGCs: {_report[NerpaReport.BGC_ID].n_unique()}")
     #print(f'Number of unique scores: {_report[NerpaReport.SCORE].n_unique()}')
-    report = _report
+    report = _report.df
     if top_matches_per_bgc is not None:
         report = report.filter(
             pl.col(NerpaReport.MATCH_RANK_FOR_BGC) <= top_matches_per_bgc

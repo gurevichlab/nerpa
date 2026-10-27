@@ -64,7 +64,11 @@ class MonomerInfo(NamedTuple):
                    is_pks_hybrid=data.get('is_pks_hybrid', False),
                    nerpa_core=NerpaResidue(data['nerpa_core']) if data.get('nerpa_core') else None,
                    methylated=data.get('methylated'),
-                   mon_code=MonCode(data['mon_code']) if data.get('mon_code') else None)
+                   mon_code=(
+                       MonCode(data["mon_code"])
+                       if data.get("mon_code") is not None
+                       else None
+                   ))
 
     def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         d = self._asdict()
@@ -138,46 +142,16 @@ class Parsed_rBAN_Record:
     atomic_bonds: Dict[AtomicEdge, AtomicEdgeInfo]
     metadata: NRP_metadata
 
-    def canonize(self):
-        """
-        Sort and reindex monomers by their minimum atom index to avoid ambiguity
-        rBAN monomer indexing is non-deterministic, but atom indexing is ---
-        it corresponds to the order of atoms in the input SMILES
-        """
-        sorted_monomers: List[Tuple[MonomerIdx, MonomerInfo]] = sorted(
-            self.monomers.items(),
-            key=lambda item: min(item[1].atoms),
-        )
-        old_to_new_mon_idx: Dict[MonomerIdx, MonomerIdx] = {
-            old_idx: new_idx
-            for new_idx, (old_idx, _) in enumerate(sorted_monomers, start=1)
-        }
-
-        self.monomers = {
-            old_to_new_mon_idx[old_idx]: monomer_info
-            for old_idx, monomer_info in sorted_monomers
-        }
-
-        canonized_bonds: Dict[MonomerEdge, MonomerEdgeInfo] = {}
-        for (old_u, old_v), edge_info_list in self.monomer_bonds.items():
-            new_u, new_v = sorted((old_to_new_mon_idx[old_u], old_to_new_mon_idx[old_v]))
-            canonized_bonds[(new_u, new_v)] = [
-                MonomerEdgeInfoSingle(
-                    monomer_to_atom={
-                        old_to_new_mon_idx[old_idx]: atom_id
-                        for old_idx, atom_id in edge_info.monomer_to_atom.items()
-                    },
-                    atomic_edge=edge_info.atomic_edge,
-                )
-                for edge_info in edge_info_list
-            ]
-
-        self.monomer_bonds = dict(sorted(canonized_bonds.items()))
-
-    def __init__(self, rban_record: Raw_rBAN_Record,
-                 hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
-                 chiralities: Dict[MonomerIdx, Chirality],
-                 metadata: Dict[str, NRP_metadata]):
+    def __init__(
+            self,
+            rban_record: Raw_rBAN_Record,
+            hybrid_monomers: Dict[MonomerIdx, NorineMonomerName],
+            chiralities: Dict[MonomerIdx, Chirality],
+            metadata: Dict[str, NRP_metadata],
+            monomer_names_helper: Optional[MonomerNamesHelper] = None
+    ):
+        if monomer_names_helper is None:
+            raise ValueError("DEBUG: monomer_names_helper must be provided to Parsed_rBAN_Record.__init__")
 
         def get_monomer_name(idx: MonomerIdx) -> NorineMonomerName:
             if idx in hybrid_monomers:
@@ -191,17 +165,29 @@ class Parsed_rBAN_Record:
             return NorineMonomerName(name)
 
         self.compound_id = rban_record['id']
-        self.metadata = metadata.get(self.compound_id, NRP_metadata(None, None, None, None, None))
-        self.atoms = {atom['cdk_idx']: AtomInfo(name=atom['name'],
-                                                hydrogens=atom['hydrogens'])
-                      for atom in rban_record['atomicGraph']['atomicGraph']['atoms']}
+        self.metadata = metadata.get(
+            self.compound_id,
+            NRP_metadata(None, None, None, None, None)
+        )
+        self.atoms = {
+            atom['cdk_idx']: AtomInfo(name=atom['name'],
+                                      hydrogens=atom['hydrogens'])
+            for atom in rban_record['atomicGraph']['atomicGraph']['atoms']
+        }
 
         self.monomers = {
             MonomerIdx(idx := monomer['monomer']['index']):
-            MonomerInfo(name=get_monomer_name(idx),
-                        atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
-                        chirality=chiralities[idx],
-                        is_pks_hybrid=idx in hybrid_monomers)
+            MonomerInfo(
+                name=get_monomer_name(idx),
+                atoms=[AtomId(atom) for atom in monomer['monomer']['atoms']],
+                chirality=chiralities[idx],
+                is_pks_hybrid=idx in hybrid_monomers,
+                mon_code=(
+                    monomer_names_helper.mon_to_int[monomer_names_helper.parsed_name(get_monomer_name(idx), name_format='rBAN/Norine')]
+                    if monomer_names_helper is not None
+                    else None
+                )
+            )
             for monomer in rban_record['monomericGraph']['monomericGraph']['monomers']
         }
 
@@ -230,7 +216,6 @@ class Parsed_rBAN_Record:
                 MonomerEdgeInfoSingle(monomer_to_atom={mon1: atom1, mon2: atom2},
                                       atomic_edge=bond_info)
             )
-        self.canonize()
 
     def to_dict(self, monomer_names_helper: Optional[MonomerNamesHelper] = None) -> dict:
         return {'compound_id': self.compound_id,

@@ -3,10 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 
 import yaml
-from enum import Enum
+from enum import Enum, StrEnum
 from itertools import chain
 from pathlib import Path
-from typing import Optional, Tuple, List
+from typing import (
+    Optional,
+    Tuple,
+    List,
+    NamedTuple,
+)
 
 from src.antismash_parsing.bgc_variant_types import A_Domain_ID, BGC_Variant
 from src.matching.alignment_type import Alignment
@@ -26,23 +31,38 @@ class TestResult(Enum):
     ACCEPTABLE_ALTERNATIVE = 'ACCEPTABLE_ALTERNATIVE'
     WRONG = 'WRONG'
 
+class CuratedAlignmentId(NamedTuple):
+    mibig_id: str
+    nrp_id: str
+
+class TestExpectedOutcome(StrEnum):
+    SHOULD_PASS = 'SHOULD_PASS'
+    MAY_FAIL = 'MAY_FAIL'
+    EXPECTED_TO_FAIL = 'EXPECTED_TO_FAIL'
+    
+
 
 @dataclass
 class CuratedAlignment:
-    bgc_id: str
+    mibig_id: str
     nrp_id: str
     true_alignment: SimplifiedAlignment
     acceptable_alternative_alignments: List[SimplifiedAlignment]
+    test_expected_outcome: TestExpectedOutcome = TestExpectedOutcome.SHOULD_PASS
+    comment: Optional[str] = None
+
+    def get_id(self) -> CuratedAlignmentId:
+        return CuratedAlignmentId(mibig_id=self.mibig_id, nrp_id=self.nrp_id)
     
-    def test(self, match: Match, check_ids: bool = True) -> TestResult:
-        match_bgc_id = match.genome_id
+    def test(self, m: Match, check_ids: bool = True) -> TestResult:
+        match_bgc_id = m.genome_id
         if match_bgc_id.endswith('.gbk'):
             match_bgc_id = match_bgc_id[:-4]
-        if check_ids and (match_bgc_id != self.bgc_id
-                          or match.nrp_variant_id.nrp_id != self.nrp_id):
+        if check_ids and (match_bgc_id != self.mibig_id
+                          or m.nrp_variant_id.nrp_id != self.nrp_id):
             raise ValueError('BGC ID or NRP ID do not match the test case')
         
-        simplified_alignment = simplified_alignment_from_match(match)
+        simplified_alignment = simplified_alignment_from_match(m)
         if check_simplified_alignments_equal(simplified_alignment, self.true_alignment):
             return TestResult.CORRECT
         
@@ -53,10 +73,10 @@ class CuratedAlignment:
         return TestResult.WRONG
 
     @classmethod
-    def from_match(cls, match: Match) -> CuratedAlignment:
+    def from_match(cls, m: Match) -> CuratedAlignment:
         if min(
                 step.bgc_module.a_domain_idx
-                for alignment in match.alignments
+                for alignment in m.alignments
                 for step in alignment
                 if step.bgc_module is not None
         ) == 1:
@@ -64,13 +84,13 @@ class CuratedAlignment:
         else:
             index_offset = 0
 
-        simplified_match = nerpa2_match_to_simplified_match(match, index_offset=index_offset)
+        simplified_match = nerpa2_match_to_simplified_match(m, index_offset=index_offset)
 
         # The following check might not be necessary anymore, but keeping it for now
         # to ensure the alignment starts with A-domain index 0.  Consider removing
         # if it proves to be redundant.
 
-        return cls(bgc_id=simplified_match.bgc_id,
+        return cls(mibig_id=simplified_match.bgc_id,
                    nrp_id=simplified_match.nrp_id,
                    true_alignment=simplified_match.alignment,
                    acceptable_alternative_alignments=[])
@@ -120,7 +140,7 @@ class CuratedAlignment:
             raise ValueError(f"Error parsing a test match:\n {data}")
 
         return cls(
-            bgc_id=data["bgc_id"],
+            mibig_id=data["bgc_id"],
             nrp_id=data["nrp_id"],
             true_alignment=true_alignment,
             acceptable_alternative_alignments=acceptable_alternative_alignments,
@@ -140,14 +160,14 @@ if __name__ == '__main__':
     approved_matches = load_matches_from_txt(approved_matches_txt)
     tests = sorted([CuratedAlignment.from_match(match)
                     for match in approved_matches],
-                   key=lambda test: (test.bgc_id, test.nrp_id))
-    test_ids = [(test.bgc_id, test.nrp_id) for test in tests]
+                   key=lambda test: (test.mibig_id, test.nrp_id))
+    test_ids = [(test.mibig_id, test.nrp_id) for test in tests]
     assert len(test_ids) == len(set(test_ids)), "Duplicate test cases found!"
 
     old_tests_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/approved_matches_old.yaml')
     old_tests = [CuratedAlignment.from_yaml_dict(old_test_yaml)
                  for old_test_yaml in yaml.safe_load(old_tests_yaml.read_text())]
-    old_test_ids = [(test.bgc_id, test.nrp_id) for test in old_tests]
+    old_test_ids = [(test.mibig_id, test.nrp_id) for test in old_tests]
     # q: count num old tests with alternative alignments
     num_old_tests_with_alternatives = sum(1 for test in old_tests
                                           if test.acceptable_alternative_alignments)
@@ -155,8 +175,8 @@ if __name__ == '__main__':
 
     # q: substitute all new tests that are already present in old tests with old versions
     for i, test in enumerate(tests):
-        if (test.bgc_id, test.nrp_id) in old_test_ids:
-            old_test = old_tests[old_test_ids.index((test.bgc_id, test.nrp_id))]
+        if (test.mibig_id, test.nrp_id) in old_test_ids:
+            old_test = old_tests[old_test_ids.index((test.mibig_id, test.nrp_id))]
             tests[i] = old_test
 
     approved_matches_yaml = Path('/home/ilianolhin/git/nerpa2/data/for_training_and_testing/new_approved_matches.yaml')

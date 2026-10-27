@@ -27,9 +27,11 @@ bin_dir="$repo_root/bin"
 
 mkdir -p "$bin_dir"
 
-# 2.1 Create the Nerpa environment if it doesn't exist
+# 2.1 Install the pinned runtime, including when upgrading an existing checkout.
 if [[ ! -d "$nerpa_env_prefix" ]]; then
   conda env create -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
+else
+  conda env update -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
 fi
 
 # 2.2 Create the Kakapo environment if it doesn't exist
@@ -64,17 +66,15 @@ cmake --build "$build_dir"
 echo "Build completed successfully!"
 
 
-# ===== 4. Download PARAS model if not present
-paras_model_link='https://zenodo.org/records/13165500/files/model.paras?download=1'
+# ===== 4. Install and validate the PARAS model paired with this runtime.
+bash "$repo_root/scripts/install_paras.sh"
+PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" "$nerpa_env_prefix/bin/python" - <<'PY'
+from src.config import load_config
+from src.paras.paras_wrapper import ParasWrapper
 
-paras_model_path="$repo_root/external_tools/paras/model.paras"
-
-if [[ ! -f "$paras_model_path" ]]; then
-    echo "Downloading model.paras from $paras_model_link..."
-    mkdir -p "$(dirname -- "$paras_model_path")"
-    curl -L --fail -o "$paras_model_path" "$paras_model_link"
-    echo "PARAS model downloaded"
-fi
+model = ParasWrapper(load_config().specificity_prediction_config.paras_model)
+model.predict('A' * 34)
+print('PARAS model loading and prediction verified.')
+PY
 
 echo "Installation finished successfully!"
-

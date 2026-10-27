@@ -7,13 +7,17 @@ channels:
 dependencies:
     - openbabel
     - cairosvg
-    - python>=3.10
+    - python>=3.11
     - biopython
     - pip
     - pulp
-    - scikit-learn=1.2.0
+    # Match the serialized PARAS model and its tested numerical runtime.
+    - scikit-learn=1.8.0
+    - numpy=2.4.6
+    - scipy=1.16.3
+    - joblib=1.5.3
     - pandas>=1.5
-    - polars=0.19
+    - polars>=1.42.1
     - pyarrow
     - rdkit>=2022.09
     - networkx

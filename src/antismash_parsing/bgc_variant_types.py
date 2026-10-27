@@ -147,7 +147,7 @@ class BGC_Variant_ID(NamedTuple):
         return self.bgc_id._genome_id()
 
     def to_str_short(self) -> str:
-        return f'{self.bgc_id.to_str_short()}-{self.variant_idx}'
+        return f'{self.bgc_id.to_str_short()}:{self.variant_idx}'
 
 
 @dataclass
@@ -179,6 +179,7 @@ class BGC_Variant:
                 else None
             ),
         }
+
 
     def has_pks_domains(self) -> bool:
         return any('PKS' in feature.name

@@ -83,7 +83,6 @@ def run_nerpa_for_bgc_and_its_nrps(
             "--force-output-dir",
             "--let-it-crash",
             "--dump-all-preprocessed",
-            "--draw-hmms"
         ]
 
         try:

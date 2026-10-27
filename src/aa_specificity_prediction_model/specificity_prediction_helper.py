@@ -32,6 +32,7 @@ def create_step_function(steps: List[float]) -> Callable[[Prob], float]:
 
 class SpecificityPredictionHelper:
     config: SpecificityPredictionConfig
+    monomer_names_helper: MonomerNamesHelper
     KNOWN_SPECIFICITIES: Dict[AA34, List[NerpaResidue]]
     external_predictions: Dict[AA34, Dict[NerpaResidue, LogProb]]
     DEFAULT_MODEL: Literal['nerpa', 'paras']
@@ -44,10 +45,12 @@ class SpecificityPredictionHelper:
     paras_model_wrapper: Optional[ParasWrapper] = None
 
 
-    def __init__(self,
-                 config: SpecificityPredictionConfig,
-                 monomer_names_helper: MonomerNamesHelper,
-                 external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None):
+    def __init__(
+            self,
+            config: SpecificityPredictionConfig,
+            monomer_names_helper: MonomerNamesHelper,
+            external_predictions: Optional[Dict[AA34, Dict[NerpaResidue, Prob]]] = None,
+    ):
         self.config = config
         self.monomer_names_helper = monomer_names_helper
         self.external_predictions = external_predictions\
@@ -60,7 +63,7 @@ class SpecificityPredictionHelper:
 
         if config.paras_model is not None:
             self.DEFAULT_MODEL = 'paras'
-            self.paras_model_wrapper = ParasWrapper(config.paras_model)
+            self.paras_model_wrapper = ParasWrapper(config.paras_model, config.paras_model_sklearn_version)
         else:
             self.DEFAULT_MODEL = 'nerpa'
             self.nerpa_model_wrapper = ModelWrapper(config.nerpa_specificity_prediction_model)
@@ -70,11 +73,13 @@ class SpecificityPredictionHelper:
 
         self._cache = {}
 
-    def predict(self,
-                a_domain: A_Domain,
-                _no_cache: bool = False,  # for debugging/training purposes
-                _no_calibration: bool = False,
-                log: Optional[NerpaLogger | BufferedLogger] = None) -> Dict[NerpaResidue, Prob]:
+    def predict(
+            self,
+            a_domain: A_Domain,
+            _no_cache: bool = False,  # for debugging/training purposes
+            _no_calibration: bool = False,
+            log: Optional[NerpaLogger | BufferedLogger] = None,
+    ) -> Dict[NerpaResidue, Prob]:
         if a_domain.aa34 in self._cache and not _no_cache:
             return self._cache[a_domain.aa34]
 
@@ -174,10 +179,17 @@ class SpecificityPredictionHelper:
 
         return cal_predictions
 
-    def paras_predictions_to_nerpa_predictions(self,
-                                               paras_predictions: Dict[PARAS_RESIDUE, Prob]) -> Dict[NerpaResidue, Prob]:
-        nerpa_predictions = {res: 0.0
-                             for res in self.monomer_names_helper.supported_residues + [UNKNOWN_RESIDUE]}
+    def paras_predictions_to_nerpa_predictions(
+            self,
+            paras_predictions: Dict[PARAS_RESIDUE, Prob]
+    ) -> Dict[NerpaResidue, Prob]:
+        nerpa_predictions = {
+            res: 0.0
+            for res in (
+                    self.monomer_names_helper.supported_residues
+                    + [UNKNOWN_RESIDUE]
+            )
+        }
 
         for paras_residue, prob in paras_predictions.items():
             nerpa_res = self.monomer_names_helper.parsed_name(paras_residue,

@@ -153,9 +153,11 @@ class BGC_ID(NamedTuple):
     bgc_idx: int
 
     def to_dict(self):
-        return {'antiSMASH_file': str(self.antiSMASH_file),
-                'contig_idx': self.contig_idx,
-                'bgc_idx': self.bgc_idx}
+        return {
+            'antiSMASH_file': str(self.antiSMASH_file),
+            'contig_idx': self.contig_idx,
+            'bgc_idx': self.bgc_idx
+        }
 
     @classmethod
     def from_dict(cls, data: dict) -> BGC_ID:

@@ -48,6 +48,13 @@ class MatchDetailedScore(NamedTuple):
     methylation_score: LogProb
     chirality_score: LogProb
 
+    def total_score(self) -> LogProb:
+        return (
+            self.residue_score
+            + self.methylation_score
+            + self.chirality_score
+        )
+
 
 @dataclass
 class AlignmentStep:
@@ -65,28 +72,30 @@ class AlignmentStep:
 
     def to_dict(self) -> Dict[str, str]:
         NA = AlignmentStep.NA
-        return OrderedDict({'Gene': self.bgc_module.gene_id if self.bgc_module else NA,
-                            'A-domain_idx': self.bgc_module.a_domain_idx if self.bgc_module else NA,
-                            'Top_scoring_residues': ','.join(self.bgc_module.top_scoring_residues)
-                            if self.bgc_module else NA,
-                            'Modifying_domains': ','.join(mod.name for mod in self.bgc_module.modifying_domains)
-                            if self.bgc_module and self.bgc_module.modifying_domains else NA,
-                            'NRP_residue': self.nrp_monomer.residue if self.nrp_monomer else NA,
-                            'NRP_chirality': self.nrp_monomer.chirality.name if self.nrp_monomer else NA,
-                            'NRP_methylated': str(self.nrp_monomer.methylated)
-                            if self.nrp_monomer else NA,
-                            'rBAN_name': self.nrp_monomer.rban_name if self.nrp_monomer else NA,
-                            'rBAN_idx': self.nrp_monomer.rban_idx if self.nrp_monomer else NA,
-                            'Alignment_step': self.step_type.name if self.step_type else NA,
-                            'Score': round(self.score, 3),
-                            'ResidueScore': round(self.match_detailed_score.residue_score, 3)
-                            if self.match_detailed_score else NA,
-                            'MethylationScore': round(self.match_detailed_score.methylation_score, 3)
-                            if self.match_detailed_score else NA,
-                            'ChiralityScore': round(self.match_detailed_score.chirality_score, 3)
-                            if self.match_detailed_score else NA,
-                            'aa10_code': self.bgc_module.aa10_code if self.bgc_module else NA,
-                            'aa34_code': self.bgc_module.aa34_code if self.bgc_module else NA})
+        return OrderedDict({
+            'Gene': self.bgc_module.gene_id if self.bgc_module else NA,
+            'A-domain_idx': self.bgc_module.a_domain_idx if self.bgc_module else NA,
+            'Top_scoring_residues': ','.join(self.bgc_module.top_scoring_residues)
+            if self.bgc_module else NA,
+            'Modifying_domains': ','.join(mod.name for mod in self.bgc_module.modifying_domains)
+            if self.bgc_module and self.bgc_module.modifying_domains else NA,
+            'NRP_residue': self.nrp_monomer.residue if self.nrp_monomer else NA,
+            'NRP_chirality': self.nrp_monomer.chirality.name if self.nrp_monomer else NA,
+            'NRP_methylated': str(self.nrp_monomer.methylated)
+            if self.nrp_monomer else NA,
+            'rBAN_name': self.nrp_monomer.rban_name if self.nrp_monomer else NA,
+            'rBAN_idx': self.nrp_monomer.rban_idx if self.nrp_monomer else NA,
+            'Alignment_step': self.step_type.name if self.step_type else NA,
+            'Score': round(self.score, 3),
+            'ResidueScore': round(self.match_detailed_score.residue_score, 3)
+            if self.match_detailed_score else NA,
+            'MethylationScore': round(self.match_detailed_score.methylation_score, 3)
+            if self.match_detailed_score else NA,
+            'ChiralityScore': round(self.match_detailed_score.chirality_score, 3)
+            if self.match_detailed_score else NA,
+            'aa10_code': self.bgc_module.aa10_code if self.bgc_module else NA,
+            'aa34_code': self.bgc_module.aa34_code if self.bgc_module else NA
+        })
 
     @classmethod
     def from_dict(cls, data: dict) -> AlignmentStep:

@@ -211,16 +211,18 @@ class DetailedHMM:
         return hmm_path_to_alignment(self, path, nrp_monomers)
 
     # have to specify alignment type because Python can't infer types properly
-    def alignment_to_path_with_emisions(self,
-                                        alignment: Alignment | AlignmentLight,
-                                        alignment_type: Literal['full', 'light'] = 'full') \
-            -> List[Tuple[int, Optional[NRP_Monomer]]]:
+    def alignment_to_path_with_emisions(
+            self,
+            alignment: Alignment | AlignmentLight,
+            alignment_type: Literal['full', 'light'] = 'full'
+    ) -> List[Tuple[int, Optional[NRP_Monomer]]]:
         _alignment = (
             alignment_to_light_alignment(alignment)
             if alignment_type == 'full'
             else alignment
         )
-        return alignment_to_hmm_path(self, _alignment)
+        result = alignment_to_hmm_path(self, _alignment)
+        return result
 
     def draw(self,
              filename: Path,

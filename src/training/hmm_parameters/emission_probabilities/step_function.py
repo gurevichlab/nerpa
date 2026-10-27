@@ -16,8 +16,10 @@ def step_cost(step_y_norm: float, bin: Tuple[int, int]) -> float:
     return num_true * log(step_y_norm) + num_false * log(1 - step_y_norm)
 
 
-def fit_step_function_to_bins(bins: List[Tuple[int, int]],  # TODO: pseudocounts?
-                              step_range: int) -> List[float]:
+def fit_step_function_to_bins(
+        bins: List[Tuple[int, int]],  # TODO: pseudocounts?
+        step_range: int
+) -> List[float]:
     '''
     Each bin is treated as a realization of a binomial distribution with bin[0] false and bin[1] true outcomes.
     The function finds the non-decreasing step function that maximizes the total log-likelihood of the binomial distributions.
@@ -61,9 +63,10 @@ def fit_step_function_to_bins(bins: List[Tuple[int, int]],  # TODO: pseudocounts
     return [step_y / step_range for step_y in steps[::-1]]
 
 
-def create_bins(score_correctness_log: List[Tuple[LogProb, bool]],
-                num_bins: int) -> List[
-    Tuple[int, int]]:  # (num_false, num_true) for each bin [i/numbins, (i+1)/numbins)
+def create_bins(
+        score_correctness_log: List[Tuple[LogProb, bool]],
+        num_bins: int
+) -> List[Tuple[int, int]]:  # (num_false, num_true) for each bin [i/numbins, (i+1)/numbins)
     score_correctness = [(math.e ** score, correctness)
                          for score, correctness in score_correctness_log]
     bins: List[List[bool]] = [[] for _ in range(num_bins)]
