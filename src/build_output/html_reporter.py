@@ -9,6 +9,7 @@ from typing import (
     List,
     Dict,
     Literal,
+    NamedTuple,
     Optional,
     Tuple,
     Iterable
@@ -390,13 +391,23 @@ def create_html_report(
     shutil.copyfile(cfg.interaction_js,  cfg.html_aux_dir / 'interaction.js')
     
 def filter_kakapo_results(results_data_all: list[dict], max_spectra_matches_per_nerpa_match: int) -> list[dict]:
-    def structure_id_to_match_id(structure_id: str) -> str:
-        """
-        structure_id format: "BGC_ID-{bgc_id}___NRP_ID-{nrp_id}___NUM-MODS-{num_mods}___RANK-{rank}"
-        """
-        return "___".join(structure_id.split("___")[:2])
+    class MatchId(NamedTuple):
+        bgc_id: str
+        nrp_id: str
+        num_mods: int
 
-    grouped_results: Iterable[Tuple[str, Iterable[dict]]] = sort_groupby(
+    def structure_id_to_match_id(structure_id: str) -> MatchId:
+        """
+        structure_id format: "BGC_ID-{bgc_id}___NRP_ID-{nrp_id}___NUM_MODS-{num_mods}___RANK-{rank}"
+        """
+        bgc_part, nrp_part, num_mods_part = structure_id.split("___")[:3]
+        return MatchId(
+            bgc_id=bgc_part.removeprefix("BGC_ID-"),
+            nrp_id=nrp_part.removeprefix("NRP_ID-"),
+            num_mods=int(num_mods_part.removeprefix("NUM_MODS-")),
+        )
+
+    grouped_results: Iterable[Tuple[MatchId, Iterable[dict]]] = sort_groupby(
         results_data_all,
         key=lambda result: structure_id_to_match_id(result["structure_id"]),
     )

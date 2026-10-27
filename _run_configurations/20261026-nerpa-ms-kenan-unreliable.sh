@@ -1,0 +1,14 @@
+# ARGS=""
+(
+    cd -- "$(dirname -- "$0")/.." || exit
+    python nerpa_ms.py \
+           --nerpa-results nerpa_results/for_kenan_2026-10-08 \
+           --spectra /home/ilianolhin/work/data/kenan-2026-10-08/mgf \
+           --output-dir nerpa_results/20261026-nerpa-ms-kenan-unreliable \
+           --max-edits 4 \
+           --nerpa-match-ids-for-candidate-generation "12, 15" \
+           --num-variants-per-num-edits 300
+    # --max-nerpa-matches-for-candidate-generation 5 \
+    #       --smiles-tsv test_data/myxochromides_wo_A.tsv \
+
+)

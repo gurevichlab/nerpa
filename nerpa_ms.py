@@ -1,5 +1,5 @@
 import shutil
-from typing import List
+from typing import List, Literal
 import argparse
 from pathlib import Path
 from nerpa import main as nerpa_main
@@ -94,6 +94,18 @@ def parse_args() -> argparse.Namespace:
         help="Maximum number of spectra matches to display per Nerpa match in the HTML report (default: 5)",
         default=5
     )
+    nerpa_ms_parser.add_argument(
+        '--kakapo-mode',
+        help=(
+            "Kakapo modification matching mode (default: free-mod). "
+            "Choices: no-mod (unmodified only), "
+            "free-mod (single modification on any monomer), "
+            "x-mod (single modification only on X monomers), "
+            "two-mod (known modification on base monomer + residual on X monomer)."
+        ),
+        choices=['no-mod', 'free-mod', 'x-mod', 'two-mod'],
+        default='free-mod'
+    )
 
     args = nerpa_ms_parser.parse_args()
 
@@ -147,7 +159,8 @@ def nerpa_ms_varquest(
         nerpa_root: Path,
         nerpa_ms_core_results_dir: Path,
         spectra_path: Path,
-        output_dir: Path
+        output_dir: Path,
+        mode: Literal['no-mod', 'free-mod', 'x-mod', 'two-mod'] = 'free-mod'
 ) -> None:
     # with open(nerpa_ms_core_results_dir / "nerpa-ms-output.json", 'r') as f:
     #     nerpa_ms_core_results = json.load(f)
@@ -174,7 +187,8 @@ def nerpa_ms_varquest(
         '-s', str(spectra_path),
         '-str', str(generated_candidates_path),
         '-o', str(output_dir),
-        '-f', 'json'
+        '-f', 'json',
+        '-m', mode
     ]
     print(f"Running Kakapo:\n  {' '.join(command)}")
     subprocess.run(command, check=True)
@@ -324,9 +338,10 @@ def main():
         nerpa_root=nerpa_root,
         nerpa_ms_core_results_dir=nerpa_ms_core_out,
         spectra_path=args.spectra,
-        output_dir=nerpa_ms_varquest_out
+        output_dir=nerpa_ms_varquest_out,
+        mode=args.kakapo_mode
     )
-    print(f"NERPA-MS results written to: {nerpa_ms_varquest_out}")
+    print(f"Nerpa-MS results written to: {nerpa_ms_varquest_out}")
 
     monomer_names_helper = get_monomer_names_helper()
     build_html_report(
