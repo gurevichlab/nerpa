@@ -94,6 +94,7 @@ Aib	rBAN/Norine	Aib	[]	NRPS
 Ala	antiSMASH_short	Ala	[]	NRPS	
 Ala	rBAN/Norine	Ala	[]	NRPS	
 Ant	antiSMASH_short	Ant	[]	NRPS	
+Ant	rBAN/Norine	Ant	[]	NRPS	
 Aol	antiSMASH_short	Aol	[]	NRPS	
 Arg	antiSMASH_short	Arg	[]	NRPS	
 Arg	rBAN/Norine	Arg	[]	NRPS	
@@ -683,6 +684,7 @@ R-ohTyr	antiSMASH_short	Tyr	['OH']	NRPS
 S-bTyr	antiSMASH_short	bTyr	[]	NRPS	
 S-bohPhe	antiSMASH_short	Phe	['OH']	NRPS	
 Sal	antiSMASH_short	Sal	[]	NRPS	
+Sal	rBAN/Norine	Sal	[]	NRPS	
 Sam	antiSMASH_short	Sam	[]	NRPS	
 Ser	antiSMASH_short	Ser	[]	NRPS	
 Ser	rBAN/Norine	Ser	[]	NRPS	
