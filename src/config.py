@@ -69,6 +69,7 @@ RESIDUE_FREQS = {
     'Aad': 0.0032,
     'Aib': 0.0056,
     'Ala': 0.0659,
+    'Ant': 0.0050,
     'Arg': 0.0167,
     'Asn': 0.0275,
     'Asp': 0.0214,
@@ -87,6 +88,7 @@ RESIDUE_FREQS = {
     'Phe': 0.0310,
     'Pip': 0.0059,
     'Pro': 0.0349,
+    'Sal': 0.0050,
     'Ser': 0.0747,
     'Thr': 0.0776,
     'Trp': 0.0243,
@@ -94,7 +96,7 @@ RESIDUE_FREQS = {
     'Val': 0.0823,
     'bAla': 0.0064,
     'dHpg': 0.0114,
-    UNKNOWN_RESIDUE: 0.1122,
+    UNKNOWN_RESIDUE: 0.1022,
 }
 
 def get_residue_frequencies(norine_monomers_info: Path,
