@@ -63,16 +63,13 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
     max_weight: usize,
     max_variants_per_weight: usize,
     monomers_db: &'mon_db MonomersDB,
-    debug_stdout: bool,
 ) -> Vec<NewVariantWithOptPaths> {
-    if debug_stdout {
-	println!("Computing DP table...");
-    }
+    log::debug!("Computing DP table...");
 
     let dp_table = compute_dp_table(hmm, &dag, max_weight);
-    if debug_stdout {
-	println!("DP table computed. Retrieving new variants with optimal paths...");
-    }
+    log::debug!(
+        "DP table computed. Retrieving new variants with optimal paths..."
+    );
 
     let mut new_variants_with_opt_paths: Vec<NewVariantWithOptPaths> = Vec::new();
 
@@ -110,15 +107,14 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 		            monomer_graph,
 		            &mods,
 		            monomers_db,
-		            debug_stdout,
 		        )
 	        }));
 
 	        let maybe_variant = match apply_res {
 		        Ok(v) => v,
 		        Err(_panic) => {
-		            eprintln!(
-			            "apply_modifications panicked for compound_id={} mods={:?}",
+		            log::error!(
+			            "apply_modifications panicked for compound {} with modifications {:?}",
 			            monomer_graph.compound_id,
 			            mods
 		            );
@@ -138,9 +134,7 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
                 "Number of modifications in old_to_new_mon_map does not match weight"
             );
 
-	        if debug_stdout {
-		        println!("Getting monomer origins for new variant...");
-	        }
+	        log::debug!("Getting monomer origins for new variant...");
 	        let monomer_origins: Vec<MonomerOrigin> = {
 		        let mon_db_entries = mods
 		            .iter()
@@ -160,10 +154,8 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
 	        };
 
             rank += 1;
-			
-	        if debug_stdout {
-		        println!("Constructing Altered_rBAN_Record");
-	        }
+
+	        log::debug!("Constructing Altered_rBAN_Record");
 
 	        let variant = {
                 // not ideal: new_record id should be updated inside Altered_rBAN_Record::new
@@ -181,13 +173,11 @@ pub fn generate_new_variants_with_opt_paths<'mon_db>(
                 variant
             };
 
-	        if debug_stdout {
-		        println!(
-                    "Constructed Altered_rBAN_Record for rank {rank} with score {} and linearization {:?}.",
-                    variant.score,
-                    variant.linearization
-                );
-	        }
+	        log::debug!(
+                "Constructed Altered_rBAN_Record for rank {rank} with score {} and linearization {:?}.",
+                variant.score,
+                variant.linearization
+            );
 
 	        new_variants_with_opt_paths.push(
                 NewVariantWithOptPaths {

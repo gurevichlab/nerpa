@@ -176,7 +176,7 @@ fn compute_nerpa_ms_results_by_bgc_nrp(
 
     let debug_cfg = DebugConfig {
 	write_alignments: false,
-	debug_stdout: false,
+	debug_messages: false,
 	draw_hmm_opt_paths: false,
 	draw_hmm_dag_opt_paths: false,
 	draw_output_variants: false,

@@ -71,7 +71,6 @@ impl HMM {
 	    0, // max_edits
 	    1, // max_variants
 	    &HashMap::new(), // monomers_db (not needed since we are not applying any modifications)
-	    false, // debug_stdout
 	)
     };
 

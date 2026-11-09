@@ -17,18 +17,18 @@ pub struct NerpaMS_Config {
 
 impl NerpaMS_Config {
     pub fn from_cli(cli: &Cli) -> Self {
-	Self {
-	    max_nerpa_matches: cli.max_nerpa_matches,
-	    min_nerpa_score: cli.min_nerpa_score,
-	    max_edits: cli.max_edits,
-	    num_variants_per_num_edits: cli.num_variants_per_num_edits,
-	}
+	    Self {
+	        max_nerpa_matches: cli.max_nerpa_matches,
+	        min_nerpa_score: cli.min_nerpa_score,
+	        max_edits: cli.max_edits,
+	        num_variants_per_num_edits: cli.num_variants_per_num_edits,
+	    }
     }
 }
 
 pub struct DebugConfig {
-    /// Write debug log to stdout
-    pub debug_stdout: bool,
+    /// Whether debug messages are enabled
+    pub debug_messages: bool,
     
     /// Whether to write alignments to disk
     pub write_alignments: bool,
@@ -51,22 +51,22 @@ pub struct DebugConfig {
 
 impl DebugConfig {
     pub fn from_cli(cli: &Cli) -> Self {
-	Self {
-	    debug_stdout: cli.debug_stdout,
-	    write_alignments: cli.write_alignments,
-	    draw_hmm_opt_paths: cli.draw_hmm_opt_paths,
-	    draw_hmm_dag_opt_paths: cli.draw_hmm_dag_opt_paths,
-	    draw_output_variants: cli.draw_output_variants,
-	    out: cli.out.join("debug"),
-	    nerpa_root: cli.nerpa_root.clone(),
-	}
+	    Self {
+	        debug_messages: cli.debug_messages,
+	        write_alignments: cli.write_alignments,
+	        draw_hmm_opt_paths: cli.draw_hmm_opt_paths,
+	        draw_hmm_dag_opt_paths: cli.draw_hmm_dag_opt_paths,
+	        draw_output_variants: cli.draw_output_variants,
+	        out: cli.out.join("debug"),
+	        nerpa_root: cli.nerpa_root.clone(),
+	    }
     }
 
     pub fn nerpa_ms_dir(&self) -> PathBuf {
-	self.nerpa_root
-	    .join("src")
-	    .join("nerpa_ms")
-	    .join("nerpa_ms_core")
+	    self.nerpa_root
+	        .join("src")
+	        .join("nerpa_ms")
+	        .join("nerpa_ms_core")
     }
 }
 

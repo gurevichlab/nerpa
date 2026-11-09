@@ -159,7 +159,6 @@ impl <'a>TargetSearchData <'a> {
 		     self.template,
 		     graph_mods_vec,
 		     self.monomers_db,
-		     false
 		 ))
 	    .map(|altered_graph| altered_graph.new_monomer_graph)
 	    .collect()

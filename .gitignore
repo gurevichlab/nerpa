@@ -36,3 +36,4 @@ envs/
 /src/nerpa_ms/nerpa_ms_core/stderr.txt
 /stderr.txt
 /test.sh
+/.snakemake/

@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 from nerpa import main as nerpa_main
 from src.config import load_config as load_nerpa_config
+from src.pipeline.logging.logger import LoggingConfig, NerpaLogger
 from src.pipeline.command_line_args_helper import build_cmdline_args_parser as build_nerpa_args_parser
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.antismash_parsing.bgc_variant_types import (
@@ -120,10 +121,36 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def run_command(
+        command: list[str],
+        log: NerpaLogger,
+        cwd: Path | None = None,
+) -> None:
+    log.info(f"\nRunning in {cwd or Path.cwd()}:\n  {' '.join(command)}")
+
+    process = subprocess.Popen(
+        command,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if process.stdout is None:
+        raise RuntimeError("Failed to capture subprocess output")
+
+    for line in process.stdout:
+        log.info(line.rstrip(), indent=1)
+
+    return_code = process.wait()
+    if return_code != 0:
+        raise subprocess.CalledProcessError(return_code, command)
+
+
 def nerpa_ms_core(
         nerpa_root: Path,
         nerpa_results: Path,
         output_dir: Path,
+        log: NerpaLogger,
         nerpa_match_ids: str | None = None,
         max_nerpa_matches: int = 100,
         max_edits: int = 2,
@@ -136,7 +163,7 @@ def nerpa_ms_core(
         / 'nerpa_ms_core'
     )
 
-    subprocess.run(["cargo", "build"], cwd=nerpa_ms_root, check=True)
+    run_command(["cargo", "build"], log=log, cwd=nerpa_ms_root)
     command = [
         'cargo',  'run',
         '--bin', 'nerpa_ms_core', '--',
@@ -151,8 +178,7 @@ def nerpa_ms_core(
     if nerpa_match_ids is not None:
         command.extend(['--nerpa-match-ids', nerpa_match_ids])
 
-    print(f"Running in {nerpa_ms_root}:\n  {' '.join(command)}")
-    subprocess.run(command, cwd=nerpa_ms_root, check=True)
+    run_command(command, log=log, cwd=nerpa_ms_root)
 
 
 def nerpa_ms_varquest(
@@ -160,6 +186,7 @@ def nerpa_ms_varquest(
         nerpa_ms_core_results_dir: Path,
         spectra_path: Path,
         output_dir: Path,
+        log: NerpaLogger,
         mode: Literal['no-mod', 'free-mod', 'x-mod', 'two-mod'] = 'free-mod'
 ) -> None:
     # with open(nerpa_ms_core_results_dir / "nerpa-ms-output.json", 'r') as f:
@@ -190,8 +217,7 @@ def nerpa_ms_varquest(
         '-f', 'json',
         '-m', mode
     ]
-    print(f"Running Kakapo:\n  {' '.join(command)}")
-    subprocess.run(command, check=True)
+    run_command(command, log=log)
 
 
 def load_bgc_variants_info(nerpa_results: Path) -> BGC_Variants_Info:
@@ -308,7 +334,7 @@ def get_monomer_names_helper() -> MonomerNamesHelper:
         cfg.nerpa_dir
     )
        
-def main():
+def main() -> int:
     nerpa_root = Path(__file__).parent.resolve()
     args = parse_args()
 
@@ -316,42 +342,66 @@ def main():
         nerpa_main(args=args)
     else:
         if args.output_dir.exists():
-            print(f"Removing existing output directory: {args.output_dir}")
             shutil.rmtree(args.output_dir)
 
-        print(f"Copying Nerpa results from: {args.nerpa_results}")
         shutil.copytree(args.nerpa_results, args.output_dir)
 
-    nerpa_ms_core_out = args.output_dir / "nerpa_ms_results"
-    nerpa_ms_core(
-        nerpa_root=nerpa_root,
-        nerpa_results=args.output_dir,
-        output_dir=nerpa_ms_core_out,
-        max_edits=args.max_edits,
-        num_variants_per_num_edits=args.num_variants_per_num_edits,
-        max_nerpa_matches=args.max_nerpa_matches_for_candidate_generation,
-        nerpa_match_ids=args.nerpa_match_ids_for_candidate_generation,
+    logging_config = LoggingConfig(
+        cfg={
+            "log_file": "nerpa_ms.log",
+            "warnings_file": "nerpa_ms_warnings.log",
+            "stdout_log_level": "INFO",
+        },
+        nerpa_dir=nerpa_root,
+        main_out_dir=args.output_dir,
     )
+    log = NerpaLogger(logging_config)
+    log.start()
 
-    nerpa_ms_varquest_out = args.output_dir / "nerpa_ms_varquest_results"
-    nerpa_ms_varquest(
-        nerpa_root=nerpa_root,
-        nerpa_ms_core_results_dir=nerpa_ms_core_out,
-        spectra_path=args.spectra,
-        output_dir=nerpa_ms_varquest_out,
-        mode=args.kakapo_mode
-    )
-    print(f"Nerpa-MS results written to: {nerpa_ms_varquest_out}")
+    try:
+        if args.nerpa_results is not None:
+            log.info(f"Copied Nerpa results from: {args.nerpa_results}")
 
-    monomer_names_helper = get_monomer_names_helper()
-    build_html_report(
-        nerpa_root=nerpa_root,
-        nerpa_results=args.output_dir,
-        nerpa_ms_core_results=nerpa_ms_core_out,
-        nerpa_ms_varquest_results=nerpa_ms_varquest_out,
-        monomer_names_helper=monomer_names_helper,
-        max_spectra_matches_per_nerpa_match=args.max_spectra_matches_per_nerpa_match
-    )
+        nerpa_ms_core_out = args.output_dir / "nerpa_ms_results"
+        nerpa_ms_core(
+            nerpa_root=nerpa_root,
+            nerpa_results=args.output_dir,
+            output_dir=nerpa_ms_core_out,
+            log=log,
+            max_edits=args.max_edits,
+            num_variants_per_num_edits=args.num_variants_per_num_edits,
+            max_nerpa_matches=args.max_nerpa_matches_for_candidate_generation,
+            nerpa_match_ids=args.nerpa_match_ids_for_candidate_generation,
+        )
+
+        nerpa_ms_varquest_out = args.output_dir / "nerpa_ms_varquest_results"
+        nerpa_ms_varquest(
+            nerpa_root=nerpa_root,
+            nerpa_ms_core_results_dir=nerpa_ms_core_out,
+            spectra_path=args.spectra,
+            output_dir=nerpa_ms_varquest_out,
+            log=log,
+            mode=args.kakapo_mode,
+        )
+        log.info(f"Nerpa-MS results written to: {nerpa_ms_varquest_out}")
+
+        monomer_names_helper = get_monomer_names_helper()
+        build_html_report(
+            nerpa_root=nerpa_root,
+            nerpa_results=args.output_dir,
+            nerpa_ms_core_results=nerpa_ms_core_out,
+            nerpa_ms_varquest_results=nerpa_ms_varquest_out,
+            monomer_names_helper=monomer_names_helper,
+            max_spectra_matches_per_nerpa_match=args.max_spectra_matches_per_nerpa_match,
+        )
+    except Exception:
+        log.exception("Nerpa-MS failed")
+        return 1
+    finally:
+        log.finish()
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

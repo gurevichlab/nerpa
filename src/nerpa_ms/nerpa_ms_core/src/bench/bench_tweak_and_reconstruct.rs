@@ -118,7 +118,6 @@ pub fn sample_graph_neighborhood(
 		monomer_graph,
 		&mods,
 		monomers_db,
-		false // debug_stdout
 	    );
 	    let new_graph = maybe_new_graph
 		.expect("Failed to apply sampled modifications");
