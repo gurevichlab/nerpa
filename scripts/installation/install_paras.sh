@@ -2,10 +2,10 @@
 # Install the PARAS model paired with scikit-learn 1.8.0 in environment.yml.
 set -euo pipefail
 
-repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 paras_model_path="${1:-$repo_root/external_tools/paras/model.paras}"
 paras_model_sha256='1f97ea44a9bf7a59a9fc83b1e9e06cc76d0c942318fbcb1534fe94034064fd7f'
-paras_model_url="${PARAS_MODEL_URL:-}"
+paras_model_url="${PARAS_MODEL_URL:-https://zenodo.org/records/23262276/files/model.paras.gz?download=1}"
 
 matches_model() {
     [[ -f "$1" ]] && [[ "$(sha256sum -- "$1" | cut -d ' ' -f 1)" == "$paras_model_sha256" ]]

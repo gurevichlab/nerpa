@@ -199,7 +199,13 @@ pub fn apply_modifications(
 	    );
     }
 
-    new_monomer_graph.canonize().ok()?;
+    if let Err(error) = new_monomer_graph.canonize() {
+        eprintln!(
+            "Failed to canonize compound {}: {error:#}",
+            monomer_graph.compound_id
+        );
+        return None;
+    }
     new_monomer_graph.metadata.smiles = new_monomer_graph.to_smiles().ok();
 
     Some(AlteredMonomerGraph {

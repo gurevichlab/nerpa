@@ -1,0 +1,924 @@
+#+title: Nerpa-MS Project Overview
+#+startup: overview
+
+** Purpose
+
+This repository contains two related pipelines:
+
+- *Nerpa* links biosynthetic gene clusters (BGCs) to known nonribosomal
+  peptide (NRP) structures.
+- *Nerpa-MS* extends Nerpa by generating structural variants of promising
+  NRP matches and comparing those candidates with experimental mass spectra.
+
+The repository is therefore not a single homogeneous application.  It is a
+Python orchestration layer around several specialized components:
+
+- Python code for input processing, pipeline coordination, HMM construction,
+  result reconstruction, and reporting;
+- a C++ executable for the main Nerpa matching step;
+- a Rust executable for Nerpa-MS candidate generation;
+- rBAN, antiSMASH, PARAS, and Kakapo as external tools or models.
+
+When something goes wrong, the first useful question is which stage last
+produced valid output.  The pipeline writes intermediate representations
+between most major stages, so failures can usually be localized without
+following the entire call graph.
+
+** Main entry points
+
+*** =nerpa.py=
+
+Entry point for the standard Nerpa pipeline.
+
+It creates a =PipelineHelper= and runs the following high-level sequence:
+
+1. Obtain BGC variants.
+2. Construct an HMM for each representative BGC variant.
+3. Obtain and parse NRP structures.
+4. Generate linearizations of representative NRP graphs.
+5. Match the linearizations against the HMMs.
+6. Reconstruct detailed matches and write reports.
+
+Most implementation work is delegated to =src/pipeline/=.
+
+Look here when the standard pipeline does not start, exits unexpectedly, or
+fails to report an exception correctly.  For problems inside an individual
+stage, continue into =src/pipeline/pipeline_helper.py=.
+
+*** =nerpa_ms.py=
+
+Entry point and top-level coordinator for the full Nerpa-MS workflow.
+
+It can operate in two modes:
+
+- run Nerpa first using the ordinary Nerpa command-line arguments;
+- start from an existing Nerpa result directory supplied through
+  =--nerpa-results=.
+
+After obtaining a Nerpa result directory, it:
+
+1. invokes the Rust candidate generator;
+2. sends the generated candidates and an MGF file to Kakapo;
+3. reloads the ordinary Nerpa results;
+4. builds a combined Nerpa-MS HTML report.
+
+Start here for problems involving:
+
+- Nerpa-MS command-line arguments;
+- copying or reusing an existing Nerpa run;
+- paths passed between the Python, Rust, and Kakapo stages;
+- the order in which stages run;
+- missing =nerpa_ms_results/= or =nerpa_ms_varquest_results/= directories;
+- failure to produce the final Nerpa-MS report.
+
+*** =install.sh=
+
+Creates the local environments and installs or builds the non-Python parts of
+the project.
+
+It currently handles:
+
+1. obtaining the Kakapo source tree;
+2. creating or updating the Nerpa Conda environment;
+3. creating the separate Kakapo environment;
+4. installing Kakapo;
+5. building the C++ matcher;
+6. installing and validating the PARAS model.
+
+Start here when a fresh checkout cannot run, rather than debugging the
+individual pipeline stages immediately.
+
+** End-to-end pipeline
+
+*** Stage 1: Command-line parsing and pipeline setup
+
+The ordinary Nerpa arguments are defined in:
+
+- =src/pipeline/command_line_args_helper.py=
+- =src/config.py=
+- =configs/=
+
+=PipelineHelper= parses and validates the arguments, loads the configuration,
+creates the output directory, initializes logging, and constructs helper
+objects for the major subsystems.
+
+A copy of the active configuration is placed in the result directory.  This is
+important when reproducing a run: the configuration stored with the result is
+a better description of that run than the current files in the repository.
+
+If setup fails, inspect:
+
+- command-line validation in =command_line_args_helper.py=;
+- configuration loading in =src/config.py=;
+- output-directory handling in =src/pipeline/nerpa_utils.py=;
+- logging in =src/pipeline/logging/=;
+- the YAML files under =configs/=.
+
+*** Stage 2: Genomic input becomes BGC variants
+
+Genomic input can already be an antiSMASH result, an antiSMASH server job, or a
+raw genome that must first be processed by antiSMASH.
+
+The main path is:
+
+#+begin_example
+genome or antiSMASH input
+        |
+        v
+antiSMASH execution/download
+        |
+        v
+antiSMASH JSON records
+        |
+        v
+genes, domains, and modules
+        |
+        v
+candidate assembly lines
+        |
+        v
+BGC variants
+        |
+        v
+deduplicated representative BGC variants
+#+end_example
+
+The relevant code is mainly in:
+
+- =src/pipeline/pipeline_helper_antismash.py=
+- =src/pipeline/download_antismash_results.py=
+- =src/pipeline/parse_antismash_parallel.py=
+- =src/antismash_parsing/=
+
+A BGC can produce multiple variants because the predicted assembly line may be
+ambiguous.  Before matching, equivalent variants are grouped and a
+representative is selected.  The representative is used for expensive
+computation, while the representative mapping is retained so results can later
+be associated with all original variants.
+
+PARAS specificity predictions are introduced during this part of the
+pipeline.  They assign probabilities to the residues expected from
+adenylation domains.  The integration code is under:
+
+- =src/aa_specificity_prediction_model/=
+- =src/paras/=
+- =src/pipeline/paras_parsing.py=
+
+The resulting BGC data is written under =preprocessed_input/=, primarily as:
+
+- =BGC_variants.yaml=
+- =BGC_representatives.yaml=
+
+Look in this stage when:
+
+- antiSMASH files are not discovered;
+- genes, domains, or modules are missing;
+- assembly lines are split incorrectly;
+- no BGC variants are produced;
+- residue specificity predictions are absent or suspicious;
+- deduplication chooses the wrong representative.
+
+*** Stage 3: BGC variants become HMMs
+
+Each representative BGC variant is converted into a detailed hidden Markov
+model describing plausible products of its assembly line.
+
+The model combines:
+
+- module order;
+- possible deviations from the expected assembly flow;
+- predicted residue probabilities;
+- chirality and modification information;
+- transition and emission scoring parameters.
+
+The main implementation is under:
+
+- =src/hmm/detailed_hmm.py=
+- =src/hmm/hmm_constructor/=
+- =src/hmm/hmm_scoring_config.py=
+- =src/hmm/hmm_scoring_helper.py=
+
+The scoring parameters are loaded from =configs/hmm_scoring_config.yaml= and
+the tables referenced by that file.
+
+For the native matching stage, the Python HMM objects are serialized to an
+intermediate JSON file.  Its configured location is normally:
+
+- =intermediate_files/hmms.json=
+
+A separate HMM representation used by Nerpa-MS is retained under:
+
+- =preprocessed_input/hmms_nerpa_ms.json=
+
+Look here when the BGCs appear correct but:
+
+- HMM construction fails;
+- an HMM has unexpected paths or states;
+- scores change after editing configuration;
+- the generated HMM JSON is empty or malformed;
+- candidate generation later cannot reconstruct the genomic context.
+
+*** Stage 4: Chemical input becomes NRP monomer graphs
+
+Chemical input is normally supplied as SMILES strings, either directly or in a
+table.  Nerpa passes the structures through rBAN, which decomposes them into
+monomers and bonds.
+
+The main path is:
+
+#+begin_example
+SMILES structures
+        |
+        v
+rBAN input JSON
+        |
+        v
+rBAN execution
+        |
+        v
+rBAN records
+        |
+        v
+parsed monomer graphs
+        |
+        v
+NRP variants
+        |
+        v
+deduplicated representative NRP variants
+#+end_example
+
+The relevant code is mainly in:
+
+- =src/pipeline/pipeline_helper_rban.py=
+- =src/pipeline/rban_helper.py=
+- =src/rban_parsing/=
+
+An input molecule can produce more than one NRP variant because bond
+interpretation, hybrid processing, chirality, or other structural details can
+be ambiguous.  As with BGCs, equivalent variants are deduplicated for
+computation while a representative mapping is retained.
+
+There are two distinct canonicalization steps in the pipeline.  During rBAN
+result loading, the *monomer indices* are reordered into a deterministic
+order.  rBAN atom indices are already deterministic because they correspond
+to atom order in the input SMILES, but rBAN monomer indices can vary between
+runs.  This early canonicalization therefore changes monomer numbering while
+preserving the atom numbering inherited from the input SMILES.
+
+Important persisted files include:
+
+- =preprocessed_input/parsed_rban_records.yaml=
+- =preprocessed_input/NRP_variants.yaml=
+- =preprocessed_input/NRP_representatives.yaml=
+- =preprocessed_input/rban_graphs.yaml=
+
+The raw rBAN working files are normally placed under
+=intermediate_files/rBAN/=.  They may be removed at the end of a successful
+run unless intermediate files are explicitly retained.
+
+Look here when:
+
+- rBAN cannot process a SMILES string;
+- a molecule has the wrong monomers or bonds;
+- chirality is lost or assigned incorrectly;
+- hybrid monomers are mishandled;
+- expected NRP variants are missing;
+- rBAN output exists but cannot be loaded by Nerpa.
+
+*** Stage 5: NRP graphs become linearizations
+
+The matcher does not score an arbitrary graph directly.  Nerpa extracts
+possible linear sequences from each representative NRP monomer graph.
+
+The central code is:
+
+- =src/rban_parsing/get_linearizations.py=
+
+The generated linearizations are serialized for the C++ matcher, normally to:
+
+- =intermediate_files/nrp_linearizations.json=
+
+This is an important boundary in the data lifecycle:
+
+#+begin_example
+chemical structure
+  -> monomer graph
+  -> graph variants
+  -> representative graph
+  -> candidate linearizations
+  -> native matcher input
+#+end_example
+
+Look here when the parsed graph is correct but the matcher appears to consider
+the wrong sequence, orientation, cycle opening, or branch traversal.
+
+*** Stage 6: HMMs and NRP linearizations become raw matches
+
+The expensive all-against-all scoring step is implemented by the C++ matcher
+under:
+
+- =src/cpp_matching/=
+
+The executable is built as:
+
+- =build/hmm_nrp_matcher=
+
+The Python interface is:
+
+- =src/pipeline/pipeline_helper_cpp.py=
+
+The data flow across this boundary is approximately:
+
+#+begin_example
+intermediate_files/hmms.json
+              +
+intermediate_files/nrp_linearizations.json
+              |
+              v
+       build/hmm_nrp_matcher
+              |
+              v
+intermediate_files/cpp_matching_output.json
+#+end_example
+
+The native matcher contains the performance-sensitive matching and Viterbi
+logic.  Python prepares its input and reads the resulting lightweight match
+records.
+
+Look at =pipeline_helper_cpp.py= first when:
+
+- the executable is not found;
+- arguments or paths passed to it are incorrect;
+- JSON serialization fails;
+- the executable succeeds but Python cannot parse its output.
+
+Look under =src/cpp_matching/= when:
+
+- the native process crashes;
+- matching is unexpectedly slow;
+- raw scores or Viterbi paths are incorrect;
+- changing match limits has unexpected native behavior.
+
+The root =CMakeLists.txt= controls this build.
+
+*** Stage 7: Raw matches become detailed Nerpa results
+
+The native output is intentionally compact.  Python reconstructs richer match
+objects by combining the native result with the original HMM, BGC variant,
+NRP variant, and representative mappings.
+
+This logic is primarily under:
+
+- =src/matching/=
+- =src/build_output/write_results.py=
+
+The reconstruction adds information needed by humans and reports, including:
+
+- the original BGC and NRP identities;
+- detailed alignment steps;
+- module and monomer annotations;
+- representative-to-original relationships;
+- score details and selected paths.
+
+The principal outputs are:
+
+- =report.tsv=
+- =report.html=
+- =matches_details/=
+- =matches_details/matches.yaml=
+
+The =preprocessed_input/= files and =matches_details/matches.yaml= form the
+main hand-off from ordinary Nerpa to Nerpa-MS.
+
+Look here when:
+
+- raw native scores exist but final matches are missing;
+- a match is assigned to the wrong original record;
+- alignment reconstruction is incorrect;
+- filtering or ranking removes an expected result;
+- TSV and HTML reports disagree.
+
+*** Stage 8: Nerpa matches become candidate NRP structures
+
+The Nerpa-MS candidate generator is implemented in Rust under:
+
+- =src/nerpa_ms/nerpa_ms_core/=
+
+The Python coordinator invokes it from =nerpa_ms.py=.  The Rust executable
+loads selected matches from the Nerpa result directory, including the HMM,
+parsed rBAN record, and existing linearization information.
+
+For each selected Nerpa match, it explores nearby structures up to the
+configured number of edits.  The edits operate on the monomer graph, and the
+candidate structures are evaluated against the corresponding BGC HMM.
+
+After editing a candidate, the Rust code performs a second, atom-level
+canonicalization and regenerates its SMILES.  This is different from the
+earlier monomer-index canonicalization performed while loading rBAN results.
+Graph edits can disrupt the correspondence between atom indices in the
+=Parsed_rBAN_Record= and atom order in its SMILES.  The drawing code later
+constructs an RDKit molecule from that SMILES and assumes that RDKit atom
+indices correspond to the record's atom indices.  Rust canonicalization
+renumbers the candidate atoms in canonical-SMILES order and writes the
+matching regenerated SMILES, restoring that correspondence before the
+candidate is serialized.
+
+Failure of this step can therefore cause either incorrect molecule drawings
+or, if canonicalization errors are treated as rejected candidates, an empty
+=new_variants= collection.  The relevant implementations are
+=src/algo/monomer_graph_canonize.rs= and
+=src/algo/monomer_graph_smiles.rs=.
+
+The approximate flow is:
+
+#+begin_example
+Nerpa matches
+      +
+BGC HMMs
+      +
+parsed NRP monomer graphs
+      |
+      v
+graph modification search
+      |
+      v
+candidate monomer graphs
+      |
+      v
+HMM scoring and path reconstruction
+      |
+      v
+candidate structures and alignments
+#+end_example
+
+Important Rust areas are:
+
+- =src/main.rs= -- executable entry point;
+- =src/cli.rs= -- command-line interface;
+- =src/algo/algo_main.rs= -- top-level processing of one input item;
+- =src/algo/gen_new_variants.rs= -- candidate generation;
+- =src/algo/dp.rs= and related modules -- dynamic programming;
+- =src/algo/viterbi.rs= -- HMM scoring;
+- =src/algo/monomer_graph_operations.rs= -- graph edits;
+- =src/data_types/= -- shared graph, HMM, alignment, and configuration types;
+- =src/io/= -- loading input, writing output, and debug drawings.
+
+The monomer reference data used by this stage is:
+
+- =src/nerpa_ms/nerpa_ms_core/data/monomers_db.json=
+
+The principal output is:
+
+- =nerpa_ms_results/nerpa-ms-output.json=
+
+Look here when:
+
+- no candidate variants are generated;
+- edit limits are ignored;
+- candidates are duplicated or malformed;
+- candidate structures cannot be converted back to a chemical representation;
+- candidate HMM scores or alignments are suspicious;
+- selected Nerpa match IDs are interpreted incorrectly.
+
+The Cargo project also contains =src/testing/=, =src/bench/=, and several
+development binaries under =src/bin/=.  These are useful for algorithm work
+but are not part of the normal end-to-end run.
+
+*** Stage 9: Candidate structures are matched against spectra
+
+Kakapo performs the mass-spectrum matching stage.  Its source is placed under:
+
+- =external_tools/kakapo/=
+
+Its executable is installed into:
+
+- =envs/kakapo/bin/kakapo=
+
+=nerpa_ms.py= passes Kakapo:
+
+- the input MGF spectrum;
+- =nerpa_ms_results/nerpa-ms-output.json=;
+- the requested modification mode;
+- the output directory.
+
+The resulting files are placed under:
+
+- =nerpa_ms_varquest_results/=
+
+At this point, candidate structures have two complementary sources of
+evidence:
+
+- compatibility with the BGC model, calculated during candidate generation;
+- compatibility with the experimental spectrum, calculated by Kakapo.
+
+Look first at =nerpa_ms_varquest()= in =nerpa_ms.py= when Kakapo is not
+started or receives incorrect arguments.  Look inside =external_tools/kakapo/=
+when the command runs successfully but spectrum matching itself is incorrect.
+
+*** Stage 10: All result streams become the Nerpa-MS report
+
+The final reporting stage combines:
+
+- ordinary Nerpa matches;
+- BGC and NRP metadata from =preprocessed_input/=;
+- generated candidate structures from =nerpa_ms_results/=;
+- spectrum matches from =nerpa_ms_varquest_results/=.
+
+The relevant code is:
+
+- =build_html_report()= in =nerpa_ms.py=;
+- =src/build_output/html_reporter.py=;
+- supporting drawing and serialization code under =src/build_output/=;
+- static browser assets under =docs/=.
+
+The main combined report is:
+
+- =nerpa_ms_report.html=
+
+Look here when all computational stages produced output but:
+
+- the HTML report is absent;
+- candidates or spectra are missing from the report;
+- links between Nerpa matches and candidates are incorrect;
+- molecule or HMM drawings fail;
+- filtering hides expected spectrum matches.
+
+** Data lifecycle summary
+
+The complete lifecycle can be summarized as follows:
+
+#+begin_example
+GENOMIC SIDE
+
+genome / antiSMASH result
+        |
+        v
+antiSMASH records
+        |
+        v
+BGC genes, domains, and modules
+        |
+        v
+BGC variants
+        |
+        v
+representative BGC variants
+        |
+        v
+HMMs
+        |
+        +------------------------------+
+                                       |
+CHEMICAL SIDE                          |
+                                       |
+SMILES                                 |
+  |                                    |
+  v                                    |
+rBAN records                           |
+  |                                    |
+  v                                    |
+NRP monomer graphs                     |
+  |                                    |
+  v                                    |
+NRP variants                           |
+  |                                    |
+  v                                    |
+representative NRP variants            |
+  |                                    |
+  v                                    |
+NRP linearizations                     |
+  |                                    |
+  +--------------------+               |
+                       |               |
+                       v               v
+                    C++ HMM/NRP matching
+                              |
+                              v
+                       raw match records
+                              |
+                              v
+                 detailed Nerpa matches and reports
+                              |
+                    +---------+---------+
+                    |                   |
+                    v                   v
+              BGC HMM context     matched NRP graph
+                    |                   |
+                    +---------+---------+
+                              |
+                              v
+                  Rust candidate generation
+                              |
+                              v
+                 modified candidate structures
+                              |
+                              +------------------+
+                                                 |
+EXPERIMENTAL SIDE                                |
+                                                 |
+MGF spectra                                      |
+     |                                           |
+     +-------------------+-----------------------+
+                         |
+                         v
+                  Kakapo spectrum matching
+                         |
+                         v
+                candidate-spectrum matches
+                         |
+                         v
+                  Nerpa-MS HTML report
+#+end_example
+
+** Persisted data versus temporary data
+
+*** Persisted hand-off data
+
+The most useful files for reusing or diagnosing a run are under
+=preprocessed_input/= and =matches_details/=.
+
+These files preserve the semantic objects exchanged between stages:
+
+- parsed BGC variants;
+- parsed NRP variants;
+- rBAN records;
+- representative mappings;
+- HMM data required by Nerpa-MS;
+- detailed Nerpa matches.
+
+They allow later stages to run without repeating antiSMASH, rBAN, or the full
+Nerpa preprocessing pipeline.
+
+*** Temporary native-interface data
+
+The =intermediate_files/= directory contains serialized data used to call
+external or native programs, such as:
+
+- rBAN input and output;
+- HMM JSON for the C++ matcher;
+- NRP linearization JSON;
+- raw C++ match output.
+
+These files are implementation-level hand-offs rather than the canonical
+result format.  They may be removed automatically at the end of a run.
+
+When debugging a native boundary, rerun with intermediate-file retention
+enabled so these files remain available.
+
+*** Final user-facing data
+
+The main user-facing artifacts are:
+
+- =report.tsv=;
+- =report.html=;
+- =nerpa_ms_report.html=;
+- drawings and JavaScript data used by the HTML reports;
+- logs.
+
+The final reports are derived products.  If a report looks wrong, first check
+the corresponding YAML or JSON hand-off data to determine whether the problem
+is computational or only presentational.
+
+** Repository structure
+
+*** =src/pipeline/=
+
+Coordinates the ordinary Nerpa run.
+
+Important files include:
+
+- =pipeline_helper.py= -- central stage coordinator;
+- =pipeline_helper_antismash.py= -- genomic input;
+- =pipeline_helper_rban.py= -- chemical input;
+- =pipeline_helper_cpp.py= -- C++ matcher interface;
+- =command_line_args_helper.py= -- CLI and validation;
+- =nerpa_utils.py= -- subprocess and output-directory utilities;
+- =logging/= -- logging infrastructure.
+
+This is the first place to look for control-flow and stage-integration issues.
+
+*** =src/antismash_parsing/=
+
+Transforms antiSMASH records into the BGC module and assembly-line model used
+by Nerpa.
+
+Modify this area when changing how genes, domains, modules, fragments, or BGC
+variants are interpreted.
+
+*** =src/aa_specificity_prediction_model/= and =src/paras/=
+
+Contain residue-specificity prediction support.
+
+Modify this area when changing model loading, prediction interpretation, or
+the mapping from predictor output to Nerpa residues.
+
+*** =src/rban_parsing/=
+
+Transforms rBAN records into NRP monomer graphs, graph variants, and
+linearizations.
+
+Modify this area when changing chemical graph interpretation or the way graphs
+are made acceptable to the matcher.
+
+*** =src/hmm/=
+
+Defines BGC HMM construction and scoring.
+
+Modify this area when changing the biological scoring model rather than just
+adjusting a configured parameter.
+
+*** =src/matching/=
+
+Contains Python-side match, alignment, filtering, and reconstruction logic.
+
+Modify this area when changing what constitutes a final match or how a native
+match path is presented as a detailed alignment.
+
+*** =src/cpp_matching/=
+
+Contains the production native matcher used by the standard Nerpa pipeline.
+
+Modify this area for performance work and low-level matching behavior.
+
+*** =src/rust/=
+
+Contains a separate Rust matcher implementation.
+
+It is not the main Python-to-C++ matching path described above.  Treat it as
+an alternative implementation unless the invocation path is deliberately
+changed.
+
+*** =src/nerpa_ms/nerpa_ms_core/=
+
+Contains the Rust candidate-generation engine for Nerpa-MS.
+
+Modify this area for graph-edit generation, candidate ranking, candidate
+canonicalization, and candidate-to-HMM alignment.
+
+*** =src/build_output/=
+
+Produces reports, detailed output files, and visualizations.
+
+Important files include:
+
+- =write_results.py=;
+- =html_reporter.py=;
+- =draw_graph.py=;
+- =draw_hmm.py=;
+- =extract_data_for_report.py=.
+
+Modify this area when changing output formats or report presentation.
+
+*** =configs/=
+
+Contains runtime behavior that should not require editing algorithms.
+
+The top-level =configs/config.yaml= references configuration for:
+
+- antiSMASH processing;
+- PARAS and specificity prediction;
+- rBAN;
+- HMM scoring;
+- match filtering;
+- monomer data;
+- logging;
+- output paths.
+
+Before modifying code, check whether the behavior is controlled here.
+
+*** =data/=
+
+Contains bundled biological reference data, mappings, score tables, and input
+databases.
+
+Unexpected biological behavior can originate from these files even when the
+code is working as designed.
+
+*** =external_tools/=
+
+Contains external projects used by the pipeline, particularly Kakapo.
+
+Code here has its own lifecycle and environment.  Do not assume it uses the
+main Nerpa Python environment.
+
+*** =scripts/=
+
+Contains installation and maintenance utilities.
+
+The PARAS model installer is under:
+
+- =scripts/installation/install_paras.sh=
+
+*** =_run_configurations/=
+
+Contains development, benchmarking, and dataset-specific launch scripts.
+
+These scripts are useful for reproducing experiments, but they are not the
+canonical application interface.
+
+*** =docs/=
+
+Contains documentation images and static report assets.
+
+** Build and environment boundaries
+
+The project has several independent build or runtime systems:
+
+| Component                  | Definition or environment                                  |
+|----------------------------+------------------------------------------------------------|
+| Python Nerpa pipeline      | =environment.yml= and =envs/nerpa/=                        |
+| C++ matcher                | root =CMakeLists.txt= and =build/hmm_nrp_matcher=           |
+| Rust Nerpa-MS core         | =src/nerpa_ms/nerpa_ms_core/Cargo.toml=                     |
+| Alternative Rust matcher   | =src/rust/Cargo.toml=                                       |
+| Kakapo                     | =external_tools/kakapo/= and =envs/kakapo/=                 |
+| PARAS model                | =scripts/installation/install_paras.sh=                     |
+| rBAN                       | configured JAR and files referenced from =configs/=         |
+| antiSMASH                  | external installation or downloaded server results         |
+
+A component working in one environment does not prove that the others are
+installed correctly.  In particular, Kakapo is intentionally installed into a
+separate environment.
+
+** Output directory map
+
+A typical completed Nerpa-MS result directory contains:
+
+#+begin_example
+OUTPUT/
+|-- configs/
+|   `-- copies of the configuration used for the run
+|
+|-- preprocessed_input/
+|   |-- BGC_variants.yaml
+|   |-- BGC_representatives.yaml
+|   |-- NRP_variants.yaml
+|   |-- NRP_representatives.yaml
+|   |-- parsed_rban_records.yaml
+|   `-- hmms_nerpa_ms.json
+|
+|-- intermediate_files/
+|   |-- hmms.json
+|   |-- nrp_linearizations.json
+|   |-- cpp_matching_output.json
+|   `-- rBAN/
+|
+|-- matches_details/
+|   `-- matches.yaml
+|
+|-- nerpa_ms_results/
+|   `-- nerpa-ms-output.json
+|
+|-- nerpa_ms_varquest_results/
+|   `-- Kakapo spectrum-matching results
+|
+|-- report.tsv
+|-- report.html
+|-- nerpa_ms_report.html
+|-- nerpa.log
+`-- warnings.log
+#+end_example
+
+Some intermediate files may be absent after successful cleanup.
+
+** Fault-location guide
+
+| Symptom                                            | First places to inspect                                      |
+|----------------------------------------------------+--------------------------------------------------------------|
+| CLI rejects otherwise valid input                  | =nerpa_ms.py= or =command_line_args_helper.py=                |
+| Output directory is missing or unexpectedly reused | =src/pipeline/nerpa_utils.py=                                 |
+| antiSMASH data is not discovered                   | =pipeline_helper_antismash.py=                                |
+| BGC genes or modules are wrong                     | =src/antismash_parsing/=                                     |
+| PARAS prediction fails                             | =src/paras/=, =src/aa_specificity_prediction_model/=         |
+| rBAN fails on a molecule                           | =pipeline_helper_rban.py=, =rban_helper.py=                   |
+| Monomer graph is wrong                             | =src/rban_parsing/=                                          |
+| HMM structure or score is wrong                    | =src/hmm/= and =configs/hmm_scoring_config.yaml=              |
+| Linearization is wrong                             | =src/rban_parsing/get_linearizations.py=                      |
+| C++ matcher does not start                         | =pipeline_helper_cpp.py=, =CMakeLists.txt=                    |
+| Native matching score is wrong                     | =src/cpp_matching/=                                          |
+| Raw match exists but final match is wrong          | =src/matching/=                                              |
+| Standard report is wrong                           | =src/build_output/write_results.py= and =html_reporter.py=    |
+| Nerpa-MS candidate is wrong or absent              | =src/nerpa_ms/nerpa_ms_core/src/algo/=                        |
+| Rust candidate generator does not start            | =nerpa_ms.py= and the Nerpa-MS =Cargo.toml=                   |
+| Kakapo does not start                              | =nerpa_ms_varquest()= in =nerpa_ms.py=                        |
+| Spectrum score is wrong                            | =external_tools/kakapo/=                                     |
+| Combined report omits existing results             | =build_html_report()= and =src/build_output/html_reporter.py= |
+| Installation fails                                 | =install.sh=, =environment.yml=, build logs                   |
+| Behavior changes between machines                  | copied configs, dependency versions, and external tools      |
+
+** Practical debugging order
+
+When diagnosing a failed or suspicious run:
+
+1. Read =nerpa.log= and =warnings.log=.
+2. Identify the last output artifact that was created successfully.
+3. Inspect that artifact before examining the next stage's code.
+4. Compare the run's copied configuration with the current repository
+   configuration.
+5. Preserve =intermediate_files/= when debugging a native boundary.
+6. Re-run only the smallest stage that can reproduce the problem.
+
+For example, if =nerpa-ms-output.json= contains correct candidates but the
+combined report is wrong, the Rust candidate generator is probably not the
+place to start.  Conversely, if the report faithfully displays malformed
+candidates, debug the candidate-generation stage rather than the reporter.
