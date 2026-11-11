@@ -1,7 +1,7 @@
 # Development-only files omitted from release archives.
 .gitattributes export-ignore
 _run_configurations/ export-ignore
-README_scripts.md
+README_scripts.md export-ignore
 src/_not_used/ export-ignore
 project-overview.org export-ignore
 src/nerpa_ms/nerpa_ms_core/notes.md export-ignore
