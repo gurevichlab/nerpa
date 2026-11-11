@@ -92,9 +92,32 @@ rule all:
 rule release:
     input:
         version=NERPA_ROOT / "VERSION.txt",
-        script=NERPA_ROOT / "scripts" / "make_release.sh",
+        make_release_script=(
+            NERPA_ROOT
+            / "scripts"
+            / "make_release"
+            / "make_release.sh"
+        ),
+        readme_template=NERPA_ROOT / "docs" / "README_template.md",
+        render_readme_script=(
+            NERPA_ROOT
+            / "scripts"
+            / "make_release"
+            / "render_readme.py"
+        ),
+    params:
+        generated_readme=NERPA_ROOT / "tmp" / "release" / "README.md",
     shell:
-        "bash {input.script:q} {input.version:q}"
+        r"""
+        python {input.render_readme_script:q} \
+          --template {input.readme_template:q} \
+          --version-file {input.version:q} \
+          --output {params.generated_readme:q}
+
+        bash {input.make_release_script:q} \
+          {input.version:q} \
+          {params.generated_readme:q}
+        """
 
 rule create_training_bgcs_nrps:
     params:

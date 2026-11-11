@@ -2,18 +2,25 @@
 
 set -euo pipefail
 
-repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
 version_file="${1:-}"
+generated_readme="${2:-}"
 
-if [[ -z "$version_file" ]]; then
-    echo "Usage: $0 VERSION_FILE" >&2
+if [[ -z "$version_file" || -z "$generated_readme" ]]; then
+    echo "Usage: $0 VERSION_FILE GENERATED_README" >&2
+    exit 1
+fi
+
+if [[ ! -f "$generated_readme" ]]; then
+    echo "Error: generated README does not exist: $generated_readme" >&2
     exit 1
 fi
 
 release_commit="$(git rev-parse HEAD)"
 short_commit="$(git rev-parse --short=12 HEAD)"
+commit_timestamp="$(git show -s --format=%ct "$release_commit")"
 version="$(tr -d '[:space:]' < "$version_file")"
 
 if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -38,13 +45,30 @@ trap 'rm -f "$temporary_tar"' EXIT
 
 mkdir -p "$output_dir"
 
-# Archive committed files only; .gitattributes controls release exclusions.
+# Archive committed files; .gitattributes controls release exclusions.
 git archive \
     --format=tar \
     --prefix="$release_name/" \
     "$release_commit" > "$temporary_tar"
 
-# Suppress the gzip timestamp so rebuilding the same commit is reproducible.
+# Replace the committed README with the freshly rendered release README.
+tar \
+    --delete \
+    --file="$temporary_tar" \
+    "$release_name/README.md"
+
+tar \
+    --append \
+    --file="$temporary_tar" \
+    --directory="$(dirname -- "$generated_readme")" \
+    --transform="s|^$(basename -- "$generated_readme")$|$release_name/README.md|" \
+    --mtime="@$commit_timestamp" \
+    --owner=0 \
+    --group=0 \
+    --numeric-owner \
+    "$(basename -- "$generated_readme")"
+
+# Suppress the gzip timestamp so rebuilding the same input is reproducible.
 gzip -n -c "$temporary_tar" > "$archive_path"
 (
     cd "$output_dir"
@@ -53,6 +77,7 @@ gzip -n -c "$temporary_tar" > "$archive_path"
 
 echo "Version: $version"
 echo "Archived commit: $release_commit"
+echo "Injected README: $generated_readme"
 
 if [[ "$release_name" == "$release_tag" ]]; then
     echo "Release tag: $release_tag"
