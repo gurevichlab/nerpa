@@ -45,28 +45,14 @@ trap 'rm -f "$temporary_tar"' EXIT
 
 mkdir -p "$output_dir"
 
-# Archive committed files; .gitattributes controls release exclusions.
+# Archive committed files and inject the generated README.
+# .gitattributes excludes the committed README from the archive.
 git archive \
     --format=tar \
     --prefix="$release_name/" \
-    "$release_commit" > "$temporary_tar"
-
-# Replace the committed README with the freshly rendered release README.
-tar \
-    --delete \
-    --file="$temporary_tar" \
-    "$release_name/README.md"
-
-tar \
-    --append \
-    --file="$temporary_tar" \
-    --directory="$(dirname -- "$generated_readme")" \
-    --transform="s|^$(basename -- "$generated_readme")$|$release_name/README.md|" \
     --mtime="@$commit_timestamp" \
-    --owner=0 \
-    --group=0 \
-    --numeric-owner \
-    "$(basename -- "$generated_readme")"
+    --add-file="$generated_readme" \
+    "$release_commit" > "$temporary_tar"
 
 # Suppress the gzip timestamp so rebuilding the same input is reproducible.
 gzip -n -c "$temporary_tar" > "$archive_path"
