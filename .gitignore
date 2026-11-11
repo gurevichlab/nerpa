@@ -22,8 +22,8 @@ data/for_training_and_testing/nerpa1_results
 src/rust/target
 src/nerpa_ms/nerpa_ms_core/target
 
-# local config
-local_paths.yaml
+# local paths
+paths_to_external_data.yaml
 
 
 # generated preprocessed data
@@ -37,3 +37,4 @@ envs/
 /stderr.txt
 /test.sh
 /.snakemake/
+/dist/

@@ -16,7 +16,7 @@ def ext_path(key: str) -> Path:
     if val in (None, ''):
         raise WorkflowError(
             f'Missing external data path: config["{key}"] is not set.\n'
-            f'Edit {PATHS_TO_EXTERNAL_DATA} and set "{key}: /path/to/data".'
+            f'Edit/Create {PATHS_TO_EXTERNAL_DATA} and set "{key}: /path/to/data".'
         )
     return Path(str(val)).expanduser()
 
@@ -29,8 +29,8 @@ ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
 BIGSCAPE_RESULTS_ON_MIBIG = ext_path('BiG-SCAPE clustering of MIBiG 4')
 MIBIG3_JSONS = ext_path('MIBiG 3 JSONs')
 
-NERPA1_RESULTS_ON_MIBIG = ext_path('NERPA1 results on MIBiG 4 vs MIBIG+NORINE NRPs')
-BIOCAT_RESULTS_ON_MIBIG = ext_path('BioCAT results on MIBiG 4 vs MIBIG+NORINE NRPs')
+NERPA1_RESULTS_ON_MIBIG = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'nerpa1_report_mibig4_vs_mibig_norine.csv'
+BIOCAT_RESULTS_ON_MIBIG = ext_path('BioCAT results on MIBiG 4 vs MIBiG+NORINE NRPs')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
 # information about the monomers in the Norine database
@@ -424,7 +424,12 @@ rule benchmarking_plots:
         
 rule compute_compound_similarity:
     params:
-        compound_similarity_script=NERPA_ROOT / 'scripts' / 'pnrpdb_compound_similarity.py',
+        compound_similarity_script=(
+            NERPA_ROOT
+            / 'scripts'
+            / 'data_preprocessing'
+            / 'pnrpdb_compound_similarity.py'
+        ),
         nerpa_root=NERPA_ROOT,
     input:
         # Use the preprocessed PNRPDB2 rBAN records

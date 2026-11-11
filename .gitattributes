@@ -1,0 +1,5 @@
+# Development-only files omitted from release archives.
+.gitattributes export-ignore
+_run_configurations/ export-ignore
+src/_not_used/ export-ignore
+project-overview.org export-ignore
