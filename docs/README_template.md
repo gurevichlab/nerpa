@@ -1,5 +1,6 @@
 <!--
-This document contains Jinja-style (e.g. {{ placeholder }}) placeholders
+This document contains Jinja-style placeholders delimited by double curly
+braces. The supported placeholder names are:
 
   release-series              Short release series, e.g. 2.1
   release-version             Full version, e.g. 2.1.0
