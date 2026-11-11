@@ -89,6 +89,13 @@ rule all:
         PNRPDB2_COMPOUND_SIMILARITY,
         NERPA2_RESULTS_ON_TRAINING_BGCs_vs_their_NRPs / '.done',
 
+rule release:
+    input:
+        version=NERPA_ROOT / "VERSION.txt",
+        script=NERPA_ROOT / "scripts" / "make_release.sh",
+    shell:
+        "bash {input.script:q} {input.version:q}"
+
 rule create_training_bgcs_nrps:
     params:
         script=(

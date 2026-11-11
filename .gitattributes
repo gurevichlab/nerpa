@@ -3,3 +3,7 @@
 _run_configurations/ export-ignore
 src/_not_used/ export-ignore
 project-overview.org export-ignore
+src/nerpa_ms/nerpa_ms_core/notes.md
+src/nerpa_ms/nerpa_ms_core/project-overview.md
+src/nerpa_ms/nerpa_ms_core/_run_configurations
+src/nerpa_ms/nerpa_ms_core/fixtures

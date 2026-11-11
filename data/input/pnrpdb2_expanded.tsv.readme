@@ -1,0 +1,3 @@
+This file is an expanded version of the original PNRPDB2 raw data, where each alternative ID has its own row.
+The 'ID' column contains the alternative ID, while other columns are copied from the original row.
+The original 'Alternative IDs' column is preserved in each row.

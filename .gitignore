@@ -7,34 +7,36 @@
 .DS_Store
 *~
 
-# not src or config directories
-nerpa_results
-external_tools
-training_results
-input
-debug
-results
-benchmarking
-build
-tmp
-test_results
-data/for_training_and_testing/nerpa1_results
-src/rust/target
-src/nerpa_ms/nerpa_ms_core/target
+# Large third-party tools that are downloaded and installed with `install.sh`
+external_tools/kakapo
+external_tools/paras
 
 # local paths
 paths_to_external_data.yaml
 
-
-# generated preprocessed data
+# preprocessed data
 data/input/preprocessed/
-nerpa_results/
-test_run/
-test_run_nerpa_ms/
-.kakapo_cache/
-envs/
-/src/nerpa_ms/nerpa_ms_core/stderr.txt
-/stderr.txt
-/test.sh
-/.snakemake/
+
+# tool's output
+*_results
+
+# compilation targets
+src/rust/target
+src/nerpa_ms/nerpa_ms_core/target
+build
+
+# temporary directory for junk
+tmp
+
+# generated release data
 /dist/
+
+# conda environments
+envs/
+
+# snakemake logs
+/.snakemake/
+
+# whatever this thing is
+.kakapo_cache/
+
