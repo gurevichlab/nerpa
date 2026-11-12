@@ -25,7 +25,7 @@ from src.hmm.hmm_auxiliary_types import (
 from src.hmm.hmm import HMM, HMM_LPUC
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.alignment_type import AlignmentLight, alignment_to_light_alignment
-from src._not_used.p_values_estimation import PValueEstimator
+# from src._not_used.p_values_estimation import PValueEstimator
 from src.monomer_names_helper import Chirality
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
@@ -51,7 +51,7 @@ class DetailedHMM:
 
     hmm_helper: HMMHelper  # should be class variable but that would break parallelization for some reason
     _hmms: Dict[ScoringScheme, HMM] = None  # cache for HMMs with different emission weights and unk chirality settings
-    _p_value_estimator: Optional[PValueEstimator] = None
+    # _p_value_estimator: Optional[PValueEstimator] = None
     _score_vs_avg_nrp: Optional[LogProb] = None
 
     def score_vs_avg_bgc(self,
