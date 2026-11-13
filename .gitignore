@@ -42,6 +42,3 @@ envs/
 test_data/nerpa_ms
 # whatever this thing is
 .kakapo_cache/
-
-
-/src/rust/target/
