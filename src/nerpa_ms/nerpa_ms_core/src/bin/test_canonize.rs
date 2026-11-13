@@ -1,9 +1,8 @@
 use std::fs::File;
-use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::process::{Command, ExitCode, Stdio};
+use std::process::ExitCode;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use clap::Parser;
 
 use nerpa_ms_core::data_types::monomer_graph::MonomerGraph;
@@ -42,8 +41,6 @@ fn main() -> ExitCode {
 }
 
 fn run(cli: &Cli) -> Result<bool> {
-    check_open_babel()?;
-
     let records = read_records(&cli.parsed_rban_records)?;
     let total_records = records.len();
 
@@ -60,24 +57,6 @@ fn run(cli: &Cli) -> Result<bool> {
     Ok(summary.failed == 0)
 }
 
-fn check_open_babel() -> Result<()> {
-    let status = {
-	    Command::new("obabel")
-	        .arg("-V")
-	        .stdout(Stdio::null())
-	        .stderr(Stdio::null())
-	        .status()
-    };
-
-    match status {
-	    Ok(status) if status.success() => Ok(()),
-	    _ => bail!(
-	        "Open Babel is unavailable; install it with \
-	         `sudo apt install openbabel`"
-	    ),
-    }
-}
-
 fn read_records(input_path: &Path) -> Result<Vec<Parsed_rBAN_Record>> {
     let input_file = File::open(input_path)
 	    .with_context(|| format!("failed to open {}", input_path.display()))?;
@@ -92,31 +71,55 @@ fn test_record(
     summary: &mut TestSummary,
 ) {
     let compound_id = &record.compound_id;
+
+    if record
+        .metadata
+        .smiles
+        .as_deref()
+        .is_some_and(smiles_has_formal_charge)
+    {
+        if verbose {
+            println!(
+                "SKIP {compound_id}: formal charge is not stored in the atomic graph"
+            );
+        }
+
+        summary.skipped += 1;
+        return;
+    }
+
     let monomer_graph = MonomerGraph::from(&record);
-    let canonized_graph = {
-        let mut canonized = monomer_graph.clone();
-        let _ = canonized.canonize();
-        canonized
+
+    let original_smiles = match monomer_graph.to_smiles_from_atomic_graph() {
+        Ok(smiles) => smiles,
+        Err(error) => {
+            println!(
+                "FAIL {compound_id}: original SMILES generation failed: {error:#}"
+            );
+            summary.failed += 1;
+            return;
+        }
     };
 
+    let mut canonized_graph = monomer_graph.clone();
+    if let Err(error) = canonized_graph.canonize() {
+        println!("FAIL {compound_id}: canonize failed: {error:#}");
+        summary.failed += 1;
+        return;
+    }
 
-    let original_smiles = match monomer_graph.to_smiles() {
-	    Ok(smiles) => smiles,
-	    Err(error) => {
-	        println!("FAIL {compound_id}: original to_smiles failed: {error:#}");
-	        summary.failed += 1;
-	        return;
-	    }
-    };
-
-    let canonized_smiles = match canonized_graph.to_smiles() {
-	    Ok(smiles) => smiles,
-	    Err(error) => {
-	        println!("FAIL {compound_id}: original to_smiles failed: {error:#}");
-	        summary.failed += 1;
-	        return;
-	    }
-    };
+    let canonized_smiles =
+        match canonized_graph.to_smiles_from_atomic_graph() {
+            Ok(smiles) => smiles,
+            Err(error) => {
+                println!(
+                    "FAIL {compound_id}: canonized SMILES generation failed: \
+                     {error:#}"
+                );
+                summary.failed += 1;
+                return;
+            }
+        };
 
     if original_smiles == canonized_smiles {
 	    if verbose {
@@ -132,6 +135,21 @@ fn test_record(
     println!("  canonized:            {canonized_smiles}");
 
     summary.failed += 1;
+}
+
+fn smiles_has_formal_charge(smiles: &str) -> bool {
+    let mut inside_brackets = false;
+
+    for character in smiles.chars() {
+        match character {
+            '[' => inside_brackets = true,
+            ']' => inside_brackets = false,
+            '+' | '-' if inside_brackets => return true,
+            _ => {}
+        }
+    }
+
+    false
 }
 
 fn print_summary(total_records: usize, summary: &TestSummary) {

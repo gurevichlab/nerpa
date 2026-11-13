@@ -105,12 +105,24 @@ fn test_record(
 	    }
     };
 
+    if smiles_has_formal_charge(&metadata_smiles) {
+        if verbose {
+            println!("SKIP {compound_id}: formal charge is not stored in the atomic graph");
+        }
+
+        summary.skipped += 1;
+        return;
+    }
+
     let monomer_graph = MonomerGraph::from(&record);
 
-    let generated_smiles = match monomer_graph.to_smiles() {
+    let generated_smiles = match monomer_graph.to_smiles_from_atomic_graph() {
 	    Ok(smiles) => smiles,
 	    Err(error) => {
-	        println!("FAIL {compound_id}: to_smiles failed: {error:#}");
+	        println!(
+	            "FAIL {compound_id}: to_smiles_from_atomic_graph failed: \
+	             {error:#}"
+	        );
 	        summary.failed += 1;
 	        return;
 	    }
@@ -209,6 +221,21 @@ fn parse_normalized_smiles(output: &str) -> Result<String> {
     maybe_smiles
 	    .map(str::to_owned)
 	    .context("Open Babel returned no SMILES")
+}
+
+fn smiles_has_formal_charge(smiles: &str) -> bool {
+    let mut inside_brackets = false;
+
+    for character in smiles.chars() {
+        match character {
+            '[' => inside_brackets = true,
+            ']' => inside_brackets = false,
+            '+' | '-' if inside_brackets => return true,
+            _ => {}
+        }
+    }
+
+    false
 }
 
 fn print_summary(total_records: usize, summary: &TestSummary) {

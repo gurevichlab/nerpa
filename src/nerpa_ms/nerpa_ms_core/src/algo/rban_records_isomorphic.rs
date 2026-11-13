@@ -113,6 +113,7 @@ impl Parsed_rBAN_Record {
 
 	let records_to_smiles_script = nerpa_root
             .join("scripts")
+            .join("for_rust_core")
             .join("rban_records_to_canon_smiles.py");
 
 	// Script interface:

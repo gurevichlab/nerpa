@@ -40,3 +40,4 @@ envs/
 # whatever this thing is
 .kakapo_cache/
 
+/src/nerpa_ms/nerpa_ms_core/test_output/

@@ -5,7 +5,9 @@ use std::process::{Command, Stdio};
 
 use anyhow::{bail, Context, Result};
 
+use crate::algo::rdkit_bridge::canonical_smiles_data;
 use crate::data_types::monomer_graph::{AtomData, AtomicEdgeData, MonomerGraph};
+use crate::data_types::parsed_rban_record::Parsed_rBAN_Record;
 
 impl MonomerGraph {
     /// Regenerate canonical SMILES from the complete atomic graph.
@@ -14,10 +16,19 @@ impl MonomerGraph {
     ///
     /// Stereochemistry and formal charges are currently NOT represented.
     pub fn to_smiles(&self) -> Result<String> {
-	    let cml = self.to_cml()?;
-	    let output = run_open_babel(&cml)?;
+        match &self.metadata.smiles {
+            Some(smiles) => Ok(smiles.clone()),
+            None => self.to_smiles_from_atomic_graph(),
+        }
+    }
 
-	    parse_open_babel_smiles(&output)
+    /// Generate canonical SMILES from the complete atomic graph, ignoring
+    /// `metadata.smiles`.
+    pub fn to_smiles_from_atomic_graph(&self) -> Result<String> {
+        let mut record = Parsed_rBAN_Record::from(self);
+        record.metadata.smiles = None;
+
+        Ok(canonical_smiles_data(&record)?.smiles)
     }
 
     fn to_cml(&self) -> Result<String> {

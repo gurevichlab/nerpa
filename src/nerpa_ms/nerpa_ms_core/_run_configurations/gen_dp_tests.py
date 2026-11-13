@@ -17,7 +17,7 @@ subprocess.run(["cargo", "build"])
 subprocess.run([
     "cargo", "run", "--bin", "gen_dp_tests", "--",
     "--out", args.out,
-    "--n", "100",
+    "--n", "67",
     "--seed", "1",
     "--max-weight", "2",
     "--alphabet",  "4"

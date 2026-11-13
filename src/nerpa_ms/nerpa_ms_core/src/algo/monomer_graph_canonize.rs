@@ -5,8 +5,12 @@ use std::process::{Command, Stdio};
 
 use anyhow::{bail, Context, Result};
 
+use crate::algo::rdkit_bridge::canonical_smiles_data;
 use crate::data_types::monomer_graph::{AtomData, AtomicEdgeData, MonomerGraph};
-use crate::data_types::parsed_rban_record::AtomId;
+use crate::data_types::parsed_rban_record::{
+    AtomId,
+    Parsed_rBAN_Record,
+};
 
 impl MonomerGraph {
     /// Renumber atoms according to their order in Open Babel's canonical
@@ -23,32 +27,16 @@ impl MonomerGraph {
     }
 
     fn canonical_atom_order(&self) -> Result<Vec<AtomId>> {
-	    let atoms = self.sorted_atoms_for_canonization();
+        if self.sorted_atoms_for_canonization().is_empty() {
+            bail!("cannot canonize an empty monomer graph");
+        }
 
-	    if atoms.is_empty() {
-	        bail!("cannot canonize an empty monomer graph");
-	    }
+        let mut record = Parsed_rBAN_Record::from(self);
 
-	    let class_to_atom_id: Vec<AtomId> = {
-	        atoms
-		        .iter()
-		        .map(|atom| atom.id.clone())
-		        .collect()
-	    };
+        // Canonization must reflect the current graph, not cached metadata.
+        record.metadata.smiles = None;
 
-	    let atom_id_to_class = build_atom_class_mapping(&class_to_atom_id)?;
-	    let atomic_edges = self.collect_atomic_edges_for_canonization()?;
-
-	    let cml = build_classified_cml(
-	        &atoms,
-	        &atomic_edges,
-	        &atom_id_to_class,
-	    )?;
-
-	    let canonical_smiles = run_open_babel_for_atom_order(&cml)?;
-	    let atom_classes = parse_atom_classes(&canonical_smiles)?;
-
-	    classes_to_atom_ids(&atom_classes, &class_to_atom_id)
+        Ok(canonical_smiles_data(&record)?.atom_ids_in_smiles_order)
     }
 
     fn sorted_atoms_for_canonization(&self) -> Vec<&AtomData> {

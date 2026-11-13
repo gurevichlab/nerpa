@@ -58,7 +58,9 @@ fn random_logprobs(
     // Random categorical distribution -> ln(prob)
     let min_allowed_prob = min_allowed_logprob.exp();
     let probs = random_balanced_distribution(rng, n, min_allowed_prob);
-    probs.iter().map(|p| (p * 10.0).round() / 10.0).collect()
+    probs.iter()
+	.map(|prob| (prob.ln() * 10.0).round() / 10.0)
+	.collect()
 }
 
 fn random_logodds(

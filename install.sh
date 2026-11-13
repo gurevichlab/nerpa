@@ -19,27 +19,7 @@ if [[ ! -d "$kakapo_repo_dir" ]]; then
     echo "Kakapo repository cloned"
 fi
 
-# ===== 2. Install system dependencies and set up environments
-
-# Candidate canonicalization requires Open Babel's CML input plugin. The
-# current conda-forge Open Babel build lacks it, so use the Ubuntu/Mint build.
-if ! command -v apt-get >/dev/null 2>&1; then
-    echo "Error: automatic Open Babel installation requires apt-get." >&2
-    exit 1
-fi
-
-sudo apt-get update
-sudo apt-get install -y openbabel
-
-if [[ ! -x /usr/bin/obabel ]]; then
-    echo "Error: Open Babel was installed but /usr/bin/obabel is missing." >&2
-    exit 1
-fi
-
-if ! /usr/bin/obabel -L formats | grep '^cml ' >/dev/null; then
-    echo "Error: Open Babel does not provide the required CML input plugin." >&2
-    exit 1
-fi
+# ===== 2. Set up environments
 
 nerpa_env_prefix="$repo_root/envs/nerpa"
 kakapo_env_prefix="$repo_root/envs/kakapo"
@@ -51,8 +31,6 @@ mkdir -p "$bin_dir"
 if [[ ! -d "$nerpa_env_prefix" ]]; then
   conda env create -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
 else
-  # Remove packages deleted from environment.yml, especially Conda's
-  # CML-less Open Babel build, which would shadow /usr/bin/obabel.
   conda env update --prune -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
 fi
 
@@ -63,17 +41,6 @@ fi
 
 "$kakapo_env_prefix/bin/python" -m pip install -U pip
 "$kakapo_env_prefix/bin/python" -m pip install -e "$repo_root/external_tools/kakapo"
-
-# Verify that the executable visible to Nerpa is the CML-capable system build.
-if [[ "$(PATH="$nerpa_env_prefix/bin:$PATH" command -v obabel)" != "/usr/bin/obabel" ]]; then
-    echo "Error: another obabel executable shadows /usr/bin/obabel." >&2
-    exit 1
-fi
-
-if ! PATH="$nerpa_env_prefix/bin:$PATH" obabel -L formats | grep '^cml ' >/dev/null; then
-    echo "Error: the Open Babel visible to Nerpa lacks CML support." >&2
-    exit 1
-fi
 
 
 ## ===== 3. Build C++ code

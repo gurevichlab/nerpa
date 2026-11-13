@@ -70,6 +70,12 @@ pub fn apply_modifications(
     monomers_db: &MonomersDB,
 ) -> Option<AlteredMonomerGraph> {
     let mut new_monomer_graph = (*monomer_graph).clone();
+
+    // Structural modifications invalidate identifiers derived from the
+    // original molecular graph.
+    new_monomer_graph.metadata.smiles = None;
+    new_monomer_graph.metadata.inchikey = None;
+
     let mut old_to_new_mon_map: Vec<(Option<MonomerIdx>, Option<MonomerIdx>)> = Vec::new();
     let mut linearization: Vec<MonomerIdx> = Vec::new();
 
