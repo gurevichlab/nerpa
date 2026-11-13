@@ -19,6 +19,7 @@ data/input/preprocessed/
 
 # tool's output
 *_results
+src/nerpa_ms/nerpa_ms_core/test_output
 
 # compilation targets
 src/rust/target
@@ -37,7 +38,8 @@ envs/
 # snakemake logs
 /.snakemake/
 
+# large test data
+test_data/nerpa_ms
 # whatever this thing is
 .kakapo_cache/
 
-/src/nerpa_ms/nerpa_ms_core/test_output/
