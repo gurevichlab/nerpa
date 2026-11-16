@@ -19,6 +19,7 @@ def run_nerpa_on_pnrpdb2(
         nerpa_dir: Path,
         pnrpdb2_path: Path,
         output_dir: Path,
+        antismash_results: Path,
         deduplicate: bool = True,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -26,13 +27,10 @@ def run_nerpa_on_pnrpdb2(
 
     num_threads = 32 if os.cpu_count() >= 40 else 8  # to work on cluster and locally
 
-    # Any antismash results will do -- they are irrelevant but required by nerpa.py. 
-    antismash_results = nerpa_dir / "test_data" / "antismash"
-
     # Construct the command
     command = [
         "python3", str(nerpa_script),
-        "--antismash", str(nerpa_dir / "test_data" / "antismash"),
+        "--antismash", str(antismash_results),
         "--smiles-tsv", str(pnrpdb2_path),
         "--col-id", "ID",
         "--output-dir", str(output_dir),
@@ -117,6 +115,23 @@ def parse_args(nerpa_dir: Path) -> argparse.Namespace:
         help=f"Path to a TSV file with NRPs to preprocess (if not provided, will use {default_nrp_database})."
     )
 
+    # Any antiSMASH results will do -- they are irrelevant but required by nerpa.py.
+    default_antismash_results: Path = (
+        nerpa_dir
+        / "test_data"
+        / "nerpa"
+        / "antismash"
+    )
+    parser.add_argument(
+        "--antismash-results",
+        type=Path,
+        default=default_antismash_results,
+        help=(
+            "Path to antiSMASH results required by Nerpa "
+            f"(default: {default_antismash_results})."
+        ),
+    )
+
     default_preprocessed_dir = nerpa_dir / 'data' / 'input' / 'preprocessed'
     parser.add_argument(
         "--preprocessed-dir",
@@ -189,6 +204,7 @@ def handle_pnrpdb_expanded(
         table_name_prefix: str,
         nerpa_output_dir: Path,
         nerpa_dir: Path,
+        antismash_results: Path,
 ) -> None:
     pnrpdb2_raw_expanded_df = expand_pnrpdb2_df(pnrpdb2_raw_df)
     pnrpdb2_raw_expanded_path = tables_dir / f'{table_name_prefix}_expanded.tsv'
@@ -215,7 +231,8 @@ def handle_pnrpdb_expanded(
     run_nerpa_on_pnrpdb2(
         nerpa_dir=nerpa_dir,
         pnrpdb2_path=pnrpdb2_raw_expanded_path,
-        output_dir=nerpa_output_dir_expanded
+        output_dir=nerpa_output_dir_expanded,
+        antismash_results=antismash_results,
     )
 
     # copy the parsed_rban_records.yaml from the nerpa output to the preprocessed directory
@@ -253,6 +270,7 @@ def main() -> None:
         table_name_prefix=pnrpdb_pref,
         nerpa_output_dir=args.output_for_nerpa_run,
         nerpa_dir=nerpa_dir,
+        antismash_results=args.antismash_results,
     )
 
     nerpa_results = args.output_for_nerpa_run
@@ -265,6 +283,7 @@ def main() -> None:
         nerpa_dir=nerpa_dir,
         pnrpdb2_path=args.pnrpdb2_raw,
         output_dir=args.output_for_nerpa_run,
+        antismash_results=args.antismash_results,
     )
 
     # pnrpdb2_raw_nrps = set(pnrpdb2_raw_df.get_column("ID").to_list())

@@ -250,26 +250,28 @@ rule nerpa2_on_training_bgs_vs_mibig_norine:
 rule test_nerpa:
     params:
         output_dir=TEST_RESULTS_DIR,
-    input:
-        curated_alignments=CURATED_ALIGNMENTS,
         nerpa_results_individual=NERPA2_RESULTS_ON_TRAINING_BGCs_vs_their_NRPs,
         nerpa_results_combined=NERPA2_RESULTS_ON_TRAINING_BGCs_vs_MIBIG_NORINE,
+    input:
+        curated_alignments=CURATED_ALIGNMENTS,
+        nerpa_results_individual_done=NERPA2_RESULTS_ON_TRAINING_BGCs_vs_their_NRPs / ".done",
+        nerpa_results_combined_report=NERPA2_RESULTS_ON_TRAINING_BGCs_vs_MIBIG_NORINE / "report.tsv",
         pnrpdb_info=PNRPDB2_INFO,
     output:
-        test_nerpa_done=TEST_RESULTS_DIR / '.done',
+        test_nerpa_done=TEST_RESULTS_DIR / ".done",
     log:
-        TEST_RESULTS_DIR / 'test_nerpa.log',
+        TEST_RESULTS_DIR / "test_nerpa.log",
     shell:
         r"""
-        mkdir -p test_results
+        mkdir -p {params.output_dir:q}
         python test_nerpa.py \
-          --curated-alignments {input.curated_alignments} \
-          --nerpa-results-individual {input.nerpa_results_individual} \
-          --nerpa-results-combined {input.nerpa_results_combined} \
-          --pnrpdb-info {input.pnrpdb_info} \
-          --output-dir {params.output_dir} \
-          > {log} 2>&1
-        touch {output.test_nerpa_done}
+          --curated-alignments {input.curated_alignments:q} \
+          --nerpa-results-individual {params.nerpa_results_individual:q} \
+          --nerpa-results-combined {params.nerpa_results_combined:q} \
+          --pnrpdb-info {input.pnrpdb_info:q} \
+          --output-dir {params.output_dir:q} \
+          > {log:q} 2>&1
+        touch {output.test_nerpa_done:q}
         """
 
 # creates several tables by filtering PNRPDB2_RAW,
@@ -285,6 +287,10 @@ rule preprocess_pnrpdb2:
             / 'preprocess_pnrpdb2.py'
         ),
         nerpa_output_dir=NERPA_ROOT / 'nerpa_results' / 'preprocessed_pnrpdb2',
+
+        # some antiSMASH results just to give Nerpa something to work with, so that it can produce preprocessed rBAN records
+        # Any would work
+        antismash_results_example=NERPA_ROOT / 'test_data' / 'nerpa' / 'antismash',
     input:
         pnrpdb2_raw=PNRPDB2_RAW,
     output:
@@ -314,6 +320,7 @@ rule preprocess_pnrpdb2:
         r"""
         PYTHONPATH={NERPA_ROOT} python {params.preprocess_script}  \
           --pnrpdb2-raw {input.pnrpdb2_raw} \
+          --antismash-results {params.antismash_results_example} \
           --filtered-tables-dir {params.tables_dir} \
           --preprocessed-dir {params.preprocessed_dir} \
           --output-for-nerpa-run {params.nerpa_output_dir}
