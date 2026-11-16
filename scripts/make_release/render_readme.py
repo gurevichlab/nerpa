@@ -41,6 +41,10 @@ def parse_args(REPO_ROOT: Path) -> argparse.Namespace:
         default=date.today().isoformat(),
         help="release date in ISO 8601 format (default: today's date)",
     )
+    parser.add_argument(
+        "--release-tag",
+        help="GitHub release tag (default: nerpa-ms-X.Y.Z)",
+    )
     return parser.parse_args()
 
 
@@ -62,12 +66,19 @@ def main() -> None:
             f"Error: invalid ISO 8601 release date: {args.release_date!r}"
         ) from error
 
+    stable_tag = f"nerpa-ms-{version}"
+    release_tag = args.release_tag or stable_tag
+    if release_tag != stable_tag and not release_tag.startswith(f"{stable_tag}-"):
+        raise SystemExit(
+            f"Error: release tag must be {stable_tag!r} or a prerelease of it."
+        )
+
     major, minor, _patch = version.split(".")
     values = {
         "release-series": f"{major}.{minor}",
         "release-version": version,
         "release-date": args.release_date,
-        "release-tag": f"nerpa-ms-{version}",
+        "release-tag": release_tag,
     }
 
     template = args.template.read_text(encoding="utf-8")

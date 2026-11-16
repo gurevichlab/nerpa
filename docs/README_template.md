@@ -103,9 +103,9 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-curl -L -o nerpa-{{ release-version }}.tar.gz https://github.com/gurevichlab/nerpa/releases/download/{{ release-tag }}/nerpa-{{ release-version }}.tar.gz
-tar -xzf nerpa-{{ release-version }}.tar.gz
-cd nerpa-{{ release-version }}
+curl -L -o {{ release-tag }}.tar.gz https://github.com/gurevichlab/nerpa/releases/download/{{ release-tag }}/{{ release-tag }}.tar.gz
+tar -xzf {{ release-tag }}.tar.gz
+cd {{ release-tag }}
 ```
 Run the installer to create or update the Conda environments, install the PARAS model, and compile the C++ code:
 

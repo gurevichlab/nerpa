@@ -109,10 +109,27 @@ rule release:
         generated_readme=NERPA_ROOT / "tmp" / "release" / "README.md",
     shell:
         r"""
+        mapfile -t commit_tags < <(git tag --points-at HEAD)
+        release_tag_args=()
+
+        case "${{#commit_tags[@]}}" in
+          0)
+            ;;
+          1)
+            release_tag_args=(--release-tag "${{commit_tags[0]}}")
+            ;;
+          *)
+            echo "Error: multiple tags are attached to HEAD:" >&2
+            printf '  %s\n' "${{commit_tags[@]}}" >&2
+            exit 1
+            ;;
+        esac
+
         python {input.render_readme_script:q} \
           --template {input.readme_template:q} \
           --version-file {input.version:q} \
-          --output {params.generated_readme:q}
+          --output {params.generated_readme:q} \
+          "${{release_tag_args[@]}}"
 
         bash {input.make_release_script:q} \
           {input.version:q} \
