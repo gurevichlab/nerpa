@@ -29,13 +29,21 @@ if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 release_tag="nerpa-ms-$version"
-tag_commit="$(git rev-parse --verify --quiet "refs/tags/$release_tag^{commit}" || true)"
+mapfile -t commit_tags < <(git tag --points-at "$release_commit")
 
-if [[ "$tag_commit" == "$release_commit" ]]; then
-    release_name="$release_tag"
-else
-    release_name="$release_tag-$short_commit"
-fi
+case "${#commit_tags[@]}" in
+    0)
+        release_name="$release_tag-$short_commit"
+        ;;
+    1)
+        release_name="${commit_tags[0]}"
+        ;;
+    *)
+        echo "Error: multiple tags are attached to HEAD:" >&2
+        printf '  %s\n' "${commit_tags[@]}" >&2
+        exit 1
+        ;;
+esac
 
 output_dir="$repo_root/dist"
 archive_path="$output_dir/$release_name.tar.gz"
@@ -65,10 +73,10 @@ echo "Version: $version"
 echo "Archived commit: $release_commit"
 echo "Injected README: $generated_readme"
 
-if [[ "$release_name" == "$release_tag" ]]; then
-    echo "Release tag: $release_tag"
+if (( ${#commit_tags[@]} == 1 )); then
+    echo "Release tag: ${commit_tags[0]}"
 else
-    echo "Release tag '$release_tag' is not attached to HEAD; created a development archive."
+    echo "No tag is attached to HEAD; created a development archive."
 fi
 
 echo "Created:"
