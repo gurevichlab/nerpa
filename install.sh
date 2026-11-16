@@ -12,11 +12,12 @@ set -euo pipefail
 
 # ===== 1. Clone kakapo repository if it doesn't exist
 kakapo_repo_dir="$repo_root/external_tools/kakapo"
+kakapo_tag="v0.1.0b1"
 
 if [[ ! -d "$kakapo_repo_dir" ]]; then
-    echo "Cloning kakapo release 0.1.0b1 to $kakapo_repo_dir..."
-    git clone --branch 0.1.0b1 https://github.com/gurevichlab/kakapo.git "$kakapo_repo_dir"
-    echo "Kakapo release 0.1.0b1 cloned"
+    echo "Cloning kakapo release $kakapo_tag to $kakapo_repo_dir..."
+    git clone --branch "$kakapo_tag" https://github.com/gurevichlab/kakapo.git "$kakapo_repo_dir"
+    echo "Kakapo release $kakapo_tag cloned"
 fi
 
 # ===== 2. Set up environments
