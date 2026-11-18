@@ -5,7 +5,7 @@ This directory contains a Snakemake workflow for **training**, **testing**, and 
 ## Requirements
 
 - **Nerpa 2.1** installed (the main Nerpa repository)
-- **Conda environment for Nerpa** created and activated (e.g., `nerpa-env`)
+- **Conda environment for Nerpa** created and activated (e.g., `conda activate envs/nerpa`), with all dependencies installed
 - **Snakemake** available in the active environment (or otherwise installed and runnable as `snakemake`)
 - Linux recommended (tested on typical Linux setups)
 

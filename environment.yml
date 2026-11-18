@@ -1,12 +1,9 @@
-name: nerpa-env
 channels:
     - conda-forge
     - bioconda
     - rdkit
     - defaults
 dependencies:
-    # Installed by install.sh from the system package because Nerpa-MS needs
-    # the CML plugin, which is absent from the current conda-forge build.
     - cairosvg
     - python>=3.11
     - biopython

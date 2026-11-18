@@ -257,8 +257,8 @@ function drawModule(gid, mid, nid, x, y, length, domains, residue, displayed, sk
                 domainName = 'E';
                 break;
             case 'PKS':
-                circle.setAttribute('fill', `rgb(${110}, ${248}, ${126})`); 
-                domainName = 'KS';
+                circle.setAttribute('fill', `rgb(${242}, ${201}, ${76})`);
+                domainName = 'PKS';
                 break;
             // C domain
             case 'C_STARTER':

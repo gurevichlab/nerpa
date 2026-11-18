@@ -10,41 +10,30 @@ cd "$repo_root"
 # Exit immediately if a command fails
 set -euo pipefail
 
-# ===== 1. Clone kakapo repository if it doesn't exist
-kakapo_repo_dir="$repo_root/external_tools/kakapo"
-kakapo_tag="v0.1.0b1"
-
-if [[ ! -d "$kakapo_repo_dir" ]]; then
-    echo "Cloning kakapo release $kakapo_tag to $kakapo_repo_dir..."
-    git clone --branch "$kakapo_tag" https://github.com/gurevichlab/kakapo.git "$kakapo_repo_dir"
-    echo "Kakapo release $kakapo_tag cloned"
-fi
-
-# ===== 2. Set up environments
+# ===== 1. Set up the Nerpa environment
 
 nerpa_env_prefix="$repo_root/envs/nerpa"
-kakapo_env_prefix="$repo_root/envs/kakapo"
-bin_dir="$repo_root/bin"
 
-mkdir -p "$bin_dir"
-
-# 2.1 Install the pinned runtime, including when upgrading an existing checkout.
-if [[ ! -d "$nerpa_env_prefix" ]]; then
-  conda env create -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
+if command -v mamba >/dev/null 2>&1; then
+  environment_manager="mamba"
+elif command -v conda >/dev/null 2>&1; then
+  environment_manager="conda"
 else
-  conda env update --prune -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
+  echo "Error: neither mamba nor conda is available." >&2
+  exit 1
 fi
 
-# 2.2 Create the Kakapo environment if it doesn't exist
-if [[ ! -d "$kakapo_env_prefix" ]]; then
-  conda create -y -p "$kakapo_env_prefix" python=3.12 pip
+echo "Using $environment_manager to set up the Nerpa environment."
+
+# Install the pinned runtime, including when upgrading an existing checkout.
+if [[ ! -d "$nerpa_env_prefix" ]]; then
+  "$environment_manager" env create -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
+else
+  "$environment_manager" env update --prune -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
 fi
 
-"$kakapo_env_prefix/bin/python" -m pip install -U pip
-"$kakapo_env_prefix/bin/python" -m pip install -e "$repo_root/external_tools/kakapo"
 
-
-## ===== 3. Build C++ code
+# ===== 2. Build C++ code
 
 # Remove the build directory if it exists
 build_dir="$repo_root/build"
@@ -67,7 +56,7 @@ cmake --build "$build_dir"
 echo "Build completed successfully!"
 
 
-# ===== 4. Install and validate the PARAS model paired with this runtime.
+# ===== 3. Install and validate the PARAS model paired with this runtime.
 bash "$repo_root/scripts/installation/install_paras.sh"
 PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" "$nerpa_env_prefix/bin/python" - <<'PY'
 from src.config import load_config

@@ -327,8 +327,13 @@ rule preprocess_pnrpdb2:
         NRP_PREPROCESSED_DIR / 'pnrpdb2_deduplicated_parsed_rban_records.yaml',
 
         # only compounds that are present in MIBiG and/or Norine (confirmed NRPs)
-        SMILES_DIR / 'pnrpdb2_mibig_norine.tsv',
+        mibig_norine=SMILES_DIR / 'pnrpdb2_mibig_norine.tsv',
+        mibig_norine_readme=SMILES_DIR / "pnrpdb2_mibig_norine.tsv.readme",
         MIBIG_NORINE_PREPROCESSED_NO_DEDUP,
+
+        # copies of non-deduplicated MIBiG+Norine table and its README with user-friendly names, for convenience
+        friendly_mibig_norine=SMILES_DIR / "mibig_norine.tsv",
+        friendly_mibig_norine_readme=SMILES_DIR / "mibig_norine.tsv.readme",
 
         # only one compound per isomorphic NRP_Variant group (deduplicated) among the confirmed NRPs
         PNRPDB2_MIBIG_NORINE,
@@ -341,6 +346,9 @@ rule preprocess_pnrpdb2:
           --filtered-tables-dir {params.tables_dir} \
           --preprocessed-dir {params.preprocessed_dir} \
           --output-for-nerpa-run {params.nerpa_output_dir}
+
+       cp {output.mibig_norine:q} {output.friendly_mibig_norine:q}
+       cp {output.mibig_norine_readme:q} {output.friendly_mibig_norine_readme:q}
         """
 
 rule compute_pnrpdb2_info:

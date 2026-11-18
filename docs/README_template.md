@@ -88,7 +88,7 @@ e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). A
 ## Prerequisites
 
 * **(Required)** Nerpa relies on **Java** (to run the embedded rBAN), **Python v3.11 or higher**, and a number of **Python dependencies specified in the [environment.yml](environment.yml)** file.
-  We highly recommend installing [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to easily set up all dependencies, as demonstrated below.
+  Install [Mamba](https://mamba.readthedocs.io/) (recommended) or [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to set up these dependencies.
 
 * **(Required)** Nerpa's core scoring algorithm is implemented in C++ implementation. 
 Please install a **[C++20 compiler](https://isocpp.org/get-started)** and **[CMake v3.10](https://cmake.org/)** or higher.  
@@ -107,22 +107,11 @@ curl -L -o {{ release-tag }}.tar.gz https://github.com/gurevichlab/nerpa/release
 tar -xzf {{ release-tag }}.tar.gz
 cd {{ release-tag }}
 ```
-Run the installer to create or update the Conda environments, install the PARAS model, and compile the C++ code:
+Run the installer to create or update the Nerpa environment, install the PARAS model, and compile the C++ code:
 
 ```commandline
 bash install.sh
 conda activate ./envs/nerpa
-```
-
-PARAS requires scikit-learn **1.8.0** and Python **3.11 or newer**. The tested numerical dependencies are pinned in `environment.yml`; update the environment together with the model. Rerunning `install.sh` updates an existing environment.
-
-The model installer verifies SHA-256, reuses a matching `external_tools/paras/model.paras` or `model.paras.gz`, and backs up an older model before replacing it. For a fresh download, set `PARAS_MODEL_URL` to the matching `model.paras.gz` URL when running `install.sh`. A download with a different checksum is rejected without replacing the existing model.
-
-To check the PARAS installation independently:
-
-```commandline
-bash scripts/install_paras.sh
-envs/nerpa/bin/python -m unittest discover -s tests -v
 ```
 
 <a name="sec_install_verify"></a>
