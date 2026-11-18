@@ -1,8 +1,7 @@
 channels:
     - conda-forge
     - bioconda
-    - rdkit
-    - defaults
+    - nodefaults
 dependencies:
     - cairosvg
     - python>=3.11
