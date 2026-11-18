@@ -7,9 +7,6 @@ set -euo pipefail
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$repo_root"
 
-# Exit immediately if a command fails
-set -euo pipefail
-
 # ===== 1. Set up the Nerpa environment
 
 nerpa_env_prefix="$repo_root/envs/nerpa"
@@ -29,7 +26,12 @@ echo "Using $environment_manager to set up the Nerpa environment."
 if [[ ! -d "$nerpa_env_prefix" ]]; then
   "$environment_manager" env create -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
 else
-  "$environment_manager" env update --prune -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
+  # Do not use --prune here: in mamba 1.x (observed with 1.5.3), 'env update --prune'
+  # removes nearly the whole environment, including Python itself.
+  # Plain conda and mamba 2.x handle --prune correctly, but mamba 1.x is still widespread.
+  # Without --prune, packages dropped from environment.yml stay installed, which is
+  # harmless; to get a clean environment, delete envs/nerpa and rerun this script.
+  "$environment_manager" env update -p "$nerpa_env_prefix" -f "$repo_root/environment.yml"
 fi
 
 
@@ -39,9 +41,9 @@ fi
 build_dir="$repo_root/build"
 
 if [[ -d "$build_dir" ]]; then
-    echo "Removing existing build directory..."
-    rm -rf "$build_dir"
- fi
+  echo "Removing existing build directory..."
+  rm -rf "$build_dir"
+fi
 
 # Create and enter the build directory
 mkdir build && cd build
