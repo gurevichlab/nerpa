@@ -172,14 +172,14 @@ def write_nrp_variants(
     ],
         output_cfg.nrp_representatives)
 
+    monomer_graph_data: List[Tuple[str, graphviz.Digraph]] = []
+    molecule_data: List[Tuple[str, dict]] = []
     if rban_records:
         write_yaml([rban_record.to_dict(monomer_names_helper=monomer_names_helper)
                     for rban_record in rban_records
                     if rban_record.compound_id in compound_ids_to_write],
                    output_cfg.parsed_rban_records)
         if output_cfg.draw_molecules:
-            monomer_graph_data: List[Tuple[str, graphviz.Digraph]] = []
-            molecule_data: List[Tuple[str, dict]] = []
             for rban_record in filter(lambda r: r.compound_id in compound_ids_to_write,
                                       rban_records):
                 try:
