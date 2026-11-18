@@ -68,10 +68,6 @@ def main() -> None:
 
     stable_tag = f"nerpa-ms-{version}"
     release_tag = args.release_tag or stable_tag
-    if release_tag != stable_tag and not release_tag.startswith(f"{stable_tag}-"):
-        raise SystemExit(
-            f"Error: release tag must be {stable_tag!r} or a prerelease of it."
-        )
 
     major, minor, _patch = version.split(".")
     values = {
