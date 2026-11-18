@@ -329,15 +329,15 @@ rule preprocess_pnrpdb2:
         # only compounds that are present in MIBiG and/or Norine (confirmed NRPs)
         mibig_norine=SMILES_DIR / 'pnrpdb2_mibig_norine.tsv',
         mibig_norine_readme=SMILES_DIR / "pnrpdb2_mibig_norine.tsv.readme",
-        MIBIG_NORINE_PREPROCESSED_NO_DEDUP,
+        mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED_NO_DEDUP,
 
         # copies of non-deduplicated MIBiG+Norine table and its README with user-friendly names, for convenience
         friendly_mibig_norine=SMILES_DIR / "mibig_norine.tsv",
         friendly_mibig_norine_readme=SMILES_DIR / "mibig_norine.tsv.readme",
 
         # only one compound per isomorphic NRP_Variant group (deduplicated) among the confirmed NRPs
-        PNRPDB2_MIBIG_NORINE,
-        MIBIG_NORINE_PREPROCESSED,
+        dedup_mibig_norine=PNRPDB2_MIBIG_NORINE,
+        dedup_mibig_norine_preprocessed=MIBIG_NORINE_PREPROCESSED,
     shell:
         r"""
         PYTHONPATH={NERPA_ROOT} python {params.preprocess_script}  \

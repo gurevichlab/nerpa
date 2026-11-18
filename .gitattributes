@@ -18,5 +18,5 @@ README.md export-ignore
 # We're not ready to release Nerpa-MS yet, so remove it
 # uncomment when Nerpa-MS should be included
 src/nerpa_ms export-ignore
-nerpa_ms.py
-install_nerpa_ms.sh
+nerpa_ms.py export-ignore
+install_nerpa_ms.sh export-ignore
