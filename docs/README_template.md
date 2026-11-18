@@ -5,7 +5,8 @@ braces. The supported placeholder names are:
   release-series              Short release series, e.g. 2.1
   release-version             Full version, e.g. 2.1.0
   release-date                Release date, preferably ISO 8601, e.g. 2026-03-25
-  release-tag                 GitHub release tag, e.g. nerpa_2.1.0
+  release-tag                 GitHub release tag, e.g. v2.1.0
+  release-archive             Archive basename, e.g. nerpa-v2.1.0
 -->
 
 # Nerpa {{ release-series }} Manual
@@ -103,9 +104,9 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-curl -L -o {{ release-tag }}.tar.gz https://github.com/gurevichlab/nerpa/releases/download/{{ release-tag }}/{{ release-tag }}.tar.gz
-tar -xzf {{ release-tag }}.tar.gz
-cd {{ release-tag }}
+curl -L -o {{ release-archive }}.tar.gz https://github.com/gurevichlab/nerpa/releases/download/{{ release-tag }}/{{ release-archive }}.tar.gz
+tar -xzf {{ release-archive }}.tar.gz
+cd {{ release-archive }}
 ```
 Run the installer to create or update the Nerpa environment, install the PARAS model, and compile the C++ code:
 

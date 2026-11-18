@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 from datetime import date
 from pathlib import Path
 
@@ -43,7 +44,7 @@ def parse_args(REPO_ROOT: Path) -> argparse.Namespace:
     )
     parser.add_argument(
         "--release-tag",
-        help="GitHub release tag (default: nerpa-ms-X.Y.Z)",
+        help="GitHub release tag (default: current commit hash)",
     )
     return parser.parse_args()
 
@@ -66,8 +67,12 @@ def main() -> None:
             f"Error: invalid ISO 8601 release date: {args.release_date!r}"
         ) from error
 
-    stable_tag = f"nerpa-ms-{version}"
-    release_tag = args.release_tag or stable_tag
+    release_tag = args.release_tag or subprocess.check_output(
+        ["git", "rev-parse", "--short=12", "HEAD"],
+        cwd=REPO_ROOT,
+        text=True,
+    ).strip()
+    release_archive = f"nerpa-{release_tag}"
 
     major, minor, _patch = version.split(".")
     values = {
@@ -75,6 +80,7 @@ def main() -> None:
         "release-version": version,
         "release-date": args.release_date,
         "release-tag": release_tag,
+        "release-archive": release_archive,
     }
 
     template = args.template.read_text(encoding="utf-8")

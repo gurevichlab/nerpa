@@ -28,15 +28,14 @@ if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     exit 1
 fi
 
-release_tag="nerpa-ms-$version"
 mapfile -t commit_tags < <(git tag --points-at "$release_commit")
 
 case "${#commit_tags[@]}" in
     0)
-        release_name="$release_tag-$short_commit"
+        release_name="nerpa-$short_commit"
         ;;
     1)
-        release_name="${commit_tags[0]}"
+        release_name="nerpa-${commit_tags[0]}"
         ;;
     *)
         echo "Error: multiple tags are attached to HEAD:" >&2
