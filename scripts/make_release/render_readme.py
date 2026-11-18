@@ -72,7 +72,12 @@ def main() -> None:
         cwd=REPO_ROOT,
         text=True,
     ).strip()
-    release_archive = f"nerpa-{release_tag}"
+    archive_tag = (
+        release_tag[1:]
+        if re.match(r"^v[0-9]+\.[0-9]+\.[0-9]+", release_tag)
+        else release_tag
+    )
+    release_archive = f"nerpa-{archive_tag}"
 
     major, minor, _patch = version.split(".")
     values = {
@@ -95,6 +100,9 @@ def main() -> None:
             ) from None
 
     rendered = PLACEHOLDER_RE.sub(replace_placeholder, template)
+
+    # Keep placeholder documentation in the template, but omit it from releases.
+    rendered = re.sub(r"\A<!--.*?-->\s*", "", rendered, count=1, flags=re.DOTALL)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary_output = args.output.with_name(f".{args.output.name}.tmp")

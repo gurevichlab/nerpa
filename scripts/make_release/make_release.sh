@@ -35,7 +35,11 @@ case "${#commit_tags[@]}" in
         release_name="nerpa-$short_commit"
         ;;
     1)
-        release_name="nerpa-${commit_tags[0]}"
+        release_tag="${commit_tags[0]}"
+        if [[ "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            release_tag="${release_tag#v}"
+        fi
+        release_name="nerpa-$release_tag"
         ;;
     *)
         echo "Error: multiple tags are attached to HEAD:" >&2

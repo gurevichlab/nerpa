@@ -271,7 +271,8 @@ class HTMLReportConfig:
             / 'static'
             / 'chemdoodle'
         )
-        self.nerpa_logo_path = nerpa_root / 'docs' / 'img' / 'logo.png'
+        logo_filename = 'nerpa-logo.png' if mode == 'nerpa' else 'nerpa-ms-logo.png'
+        self.nerpa_logo_path = nerpa_root / 'docs' / 'img' / logo_filename
 
         self.monomer_graph_data_path = main_out_dir / 'intermediate_files/graph.json'
         self.molecule_data_path = main_out_dir / 'intermediate_files/molecule.json'

@@ -11,7 +11,7 @@ parsed_rban_records: preprocessed_input/parsed_rban_records.yaml
 matches_details: matches_details
 report: report.tsv
 html_report: report.html
-logo: docs/img/logo.png
+logo: docs/img/nerpa-logo.png
 draw_molecules: true
 
 rban_output_config:
