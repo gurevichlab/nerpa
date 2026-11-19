@@ -46,6 +46,57 @@ def write_yaml(data, out_file: Path):
         yaml.dump(data, out,
                   default_flow_style=None, sort_keys=False)
 
+
+def verify_interaction_data(graph_dict, mol_dict):
+    """Verify graph-to-molecule links used by interaction.js."""
+    graph_ids = set(graph_dict)
+    molecule_ids = set(mol_dict)
+    if graph_ids != molecule_ids:
+        raise ValueError(
+            "Graph/molecule compound ID mismatch: "
+            f"missing molecule data={sorted(graph_ids - molecule_ids)}, "
+            f"missing graph data={sorted(molecule_ids - graph_ids)}"
+        )
+
+    for compID in graph_ids:
+        graph_labels = [
+            node["label"]
+            for node in graph_dict[compID]["nodes"]
+        ]
+
+        seen_labels = set()
+        duplicate_labels = set()
+        for label in graph_labels:
+            if label in seen_labels:
+                duplicate_labels.add(label)
+            seen_labels.add(label)
+
+        if duplicate_labels:
+            raise ValueError(
+                f"Duplicate graph monomer labels for {compID}: "
+                f"{sorted(duplicate_labels)}"
+            )
+
+        molecule_labels = list(mol_dict[compID]["monomers"])
+        if len(molecule_labels) != len(graph_labels):
+            raise ValueError(
+                f"Graph/molecule monomer count mismatch for {compID}: "
+                f"{len(graph_labels)} graph nodes, "
+                f"{len(molecule_labels)} molecule mappings"
+            )
+
+        graph_label_set = set(graph_labels)
+        molecule_label_set = set(molecule_labels)
+        if graph_label_set != molecule_label_set:
+            raise ValueError(
+                f"Graph/molecule monomer label mismatch for {compID}: "
+                f"missing from molecule="
+                f"{sorted(graph_label_set - molecule_label_set)}, "
+                f"missing from graph="
+                f"{sorted(molecule_label_set - graph_label_set)}"
+            )
+
+
 def create_interaction_json(monomer_graph_data, molecule_data, output_cfg):
 
     graph_dict = {}
@@ -82,6 +133,8 @@ def create_interaction_json(monomer_graph_data, molecule_data, output_cfg):
     mol_dict = {}
     for compID, mol in molecule_data:
         mol_dict[compID] = mol
+
+    verify_interaction_data(graph_dict, mol_dict)
     
     with open(output_cfg.main_out_dir / 'intermediate_files/graph.json', "w", encoding="utf-8") as f:
             json.dump(graph_dict, f, indent=4)
@@ -206,8 +259,10 @@ def write_nrp_variants(
                     drawing_helper = MoleculeDrawingHelper(
                         rban_record,
                         monomer_names_helper=monomer_names_helper,
-                        with_rban_indexes=False,
-                        with_monomer_labels=False,
+                        # Required for linking graph nodes to molecule monomers.
+                        # Names alone are not unique when a residue is repeated.
+                        with_rban_indexes=True,
+                        with_monomer_labels=True,
                         with_colors=True
                     ) 
                     drawing_helper.render(

@@ -563,8 +563,10 @@ function buildVisGraph(nodes_set, edges_set, graph_div_id, nrpID){
             arrowStrikethrough: false,
         },
         interaction:{
-            zoomView:true,
+            zoomView: true,
             multiselect: true,
+            dragNodes: true,
+            dragView: true,
         },
         nodes:{
             font: {
