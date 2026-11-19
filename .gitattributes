@@ -9,12 +9,6 @@ src/nerpa_ms/nerpa_ms_core/project-overview.md export-ignore
 src/nerpa_ms/nerpa_ms_core/_run_configurations export-ignore
 src/nerpa_ms/nerpa_ms_core/fixtures export-ignore
 
-
-# README is generated from README_template
-# the version and release date are filled in automatically when making a release
-README.md export-ignore
-
-
 # We're not ready to release Nerpa-MS yet, so remove it
 # uncomment when Nerpa-MS should be included
 src/nerpa_ms export-ignore

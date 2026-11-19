@@ -195,7 +195,6 @@ rule release:
                 "bash",
                 str(input.make_release_script),
                 str(input.version),
-                str(generated_readme),
             ],
             cwd=NERPA_ROOT,
             check=True,
