@@ -134,6 +134,10 @@ rule release:
         bash {input.make_release_script:q} \
           {input.version:q} \
           {params.generated_readme:q}
+
+        cp -- {params.generated_readme:q} {NERPA_ROOT / "README.md":q}
+        git add -- README.md
+        git commit -m "Update README for release"
         """
 
 rule create_training_bgcs_nrps:
