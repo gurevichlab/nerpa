@@ -107,6 +107,7 @@ rule release:
         ),
     params:
         generated_readme=NERPA_ROOT / "tmp" / "release" / "README.md",
+        readme=NERPA_ROOT / "README.md",
     shell:
         r"""
         mapfile -t commit_tags < <(git tag --points-at HEAD)
