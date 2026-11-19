@@ -1,4 +1,4 @@
-# Nerpa 2.1 Manual
+# Nerpa 2.2 Manual
 
 <img src="docs/img/nerpa-logo.png" align="right" width="400" />
 
@@ -26,7 +26,7 @@ Nerpa is currently developed and maintained by [Gurevich Lab](https://helmholtz-
 at the [Helmholtz Institute for Pharmaceutical Research Saarland (HIPS)](https://helmholtz-hips.de/en/) 
 and the [Center for Bioinformatics Saar (CBI)](https://zbi-www.bioinf.uni-sb.de/en/).
 
-This manual will help you to install and run the tool. Nerpa version 2.1.0 was released on 25.03.2026. 
+This manual will help you to install and run the tool. Nerpa version 2.2.2 was released on 2026-11-19.
 The tool is dual-licensed and is available under GPLv3 or Creative Commons BY-NC-SA 4.0, see [LICENSE.txt](LICENSE.txt).
 
 <a name="sec_about_pipeline"></a>
@@ -69,7 +69,7 @@ Nerpa distinguishes between L- and D-configurations of amino acids, so the use o
 i.e., without stereochemistry information.
 
 *Note:* you can use free online converters to get (isomeric) SMILES from other popular chemical formats such as MDL MOL or InChI,
-e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). Alternatively, there are many command-line convertors, e.g. [molconvert](https://docs.chemaxon.com/display/docs/molconvert.md), or programming libraries, e.g. [RDKit](https://www.rdkit.org/).
+e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). Alternatively, there are many command-line converters, e.g. [molconvert](https://docs.chemaxon.com/display/docs/molconvert.md), or programming libraries, e.g. [RDKit](https://www.rdkit.org/).
 
 
 <a name="sec_install"></a>
@@ -78,10 +78,11 @@ e.g., [this one from UNM](https://datascience.unm.edu/tomcat/biocomp/convert). A
 ## Prerequisites
 
 * **(Required)** Nerpa relies on **Java** (to run the embedded rBAN), **Python v3.11 or higher**, and a number of **Python dependencies specified in the [environment.yml](environment.yml)** file.
-  We highly recommend installing [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to easily set up all dependencies, as demonstrated below.
+  Install [Mamba](https://mamba.readthedocs.io/) (recommended) or [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to set up these dependencies.
 
-* **(Required)** Nerpa's core scoring algorithm is implemented in C++ implementation. 
-Please install a **[C++20 compiler](https://isocpp.org/get-started)** and **[CMake v3.10](https://cmake.org/)** or higher.  
+* **(Required)** Nerpa's core scoring algorithm is implemented in C++. 
+Please install a **[C++17 compiler](https://isocpp.org/get-started)** and **[CMake v3.10](https://cmake.org/)** or higher.  
+*Note for macOS users:* Apple's default compiler (clang) does not support OpenMP, so on macOS Nerpa is currently built in single-threaded mode and the `--threads` option has no effect on the HMM matching step.
 
 * **(Optional)** If you plan to use Nerpa with raw genome sequences (FASTA or GenBank) rather than antiSMASH-processed files, 
 you will also need to [install antiSMASH locally](https://docs.antismash.secondarymetabolites.org/install/).  
@@ -93,26 +94,17 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-curl -L -o nerpa-2.1.0.tar.gz https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.1.0/nerpa-2.1.0.tar.gz
-tar -xzf nerpa-2.1.0.tar.gz
-cd nerpa-2.1.0
+curl -L -o nerpa-bb4a964b46f0.tar.gz https://github.com/gurevichlab/nerpa/releases/download/bb4a964b46f0/nerpa-bb4a964b46f0.tar.gz
+tar -xzf nerpa-bb4a964b46f0.tar.gz
+cd nerpa-bb4a964b46f0
 ```
-Run the installer to create or update the Conda environments, install the PARAS model, and compile the C++ code:
+Run the installer to create or update the Nerpa environment, install the PARAS model, and compile the C++ code.
+The installer needs Internet access: it downloads packages from the conda-forge and bioconda channels and the PARAS model (~40 MB) from [Zenodo](https://zenodo.org/).
+After it finishes, activate the environment (this is required every time before running Nerpa):
 
 ```commandline
 bash install.sh
 conda activate ./envs/nerpa
-```
-
-PARAS requires scikit-learn **1.8.0** and Python **3.11 or newer**. The tested numerical dependencies are pinned in `environment.yml`; update the environment together with the model. Rerunning `install.sh` updates an existing environment.
-
-The model installer verifies SHA-256, reuses a matching `external_tools/paras/model.paras` or `model.paras.gz`, and backs up an older model before replacing it. For a fresh download, set `PARAS_MODEL_URL` to the matching `model.paras.gz` URL when running `install.sh`. A download with a different checksum is rejected without replacing the existing model.
-
-To check the PARAS installation independently:
-
-```commandline
-bash scripts/install_paras.sh
-envs/nerpa/bin/python -m unittest discover -s tests -v
 ```
 
 <a name="sec_install_verify"></a>
@@ -129,6 +121,9 @@ nerpa.py -h
 
 Then, try any example from the [Quick start](#sec_run_quick) section and ensure the log contains no error messages.
 
+If the installation fails, fix the reported problem and run `bash install.sh` again; it will update the existing environment.
+If problems persist, delete the `envs/nerpa` directory and rerun the installer to create a clean environment.
+
 If you have any problems, please do not hesitate to [contact us](#sec_feedback).
 
 <a name="sec_run"></a>
@@ -138,7 +133,6 @@ If you have any problems, please do not hesitate to [contact us](#sec_feedback).
 ## Quick start
 
 Sample test data with three antiSMASH-processed BGCs and three NRP structures in the SMILES format is included in the release tarball.  
-Alternatively, you can download it from [here](https://github.com/gurevichlab/nerpa/releases/download/nerpa_2.0.0/test_data.tar.gz) and unpack it in your current working directory.
 
 To run Nerpa on the test data, execute:
 
@@ -174,7 +168,7 @@ You can also use the [command-line version of antiSMASH](https://docs.antismash.
 Nerpa has been tested with outputs from antiSMASH version 7 (7.0.0 and 7.1.0).  
 If antiSMASH is installed on your system, you can provide raw genome sequences in FASTA or GenBank format via the `--genome` option,  
 and Nerpa will run antiSMASH automatically.  
-To enable this, antiSMASH should be available in your system’s `PATH` variable, or the path to its installation directory should be specified via the `--antismash-installation-path` option.
+To enable this, antiSMASH should be available in your system’s `PATH` variable, or the path to its installation directory should be specified via the `--antismash-installation-dir` option.
 
 Note that you can specify an unlimited number of antiSMASH output files by either:  
 
@@ -240,7 +234,7 @@ The key files and directories inside the Nerpa output directory (`--output-dir`)
 
 - `preprocessed_input/`  
   Directory containing preprocessed data. `BGC_variants.yaml` and `parsed_rban_records.yaml` 
-- can be reused for another run via the `--bgc-variants` and `--parsed-rban-records` options.
+  can be reused for another run via the `--bgc-variants` and `--parsed-rban-records` options.
 
 <a name="sec_cite"></a>
 ## Citation
@@ -252,11 +246,11 @@ Nerpa v.1 is published in [Kunyavskaya, Tagirdzhanov et al., Metabolites 2021](h
 <a name="sec_feedback"></a>
 ## Feedback and bug reports
 You can leave your comments and bug reports at [https://github.com/gurevichlab/nerpa/issues](https://github.com/gurevichlab/nerpa/issues) (*recommended way*) 
-or sent it via e-mail to [alexey.gurevich@helmholtz-hips.de](alexey.gurevich@helmholtz-hips.de).
+or send it via e-mail to [alexey.gurevich@helmholtz-hips.de](mailto:alexey.gurevich@helmholtz-hips.de).
 
-Your comments, bug reports, and suggestions are **very welcomed**.
+Your comments, bug reports, and suggestions are **very welcome**.
 They will help us to improve Nerpa further.
-In particular, we would love to hear your thought on desired features of the future Nerpa web service.
+In particular, we would love to hear your thoughts on desired features of the future Nerpa web service.
 
 If you have any troubles running Nerpa, please attach `nerpa.log` and `warnings.log` from the output directory.
 
