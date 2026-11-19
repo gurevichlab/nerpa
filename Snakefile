@@ -136,7 +136,7 @@ rule release:
           {input.version:q} \
           {params.generated_readme:q}
 
-        cp -- {params.generated_readme:q} {NERPA_ROOT / "README.md":q}
+        cp -- {params.generated_readme:q} {params.readme:q}
         git add -- README.md
         git commit -m "Update README for release"
         """
