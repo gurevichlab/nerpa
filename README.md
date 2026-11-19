@@ -94,9 +94,9 @@ Alternatively, you can use the [antiSMASH web server](https://antismash.secondar
 First, download and unpack the release tarball:
 
 ```commandline
-curl -L -o nerpa-bb4a964b46f0.tar.gz https://github.com/gurevichlab/nerpa/releases/download/bb4a964b46f0/nerpa-bb4a964b46f0.tar.gz
-tar -xzf nerpa-bb4a964b46f0.tar.gz
-cd nerpa-bb4a964b46f0
+curl -L -o nerpa-2.2.2.tar.gz https://github.com/gurevichlab/nerpa/releases/download/v2.2.2/nerpa-2.2.2.tar.gz
+tar -xzf nerpa-2.2.2.tar.gz
+cd nerpa-2.2.2
 ```
 Run the installer to create or update the Nerpa environment, install the PARAS model, and compile the C++ code.
 The installer needs Internet access: it downloads packages from the conda-forge and bioconda channels and the PARAS model (~40 MB) from [Zenodo](https://zenodo.org/).
