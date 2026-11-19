@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 from typing import Any
 import yaml
 
@@ -80,6 +81,41 @@ BENCHMARKING_PLOTS_DIR = NERPA_ROOT / 'benchmarking_results'
 SMILES_DIR = NERPA_ROOT / 'data' / 'input'
 NRP_PREPROCESSED_DIR = NERPA_ROOT / 'data' / 'input' / 'preprocessed'
 
+
+def render_release_readme(
+    version_file: Path,
+    template: Path,
+    render_script: Path,
+    output: Path,
+) -> None:
+    commit_tags = subprocess.run(
+        ["git", "tag", "--points-at", "HEAD"],
+        cwd=NERPA_ROOT,
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.splitlines()
+
+    if len(commit_tags) > 1:
+        tags = "\n".join(f"  {tag}" for tag in commit_tags)
+        raise WorkflowError(f"Multiple tags are attached to HEAD:\n{tags}")
+
+    command = [
+        "python",
+        str(render_script),
+        "--template",
+        str(template),
+        "--version-file",
+        str(version_file),
+        "--output",
+        str(output),
+    ]
+    if commit_tags:
+        command.extend(["--release-tag", commit_tags[0]])
+
+    subprocess.run(command, cwd=NERPA_ROOT, check=True)
+
+
 rule all:
     input:
         TEST_RESULTS_DIR / '.done',
@@ -88,6 +124,31 @@ rule all:
         BENCHMARKING_PLOTS_DIR / 'training_bgcs' / '.done',
         PNRPDB2_COMPOUND_SIMILARITY,
         NERPA2_RESULTS_ON_TRAINING_BGCs_vs_their_NRPs / '.done',
+
+rule update_readme:
+    input:
+        version=NERPA_ROOT / "VERSION.txt",
+        readme_template=NERPA_ROOT / "docs" / "README_template.md",
+        render_readme_script=(
+            NERPA_ROOT
+            / "scripts"
+            / "make_release"
+            / "render_readme.py"
+        ),
+    params:
+        generated_readme=NERPA_ROOT / "tmp" / "update_readme" / "README.md",
+        readme=NERPA_ROOT / "README.md",
+    run:
+        render_release_readme(
+            version_file=input.version,
+            template=input.readme_template,
+            render_script=input.render_readme_script,
+            output=params.generated_readme,
+        )
+        Path(params.readme).write_bytes(
+            Path(params.generated_readme).read_bytes()
+        )
+
 
 rule release:
     input:
@@ -105,41 +166,40 @@ rule release:
             / "make_release"
             / "render_readme.py"
         ),
+        readme=NERPA_ROOT / "README.md",
     params:
         generated_readme=NERPA_ROOT / "tmp" / "release" / "README.md",
-        readme=NERPA_ROOT / "README.md",
-    shell:
-        r"""
-        mapfile -t commit_tags < <(git tag --points-at HEAD)
-        release_tag_args=()
+    run:
+        render_release_readme(
+            version_file=input.version,
+            template=input.readme_template,
+            render_script=input.render_readme_script,
+            output=params.generated_readme,
+        )
 
-        case "${{#commit_tags[@]}}" in
-          0)
-            ;;
-          1)
-            release_tag_args=(--release-tag "${{commit_tags[0]}}")
-            ;;
-          *)
-            echo "Error: multiple tags are attached to HEAD:" >&2
-            printf '  %s\n' "${{commit_tags[@]}}" >&2
-            exit 1
-            ;;
-        esac
+        generated_readme = Path(params.generated_readme)
+        current_readme = Path(input.readme)
 
-        python {input.render_readme_script:q} \
-          --template {input.readme_template:q} \
-          --version-file {input.version:q} \
-          --output {params.generated_readme:q} \
-          "${{release_tag_args[@]}}"
+        if generated_readme.read_bytes() != current_readme.read_bytes():
+            subprocess.run(
+                ["diff", "--unified", str(current_readme), str(generated_readme)],
+                check=False,
+            )
+            raise WorkflowError(
+                "README.md is not up to date. Run "
+                "'snakemake update_readme' and commit the result first."
+            )
 
-        bash {input.make_release_script:q} \
-          {input.version:q} \
-          {params.generated_readme:q}
-
-        cp -- {params.generated_readme:q} {params.readme:q}
-        git add -- README.md
-        git commit -m "Update README for release"
-        """
+        subprocess.run(
+            [
+                "bash",
+                str(input.make_release_script),
+                str(input.version),
+                str(generated_readme),
+            ],
+            cwd=NERPA_ROOT,
+            check=True,
+        )
 
 rule create_training_bgcs_nrps:
     params:
