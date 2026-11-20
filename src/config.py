@@ -279,7 +279,8 @@ def get_default_output_dir(cfg: dict) -> Path:
 
 def load_monomer_names_helper(
         monomers_cfg_file: Path,
-        nerpa_dir: Path
+        nerpa_dir: Path,
+        supported_residues: Optional[List[NerpaResidue]] = None
 ) -> MonomerNamesHelper:
     monomers_cfg = yaml.safe_load(monomers_cfg_file.open('r'))
     monomers_names_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
@@ -288,9 +289,12 @@ def load_monomer_names_helper(
         separator='\t',
         comment_prefix='#',
     )
+    if supported_residues is None:
+        supported_residues = monomers_cfg['supported_residues']
+
     return MonomerNamesHelper(
         names_table=names_table,
-        supported_residues=monomers_cfg['supported_residues'],
+        supported_residues=supported_residues
     )
 
 

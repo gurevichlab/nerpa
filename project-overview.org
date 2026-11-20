@@ -2,7 +2,7 @@
 #+startup: overview
 
 ** Purpose
-This is a project overview/Wiki for the =Nerpa= pipeline. Note that it is a draft and may not be complete or up to date. If you an AI reading this and you spot a mistake or discrepancy, please include a correction suggestion in your output.
+This is a project overview/Wiki for the =Nerpa= pipeline. Note that it is a draft and may not be complete or up to date. If you are an AI reading this and you spot a mistake or discrepancy, please include a correction suggestion in your output.
 
 This repository contains two related pipelines:
 
@@ -1018,4 +1018,177 @@ OUTPUT/
 #+end_example
 
 Some intermediate files may be absent after successful cleanup.
+
+
+** Pipeline details and important concepts
+*** Monomer representation
+**** Core residues
+Under the Nerpa model, each NRP monomer can be decomposed as =core-residue + modifications=, e.g. ~3OH-5Me-Pro = Pro + 'OH' + 'MT'~ 
+The rationale is that the core residue is the amino acid directly incorporated by the A domain, while the modifications are added by tailoring enzymes or whatnot. D-Chirality is also considered a modification, so ~D-Ala~ is represented as ~Ala + 'E'~ (=E= for epimerization).
+
+The decomposition is lossy and not reversible. For example, there's an =unknown= modification. The decomposition is carried out by looking up the semi-manually curated [[data/nerpa_internal/monomer_names_table.tsv][table]].
+ 
+***** Known caveats and limitations
+Some A domains are known to incorporate already "modified" amino acids, e.g. "D-Ala". For simplicity, Nerpa strips the predicted substrates off modifications as well, so Nerpa treats the predicted substrate of such an A domain as "Ala".
+
+**** Supported core residues
+
+=Nerpa= supports a limited set of core residues. Here's how the supported residues are defined. The PARAS model operates on a set of 37 residues which are then collapsed to 31 distinct core residues by stripping off modifications.
+#+begin_src python :session supported-core-residues :results output
+  from src.config import load_config
+  from src.paras.paras_wrapper import ParasWrapper
+  from src.monomer_names_helper import MonomerNamesHelper
+  import numpy as np
+  import yaml
+
+  config = load_config()
+  model = ParasWrapper(
+      config.specificity_prediction_config.paras_model,
+     sklearn_version="1.8.0",
+  )
+  paras_predictions: dict[np.str_, float] = model.predict("A" * 34)
+  paras_residues_raw: list[str] = sorted(map(str, paras_predictions))
+
+  print(f"Raw PARAS substrates:\n {paras_residues}")
+  print(f"Number of raw PARAS substrates: {len(paras_residues)}")
+
+  monomers_cfg = yaml.safe_load(config.monomers_config.open())
+  monomers_names_table_tsv = config.nerpa_dir / monomers_cfg['monomer_names_table']
+  names_table = pl.read_csv(
+      monomers_names_table_tsv,
+      separator='\t',
+      comment_prefix='#',
+  )
+  monomer_names_helper = MonomerNamesHelper(
+      names_table=names_table,
+      supported_residues=None,  # None means all residues in the names table are supported
+  )
+
+  paras_to_nerpa_residue: dict[str, str] = {
+      residue: str(
+          monomer_names_helper
+          .parsed_name(residue, name_format="PARAS")
+          .residue
+      )
+      for residue in paras_residues_raw
+  }
+  paras_nerpa_residues = sorted(set(paras_to_nerpa_residue.values()))
+
+  print(f"\nPARAS substrates converted to Nerpa core-residues:\n {paras_nerpa_residues}")
+  print(f"Number of distinct Nerpa core residues among PARAS substrates: {len(paras_nerpa_residues)}")
+
+
+  substrates_by_core_residue: dict[str, list[str]] = {}
+  for substrate, core_residue in paras_to_nerpa_residue.items():
+      substrates_by_core_residue.setdefault(core_residue, []).append(substrate)
+
+  collapsed_substrates = {
+      core_residue: substrates
+      for core_residue, substrates in substrates_by_core_residue.items()
+      if len(substrates) > 1
+  }
+
+  print("\nPARAS substrates collapsed to the same Nerpa core residue:")
+  for core_residue, substrates in sorted(collapsed_substrates.items()):
+      print(f"{core_residue}: {', '.join(sorted(substrates))}")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Raw PARAS substrates:
+ ['2,3-diaminopropionic acid', '2,3-dihydroxybenzoic acid', '2,4-diaminobutyric acid', '2-aminoadipic acid', '2-aminoisobutyric acid', '3,5-dihydroxyphenylglycine', '4-hydroxyphenylglycine', '4R-hydroxyproline', 'D-alanine', 'N5-acetyl-N5-hydroxyornithine', 'N5-formyl-N5-hydroxyornithine', 'N5-hydroxyornithine', 'R-beta-hydroxytyrosine', 'alanine', 'anthranilic acid', 'arginine', 'asparagine', 'aspartic acid', 'beta-alanine', 'cysteine', 'glutamic acid', 'glutamine', 'glycine', 'histidine', 'homoserine', 'isoleucine', 'leucine', 'lysine', 'ornithine', 'phenylalanine', 'pipecolic acid', 'proline', 'serine', 'threonine', 'tryptophan', 'tyrosine', 'valine']
+Number of raw PARAS substrates: 37
+
+PARAS substrates converted to Nerpa core-residues:
+ ['Aad', 'Aib', 'Ala', 'Ant', 'Arg', 'Asn', 'Asp', 'Bza', 'Cys', 'Dab', 'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hpg', 'Hse', 'Ile', 'Leu', 'Lys', 'Orn', 'Phe', 'Pip', 'Pro', 'Ser', 'Thr', 'Trp', 'Tyr', 'Val', 'bAla', 'dHpg']
+Number of distinct Nerpa core residues among PARAS substrates: 31
+
+PARAS substrates collapsed to the same Nerpa core residue:
+Ala: D-alanine, alanine
+Orn: N5-acetyl-N5-hydroxyornithine, N5-formyl-N5-hydroxyornithine, N5-hydroxyornithine, ornithine
+Pro: 4R-hydroxyproline, proline
+Tyr: R-beta-hydroxytyrosine, tyrosine
+#+end_example
+
+=Nerpa= uses log-odds score when matching A domain predictions against an NRP monomer: the probability of a residue predicted by =PARAS= is divided by the background frequency of this residue. To estimate the latter, we use the =Norine= database:
+
+#+begin_src python :session supported-core-residues :results output
+  import polars as pl
+  from pathlib import Path
+
+  norine_monomers_info_tsv = Path("data/nerpa_internal/norine_monomers_info.tsv")
+  norine_residue_frequencies = (
+        pl.read_csv(
+            norine_monomers_info_tsv,
+            separator="\t",
+            columns=["Nerpa_residue", "count"],
+        )
+        .drop_nulls("Nerpa_residue")
+        .group_by("Nerpa_residue")
+        .agg(pl.col("count").sum())
+        .with_columns(
+            (pl.col("count") / pl.col("count").sum()).alias("frequency")
+        )
+        .sort("Nerpa_residue")
+  )
+  norine_residues = norine_residue_frequencies["Nerpa_residue"].to_list()
+
+  print(norine_residue_frequencies)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+shape: (296, 3)
+┌───────────────┬───────┬───────────┐
+│ Nerpa_residue ┆ count ┆ frequency │
+│ ---           ┆ ---   ┆ ---       │
+│ str           ┆ i64   ┆ f64       │
+╞═══════════════╪═══════╪═══════════╡
+│ 2OMe-Rha      ┆ 2     ┆ 0.000174  │
+│ 4oxo-Van      ┆ 9     ┆ 0.000783  │
+│ Aad           ┆ 3     ┆ 0.000261  │
+│ Abu           ┆ 152   ┆ 0.013229  │
+│ Aca           ┆ 1     ┆ 0.000087  │
+│ …             ┆ …     ┆ …         │
+│ iC9:0-OH(3)   ┆ 3     ┆ 0.000261  │
+│ iC9:2(2.t4)   ┆ 1     ┆ 0.000087  │
+│ oxoDec        ┆ 2     ┆ 0.000174  │
+│ phenylacetate ┆ 69    ┆ 0.006005  │
+│ pks           ┆ 10    ┆ 0.00087   │
+└───────────────┴───────┴───────────┘
+#+end_example
+
+However, not all PARAS residues appear in the =Norine= database.  The following residues are supported by =PARAS= but have no frequency estimate:
+
+#+begin_src python :session supported-core-residues :results output
+  unsupported_paras_residues = set(paras_nerpa_residues) - set(norine_residues)
+  print(sorted(unsupported_paras_residues))
+  print(
+    f"Number of PARAS residues absent in the Norine database: {len(unsupported_paras_residues)}"
+  )
+#+end_src
+
+#+RESULTS:
+: ['Ant']
+: Number of unsupported residues: 1
+
+Thus, the set of =supported core residues= is the intersection of the PARAS residues and the Norine residues:
+#+begin_src python :session supported-core-residues :results output
+  supported_core_residues = sorted(set(paras_nerpa_residues) & set(norine_residues))
+  print(f"Supported core residues: {supported_core_residues}")
+  print(f"Number of supported core residues: {len(supported_core_residues)}")
+#+end_src
+
+#+RESULTS:
+: Supported core residues: ['Aad', 'Aib', 'Ala', 'Arg', 'Asn', 'Asp', 'Bza', 'Cys', 'Dab', 'Dpr', 'Gln', 'Glu', 'Gly', 'His', 'Hpg', 'Hse', 'Ile', 'Leu', 'Lys', 'Orn', 'Phe', 'Pip', 'Pro', 'Ser', 'Thr', 'Trp', 'Tyr', 'Val', 'bAla', 'dHpg']
+: Number of supported core residues: 30
+
+***** Notes
+- =PARAS= updated its set of supported substrates. After converting substrate
+  labels to Nerpa core residues, =v2= has the additional residue =Sal=, while
+  =v6= has the additional residues =Dpr= and =Hse=. At the raw substrate-label
+  level, =v6= additionally introduces =4R-hydroxyproline= and
+  =N5-acetyl-N5-hydroxyornithine=, but these collapse to the already supported
+  core residues =Pro= and =Orn=.
+- =Nerpa residues= aka =core residues= follow =rBAN/Norine= naming format.
 
