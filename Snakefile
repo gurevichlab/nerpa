@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 import subprocess
 from typing import Any
@@ -12,26 +13,49 @@ PATHS_TO_EXTERNAL_DATA = "paths_to_external_data.yaml"
 
 
 def ext_path(key: str) -> Path:
-    config = yaml.safe_load(open(PATHS_TO_EXTERNAL_DATA))
-    val: Any = config.get(key)
-    if val in (None, ''):
+    config_path = NERPA_ROOT / PATHS_TO_EXTERNAL_DATA
+
+    if not config_path.exists():
+        raise WorkflowError(
+            f"External data configuration does not exist: {config_path}"
+        )
+
+    with config_path.open() as config_file:
+        config: dict[str, Any] = yaml.safe_load(config_file) or {}
+
+    value = config.get(key)
+    if value in (None, ""):
         raise WorkflowError(
             f'Missing external data path: config["{key}"] is not set.\n'
-            f'Edit/Create {PATHS_TO_EXTERNAL_DATA} and set "{key}: /path/to/data".'
+            f'Edit/Create {config_path} and set "{key}: /path/to/data".'
         )
-    return Path(str(val)).expanduser()
+
+    return Path(str(value)).expanduser()
+
+
+# Wrap external data paths in a function
+# which is called only when a rule requires the path.
+# This is done so that if some external data is missing,
+# the rules that don't require it can still work
+def external_input(key: str) -> Callable[[Any], Path]:
+    # Input functions are evaluated only if Snakemake needs the rule.
+    def resolve_path(_wildcards: Any) -> Path:
+        return ext_path(key)
+
+    return resolve_path
+
 
 # ===== Source data files -- these are not produced by any rule
 MONOMER_NAMES_TABLE = NERPA_ROOT / 'data' / 'nerpa_internal' / 'monomer_names_table.tsv'
 CURATED_ALIGNMENTS = NERPA_ROOT / 'data/for_training_and_testing/curated_alignments.json'
 PNRPDB2_RAW = NERPA_ROOT / 'data' / 'input' / 'pnrpdb2_raw.tsv'
 NORINE_GRAPHS = NERPA_ROOT / 'data/for_training_and_testing/norine_graphs.csv'
-ANTISMASH_RESULTS = ext_path('antiSMASH results on MIBiG 4')
-BIGSCAPE_RESULTS_ON_MIBIG = ext_path('BiG-SCAPE clustering of MIBiG 4')
-MIBIG3_JSONS = ext_path('MIBiG 3 JSONs')
+ANTISMASH_RESULTS = external_input('antiSMASH results on MIBiG 4')
+BIGSCAPE_RESULTS_ON_MIBIG = external_input('BiG-SCAPE clustering of MIBiG 4')
+MIBIG3_JSONS = external_input('MIBiG 3 JSONs')
 
 NERPA1_RESULTS_ON_MIBIG = NERPA_ROOT / 'data' / 'for_training_and_testing' / 'nerpa1_report_mibig4_vs_mibig_norine.csv'
-BIOCAT_RESULTS_ON_MIBIG = ext_path('BioCAT results on MIBiG 4 vs MIBiG+NORINE NRPs')
+BIOCAT_RESULTS_ON_MIBIG = external_input('BioCAT results on MIBiG 4 vs MIBiG+NORINE NRPs')
 
 # ===== Important intermediate files (not to rewrite paths in the rules)
 # information about the monomers in the Norine database
