@@ -121,7 +121,7 @@ class MonomerBondType(StrEnum):
                         )
 
             case "ESTER":
-                if any(MonomerTag.ALPHA_HYDROXY_AMINO_ACID in tags
+                if any(MonomerTag.ALPHA_HYDROXY_ACID in tags
                         for tags in tags_per_mon):
                     return MonomerBondType.IN_CHAIN_ESTER, None
                 else:

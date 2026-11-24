@@ -28,7 +28,7 @@ class MonomerType(StrEnum):
 
 
 class MonomerTag(StrEnum):
-    ALPHA_HYDROXY_AMINO_ACID = "alpha-hydroxy amino acid"
+    ALPHA_HYDROXY_ACID = "alpha-hydroxy acid"
 
 
 class MonomerNamesTableSchema(StrEnum):
