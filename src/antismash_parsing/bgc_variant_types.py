@@ -17,7 +17,7 @@ from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID, antiSMA
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.build_output.yaml_representers import enum_representer
 from src.general_type_aliases import LogProb
-from src.monomer_names_helper import NerpaResidue
+from src.monomer_names_helper.monomer_names_helper import NerpaResidue
 
 ResidueScores = Dict[NerpaResidue, LogProb]
 

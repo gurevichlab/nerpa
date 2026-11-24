@@ -6,7 +6,7 @@ from typing import (
     Tuple,
     Union
 )
-from src.monomer_names_helper import NorineMonomerName
+from src.monomer_names_helper.monomer_names_helper import NorineMonomerName
 from src.pipeline import nerpa_utils
 from src.pipeline.logging.logger import NerpaLogger
 from src.config import rBAN_Config, rBAN_Output_Config

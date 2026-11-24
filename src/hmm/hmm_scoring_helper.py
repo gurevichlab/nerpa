@@ -8,7 +8,7 @@ from src.antismash_parsing.bgc_variant_types import (
     BGC_Module,
     BGC_Module_Modification,
 )
-from src.monomer_names_helper import Chirality, NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
+from src.monomer_names_helper.monomer_names_helper import Chirality, NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
 from src.general_type_aliases import (
     LogProb,
 )
@@ -18,7 +18,7 @@ from src.hmm.hmm_scoring_config import (
     HMMScoringConfig
 )
 from src.matching.alignment_step_type import MatchDetailedScore
-from src.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper, UNKNOWN_RESIDUE
 from src.general_type_aliases import Prob
 from src.training.hmm_parameters.emission_probabilities.modifications_schema import MODIFICATION_TYPE as MT
 

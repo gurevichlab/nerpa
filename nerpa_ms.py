@@ -19,7 +19,7 @@ from src.rban_parsing.nrp_variant_types import (
 )
 from src.build_output.html_reporter import HTMLReportConfig, create_html_report
 from src.matching.match_type import Match
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.config import load_monomer_names_helper, load_config
 import subprocess
 import yaml

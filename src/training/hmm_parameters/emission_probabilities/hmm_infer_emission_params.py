@@ -18,7 +18,7 @@ from src.training.hmm_parameters.emission_probabilities.step_function import (
     plot_step_function,
     plot_step_function_stacked,
 )
-from src.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, NerpaResidue
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer, UNKNOWN_RESIDUE, MonomerNamesHelper, NerpaResidue
 from src.general_type_aliases import LogProb, Prob
 from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 from src.training.hmm_parameters.training_types import HMM_Chosen_Steps_df, HMM_Chosen_Steps_Schema

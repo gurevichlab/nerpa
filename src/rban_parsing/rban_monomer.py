@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import NamedTuple
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     Chirality,
     NerpaResidue,
     NRP_Monomer,

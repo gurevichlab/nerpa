@@ -28,7 +28,7 @@ from src.antismash_parsing.bgc_variant_types import BGC_Variant
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 import src.pipeline.nerpa_utils as nerpa_utils
 from src.pipeline.deduplication import cluster_isomorphic_nrp_variants, cluster_isomorphic_bgc_variants
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 
 from src.matching.match_type import Match
 from src.matching.matcher import get_hmm_matches

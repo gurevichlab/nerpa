@@ -17,13 +17,13 @@ import polars as pl
 from collections import defaultdict
 
 from src.general_type_aliases import AA10, AA34, Prob
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     antiSMASH_MonomerName,
     NerpaResidue,
     MonomerNamesHelper,
     UNKNOWN_RESIDUE, NOT_NRPS_RESIDUE, PKS_RESIDUE
 )
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.pipeline.logging.logger import LoggingConfig
 from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 
@@ -284,16 +284,11 @@ def load_monomer_names_helper(
 ) -> MonomerNamesHelper:
     monomers_cfg = yaml.safe_load(monomers_cfg_file.open('r'))
     monomers_names_table_tsv = nerpa_dir / monomers_cfg['monomer_names_table']
-    names_table = pl.read_csv(
-        monomers_names_table_tsv,
-        separator='\t',
-        comment_prefix='#',
-    )
     if supported_residues is None:
         supported_residues = monomers_cfg['supported_residues']
 
     return MonomerNamesHelper(
-        names_table=names_table,
+        names_table_path=monomers_names_table_tsv,
         supported_residues=supported_residues
     )
 

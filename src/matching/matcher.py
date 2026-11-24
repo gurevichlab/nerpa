@@ -20,7 +20,7 @@ from src.hmm.detailed_hmm import DetailedHMM
 from src.hmm.hmm import HMM_LPUC
 from src.matching.hmm_match import HMM_Match
 from src.hmm.viterbi_algorithm import get_opt_path_with_score
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.pipeline.logging.logger import NerpaLogger
 from src.rban_parsing.get_linearizations import NRP_Linearizations, num_linearizations
 from src.rban_parsing.rban_monomer import rBAN_Monomer

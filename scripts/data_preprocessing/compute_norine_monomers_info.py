@@ -4,7 +4,7 @@ import polars as pl
 import pandas as pd
 from collections import Counter
 import yaml
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 
 import argparse
 

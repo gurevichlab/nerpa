@@ -5,14 +5,14 @@ from typing import (
     Tuple,
 )
 from dataclasses import dataclass
-from src.monomer_names_helper import NerpaResidue
+from src.monomer_names_helper.monomer_names_helper import NerpaResidue
 import yaml
 from pathlib import Path
 from enum import StrEnum
 import polars as pl
 from src.general_type_aliases import Prob
 from src.training.hmm_parameters.emission_probabilities.modifications_schema import MODIFICATION_TYPE
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     Chirality,
     UNKNOWN_RESIDUE
 )

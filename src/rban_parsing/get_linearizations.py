@@ -10,7 +10,7 @@ from typing import (
 from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Fragment
 if TYPE_CHECKING:
     from src.hmm.detailed_hmm import DetailedHMM
-from src.monomer_names_helper import MonomerNamesHelper, MonCode, NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper, MonCode, NRP_Monomer
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rBAN_idx
 from src.generic.combinatorics import split_sequence_subseqs, filter_unique
 from itertools import chain, permutations, product

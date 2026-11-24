@@ -1,7 +1,7 @@
 from typing import List, Tuple, Optional
 from src.hmm.hmm_auxiliary_types import StateIdx
 from src.hmm.hmm import HMM
-from src.monomer_names_helper import MonCode
+from src.monomer_names_helper.monomer_names_helper import MonCode
 from src.general_type_aliases import LogProb
 import numpy as np
 

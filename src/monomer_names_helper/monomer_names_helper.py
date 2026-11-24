@@ -1,6 +1,8 @@
 from __future__ import annotations
+import ast
 import math
 from collections import defaultdict
+from pathlib import Path
 from math import log
 from typing import (
     Any,
@@ -14,19 +16,26 @@ from typing import (
 )
 from src.build_output.yaml_representers import enum_representer
 from src.general_type_aliases import Prob
+from src.monomer_names_helper.monomer_names_table import (
+    MonomerNameFormat,
+    MonomerType,
+    MonomerTag,
+    MonomerNamesTableSchema,
+    MonomerNamesTable_df,
+    NerpaResidue,
+    antiSMASH_MonomerName,
+    NorineMonomerName,
+    PARAS_MonomerName
+)
 import pandas as pd
 import polars as pl
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum, StrEnum, auto
 
 import yaml
 
 from src.pipeline.logging.logger import NerpaLogger
 
-antiSMASH_MonomerName = NewType('antiSMASH_MonomerName', str)  # antiSMASH Short
-NorineMonomerName = NewType('NorineMonomerName', str)
-PARAS_MonomerName = NewType('PARAS_MonomerName', str)
-NerpaResidue = NewType('NerpaResidue', str)
 
 # Special "residues"
 UNKNOWN_RESIDUE = NerpaResidue('unk')
@@ -131,11 +140,7 @@ class MonomersDefaultFrequencies(NamedTuple):
 
 
 class MonomerNamesHelper:
-    '''
-    names_table: a dataframe with columns
-     MonomerName,NameFormat,antiSMASH_short_core/Nerpa_residue,Modifications,Type,Comment
-    '''
-    names_table: pl.DataFrame
+    names_table: MonomerNamesTable_df
     supported_residues: List[NerpaResidue]
 
     _parsed_name_cache: Dict[Tuple[str, str], NRP_Monomer]
@@ -146,22 +151,29 @@ class MonomerNamesHelper:
 
     def __init__(
             self,
-            names_table: pl.DataFrame,
+            names_table_path: Path,
             supported_residues: Optional[List[NerpaResidue]] = None
     ):
+        SC = MonomerNamesTableSchema  # for brevity
+
         self._parsed_name_cache = {}
-        self.names_table = names_table
+        self.names_table = MonomerNamesTable_df.from_tsv(names_table_path)
         self.supported_residues = (
             supported_residues
             if supported_residues is not None
-            else list(self.names_table['NerpaResidue'].unique())
+            else [
+                NerpaResidue(residue)
+                for residue in self.names_table.df[SC.NERPA_RESIDUE].unique()
+            ]
         )
 
-        # Check that all supported residues are present in the names table
-        assert all(res in self.names_table['NerpaResidue']
-                   for res in self.supported_residues), \
+        # Check that all supported residues are present in the names table.
+        table_residues = set(
+            self.names_table.df[SC.NERPA_RESIDUE]
+        )
+        assert all(res in table_residues for res in self.supported_residues), \
             f"Some supported residues are absent in the names table: " \
-            f"{set(self.supported_residues) - set(self.names_table['NerpaResidue'])}"
+            f"{set(self.supported_residues) - table_residues}"
 
         # Compute monomer integer codes and mappings
         self.int_to_mon = {}
@@ -193,52 +205,58 @@ class MonomerNamesHelper:
         """
         return filter(self.is_proper_monomer, self.mon_to_int.keys())
 
-    def parsed_name(self, name: str,
-                    name_format: Literal['antiSMASH_short', 'rBAN/Norine', 'PARAS'],
-                    log: Optional[NerpaLogger] = None) -> NRP_Monomer:
-        if name_format not in ('antiSMASH_short', 'rBAN/Norine', 'PARAS'):
-            raise ValueError(f'Unsupported name format: {name_format}')
+    def get_table_entry(
+            self,
+            name: str, 
+            name_format: MonomerNameFormat
+    ) -> Optional[dict[MonomerNamesTableSchema, Any]]:
+        SC = MonomerNamesTableSchema  # for brevity
+        rows = (
+            self.names_table.df
+            .filter((pl.col(SC.MONOMER_NAME) == name)
+                    & (pl.col(SC.NAME_FORMAT) == name_format))
+        )
+
+        if rows.is_empty():
+            return None
+
+        assert rows.height == 1, f"Expected exactly one row for {name} in {name_format}, but got {rows.height}"
+        row = rows.to_dicts()[0]
+        return {
+            SC(col): SC(col).to_python_type(row[col])
+            for col in row
+        }
+
+
+    def parsed_name(
+            self, name: str,
+            name_format: MonomerNameFormat,
+            log: Optional[NerpaLogger] = None
+    ) -> NRP_Monomer:
+        SC = MonomerNamesTableSchema  # for brevity
         if (name, name_format) in self._parsed_name_cache:
             return self._parsed_name_cache[(name, name_format)]
 
-        if name_format == 'rBAN/Norine' and name.startswith('X'):
+        if name_format == MonomerNameFormat.RBAN_NORINE and name.startswith('X'):
             return UNKNOWN_MONOMER
 
-        rows = (
-            self.names_table
-            .filter((pl.col('MonomerName') == name)
-                    & (pl.col('NameFormat') == name_format))
-        )
-
-        if rows.is_empty():  # monomer name not found
-            # print(f'WARNING: Entry {(name, name_format)} not found in the names table. Parsing as UNKNOWN_MONOMER')
-            '''
-            if log is not None:
-                log.error(f'Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
-            else:
-                #with open('missing_norine_names.txt', 'a') as f:
-                #    f.write(f'{name}\n')
-                print(f'WARNING: Name {name} not found in the names table. Parsing as UNKNOWN_MONOMER')
-            '''
+        row = self.get_table_entry(name, name_format)
+        if row is None:
             return UNKNOWN_MONOMER
 
-        row = rows.to_dicts()[0]  # it should be exactly one row
-
-        mon_type = row['Type']
-        if mon_type == 'PKS':
+        mon_type = row[SC.TYPE]
+        if mon_type == MonomerType.PKS:
             return PKS_MONOMER
 
         # if mon_type == 'NOT_NRPS':  # Dil and Dap were erroneously marked as NOT_NRPS. As a quick fix -- treat all monomers as NRPS
         #     return NOT_NRPS_MONOMER
 
-        assert mon_type in ('NRPS', 'NA', 'PKS_Hybrid', 'NOT_NRPS'), \
-            f'Unexpected monomer type: {name} -- {mon_type}'
 
-        residue = NerpaResidue(row['NerpaResidue'])
+        residue = row[SC.NERPA_RESIDUE]
         if residue not in self.supported_residues:
             residue = UNKNOWN_RESIDUE
         try:
-            mods = eval(row['Modifications'])
+            mods = row[SC.MODIFICATIONS]
             methylated = any(
                 mod_str in mods
                 for mod_str in ['MT', 'OMe', 'NMe', 'MeO']
@@ -253,7 +271,7 @@ class MonomerNamesHelper:
             residue=residue,
             methylated=methylated,
             chirality=chirality,
-            is_pks_hybrid=mon_type == 'PKS_Hybrid'
+            is_pks_hybrid=(mon_type == MonomerType.PKS_HYBRID)
         )
         return self._parsed_name_cache[(name, name_format)]
 

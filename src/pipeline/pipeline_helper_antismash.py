@@ -16,7 +16,7 @@ from src.config import Config, antiSMASH_Processing_Config
 from src.antismash_parsing.bgc_variant_types import BGC_Variant
 
 from src.pipeline.nerpa_utils import sys_call, get_path_to_program
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.antismash_parsing.antismash_parser import parse_antismash_json
 from src.antismash_parsing.antismash_parser_types import antiSMASH_record, BGC_ID
 from src.antismash_parsing.build_bgc_variants import build_bgc_variants

@@ -30,13 +30,13 @@ from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import
 from src.general_type_aliases import Prob, LogProb
 from dataclasses import dataclass, asdict
 
-from src.monomer_names_helper import NerpaResidue
+from src.monomer_names_helper.monomer_names_helper import NerpaResidue
 from src.rban_parsing.nrp_variant_types import (
     NRP_Variant,
     NRP_Variant_ID,
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 from src.antismash_parsing.genomic_context import (
     ModuleGenomicContext,
     ModuleGenomicContextFeature

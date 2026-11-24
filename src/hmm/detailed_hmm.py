@@ -12,7 +12,7 @@ from src.antismash_parsing.bgc_variant_types import (
     BGC_Variant,
 )
 from src.hmm.hmm_constructor.hmm_constructor import HMM_Constructor
-from src.monomer_names_helper import NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer, PKS_RESIDUE, NOT_NRPS_RESIDUE
 from src.general_type_aliases import (
     LogProb,
 )
@@ -26,7 +26,7 @@ from src.hmm.hmm import HMM, HMM_LPUC
 from src.matching.alignment_to_path_in_hmm import alignment_to_hmm_path
 from src.matching.alignment_type import AlignmentLight, alignment_to_light_alignment
 # from src._not_used.p_values_estimation import PValueEstimator
-from src.monomer_names_helper import Chirality
+from src.monomer_names_helper.monomer_names_helper import Chirality
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 
 from src.hmm.viterbi_algorithm import get_opt_path_with_score

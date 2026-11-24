@@ -15,7 +15,7 @@ from src.config import SpecificityPredictionConfig, load_monomer_names_helper
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
     MATCHING_STATE_TYPES,
 )
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     UNKNOWN_RESIDUE,
     MonomerNamesHelper,
     NerpaResidue,

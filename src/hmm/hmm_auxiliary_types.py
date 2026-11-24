@@ -8,11 +8,11 @@ from typing import (
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 from src.general_type_aliases import (
     LogProb,
 )
-from src.monomer_names_helper import enum_representer
+from src.monomer_names_helper.monomer_names_helper import enum_representer
 import yaml
 
 

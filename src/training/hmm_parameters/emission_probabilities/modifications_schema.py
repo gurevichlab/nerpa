@@ -11,7 +11,7 @@ from src.antismash_parsing.bgc_variant_types import (
     BGC_Module,
     BGC_Module_Modification
 )
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     Chirality,
     NRP_Monomer
 )

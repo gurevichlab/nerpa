@@ -7,7 +7,7 @@ from src.build_output.draw_graph import (
     GraphDrawingHelper,
     MoleculeDrawingHelper
 )
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 
 
 class GeneratedNRPs_DataForReport:

@@ -19,7 +19,7 @@ from src.antismash_parsing.antismash_parser_types import (
     DomainType,
     Gene, GeneId, BGC_Module_ID
 )
-from src.monomer_names_helper import enum_representer
+from src.monomer_names_helper.monomer_names_helper import enum_representer
 import yaml
 
 class ModuleGenomicContextFeature(Enum):

@@ -16,7 +16,7 @@ from src.matching.alignment_type import Alignment, AlignmentLight
 from src.hmm.detailed_hmm import DetailedHMM
 #from src.matching.detailed_hmm import DetailedHMM
 from src.matching.match_type import Match
-from src.monomer_names_helper import NorineMonomerName
+from src.monomer_names_helper.monomer_names_helper import NorineMonomerName
 from src.rban_parsing.get_linearizations import generate_linearizations_uniq
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rban_name_no_unk_idx

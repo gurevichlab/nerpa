@@ -17,14 +17,14 @@ from rdkit.Chem import rdDepictor
 from rdkit import Chem
 from rdkit.Chem.rdchem import BondDir
 
-from src.monomer_names_helper import MonomerNamesHelper
+from src.rban_parsing.bond_types import MonomerBondType
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.build_output.chem_helper import MolRecord
 from src.rban_parsing.rban_parser import (
     AtomId,
     MonomerIdx,
     Parsed_rBAN_Record
 )
-from src.rban_parsing.retrieve_nrp_variants import get_bond_direction
 from src.generic.svg import (
     ensure_image_ext,
     force_svg_pixel_size,
@@ -361,15 +361,17 @@ class GraphDrawingHelper:
     record: Parsed_rBAN_Record
     mon_colors: Dict[MonomerIdx, RGB]
     mon_labels: Dict[MonomerIdx, str]
+    monomer_names_helper: MonomerNamesHelper
 
     def __init__(
             self,
             record: Parsed_rBAN_Record,
+            monomer_names_helper: MonomerNamesHelper,
             mon_colors: Optional[Dict[MonomerIdx, RGB]] = None,
             with_rban_indexes: bool = True,
-            monomer_names_helper: Optional[MonomerNamesHelper] = None,
     ) -> None:
         self.record = record
+        self.monomer_names_helper = monomer_names_helper
         self.mon_colors = (
             mon_colors
             if mon_colors is not None
@@ -416,7 +418,13 @@ class GraphDrawingHelper:
         # print(record.monomer_bonds)
 
         for u, v in sorted(self.record.monomer_bonds.keys()):
-            amino_bond_dir = get_bond_direction((u, v), self.record)
+            bond_type, amino_bond_dir = (
+                MonomerBondType.classify_bond(
+                    self.record,
+                    (u, v),
+                    self.monomer_names_helper,
+                )
+            )
             if amino_bond_dir is not None:
                 if amino_bond_dir == (u, v):
                     fig.edge(str(u), str(v), color='blue', dir='forward', arrowhead='normal')

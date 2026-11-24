@@ -20,7 +20,7 @@ from src.antismash_parsing.bgc_variant_types import (
     BGC_Module,
 )
 from src.general_type_aliases import LogProb
-from src.monomer_names_helper import NerpaResidue
+from src.monomer_names_helper.monomer_names_helper import NerpaResidue
 from src.pipeline.logging.buffered_logger import BufferedLogger
 from src.config import antiSMASH_Processing_Config
 from src.antismash_parsing.bgcs_split_and_reorder import split_and_reorder

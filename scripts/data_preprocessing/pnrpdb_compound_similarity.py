@@ -16,7 +16,7 @@ from typing import (
 import yaml
 import copy
 
-from src.monomer_names_helper import Chirality
+from src.monomer_names_helper.monomer_names_helper import Chirality
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import (
     rBAN_Monomer,

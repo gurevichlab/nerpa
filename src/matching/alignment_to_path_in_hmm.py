@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from src.hmm.detailed_hmm import DetailedHMM
 from typing import List, Tuple, Optional
 from src.matching.alignment_type import AlignmentLight
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 from itertools import pairwise
 from copy import deepcopy
 from pathlib import Path

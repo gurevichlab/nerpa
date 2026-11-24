@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import yaml
 
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     Chirality,
     NRP_Monomer,
     NerpaResidue,

@@ -4,7 +4,7 @@ from src.pipeline.command_line_args_helper import CommandLineArgs
 from src.pipeline.deduplication import cluster_isomorphic_nrp_variants
 from src.pipeline.logging.logger import NerpaLogger
 from src.config import Config
-from src.monomer_names_helper import Chirality
+from src.monomer_names_helper.monomer_names_helper import Chirality
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
@@ -13,7 +13,7 @@ from src.rban_parsing.rban_parser import (
     parsed_chiralities,
     Raw_rBAN_Record, NRP_metadata
 )
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.handle_monomers import get_monomers_chirality
 
 from src.pipeline.rban_helper import rBAN_Helper

@@ -11,7 +11,7 @@ from src.antismash_parsing.bgc_variant_types import (
 )
 from src.general_type_aliases import LogProb
 from src.antismash_parsing.antismash_parser_types import GeneId
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     NerpaResidue,
     Chirality
 )

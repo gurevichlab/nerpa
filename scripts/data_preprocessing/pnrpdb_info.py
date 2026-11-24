@@ -11,7 +11,7 @@ import yaml
 import networkx as nx
 
 from src.config import load_monomer_names_helper
-from src.monomer_names_helper import NOT_NRPS_RESIDUE, PKS_RESIDUE, UNKNOWN_RESIDUE
+from src.monomer_names_helper.monomer_names_helper import NOT_NRPS_RESIDUE, PKS_RESIDUE, UNKNOWN_RESIDUE
 from src.pipeline.deduplication import (
     cluster_isomorphic_nrp_variants,
     reassign_representative_nrps,

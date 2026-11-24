@@ -16,7 +16,7 @@ from typing import (
 from src.antismash_parsing.bgc_variant_types import A_Domain_ID, BGC_Variant
 from src.matching.alignment_type import Alignment
 from src.matching.match_type import Match
-from src.monomer_names_helper import NorineMonomerName
+from src.monomer_names_helper.monomer_names_helper import NorineMonomerName
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants
 from src.testing.simplified_alignment import (

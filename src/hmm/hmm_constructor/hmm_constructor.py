@@ -25,7 +25,7 @@ from src.hmm.hmm_constructor.hmm_contructor_make_edge import make_edge
 from src.hmm.hmm_scoring_helper import HMMHelper
 import networkx as nx
 
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 
 ET = DetailedHMMEdgeType
 ST = DetailedHMMStateType

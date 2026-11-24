@@ -12,7 +12,7 @@ from src.config import Config
 from src.antismash_parsing.bgc_variant_types import (
     BGC_Variant_ID
 )
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 
 from src.hmm.detailed_hmm import DetailedHMM
 from src.hmm.hmm_scoring_helper import ScoringScheme

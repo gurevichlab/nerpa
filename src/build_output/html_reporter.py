@@ -18,7 +18,7 @@ from src.config import OutputConfig, Config
 from src.matching.match_type import Match
 from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.build_output.extract_data_for_report import GeneratedNRPs_DataForReport
 from src.generic.combinatorics import sort_groupby
 from itertools import islice

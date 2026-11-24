@@ -6,7 +6,7 @@ from typing import List
 
 from src.antismash_parsing.antismash_parser_types import GeneId
 from src.antismash_parsing.bgc_variant_types import A_Domain_ID
-from src.monomer_names_helper import NorineMonomerName
+from src.monomer_names_helper.monomer_names_helper import NorineMonomerName
 from src.testing.simplified_alignment import (
     SimplifiedAlignment,
     simplified_alignment_from_match,

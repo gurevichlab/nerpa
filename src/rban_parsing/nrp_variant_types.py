@@ -14,7 +14,7 @@ from typing import (
 
 import networkx as nx
 
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from dataclasses import dataclass, asdict
 from src.general_type_aliases import SMILES

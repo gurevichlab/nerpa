@@ -5,7 +5,7 @@ from pathlib import Path
 import joblib
 
 from src.general_type_aliases import Prob
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     MonomerNamesHelper,
     NerpaResidue
 )

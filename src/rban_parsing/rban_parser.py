@@ -14,7 +14,7 @@ from src.general_type_aliases import (
     SMILES,
 )
 from src.generic.parsing import read_int_pair
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     Chirality,
     NorineMonomerName,
     NerpaResidue,

@@ -2,7 +2,7 @@ from typing import List, Tuple, Optional, TypeVar, Callable, Hashable, Iterable
 
 from src.antismash_parsing.bgc_variant_types import BGC_Variant, A_Domain_ID
 from src.matching.alignment_type import Alignment
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.matching.match_type import Match
 from src.generic.combinatorics import is_subsequence, filter_unique, remove_runs_of_equal_elements, \
     split_into_iterations

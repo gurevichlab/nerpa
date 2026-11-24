@@ -11,7 +11,7 @@ from src.matching.hmm_match import HMM_Match
 from src.matching.match_type import Match
 from src.config import OutputConfig
 from src.antismash_parsing.bgc_variant_types import BGC_Variants_Info, BGC_Variant_ID
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info, NRP_Variant_ID
 from src.generic.combinatorics import sort_groupby
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record

@@ -17,7 +17,7 @@ import pandas as pd
 import polars as pl
 from dataclasses import dataclass
 from enum import Enum, auto
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     MonomerNamesHelper,
     NRP_Monomer,
     NerpaResidue,

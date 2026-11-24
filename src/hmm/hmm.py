@@ -22,12 +22,12 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMStateType,
     StateIdx,
 )
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 from src.general_type_aliases import (
     LogProb,
     Prob,
 )
-from src.monomer_names_helper import enum_representer, MonCode
+from src.monomer_names_helper.monomer_names_helper import enum_representer, MonCode
 from src.build_output.draw_hmm import draw_hmm
 from src.generic.svg import svg_with_label, join_svgs_in_rectangle
 import yaml

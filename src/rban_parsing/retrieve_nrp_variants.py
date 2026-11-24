@@ -8,12 +8,13 @@ from typing import (
 
 import networkx as nx
 
+from src.rban_parsing.bond_types import MonomerBondType
 from src.rban_parsing.nrp_variant_types import (
     NRP_Fragment,
     NRP_Variant,
     NRP_Variant_ID
 )
-from src.monomer_names_helper import (
+from src.monomer_names_helper.monomer_names_helper import (
     MonomerNamesHelper,
     UNKNOWN_RESIDUE
 )
@@ -34,69 +35,51 @@ from src.rban_parsing.rban_monomer import rBAN_Monomer
 NerpaMonomerGraph = nx.DiGraph
 
 
-def build_monomer(mon_info: MonomerInfo,
-                  idx: int,
-                  monomer_names_helper: MonomerNamesHelper) -> rBAN_Monomer:
+def build_monomer(
+        mon_info: MonomerInfo,
+        idx: int,
+        monomer_names_helper: MonomerNamesHelper
+) -> rBAN_Monomer:
     parsed_name = monomer_names_helper.parsed_name(mon_info.name, name_format='rBAN/Norine')
-    return rBAN_Monomer(residue=parsed_name.residue,
-                        methylated=parsed_name.methylated,
-                        chirality=mon_info.chirality,
-                        is_pks_hybrid=mon_info.is_pks_hybrid,
-                        rban_name=mon_info.name,
-                        rban_idx=idx)
-
-def _get_bond_type(edge_info: List[MonomerEdgeInfoSingle],
-                   rban_record: Parsed_rBAN_Record) -> str:
-    if not edge_info:
-        raise ValueError(f'No atomic bond information for monomer bond in record {rban_record.compound_id}')
-    # return first
-    return edge_info[0].atomic_edge.bond_type
-
-# Graph edges: [(1, 2, {'bond_type': 'AMINO'}), (2, 6, {'bond_type': 'AMINO'}), (3, 7, {'bond_type': 'AMINO'}), (3, 4, {'bond_type': 'AMINO'}), (4, 5, {'bond_type': 'AMINO'}), (6, 7, {'bond_type': 'AMINO'})]
-
-def get_bond_direction(bond: Tuple[MonomerIdx, MonomerIdx],
-                       record: Parsed_rBAN_Record) -> Optional[Tuple[MonomerIdx, MonomerIdx]]:
-    if bond not in record.monomer_bonds:
-        raise ValueError(f'Bond {bond} not found in record')
-
-    edge_info_list = record.monomer_bonds[bond]
-    if len(edge_info_list) != 1:
-        return None  # if multiple atomic bonds between the same monomers, we can't be sure which one is the "main" bond, so we won't classify it as amino
-
-    atomic_bond_info = edge_info_list[0].atomic_edge
-    atom_id1, atom_id2 = (edge_info_list[0].monomer_to_atom[mon_idx] for mon_idx in bond)
-
-    if atomic_bond_info.bond_type != 'AMINO':
-        return None
-
-    if record.atoms[atom_id1].name == 'C' and record.atoms[atom_id2].name == 'N':
-        return (bond[0], bond[1])  # direction from C to N
-    elif record.atoms[atom_id1].name == 'N' and record.atoms[atom_id2].name == 'C':
-        return (bond[1], bond[0])  # direction from C to N
-    else:
-        raise ValueError(f'Unexpected atom names for amino bond between atoms {atom_id1} and {atom_id2}: {record.atoms[atom_id1].name}, {record.atoms[atom_id2].name}')
-
+    return rBAN_Monomer(
+        residue=parsed_name.residue,
+        methylated=parsed_name.methylated,
+        chirality=mon_info.chirality,
+        is_pks_hybrid=mon_info.is_pks_hybrid,
+        rban_name=mon_info.name,
+        rban_idx=idx
+    )
 
 def build_nx_graph(
         rban_record: Parsed_rBAN_Record,
-        backbone_bonds: List[str]
+        monomer_names_helper: MonomerNamesHelper,
+        logger: Optional[NerpaLogger] = None,
 ) -> NerpaMonomerGraph:
-    lipid_monomers = {monomer_idx for monomer_idx, monomer_info in rban_record.monomers.items()
-                      if ':' in monomer_info.name}
+    lipid_monomers: set[MonomerIdx] = {
+        monomer_idx
+        for monomer_idx, monomer_info in rban_record.monomers.items()
+        if ':' in monomer_info.name
+    }
 
     graph = nx.DiGraph()
-    graph.add_nodes_from((monomer_idx, {'data': monomer_info})
-                         for monomer_idx, monomer_info in rban_record.monomers.items()
-                         if monomer_idx not in lipid_monomers)
+    graph.add_nodes_from(
+        (monomer_idx, {'data': monomer_info})
+        for monomer_idx, monomer_info in rban_record.monomers.items()
+        if monomer_idx not in lipid_monomers
+    )
 
-    for (start, end), edge_info in rban_record.monomer_bonds.items():
-        bond_type = _get_bond_type(edge_info, rban_record)
+    for start, end in rban_record.monomer_bonds:
+        bond_type, bond_direction = MonomerBondType.classify_bond(
+            rban_record=rban_record,
+            monomer_bond=(start, end),
+            monomer_names_helper=monomer_names_helper,
+            logger=logger
+        )
         if any([start in lipid_monomers,
                 end in lipid_monomers,
-                bond_type not in backbone_bonds]):
+                not bond_type.is_backbone_bond()]):
             continue
 
-        bond_direction = get_bond_direction((start, end), rban_record)
         if bond_direction is not None:
             edge_start, edge_end = bond_direction
             graph.add_edge(edge_start, edge_end, bond_type=bond_type)
@@ -112,21 +95,36 @@ def backbone_sequence_to_fragment(
         G: NerpaMonomerGraph,
         monomer_names_helper: MonomerNamesHelper
 ) -> NRP_Fragment:
-    return NRP_Fragment(is_cyclic=backbone_sequence.is_cyclic,
-                        monomers=[build_monomer(mon_info=G.nodes[idx]['data'],
-                                                idx=idx,
-                                                monomer_names_helper=monomer_names_helper)
-                                  for idx in backbone_sequence.node_idxs])
+    monomers: List[rBAN_Monomer] = [
+        build_monomer(
+            mon_info=G.nodes[idx]['data'],
+            idx=idx,
+            monomer_names_helper=monomer_names_helper
+        )
+        for idx in backbone_sequence.node_idxs
+    ]
+    return NRP_Fragment(
+        is_cyclic=backbone_sequence.is_cyclic,
+        monomers=monomers
+    )
 
 
-def sufficiently_covered(sequence: BackboneSequence,
-                         G: NerpaMonomerGraph,
-                         min_recognized_nodes=2) -> bool:
-    return sum(G.nodes[node_idx]['data'].residue != UNKNOWN_RESIDUE
-               for node_idx in sequence.node_idxs) >= min_recognized_nodes
+def sufficiently_covered(
+        sequence: BackboneSequence,
+        G: NerpaMonomerGraph,
+        min_recognized_nodes=2
+) -> bool:
+    num_recognized_nodes: int = sum(
+        G.nodes[node_idx]['data'].residue != UNKNOWN_RESIDUE
+        for node_idx in sequence.node_idxs
+    )
+    return num_recognized_nodes >= min_recognized_nodes
 
 
-def trim_unrecognized_monomers(backbone: BackboneSequence, G: NerpaMonomerGraph) -> BackboneSequence:
+def trim_unrecognized_monomers(
+        backbone: BackboneSequence,
+        G: NerpaMonomerGraph
+) -> BackboneSequence:
     if backbone.is_cyclic:
         return backbone
 
@@ -141,10 +139,12 @@ def trim_unrecognized_monomers(backbone: BackboneSequence, G: NerpaMonomerGraph)
 
 def process_single_record(
         rban_record: Parsed_rBAN_Record,
-        backbone_bond_types: List[str],
         monomer_names_helper: MonomerNamesHelper,
 ) -> Optional[NRP_Variant]:
-    graph = build_nx_graph(rban_record, backbone_bond_types)
+    graph: NerpaMonomerGraph = build_nx_graph(
+        rban_record,
+        monomer_names_helper=monomer_names_helper
+    )
 
     backbone_to_fragment = partial(
         backbone_sequence_to_fragment,
@@ -199,7 +199,6 @@ def rban_records_to_nrp_variants(rban_records: List[Parsed_rBAN_Record],
         #log.info(f'Processing {rban_record.compound_id}')
         maybe_new_variant = process_single_record(
             rban_record,
-            config.PNP_BONDS,
             monomer_names_helper=monomer_names_helper,
         )
         if maybe_new_variant:

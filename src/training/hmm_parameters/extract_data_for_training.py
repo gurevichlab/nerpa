@@ -33,7 +33,7 @@ from src.training.hmm_parameters.training_types import (
     HMM_Chosen_Steps_df,
     HMM_Chosen_Steps_Schema,
 )
-from src.monomer_names_helper import NRP_Monomer
+from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
 from itertools import pairwise
 from collections import defaultdict
 

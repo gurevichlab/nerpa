@@ -23,7 +23,7 @@ from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import
 )
 from src.hmm.hmm_scoring_helper import HMMHelper
 from src.matching.matcher import NRP_ID
-from src.monomer_names_helper import MonomerNamesHelper
+from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
 from src.rban_parsing.retrieve_nrp_variants import rban_records_to_nrp_variants

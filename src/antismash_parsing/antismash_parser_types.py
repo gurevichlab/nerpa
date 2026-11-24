@@ -11,7 +11,7 @@ from typing import (
 )
 from dataclasses import dataclass, asdict
 from enum import Enum, auto
-from src.monomer_names_helper import antiSMASH_MonomerName
+from src.monomer_names_helper.monomer_names_helper import antiSMASH_MonomerName
 from src.general_type_aliases import AA10, AA34
 
 
