@@ -40,6 +40,8 @@ class MonomerBondType(StrEnum):
             MonomerBondType.OXAZOLE_CYCLE,
             MonomerBondType.THIAZOLE_CYCLE,
             MonomerBondType.PYRIMIDINE_CYCLE,
+            MonomerBondType.HETEROCYCLE,
+            MonomerBondType.IN_CHAIN_ESTER,
         }
 
     @classmethod
