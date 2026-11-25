@@ -3,7 +3,7 @@ import json
 import math
 import os
 import shutil
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import (
     List,
@@ -234,6 +234,13 @@ def _create_graph_dicts(monomer_graph_data) -> Dict:
 
     return graph_dict
 
+
+@dataclass(frozen=True)
+class SpecifityPredictionsViewConfig:
+    max_events: int = 4
+    min_probability: float = 0.05
+
+
 class HTMLReportConfig:
     mode: Literal['nerpa', 'nerpa-ms']
     
@@ -253,6 +260,7 @@ class HTMLReportConfig:
     molecule_data_path: Path
 
     default_score_field: str
+    specificity_predictions_view_config: SpecifityPredictionsViewConfig
 
     # nerpa-ms specific fields. Should be not None if mode == 'nerpa-ms', otherwise None
     generated_candidate_nrps_path: Optional[Path]
@@ -273,7 +281,10 @@ class HTMLReportConfig:
             mode: Literal['nerpa', 'nerpa-ms'],
             generated_candidate_nrps_path: Optional[Path] = None,
             mass_spec_matching_results_dir: Optional[Path] = None,
-            max_spectra_matches_per_nerpa_match: Optional[int] = None
+            max_spectra_matches_per_nerpa_match: Optional[int] = None,
+            specificity_predictions_view_config: Optional[
+                SpecifityPredictionsViewConfig
+            ] = None,
     ):
         self.mode = mode
         self.version = (nerpa_root / 'VERSION.txt').read_text().strip()
@@ -317,6 +328,10 @@ class HTMLReportConfig:
         self.molecule_data_path = main_out_dir / 'intermediate_files/molecule.json'
 
         self.default_score_field = 'log_odds_vs_avg_bgc'
+        self.specificity_predictions_view_config = (
+            specificity_predictions_view_config
+            or SpecifityPredictionsViewConfig()
+        )
 
         self.generated_candidate_nrps_path = generated_candidate_nrps_path
         self.mass_spec_matching_results_dir = mass_spec_matching_results_dir
@@ -373,6 +388,14 @@ def create_html_report(
     with open(cfg.report_data_js, 'w') as json_file:
         json_file.write('var version = ')
         json.dump(cfg.version, json_file)
+        json_file.write(';\n')
+
+        json_file.write('var specificity_predictions_view_config = ')
+        json.dump(
+            asdict(cfg.specificity_predictions_view_config),
+            json_file,
+            indent=4,
+        )
         json_file.write(';\n')
          
         json_file.write('var data = ')

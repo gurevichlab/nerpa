@@ -87,9 +87,13 @@ function drawSpecificityDistributionTable(
         return undefined;
     }
 
-    // Match draw_specificity_distributions.py: up to four events with
-    // probability >= 0.05, with every remaining event combined as "rest".
-    const rows = simplifyDistribution(distribution, 4, 0.05);
+    // Match draw_specificity_distributions.py: keep the configured number
+    // of sufficiently probable events and combine everything else as "rest".
+    const rows = simplifyDistribution(
+        distribution,
+        specificity_predictions_view_config.max_events,
+        specificity_predictions_view_config.min_probability,
+    );
     if(rows.length === 0){
         return undefined;
     }
