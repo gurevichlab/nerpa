@@ -1,4 +1,5 @@
 from collections import defaultdict
+from math import log
 from typing import Literal, Dict, List, Callable, Optional
 
 import pandas as pd
@@ -202,3 +203,31 @@ class SpecificityPredictionHelper:
                 nerpa_predictions[res] = 1.0
 
         return nerpa_predictions
+
+    def minimum_possible_prediction_entropy(self) -> float:
+        """
+        Return the theoretical minimum entropy of a calibrated prediction.
+
+        This is the minimum over predictions that, before pseudo-count
+        smoothing, assign probability 1 to one residue and 0 to all others.
+        Entropy is measured in nats.
+        """
+        pseudo_count_fraction: Prob = self.config.PSEUDO_COUNT_FRACTION
+        apriori_prob: Dict[NerpaResidue, Prob] = self.config.APRIORI_RESIDUE_PROB
+
+        candidate_entropies: List[float] = []
+        for predicted_residue in apriori_prob:
+            probabilities: Dict[NerpaResidue, Prob] = {
+                residue: pseudo_count_fraction * prior
+                for residue, prior in apriori_prob.items()
+            }
+            probabilities[predicted_residue] += 1 - pseudo_count_fraction
+
+            entropy: float = -sum(
+                probability * log(probability)
+                for probability in probabilities.values()
+                if probability > 0
+            )
+            candidate_entropies.append(entropy)
+
+        return min(candidate_entropies)

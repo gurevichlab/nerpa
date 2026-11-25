@@ -1,6 +1,148 @@
 // -- local variables --
 const svgns = "http://www.w3.org/2000/svg";
 // --- Module Viewer ---
+
+const specificityDistributionViews = new Map([
+    ["hidden", {
+        minimumWidth: 0,
+        render: () => undefined,
+    }],
+    ["table", {
+        minimumWidth: 92,
+        render: drawSpecificityDistributionTable,
+    }],
+]);
+
+let specificityDistributionView = "table";
+let activeModuleViewerBGCID;
+let activeModuleViewerNRPID;
+
+function setSpecificityDistributionView(viewName){
+    if(!specificityDistributionViews.has(viewName)){
+        throw new Error(`Unknown specificity distribution view: '${viewName}'.`);
+    }
+    specificityDistributionView = viewName;
+}
+
+function toggleSpecificityPredictionView(){
+    setSpecificityDistributionView(
+        specificityDistributionView === "hidden" ? "table" : "hidden"
+    );
+
+    if(activeModuleViewerBGCID !== undefined &&
+       activeModuleViewerNRPID !== undefined){
+        drawModulesBGC(
+            activeModuleViewerBGCID,
+            activeModuleViewerNRPID,
+        );
+    }
+}
+
+function getSpecificityDistributionView(viewName){
+    const view = specificityDistributionViews.get(viewName);
+    if(view === undefined){
+        throw new Error(`Unknown specificity distribution view: '${viewName}'.`);
+    }
+    return view;
+}
+
+function simplifyDistribution(
+    distribution,
+    maxEvents = undefined,
+    minProbability = 0.0,
+){
+    const rankedEvents = Object.entries(distribution)
+        .sort((left, right) => right[1] - left[1]);
+
+    const eventLimit = maxEvents === undefined ?
+        rankedEvents.length
+        : maxEvents;
+
+    const displayedEvents = rankedEvents
+        .filter(([, probability]) => probability >= minProbability)
+        .slice(0, eventLimit);
+
+    const displayedNames = new Set(
+        displayedEvents.map(([event]) => event)
+    );
+    const restProbability = rankedEvents
+        .filter(([event]) => !displayedNames.has(event))
+        .reduce(
+            (total, [, probability]) => total + probability,
+            0.0,
+        );
+
+    if(restProbability > 0){
+        displayedEvents.push(["rest", restProbability]);
+    }
+    return displayedEvents;
+}
+
+function drawSpecificityDistributionTable(
+    module,
+    distribution,
+    geometry,
+){
+    if(distribution === null || Object.keys(distribution).length === 0){
+        return undefined;
+    }
+
+    // Match draw_specificity_distributions.py: up to four events with
+    // probability >= 0.05, with every remaining event combined as "rest".
+    const rows = simplifyDistribution(distribution, 4, 0.05);
+    if(rows.length === 0){
+        return undefined;
+    }
+
+    const rowHeight = 17;
+    const tableY = geometry.y + 70;
+    const table = document.createElementNS(svgns, "g");
+    table.setAttribute("class", "module-distribution module-distribution-table");
+
+    rows.forEach(([residue, probability], rowIndex) => {
+        const rowY = tableY + rowIndex * rowHeight;
+        const background = document.createElementNS(svgns, "rect");
+        background.setAttribute("x", geometry.x);
+        background.setAttribute("y", rowY);
+        background.setAttribute("width", geometry.length);
+        background.setAttribute("height", rowHeight);
+        background.setAttribute(
+            "fill",
+            residue === "rest" ? "#e0e0e0" : "#f7f7f7",
+        );
+        background.setAttribute("stroke", "#999999");
+        background.setAttribute("stroke-width", "0.5");
+        table.appendChild(background);
+
+        const residueText = document.createElementNS(svgns, "text");
+        residueText.setAttribute("x", geometry.x + 4);
+        residueText.setAttribute("y", rowY + rowHeight / 2);
+        residueText.setAttribute("font-family", "Arial");
+        residueText.setAttribute("font-size", "10");
+        residueText.setAttribute("fill", "#333333");
+        residueText.setAttribute("dominant-baseline", "central");
+        residueText.textContent = residue;
+        table.appendChild(residueText);
+
+        const probabilityText = document.createElementNS(svgns, "text");
+        probabilityText.setAttribute(
+            "x",
+            geometry.x + geometry.length - 4,
+        );
+        probabilityText.setAttribute("y", rowY + rowHeight / 2);
+        probabilityText.setAttribute("font-family", "Arial");
+        probabilityText.setAttribute("font-size", "10");
+        probabilityText.setAttribute("fill", "#333333");
+        probabilityText.setAttribute("text-anchor", "end");
+        probabilityText.setAttribute("dominant-baseline", "central");
+        probabilityText.textContent = probability.toFixed(2);
+        table.appendChild(probabilityText);
+    });
+
+    module.appendChild(table);
+    return tableY + rows.length * rowHeight;
+}
+
 function drawModulesAlign(bgcID, nrpID){
     const svg = document.getElementById("moduleViewerAlign");
 
@@ -30,6 +172,9 @@ function drawModulesAlign(bgcID, nrpID){
 
 function drawModulesBGC(bgcID, nrpID){
     const svgBGC = document.getElementById("moduleViewerBGC");
+
+    activeModuleViewerBGCID = bgcID;
+    activeModuleViewerNRPID = nrpID;
     
     const bgcKey = bgcID.constructor == Object ? makeBgcKey(bgcID) : bgcID;
     const match = data.find(item =>
@@ -43,14 +188,22 @@ function drawModulesBGC(bgcID, nrpID){
     const alignments = array_in_array ? match.alignments[0] : match.alignments;
     const genes = prepareGenesBGC(bgcKey, alignments);
 
-    const drawData = buildDrawData(genes, true);
+    const drawData = buildDrawData(
+        genes,
+        true,
+        specificityDistributionView,
+    );
 
     const lastGene = drawData[drawData.length - 1];
     const viewerWidth = lastGene.position.x + lastGene.length + 15;
     svgBGC.setAttribute("width", viewerWidth);
     svgBGC.innerHTML = "";
 
-    drawModuleViewer(drawData, svgBGC);
+    drawModuleViewer(
+        drawData,
+        svgBGC,
+        specificityDistributionView,
+    );
     addClickHandler(svgBGC);
 }
 function prepareGenesAlign(bgcKey, alignments){
@@ -142,7 +295,11 @@ function prepareGenesBGC(bgcKey, alignments){
     }
     return genes
 }
-function buildDrawData(geneList, r=false){
+function buildDrawData(
+    geneList,
+    r = false,
+    distributionViewName = "hidden",
+){
     // r indicates if the gene could be reversed (only in BGC order possible)
     /* gene object
     {
@@ -169,6 +326,9 @@ function buildDrawData(geneList, r=false){
     const radFixed = 20; // radius of domain circles
     const dist = 15;   // distance between modules
     const yFixed = 75;
+    const distributionView = getSpecificityDistributionView(
+        distributionViewName
+    );
 
     let drawData = []; // 
 
@@ -189,9 +349,15 @@ function buildDrawData(geneList, r=false){
                                 (r ? m.alignment.map(al => al["rBAN_idx"]) : m.alignment["rBAN_idx"]): [''],
                     domains: m.domains_sequence, 
                     residue: selectResidue(m, r),
+                    specificityDistribution: m.specificity_distribution,
                     displayed: m["a_domain"] != null,        
                     position: {x: undefined, y: yFixed}, 
-                    length: m.domains_sequence.length * radFixed * 2,     
+                    length: Math.max(
+                        m.domains_sequence.length * radFixed * 2,
+                        m["a_domain"] !== null ?
+                            distributionView.minimumWidth
+                            : 0,
+                    ),
                     rad: radFixed,
                     skipped: r ? false : (m["a_domain"] != null ? !Number.isInteger(m.alignment.rBAN_idx) : false),               
                 };
@@ -220,16 +386,58 @@ function buildDrawData(geneList, r=false){
 
     return drawData;
 }
-function drawModuleViewer(drawData, svg){
+function drawModuleViewer(
+    drawData,
+    svg,
+    distributionViewName = "hidden",
+){
+    const distributionView = getSpecificityDistributionView(
+        distributionViewName
+    );
+    let viewerBottom = 145;
+
     for(const g of drawData){
         for (const m of g.modules){
-            drawModule(g.id, m.id, m.nid, m.position.x, m.position.y, m.length, m.domains, m.residue, m.displayed, m.skipped, m.rad, svg);
+            const moduleBottom = drawModule(
+                g.id,
+                m.id,
+                m.nid,
+                m.position.x,
+                m.position.y,
+                m.length,
+                m.domains,
+                m.residue,
+                m.specificityDistribution,
+                m.displayed,
+                m.skipped,
+                m.rad,
+                svg,
+                distributionView,
+            );
+            viewerBottom = Math.max(viewerBottom, moduleBottom);
         }
         drawGeneArrow(g.id, g.nid, g.position.x, g.position.y, g.length, g.displayed, g.reversed, svg);
     }
+
+    svg.setAttribute("height", viewerBottom + 10);
 }
 
-function drawModule(gid, mid, nid, x, y, length, domains, residue, displayed, skipped, rad, svg){
+function drawModule(
+    gid,
+    mid,
+    nid,
+    x,
+    y,
+    length,
+    domains,
+    residue,
+    specificityDistribution,
+    displayed,
+    skipped,
+    rad,
+    svg,
+    distributionView,
+){
         
     const module = document.createElementNS(svgns, 'g');
     module.setAttribute("id", `M${mid},G${gid},${nid}`);
@@ -384,12 +592,20 @@ function drawModule(gid, mid, nid, x, y, length, domains, residue, displayed, sk
         module.appendChild(skipWord); 
     }
     
+    const distributionBottom = distributionView.render(
+        module,
+        specificityDistribution,
+        {x, y, length},
+    );
+
     if(!displayed) {
         module.setAttribute("opacity", "0.3");
         module.setAttribute("displayed", "false");
     }
     module.displayed = displayed;
     svg.appendChild(module);
+
+    return Math.max(y + 61, distributionBottom ?? 0);
 }
 
 function drawGeneArrow(id, nid, x, y, length, displayed, reversed, svg){

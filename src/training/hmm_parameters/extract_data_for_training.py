@@ -123,11 +123,25 @@ def get_hmms_with_paths_with_emissions(
             logger.warning(f'WARNING: cannot construct DetailedHMM for match {al.nrp_id} ')
             raise
 
-        all_alignments = list(simplified_alignment_to_light_alignments(
-            al.true_alignment,
-            detailed_hmm.bgc_variant,
-            nrp_variant
-        ))
+        try:
+            all_alignments = list(simplified_alignment_to_light_alignments(
+                al.true_alignment,
+                detailed_hmm.bgc_variant,
+                nrp_variant
+            ))
+        except AssertionError:
+            logger.exception(
+                "Cannot reconstruct match %s: BGC iterations and NRP fragments "
+                "are incompatible. NRP fragment count: %d",
+                al.nrp_id,
+                len(nrp_variant.fragments),
+            )
+            logger.error(
+                "Original alignment:\n%s\nNRP variant:\n%s",
+                simplified_alignment_to_str(al.true_alignment),
+                nrp_variant.to_str_compact(),
+            )
+            raise
         if not all_alignments:
             logger.warning(
                 f'WARNING: cannot reconstruct alignment for match {al.nrp_id}\n'

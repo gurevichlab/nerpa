@@ -16,7 +16,7 @@ from dataclasses import asdict, dataclass
 from src.antismash_parsing.antismash_parser_types import GeneId, BGC_ID, antiSMASH_metadata
 from src.antismash_parsing.genomic_context import ModuleGenomicContext, ModuleGenomicContextFeature
 from src.build_output.yaml_representers import enum_representer
-from src.general_type_aliases import LogProb
+from src.general_type_aliases import LogProb, Prob
 from src.monomer_names_helper.monomer_names_helper import NerpaResidue
 
 ResidueScores = Dict[NerpaResidue, LogProb]
@@ -155,6 +155,7 @@ class BGC_Variant:
     bgc_variant_id: BGC_Variant_ID
     modules: List[BGC_Module]
     metadata: Optional[antiSMASH_metadata]
+    prediction_uncertainty: Prob
 
     @classmethod
     def from_dict(cls, data: dict) -> BGC_Variant:
@@ -165,11 +166,11 @@ class BGC_Variant:
         return cls(
             bgc_variant_id=BGC_Variant_ID.from_dict(data["bgc_variant_id"]),
             modules=[BGC_Module.from_dict(module) for module in data["modules"]],
-            metadata=metadata
+            metadata=metadata,
+            prediction_uncertainty=data.get('prediction_uncertainty', 1.0)  # for backward compatibility
         )
 
     def to_dict(self) -> Dict[str, Any]:
-
         return {
             'bgc_variant_id': self.bgc_variant_id.to_dict(),
             'modules': [module.to_dict() for module in self.modules],
@@ -178,6 +179,7 @@ class BGC_Variant:
                 if self.metadata
                 else None
             ),
+            'prediction_uncertainty': self.prediction_uncertainty
         }
 
 

@@ -448,8 +448,13 @@
             
             <div id="moduleViewerBGCDiv" class="viewer-scrollable" style="display: none" deselect-trigger>
                <p class="orderLabel" deselect-trigger>BGC order</p>
+                <button
+                    class="hide-button"
+                    onclick="toggleSpecificityPredictionView()"
+                    deselect-trigger
+                >Toggle specificity prediction view</button>
                 <svg id="moduleViewerBGC"
-                    style="background: #ffffff;" deselect-trigger>
+                    style="display: block; background: #ffffff;" deselect-trigger>
                 </svg>
             </div>
             
@@ -644,14 +649,18 @@
     //   title  – tooltip shown on hover (for <th> and checkbox label)
     //   hidden – whether the column is hidden by default
     const bgcMetadataColumns = [
-        { header: "Organism",      key: "organism",      title: "Organism name (antiSMASH metadata)",        hidden: true },
-        { header: "Sequence file", key: "sequence_file", title: "Primary sequence/GenBank file name",        hidden: true },
-        { header: "Accessions",    key: "accessions",    title: "Genome accession ID (antiSMASH metadata)",  hidden: true }, // array
-        { header: "Taxonomy",      key: "taxonomy",      title: "Taxonomic lineage (antiSMASH metadata)",    hidden: true }, // array
+        { header: "Prediction uncertainty", key: "prediction_uncertainty", title: "Mean normalized entropy of the A-domain residue predictions (0 = confident, 1 = uncertain)", hidden: false },
+        { header: "Organism",               key: "organism",               title: "Organism name (antiSMASH metadata)",                                         hidden: true },
+        { header: "Sequence file",          key: "sequence_file",          title: "Primary sequence/GenBank file name",                                         hidden: true },
+        { header: "Accessions",             key: "accessions",             title: "Genome accession ID (antiSMASH metadata)",                                   hidden: true }, // array
+        { header: "Taxonomy",               key: "taxonomy",               title: "Taxonomic lineage (antiSMASH metadata)",                                     hidden: true }, // array
     ];
 
     // a lookup dictionary: BGC ID -> BGC metadata
     const bgcMetaIndex = new Map();
+
+    // Prediction uncertainty belongs to a specific BGC variant.
+    const bgcPredictionUncertaintyIndex = new Map();
 
     // a lookup dictionary: BGC ID -> BGC module data
     const bgcModuleIndex = new Map();
@@ -664,7 +673,12 @@
 
     if (Array.isArray(bgc_metadata)) {
         bgc_metadata.forEach(m => {
-            bgcMetaIndex.set(makeBgcKey(m.bgc_id), m.metadata || {});
+            const bgcKey = makeBgcKey(m.bgc_id);
+            bgcMetaIndex.set(bgcKey, m.metadata || {});
+            bgcPredictionUncertaintyIndex.set(
+                `${bgcKey}::${m.variant_idx}`,
+                m.prediction_uncertainty
+            );
         });
     }
     if (Array.isArray(modules_data)) {
@@ -673,14 +687,20 @@
         });
     }
 
-    function getBgcMetadata(bgc_id) {
-        const raw = bgcMetaIndex.get(makeBgcKey(bgc_id)) || {};
+    function getBgcMetadata(bgc_id, variant_idx = null) {
+        const bgcKey = makeBgcKey(bgc_id);
+        const raw = bgcMetaIndex.get(bgcKey) || {};
 
-        // Fill defaults for all expected metadata keys
+        // Prediction uncertainty is variant-specific; the other values are BGC metadata.
         const metadata = {};
         bgcMetadataColumns.forEach(col => {
-            const val = raw[col.key];
-            metadata[col.key] = (val !== undefined && val !== null && val !== "") ? val : "n/a";
+            const val = col.key === "prediction_uncertainty" && variant_idx !== null
+                ? bgcPredictionUncertaintyIndex.get(`${bgcKey}::${variant_idx}`)
+                : raw[col.key];
+
+            metadata[col.key] = (val !== undefined && val !== null && val !== "")
+                ? (col.key === "prediction_uncertainty" ? Number(val).toFixed(3) : val)
+                : "n/a";
         });
 
         return metadata;
@@ -770,7 +790,7 @@
 
     // Populate main results table
     // Builds a single <tr> for the main table (repr or duplicate)
-    function buildMainTableRow({ item, nrp_id, bgc_id, isRepresentative }) {
+    function buildMainTableRow({ item, nrp_id, bgc_id, bgc_variant_idx, isRepresentative }) {
         const row = document.createElement('tr');
 
         const [genome_id, genome_folder] = getStemAndFolder(bgc_id.antiSMASH_file);
@@ -801,8 +821,12 @@
             </a></td>
         `);
 
-        // BGC metadata
-        appendMetadataCells(row, bgcMetadataColumns, getBgcMetadata(bgc_id));
+        // BGC metadata and variant-level prediction uncertainty
+        appendMetadataCells(
+            row,
+            bgcMetadataColumns,
+            getBgcMetadata(bgc_id, bgc_variant_idx)
+        );
 
         return row;
     }
@@ -822,6 +846,7 @@
                     item,
                     nrp_id: repr_nrp_id,
                     bgc_id: repr_bgc_id,
+                    bgc_variant_idx: item.bgc_variant_id.variant_idx,
                     isRepresentative: true
                 });
                 tableBody.appendChild(reprRow);
@@ -844,6 +869,7 @@
                             item,
                             nrp_id: member_nrp_id,
                             bgc_id: member_bgc_id,
+                            bgc_variant_idx: bgcMember.variant_idx,
                             isRepresentative: false
                         });
 
@@ -1067,7 +1093,7 @@
         return nrpTable
     }
 
-    function getBGCrelatedTable(bgc_id){
+    function getBGCrelatedTable(bgc_id, bgc_variant_idx = null){
         // --- BGC-related info (everything from Genome to the end)
         const regionLabel = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
         const bgcHeaders = ["Genome", "Region", ...bgcMetadataColumns.map(c => c.header)];
@@ -1094,7 +1120,11 @@
             regionLink.textContent = `Region ${bgc_id.contig_idx}.${bgc_id.bgc_idx}`;
         }
         const { genome, ...bgc_id_ } = bgc_id;
-        const bgcMetadataSpans = createMetadataNodes(bgcMetadataColumns, getBgcMetadata(bgc_id_), { wrap: "span" });
+        const bgcMetadataSpans = createMetadataNodes(
+            bgcMetadataColumns,
+            getBgcMetadata(bgc_id_, bgc_variant_idx),
+            { wrap: "span" }
+        );
         const bgcCells = [genomeLink, regionLink, ...bgcMetadataSpans];
 
         const bgcTable = buildSingleRowTable({
@@ -1148,7 +1178,12 @@
         const emptyTable = document.createElement('table');
         const generalTable = item != '' ? getGeneralTabel(item) : emptyTable;
         const nrpTable = nrp_id != '' ? getNRPrelatedTable(nrp_id) : emptyTable;
-        const bgcTable = bgc_id != '' ? getBGCrelatedTable(bgc_id) : emptyTable;
+        const bgcTable = bgc_id != ''
+            ? getBGCrelatedTable(
+                bgc_id,
+                item != '' ? item.bgc_variant_id.variant_idx : null
+            )
+            : emptyTable;
 
         // Append the three compact tables (stacked one under another)
         container.append(generalTable, nrpTable, bgcTable);

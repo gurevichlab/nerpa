@@ -63,17 +63,15 @@ def _create_match_dicts(matches: List[Match],
 
 
 def _create_serializable_bgc_metadata(bgc_variants_info: BGC_Variants_Info):
-    # Collect only the metadata we need for BGCs (JSON-serializable)
+    # Include variant-level values alongside the optional antiSMASH metadata.
     bgc_metadata = []
-    for v in bgc_variants_info.bgc_variants:
-        meta = getattr(v, 'metadata', None)
-        if not meta:
-            continue
-        bgc_vid = v.bgc_variant_id.to_dict()  # {'bgc_id': {...}, 'variant_idx': int}
+    for variant in bgc_variants_info.bgc_variants:
+        variant_id = variant.bgc_variant_id.to_dict()
         bgc_metadata.append({
-            'bgc_id': bgc_vid['bgc_id'],  # keep as dict so JS can access structured fields
-            'variant_idx': bgc_vid['variant_idx'],
-            'metadata': v.metadata.to_dict()
+            "bgc_id": variant_id["bgc_id"],
+            "variant_idx": variant_id["variant_idx"],
+            "prediction_uncertainty": variant.prediction_uncertainty,
+            "metadata": variant.metadata.to_dict() if variant.metadata else {},
         })
 
     return bgc_metadata
@@ -148,16 +146,57 @@ def _apply_substitutions(template: str, substitutions: Dict[str, str]) -> str:
     return template
 
 
-def _create_module_dicts(module_data) -> list:
+def _create_module_dicts(
+        module_data: list[dict],
+        bgc_variants_info: BGC_Variants_Info,
+) -> list[dict]:
+    module_distributions: dict[
+        tuple[str, int, int],
+        dict[tuple[str, int], dict[str, float]],
+    ] = {}
 
-    module_array = []
-    
-    for bgc in module_data: 
-        module_dict = {}
-        module_dict["bgc_id"] = bgc["bgc_id"]
-        module_dict["genes"] = bgc["genes"]
-        module_array.append(module_dict)
-    
+    for variant in bgc_variants_info.bgc_variants:
+        bgc_id = variant.bgc_variant_id.bgc_id
+        bgc_key = (
+            str(bgc_id.antiSMASH_file),
+            bgc_id.contig_idx,
+            bgc_id.bgc_idx,
+        )
+        distributions = module_distributions.setdefault(bgc_key, {})
+        for module in variant.modules:
+            distributions[(module.gene_id, module.a_domain_idx)] = {
+                residue: math.exp(log_probability)
+                for residue, log_probability in module.residue_score.items()
+            }
+
+    module_array: list[dict] = []
+    for bgc in module_data:
+        bgc_id = bgc["bgc_id"]
+        bgc_key = (
+            bgc_id["antiSMASH_file"],
+            bgc_id["contig_idx"],
+            bgc_id["bgc_idx"],
+        )
+        distributions = module_distributions.get(bgc_key, {})
+
+        for gene in bgc["genes"]:
+            a_domain_idx = -1
+            for module in gene["modules"]:
+                if module["a_domain"] is None:
+                    module["specificity_distribution"] = None
+                    continue
+
+                a_domain_idx += 1
+                module["specificity_distribution"] = distributions.get(
+                    (gene["gene_id"], a_domain_idx),
+                    {},
+                )
+
+        module_array.append({
+            "bgc_id": bgc_id,
+            "genes": bgc["genes"],
+        })
+
     return module_array
 
 def _create_graph_dicts(monomer_graph_data) -> Dict:
@@ -328,7 +367,7 @@ def create_html_report(
     nrp_metadata = _create_serializable_nrp_metadata(nrp_variants_info)
     bgc_representatives = _create_serializable_bgc_representatives(bgc_variants_info)
     nrp_representatives = _create_serializable_nrp_representatives(nrp_variants_info)
-    modules = _create_module_dicts(module_data)
+    modules = _create_module_dicts(module_data, bgc_variants_info)
 
     # the main (root) HTML report and associated JSON
     with open(cfg.report_data_js, 'w') as json_file:

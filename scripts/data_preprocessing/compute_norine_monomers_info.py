@@ -46,12 +46,14 @@ def main() -> None:
     # Count monomer cnts
     monomers_counter = Counter(monomers_str)
 
-    monomer_names_table = pl.read_csv(args.monomer_names_table, separator="\t")
-    monomer_names_helper = MonomerNamesHelper(names_table=monomer_names_table)
+    monomer_names_helper = MonomerNamesHelper(names_table_path=args.monomer_names_table)
 
     rows = []
     for monomer_name, count in monomers_counter.items():
-        monomer = monomer_names_helper.parsed_name(monomer_name, name_format="rBAN/Norine")
+        monomer = monomer_names_helper.parsed_name(
+            monomer_name,
+            name_format="rBAN/Norine"
+        )
         rows.append({
             "Norine_name": monomer_name,
             "count": count,

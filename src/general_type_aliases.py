@@ -5,3 +5,4 @@ AA34 = str
 SMILES = str
 Prob = float
 LogProb = float
+LogOdds = float
