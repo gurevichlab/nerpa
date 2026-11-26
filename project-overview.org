@@ -1110,3 +1110,39 @@ The columns of the table are:
 - =Comment= -- free-text notes about that particular row of the table.
  
 The table is sloppy, was curated by multiple people, is incomplete and probably contains errors, so don't trust it too much.
+
+*** Curated alignments and alignment types
+That's a tad messy and probably should be refactored but we have what we have for now. The biggest compatibility problem right now is that the handling of BGC iteration has changed. Previously BGC iteration was done by matching copies of a BGC against parts of NRP completely independently of each other. The result was a list of alignments. Now BGC iterations are handled within HMMs and there's always only one alignment per match. Some code has not been yet updated and still assumes that BGC iteration is handled the old way.
+
+**** Main =Alignment= type
+Nerpa reports an =alignment= between BGC and NRP linearizations for each match. =Alignment= is just a more human-readable way to represent an HMM path. The alignment is basically a table where each row describes one HMM transition.
+
+**** Curated alignments
+Nerpa maintains a set of [[data/nerpa_internal/curated_alignments.json][curated alignments]] which are used in training and testing. These are "groundtruth" alignments taken from the papers referenced in the MIBiG database. Nerpa does not necessarily reproduce these alignments when run on the corresponding BGCs NRPs.
+
+Due to manual curation updating the curated alignments is time and effort costly, so they are a bit of a mess -- the way to record and represent them has evolved but no one had time to update the old entries, so there're some compromises between quality, convenience and backward compatibility.
+
+Nerpa uses =SimplifiedAlignment= type to record curated alignments instead of =Alignment=. =SimplifiedAlignment= doesn't correspond to an HMM path; it only records which monomers correspond to which BGC modules.
+
+#+begin_src python
+class SimplifiedAlignmentStep(NamedTuple):
+    a_domain_id: Optional[A_Domain_ID]
+    rban_name: Optional[NorineMonomerName]
+
+SimplifiedAlignment = List[SimplifiedAlignmentStep]
+#+end_src
+
+Notes on the design (the underscoring theme being that =curated alignments= should be robust and independent of the Nerpa version):
+1. =Curated alignments= do not record HMM paths because HMMs change from version to version.
+2. =Curated alignments= record only monomer names, not their rBAN indexes. This was done because rBAN indexes used to be nondeterministic and incomparable between runs. Now rBAN records are canonized which makes indexes actually deterministic and comparable but no one had time to update the curated alignments.
+3. =Curated alignments= are allowed to be incomplete, with some A domains or monomers missing. This is because it's not always clear if an A domain should be part of the BGC or if a monomer should be part of the NRP linearization. Originally I even only recorded matched pairs and didn't record skips/insertions, which exacerbated the incompleteness.
+
+
+
+**** Conversion =SimplifiedAlignment= -> HMM path
+For training Nerpa needs to convert the =curated alignments= in the form of =SimplifiedAlignment= to actual HMM paths. This is carried out in two steps.
+***** 1. =SimplifiedAlignment= -> =AlignmentLight=
+ This step "fills holes" in a curated alignment, by trying to map its BGC modules and NRP monomers to some BGC variant and NRP linearization generated in that particular version of Nerpa.
+***** 2. =AlignmentLight= -> HMM path
+This step reconstructs the HMM path corresponding to the alignment. Only the matching steps in the alignment are used. Each matching step is mapped to a state and a transition in the HMM, then the shortest path is found between each such two consecutive states, and then the small paths are joined together.
+   

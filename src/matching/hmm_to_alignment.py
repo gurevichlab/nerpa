@@ -20,9 +20,11 @@ from pathlib import Path
 ET = DetailedHMMEdgeType  # for convenience
 ST = DetailedHMMStateType
 
-def hmm_path_to_alignment(hmm: DetailedHMM,
-                          path: List[int],
-                          nrp_monomers: List[rBAN_Monomer]) -> Alignment:
+def hmm_path_to_alignment(
+        hmm: DetailedHMM,
+        path: List[int],
+        nrp_monomers: List[rBAN_Monomer]
+) -> Alignment:
     # for debugging
     # hmm.draw(Path('debug_hmm.svg'),
     #          highlight_path=path,
