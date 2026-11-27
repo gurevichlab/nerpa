@@ -29,7 +29,7 @@ class Match:
     raw_score: LogProb  # log probability of the match in HMM
     log_odds_vs_avg_nrp: LogProb  # the score of matching the BGC to an "average" NRP of the same length
     log_odds_vs_avg_bgc: LogProb  # the score of matching the NRP to an "average" BGC of the same length
-    p_value: Prob
+    p_value: Optional[Prob]
     alignments: List[Alignment]  # alignments of each fragment
 
     def to_dict(self) -> dict:

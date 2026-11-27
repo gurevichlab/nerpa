@@ -143,6 +143,7 @@ def render_release_readme(
 rule all:
     input:
         TEST_RESULTS_DIR / '.done',
+        TEST_RESULTS_DIR / 'simplified_alignment_conversion.done',
         TRAINING_RESULTS_DIR / '.done',
         BENCHMARKING_PLOTS_DIR / 'mibig4_wo_training_bgcs' / '.done',
         BENCHMARKING_PLOTS_DIR / 'training_bgcs' / '.done',
@@ -483,6 +484,35 @@ rule preprocess_mibig_no_calibration:
         """
         
     
+rule check_simplified_alignment_conversion:
+    params:
+        script=NERPA_ROOT / 'scripts' / 'check_simplified_alignment_conversion.py',
+        nerpa_results=NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION,
+    input:
+        script=NERPA_ROOT / 'scripts' / 'check_simplified_alignment_conversion.py',
+        curated_alignments=CURATED_ALIGNMENTS,
+        bgc_variants=(
+            NERPA2_RESULTS_ON_MIBIG_NO_CALIBRATION
+            / 'preprocessed_input'
+            / 'BGC_variants.yaml'
+        ),
+        parsed_rban_records=MIBIG_NORINE_PREPROCESSED,
+    output:
+        done=TEST_RESULTS_DIR / 'simplified_alignment_conversion.done',
+    log:
+        TEST_RESULTS_DIR / 'simplified_alignment_conversion.log',
+    shell:
+        r"""
+        mkdir -p {TEST_RESULTS_DIR:q}
+        PYTHONPATH={NERPA_ROOT:q} python {params.script:q} \
+          --nerpa-results {params.nerpa_results:q} \
+          --curated-alignments {input.curated_alignments:q} \
+          --parsed-rban-records {input.parsed_rban_records:q} \
+          > {log:q} 2>&1
+        touch {output.done:q}
+        """
+
+
 rule train_nerpa:
     params:
         train_script=NERPA_ROOT / 'train_nerpa.py',

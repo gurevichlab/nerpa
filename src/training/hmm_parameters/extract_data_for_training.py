@@ -23,7 +23,7 @@ from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import
     RELEVANT_GENOMIC_CONTEXT,
     INSERT_STATE_TYPES,
 )
-from src.hmm.hmm_scoring_helper import HMMHelper
+from src.hmm.hmm_scoring_helper import HMMScoringHelper
 from src.hmm.detailed_hmm import DetailedHMM
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import rBAN_Monomer
@@ -111,7 +111,7 @@ def get_all_hmm_chosen_steps(
     
 def get_hmms_with_paths_with_emissions(
         alignments_with_bgcs_nrps: List[AlignmentWithBGCNRP],
-        hmm_helper: HMMHelper,
+        hmm_helper: HMMScoringHelper,
         logger: logging.Logger,
         dir_for_hmm_figures: Optional[Path] = None
 ) -> List[HMM_Match_Data]:
@@ -123,25 +123,11 @@ def get_hmms_with_paths_with_emissions(
             logger.warning(f'WARNING: cannot construct DetailedHMM for match {al.nrp_id} ')
             raise
 
-        try:
-            all_alignments = list(simplified_alignment_to_light_alignments(
-                al.true_alignment,
-                detailed_hmm.bgc_variant,
-                nrp_variant
-            ))
-        except AssertionError:
-            logger.exception(
-                "Cannot reconstruct match %s: BGC iterations and NRP fragments "
-                "are incompatible. NRP fragment count: %d",
-                al.nrp_id,
-                len(nrp_variant.fragments),
-            )
-            logger.error(
-                "Original alignment:\n%s\nNRP variant:\n%s",
-                simplified_alignment_to_str(al.true_alignment),
-                nrp_variant.to_str_compact(),
-            )
-            raise
+        all_alignments = list(simplified_alignment_to_light_alignments(
+            al.true_alignment,
+            detailed_hmm.bgc_variant,
+            nrp_variant
+        ))
         if not all_alignments:
             logger.warning(
                 f'WARNING: cannot reconstruct alignment for match {al.nrp_id}\n'
@@ -153,12 +139,6 @@ def get_hmms_with_paths_with_emissions(
             continue
 
         if len(all_alignments) > 1:
-            first_alignment_str = "\n".join(
-                light_alignment_to_str(light_al) for light_al in all_alignments[0]
-            )
-            other_alignment_str = "\n".join(
-                light_alignment_to_str(light_al) for light_al in all_alignments[1]
-            )
             logger.warning(
                 "\n".join(
                     [
@@ -166,44 +146,48 @@ def get_hmms_with_paths_with_emissions(
                         "True alignment:",
                         simplified_alignment_to_str(al.true_alignment),
                         "First reconstructed alignment:",
-                        first_alignment_str,
+                        light_alignment_to_str(all_alignments[0]),
                         "Other reconstructed alignment:",
-                        other_alignment_str,
+                        light_alignment_to_str(all_alignments[1]),
                         f"WARNING: ambiguous alignment reconstruction for match {al.nrp_id} picking the first one",
                     ]
                 )
             )
 
-        alignments = all_alignments[0]
-        for i, alignment in enumerate(alignments):
-            try:
-                path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(
-                    alignment,
-                    alignment_type='light'
-                )
+        alignment = all_alignments[0]
+        try:
+            path_with_emissions = detailed_hmm.alignment_to_path_with_emisions(
+                alignment,
+                alignment_type='light'
+            )
 
-                if dir_for_hmm_figures is not None:
-                    detailed_hmm.draw(dir_for_hmm_figures / Path(f'{detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.antiSMASH_file}_path_{i}.png'),
-                                      highlight_path=[state for state, _ in path_with_emissions])  # for debugging
-            except Exception as e:
-                logger.warning(
-                    f"WARNING: alignment {i} for match {al.get_id()} "
-                    f"could not be converted to path with emissions: {e}"
+            if dir_for_hmm_figures is not None:
+                detailed_hmm.draw(
+                    dir_for_hmm_figures
+                    / Path(
+                        f"{detailed_hmm.bgc_variant.bgc_variant_id.bgc_id.antiSMASH_file}_path.png"
+                    ),
+                    highlight_path=[state for state, _ in path_with_emissions]
                 )
-                continue
+        except Exception as e:
+            logger.warning(
+                f"WARNING: alignment for match {al.get_id()} "
+                f"could not be converted to path with emissions: {e}"
+            )
+            continue
 
-            hmms_with_paths_with_emissions.append(HMM_Match_Data(
-                detailed_hmm,
-                nrp_variant,
-                path_with_emissions
-            ))
+        hmms_with_paths_with_emissions.append(HMM_Match_Data(
+            detailed_hmm,
+            nrp_variant,
+            path_with_emissions
+        ))
 
     return hmms_with_paths_with_emissions
 
 
 def extract_data_for_training(
         alignments_with_bgcs_nrps: List[AlignmentWithBGCNRP],
-        hmm_helper: HMMHelper,
+        hmm_helper: HMMScoringHelper,
         logger: logging.Logger,
         dir_for_hmm_figures: Optional[Path] = None
 ) -> HMM_Chosen_Steps_df:

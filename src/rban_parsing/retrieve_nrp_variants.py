@@ -140,6 +140,7 @@ def trim_unrecognized_monomers(
 def process_single_record(
         rban_record: Parsed_rBAN_Record,
         monomer_names_helper: MonomerNamesHelper,
+        logger: Optional[NerpaLogger] = None,
 ) -> Optional[NRP_Variant]:
     graph: NerpaMonomerGraph = build_nx_graph(
         rban_record,
@@ -154,7 +155,11 @@ def process_single_record(
 
     all_fragments = [
         backbone_to_fragment(backbone)
-        for backbone in putative_backbones(graph, compound_id=rban_record.compound_id,)
+        for backbone in putative_backbones(
+            graph,
+            compound_id=rban_record.compound_id,
+            logger=logger,
+        )
     ]
     proper_fragments = [
         fragment
@@ -200,6 +205,7 @@ def rban_records_to_nrp_variants(rban_records: List[Parsed_rBAN_Record],
         maybe_new_variant = process_single_record(
             rban_record,
             monomer_names_helper=monomer_names_helper,
+            logger=log,
         )
         if maybe_new_variant:
             nrp_variants.append(maybe_new_variant)

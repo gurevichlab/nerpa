@@ -87,10 +87,15 @@ get_best_matches_for_bgc_variant(const HMM& hmm,
 {
     vector<MatchInfoLight> best_matches;
     for (const auto& [nrp_linearizations, nrp_id] : all_nrp_linearizations) {
-        auto [raw_score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
-        double score = raw_score - nrp_linearizations.score_vs_avg_bgc;
+        auto [hmm_score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearizations);
 
-        best_matches.push_back({raw_score, score, bgc_info, nrp_id, linearizations});
+        best_matches.push_back({
+            hmm_score,
+            hmm_score,
+            bgc_info,
+            nrp_id,
+            linearizations
+        });
     }
 
     sort(best_matches.begin(), best_matches.end(),
@@ -114,10 +119,15 @@ get_best_matches_for_nrp(const NRP_ID& nrp_id,
 
     vector<MatchInfoLight> best_matches;
     for (const auto& [bgc_info, hmm] : hmms) {
-        auto [raw_score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearization);
-        double score = raw_score - nrp_linearization.score_vs_avg_bgc;
+        auto [hmm_score, linearizations] = get_best_linearizations_for_nrp(hmm, nrp_linearization);
 
-        best_matches.push_back({raw_score, score, bgc_info, nrp_id, linearizations});
+        best_matches.push_back({
+            hmm_score,
+            hmm_score,
+            bgc_info,
+            nrp_id,
+            linearizations
+        });
     }
 
     sort(best_matches.begin(), best_matches.end(),
@@ -199,7 +209,7 @@ MatchInfo get_full_match_info(const MatchInfoLight& match_light,
                               const HMM& hmm)
 {
     MatchInfo fullMatch;
-    fullMatch.raw_score = 0;
+    fullMatch.hmm_score = 0;
     fullMatch.bgc_variant_id = match_light.bgc_variant_id;
     fullMatch.nrp_id = match_light.nrp_id;
 
@@ -212,13 +222,12 @@ MatchInfo get_full_match_info(const MatchInfoLight& match_light,
         auto [pathScore, optimalPath] = get_opt_hmm_path(hmm, 0, static_cast<StateIdx>(hmm.transitions.size() - 1),
                                                          linPtr->first);
         fullMatch.optimal_paths.push_back(optimalPath);
-        fullMatch.raw_score += pathScore;
+        fullMatch.hmm_score += pathScore;
     }
 
-    // Assert that the raw scores from the light match and the full match are approximately equal.
-    assert(floats_are_close(match_light.raw_score, fullMatch.raw_score));
+    assert(floats_are_close(match_light.hmm_score, fullMatch.hmm_score));
 
-    fullMatch.score = match_light.score;  // The score in the light match is already adjusted for ranking, so we can directly use it.
+    fullMatch.score = match_light.score;
 
     return fullMatch;
 }

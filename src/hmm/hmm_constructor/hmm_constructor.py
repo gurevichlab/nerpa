@@ -22,7 +22,7 @@ from src.hmm.hmm_constructor.hmm_constructor_skips_at_end import add_skips_at_en
 from src.hmm.hmm_constructor.hmm_constructor_skips_at_start import add_skips_at_start
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import STATE_TYPE_TO_EDGE_TYPES, MATCHING_STATE_TYPES
 from src.hmm.hmm_constructor.hmm_contructor_make_edge import make_edge
-from src.hmm.hmm_scoring_helper import HMMHelper
+from src.hmm.hmm_scoring_helper import HMMScoringHelper
 import networkx as nx
 
 from src.monomer_names_helper.monomer_names_helper import NRP_Monomer
@@ -36,7 +36,7 @@ class HMM_Construction_Config:
 
 class HMM_Constructor:
     bgc_variant: BGC_Variant
-    hmm_helper: HMMHelper
+    hmm_helper: HMMScoringHelper
     construction_cfg: HMM_Construction_Config
 
     gene_borders: Dict[GeneId, Tuple[int, int]]
@@ -49,7 +49,7 @@ class HMM_Constructor:
 
     def __init__(self,
                  bgc_variant: BGC_Variant,
-                 hmm_helper: HMMHelper):
+                 hmm_helper: HMMScoringHelper):
         self.bgc_variant = bgc_variant
         self.hmm_helper = hmm_helper
         self.gene_borders = get_genes_intervals(bgc_variant.modules)

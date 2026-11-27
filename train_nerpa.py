@@ -21,7 +21,7 @@ from src.config import Config, load_config, load_monomer_names_helper
 from src.hmm.hmm_constructor.hmm_constructor_state_edge_context_relations import (
     MATCHING_STATE_TYPES,
 )
-from src.hmm.hmm_scoring_helper import HMMHelper
+from src.hmm.hmm_scoring_helper import HMMScoringHelper
 from src.matching.matcher import NRP_ID
 from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 from src.rban_parsing.nrp_variant_types import NRP_Variant
@@ -138,7 +138,7 @@ def load_hmm_helper(
         cfg: Config,
         monomer_names_helper: MonomerNamesHelper,
         norine_monomers_info: NorineMonomersInfo
-) -> HMMHelper:
+) -> HMMScoringHelper:
     specificity_prediction_helper = SpecificityPredictionHelper(
         cfg.specificity_prediction_config,
         monomer_names_helper
@@ -151,7 +151,7 @@ def load_hmm_helper(
         norine_monomers_info=norine_monomers_info
     )
 
-    return HMMHelper(hmm_scoring_config, monomer_names_helper)
+    return HMMScoringHelper(hmm_scoring_config, monomer_names_helper)
 
 
 def parse_cli_args(nerpa_dir: Path) -> CommandlineArgs:

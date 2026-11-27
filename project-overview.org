@@ -1118,7 +1118,7 @@ That's a tad messy and probably should be refactored but we have what we have fo
 Nerpa reports an =alignment= between BGC and NRP linearizations for each match. =Alignment= is just a more human-readable way to represent an HMM path. The alignment is basically a table where each row describes one HMM transition.
 
 **** Curated alignments
-Nerpa maintains a set of [[data/nerpa_internal/curated_alignments.json][curated alignments]] which are used in training and testing. These are "groundtruth" alignments taken from the papers referenced in the MIBiG database. Nerpa does not necessarily reproduce these alignments when run on the corresponding BGCs NRPs.
+Nerpa maintains a set of [[data/nerpa_internal/curated_alignments.json][curated alignments]] which are used in training and testing. These are "groundtruth" alignments taken from the papers referenced in the MIBiG database. Nerpa does not necessarily reproduce these alignments when run on the corresponding BGCs and NRPs.
 
 Due to manual curation updating the curated alignments is time and effort costly, so they are a bit of a mess -- the way to record and represent them has evolved but no one had time to update the old entries, so there're some compromises between quality, convenience and backward compatibility.
 
@@ -1144,5 +1144,44 @@ For training Nerpa needs to convert the =curated alignments= in the form of =Sim
 ***** 1. =SimplifiedAlignment= -> =AlignmentLight=
  This step "fills holes" in a curated alignment, by trying to map its BGC modules and NRP monomers to some BGC variant and NRP linearization generated in that particular version of Nerpa.
 ***** 2. =AlignmentLight= -> HMM path
-This step reconstructs the HMM path corresponding to the alignment. Only the matching steps in the alignment are used. Each matching step is mapped to a state and a transition in the HMM, then the shortest path is found between each such two consecutive states, and then the small paths are joined together.
-   
+This step reconstructs the HMM path corresponding to the alignment. Only the matching steps in the alignment are used. Each matching step is mapped to a state and a transition in the HMM, then the shortest (most probable) path is found between each such two consecutive states, and then the small paths are joined together.
+*** P-values 
+Nerpa has (currently inactive) logic for estimating p-values for matches.
+I may revive this feature in the future.
+
+=P-value= of a match with a score =s= is the total probability of all HMM paths that yield score =s= or higher. Here, an HMM is viewed as a generator. Each path defines emissions alongside transitions, so each path effectively spells out some NRP linearization.
+
+There's an important distinction between =probability= and =score= here. Transitions scores are just log-probabilities but for emissions the score is defined as \(\log \bigl(\frac{P_{pred}}{P_{default}}\bigr)\), with \( P_{pred} \) being the predicted monomer probabilities and \(P_{default}\) being the background probability over NRP monomers. 
+
+This is important because most-probable paths are generally not high-scoring ones. Most probable paths just skip all the genes avoiding emissions altogether because emission contributions are very negative. Conversely, high-scoring paths use as much emissions as possible because for scores emission contributions can be very positive.
+
+When computing the total probability of the paths, =p-values= use actual =probabilities=, so emission contributions are \(\log P_{pred}\). When choosing the high-scoring paths to sum up the probabilities over, =p-values= use =scores=, so that emission contributions are \(\log \bigl(\frac{P_{pred}}{P_{default}}\bigr)\). 
+
+P-value calculation is approximate and is carried out by dynamic programming. Probabilies and score are discretized and then a table is computed:
+
+=dp[state, discrete_score]= is the total probabality of paths that
+- end at the state =state=
+- have discretized log-odds score =discrete_score=
+
+Currently p-values do NOT support module and gene iterations. In principle, they can be supported -- just define
+
+=dp[state, discrete_score, discrete_prob]= is the number of paths that
+- end at the state =state=
+- have discretized log-odds score =discrete_score=
+- have discretized log-probability =discrete_prob=
+  
+Path probability can only decrease as the path grows, so there's no vicious cycles.
+
+I don't remember why =p-values= don't support iterations yet. Probable reasons are:
+- Computation gets too slow
+- Iteration probabilies are still not calibrated well and allowing iterations would give too much probability to high scoring but completely unreasonable paths involving too many iterations.
+
+*** HMM scoring schemes, Log-Odds, normalization
+Nerpa first constructs a regular HMM where transition and emission weights are log-probabilities. These weights are used in =DetailedHMM=.
+However, log-probabilities are bad for scoring. When predictions are uncertain or the match is not perfect, skipping a module gets more probable than matching it to a monomer. This make long BGC score higher against short NRPs when almost all modules are skipped, which is obviously not intended behavior. 
+
+To fix this, Nerpa uses log-odds instead of log-probabilities for emission scores. =DetailedHMM= objects are converted to =HMM= objects stripped of all metadata and with emission scores modified. Nerpa supports several ways to define the new emission scores:
+- =score_vs_avg_bgc= -- score of a monomer =m= is defined as \(\log\frac{P_{pred}(m)}{P_{mibig}(m)}\), where \(P_{mibig}(m)\) is the average log-probability of =m= across all MIBiG A domains. This score assesses how well this BGC fits the NRP compared to an average BGC.
+- =score_vs_avg_nrp= -- score of a monomer =m= is defined as \(\log\frac{P_{pred}(m)}{P_{norine}(m)}\), where \(P_{norine}(m)\) is the frequency of =m= in the Norine database. This score assesses how well this NRP fits the BGC compared to an average NRP.
+- =nerpa_ms= -- one of the above but with the chirality component of the score removed. =Nerpa-MS= should follow whatever scheme was chosen for Nerpa but since Nerpa-MS can't handle chiralities, the scores should ignore them.
+

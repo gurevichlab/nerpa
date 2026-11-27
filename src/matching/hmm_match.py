@@ -14,7 +14,7 @@ from collections import defaultdict
 @dataclass
 class HMM_Match:
     score: LogProb
-    raw_score: LogProb
+    hmm_score: LogProb
     bgc_variant_id: BGC_Variant_ID
     score_vs_avg_bgc: Optional[LogProb]
     score_vs_avg_nrp: Optional[LogProb]
@@ -24,8 +24,13 @@ class HMM_Match:
 
     @classmethod
     def from_json(cls, json_data: dict) -> HMM_Match:
-        return cls(score=json_data['score'],
-                   raw_score=json_data['raw_score'],
+        hmm_score = (
+            json_data["hmm_score"]
+            if "hmm_score" in json_data
+            else json_data["raw_score"]
+        )
+        return cls(score=json_data["score"],
+                   hmm_score=float(hmm_score),
                    score_vs_avg_nrp=json_data.get('score_vs_avg_nrp', None),
                    score_vs_avg_bgc=json_data.get('score_vs_avg_bgc', None),
                    bgc_variant_id=BGC_Variant_ID.from_dict(json_data['bgc_variant_id']),
@@ -66,12 +71,15 @@ def convert_to_detailed_matches(hmms: List[DetailedHMM],
                 path = [state for state, _ in path_with_emissions]
                 assert path == optimal_path, f'Path mismatch: {path} != {optimal_path}'
 
+        background_log_prob = hmm.score_vs_avg_bgc(all_rban_monomers)
+        raw_log_prob = hmm_match.hmm_score + background_log_prob
+
         matches.append(Match(genome_id=hmm.bgc_variant.get_genome_id(),
                              bgc_variant_id=hmm_match.bgc_variant_id,
                              nrp_variant_id=NRP_Variant_ID(nrp_id=hmm_match.nrp_id, variant_idx=0),
-                             raw_score=hmm_match.raw_score,
-                             log_odds_vs_avg_nrp=hmm_match.raw_score - hmm.score_vs_avg_nrp(),
-                             log_odds_vs_avg_bgc=hmm_match.raw_score - hmm.score_vs_avg_bgc(all_rban_monomers),
+                             raw_score=raw_log_prob,
+                             log_odds_vs_avg_nrp=raw_log_prob - hmm.score_vs_avg_nrp(),
+                             log_odds_vs_avg_bgc=hmm_match.hmm_score,
                              p_value=None,
                              alignments=alignments))
 

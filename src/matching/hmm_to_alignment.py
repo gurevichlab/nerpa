@@ -8,6 +8,7 @@ from src.hmm.hmm_auxiliary_types import (
     DetailedHMMEdgeType,
     DetailedHMMStateType
 )
+from src.hmm.hmm_scoring_types import ScoringSchemeName
 from itertools import pairwise
 from src.matching.alignment_type import Alignment
 from src.matching.alignment_step_type import (
@@ -33,6 +34,7 @@ def hmm_path_to_alignment(
     #              for mon in nrp_monomers
     #          ])
 
+    scored_hmm = hmm.to_hmm(ScoringSchemeName.NERPA)
     monomers_iter = iter(nrp_monomers)
     alignment = []
     for edge_from, edge_to in pairwise(path):
@@ -43,12 +45,22 @@ def hmm_path_to_alignment(
             ET.SKIP_UNTIL_NEXT_TENTATIVE_ASSEMBLY_LINE_START,
             ET.SKIP_MODULES_AT_END,
         ):
-            fst_skipped_module_idx = hmm.states[edge_from].related_module_idx
-            lst_skipped_module_idx = (
-                    hmm.states[edge_to].related_module_idx - 1
-                    if hmm.states[edge_to].state_type != ST.CHOOSE_IF_ITERATE_BGC
-                    else len(hmm.bgc_variant.modules) - 1
+            fst_skipped_module_idx = (
+                hmm.states[edge_from].related_module_idx
             )
+            assert fst_skipped_module_idx is not None
+
+            if (
+                hmm.states[edge_to].state_type
+                != ST.CHOOSE_IF_ITERATE_BGC
+            ):
+                next_module_idx = hmm.states[edge_to].related_module_idx
+                assert next_module_idx is not None
+                lst_skipped_module_idx = next_module_idx - 1
+            else:
+                lst_skipped_module_idx = (
+                    len(hmm.bgc_variant.modules) - 1
+                )
 
             alignment.extend(
                 AlignmentStep(
@@ -63,16 +75,19 @@ def hmm_path_to_alignment(
             continue
 
 
-        if hmm.states[edge_to].emissions:
+        if scored_hmm.emissions[edge_to]:
             emitted_monomer = next(monomers_iter)
-            emission_score = hmm.states[edge_to].emissions[emitted_monomer.to_base_mon()]
+            monomer_code = hmm.hmm_helper.monomer_names_helper.mon_to_int[
+                emitted_monomer.to_base_mon()
+            ]
+            emission_score = scored_hmm.emissions[edge_to][monomer_code]
         else:
             emitted_monomer = None
             emission_score = 0
 
-        # default values
-        alignment_bgc_module_info = None  # Note: alignment_bgc_module_info can be None even if bgc_module is not None
-        match_detailed_score = 0
+        # Note: a BGC module may be present even when this is not a match step.
+        alignment_bgc_module_info = None
+        match_detailed_score = None
 
         # Matching states: for these match_detailed_score is defined
         if hmm.states[edge_to].state_type in (
@@ -80,15 +95,34 @@ def hmm_path_to_alignment(
             ST.MATCH_POSSIBLE_ASSEMBLY_FINISH,
             ST.MATCH_LAST_MODULE
         ):
-            bgc_module = hmm.bgc_variant.modules[hmm.states[edge_to].related_module_idx]
-            alignment_bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module)
-            match_detailed_score = hmm.hmm_helper.normalized_match_detailed_score(bgc_module,
-                                                                                  emitted_monomer.to_base_mon(),
-                                                                                  hmm.bgc_variant.has_pks_domains())
+            module_idx = hmm.states[edge_to].related_module_idx
+            assert module_idx is not None
+            assert emitted_monomer is not None
+
+            bgc_module = hmm.bgc_variant.modules[module_idx]
+            alignment_bgc_module_info = (
+                AlignmentStep_BGC_Module_Info.from_bgc_module(
+                    bgc_module
+                )
+            )
+            match_detailed_score = (
+                hmm.hmm_helper.match_log_odds_components(
+                    bgc_module,
+                    emitted_monomer.to_base_mon(),
+                    hmm.bgc_variant.has_pks_domains(),
+                )
+            )
 
         if edge.edge_type == ET.SKIP_MODULE:
-            bgc_module = hmm.bgc_variant.modules[hmm.states[edge_from].related_module_idx]  # careful! edge_from used here
-            alignment_bgc_module_info = AlignmentStep_BGC_Module_Info.from_bgc_module(bgc_module)
+            # SKIP_MODULE belongs to the module at edge_from.
+            module_idx = hmm.states[edge_from].related_module_idx
+            assert module_idx is not None
+            bgc_module = hmm.bgc_variant.modules[module_idx]
+            alignment_bgc_module_info = (
+                AlignmentStep_BGC_Module_Info.from_bgc_module(
+                    bgc_module
+                )
+            )
 
         alignment.append(
             AlignmentStep(

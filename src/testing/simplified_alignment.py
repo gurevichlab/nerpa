@@ -4,7 +4,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import yaml
-from itertools import chain, product, permutations, zip_longest
+from itertools import chain, zip_longest
 from typing import Optional, Tuple, List, NamedTuple, Iterable
 
 from more_itertools import peekable
@@ -17,7 +17,7 @@ from src.hmm.detailed_hmm import DetailedHMM
 #from src.matching.detailed_hmm import DetailedHMM
 from src.matching.match_type import Match
 from src.monomer_names_helper.monomer_names_helper import NorineMonomerName
-from src.rban_parsing.get_linearizations import generate_linearizations_uniq
+from src.rban_parsing.get_linearizations import generate_linearizations_no_fragmentation
 from src.rban_parsing.nrp_variant_types import NRP_Variant
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rban_name_no_unk_idx
 from src.rban_parsing.rban_parser import Parsed_rBAN_Record
@@ -262,14 +262,32 @@ def split_into_bgc_iterations(
 
 
 class StepWithIndexes(NamedTuple):
+    """Indexes resolved for one curated alignment step.
+
+    ``None`` retains the corresponding skip recorded by the curated
+    alignment: no module for an NRP insertion, or no monomer for a skipped
+    module.
+    """
+
     module_idx: Optional[int]
     monomer_idx: Optional[int]
+
 
 def make_alignment_with_indexes(
         simplified_alignment: SimplifiedAlignment,
         module_idxs_in_bgc: dict[A_Domain_ID, int],
         matched_mon_idxs: List[int]
 ) -> List[StepWithIndexes]:
+    """Replace curated identifiers and names with indexes into concrete inputs.
+
+    ``SimplifiedAlignment`` stores stable A-domain identifiers and monomer
+    names rather than indexes. ``matched_mon_idxs`` is one possible mapping
+    of its non-null monomer names onto a particular NRP linearization.
+
+    Monomer indexes are consumed only by steps containing a monomer. This
+    preserves explicit module skips and NRP insertions in the curated
+    alignment.
+    """
     alignment_with_indexes = []
     mon_idx_iter = iter(matched_mon_idxs)
     for a_domain_id, rban_name in simplified_alignment:
@@ -280,15 +298,34 @@ def make_alignment_with_indexes(
     return alignment_with_indexes
 
 
-def simplified_alignment_to_light_alignment_one_iter(
+def simplified_alignment_to_light_alignment(
         simplified_alignment: SimplifiedAlignment,
         bgc_variant: BGC_Variant,
         rban_monomers: List[rBAN_Monomer],
         debug: bool = False
 ) -> Iterable[AlignmentLight]:
-    assert len(split_into_bgc_iterations(simplified_alignment)) == 1, \
-        "The provided simplified alignment contains multiple BGC iterations."
+    """Reconstruct full light alignments for one NRP linearization.
 
+    A curated ``SimplifiedAlignment`` is intentionally incomplete and
+    index-independent: it records A-domain identifiers and monomer names, but
+    not the exact monomer occurrences or all skipped modules and monomers.
+    This function maps it onto a concrete BGC variant and NRP linearization.
+
+    Reconstruction proceeds as follows:
+
+    1. Check that the curated A domains can occur in the BGC variant. Repeated
+       A domains are allowed because iteration is represented by HMM
+       transitions.
+    2. Find every occurrence of the curated monomer-name sequence within the
+       concrete NRP linearization. Repeated names can make this ambiguous.
+    3. Convert each possible name mapping to concrete module and monomer
+       indexes.
+    4. Fill gaps between curated steps with module skips and NRP insertions,
+       producing a complete ``AlignmentLight``.
+
+    The function may therefore yield no alignment, one alignment, or several
+    alignments for an ambiguous monomer-name mapping.
+    """
     bgc_aids = [A_Domain_ID.from_module(module) for module in bgc_variant.modules]
     nrp_monomer_names = [rban_name_no_unk_idx(monomer.rban_name)
                          for monomer in rban_monomers]
@@ -305,11 +342,17 @@ def simplified_alignment_to_light_alignment_one_iter(
         print("NRP monomer names:", nrp_monomer_names)
         print("Alignment:\n", simplified_alignment_to_str(simplified_alignment))
 
+    # Ignore repeated uses when checking compatibility with the physical BGC.
+    # The repeated occurrences remain in the alignment and are later realized
+    # by iteration edges in the HMM path.
     if not is_subsequence(list(filter_unique(alignment_aids)),
                           bgc_aids):
         if debug:
             print("Alignment A domain IDs are not a subsequence of BGC A domain IDs. No light alignments can be generated.")
         return
+
+    # Curated alignments contain names rather than rBAN indexes. Find their
+    # possible placements in this particular linearization below.
     if not is_subsequence(list(alignment_monomer_names),
                           nrp_monomer_names):
         if debug:
@@ -324,11 +367,14 @@ def simplified_alignment_to_light_alignment_one_iter(
                                                              module_idxs_in_bgc,
                                                              matched_mon_idxs)
 
+        # Walk through the curated checkpoints and emit anything omitted
+        # between them as module skips or NRP insertions.
         light_alignment = []
         next_module_idx = 0
         next_monomer_idx = 0
         for step_mod_idx, step_mon_idx in alignment_with_indexes + [StepWithIndexes(len(bgc_aids), len(rban_monomers))]:
-            # artificially adding end step to flush remaining modules/monomers
+            # The sentinel checkpoint flushes modules and monomers remaining
+            # after the final curated step.
 
             # prepending modules missing in alignment
             if step_mod_idx is not None:
@@ -364,30 +410,24 @@ def _simplified_alignment_to_light_alignments(
         simplified_alignment: SimplifiedAlignment,
         bgc_variant: BGC_Variant,
         nrp_variant: NRP_Variant,
-        #ambiguity_handling: Literal['any', 'max', 'crash'] = 'crash',
         debug: bool = False
-) -> Iterable[Tuple[AlignmentLight, ...]]:
+) -> Iterable[AlignmentLight]:
+    """Try reconstruction against every complete NRP linearization.
 
-    if nrp_variant.nrp_variant_id.nrp_id == 'BGC0000985.4':
-        pass
-    alignments = split_into_bgc_iterations(simplified_alignment)
-    nrp_linearizations_iter = generate_linearizations_uniq(nrp_variant,
-                                                           num_fragment_groups=len(alignments))
+    Paths and cycles in an NRP variant can have several valid orientations and
+    orderings. Each resulting full linearization is tested independently.
 
-    for linearizations in nrp_linearizations_iter:
-        # match each alignment to corresponding linearization
-        for perm_linearizations in permutations(linearizations):
-            alignments_per_linearizations: Tuple[Iterable[AlignmentLight], ...] = tuple(
-                simplified_alignment_to_light_alignment_one_iter(
-                    alignment,
-                    bgc_variant,
-                    linearization,
-                    debug=debug
-                )
-                for alignment, linearization in zip(alignments, perm_linearizations)
-            )
-
-            yield from product(*alignments_per_linearizations)
+    BGC iterations do not split either the alignment or the NRP into groups.
+    They remain repeated A-domain occurrences in one alignment and are
+    represented later by iteration transitions in the HMM path.
+    """
+    for linearization in generate_linearizations_no_fragmentation(nrp_variant):
+        yield from simplified_alignment_to_light_alignment(
+            simplified_alignment,
+            bgc_variant,
+            linearization,
+            debug=debug
+        )
 
 
 def simplified_alignment_to_light_alignments(
@@ -395,23 +435,24 @@ def simplified_alignment_to_light_alignments(
         bgc_variant: BGC_Variant,
         nrp_variant: NRP_Variant,
         debug: bool = False
-        #ambiguity_handling: Literal['any', 'max', 'crash'] = 'crash',
-) -> Iterable[Tuple[AlignmentLight, ...]]:
-    if nrp_variant.nrp_variant_id.nrp_id == 'BGC0001620.2':
-        debug = True
+) -> Iterable[AlignmentLight]:
+    """Return distinct complete reconstructions of a curated alignment.
 
-    def al_step_key(step: AlignmentStepLight) -> tuple:
-        return (
-            step.a_domain_id,
-            step.nrp_monomer.to_base_mon() if step.nrp_monomer is not None else None
-        )
+    Different NRP linearizations or repeated monomer names can produce the
+    same semantic alignment. Results are deduplicated by A-domain identity and
+    base monomer identity so downstream training does not treat equivalent
+    reconstructions as separate alternatives.
+    """
 
-    def alignments_key(alignments: Tuple[AlignmentLight, ...]) -> tuple:
+    def alignment_key(alignment: AlignmentLight) -> tuple:
         return tuple(
-            sorted(
-                tuple(al_step_key(step) for step in alignment)
-                for alignment in alignments
+            (
+                step.a_domain_id,
+                step.nrp_monomer.to_base_mon()
+                if step.nrp_monomer is not None
+                else None
             )
+            for step in alignment
         )
 
     return filter_unique(
@@ -421,7 +462,7 @@ def simplified_alignment_to_light_alignments(
             nrp_variant,
             debug=debug
         ),
-        key=alignments_key
+        key=alignment_key
     )
 
 

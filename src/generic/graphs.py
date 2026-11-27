@@ -8,6 +8,7 @@ from typing import (
     Tuple,
     Union, Callable, Hashable, Generic
 )
+import logging
 import networkx as nx
 import copy
 from itertools import chain, permutations, pairwise
@@ -57,9 +58,12 @@ class BackboneSequence(NamedTuple):
     is_cyclic: bool = False
 
 
-def putative_backbones(G_: nx.DiGraph,
-                       min_nodes: int = None,
-                       compound_id: str = 'NA') -> List[BackboneSequence]:
+def putative_backbones(
+        G_: nx.DiGraph,
+        min_nodes: int = None,
+        compound_id: str = 'NA',
+        logger: Optional[logging.Logger] = None,
+) -> List[BackboneSequence]:
     ''' Tries to parse each component of G either as a simple cycle or as a hamiltonian path '''
     G = copy.deepcopy(G_)  # there's no need for this but modifying an argument makes me anxious
     breakage_points = [node for node in G.nodes()
@@ -83,9 +87,11 @@ def putative_backbones(G_: nx.DiGraph,
                                                        is_cyclic=True))
         else:
             ham_paths = list(filter(None, (hamiltonian_path(Gs, u) for u in Gs)))
-            if len(ham_paths) > 1:
-                print(f'WARNING! Multiple hamiltonian paths found for compound {compound_id}.'
-                      ' Proceeding with the first one')
+            if len(ham_paths) > 1 and logger is not None:
+                logger.info(
+                    f'Multiple Hamiltonian paths found for compound '
+                    f'{compound_id}. Proceeding with the first one.'
+                )
                 #raise ValueError('Multiple hamiltonian paths found')  # TODO: handle this case
             if ham_paths:
                 backbone_sequences.append(BackboneSequence(node_idxs=ham_paths[0]))

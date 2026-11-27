@@ -19,7 +19,12 @@ from src.antismash_parsing.genomic_context import (
 )
 from src.generic.numeric import safe_log
 from src.hmm.hmm_auxiliary_types import DetailedHMMEdgeType, DetailedHMMStateType
-from src.matching.alignment_step_type import MatchDetailedScore
+from src.hmm.hmm_scoring_types import (
+    LogProbScoreComponents,
+    ScoreComponentProbabilities,
+    ScoringScheme,
+    ScoringSchemeName,
+)
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -30,7 +35,8 @@ from src.monomer_names_helper.monomer_names_helper import (
     NRP_Monomer,
     NerpaResidue,
     MonomerNamesHelper,
-    MonomersDefaultFrequencies
+    MonomersDefaultFrequencies,
+    UNKNOWN_RESIDUE,
 )
 from src.training.hmm_parameters.norine_monomers_info import NorineMonomersInfo
 from src.training.hmm_parameters.emission_probabilities.modifications_schema import (
@@ -127,20 +133,37 @@ def load_chirality_score(
 import math
 from src.generic.numeric import clamp
 
-def load_edge_weight_params(cfg: dict) -> Dict[ST, Dict[ModuleGenomicContext, Dict[ET, LogProb]]]:
-    edge_weights_cfg = pl.read_csv(cfg['edge_weight_parameters'], separator='\t')
-    ET = DetailedHMMEdgeType
-    MGF = ModuleGenomicContextFeature
+def load_edge_weight_params(
+        cfg: dict,
+) -> Dict[
+    DetailedHMMStateType,
+    Dict[
+        ModuleGenomicContext,
+        Dict[DetailedHMMEdgeType, LogProb],
+    ],
+]:
+    edge_weights_cfg = pl.read_csv(
+        cfg["edge_weight_parameters"],
+        separator="\t",
+    )
     min_allowed_log_prob = -3  # a quick fix because I am too lazy to update training right now
     max_allowed_log_prob = math.log(1 - math.e ** min_allowed_log_prob)
 
-    parsed_data: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
-        defaultdict(lambda: defaultdict(dict))
-    )
+    parsed_data: Dict[
+        DetailedHMMStateType,
+        Dict[
+            ModuleGenomicContext,
+            Dict[DetailedHMMEdgeType, LogProb],
+        ],
+    ] = defaultdict(lambda: defaultdict(dict))
+
     for row in edge_weights_cfg.iter_rows(named=True):
-        state_type = ST[row["STATE"]]
-        edge_type = ET[row["EDGE_TYPE"]]
-        gc = frozenset(MGF[feature_str] for feature_str in eval(row["RELEVANT_GC"]))
+        state_type = DetailedHMMStateType[row["STATE"]]
+        edge_type = DetailedHMMEdgeType[row["EDGE_TYPE"]]
+        gc = frozenset(
+            ModuleGenomicContextFeature[feature_str]
+            for feature_str in eval(row["RELEVANT_GC"])
+        )
 
         prob: float = row["PROB"]
         match prob:
@@ -160,25 +183,59 @@ def load_edge_weight_params(cfg: dict) -> Dict[ST, Dict[ModuleGenomicContext, Di
     return parsed_data
 
 
-def compute_monomers_default_detailed_score(
-        paras_default_residue_freqs: Dict[NerpaResidue, Prob],
+def compute_average_bgc_probabilities(
+        average_bgc_residue_probs: Dict[NerpaResidue, Prob],
         methylation_score: Dict[MethylationMatch, LogProb],
         chirality_score: Dict[ChiralityMatch, LogProb],
         methylation_freq: Prob,
         epimerization_freq: Prob
-) -> Dict[NRP_Monomer, MatchDetailedScore]:
-    monomer_default_score = {}
-    for residue, residue_freq in paras_default_residue_freqs.items():
+) -> Dict[NRP_Monomer, ScoreComponentProbabilities]:
+    average_bgc_probabilities: Dict[
+        NRP_Monomer,
+        ScoreComponentProbabilities,
+    ] = {}
+    for residue, residue_freq in average_bgc_residue_probs.items():
         for nrp_meth in (False, True):
             for nrp_chr in Chirality:
-                residue_score = safe_log(residue_freq)
-                default_methylation_score = (
-                    methylation_freq * methylation_score[MethylationMatch(bgc_meth=True, nrp_meth=nrp_meth)]
-                    + (1 - methylation_freq) * methylation_score[MethylationMatch(bgc_meth=False, nrp_meth=nrp_meth)]
+                methylation_prob = (
+                    methylation_freq
+                    * math.exp(
+                        methylation_score[
+                            MethylationMatch(
+                                bgc_meth=True,
+                                nrp_meth=nrp_meth,
+                            )
+                        ]
+                    )
+                    + (1 - methylation_freq)
+                    * math.exp(
+                        methylation_score[
+                            MethylationMatch(
+                                bgc_meth=False,
+                                nrp_meth=nrp_meth,
+                            )
+                        ]
+                    )
                 )
-                default_chirality_score = (
-                    epimerization_freq * chirality_score[ChiralityMatch(bgc_epim=True, nrp_chr=nrp_chr)]
-                    + (1 - epimerization_freq) * chirality_score[ChiralityMatch(bgc_epim=False, nrp_chr=nrp_chr)]
+                chirality_prob = (
+                    epimerization_freq
+                    * math.exp(
+                        chirality_score[
+                            ChiralityMatch(
+                                bgc_epim=True,
+                                nrp_chr=nrp_chr,
+                            )
+                        ]
+                    )
+                    + (1 - epimerization_freq)
+                    * math.exp(
+                        chirality_score[
+                            ChiralityMatch(
+                                bgc_epim=False,
+                                nrp_chr=nrp_chr,
+                            )
+                        ]
+                    )
                 )
 
                 monomer = NRP_Monomer(
@@ -186,13 +243,15 @@ def compute_monomers_default_detailed_score(
                     methylated=nrp_meth,
                     chirality=nrp_chr
                 )
-                monomer_default_score[monomer] = MatchDetailedScore(
-                    residue_score,
-                    default_methylation_score,
-                    default_chirality_score
+                average_bgc_probabilities[monomer] = (
+                    ScoreComponentProbabilities(
+                        residue=residue_freq,
+                        methylation=methylation_prob,
+                        chirality=chirality_prob,
+                    )
                 )
 
-    return monomer_default_score
+    return average_bgc_probabilities
 
 
 def load_paras_avg_residue_scores(
@@ -248,15 +307,19 @@ def load_paras_avg_residue_scores(
 class HMMScoringConfig:
     methylation_score: Dict[MethylationMatch, LogProb]
     chirality_score: Dict[ChiralityMatch, LogProb]
+    scoring_schemes: Dict[ScoringSchemeName, ScoringScheme]
 
-    edge_weight_parameters: Dict[ST, Dict[GC, Dict[ET, LogProb]]]
-
-    # the score of a monomer averaged over all BGC modules from MIBiG
-    # used for normalization
-    monomer_avg_detailed_score: Dict[NRP_Monomer, MatchDetailedScore]
+    edge_weight_parameters: Dict[
+        DetailedHMMStateType,
+        Dict[
+            ModuleGenomicContext,
+            Dict[DetailedHMMEdgeType, LogProb],
+        ],
+    ]
 
     # probability that an inserted monomer has unknown residue
     insert_unknown_freq: Prob
+    insert_residue_probabilities: Dict[NerpaResidue, Prob]
 
     # residue frequencies estimated from the Norine database
     norine_residue_freqs: Dict[NerpaResidue, Prob]
@@ -286,21 +349,33 @@ class HMMScoringConfig:
         )
 
         paras_prediction_tsv: Path = nerpa_dir / cfg['paras_predictions_table']
-        paras_avg_residue_scores: Dict[NerpaResidue, Prob] = (
+        average_bgc_residue_probs: Dict[NerpaResidue, Prob] = (
             load_paras_avg_residue_scores(
                 paras_prediction_tsv,
                 specificity_prediction_helper,
             )
         )
-        self.monomer_avg_detailed_score: Dict[NRP_Monomer, MatchDetailedScore] = (
-            compute_monomers_default_detailed_score(
-                paras_default_residue_freqs=paras_avg_residue_scores,
-                methylation_freq=cfg['emission_parameters']['mibig_methylation_freq'],
-                epimerization_freq=cfg['emission_parameters']['mibig_epimerization_freq'],
-                methylation_score=self.methylation_score,
-                chirality_score=self.chirality_score
-            )
+        average_bgc_probabilities = compute_average_bgc_probabilities(
+            average_bgc_residue_probs=average_bgc_residue_probs,
+            methylation_freq=cfg["emission_parameters"]["mibig_methylation_freq"],
+            epimerization_freq=cfg["emission_parameters"]["mibig_epimerization_freq"],
+            methylation_score=self.methylation_score,
+            chirality_score=self.chirality_score,
         )
+        self.scoring_schemes = {
+            ScoringSchemeName.LOG_PROBS: ScoringScheme(
+                include_chirality=True,
+                background_probabilities=None,
+            ),
+            ScoringSchemeName.NERPA: ScoringScheme(
+                include_chirality=True,
+                background_probabilities=average_bgc_probabilities,
+            ),
+            ScoringSchemeName.NERPA_MS: ScoringScheme(
+                include_chirality=False,
+                background_probabilities=average_bgc_probabilities,
+            ),
+        }
 
         monomer_names_helper: MonomerNamesHelper = (
             specificity_prediction_helper.monomer_names_helper
@@ -314,8 +389,41 @@ class HMMScoringConfig:
         self.norine_mods_freqs: Dict[MODIFICATION_TYPE, Prob] = (
             norine_monomers_info.modification_frequencies()
         )
-        self.insert_unknown_freq: Prob = cfg['emission_parameters']['insert_unknown_freq']
-        self.edge_weight_parameters: Dict[ST, Dict[GC, Dict[ET, LogProb]]] = (
-            load_edge_weight_params(cfg)
+        self.insert_unknown_freq = Prob(
+            cfg["emission_parameters"]["insert_unknown_freq"]
         )
+        insert_residue_scale = (
+            (1 - self.insert_unknown_freq)
+            / (1 - self.norine_residue_freqs[UNKNOWN_RESIDUE])
+        )
+        self.insert_residue_probabilities = {
+            residue: probability * insert_residue_scale
+            for residue, probability in self.norine_residue_freqs.items()
+        }
+        self.insert_residue_probabilities[UNKNOWN_RESIDUE] = (
+            self.insert_unknown_freq
+        )
+
+        assert math.isclose(
+            sum(self.insert_residue_probabilities.values()),
+            1.0,
+        )
+
+        monomer_residues = {
+            monomer.residue
+            for monomer in monomer_names_helper.mon_to_int
+        }
+        assert (
+            set(self.insert_residue_probabilities) == monomer_residues
+        ), (
+            "Insertion residue probabilities do not match the monomer "
+            "alphabet.\n"
+            "Probably some Nerpa residues are missing in Norine.\n"
+            f"insert - alphabet: "
+            f"{set(self.insert_residue_probabilities) - monomer_residues}\n"
+            f"alphabet - insert: "
+            f"{monomer_residues - set(self.insert_residue_probabilities)}"
+        )
+
+        self.edge_weight_parameters = load_edge_weight_params(cfg)
 

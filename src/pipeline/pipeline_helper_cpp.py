@@ -15,7 +15,7 @@ from src.antismash_parsing.bgc_variant_types import (
 from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper
 
 from src.hmm.detailed_hmm import DetailedHMM
-from src.hmm.hmm_scoring_helper import ScoringScheme
+from src.hmm.hmm_scoring_types import ScoringSchemeName
 
 from src.rban_parsing.get_linearizations import NRP_Linearizations
 from src.generic.other import json_round_floats, json_remove_infinities
@@ -50,7 +50,7 @@ class PipelineHelperCpp:
             self,
             detailed_hmms: List[DetailedHMM],
             out_file: Path,
-            scoring_scheme: ScoringScheme = ScoringScheme.NERPA,
+            scoring_scheme: ScoringSchemeName = ScoringSchemeName.LOG_PROBS,
     ):
         data = [
             (detailed_hmm
@@ -71,14 +71,18 @@ class PipelineHelperCpp:
         return out_file
 
 
-    def dump_nrp_linearizations(self,
-                                nrp_linearizations: List[NRP_Linearizations],
-                                any_hmm: DetailedHMM) -> Path:
+    def dump_nrp_linearizations(
+            self,
+            nrp_linearizations: List[NRP_Linearizations],
+    ) -> Path:
         out_file = self.config.output_config.cpp_io_config.nrp_linearizations_json
         out_file.parent.mkdir(parents=True, exist_ok=True)
-        # need any_hmm for default monomer frequencies
-        data = [nrp_linearization.to_mon_codes_json(self.monomer_names_helper, any_hmm)
-                for nrp_linearization in nrp_linearizations]
+        data = [
+            nrp_linearization.to_mon_codes_json(
+                self.monomer_names_helper
+            )
+            for nrp_linearization in nrp_linearizations
+        ]
 
         #pretty_json = reformat_json(json.dumps(data))
         pretty_json = json.dumps(data)
@@ -138,14 +142,16 @@ class PipelineHelperCpp:
         hmms_nerpa_ms_json = self.config.output_config.hmms_nerpa_ms_json
         self.dump_hmms(
             detailed_hmms,
-            scoring_scheme=ScoringScheme.NERPA,
+            scoring_scheme=ScoringSchemeName.NERPA,
             out_file=hmms_json
         )
         self.dump_hmms(
             detailed_hmms,
-            scoring_scheme=ScoringScheme.NERPA_MS,
+            scoring_scheme=ScoringSchemeName.NERPA_MS,
             out_file=hmms_nerpa_ms_json
         )
-        nrp_linearizations_json = self.dump_nrp_linearizations(nrp_linearizations, detailed_hmms[0])
+        nrp_linearizations_json = self.dump_nrp_linearizations(
+            nrp_linearizations
+        )
         return self.run_cpp_matcher(hmms_json, nrp_linearizations_json)
 

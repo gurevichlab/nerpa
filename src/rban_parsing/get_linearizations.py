@@ -4,12 +4,9 @@ from typing import (
     Tuple,
     Optional,
     Iterable,
-    TYPE_CHECKING
 )
 
 from src.rban_parsing.nrp_variant_types import NRP_Variant, NRP_Fragment
-if TYPE_CHECKING:
-    from src.hmm.detailed_hmm import DetailedHMM
 from src.monomer_names_helper.monomer_names_helper import MonomerNamesHelper, MonCode, NRP_Monomer
 from src.rban_parsing.rban_monomer import rBAN_Monomer, rBAN_idx
 from src.generic.combinatorics import split_sequence_subseqs, filter_unique
@@ -34,18 +31,26 @@ class NRP_Linearizations(NamedTuple):
     # linearizations of all group members -> List[List[Linearization]]
     # linearizations of all groups -> List[List[List[Linearization]]]
 
-    def to_mon_codes_json(self,
-                          monomer_names_helper: MonomerNamesHelper,
-                          any_hmm: Optional['DetailedHMM'] = None) -> dict:  # any_hmm is a stub to compute score_vs_avg_bgc. TODO: refactor
+    def to_mon_codes_json(
+            self,
+            monomer_names_helper: MonomerNamesHelper,
+    ) -> dict:
         return {
-            'nrp_id': self.nrp_id,
-            'non_iterative': [to_mon_codes(linearization, monomer_names_helper)
-                              for linearization in self.non_iterative],
-            'iterative': [[[to_mon_codes(linearization, monomer_names_helper)
-                           for linearization in group]
-                           for group in split]
-                          for split in self.iterative],
-            'score_vs_avg_bgc': any_hmm.score_vs_avg_bgc(self.non_iterative[0])
+            "nrp_id": self.nrp_id,
+            "non_iterative": [
+                to_mon_codes(linearization, monomer_names_helper)
+                for linearization in self.non_iterative
+            ],
+            "iterative": [
+                [
+                    [
+                        to_mon_codes(linearization, monomer_names_helper)
+                        for linearization in group
+                    ]
+                    for group in split
+                ]
+                for split in self.iterative
+            ],
         }
 
 

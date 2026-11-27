@@ -37,7 +37,7 @@ from src.pipeline.pipeline_helper_rban import PipelineHelper_rBAN
 from src.rban_parsing.nrp_variant_types import NRP_Variants_Info
 from src.pipeline.pipeline_helper_cpp import PipelineHelperCpp
 from src.hmm.hmm_scoring_config import HMMScoringConfig
-from src.hmm.hmm_scoring_helper import HMMHelper
+from src.hmm.hmm_scoring_helper import HMMScoringHelper
 import src.build_output.write_results as write_results
 
 import shutil
@@ -60,7 +60,7 @@ class PipelineHelper:
     args: CommandLineArgs
     log: NerpaLogger
     monomer_names_helper: MonomerNamesHelper
-    hmm_helper: HMMHelper
+    hmm_helper: HMMScoringHelper
     pipeline_helper_rban: PipelineHelper_rBAN
     pipeline_helper_antismash: PipelineHelper_antiSMASH
     pipeline_helper_cpp: PipelineHelperCpp
@@ -137,7 +137,10 @@ class PipelineHelper:
             self.specificity_prediction_helper,
             norine_monomers_info
         )
-        self.hmm_helper = HMMHelper(hmm_scoring_config, self.monomer_names_helper)
+        self.hmm_helper = HMMScoringHelper(
+            hmm_scoring_config,
+            self.monomer_names_helper,
+        )
 
         self.pipeline_helper_rban = PipelineHelper_rBAN(
             self.config,

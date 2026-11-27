@@ -17,6 +17,7 @@ from src.monomer_names_helper.monomer_names_helper import (
 )
 from src.rban_parsing.rban_monomer import rBAN_Monomer
 from src.hmm.hmm_auxiliary_types import DetailedHMMEdgeType
+from src.hmm.hmm_scoring_types import LogOddsScoreComponents
 from collections import OrderedDict
 from dataclasses import dataclass
 
@@ -42,26 +43,12 @@ class AlignmentStep_BGC_Module_Info(NamedTuple):
                    aa10_code=bgc_module.aa10_code,
                    aa34_code=bgc_module.aa34_code)
 
-
-class MatchDetailedScore(NamedTuple):
-    residue_score: LogProb
-    methylation_score: LogProb
-    chirality_score: LogProb
-
-    def total_score(self) -> LogProb:
-        return (
-            self.residue_score
-            + self.methylation_score
-            + self.chirality_score
-        )
-
-
 @dataclass
 class AlignmentStep:
     bgc_module: Optional[AlignmentStep_BGC_Module_Info]
     nrp_monomer: Optional[rBAN_Monomer]
     score: LogProb
-    match_detailed_score: Optional[MatchDetailedScore]  # only for MATCH, sum(match_detailed_score) == score
+    match_detailed_score: Optional[LogOddsScoreComponents]
     step_type: Optional[DetailedHMMEdgeType]  # optional for backward compatibility -- when reading old alignments with different step types
 
     NA = '---'
@@ -139,9 +126,11 @@ class AlignmentStep:
             if data['Alignment_step'] in DetailedHMMEdgeType.__members__ else None  # for backward compatibility
         if step_type == DetailedHMMEdgeType.MATCH:
             try:
-                match_detailed_score = MatchDetailedScore(residue_score=float(data['ResidueScore']),
-                                                          methylation_score=float(data['MethylationScore']),
-                                                          chirality_score=float(data['ChiralityScore']))
+                match_detailed_score = LogOddsScoreComponents(
+                    residue_score=float(data["ResidueScore"]),
+                    methylation_score=float(data["MethylationScore"]),
+                    chirality_score=float(data["ChiralityScore"]),
+                )
             except:
                 match_detailed_score = None  # for backward compatibility
         else:

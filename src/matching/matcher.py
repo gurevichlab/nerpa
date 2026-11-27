@@ -40,6 +40,7 @@ def join_hmm_matches(hmm_matches: List[HMM_Match]) -> HMM_Match:
                      for hmm_match in hmm_matches
                      for opt_path in hmm_match.optimal_paths]
     return HMM_Match(score=score,
+                     hmm_score=score,
                      score_vs_avg_nrp=score_vs_avg_nrp,
                      score_vs_avg_bgc=score_vs_avg_bgc,
                      bgc_variant_id=bgc_variant_id,
@@ -60,6 +61,7 @@ def get_best_match_for_nrp(hmm: HMM_LPUC,
         score_vs_avg_bgc = detailed_hmm.score_vs_avg_bgc(linearization)
         score_vs_avg_nrp = detailed_hmm.score_vs_avg_nrp()
         return HMM_Match(score=score,
+                         hmm_score=score,
                          score_vs_avg_nrp=score_vs_avg_nrp,
                          score_vs_avg_bgc=score_vs_avg_bgc,
                          bgc_variant_id=detailed_hmm.bgc_variant.bgc_variant_id,
